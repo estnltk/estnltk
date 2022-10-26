@@ -1,0 +1,461 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Experimental NP chunking &mdash; estnltk 1.4.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="estnltk 1.4.1 documentation" href="../index.html"/>
+        <link rel="up" title="Estnltk tutorials" href="index.html"/>
+        <link rel="next" title="Dependency syntactic analysis" href="dependency_syntax.html"/>
+        <link rel="prev" title="Simple grammars for information extraction" href="grammar.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> estnltk
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.4.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Estnltk tutorials</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="text.html">Basic Text class operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wikipedia.html">Wikipedia tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="elasticsearch.html">Elasticsearch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="disambiguation.html">Disambiguation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="grammar.html">Grammars</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Noun-phrase chunker</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#basic-usage">Basic usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cutting-phrases">Cutting phrases</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#using-a-custom-syntactic-parser">Using a custom syntactic parser</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="dependency_syntax.html">Dependency_syntax</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ner.html">Name-Entity Recognition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="prettyprinter.html">Prettyprinter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="terminalprettyprinter.html">Terminal prettyprinter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tei.html">Working with Koondkorpus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="morphology_tables.html">Morphological annotation tables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="devel.html">Developer readme</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../external/index.html">Other tools</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html">API documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../authors.html">Authors</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">estnltk</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="index.html">Estnltk tutorials</a> &raquo;</li>
+      
+    <li>Experimental NP chunking</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/tutorials/np_chunker.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="experimental-np-chunking">
+<h1>Experimental NP chunking<a class="headerlink" href="#experimental-np-chunking" title="Permalink to this headline">¶</a></h1>
+<p>Estnltk includes an experimental noun phrase chunker, which can be used
+to detect non-overlapping noun phrases from the text.</p>
+<div class="section" id="basic-usage">
+<h2>Basic usage<a class="headerlink" href="#basic-usage" title="Permalink to this headline">¶</a></h2>
+<p>The class <strong>NounPhraseChunker</strong> provides method <strong>analyze_text()</strong>,
+which takes a <strong>Text</strong> object as an input, detects potential noun
+phrases, and stores in the layer <code class="docutils literal"><span class="pre">NOUN_CHUNKS</span></code>:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="c1"># TODO: check if works on devel</span>
+
+<span class="kn">from</span> <span class="nn">estnltk</span> <span class="k">import</span> <span class="n">Text</span>
+<span class="kn">from</span> <span class="nn">estnltk.np_chunker</span> <span class="k">import</span> <span class="n">NounPhraseChunker</span>
+<span class="kn">from</span> <span class="nn">estnltk.names</span> <span class="k">import</span> <span class="n">TEXT</span><span class="p">,</span> <span class="n">NOUN_CHUNKS</span>
+<span class="kn">from</span> <span class="nn">pprint</span> <span class="k">import</span> <span class="n">pprint</span>
+
+<span class="c1"># initialise the chunker</span>
+<span class="n">chunker</span> <span class="o">=</span> <span class="n">NounPhraseChunker</span><span class="p">()</span>
+
+<span class="n">text</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s1">&#39;Suur karvane kass nurrus punasel diivanil, väike hiir aga hiilis temast mööda.&#39;</span><span class="p">)</span>
+<span class="c1"># chunk the input text</span>
+<span class="n">text</span> <span class="o">=</span> <span class="n">chunker</span><span class="o">.</span><span class="n">analyze_text</span><span class="p">(</span> <span class="n">text</span> <span class="p">)</span>
+
+<span class="c1"># output the results (found phrases)</span>
+<span class="n">pprint</span><span class="p">(</span> <span class="n">text</span><span class="p">[</span><span class="n">NOUN_CHUNKS</span><span class="p">]</span> <span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">---------------------------------------------------------------------------</span>
+
+<span class="ne">ImportError</span>                               <span class="n">Traceback</span> <span class="p">(</span><span class="n">most</span> <span class="n">recent</span> <span class="n">call</span> <span class="n">last</span><span class="p">)</span>
+
+<span class="o">&lt;</span><span class="n">ipython</span><span class="o">-</span><span class="nb">input</span><span class="o">-</span><span class="mi">1</span><span class="o">-</span><span class="mi">1533</span><span class="n">f62602b5</span><span class="o">&gt;</span> <span class="ow">in</span> <span class="o">&lt;</span><span class="n">module</span><span class="o">&gt;</span><span class="p">()</span>
+      <span class="mi">3</span> <span class="kn">from</span> <span class="nn">estnltk</span> <span class="k">import</span> <span class="n">Text</span>
+      <span class="mi">4</span> <span class="kn">from</span> <span class="nn">estnltk.np_chunker</span> <span class="k">import</span> <span class="n">NounPhraseChunker</span>
+<span class="o">----&gt;</span> <span class="mi">5</span> <span class="kn">from</span> <span class="nn">estnltk.names</span> <span class="k">import</span> <span class="n">TEXT</span><span class="p">,</span> <span class="n">NOUN_CHUNKS</span>
+      <span class="mi">6</span> <span class="kn">from</span> <span class="nn">pprint</span> <span class="k">import</span> <span class="n">pprint</span>
+      <span class="mi">7</span>
+
+
+<span class="ne">ImportError</span><span class="p">:</span> <span class="n">cannot</span> <span class="kn">import</span> <span class="nn">name</span> <span class="s1">&#39;NOUN_CHUNKS&#39;</span>
+</pre></div>
+</div>
+<p>By default, the method
+:py~estnltk.np_chunker.NounPhraseChunker.analyze_text returns the
+input text. The keyword argument <code class="docutils literal"><span class="pre">return_type</span></code> can be used to change
+the type of data returned. If <code class="docutils literal"><span class="pre">return_type='labels'</span></code>, the method
+returns results of chunking in a BIO annotation scheme:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="c1"># TODO: check if works on devel</span>
+
+<span class="kn">from</span> <span class="nn">estnltk</span> <span class="k">import</span> <span class="n">Text</span>
+<span class="kn">from</span> <span class="nn">estnltk.np_chunker</span> <span class="k">import</span> <span class="n">NounPhraseChunker</span>
+<span class="kn">from</span> <span class="nn">estnltk.names</span> <span class="k">import</span> <span class="n">TEXT</span>
+
+<span class="c1"># initialise the chunker</span>
+<span class="n">chunker</span> <span class="o">=</span> <span class="n">NounPhraseChunker</span><span class="p">()</span>
+
+<span class="n">text</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s1">&#39;Suur karvane kass nurrus punasel diivanil, väike hiir aga hiilis temast mööda.&#39;</span><span class="p">)</span>
+
+<span class="c1"># chunk the input text, get the results in BIO annotation format</span>
+<span class="n">np_labels</span> <span class="o">=</span> <span class="n">chunker</span><span class="o">.</span><span class="n">analyze_text</span><span class="p">(</span> <span class="n">text</span><span class="p">,</span> <span class="n">return_type</span><span class="o">=</span><span class="s1">&#39;labels&#39;</span> <span class="p">)</span>
+
+<span class="c1"># output results of the chunking in BIO annotation format</span>
+<span class="k">for</span> <span class="n">word</span><span class="p">,</span> <span class="n">np_label</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">words</span><span class="p">,</span> <span class="n">np_labels</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span> <span class="n">word</span><span class="p">[</span><span class="n">TEXT</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;  &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">np_label</span><span class="p">)</span> <span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">---------------------------------------------------------------------------</span>
+
+<span class="ne">Exception</span>                                 <span class="n">Traceback</span> <span class="p">(</span><span class="n">most</span> <span class="n">recent</span> <span class="n">call</span> <span class="n">last</span><span class="p">)</span>
+
+<span class="o">&lt;</span><span class="n">ipython</span><span class="o">-</span><span class="nb">input</span><span class="o">-</span><span class="mi">2</span><span class="o">-</span><span class="mi">428</span><span class="n">b19369789</span><span class="o">&gt;</span> <span class="ow">in</span> <span class="o">&lt;</span><span class="n">module</span><span class="o">&gt;</span><span class="p">()</span>
+     <span class="mi">11</span>
+     <span class="mi">12</span> <span class="c1"># chunk the input text, get the results in BIO annotation format</span>
+<span class="o">---&gt;</span> <span class="mi">13</span> <span class="n">np_labels</span> <span class="o">=</span> <span class="n">chunker</span><span class="o">.</span><span class="n">analyze_text</span><span class="p">(</span> <span class="n">text</span><span class="p">,</span> <span class="n">return_type</span><span class="o">=</span><span class="s1">&#39;labels&#39;</span> <span class="p">)</span>
+     <span class="mi">14</span>
+     <span class="mi">15</span> <span class="c1"># output results of the chunking in BIO annotation format</span>
+
+
+<span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">dage</span><span class="o">/</span><span class="n">anaconda3</span><span class="o">/</span><span class="n">envs</span><span class="o">/</span><span class="n">working_estnltk</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">python3</span><span class="o">.</span><span class="mi">5</span><span class="o">/</span><span class="n">site</span><span class="o">-</span><span class="n">packages</span><span class="o">/</span><span class="n">estnltk</span><span class="o">/</span><span class="n">np_chunker</span><span class="o">.</span><span class="n">py</span> <span class="ow">in</span> <span class="n">analyze_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="mi">118</span>                     <span class="n">return_type</span> <span class="o">=</span> <span class="n">argVal</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="mi">119</span>                 <span class="k">else</span><span class="p">:</span>
+<span class="o">--&gt;</span> <span class="mi">120</span>                     <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39; Unexpected return type: &#39;</span><span class="p">,</span> <span class="n">argVal</span><span class="p">)</span>
+    <span class="mi">121</span>             <span class="k">else</span><span class="p">:</span>
+    <span class="mi">122</span>                 <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39; Unsupported argument given: &#39;</span><span class="o">+</span><span class="n">argName</span><span class="p">)</span>
+
+
+<span class="ne">Exception</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39; Unexpected return type: &#39;</span><span class="p">,</span> <span class="s1">&#39;labels&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>In the above example, the resulting list <code class="docutils literal"><span class="pre">np_labels</span></code> contains a label
+for each word in the input text, indicating word&#8217;s position in phrase:
+<code class="docutils literal"><span class="pre">&quot;B&quot;</span></code> denotes that the word begins a phrase, <code class="docutils literal"><span class="pre">&quot;I&quot;</span></code> indicates that
+the word is inside a phrase, and <code class="docutils literal"><span class="pre">&quot;O&quot;</span></code> indicates that the word does
+not belong to any noun phrase.</p>
+<p>If the input argument <code class="docutils literal"><span class="pre">return_type=&quot;strings&quot;</span></code> is passed to the method,
+the method returns only results of the chunking as a list of phrase
+strings:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">estnltk</span> <span class="k">import</span> <span class="n">Text</span>
+<span class="kn">from</span> <span class="nn">estnltk.np_chunker</span> <span class="k">import</span> <span class="n">NounPhraseChunker</span>
+
+<span class="c1"># initialise the chunker</span>
+<span class="n">chunker</span> <span class="o">=</span> <span class="n">NounPhraseChunker</span><span class="p">()</span>
+
+<span class="n">text</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s1">&#39;Autojuhi lapitekk pälvis linna koduleheküljel paljude kodanike tähelepanu.&#39;</span><span class="p">)</span>
+<span class="c1"># chunk the input text</span>
+<span class="n">phrase_strings</span> <span class="o">=</span> <span class="n">chunker</span><span class="o">.</span><span class="n">analyze_text</span><span class="p">(</span> <span class="n">text</span><span class="p">,</span> <span class="n">return_type</span><span class="o">=</span><span class="s2">&quot;strings&quot;</span> <span class="p">)</span>
+</pre></div>
+</div>
+<p>The above example produces following output:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span> <span class="n">phrase_strings</span> <span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="s1">&#39;Autojuhi lapitekk&#39;</span><span class="p">,</span> <span class="s1">&#39;linna koduleheküljel&#39;</span><span class="p">,</span> <span class="s1">&#39;paljude kodanike tähelepanu&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>If <code class="docutils literal"><span class="pre">return_type=&quot;tokens&quot;</span></code> is set, the chunker returns a list of lists
+of tokens, where each token is given as a dictonary containing analyses
+of the word:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">estnltk</span> <span class="k">import</span> <span class="n">Text</span>
+<span class="kn">from</span> <span class="nn">estnltk.np_chunker</span> <span class="k">import</span> <span class="n">NounPhraseChunker</span>
+<span class="kn">from</span> <span class="nn">estnltk.names</span> <span class="k">import</span> <span class="n">TEXT</span><span class="p">,</span> <span class="n">ANALYSIS</span><span class="p">,</span> <span class="n">LEMMA</span>
+
+<span class="c1"># initialise the chunker</span>
+<span class="n">chunker</span> <span class="o">=</span> <span class="n">NounPhraseChunker</span><span class="p">()</span>
+
+<span class="n">text</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s1">&#39;Autojuhi lapitekk pälvis linna koduleheküljel paljude kodanike tähelepanu.&#39;</span><span class="p">)</span>
+<span class="c1"># chunk the input text</span>
+<span class="n">phrases</span> <span class="o">=</span> <span class="n">chunker</span><span class="o">.</span><span class="n">analyze_text</span><span class="p">(</span> <span class="n">text</span><span class="p">,</span> <span class="n">return_type</span><span class="o">=</span><span class="s2">&quot;tokens&quot;</span> <span class="p">)</span>
+<span class="c1"># output phrases word by word</span>
+<span class="k">for</span> <span class="n">phrase</span> <span class="ow">in</span> <span class="n">phrases</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">phrase</span><span class="p">:</span>
+        <span class="c1"># output text and first lemma</span>
+        <span class="nb">print</span><span class="p">(</span> <span class="n">token</span><span class="p">[</span><span class="n">TEXT</span><span class="p">],</span> <span class="n">token</span><span class="p">[</span><span class="n">ANALYSIS</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="n">LEMMA</span><span class="p">]</span> <span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">Autojuhi</span> <span class="n">autojuht</span>
+<span class="n">lapitekk</span> <span class="n">lapitekk</span>
+
+<span class="n">linna</span> <span class="n">linn</span>
+<span class="n">koduleheküljel</span> <span class="n">kodulehekülg</span>
+
+<span class="n">paljude</span> <span class="n">palju</span>
+<span class="n">kodanike</span> <span class="n">kodanik</span>
+<span class="n">tähelepanu</span> <span class="n">tähelepanu</span>
+</pre></div>
+</div>
+<p>Note that, regardless the <code class="docutils literal"><span class="pre">return_type</span></code>, the layer <code class="docutils literal"><span class="pre">NOUN_CHUNKS</span></code>
+will always be added to the input Text.</p>
+</div>
+<div class="section" id="cutting-phrases">
+<h2>Cutting phrases<a class="headerlink" href="#cutting-phrases" title="Permalink to this headline">¶</a></h2>
+<p>By default, the chunker does not allow tagging phrases longer than 3
+words, as the quality of tagging longer phrases is likely suboptimal,
+and the coverage of these phrases is also likely low <a class="reference external" href="#ref">[1]</a> .
+So, phrases longer than 3 words will be cut into one word phrases. This
+default setting can be turned off by specifying <code class="docutils literal"><span class="pre">cutPhrases=False</span></code> as
+an input argument for the method <strong>analyze_text()</strong>:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">estnltk</span> <span class="k">import</span> <span class="n">Text</span>
+<span class="kn">from</span> <span class="nn">estnltk.np_chunker</span> <span class="k">import</span> <span class="n">NounPhraseChunker</span>
+
+<span class="c1"># initialise the chunker</span>
+<span class="n">chunker</span> <span class="o">=</span> <span class="n">NounPhraseChunker</span><span class="p">()</span>
+
+<span class="n">text</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s1">&#39;Kõige väiksemate tassidega serviis toodi kusagilt vanast tolmusest kapist välja.&#39;</span><span class="p">)</span>
+
+<span class="c1"># chunk the input text while allowing phrases longer than 3 words</span>
+<span class="n">phrase_strings</span> <span class="o">=</span> <span class="n">chunker</span><span class="o">.</span><span class="n">analyze_text</span><span class="p">(</span> <span class="n">text</span><span class="p">,</span> <span class="n">cutPhrases</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">return_type</span><span class="o">=</span><span class="s2">&quot;strings&quot;</span> <span class="p">)</span>
+</pre></div>
+</div>
+<p>The output is following:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span> <span class="n">phrase_strings</span> <span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="s1">&#39;Kõige väiksemate tassidega serviis&#39;</span><span class="p">,</span> <span class="s1">&#39;vanast tolmusest kapist&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="using-a-custom-syntactic-parser">
+<h2>Using a custom syntactic parser<a class="headerlink" href="#using-a-custom-syntactic-parser" title="Permalink to this headline">¶</a></h2>
+<p>By default, the MaltParser is used for obtaining the syntactic
+annotation, which is used as a basis in the chunking. Using the keyword
+argument <code class="docutils literal"><span class="pre">parser</span></code> in the initialization of the <strong>NounPhraseChunker</strong>,
+you can specify a custom parser to be used during the preprocessing:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="c1"># TODO: check if works on devel</span>
+
+<span class="kn">from</span> <span class="nn">estnltk</span> <span class="k">import</span> <span class="n">Text</span>
+<span class="kn">from</span> <span class="nn">estnltk.np_chunker</span> <span class="k">import</span> <span class="n">NounPhraseChunker</span>
+<span class="kn">from</span> <span class="nn">estnltk.syntax.parsers</span> <span class="k">import</span> <span class="n">VISLCG3Parser</span>
+
+<span class="c1"># initialise the chunker using VISLCG3Parser instead of MaltParser</span>
+<span class="n">chunker</span> <span class="o">=</span> <span class="n">NounPhraseChunker</span><span class="p">(</span> <span class="n">parser</span> <span class="o">=</span> <span class="n">VISLCG3Parser</span><span class="p">()</span> <span class="p">)</span>
+
+<span class="n">text</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s1">&#39;Maril oli väike tall.&#39;</span><span class="p">)</span>
+<span class="c1"># chunk the input text</span>
+<span class="n">text</span> <span class="o">=</span> <span class="n">chunker</span><span class="o">.</span><span class="n">analyze_text</span><span class="p">(</span> <span class="n">text</span> <span class="p">)</span>
+
+<span class="c1"># output the results (found phrases)</span>
+<span class="n">pprint</span><span class="p">(</span> <span class="n">text</span><span class="p">[</span><span class="n">NOUN_CHUNKS</span><span class="p">]</span> <span class="p">)</span>
+
+<span class="p">[{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="s1">&#39;Maril&#39;</span><span class="p">},</span>
+ <span class="p">{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="s1">&#39;väike tall&#39;</span><span class="p">}]</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span>   <span class="o">---------------------------------------------------------------------------</span>
+
+   <span class="ne">ImportError</span>                               <span class="n">Traceback</span> <span class="p">(</span><span class="n">most</span> <span class="n">recent</span> <span class="n">call</span> <span class="n">last</span><span class="p">)</span>
+
+   <span class="o">&lt;</span><span class="n">ipython</span><span class="o">-</span><span class="nb">input</span><span class="o">-</span><span class="mi">8</span><span class="o">-</span><span class="mi">3</span><span class="n">a518af08afb</span><span class="o">&gt;</span> <span class="ow">in</span> <span class="o">&lt;</span><span class="n">module</span><span class="o">&gt;</span><span class="p">()</span>
+         <span class="mi">3</span> <span class="kn">from</span> <span class="nn">estnltk</span> <span class="k">import</span> <span class="n">Text</span>
+         <span class="mi">4</span> <span class="kn">from</span> <span class="nn">estnltk.np_chunker</span> <span class="k">import</span> <span class="n">NounPhraseChunker</span>
+   <span class="o">----&gt;</span> <span class="mi">5</span> <span class="kn">from</span> <span class="nn">estnltk.syntax.parsers</span> <span class="k">import</span> <span class="n">VISLCG3Parser</span>
+         <span class="mi">6</span>
+         <span class="mi">7</span> <span class="c1"># initialise the chunker using VISLCG3Parser instead of MaltParser</span>
+
+
+   <span class="ne">ImportError</span><span class="p">:</span> <span class="n">No</span> <span class="n">module</span> <span class="n">named</span> <span class="s1">&#39;estnltk.syntax.parsers&#39;</span>
+
+
+<span class="o">**</span><span class="n">References</span><span class="o">**</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">that</span> <span class="n">only</span> <span class="mi">3</span><span class="o">%</span> <span class="n">of</span> <span class="nb">all</span> <span class="n">NP</span> <span class="n">chunks</span> <span class="n">are</span> <span class="n">longer</span> <span class="n">than</span> <span class="mi">3</span> <span class="n">words</span><span class="o">.</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="dependency_syntax.html" class="btn btn-neutral float-right" title="Dependency syntactic analysis" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="grammar.html" class="btn btn-neutral" title="Simple grammars for information extraction" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, University of Tartu unless specified otherwise in the file headers.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.4.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

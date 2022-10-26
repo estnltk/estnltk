@@ -1,0 +1,305 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>estnltk.teicorpus module &mdash; estnltk 1.4.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="estnltk 1.4.1 documentation" href="../index.html"/>
+        <link rel="up" title="API documentation" href="index.html"/>
+        <link rel="next" title="estnltk.database.database module" href="database.html"/>
+        <link rel="prev" title="estnltk.core module" href="core.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> estnltk
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.4.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/index.html">Estnltk tutorials</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../external/index.html">Other tools</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">API documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="textcleaner.html">estnltk.textcleaner module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vabamorf.html">estnltk.vabamorf.morf module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="match.html">estnltk.grammar.match module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="prettyprinter.html">estnltk.prettyprinter.prettyprinter module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wn.html">estnltk.wordnet.wn module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="grammar.html">estnltk.grammar.grammar module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ner.html">estnltk.ner module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="timex.html">estnltk.timex module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="clausesegmenter.html">estnltk.clausesegmenter module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core.html">estnltk.core module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">estnltk.teicorpus module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="database.html">estnltk.database.database module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wordnet_tagger.html">estnltk.wordnet_tagger module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="text.html">estnltk.text module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../authors.html">Authors</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">estnltk</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="index.html">API documentation</a> &raquo;</li>
+      
+    <li>estnltk.teicorpus module</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/api/teicorpus.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-estnltk.teicorpus">
+<span id="estnltk-teicorpus-module"></span><h1>estnltk.teicorpus module<a class="headerlink" href="#module-estnltk.teicorpus" title="Permalink to this headline">¶</a></h1>
+<p>Module for reading koondcorpus files. See <a class="reference external" href="http://www.cl.ut.ee/korpused/segakorpus/index.php?lang=et">http://www.cl.ut.ee/korpused/segakorpus/index.php?lang=et</a></p>
+<p>The corpus contains variety of documents from different domains and can be used freely for non-commercial purposes.
+Estnltk is capable of reading XML formatted files of the corpus and parse the
+documents, paragraphs, sentences and words with some additional metadata found in XML files.</p>
+<p>The implementation is currently quite simplistic, though. But it should
+be sufficient for simpler use cases.
+The resulting documents have paragraphs separated by two newlines and sentences by single newline.
+The original plain text is not known for XML TEI files.
+Note that all punctuation has been separated from words in the TEI files.</p>
+<p>TODO: Make this module faster, it is dead slow, probably due to BeautifulSoup4.</p>
+<dl class="function">
+<dt id="estnltk.teicorpus.parse_tei_corpus">
+<code class="descclassname">estnltk.teicorpus.</code><code class="descname">parse_tei_corpus</code><span class="sig-paren">(</span><em>path, target=['artikkel']</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/teicorpus.html#parse_tei_corpus"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.teicorpus.parse_tei_corpus" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse documents from a TEI style XML file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>path: str</strong></p>
+<blockquote>
+<div><p>The path of the XML file.</p>
+</div></blockquote>
+<p><strong>target: list of str</strong></p>
+<blockquote>
+<div><p>List of &lt;div&gt; types, that are considered documents in the XML files (default: [&#8220;artikkel&#8221;]).</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">list of esnltk.text.Text</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="estnltk.teicorpus.parse_tei_corpora">
+<code class="descclassname">estnltk.teicorpus.</code><code class="descname">parse_tei_corpora</code><span class="sig-paren">(</span><em>root, prefix='', suffix='.xml', target=['artikkel']</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/teicorpus.html#parse_tei_corpora"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.teicorpus.parse_tei_corpora" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse documents from TEI style XML files.</p>
+<p>Gives each document FILE attribute that denotes the original filename.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>root: str</strong></p>
+<blockquote>
+<div><p>The directory path containing the TEI corpora XMl files.</p>
+</div></blockquote>
+<p><strong>prefix: str</strong></p>
+<blockquote>
+<div><p>The prefix of filenames to include (default: &#8216;&#8217;)</p>
+</div></blockquote>
+<p><strong>suffix: str</strong></p>
+<blockquote>
+<div><p>The suffix of filenames to include (default: &#8216;.xml&#8217;)</p>
+</div></blockquote>
+<p><strong>target: list of str</strong></p>
+<blockquote>
+<div><p>List of &lt;div&gt; types, that are considered documents in the XML files (default: [&#8220;artikkel&#8221;]).</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list of estnltk.text.Text</p>
+<blockquote class="last">
+<div><p>Corpus containing parsed documents from all files. The file path
+is stored in FILE attribute of the documents.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="database.html" class="btn btn-neutral float-right" title="estnltk.database.database module" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="core.html" class="btn btn-neutral" title="estnltk.core module" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, University of Tartu unless specified otherwise in the file headers.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.4.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

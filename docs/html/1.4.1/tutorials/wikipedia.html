@@ -1,0 +1,651 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Working with Estonian and Võru wikipedia &mdash; estnltk 1.4.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="estnltk 1.4.1 documentation" href="../index.html"/>
+        <link rel="up" title="Estnltk tutorials" href="index.html"/>
+        <link rel="next" title="Handling large text collections with Elastic database" href="elasticsearch.html"/>
+        <link rel="prev" title="Working with text" href="text.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> estnltk
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.4.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Estnltk tutorials</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="text.html">Basic Text class operations</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Wikipedia tools</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#downloading-the-wikipedia-dumps">Downloading the Wikipedia dumps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#extracting-articles-from-xml-files">Extracting articles from XML files</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#json-structure">Json structure</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sections">Sections</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#other">Other</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#references">References</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#internal-links">Internal Links</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#text-formatting">Text formatting</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tables">Tables</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#images">Images</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#converting-articles-to-estnltk-json">Converting articles to Estnltk JSON</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#structure">Structure</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#downloading-the-processed-dumps">Downloading the processed dumps</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="elasticsearch.html">Elasticsearch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="disambiguation.html">Disambiguation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="grammar.html">Grammars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="np_chunker.html">Noun-phrase chunker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dependency_syntax.html">Dependency_syntax</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ner.html">Name-Entity Recognition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="prettyprinter.html">Prettyprinter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="terminalprettyprinter.html">Terminal prettyprinter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tei.html">Working with Koondkorpus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="morphology_tables.html">Morphological annotation tables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="devel.html">Developer readme</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../external/index.html">Other tools</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html">API documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../authors.html">Authors</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">estnltk</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="index.html">Estnltk tutorials</a> &raquo;</li>
+      
+    <li>Working with Estonian and Võru wikipedia</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/tutorials/wikipedia.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="working-with-estonian-and-voru-wikipedia">
+<h1>Working with Estonian and Võru wikipedia<a class="headerlink" href="#working-with-estonian-and-voru-wikipedia" title="Permalink to this headline">¶</a></h1>
+<p>Wikipedia is a free-access, free-content Internet encyclopedia,
+supported and hosted by the non-profit Wikimedia Foundation. Those who
+can access the site can edit most of its articles, with the expectation
+that they follow the website&#8217;s policies. Wikipedia is ranked among the
+ten most popular websites and constitutes the Internet&#8217;s largest and
+most popular general reference work.</p>
+<p>Estonian version of the Wikipedia has over 130 000 articles as of 2015.
+Võru dialect has also its own version containing about 5000 articles.</p>
+<div class="section" id="downloading-the-wikipedia-dumps">
+<h2>Downloading the Wikipedia dumps<a class="headerlink" href="#downloading-the-wikipedia-dumps" title="Permalink to this headline">¶</a></h2>
+<p>Latest Estonian wikipedia:</p>
+<p><a class="reference external" href="http://dumps.wikimedia.org/etwiki/latest/etwiki-latest-pages-articles.xml.bz2">http://dumps.wikimedia.org/etwiki/latest/etwiki-latest-pages-articles.xml.bz2</a></p>
+<p>Latest Võru dialect wikipedia:</p>
+<p><a class="reference external" href="http://dumps.wikimedia.org/fiu_vrowiki/latest/fiu_vrowiki-latest-pages-articles.xml.bz2">http://dumps.wikimedia.org/fiu_vrowiki/latest/fiu_vrowiki-latest-pages-articles.xml.bz2</a></p>
+</div>
+<div class="section" id="extracting-articles-from-xml-files">
+<h2>Extracting articles from XML files<a class="headerlink" href="#extracting-articles-from-xml-files" title="Permalink to this headline">¶</a></h2>
+<p>Let&#8217;s assume you have downloaded both the Estonian and Võru wikipedia
+into <code class="docutils literal"><span class="pre">wikidump</span></code> subfolder and extracted the <code class="docutils literal"><span class="pre">.xml</span></code> files, so that
+you have two files:</p>
+<p>wikidump/etwiki-latest-pages-articles.xml</p>
+<p>wikidump/fiu_vrowiki-latest-pages-articles.xml.bz2</p>
+<p>Estnltk comes with a tool that can extract all the articles from the XML
+files and store them as JSON:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ python3 -m estnltk.wiki.parser -h
+
+usage: parser.py [-h] [-v] D I
+</pre></div>
+</div>
+<p>Parse Estonian Wikipedia dump file to Article Name.json files in a
+specified folder</p>
+<ul>
+<li><p class="first">positional arguments:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">D</span>              <span class="n">full</span> <span class="n">path</span> <span class="n">to</span> <span class="n">output</span> <span class="n">directory</span> <span class="k">for</span> <span class="n">the</span> <span class="n">json</span> <span class="n">files</span>
+<span class="n">I</span>              <span class="n">wikipedia</span> <span class="n">dump</span> <span class="n">file</span> <span class="n">full</span> <span class="n">path</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">optional arguments:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">-</span><span class="n">h</span><span class="p">,</span> <span class="o">--</span><span class="n">help</span>     <span class="n">show</span> <span class="n">this</span> <span class="n">help</span> <span class="n">message</span> <span class="ow">and</span> <span class="n">exit</span>
+<span class="o">-</span><span class="n">v</span><span class="p">,</span> <span class="o">--</span><span class="n">verbose</span>  <span class="n">Print</span> <span class="n">written</span> <span class="n">article</span> <span class="n">titles</span> <span class="ow">and</span> <span class="n">count</span><span class="o">.</span>
+</pre></div>
+</div>
+</li>
+</ul>
+<p>To use it, let&#8217;s create separate subfolders to both Estonian and Võru
+articles:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">mkdir</span> <span class="n">wikidump</span><span class="o">/</span><span class="n">eesti</span>
+<span class="n">mkdir</span> <span class="n">wikidump</span><span class="o">/</span><span class="n">voru</span>
+</pre></div>
+</div>
+<p>And run the parser:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="o">-</span><span class="n">m</span> <span class="n">estnltk</span><span class="o">.</span><span class="n">wiki</span><span class="o">.</span><span class="n">parser</span> <span class="n">wikidump</span><span class="o">/</span><span class="n">eesti</span><span class="o">/</span> <span class="n">wikidump</span><span class="o">/</span><span class="n">etwiki</span><span class="o">-</span><span class="n">latest</span><span class="o">-</span><span class="n">pages</span><span class="o">-</span><span class="n">articles</span><span class="o">.</span><span class="n">xml</span>
+<span class="n">python3</span> <span class="o">-</span><span class="n">m</span> <span class="n">estnltk</span><span class="o">.</span><span class="n">wiki</span><span class="o">.</span><span class="n">parser</span> <span class="n">wikidump</span><span class="o">/</span><span class="n">voru</span><span class="o">/</span> <span class="n">wikidump</span><span class="o">/</span><span class="n">fiu_vrowiki</span><span class="o">-</span><span class="n">latest</span><span class="o">-</span><span class="n">pages</span><span class="o">-</span><span class="n">articles</span><span class="o">.</span><span class="n">xml</span><span class="o">.</span><span class="n">bz2</span>
+</pre></div>
+</div>
+<p>As a result, there will be many <code class="docutils literal"><span class="pre">.json</span></code> files with structure described
+in section wiki_json_structure.</p>
+<p>NB! See section wiki_convert on how to access the articles using
+Estnltk.</p>
+<div class="section" id="json-structure">
+<h3>Json structure<a class="headerlink" href="#json-structure" title="Permalink to this headline">¶</a></h3>
+<p>The basic structure of an article.json:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="s2">&quot;2015-03-22T08:25:09Z&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Algriim&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;http://et.wikipedia.org/wiki/Algriim&quot;</span>
+    <span class="s2">&quot;categories&quot;</span><span class="p">:</span> <span class="p">[</span>
+      <span class="s2">&quot;Folkloristika&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;Foneetika&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;Kirjandusteadus&quot;</span>
+<span class="p">],</span>
+    <span class="s2">&quot;sections&quot;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="s2">&quot;Algriim on sõnade algushäälikute koosõla, mida...&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;internal_links&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;end&quot;</span><span class="p">:</span> <span class="mi">32</span><span class="p">,</span>
+                <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;häälikute&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;start&quot;</span><span class="p">:</span> <span class="mi">23</span><span class="p">,</span>
+                <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;häälik&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;http://et.wikipedia.org/wiki/häälik&quot;</span>
+            <span class="p">},</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;end&quot;</span><span class="p">:</span> <span class="mi">112</span><span class="p">,</span>
+                <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;alliteratsiooniks&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;start&quot;</span><span class="p">:</span> <span class="mi">95</span><span class="p">,</span>
+                <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;alliteratsioon&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;http://et.wikipedia.org/wiki/alliteratsioon&quot;</span>
+
+            <span class="p">},</span>
+         <span class="s2">&quot;external links&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;end&quot;</span><span class="p">:</span> <span class="mi">125</span><span class="p">,</span>
+                <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Suvine sats sõdurpoisse sõitis sõjaväkke&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;start&quot;</span><span class="p">:</span> <span class="mi">85</span><span class="p">,</span>
+                <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;http://www.tartupostimees.ee/901454/suvine-sats-sodurpoisse-soitis-sojavakke/&quot;</span>
+            <span class="p">}</span>
+        <span class="p">],</span>
+        <span class="p">]</span>
+    <span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="sections">
+<h3>Sections<a class="headerlink" href="#sections" title="Permalink to this headline">¶</a></h3>
+<p>The first section is always introduction and doesn´t have a title.</p>
+<p>A section is a nested structure, if a section has subsections, they can
+be accessed like this:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">obj</span><span class="p">[</span><span class="s1">&#39;sections&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;sections&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="other">
+<h3>Other<a class="headerlink" href="#other" title="Permalink to this headline">¶</a></h3>
+<p>Other elements include objects like wikipedia templates in the form of:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{{</span><span class="n">templatename</span><span class="o">|</span><span class="n">parameter1</span><span class="o">|</span><span class="n">etc</span><span class="p">}}</span>
+
+<span class="s2">&quot;other&quot;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="s2">&quot;{{See artikkel| räägib üldmõistest; Herodotose teose kohta vaata artiklit [[Historia]]}}&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;{{ToimetaAeg|kuu=oktoober|aasta=2012}}&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;{{keeletoimeta}}&quot;</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="references">
+<h3>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h3>
+<p>If there are references they are added as a top level field:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="s2">&quot;references&quot;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="s2">&quot;Kõiv, Mait. Inimene, ühiskond, kultuur. I osa: vanaaeg. 2006. Lk. 8.&quot;</span>
+    <span class="p">}</span>
+<span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Each section has (if it has references) has a reference field in the
+form of:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="s2">&quot;references&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="mi">0</span>
+        <span class="p">],</span>
+ <span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="s2">&quot;Ajalugu (kreeka keeles  - </span><span class="se">\&quot;</span><span class="s2">historia</span><span class="se">\&quot;</span><span class="s2">, mis ...&quot;</span>
+    <span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="internal-links">
+<h3>Internal Links<a class="headerlink" href="#internal-links" title="Permalink to this headline">¶</a></h3>
+<p>Internal links point to articles in et.wikipedia.org/wiki/. Link parsing
+works if the brackets are balanced 99.99% of the time they are, on rare
+occasions (1/15000 files) can happen that internal links inside external
+link labels are not balanced correctly. Parser just ignores this. :</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="s2">&quot;internal_links&quot;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;end&quot;</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span>
+        <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Tartu ülikoolis&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;start&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Tartu ülikool&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;http://et.wikipedia.org/wiki/Tartu_ülikool&quot;</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;end&quot;</span><span class="p">:</span> <span class="mi">70</span><span class="p">,</span>
+        <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Juri Lotman&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;start&quot;</span><span class="p">:</span> <span class="mi">59</span><span class="p">,</span>
+        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Juri Lotman&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;http://et.wikipedia.org/wiki/Juri_Lotman&quot;</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;end&quot;</span><span class="p">:</span> <span class="mi">101</span><span class="p">,</span>
+        <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;kultuurisemiootika&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;start&quot;</span><span class="p">:</span> <span class="mi">83</span><span class="p">,</span>
+        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;kultuurisemiootika&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;http://et.wikipedia.org/wiki/kultuurisemiootika&quot;</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;end&quot;</span><span class="p">:</span> <span class="mi">134</span><span class="p">,</span>
+        <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Tartu-Moskva koolkonna&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;start&quot;</span><span class="p">:</span> <span class="mi">112</span><span class="p">,</span>
+        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Tartu-Moskva koolkond&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;http://et.wikipedia.org/wiki/Tartu-Moskva_koolkond&quot;</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;end&quot;</span><span class="p">:</span> <span class="mi">216</span><span class="p">,</span>
+        <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Sign Systems Studies&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;start&quot;</span><span class="p">:</span> <span class="mi">196</span><span class="p">,</span>
+        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Sign Systems Studies&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;http://et.wikipedia.org/wiki/Sign_Systems_Studies&quot;</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;end&quot;</span><span class="p">:</span> <span class="mi">290</span><span class="p">,</span>
+        <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;1964&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;start&quot;</span><span class="p">:</span> <span class="mi">286</span><span class="p">,</span>
+        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;1964&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;http://et.wikipedia.org/wiki/1964&quot;</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;end&quot;</span><span class="p">:</span> <span class="mi">325</span><span class="p">,</span>
+        <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Tartu ülikooli semiootika osakond&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;start&quot;</span><span class="p">:</span> <span class="mi">292</span><span class="p">,</span>
+        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Tartu üikooli semiootika osakond&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;http://et.wikipedia.org/wiki/Tartu_ülikooli_semiootika_osakond&quot;</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;end&quot;</span><span class="p">:</span> <span class="mi">343</span><span class="p">,</span>
+        <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;1992&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;start&quot;</span><span class="p">:</span> <span class="mi">339</span><span class="p">,</span>
+        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;1992&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;http://et.wikipedia.org/wiki/1992&quot;</span>
+    <span class="p">}</span>
+<span class="p">],</span>
+<span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="s2">&quot;Tartu ülikoolis tegutses rahvusvaheliselt tuntud semiootik Juri Lotman, kes on üks kultuurisemiootika rajajaid. Tartu-Moskva koolkonna kultuurisemiootika traditsiooni kannab Tartus ilmuv ajakiri </span><span class="se">\&quot;</span><span class="s2">Sign Systems Studies</span><span class="se">\&quot;</span><span class="s2">, mis asutati (kui </span><span class="se">\&quot;</span><span class="s2">Trudy po znakovym sistemam – Semeiotike</span><span class="se">\&quot;</span><span class="s2">) aastal 1964.</span><span class="se">\n</span><span class="s2">Tartu ülikooli semiootika osakond loodi aastal 1992.&quot;</span><span class="p">,</span>
+<span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Semiootika Tartus&quot;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="text-formatting">
+<h3>Text formatting<a class="headerlink" href="#text-formatting" title="Permalink to this headline">¶</a></h3>
+<p>Bold/italics/bulletlists are marked in the dump, but are reformated as
+plain-text in json. Quotes, newlines are preserved.</p>
+</div>
+<div class="section" id="tables">
+<h3>Tables<a class="headerlink" href="#tables" title="Permalink to this headline">¶</a></h3>
+<p>Tables are under the corresponding section, separeted from text although
+unparsed (Json has /n instead of an actual newline):</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="s2">&quot;tables&quot;</span><span class="p">:</span> <span class="p">[</span>
+
+       <span class="s2">&quot;&lt;table&gt;</span>
+       <span class="o">&lt;</span><span class="n">tr</span><span class="o">&gt;&lt;</span><span class="n">td</span><span class="o">&gt;</span>
+       <span class="n">Andorra</span> <span class="n">jaguneb</span> <span class="mi">7</span> <span class="n">vallaks</span> <span class="p">(</span><span class="s1">&#39;&#39;</span><span class="n">parròquia</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+       <span class="o">*</span> <span class="p">[[</span><span class="n">Andorra</span> <span class="n">la</span> <span class="n">Vella</span><span class="p">]]</span>
+       <span class="o">*</span> <span class="p">[[</span><span class="n">Canillo</span> <span class="n">vald</span><span class="p">]]</span>
+       <span class="o">*</span> <span class="p">[[</span><span class="n">Encampi</span> <span class="n">vald</span><span class="p">]]</span>
+       <span class="o">*</span> <span class="p">[[</span><span class="n">Escaldes</span><span class="o">-</span><span class="n">Engordany</span> <span class="n">vald</span><span class="p">]]</span>
+       <span class="o">*</span> <span class="p">[[</span><span class="n">La</span> <span class="n">Massana</span> <span class="n">vald</span><span class="p">]]</span>
+       <span class="o">*</span> <span class="p">[[</span><span class="n">Ordino</span> <span class="n">vald</span><span class="p">]]</span>
+       <span class="o">*</span> <span class="p">[[</span><span class="n">Sant</span> <span class="n">Julià</span> <span class="n">de</span> <span class="n">Lòria</span> <span class="n">vald</span><span class="p">]]</span>
+       <span class="o">&lt;/</span><span class="n">td</span><span class="o">&gt;</span>
+       <span class="o">&lt;</span><span class="n">td</span><span class="o">&gt;</span>
+       <span class="p">[[</span><span class="n">Pilt</span><span class="p">:</span><span class="n">Andora</span><span class="o">.</span><span class="n">png</span><span class="o">|</span><span class="mi">250</span><span class="n">px</span><span class="p">]]</span><span class="o">&lt;/</span><span class="n">td</span><span class="o">&gt;&lt;/</span><span class="n">table</span><span class="o">&gt;</span><span class="s2">&quot;,</span>
+
+       <span class="s2">&quot;{| class=&quot;</span><span class="n">wikitable</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">! colspan=&quot;</span><span class="mi">8</span><span class="s2">&quot; |Armeenia peamised asulad&lt;br /&gt;2012. aasta andmed&lt;ref&gt;[http://www.armstat.am/file/doc/99471428.pdf www.armstat.am - GENERAL DESCRIPTION - ОБЩИЙ ОБЗОР]&lt;/ref&gt;</span><span class="se">\n</span><span class="s2">|-</span><span class="se">\n</span><span class="s2">! # !! Linn !! Maakond !! Elanikke !! # !! Linn !! Maakond !! Elanikke </span><span class="se">\n</span><span class="s2">|-</span><span class="se">\n</span><span class="s2">! 1 </span><span class="se">\n</span><span class="s2">| [[Jerevan]] || – || 1&amp;#160;127&amp;#160;300 </span><span class="se">\n</span><span class="s2">! 11</span><span class="se">\n</span><span class="s2">| Charentsavan || [[Kotajkhi maakond|Kotajkh]] || 25&amp;#160;200 </span><span class="se">\n</span><span class="s2">|-</span><span class="se">\n</span><span class="s2">! 2</span><span class="se">\n</span><span class="s2">| [[Gjumri]] || [[Širaki maakond|Širak]] || 145&amp;#160;900 </span><span class="se">\n</span><span class="s2">! 12</span><span class="se">\n</span><span class="s2">| [[Sevan]] || [[Gegharkhunikhi maakond|Gegharkhunikh]] || 23&amp;#160;500 </span><span class="se">\n</span><span class="s2">|-</span><span class="se">\n</span><span class="s2">! 3</span><span class="se">\n</span><span class="s2">| [[Vanadzor]] || [[Lori maakond|Lori]] || 104&amp;#160;900 </span><span class="se">\n</span><span class="s2">! 13</span><span class="se">\n</span><span class="s2">| [[Goris]] || [[Sjunikhi maakond|Sjunikh]] || 23&amp;#160;100 </span><span class="se">\n</span><span class="s2">|-</span><span class="se">\n</span><span class="s2">! 4</span><span class="se">\n</span><span class="s2">| [[Vagharšapat]] || [[Armaviri maakond|Armavir]] || 57&amp;#160;800 </span><span class="se">\n</span><span class="s2">! 14</span><span class="se">\n</span><span class="s2">| [[Masis]] || [[Ararati maakond|Ararat]] || 22&amp;#160;700 </span><span class="se">\n</span><span class="s2">|-</span><span class="se">\n</span><span class="s2">! 5</span><span class="se">\n</span><span class="s2">| [[Hrazdan]] || [[Kotajkhi maakond|Kotajkh]] || 53&amp;#160;700 </span><span class="se">\n</span><span class="s2">! 15</span><span class="se">\n</span><span class="s2">| [[Aštarak]] || [[Aragatsotni maakond|Aragatsotn]] || 21&amp;#160;700 </span><span class="se">\n</span><span class="s2">|-</span><span class="se">\n</span><span class="s2">! 6</span><span class="se">\n</span><span class="s2">| [[Abovjan]] || [[Kotajkhi maakond|Kotajkh]] || 47&amp;#160;200 </span><span class="se">\n</span><span class="s2">! 16</span><span class="se">\n</span><span class="s2">| [[Ararat]] || [[Ararati maakond|Ararat]] || 21&amp;#160;000 </span><span class="se">\n</span><span class="s2">|-</span><span class="se">\n</span><span class="s2">! 7</span><span class="se">\n</span><span class="s2">| [[Kapan]] || [[Sjunikhi maakond|Sjunikh]] || 45&amp;#160;500 </span><span class="se">\n</span><span class="s2">! 17</span><span class="se">\n</span><span class="s2">| [[Idževan]] || [[Tavuši maakond|Tavuš]] || 20&amp;#160;700 </span><span class="se">\n</span><span class="s2">|-</span><span class="se">\n</span><span class="s2">! 8</span><span class="se">\n</span><span class="s2">| [[Armavir]] || [[Armaviri maakond|Armavir]] || 34&amp;#160;000 </span><span class="se">\n</span><span class="s2">! 18</span><span class="se">\n</span><span class="s2">| [[Arthik]] || [[Širaki maakond|Širak]] || 17&amp;#160;400 </span><span class="se">\n</span><span class="s2">|-</span><span class="se">\n</span><span class="s2">! 9</span><span class="se">\n</span><span class="s2">| [[Gavar]] || [[Gegharkhunikhi maakond|Gegharkhunikh]] || 25&amp;#160;700 </span><span class="se">\n</span><span class="s2">! 19</span><span class="se">\n</span><span class="s2">| [[Sisian]] || [[Sjunikhi maakond|Sjunikh]] || 16&amp;#160;800 </span><span class="se">\n</span><span class="s2">|-</span><span class="se">\n</span><span class="s2">! 10</span><span class="se">\n</span><span class="s2">| [[Artašat]] || [[Ararati maakond|Ararat]] || 25&amp;#160;600 </span><span class="se">\n</span><span class="s2">! 20</span><span class="se">\n</span><span class="s2">| [[Alaverdi]] || [[Lori maakond|Lori]] || 16&amp;#160;400 </span><span class="se">\n</span><span class="s2">|-</span><span class="se">\n</span><span class="s2">|}&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="images">
+<h3>Images<a class="headerlink" href="#images" title="Permalink to this headline">¶</a></h3>
+<p>Images are also under the corresponding section. From the image text
+links (both internal, external) are extracted:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="s2">&quot;images&quot;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="p">{</span>
+     <span class="s2">&quot;internal_links&quot;</span><span class="p">:</span> <span class="p">[</span>
+         <span class="p">{</span>
+
+            <span class="s2">&quot;end&quot;</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span>
+             <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Dareios I&quot;</span><span class="p">,</span>
+             <span class="s2">&quot;start&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+             <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Dareios I&quot;</span><span class="p">,</span>
+             <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;&lt;http://et.wikipedia.org/wiki/Dareios_I&quot;</span>
+
+         <span class="p">},</span>
+         <span class="p">{</span>
+                <span class="s2">&quot;end&quot;</span><span class="p">:</span> <span class="mi">28</span><span class="p">,</span>
+                <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Behistuni raidkiri&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;start&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+                <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Behistuni raidkiri&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;http://et.wikipedia.org/wiki/Behistuni_raidkiri&quot;</span>
+            <span class="p">},</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;end&quot;</span><span class="p">:</span> <span class="mi">72</span><span class="p">,</span>
+                <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;6. sajand eKr&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;start&quot;</span><span class="p">:</span> <span class="mi">59</span><span class="p">,</span>
+                <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;6. sajand eKr&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;http://et.wikipedia.org/wiki/6._sajand_eKr&quot;</span>
+            <span class="p">}</span>
+        <span class="p">],</span>
+        <span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="s2">&quot;Dareios I Behistuni raidkiri, millel mainitakse Armeeniat. 6. sajand eKr.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;http://et.wikipedia.org/wiki/Pilt:Darius_I_the_Great&#39;s_inscription.jpg&quot;</span>
+    <span class="p">}</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="converting-articles-to-estnltk-json">
+<h2>Converting articles to Estnltk JSON<a class="headerlink" href="#converting-articles-to-estnltk-json" title="Permalink to this headline">¶</a></h2>
+<p>The JSON files produced by <code class="docutils literal"><span class="pre">estnltk.wiki.parser</span></code> contains more
+structural data that can be represented by Estnltk-s <strong>Text</strong> class,
+thus you cannot directly use this JSON to initiate <strong>Text</strong> instances.</p>
+<p>In Section extracting_xml_articles, we created two folders:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">wikidump/voru</span></code></li>
+<li><code class="docutils literal"><span class="pre">wikidump/eesti</span></code></li>
+</ul>
+<p>containing article JSON files extracted from Estonian and Võru dialect
+wikipedia. Let&#8217;s create subfolders:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">corpora/voru</span></code></li>
+<li><code class="docutils literal"><span class="pre">corpora/eesti</span></code></li>
+</ul>
+<p>where we will store the converted JSON files. The script
+<code class="docutils literal"><span class="pre">estnltk.wiki.convert</span></code> can be used for the job:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="o">-</span><span class="n">m</span> <span class="n">estnltk</span><span class="o">.</span><span class="n">wiki</span><span class="o">.</span><span class="n">convert</span> <span class="n">wikidump</span><span class="o">/</span><span class="n">voru</span><span class="o">/</span> <span class="n">corpora</span><span class="o">/</span><span class="n">voru</span><span class="o">/</span>
+<span class="n">python3</span> <span class="o">-</span><span class="n">m</span> <span class="n">estnltk</span><span class="o">.</span><span class="n">wiki</span><span class="o">.</span><span class="n">convert</span> <span class="n">wikidump</span><span class="o">/</span><span class="n">eesti</span> <span class="n">corpora</span><span class="o">/</span><span class="n">eesti</span><span class="o">/</span>
+</pre></div>
+</div>
+<p>As a result, the folders contain large number of files in JSON format
+that can be used with Estnltk <strong>Text</strong> class. Note that there is only
+plain text with unique data from the article dumps. No tokenization,
+named entity extraction nor anything else has been done.</p>
+<div class="section" id="structure">
+<h3>Structure<a class="headerlink" href="#structure" title="Permalink to this headline">¶</a></h3>
+<p>The top level layers are: data, external_links, internal_links,
+sections, text. Data contains categories, (list of) references, infobox,
+timestamp, title, url. :</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;categories&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;Oguusi keeled&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Aserbaid</span><span class="se">\u017e</span><span class="s2">aan&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Turgi keeled&quot;</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;infobox&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;keelkond&quot;</span><span class="p">:</span> <span class="s2">&quot;turgi keeledoguusi keeled&#39;&#39;&#39;aserbaid</span><span class="se">\u017e</span><span class="s2">aani keel&#39;&#39;&#39;&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;keelkonnav</span><span class="se">\u00e4</span><span class="s2">rv&quot;</span><span class="p">:</span> <span class="s2">&quot;altai&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;kood 1&quot;</span><span class="p">:</span> <span class="s2">&quot;az&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;kood 2&quot;</span><span class="p">:</span> <span class="s2">&quot;aze&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;piirkond&quot;</span><span class="p">:</span> <span class="s2">&quot;Kaukaasia&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;riigid&quot;</span><span class="p">:</span> <span class="s2">&quot;Aserbaid</span><span class="se">\u017e</span><span class="s2">aanis, Iraanis, Gruusias, Venemaal, T</span><span class="se">\u00fc</span><span class="s2">rgis&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;riik&quot;</span><span class="p">:</span> <span class="s2">&quot;Aserbaid</span><span class="se">\u017e</span><span class="s2">aan}}&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;r</span><span class="se">\u00e4\u00e4</span><span class="s2">kijad&quot;</span><span class="p">:</span> <span class="s2">&quot;45-50 miljonit&quot;</span>
+        <span class="p">}</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="s2">&quot;2014-02-18T19:43:10Z&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Aserbaid</span><span class="se">\u017e</span><span class="s2">aani keel&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;http://et.wikipedia.org/wiki/Aserbaid</span><span class="se">\u017e</span><span class="s2">aani_keel&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Links are now top level, recalculated to point to whole concatenated
+article text and point to <code class="docutils literal"><span class="pre">obj[text]</span></code> level. :</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="s2">&quot;external_links&quot;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;end&quot;</span><span class="p">:</span> <span class="mi">948</span><span class="p">,</span>
+        <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Vikipeedia aserbaid</span><span class="se">\u017e</span><span class="s2">aani keeles&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;start&quot;</span><span class="p">:</span> <span class="mi">917</span><span class="p">,</span>
+        <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;http://az.wikipedia.org&quot;</span>
+    <span class="p">}</span>
+<span class="p">],</span>
+<span class="s2">&quot;internal_links&quot;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;end&quot;</span><span class="p">:</span> <span class="mi">57</span><span class="p">,</span>
+        <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;turgi keelte&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;start&quot;</span><span class="p">:</span> <span class="mi">45</span><span class="p">,</span>
+        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;turgi keeled&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;http://et.wikipedia.org/wiki/turgi_keeled&quot;</span>
+    <span class="p">}</span>
+</pre></div>
+</div>
+<p>Sections contains start and end point of sections, title, images,
+references, but not section text itself. :</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="s2">&quot;sections&quot;</span><span class="p">:</span> <span class="p">[</span>
+ <span class="p">{</span>
+     <span class="s2">&quot;end&quot;</span><span class="p">:</span> <span class="mi">801</span><span class="p">,</span>
+     <span class="s2">&quot;images&quot;</span><span class="p">:</span> <span class="p">[</span>
+         <span class="p">{</span>
+             <span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="s2">&quot;pisi&quot;</span><span class="p">,</span>
+             <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;http://et.wikipedia.org/wiki/Pilt:Idioma_azer</span><span class="se">\u00ed</span><span class="s2">.png&quot;</span>
+         <span class="p">}</span>
+     <span class="p">],</span>
+     <span class="s2">&quot;start&quot;</span><span class="p">:</span> <span class="mi">0</span>
+ <span class="p">},</span>
+</pre></div>
+</div>
+<p>Text is a separate layer all the sections concatenated with section
+titles. :</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span><span class="n">start</span><span class="p">}</span><span class="n">Title</span>
+<span class="n">SectionText</span><span class="p">{</span><span class="n">end</span><span class="p">}</span>
+
+<span class="p">{</span><span class="n">start</span><span class="p">}</span><span class="n">Title2</span>
+<span class="n">Section2Text</span><span class="p">{</span><span class="n">end</span><span class="p">}</span>
+
+
+   <span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="s2">&quot;Aserbaid</span><span class="se">\u017e</span><span class="s2">aani keel</span><span class="se">\n</span><span class="s2">Aserbaid</span><span class="se">\u017e</span><span class="s2">aani keel kuulub turgi keelte hulka. Peale Aserbaid</span><span class="se">\u017e</span><span class="s2">aani k</span><span class="se">\u00f5</span><span class="s2">neldakse seda Gruusias, Armeenias, Iraanis, Iraagis ja T</span><span class="se">\u00fc</span><span class="s2">rgis.</span><span class="se">\n</span><span class="s2">Aserbaid</span><span class="se">\u017e</span><span class="s2">aani keel kuulub oguusi keelte hulka,</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="downloading-the-processed-dumps">
+<h2>Downloading the processed dumps<a class="headerlink" href="#downloading-the-processed-dumps" title="Permalink to this headline">¶</a></h2>
+<p>Just in case you do not want to extract the articles yourself, here are
+the links to processed files from dumps downloaded on Sep 7 2015.</p>
+<p>Estonian Wikipedia articles:
+<a class="reference external" href="http://ats.cs.ut.ee/keeletehnoloogia/estnltk/wiki_articles/eesti.zip">http://ats.cs.ut.ee/keeletehnoloogia/estnltk/wiki_articles/eesti.zip</a></p>
+<p>Võru dialect Wikipedia articles:
+<a class="reference external" href="http://ats.cs.ut.ee/keeletehnoloogia/estnltk/wiki_articles/voru.zip">http://ats.cs.ut.ee/keeletehnoloogia/estnltk/wiki_articles/voru.zip</a></p>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="elasticsearch.html" class="btn btn-neutral float-right" title="Handling large text collections with Elastic database" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="text.html" class="btn btn-neutral" title="Working with text" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, University of Tartu unless specified otherwise in the file headers.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.4.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

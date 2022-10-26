@@ -1,0 +1,483 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>AdjectivePhraseTagger &mdash; estnltk 1.4.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="estnltk 1.4.1 documentation" href="../index.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> estnltk
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.4.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="index.html">Estnltk tutorials</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../external/index.html">Other tools</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html">API documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../authors.html">Authors</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">estnltk</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+    <li>AdjectivePhraseTagger</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/tutorials/adj_phrase_tagger.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="adjectivephrasetagger">
+<h1>AdjectivePhraseTagger<a class="headerlink" href="#adjectivephrasetagger" title="Permalink to this headline">¶</a></h1>
+<p>A class that tags simple adjective phrases in the <strong>Text</strong> object.</p>
+<div class="section" id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">adjective_phrase_tagger.adj_phrase_tagger</span> <span class="k">import</span> <span class="n">AdjectivePhraseTagger</span>
+<span class="kn">from</span> <span class="nn">estnltk</span> <span class="k">import</span> <span class="n">Text</span>
+</pre></div>
+</div>
+<p>Create <strong>Text</strong> object, <strong>AdjectivePhraseTagger</strong> object and tag
+adjective phrases as a new layer of the <strong>Text</strong> object.</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="n">tagger</span> <span class="o">=</span> <span class="n">AdjectivePhraseTagger</span><span class="p">(</span><span class="n">return_layer</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="c1"># return_layer=True returns only the adjective phrase layer</span>
+<span class="n">sent</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s2">&quot;Peaaegu 8-aastane koer oli väga energiline ja mänguhimuline.&quot;</span><span class="p">)</span>
+<span class="n">tagger</span><span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="n">sent</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[{</span><span class="s1">&#39;adverb_class&#39;</span><span class="p">:</span> <span class="s1">&#39;doubt&#39;</span><span class="p">,</span>
+  <span class="s1">&#39;adverb_weight&#39;</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">,</span>
+  <span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">17</span><span class="p">,</span>
+  <span class="s1">&#39;intersects_with_verb&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+  <span class="s1">&#39;lemmas&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;peaaegu&#39;</span><span class="p">,</span> <span class="s1">&#39;8aastane&#39;</span><span class="p">],</span>
+  <span class="s1">&#39;measurement_adj&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+  <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+  <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="s1">&#39;Peaaegu 8-aastane&#39;</span><span class="p">,</span>
+  <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;adjective&#39;</span><span class="p">},</span>
+ <span class="p">{</span><span class="s1">&#39;adverb_class&#39;</span><span class="p">:</span> <span class="s1">&#39;strong_intensifier&#39;</span><span class="p">,</span>
+  <span class="s1">&#39;adverb_weight&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+  <span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">59</span><span class="p">,</span>
+  <span class="s1">&#39;intersects_with_verb&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+  <span class="s1">&#39;lemmas&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;väga&#39;</span><span class="p">,</span> <span class="s1">&#39;energiline&#39;</span><span class="p">,</span> <span class="s1">&#39;ja&#39;</span><span class="p">,</span> <span class="s1">&#39;mänguhimuline&#39;</span><span class="p">],</span>
+  <span class="s1">&#39;measurement_adj&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+  <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">27</span><span class="p">,</span>
+  <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="s1">&#39;väga energiline ja mänguhimuline&#39;</span><span class="p">,</span>
+  <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;adjective&#39;</span><span class="p">}]</span>
+</pre></div>
+</div>
+<div class="section" id="attributes-that-are-given-with-the-adjective-phrases">
+<h3>Attributes that are given with the adjective phrases:<a class="headerlink" href="#attributes-that-are-given-with-the-adjective-phrases" title="Permalink to this headline">¶</a></h3>
+<p><strong>type</strong> is the type of the phrase: * <strong>adjective</strong>: adjective is in
+its &#8216;normal&#8217; (aka positive) form * <strong>comparative</strong>: contains a
+comparative adjective * <strong>participle</strong>: contains an adjective derived
+from a verb</p>
+<p><strong>measurement_adj</strong> means that the adjective in the phrase either
+contains a number or some other type of measurement</p>
+<p><strong>intersects_with_verb</strong> signifies whether the found adjective phrase
+intersects with a verb phrase in the text; this happens mostly in the
+case of participles as in the following sentence:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="n">tagger</span><span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="n">Text</span><span class="p">(</span><span class="s2">&quot;Ta oli väga üllatunud.&quot;</span><span class="p">))</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[{</span><span class="s1">&#39;adverb_class&#39;</span><span class="p">:</span> <span class="s1">&#39;strong_intensifier&#39;</span><span class="p">,</span>
+  <span class="s1">&#39;adverb_weight&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+  <span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">21</span><span class="p">,</span>
+  <span class="s1">&#39;intersects_with_verb&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+  <span class="s1">&#39;lemmas&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;väga&#39;</span><span class="p">,</span> <span class="s1">&#39;üllatunud&#39;</span><span class="p">],</span>
+  <span class="s1">&#39;measurement_adj&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+  <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span>
+  <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="s1">&#39;väga üllatunud&#39;</span><span class="p">,</span>
+  <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;participle&#39;</span><span class="p">}]</span>
+</pre></div>
+</div>
+<p><strong>adverb_class</strong> marks the intensity of the adverb in the phrase. Each
+class has also been assigned a weight (<strong>adverb_weight</strong>) noting its
+intensity. Currently there are 6 classes with their corresponding
+weights: * diminisher: 0.5 * doubt: 0.7 * affirmation: 1.5 *
+strong_intensifier: 2 * surprise: 3 * excess: 3</p>
+<p>All the adverbs are not divided into classes, therefore some do have
+<em>unknow</em> as <strong>adverb_class</strong> and <strong>adverb_weight</strong>.</p>
+</div>
+<div class="section" id="example">
+<h3>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h3>
+<p>Adjective phrases can be used for sentiment analysis - determining the
+polarity of the text. While this is often done using only adjectives,
+the phrases consisting of an adverb and an adjective can give more
+precise results because adverbs in these kinds of phrases are usually
+some sort of intensifiers. For this purpose, the most frequent adverbs
+are already divided into classes and assigned weights based on their
+intensifying properties (see above).</p>
+<p>To illustrate this, let&#8217;s build a very simple system for sentiment
+analysis. For this, we can use hinnavaatlus.csv dataset that contains
+user reviews and their ratings (positive, negative and neutral).</p>
+<p>First, let&#8217;s extract adjectives from the user reviews and create
+separate frequency lists of adjectives appearing in positive and
+negative reviews.</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">csv</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">defaultdict</span>
+
+<span class="n">pos</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">neg</span> <span class="o">=</span> <span class="p">{}</span>
+
+<span class="n">adjectives</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="k">lambda</span> <span class="p">:</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">int</span><span class="p">))</span>
+
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;data/hinnavaatlus.csv&#39;</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">csvfile</span><span class="p">:</span>
+    <span class="n">reader</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">reader</span><span class="p">(</span><span class="n">csvfile</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="n">quotechar</span><span class="o">=</span><span class="s1">&#39;&quot;&#39;</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">reader</span><span class="p">):</span>
+        <span class="n">tagged</span> <span class="o">=</span> <span class="n">tagger</span><span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="n">Text</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">tagged</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">tag</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">adj</span> <span class="o">=</span> <span class="n">tag</span><span class="p">[</span><span class="s1">&#39;lemmas&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">adjectives</span><span class="p">[</span><span class="n">label</span><span class="p">][</span><span class="n">adj</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+</pre></div>
+</div>
+<p>Of course, we can imagine that not all the adjectives used in positive
+reviews are positive and the same with negative reviews. To overcome
+this problem, we can use the
+<a class="reference external" href="https://github.com/estnltk/volcanoplot">**volcanoplot**</a> (tutorial
+<a class="reference external" href="https://github.com/estnltk/volcanoplot/blob/master/docs/postimees_tutorial.ipynb">**here**</a>)
+tool which visualises the two lists and helps us find over-represented
+words from both. For this, we need to save both lexicons into csv files.</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;neg.csv&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fout</span><span class="p">:</span>
+    <span class="n">writer</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="n">fout</span><span class="p">,</span> <span class="n">dialect</span> <span class="o">=</span> <span class="s1">&#39;excel&#39;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">adjectives</span><span class="p">[</span><span class="s1">&#39;Negatiivne&#39;</span><span class="p">]:</span>
+        <span class="n">writer</span><span class="o">.</span><span class="n">writerow</span><span class="p">([</span><span class="n">row</span><span class="p">,</span> <span class="n">adjectives</span><span class="p">[</span><span class="s1">&#39;Negatiivne&#39;</span><span class="p">][</span><span class="n">row</span><span class="p">]])</span>
+</pre></div>
+</div>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;pos.csv&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fout</span><span class="p">:</span>
+    <span class="n">writer</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="n">fout</span><span class="p">,</span> <span class="n">dialect</span> <span class="o">=</span> <span class="s1">&#39;excel&#39;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">adjectives</span><span class="p">[</span><span class="s1">&#39;Positiivne&#39;</span><span class="p">]:</span>
+        <span class="n">writer</span><span class="o">.</span><span class="n">writerow</span><span class="p">([</span><span class="n">row</span><span class="p">,</span> <span class="n">adjectives</span><span class="p">[</span><span class="s1">&#39;Positiivne&#39;</span><span class="p">][</span><span class="n">row</span><span class="p">]])</span>
+</pre></div>
+</div>
+<p>From <strong>volcanoplot</strong> we save two lexicons - one for positive
+(data/positive.txt) and one for negative (data/negative.txt) words. Now
+let&#8217;s decide that an adjective appearing in the positive lexicon has a
+score of 1 and an adjective in negative lexicon has a score of -1.
+Adjectives not present in either of the lexicons have a score 0.</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="n">negative</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;data/negative.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fin</span><span class="p">:</span>
+    <span class="n">words</span> <span class="o">=</span> <span class="n">fin</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+    <span class="n">negative</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">word</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">words</span><span class="p">])</span>
+
+<span class="n">positive</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;data/positive.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fin</span><span class="p">:</span>
+    <span class="n">words</span> <span class="o">=</span> <span class="n">fin</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+    <span class="n">positive</span> <span class="o">=</span> <span class="p">([</span><span class="n">word</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">words</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>Now we can assign a score to each adjective and compute weights to
+phrases containing of an adverb and an adjective by multiplying the
+score of an adjective by the weight of the preceding adverb. By summing
+the scores of all the phrases in a review, we can calculate the polarity
+of the review.</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;data/hinnavaatlus.csv&#39;</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">csvfile</span><span class="p">:</span>
+    <span class="n">reader</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">reader</span><span class="p">(</span><span class="n">csvfile</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="n">quotechar</span><span class="o">=</span><span class="s1">&#39;&quot;&#39;</span><span class="p">)</span>
+    <span class="n">review_scores</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">reader</span><span class="p">):</span>
+        <span class="n">tagged</span> <span class="o">=</span> <span class="n">tagger</span><span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="n">Text</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+        <span class="n">total_score</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">if</span> <span class="n">idx</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">tagged</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">i</span><span class="p">[</span><span class="s1">&#39;lemmas&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="n">positive</span><span class="p">:</span>
+                <span class="k">if</span> <span class="s1">&#39;adverb_weight&#39;</span> <span class="ow">in</span> <span class="n">i</span><span class="p">:</span>
+                    <span class="n">score</span> <span class="o">=</span> <span class="mi">1</span><span class="o">*</span><span class="n">i</span><span class="p">[</span><span class="s1">&#39;adverb_weight&#39;</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">score</span> <span class="o">=</span> <span class="mi">1</span>
+
+            <span class="k">elif</span> <span class="n">i</span><span class="p">[</span><span class="s1">&#39;lemmas&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="n">negative</span><span class="p">:</span>
+                <span class="k">if</span> <span class="s1">&#39;adverb_weight&#39;</span> <span class="ow">in</span> <span class="n">i</span><span class="p">:</span>
+                    <span class="n">score</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="o">*</span><span class="n">i</span><span class="p">[</span><span class="s1">&#39;adverb_weight&#39;</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">score</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">score</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">if</span> <span class="n">idx</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">i</span><span class="p">[</span><span class="s1">&#39;lemmas&#39;</span><span class="p">],</span> <span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="n">score</span><span class="p">)</span>
+            <span class="n">total_score</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">score</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">idx</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Total score: &quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">total_score</span><span class="p">)))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-----------------------------&quot;</span><span class="p">)</span>
+
+        <span class="n">review_scores</span><span class="p">[</span><span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">total_score</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span>Kommentaar
+Total score:  0
+-----------------------------
+Väike, aga tubli firma!
+[&#39;väike&#39;]   0
+[&#39;tubli&#39;]   0
+Total score:  0
+-----------------------------
+väga hea firma
+[&#39;väga&#39;, &#39;hea&#39;]   2
+Total score:  2
+-----------------------------
+Viimasel ajal pole midagi halba öelda, aga samas ei konkureeri nad kuidagi Genneti, Ordiga ei hindadelt ega teeninduselt. Toorikute ja tindi ostmiseks samas hea koht ja kuna müüjaid on rohkem valima hakatud, siis võiks 2 ikka ära panna - tuleks 3 kui hinadele ei pandaks kirvest ja toodete saadavus oleks parem.
+[&#39;viimane&#39;]   0
+[&#39;halb&#39;]   0
+[&#39;hea&#39;]   1
+[&#39;hakatud&#39;]   -1
+[&#39;parem&#39;]   0
+Total score:  0
+-----------------------------
+Fotode kvaliteet väga pro ja &quot;jjk&quot; seal töötamise ajal leiti ikka paljudele asjadele väga meeldivad lahendused. Samas hilisem läpaka ost sujus ka väga meeldivalt - sain esialgse rahas ostusoovi vormistada ümber järelmaksule...äärmiselt asjalik teenindus.
+[&#39;hilisem&#39;]   1
+[&#39;esialgne&#39;]   1
+[&#39;äärmiselt&#39;, &#39;asjalik&#39;]   2
+[&#39;väga&#39;, &#39;meeldiv&#39;]   2
+Total score:  6
+-----------------------------
+Ainult positiivsed kogemused
+[&#39;positiivne&#39;]   1
+Total score:  1
+-----------------------------
+Viimane kord, kui käisin suutis leti taga askeldav ~60 aastane mees tegutseda nii aeglaselt, et minu seal veedetud 10min jooksul pani juba vähemalt 6-7 klienti putku. Garantiiga ka kurvad kogemused, neid poleks, saaks isegi kahe vast. Vihaseks ajab lihtsalt vahest nende teenindus!
+[&#39;viimane&#39;]   0
+[&#39;askeldav&#39;]   -1
+[&#39;aastane&#39;]   -1
+[&#39;veedetud&#39;]   -1
+[&#39;kurb&#39;]   -1
+[&#39;vihane&#39;]   -1
+Total score:  -5
+-----------------------------
+Väga head hinnad!!!
+[&#39;väga&#39;, &#39;hea&#39;]   2
+Total score:  2
+-----------------------------
+Väga head hinnad!!!
+[&#39;väga&#39;, &#39;hea&#39;]   2
+Total score:  2
+-----------------------------
+Olen ostnud sealt toorikuid, hea hind - abivalmis teenindus. Sai sealt ka üks Razeri hiir ostetud. Kogemus on hea.
+[&#39;ostnud&#39;]   1
+[&#39;hea&#39;]   1
+[&#39;abivalmis&#39;]   1
+[&#39;ostetud&#39;]   1
+[&#39;hea&#39;]   1
+Total score:  5
+-----------------------------
+</pre></div>
+</div>
+<p>As we saved the reviews and their scores to the dict <strong>review_scores</strong>,
+we can sort it and find reviews that have the highest and lowest scores.</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">OrderedDict</span>
+<span class="n">sorted_scores</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">review_scores</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">reverse</span> <span class="o">=</span> <span class="kc">True</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>Let&#8217;s print 5 most positive reviews:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sorted_scores</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">idx</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">sorted_scores</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="nb">print</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span>Väga viisakas koht, helitasin tellisin Creative Elite Pro sealt. Saadeti korralik arve sealt, järgmine päev oli postis ja siis järgmine päev juba kohal. Väga korralik.Pakk oli korralik, paks ja hea. Helikaart oli värske mitte kribitud ja kole. Minul on hea kogemus, väha head hinnad ja kiire asjaajamine. 11
+
+Lisaks vahelduseks ka ühe veidi positiivsema kommentaari. Ostsin sealt läpaka. Alguses oli küll veidi segadust, sest esimeses kohas oli soovitud mudel olemas, kuid pakendi kleeps oli lõhutud ning taaskleebitud. Igaks juhuks nõudsin sisu näidata ja kohe oli aru saada, et asi varem lahti käinud. Läpaka must läikiv pind oli paksult käejälgi täis ja ühest nurgast avastasin korraliku kukkumisjälje. Seepeale küsisin, et kas neil on mõnes salongis täiesti avamata pakendit. Helistati ja saadeti järgmisse kohta, kus küll oli antud mark olemas aga vale mudel. Kolmandas kohas lõpuks leiti see õige mudel ja tehti isegi 500.- alet. Kokkuvõttes jäin rahule, ringisõidetud aja ja bensukulu tasuti. Noh, lõpp hea kõik hea 4p :) 9
+
+Sain väga viisaka teeninduse osaliseks. Hiljuti sai veebi kaudu ostetud digikaamera Pentax Optio H90. Kättesaamisel panin aku laadima vastavalt kasutusjuhendile, kuid selgus, et see ei toimi ja aku jääb peale laadimist tühjaks. Järgmisel päeval pöördusin müügisalongi palvega vahetada kaup uue vastu või vähemalt asendada ajutisega. Tegemist oli oodatud sünnipäevakingitusega. Müüja naeratas vastutulelikult ja oli igati positiivne tütarlaps, aga vahetusest ja asendamisest keeldus. Selle asemel lubas ta saata katkise laadija koos kaameraga neljaks nädalaks ekspertiisi (teenindusesse). Ta selgitas lahkelt, et selline on kord, et ka värskelt müüdud kuid vigased tooted vaadatakse spetsialistide poolt kõigepealt üle ja siis otsustatakse kas parandada või vahetada.  8.5
+
+Suhtun loomupärase umbusuga netikaupmeestesse, 1A on senistest kogemustest üks parimaid. Kaup saabub alati täpselt, telefonitsi kauba saabumisest  informeerimine toimib laitmatult. Viimasel korral sattus mulle väikese tehnilise defektiga seade, lühike mõttevahetus meili teel, ja järgmisel päeval oli minu soovitud vahetusseade mind juba ootamas. Väga täpne, asjalik ja meeldiva teenindusega firma, soovitan! 8
+
+Tundub täiesti korralik veebipood, ostule eelnenud meiliga saadetud küsimustele vastati 10 minuti jooksul ja kauba sai kätte järgmisel päeval. Hinnad on oma 10% soodsamad kui suurtel kettidel, mis 800-1000-eurose kauba puhul on juba päris tuntav hinnavahe. Maksimumhinnet siiski ei paneks, kuna veebipoelt ootaks natuke põhjalikumaid tootekirjeldusi, samuti polnud olemasolev info 100% korrektne (infos oli, et külmkapp on A+ energiatarbega, tegelikult oli A++). Samuti oleks oodanud pärast maksmist mingisugust tagasisidet, nt et raha on laekunud ja kauba saab orienteeruvalt x ajal kätte (minu kogemuses oli järgmine kontakt juba kullerilt). Kokkuvõttes julgeks siiski soovitada. 8.0
+</pre></div>
+</div>
+<p>And 5 most negative reviews:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">OrderedDict</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">sorted_scores</span><span class="o">.</span><span class="n">items</span><span class="p">())))):</span>
+    <span class="k">if</span> <span class="n">idx</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">sorted_scores</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="nb">print</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span>Minu esimene tellimus sellest firmast jäi kohe ka viimaseks. Lugu oli selline (eile, s.o. 11. jaan. 2013. Tellisin 6. jaan. kolm asja, millest üks oli videokaart. Tolle viimase tarneajaks anti 2-7 tööpäeva. Okei, läks viis, sain kullerilt kauba kätte. Paki avamisel ilmnes, et tellitud videokaardi asemel oli pakki pandud hoopis teise firma ja märksa nõrgema hinnaklassi toode. Loomulikult reedese päeva õhtupoolikul, mil reageerimiseks juba ülinapilt aega. Saatelehel ilutses täiesti tuimalt tellitud, mitte muudetud toote nimi. Polnud midagi parata, tuli ise Õismäele kohale sõita, et asja uurida. Õnneks veel jõudsin vaatamata ummikutele. Kaks umbkeelset teenindajat maigutasid ainult suud. Küsisin, kuidas saab nii räigelt eksida - vale oli mitte ainult detaili mudel, vaid ka firmanimi. Vastuseks kuulsin mingit pobinat, et jah tuli neid õigeid siia vaid üks ja kellegi teise tellimus olnud justkui vaja kiiremini täita. Mida häma! Pakuti, et 6 päeva pärast saaksin õige kätte. Kui see pole petuskeem, siis mis see on? Mitte keegi ei võtnud minuga ühendust, et pärida, kas olen üldse taolise asendustootega nõus. See lihtsalt sokutati mulle vaikimisi. E- ja I-ajastul olnuks kõik võimalused kliendilt järele pärida, kas too soovib kauba puudumisel asendustoodet või loobub tellimusest. Midagi niisugust aga ei tehtud, üritati lihtsalt pähe määrida mingit odavamat, ilmselt seismajäänud rämpsu. Nõudsin raha tagasi. Õnneks ei tulnud mul ka palju vaielda, kuna käitusin resoluutselt. Vormistati tellimusraha tagasikande akt. Isiklikult ei soovita sellise firmaga tegemist teha. Kahtlusi tekitas juba tellimuse &#39;trackingu&#39; (tellimuse täitmise jälgimine veebis) puudumine, mis on üldreeglina hämavate firmade tunnuseks. Kuna töötan ise õiguskaitseorganites, tegin kogu protsessist igaks juhuks nii dokumentaalsed väljavõtted kui ka fotod, et vajadusel oma õigust nõuda. Firma esindajad isegi ei vabandanud. Igaüks võib teha omad järeldused. -9
+
+Väga negatiivsed emotsioonid - kui ostjalt raha käes, siis on sõprus läbi. Ise loll - ostsin eile õhtul Järve poest Trusti UPS-i. Minu arvuti toiteblokk sellega tööle ei hakanud. Mõtlesin juba, et toiteblokk läks läbi. UPS näitas, et kõik OK, ei ülekoormust ega midagi. Püüdsin täna tagasi viia (maksin sularahas), mille peale mind saadeti pikalt, et miks ma ostes oma arvuti konfiguratsiooni ei esitanud jne. Samas et teadnud seal keegi internetti süvenemata isegi seda, mitu W karbil lubatud 800VA välja annab. Vahest ei ole mul otsest õigust toimimatu riista eest raha tagasi saada, aga niimioodi kliendiga ei käituta! Seega: &quot;Hoidke eemale!&quot;  Ei mingit koolitust müüjatel, põrgulik garantii, ainult head müügikohad. -6
+
+Täiesti mõttetu firma, peaks mainima. Millegipärast annab alati siin Hinnavaatluses odavaima hinna, kuid kui helistades sinna, siis tuleb välja, et kunagi seda õiget asja ei ole ja pakutakse tunduvalt kallimat ja teise firma toodet. Jätab täpselt sellise mulje, et muudmoodi kliente enam sinna urkasse ei meelita, kui valetades hinnad odavamaks kui muidu on. Parkimisvõimalused on praktiliselt olematud ja üldse jätab sellise umbkeelse ja kohe kohe pankrotti mineva firma mulje. Seega, kui näete siin mingit toodet, mis on neil &quot;soodsaima&quot; hinnaga, siis helistage igaks juhuks üle, sest kohaleminnes võib teid oodata üllatus, et õiget kaupa polegi. Samas olete aga raisanud oma aega ja närve. -5.5
+
+95% külastustest on suhtumine olnud üleolev ja samas asjatundmatu. Komplekteeritud arvuti pidi saama nädalaga kätte.. nädal hiljem kohale minnes sõimati , et kui valmis, siis helistatakse. Helistatigi ja öeldi, et soovitud mälu neil tegelikult ei pakuta ja variant on panna uus (256 asemel 512mb) ja see võtab aega 2 nädalat- ei vabandamist, ei hinnasoodustust. Kättesaades oli 192mb RAM&#39;i.. nüüdseks see arvuti enam ei ela, sest koostekvaliteet oli nii kehv, et põles maha.. Tõsiselt kehv koht! -5
+
+Lasin komplekteerida arvuti, kätte saades ja igaks juhuks lahti kruvides, selgus, et kaane lahtikeeramine oli ülimalt vajalik. Arvuti korpuse sees oli kaks pisikest kruvi, mis olid jäänud DVD-lugejale külge keeramata ja olid emaplaadile mingite kondekate vahele kinni jäänud. Ei kujutagi ette mis oleks arvuti vooluvõrku ühendamisel juhtunud, arvatavasti oleks emaplaat läbi põlenud, kui lahtisi kruvikesi poleks enne arvuti vooluvõrku ühendamist leidnud -5
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, University of Tartu unless specified otherwise in the file headers.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.4.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

@@ -1,0 +1,446 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>estnltk.database.database module &mdash; estnltk 1.4.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="estnltk 1.4.1 documentation" href="../index.html"/>
+        <link rel="up" title="API documentation" href="index.html"/>
+        <link rel="prev" title="estnltk.teicorpus module" href="teicorpus.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> estnltk
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.4.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/index.html">Estnltk tutorials</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../external/index.html">Other tools</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">API documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="textcleaner.html">estnltk.textcleaner module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vabamorf.html">estnltk.vabamorf.morf module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="match.html">estnltk.grammar.match module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="prettyprinter.html">estnltk.prettyprinter.prettyprinter module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wn.html">estnltk.wordnet.wn module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="grammar.html">estnltk.grammar.grammar module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ner.html">estnltk.ner module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="timex.html">estnltk.timex module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="clausesegmenter.html">estnltk.clausesegmenter module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core.html">estnltk.core module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="teicorpus.html">estnltk.teicorpus module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">estnltk.database.database module</a><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="wordnet_tagger.html">estnltk.wordnet_tagger module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="text.html">estnltk.text module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../authors.html">Authors</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">estnltk</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="index.html">API documentation</a> &raquo;</li>
+      
+    <li>estnltk.database.database module</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/api/database.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-estnltk.database.database">
+<span id="estnltk-database-database-module"></span><h1>estnltk.database.database module<a class="headerlink" href="#module-estnltk.database.database" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="estnltk.database.database.Database">
+<em class="property">class </em><code class="descclassname">estnltk.database.database.</code><code class="descname">Database</code><span class="sig-paren">(</span><em>index</em>, <em>doc_type='document'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/database/database.html#Database"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.database.database.Database" title="Permalink to this definition">¶</a></dt>
+<dd><p>Database class represents a single index in Elastic
+and helps with inserting and querying Estnltk documents.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>index: str</strong></p>
+<blockquote>
+<div><p>The name of the Elastic index.</p>
+</div></blockquote>
+<p><strong>doc_type:</strong></p>
+<blockquote>
+<div><p>The document type to use (default: &#8216;document&#8217;)</p>
+</div></blockquote>
+<p><strong>keyword_argument:</strong></p>
+<blockquote class="last">
+<div><p>All keyword arguments will be passed to Python Elasticsearch constructor.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#estnltk.database.database.Database.doc_type" title="estnltk.database.database.Database.doc_type"><code class="xref py py-obj docutils literal"><span class="pre">doc_type</span></code></a></td>
+<td>The doc_type property</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#estnltk.database.database.Database.es" title="estnltk.database.database.Database.es"><code class="xref py py-obj docutils literal"><span class="pre">es</span></code></a></td>
+<td>The ElasticSearch instance.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#estnltk.database.database.Database.index" title="estnltk.database.database.Database.index"><code class="xref py py-obj docutils literal"><span class="pre">index</span></code></a></td>
+<td>The name of the index.</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#estnltk.database.database.Database.bulk_insert" title="estnltk.database.database.Database.bulk_insert"><code class="xref py py-obj docutils literal"><span class="pre">bulk_insert</span></code></a>(list_of_texts[,&nbsp;id,&nbsp;refresh])</td>
+<td>Generator to use for bulk inserts</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">close_connection</span></code>()</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">count</span></code>()</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">delete</span></code>(index,&nbsp;id)</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#estnltk.database.database.Database.delete_index" title="estnltk.database.database.Database.delete_index"><code class="xref py py-obj docutils literal"><span class="pre">delete_index</span></code></a>()</td>
+<td>Delete the index.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#estnltk.database.database.Database.get" title="estnltk.database.database.Database.get"><code class="xref py py-obj docutils literal"><span class="pre">get</span></code></a>(id)</td>
+<td>Retrieve a document with given id.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#estnltk.database.database.Database.insert" title="estnltk.database.database.Database.insert"><code class="xref py py-obj docutils literal"><span class="pre">insert</span></code></a>(text[,&nbsp;id])</td>
+<td>Insert a document to index.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#estnltk.database.database.Database.query_documents" title="estnltk.database.database.Database.query_documents"><code class="xref py py-obj docutils literal"><span class="pre">query_documents</span></code></a>(query[,&nbsp;layer,&nbsp;es_result,&nbsp;...])</td>
+<td>Find all Text documents that match keywords in the query.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">query_matches</span></code>(uqwy[,&nbsp;layer])</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#estnltk.database.database.Database.refresh" title="estnltk.database.database.Database.refresh"><code class="xref py py-obj docutils literal"><span class="pre">refresh</span></code></a>()</td>
+<td>Commit all changes to the index.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">update</span></code>()</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="estnltk.database.database.Database.bulk_insert">
+<code class="descname">bulk_insert</code><span class="sig-paren">(</span><em>list_of_texts</em>, <em>id=None</em>, <em>refresh=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/database/database.html#Database.bulk_insert"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.database.database.Database.bulk_insert" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generator to use for bulk inserts</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.database.database.Database.delete_index">
+<code class="descname">delete_index</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/database/database.html#Database.delete_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.database.database.Database.delete_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete the index.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.database.database.Database.doc_type">
+<code class="descname">doc_type</code><a class="headerlink" href="#estnltk.database.database.Database.doc_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>The doc_type property</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.database.database.Database.es">
+<code class="descname">es</code><a class="headerlink" href="#estnltk.database.database.Database.es" title="Permalink to this definition">¶</a></dt>
+<dd><p>The ElasticSearch instance.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.database.database.Database.get">
+<code class="descname">get</code><span class="sig-paren">(</span><em>id</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/database/database.html#Database.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.database.database.Database.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve a document with given id.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.database.database.Database.index">
+<code class="descname">index</code><a class="headerlink" href="#estnltk.database.database.Database.index" title="Permalink to this definition">¶</a></dt>
+<dd><p>The name of the index.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.database.database.Database.insert">
+<code class="descname">insert</code><span class="sig-paren">(</span><em>text</em>, <em>id=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/database/database.html#Database.insert"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.database.database.Database.insert" title="Permalink to this definition">¶</a></dt>
+<dd><p>Insert a document to index.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>text: estnltk.text.Text</strong></p>
+<blockquote>
+<div><p>The text instance to be inserted.</p>
+</div></blockquote>
+<p><strong>id: str</strong></p>
+<blockquote>
+<div><p>Optional id for the document, if not omitted, a default value is generated.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">str</p>
+<blockquote class="last">
+<div><p>The id of the created document.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.database.database.Database.query_documents">
+<code class="descname">query_documents</code><span class="sig-paren">(</span><em>query</em>, <em>layer=None</em>, <em>es_result=False</em>, <em>start=0</em>, <em>size=10</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/database/database.html#Database.query_documents"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.database.database.Database.query_documents" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find all Text documents that match keywords in the query.</p>
+<p>Check elasticsearch documentation for more information:
+<a class="reference external" href="https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html">https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html</a></p>
+<p>Example queries:</p>
+<dl class="docutils">
+<dt>krokodill Gena</dt>
+<dd>Find documents containing &#8220;krokodill&#8221; or &#8220;gena&#8221; or both</dd>
+<dt>+venemaa -eesti</dt>
+<dd>Find documents containing word/lemma about venemaa, but not eesti</dd>
+<dt>&#8220;suur pauk&#8221;</dt>
+<dd>Find documents containing exact phrase &#8220;suur pauk&#8221;</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>query: str</strong></p>
+<blockquote>
+<div><p>The keywords to use for search.</p>
+</div></blockquote>
+<p><strong>layer: str</strong></p>
+<blockquote>
+<div><p>The layer to search the text from (for example words, sentences, clauses, verb_phrases etc).
+If layer is None (default), then use the full document text for search.</p>
+</div></blockquote>
+<p><strong>start: int (default: 0),</strong></p>
+<blockquote>
+<div><p>The start index of the results. Same as &#8220;from&#8221; in Elastic, but
+we cannot use this name as it is reseved in Python.</p>
+</div></blockquote>
+<p><strong>size: int (default: 10)</strong></p>
+<blockquote>
+<div><p>Return size matches.</p>
+</div></blockquote>
+<p><strong>es_result: boolean (default: False)</strong></p>
+<blockquote>
+<div><p>if True, return the elasticsearch results, otherwise return a list of Text instances.</p>
+</div></blockquote>
+<p><strong>Returns</strong></p>
+<p><strong>&#8212;&#8212;-</strong></p>
+<p><strong>list of Text instances if es_result is False</strong></p>
+<p class="last"><strong>dict if es_result is True</strong></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.database.database.Database.refresh">
+<code class="descname">refresh</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/database/database.html#Database.refresh"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.database.database.Database.refresh" title="Permalink to this definition">¶</a></dt>
+<dd><p>Commit all changes to the index.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="estnltk.database.database.prepare_text">
+<code class="descclassname">estnltk.database.database.</code><code class="descname">prepare_text</code><span class="sig-paren">(</span><em>text</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/database/database.html#prepare_text"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.database.database.prepare_text" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function that converts Text instance to format that can be easily indexed
+with ES database.</p>
+</dd></dl>
+
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="teicorpus.html" class="btn btn-neutral" title="estnltk.teicorpus module" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, University of Tartu unless specified otherwise in the file headers.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.4.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

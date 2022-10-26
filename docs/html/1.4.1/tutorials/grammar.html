@@ -1,0 +1,572 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Simple grammars for information extraction &mdash; estnltk 1.4.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="estnltk 1.4.1 documentation" href="../index.html"/>
+        <link rel="up" title="Estnltk tutorials" href="index.html"/>
+        <link rel="next" title="Experimental NP chunking" href="np_chunker.html"/>
+        <link rel="prev" title="Morphological disambiguation on a collection of documents" href="disambiguation.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> estnltk
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.4.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Estnltk tutorials</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="text.html">Basic Text class operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wikipedia.html">Wikipedia tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="elasticsearch.html">Elasticsearch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="disambiguation.html">Disambiguation</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Grammars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="np_chunker.html">Noun-phrase chunker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dependency_syntax.html">Dependency_syntax</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ner.html">Name-Entity Recognition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="prettyprinter.html">Prettyprinter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="terminalprettyprinter.html">Terminal prettyprinter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tei.html">Working with Koondkorpus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="morphology_tables.html">Morphological annotation tables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="devel.html">Developer readme</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../external/index.html">Other tools</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html">API documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../authors.html">Authors</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">estnltk</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="index.html">Estnltk tutorials</a> &raquo;</li>
+      
+    <li>Simple grammars for information extraction</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/tutorials/grammar.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="simple-grammars-for-information-extraction">
+<h1>Simple grammars for information extraction<a class="headerlink" href="#simple-grammars-for-information-extraction" title="Permalink to this headline">¶</a></h1>
+<p>Estnltk comes with simple grammar constructs that are useful for basic
+information extraction. Consider that you have a recipe for making
+panncakes:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="n">recipe</span> <span class="o">=</span> <span class="s1">&#39;&#39;&#39;</span>
+<span class="s1">2,5 dl piima</span>
+<span class="s1">1,5 dl jahu</span>
+<span class="s1">1 muna</span>
+<span class="s1">1 tl suhkrut</span>
+<span class="s1">1 tl vaniljeekstrakti</span>
+<span class="s1">0,5 tl soola</span>
+<span class="s1">&#39;&#39;&#39;</span>
+</pre></div>
+</div>
+<p>Suppose you want to create a robot that can cook various meals. In order
+to program that robot, you need a software module, which can parse
+recipes. This is where Estnltk&#8217;s <code class="docutils literal"><span class="pre">estnltk.grammar.grammar</span></code> module can
+help you.</p>
+<p>In the above example, we need to parse the numbers, unit and the name of
+the ingredient into more managenable form than free-text:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">estnltk</span> <span class="k">import</span> <span class="n">Regex</span><span class="p">,</span> <span class="n">Lemmas</span>
+
+<span class="n">number</span> <span class="o">=</span> <span class="n">Regex</span><span class="p">(</span><span class="s1">&#39;\d+([,.]\d+)?&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;amount&#39;</span><span class="p">)</span>
+<span class="n">unit</span> <span class="o">=</span> <span class="n">Lemmas</span><span class="p">(</span><span class="s1">&#39;dl&#39;</span><span class="p">,</span> <span class="s1">&#39;tl&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;unit&#39;</span><span class="p">)</span>
+<span class="n">ingredient</span> <span class="o">=</span> <span class="n">Lemmas</span><span class="p">(</span><span class="s1">&#39;piim&#39;</span><span class="p">,</span> <span class="s1">&#39;jahu&#39;</span><span class="p">,</span> <span class="s1">&#39;muna&#39;</span><span class="p">,</span> <span class="s1">&#39;suhkur&#39;</span><span class="p">,</span> <span class="s1">&#39;vaniljeekstrakt&#39;</span><span class="p">,</span> <span class="s1">&#39;sool&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;ingredient&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Now, there are two types of instructions:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">estnltk</span> <span class="k">import</span> <span class="n">Concatenation</span>
+
+<span class="n">space</span> <span class="o">=</span> <span class="n">Regex</span><span class="p">(</span><span class="s1">&#39;\s*&#39;</span><span class="p">)</span>
+<span class="n">full_instruction</span> <span class="o">=</span> <span class="n">Concatenation</span><span class="p">(</span><span class="n">number</span><span class="p">,</span> <span class="n">unit</span><span class="p">,</span> <span class="n">ingredient</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="n">space</span><span class="p">)</span>
+<span class="n">short_instruction</span> <span class="o">=</span> <span class="n">Concatenation</span><span class="p">(</span><span class="n">number</span><span class="p">,</span> <span class="n">ingredient</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="n">space</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>And we want to capture them both:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">estnltk</span> <span class="k">import</span> <span class="n">Union</span>
+
+<span class="n">instruction</span> <span class="o">=</span> <span class="n">Union</span><span class="p">(</span><span class="n">full_instruction</span><span class="p">,</span> <span class="n">short_instruction</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;instruction&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Basically, a grammar contains a number of symbols that can be chained
+together in various ways and rigged for information extraction. Above
+grammar just extracts numbers defined by a regular expression, and units
+and ingredients based on user given lists.</p>
+<p>Now, going back to our robot example, we can extract the data from text
+using <code class="docutils literal"><span class="pre">get_matches</span></code> method:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">estnltk</span> <span class="k">import</span> <span class="n">Text</span>
+<span class="kn">from</span> <span class="nn">pprint</span> <span class="k">import</span> <span class="n">pprint</span>
+
+<span class="n">text</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="n">recipe</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal"><span class="pre">dict</span></code> attribute of each <strong>Match</strong> instance can be used to access
+the symbol&#8217;s name, matched text, start and end positions and also all
+submatches:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">instruction</span><span class="o">.</span><span class="n">get_matches</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+    <span class="n">pprint</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">dict</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">&#39;amount&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="s1">&#39;2,5&#39;</span><span class="p">},</span>
+ <span class="s1">&#39;ingredient&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">13</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="s1">&#39;piima&#39;</span><span class="p">},</span>
+ <span class="s1">&#39;instruction&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">13</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="s1">&#39;2,5 dl piima&#39;</span><span class="p">},</span>
+ <span class="s1">&#39;unit&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="s1">&#39;dl&#39;</span><span class="p">}}</span>
+<span class="p">{</span><span class="s1">&#39;amount&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">17</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">14</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="s1">&#39;1,5&#39;</span><span class="p">},</span>
+ <span class="s1">&#39;ingredient&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">25</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">21</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="s1">&#39;jahu&#39;</span><span class="p">},</span>
+ <span class="s1">&#39;instruction&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">25</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">14</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="s1">&#39;1,5 dl jahu&#39;</span><span class="p">},</span>
+ <span class="s1">&#39;unit&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">18</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="s1">&#39;dl&#39;</span><span class="p">}}</span>
+<span class="p">{</span><span class="s1">&#39;amount&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">27</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">26</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="s1">&#39;1&#39;</span><span class="p">},</span>
+ <span class="s1">&#39;ingredient&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">32</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">28</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="s1">&#39;muna&#39;</span><span class="p">},</span>
+ <span class="s1">&#39;instruction&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">32</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">26</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="s1">&#39;1 muna&#39;</span><span class="p">}}</span>
+<span class="p">{</span><span class="s1">&#39;amount&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">34</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">33</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="s1">&#39;1&#39;</span><span class="p">},</span>
+ <span class="s1">&#39;ingredient&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">45</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">38</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="s1">&#39;suhkrut&#39;</span><span class="p">},</span>
+ <span class="s1">&#39;instruction&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">45</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">33</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="s1">&#39;1 tl suhkrut&#39;</span><span class="p">},</span>
+ <span class="s1">&#39;unit&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">37</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">35</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="s1">&#39;tl&#39;</span><span class="p">}}</span>
+<span class="p">{</span><span class="s1">&#39;amount&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">47</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">46</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="s1">&#39;1&#39;</span><span class="p">},</span>
+ <span class="s1">&#39;ingredient&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">67</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">51</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="s1">&#39;vaniljeekstrakti&#39;</span><span class="p">},</span>
+ <span class="s1">&#39;instruction&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">67</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">46</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="s1">&#39;1 tl vaniljeekstrakti&#39;</span><span class="p">},</span>
+ <span class="s1">&#39;unit&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">50</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">48</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="s1">&#39;tl&#39;</span><span class="p">}}</span>
+<span class="p">{</span><span class="s1">&#39;amount&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">71</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">68</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="s1">&#39;0,5&#39;</span><span class="p">},</span>
+ <span class="s1">&#39;ingredient&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">80</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">75</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="s1">&#39;soola&#39;</span><span class="p">},</span>
+ <span class="s1">&#39;instruction&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">80</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">68</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="s1">&#39;0,5 tl soola&#39;</span><span class="p">},</span>
+ <span class="s1">&#39;unit&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">74</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">72</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="s1">&#39;tl&#39;</span><span class="p">}}</span>
+</pre></div>
+</div>
+<p>You can also use the symbols to tag layers directly in <strong>Text</strong>
+instances:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="n">instruction</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+</pre></div>
+</div>
+<pre class="literal-block">
+{'amount': [{'end': 4, 'start': 1, 'text': '2,5'},
+  {'end': 17, 'start': 14, 'text': '1,5'},
+  {'end': 27, 'start': 26, 'text': '1'},
+  {'end': 34, 'start': 33, 'text': '1'},
+  {'end': 47, 'start': 46, 'text': '1'},
+  {'end': 71, 'start': 68, 'text': '0,5'}],
+ 'ingredient': [{'end': 13, 'start': 8, 'text': 'piima'},
+  {'end': 25, 'start': 21, 'text': 'jahu'},
+  {'end': 32, 'start': 28, 'text': 'muna'},
+  {'end': 45, 'start': 38, 'text': 'suhkrut'},
+  {'end': 67, 'start': 51, 'text': 'vaniljeekstrakti'},
+  {'end': 80, 'start': 75, 'text': 'soola'}],
+ 'instruction': [{'end': 13, 'start': 1, 'text': '2,5 dl piima'},
+  {'end': 25, 'start': 14, 'text': '1,5 dl jahu'},
+  {'end': 32, 'start': 26, 'text': '1 muna'},
+  {'end': 45, 'start': 33, 'text': '1 tl suhkrut'},
+  {'end': 67, 'start': 46, 'text': '1 tl vaniljeekstrakti'},
+  {'end': 80, 'start': 68, 'text': '0,5 tl soola'}],
+ 'paragraphs': [{'end': 81, 'start': 0}],
+ 'sentences': [{'end': 81, 'start': 0}],
+ 'text': 'n2,5 dl piiman1,5 dl jahun1 munan1 tl suhkrutn1 tl vaniljeekstraktin0,5 tl soolan',
+ 'unit': [{'end': 7, 'start': 5, 'text': 'dl'},
+  {'end': 20, 'start': 18, 'text': 'dl'},
+  {'end': 37, 'start': 35, 'text': 'tl'},
+  {'end': 50, 'start': 48, 'text': 'tl'},
+  {'end': 74, 'start': 72, 'text': 'tl'}],
+ 'words': [{'analysis': [{'clitic': '',
+     'ending': '0',
+     'form': '?',
+     'lemma': '2,5',
+     'partofspeech': 'N',
+     'root': '2,5',
+     'root_tokens': ['2,5']}],
+   'end': 4,
+   'start': 1,
+   'text': '2,5'},
+  {'analysis': [{'clitic': '',
+     'ending': '0',
+     'form': '?',
+     'lemma': 'dl',
+     'partofspeech': 'Y',
+     'root': 'dl',
+     'root_tokens': ['dl']}],
+   'end': 7,
+   'start': 5,
+   'text': 'dl'},
+  {'analysis': [{'clitic': '',
+     'ending': '0',
+     'form': 'sg p',
+     'lemma': 'piim',
+     'partofspeech': 'S',
+     'root': 'piim',
+     'root_tokens': ['piim']}],
+   'end': 13,
+   'start': 8,
+   'text': 'piima'},
+  {'analysis': [{'clitic': '',
+     'ending': '0',
+     'form': '?',
+     'lemma': '1,5',
+     'partofspeech': 'N',
+     'root': '1,5',
+     'root_tokens': ['1,5']}],
+   'end': 17,
+   'start': 14,
+   'text': '1,5'},
+  {'analysis': [{'clitic': '',
+     'ending': '0',
+     'form': '?',
+     'lemma': 'dl',
+     'partofspeech': 'Y',
+     'root': 'dl',
+     'root_tokens': ['dl']}],
+   'end': 20,
+   'start': 18,
+   'text': 'dl'},
+  {'analysis': [{'clitic': '',
+     'ending': '0',
+     'form': 'sg p',
+     'lemma': 'jahu',
+     'partofspeech': 'S',
+     'root': 'jahu',
+     'root_tokens': ['jahu']}],
+   'end': 25,
+   'start': 21,
+   'text': 'jahu'},
+  {'analysis': [{'clitic': '',
+     'ending': '0',
+     'form': '?',
+     'lemma': '1',
+     'partofspeech': 'N',
+     'root': '1',
+     'root_tokens': ['1']}],
+   'end': 27,
+   'start': 26,
+   'text': '1'},
+  {'analysis': [{'clitic': '',
+     'ending': '0',
+     'form': 'sg p',
+     'lemma': 'muna',
+     'partofspeech': 'S',
+     'root': 'muna',
+     'root_tokens': ['muna']}],
+   'end': 32,
+   'start': 28,
+   'text': 'muna'},
+  {'analysis': [{'clitic': '',
+     'ending': '0',
+     'form': '?',
+     'lemma': '1',
+     'partofspeech': 'N',
+     'root': '1',
+     'root_tokens': ['1']}],
+   'end': 34,
+   'start': 33,
+   'text': '1'},
+  {'analysis': [{'clitic': '',
+     'ending': '0',
+     'form': '?',
+     'lemma': 'tl',
+     'partofspeech': 'Y',
+     'root': 'tl',
+     'root_tokens': ['tl']}],
+   'end': 37,
+   'start': 35,
+   'text': 'tl'},
+  {'analysis': [{'clitic': '',
+     'ending': 't',
+     'form': 'sg p',
+     'lemma': 'suhkur',
+     'partofspeech': 'S',
+     'root': 'suhkur',
+     'root_tokens': ['suhkur']}],
+   'end': 45,
+   'start': 38,
+   'text': 'suhkrut'},
+  {'analysis': [{'clitic': '',
+     'ending': '0',
+     'form': '?',
+     'lemma': '1',
+     'partofspeech': 'N',
+     'root': '1',
+     'root_tokens': ['1']}],
+   'end': 47,
+   'start': 46,
+   'text': '1'},
+  {'analysis': [{'clitic': '',
+     'ending': '0',
+     'form': '?',
+     'lemma': 'tl',
+     'partofspeech': 'Y',
+     'root': 'tl',
+     'root_tokens': ['tl']}],
+   'end': 50,
+   'start': 48,
+   'text': 'tl'},
+  {'analysis': [{'clitic': '',
+     'ending': '0',
+     'form': 'sg p',
+     'lemma': 'vaniljeekstrakt',
+     'partofspeech': 'S',
+     'root': 'vanilje_ekstrakt',
+     'root_tokens': ['vanilje', 'ekstrakt']}],
+   'end': 67,
+   'start': 51,
+   'text': 'vaniljeekstrakti'},
+  {'analysis': [{'clitic': '',
+     'ending': '0',
+     'form': '?',
+     'lemma': '0,5',
+     'partofspeech': 'N',
+     'root': '0,5',
+     'root_tokens': ['0,5']}],
+   'end': 71,
+   'start': 68,
+   'text': '0,5'},
+  {'analysis': [{'clitic': '',
+     'ending': '0',
+     'form': '?',
+     'lemma': 'tl',
+     'partofspeech': 'Y',
+     'root': 'tl',
+     'root_tokens': ['tl']}],
+   'end': 74,
+   'start': 72,
+   'text': 'tl'},
+  {'analysis': [{'clitic': '',
+     'ending': '0',
+     'form': 'sg p',
+     'lemma': 'sool',
+     'partofspeech': 'S',
+     'root': 'sool',
+     'root_tokens': ['sool']}],
+   'end': 80,
+   'start': 75,
+   'text': 'soola'}]}
+</pre>
+<p>Let&#8217;s use prettyprinter to visualize this as HTML:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">IPython.display</span> <span class="k">import</span> <span class="n">HTML</span>
+</pre></div>
+</div>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">estnltk</span> <span class="k">import</span> <span class="n">PrettyPrinter</span>
+<span class="n">pp</span> <span class="o">=</span> <span class="n">PrettyPrinter</span><span class="p">(</span><span class="n">background</span><span class="o">=</span><span class="s1">&#39;instruction&#39;</span><span class="p">,</span> <span class="n">underline</span><span class="o">=</span><span class="s1">&#39;ingredient&#39;</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="s1">&#39;unit&#39;</span><span class="p">)</span>
+<span class="n">html</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">add_header</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="n">HTML</span><span class="p">(</span><span class="n">html</span><span class="p">)</span>
+</pre></div>
+</div>
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" type="text/css" href="prettyprinter.css">
+        <meta charset="utf-8">
+        <title>PrettyPrinter</title>
+    </head>
+    <style>
+
+
+            mark {
+                    background:none;
+            }
+            mark.underline {
+                    text-decoration: underline;
+            }
+            mark.weight {
+                    font-weight: bold;
+            }
+            mark.background {
+                    background-color: rgb(102, 204, 255);
+            }
+
+    </style>
+    <body>
+
+<br/><mark class="background">2,5 </mark><mark class="background weight">dl</mark><mark class="background"> </mark><mark class="background underline">piima</mark><br/><mark class="background">1,5 </mark><mark class="background weight">dl</mark><mark class="background"> </mark><mark class="background underline">jahu</mark><br/><mark class="background">1 </mark><mark class="background underline">muna</mark><br/><mark class="background">1 </mark><mark class="background weight">tl</mark><mark class="background"> </mark><mark class="background underline">suhkrut</mark><br/><mark class="background">1 </mark><mark class="background weight">tl</mark><mark class="background"> </mark><mark class="background underline">vaniljeekstrakti</mark><br/><mark class="background">0,5 </mark><mark class="background weight">tl</mark><mark class="background"> </mark><mark class="background underline">soola</mark><br/>
+    </body>
+</html><p>You can access the annotated layers as you would access typical layers:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="n">pprint</span><span class="p">(</span><span class="n">text</span><span class="p">[</span><span class="s1">&#39;ingredient&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">13</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="s1">&#39;piima&#39;</span><span class="p">},</span>
+ <span class="p">{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">25</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">21</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="s1">&#39;jahu&#39;</span><span class="p">},</span>
+ <span class="p">{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">32</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">28</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="s1">&#39;muna&#39;</span><span class="p">},</span>
+ <span class="p">{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">45</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">38</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="s1">&#39;suhkrut&#39;</span><span class="p">},</span>
+ <span class="p">{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">67</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">51</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="s1">&#39;vaniljeekstrakti&#39;</span><span class="p">},</span>
+ <span class="p">{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">80</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">75</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="s1">&#39;soola&#39;</span><span class="p">}]</span>
+</pre></div>
+</div>
+<p>See package <code class="docutils literal"><span class="pre">estnltk.grammar.examples</span></code> for more examples.</p>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="np_chunker.html" class="btn btn-neutral float-right" title="Experimental NP chunking" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="disambiguation.html" class="btn btn-neutral" title="Morphological disambiguation on a collection of documents" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, University of Tartu unless specified otherwise in the file headers.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.4.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

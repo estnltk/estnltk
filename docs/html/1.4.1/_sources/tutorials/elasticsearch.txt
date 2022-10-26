@@ -1,0 +1,139 @@
+
+Handling large text collections with Elastic database
+=====================================================
+
+Estnltk has database module that simplifies working with large corpora.
+Check out wikipedia\_tutorial, tei\_tutorial for more information about
+getting started with larger text document collections.
+
+Estnltk database integrates with
+`Elastic <https://www.elastic.co/downloads/elasticsearch>`__, which is a
+distributed RESTful schema-free JSON database, based on `Apache
+Lucene <https://lucene.apache.org/>`__.
+
+For testing and we recommend use to docker and run elasticsearch with
+the command:
+
+::
+
+    docker run --name estnltk_elastic -p 9200:9200 -d  elasticsearch:2
+
+Estnltk Elastic wrapper
+-----------------------
+
+To access estnltk elasticsearch wrappers:
+
+.. code:: python
+
+    from estnltk.database.elastic import *
+    from estnltk.database.elastic.query_grammar import *
+
+To create an index:
+
+.. code:: python
+
+    index = create_index('demo_index')
+
+Or to connect to an existing index:
+
+.. code:: python
+
+    index = connect('demo_index')
+
+To specify non-default arguments to elasticsearch connection, you can
+either pass the parameters to either method or create and Index instance
+manually, passing the Elastic python API client object as the first
+parameter.
+
+These methods return an index object that has two important methods:
+save and sentences:
+
+.. code:: python
+
+    from estnltk import Text
+    
+    t = Text('See on demolause. Sellele järgneb veel üks.')
+    index.save(t)
+    
+    t = Text('Karu otsis talvekodu.')
+    index.save(t)
+
+.. code:: python
+
+    #waiting for the sentences to be indexed
+    import time
+    time.sleep(2)
+
+.. code:: python
+
+    for sentence in index.sentences():
+        print(sentence.lemmas) #note that the sentences generator returns estnltk Text objects by default.
+
+
+.. parsed-literal::
+
+    ['see', 'olema', 'demolause', '.']
+    ['see', 'järgnema', 'veel', 'üks', '.']
+    ['Karu', 'otsima', 'talvekodu', '.']
+
+
+To see the mapping and data structure in the elasticsearch index, refer
+to the mappings.py file.
+
+Iterating over corpora
+----------------------
+
+To iterate over the entire corpus use the Index.sentences generator. In
+the general case it is enough to do:
+
+.. code:: python
+
+    for sentence in index.sentences():
+        print(sentence)
+
+
+.. parsed-literal::
+
+    See on demolause.
+    Sellele järgneb veel üks.
+    Karu otsis talvekodu.
+
+
+Iterating over query results
+----------------------------
+
+To iterate over query results, pass the elasticsearch query to the
+sentences generator as the "query" parameter. The query should be a
+dictionary as expected by elasticsearch python API. It will be
+transformed into json before being transmitted.
+
+To simplify writing some queries, see the query\_helper module. It
+defines the Word class that maps well to estnltk morphological analysis
+results. The general workflow is:
+
+1. Define words to match with the Word class.
+2. Combine them with boolean operators "&" and "\|"
+3. Wrap them in a Grammar object
+4. Get the query via the Grammar.query() method.
+5. Annotate the results with the Grammar.annotate() method that creates
+   a layer that marks the matching words.
+
+For example:
+
+.. code:: python
+
+    grammar = Grammar(Word(lemma='otsima'))
+    for sentence in index.sentences(query=grammar.query()):
+        #Optionally you can annotate the results against the grammar.
+        grammar.annotate(sentence, 'result')
+        print(sentence)
+
+
+.. parsed-literal::
+
+    {'fields': ['estnltk_text_object'], 'query': {'nested': {'path': 'words.analysis', 'query': {'bool': {'must': [{'terms': {'words.analysis.lemma': ['otsima']}}]}}}}}
+    Karu otsis talvekodu.
+
+
+The results can be visualised with the PrettyPrinter class or worked on
+using any other standard tools that work on estnltk layers.

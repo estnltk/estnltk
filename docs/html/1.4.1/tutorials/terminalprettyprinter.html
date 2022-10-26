@@ -1,0 +1,343 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Terminal Prettyprinter &mdash; estnltk 1.4.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="estnltk 1.4.1 documentation" href="../index.html"/>
+        <link rel="up" title="Estnltk tutorials" href="index.html"/>
+        <link rel="next" title="Working with Estonian Koondkorpus" href="tei.html"/>
+        <link rel="prev" title="HTML Prettyprinter" href="prettyprinter.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> estnltk
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.4.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Estnltk tutorials</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="text.html">Basic Text class operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wikipedia.html">Wikipedia tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="elasticsearch.html">Elasticsearch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="disambiguation.html">Disambiguation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="grammar.html">Grammars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="np_chunker.html">Noun-phrase chunker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dependency_syntax.html">Dependency_syntax</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ner.html">Name-Entity Recognition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="prettyprinter.html">Prettyprinter</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Terminal prettyprinter</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#basic-usage">Basic usage</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#limitations-of-terminal-prettyprinting"><em>Limitations of terminal prettyprinting</em></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#default-formatting">Default formatting</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tei.html">Working with Koondkorpus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="morphology_tables.html">Morphological annotation tables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="devel.html">Developer readme</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../external/index.html">Other tools</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html">API documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../authors.html">Authors</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">estnltk</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="index.html">Estnltk tutorials</a> &raquo;</li>
+      
+    <li>Terminal Prettyprinter</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/tutorials/terminalprettyprinter.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="terminal-prettyprinter">
+<h1>Terminal Prettyprinter<a class="headerlink" href="#terminal-prettyprinter" title="Permalink to this headline">¶</a></h1>
+<p>In addition to HTML pretty-printing capabilities, Estnltk also provides
+means for visualizing annotations in terminal: bracketing annotations,
+displaying annotations in a custom color font, and/or underlining
+annotations.</p>
+<div class="section" id="basic-usage">
+<h2>Basic usage<a class="headerlink" href="#basic-usage" title="Permalink to this headline">¶</a></h2>
+<p>A straight-forward prettyprinting can be performed via the method
+:py:meth:<code class="docutils literal"><span class="pre">terminalprettyprinter.tprint</span></code>, which takes three input
+arguments: a <code class="docutils literal"><span class="pre">Text</span></code> object, a list of layer names (text annotation
+layers to be visualized), and list of dicts containing formatting
+options (how each layer should be visualized), and outputs formatted
+text to the terminal. Example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">..</span> <span class="n">code</span><span class="p">::</span> <span class="n">python</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>from estnltk import Text
+from estnltk.prettyprinter.terminalprettyprinter import tprint</p>
+<p>text = Text(&#8216;&#8217;&#8216;Eesti Vabariik on riik Põhja-Euroopas.
+Eesti piirneb põhjas üle Soome lahe Soome Vabariigiga.
+Riigikogu on Eesti Vabariigi parlament. Riigikogule kuulub Eestis seadusandlik võim.
+2005. aastal sai peaministriks Andrus Ansip, kes püsis sellel kohal 2014. aastani.
+2006. aastal valiti presidendiks Toomas Hendrik Ilves.
+&#8216;&#8217;&#8216;).tag_all()</p>
+<p># Print text in a manner that:
+#  1) clauses are bracketed,
+#  2) verb chains are underlined,
+#  3) timexes are colored white,
+#  4) named entities are colored green;
+tprint( text, [&#8216;clauses&#8217;, &#8216;verb_chains&#8217;, &#8216;timexes&#8217;, &#8216;named_entities&#8217;], [{&#8216;bracket&#8217;:True},{&#8216;underline&#8217;:True},{&#8216;color&#8217;:&#8217;white&#8217;},{&#8216;color&#8217;:&#8217;green&#8217;}] )</p>
+</div></blockquote>
+<p>Note that using
+:py:meth:<code class="docutils literal"><span class="pre">~estnltk.prettyprinter.terminalprettyprinter.tprint</span></code>
+requires that the layers of annotations to be visualized are already
+tagged in the input :py:class:<code class="docutils literal"><span class="pre">~estnltk.text.Text</span></code> object &#8211; if some
+visualizable layer is missing in the input text, the method exits with
+an error.</p>
+<p>The previous example produces the following output (in a Windows
+terminal):</p>
+<div class="figure" id="id1">
+<img alt="im" src="../_images/terminalprettyprinter_example_1.png" />
+<p class="caption"><span class="caption-text">im</span></p>
+</div>
+<p>The list of annotation options must be same size as the list of layer
+names, individually specifying how each layer should be formatted. The
+pretty-printing function currently supports the following formatting
+options:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">'underline'</span></code> (shortcut: <code class="docutils literal"><span class="pre">'u'</span></code>) &#8211; boolean indicating whether
+annotations of given layer should be underlined;</li>
+<li><code class="docutils literal"><span class="pre">'bracket'</span></code> (shortcut: <code class="docutils literal"><span class="pre">'b'</span></code>) &#8211; boolean indicating whether
+annotations of given layer should be bracketed;</li>
+<li><code class="docutils literal"><span class="pre">'color'</span></code> (shortcut: <code class="docutils literal"><span class="pre">'c'</span></code>) &#8211; string indicating color of the
+font in which the annotation is to be displayed; Supported color
+names: <code class="docutils literal"><span class="pre">'red'</span></code>, <code class="docutils literal"><span class="pre">'blue'</span></code>, <code class="docutils literal"><span class="pre">'green'</span></code>, <code class="docutils literal"><span class="pre">'white'</span></code>, <code class="docutils literal"><span class="pre">'cyan'</span></code>,
+<code class="docutils literal"><span class="pre">'purple'</span></code>, <code class="docutils literal"><span class="pre">'yellow'</span></code>, <code class="docutils literal"><span class="pre">'teal'</span></code>, <code class="docutils literal"><span class="pre">'darkpurple'</span></code>,
+<code class="docutils literal"><span class="pre">'darkblue'</span></code>, <code class="docutils literal"><span class="pre">'olive'</span></code>, <code class="docutils literal"><span class="pre">'darkgreen'</span></code>, <code class="docutils literal"><span class="pre">'darkred'</span></code>,
+<code class="docutils literal"><span class="pre">'grey'</span></code> ;</li>
+</ul>
+<div class="section" id="limitations-of-terminal-prettyprinting">
+<h3><em>Limitations of terminal prettyprinting</em><a class="headerlink" href="#limitations-of-terminal-prettyprinting" title="Permalink to this headline">¶</a></h3>
+<p>Graphical formatting of annotations (changing color of the text, and/or
+underlining annotations) can only be used in a terminal that interprets
+<em>ANSI escape sequences</em> as text formatting commands. Not all terminals
+support these commands, e.g. Python&#8217;s IDLE environment lacks the
+support. If the terminal does not support graphical formatting, the only
+viable terminal-based visualization option is to surround the
+annotations with brackets; using any other option (e.g. font coloring)
+will simply produce text mingled with unexecuted ANSI escape sequences.</p>
+</div>
+</div>
+<div class="section" id="default-formatting">
+<h2>Default formatting<a class="headerlink" href="#default-formatting" title="Permalink to this headline">¶</a></h2>
+<p>The method
+:py:meth:<code class="docutils literal"><span class="pre">~estnltk.prettyprinter.terminalprettyprinter.tprint</span></code> comes
+with a set of predefined formatting options, in which all annotations
+are bracketed and different layers are distinguished by distinct font
+coloring. In order to use the default settings, simply skip the third
+argument of the method:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">..</span> <span class="n">code</span><span class="p">::</span> <span class="n">python</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>from estnltk import Text
+from estnltk.prettyprinter.terminalprettyprinter import tprint</p>
+<p>text = Text(&#8216;&#8217;&#8216;Eesti Vabariik on riik Põhja-Euroopas.
+Eesti piirneb põhjas üle Soome lahe Soome Vabariigiga.
+Riigikogu on Eesti Vabariigi parlament. Riigikogule kuulub Eestis seadusandlik võim.
+2005. aastal sai peaministriks Andrus Ansip, kes püsis sellel kohal 2014. aastani.
+2006. aastal valiti presidendiks Toomas Hendrik Ilves.
+&#8216;&#8217;&#8216;).tag_all()</p>
+<p># Print text using default formatting options
+tprint( text, [&#8216;clauses&#8217;, &#8216;verb_chains&#8217;, &#8216;timexes&#8217;, &#8216;named_entities&#8217;] )</p>
+</div></blockquote>
+<p>The above example produces the following output (in a Windows terminal):</p>
+<div class="figure" id="id2">
+<img alt="im" src="../_images/terminalprettyprinter_example_2.png" />
+<p class="caption"><span class="caption-text">im</span></p>
+</div>
+<p>Up to 12 different layers of annotation can be visualized with default
+settings; default colors are starting from the bright ones (<code class="docutils literal"><span class="pre">'green'</span></code>,
+<code class="docutils literal"><span class="pre">'cyan'</span></code>, <code class="docutils literal"><span class="pre">'yellow'</span></code>, ...) and ending with the dark ones (...,
+<code class="docutils literal"><span class="pre">'darkblue'</span></code>, <code class="docutils literal"><span class="pre">'olive'</span></code>, <code class="docutils literal"><span class="pre">'darkred'</span></code>).</p>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="tei.html" class="btn btn-neutral float-right" title="Working with Estonian Koondkorpus" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="prettyprinter.html" class="btn btn-neutral" title="HTML Prettyprinter" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, University of Tartu unless specified otherwise in the file headers.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.4.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

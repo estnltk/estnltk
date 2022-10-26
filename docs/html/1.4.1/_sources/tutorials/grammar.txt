@@ -1,0 +1,387 @@
+
+Simple grammars for information extraction
+==========================================
+
+Estnltk comes with simple grammar constructs that are useful for basic
+information extraction. Consider that you have a recipe for making
+panncakes:
+
+.. code:: python
+
+    recipe = '''
+    2,5 dl piima
+    1,5 dl jahu
+    1 muna
+    1 tl suhkrut
+    1 tl vaniljeekstrakti
+    0,5 tl soola
+    '''
+
+Suppose you want to create a robot that can cook various meals. In order
+to program that robot, you need a software module, which can parse
+recipes. This is where Estnltk's ``estnltk.grammar.grammar`` module can
+help you.
+
+In the above example, we need to parse the numbers, unit and the name of
+the ingredient into more managenable form than free-text:
+
+.. code:: python
+
+    from estnltk import Regex, Lemmas
+    
+    number = Regex('\d+([,.]\d+)?', name='amount')
+    unit = Lemmas('dl', 'tl', name='unit')
+    ingredient = Lemmas('piim', 'jahu', 'muna', 'suhkur', 'vaniljeekstrakt', 'sool', name='ingredient')
+
+Now, there are two types of instructions:
+
+.. code:: python
+
+    from estnltk import Concatenation
+    
+    space = Regex('\s*')
+    full_instruction = Concatenation(number, unit, ingredient, sep=space)
+    short_instruction = Concatenation(number, ingredient, sep=space)
+
+And we want to capture them both:
+
+.. code:: python
+
+    from estnltk import Union
+    
+    instruction = Union(full_instruction, short_instruction, name='instruction')
+
+Basically, a grammar contains a number of symbols that can be chained
+together in various ways and rigged for information extraction. Above
+grammar just extracts numbers defined by a regular expression, and units
+and ingredients based on user given lists.
+
+Now, going back to our robot example, we can extract the data from text
+using ``get_matches`` method:
+
+.. code:: python
+
+    from estnltk import Text
+    from pprint import pprint
+    
+    text = Text(recipe)
+
+The ``dict`` attribute of each **Match** instance can be used to access
+the symbol's name, matched text, start and end positions and also all
+submatches:
+
+.. code:: python
+
+    for match in instruction.get_matches(text):
+        pprint(match.dict)
+
+
+.. parsed-literal::
+
+    {'amount': {'end': 4, 'start': 1, 'text': '2,5'},
+     'ingredient': {'end': 13, 'start': 8, 'text': 'piima'},
+     'instruction': {'end': 13, 'start': 1, 'text': '2,5 dl piima'},
+     'unit': {'end': 7, 'start': 5, 'text': 'dl'}}
+    {'amount': {'end': 17, 'start': 14, 'text': '1,5'},
+     'ingredient': {'end': 25, 'start': 21, 'text': 'jahu'},
+     'instruction': {'end': 25, 'start': 14, 'text': '1,5 dl jahu'},
+     'unit': {'end': 20, 'start': 18, 'text': 'dl'}}
+    {'amount': {'end': 27, 'start': 26, 'text': '1'},
+     'ingredient': {'end': 32, 'start': 28, 'text': 'muna'},
+     'instruction': {'end': 32, 'start': 26, 'text': '1 muna'}}
+    {'amount': {'end': 34, 'start': 33, 'text': '1'},
+     'ingredient': {'end': 45, 'start': 38, 'text': 'suhkrut'},
+     'instruction': {'end': 45, 'start': 33, 'text': '1 tl suhkrut'},
+     'unit': {'end': 37, 'start': 35, 'text': 'tl'}}
+    {'amount': {'end': 47, 'start': 46, 'text': '1'},
+     'ingredient': {'end': 67, 'start': 51, 'text': 'vaniljeekstrakti'},
+     'instruction': {'end': 67, 'start': 46, 'text': '1 tl vaniljeekstrakti'},
+     'unit': {'end': 50, 'start': 48, 'text': 'tl'}}
+    {'amount': {'end': 71, 'start': 68, 'text': '0,5'},
+     'ingredient': {'end': 80, 'start': 75, 'text': 'soola'},
+     'instruction': {'end': 80, 'start': 68, 'text': '0,5 tl soola'},
+     'unit': {'end': 74, 'start': 72, 'text': 'tl'}}
+
+
+You can also use the symbols to tag layers directly in **Text**
+instances:
+
+.. code:: python
+
+    instruction.annotate(text)
+
+
+
+
+.. parsed-literal::
+
+    {'amount': [{'end': 4, 'start': 1, 'text': '2,5'},
+      {'end': 17, 'start': 14, 'text': '1,5'},
+      {'end': 27, 'start': 26, 'text': '1'},
+      {'end': 34, 'start': 33, 'text': '1'},
+      {'end': 47, 'start': 46, 'text': '1'},
+      {'end': 71, 'start': 68, 'text': '0,5'}],
+     'ingredient': [{'end': 13, 'start': 8, 'text': 'piima'},
+      {'end': 25, 'start': 21, 'text': 'jahu'},
+      {'end': 32, 'start': 28, 'text': 'muna'},
+      {'end': 45, 'start': 38, 'text': 'suhkrut'},
+      {'end': 67, 'start': 51, 'text': 'vaniljeekstrakti'},
+      {'end': 80, 'start': 75, 'text': 'soola'}],
+     'instruction': [{'end': 13, 'start': 1, 'text': '2,5 dl piima'},
+      {'end': 25, 'start': 14, 'text': '1,5 dl jahu'},
+      {'end': 32, 'start': 26, 'text': '1 muna'},
+      {'end': 45, 'start': 33, 'text': '1 tl suhkrut'},
+      {'end': 67, 'start': 46, 'text': '1 tl vaniljeekstrakti'},
+      {'end': 80, 'start': 68, 'text': '0,5 tl soola'}],
+     'paragraphs': [{'end': 81, 'start': 0}],
+     'sentences': [{'end': 81, 'start': 0}],
+     'text': '\n2,5 dl piima\n1,5 dl jahu\n1 muna\n1 tl suhkrut\n1 tl vaniljeekstrakti\n0,5 tl soola\n',
+     'unit': [{'end': 7, 'start': 5, 'text': 'dl'},
+      {'end': 20, 'start': 18, 'text': 'dl'},
+      {'end': 37, 'start': 35, 'text': 'tl'},
+      {'end': 50, 'start': 48, 'text': 'tl'},
+      {'end': 74, 'start': 72, 'text': 'tl'}],
+     'words': [{'analysis': [{'clitic': '',
+         'ending': '0',
+         'form': '?',
+         'lemma': '2,5',
+         'partofspeech': 'N',
+         'root': '2,5',
+         'root_tokens': ['2,5']}],
+       'end': 4,
+       'start': 1,
+       'text': '2,5'},
+      {'analysis': [{'clitic': '',
+         'ending': '0',
+         'form': '?',
+         'lemma': 'dl',
+         'partofspeech': 'Y',
+         'root': 'dl',
+         'root_tokens': ['dl']}],
+       'end': 7,
+       'start': 5,
+       'text': 'dl'},
+      {'analysis': [{'clitic': '',
+         'ending': '0',
+         'form': 'sg p',
+         'lemma': 'piim',
+         'partofspeech': 'S',
+         'root': 'piim',
+         'root_tokens': ['piim']}],
+       'end': 13,
+       'start': 8,
+       'text': 'piima'},
+      {'analysis': [{'clitic': '',
+         'ending': '0',
+         'form': '?',
+         'lemma': '1,5',
+         'partofspeech': 'N',
+         'root': '1,5',
+         'root_tokens': ['1,5']}],
+       'end': 17,
+       'start': 14,
+       'text': '1,5'},
+      {'analysis': [{'clitic': '',
+         'ending': '0',
+         'form': '?',
+         'lemma': 'dl',
+         'partofspeech': 'Y',
+         'root': 'dl',
+         'root_tokens': ['dl']}],
+       'end': 20,
+       'start': 18,
+       'text': 'dl'},
+      {'analysis': [{'clitic': '',
+         'ending': '0',
+         'form': 'sg p',
+         'lemma': 'jahu',
+         'partofspeech': 'S',
+         'root': 'jahu',
+         'root_tokens': ['jahu']}],
+       'end': 25,
+       'start': 21,
+       'text': 'jahu'},
+      {'analysis': [{'clitic': '',
+         'ending': '0',
+         'form': '?',
+         'lemma': '1',
+         'partofspeech': 'N',
+         'root': '1',
+         'root_tokens': ['1']}],
+       'end': 27,
+       'start': 26,
+       'text': '1'},
+      {'analysis': [{'clitic': '',
+         'ending': '0',
+         'form': 'sg p',
+         'lemma': 'muna',
+         'partofspeech': 'S',
+         'root': 'muna',
+         'root_tokens': ['muna']}],
+       'end': 32,
+       'start': 28,
+       'text': 'muna'},
+      {'analysis': [{'clitic': '',
+         'ending': '0',
+         'form': '?',
+         'lemma': '1',
+         'partofspeech': 'N',
+         'root': '1',
+         'root_tokens': ['1']}],
+       'end': 34,
+       'start': 33,
+       'text': '1'},
+      {'analysis': [{'clitic': '',
+         'ending': '0',
+         'form': '?',
+         'lemma': 'tl',
+         'partofspeech': 'Y',
+         'root': 'tl',
+         'root_tokens': ['tl']}],
+       'end': 37,
+       'start': 35,
+       'text': 'tl'},
+      {'analysis': [{'clitic': '',
+         'ending': 't',
+         'form': 'sg p',
+         'lemma': 'suhkur',
+         'partofspeech': 'S',
+         'root': 'suhkur',
+         'root_tokens': ['suhkur']}],
+       'end': 45,
+       'start': 38,
+       'text': 'suhkrut'},
+      {'analysis': [{'clitic': '',
+         'ending': '0',
+         'form': '?',
+         'lemma': '1',
+         'partofspeech': 'N',
+         'root': '1',
+         'root_tokens': ['1']}],
+       'end': 47,
+       'start': 46,
+       'text': '1'},
+      {'analysis': [{'clitic': '',
+         'ending': '0',
+         'form': '?',
+         'lemma': 'tl',
+         'partofspeech': 'Y',
+         'root': 'tl',
+         'root_tokens': ['tl']}],
+       'end': 50,
+       'start': 48,
+       'text': 'tl'},
+      {'analysis': [{'clitic': '',
+         'ending': '0',
+         'form': 'sg p',
+         'lemma': 'vaniljeekstrakt',
+         'partofspeech': 'S',
+         'root': 'vanilje_ekstrakt',
+         'root_tokens': ['vanilje', 'ekstrakt']}],
+       'end': 67,
+       'start': 51,
+       'text': 'vaniljeekstrakti'},
+      {'analysis': [{'clitic': '',
+         'ending': '0',
+         'form': '?',
+         'lemma': '0,5',
+         'partofspeech': 'N',
+         'root': '0,5',
+         'root_tokens': ['0,5']}],
+       'end': 71,
+       'start': 68,
+       'text': '0,5'},
+      {'analysis': [{'clitic': '',
+         'ending': '0',
+         'form': '?',
+         'lemma': 'tl',
+         'partofspeech': 'Y',
+         'root': 'tl',
+         'root_tokens': ['tl']}],
+       'end': 74,
+       'start': 72,
+       'text': 'tl'},
+      {'analysis': [{'clitic': '',
+         'ending': '0',
+         'form': 'sg p',
+         'lemma': 'sool',
+         'partofspeech': 'S',
+         'root': 'sool',
+         'root_tokens': ['sool']}],
+       'end': 80,
+       'start': 75,
+       'text': 'soola'}]}
+
+
+
+Let's use prettyprinter to visualize this as HTML:
+
+.. code:: python
+
+    from IPython.display import HTML
+
+.. code:: python
+
+    from estnltk import PrettyPrinter
+    pp = PrettyPrinter(background='instruction', underline='ingredient', weight='unit')
+    html = pp.render(text, add_header=True)
+
+.. code:: python
+
+    HTML(html)
+
+
+
+
+.. raw:: html
+
+    <!DOCTYPE html>
+    <html>
+        <head>
+            <link rel="stylesheet" type="text/css" href="prettyprinter.css">
+            <meta charset="utf-8">
+            <title>PrettyPrinter</title>
+        </head>
+        <style>
+    
+    
+    		mark {
+    			background:none;
+    		}
+    		mark.underline {
+    			text-decoration: underline;
+    		}
+    		mark.weight {
+    			font-weight: bold;
+    		}
+    		mark.background {
+    			background-color: rgb(102, 204, 255);
+    		}
+    
+        </style>
+        <body>
+    
+    <br/><mark class="background">2,5 </mark><mark class="background weight">dl</mark><mark class="background"> </mark><mark class="background underline">piima</mark><br/><mark class="background">1,5 </mark><mark class="background weight">dl</mark><mark class="background"> </mark><mark class="background underline">jahu</mark><br/><mark class="background">1 </mark><mark class="background underline">muna</mark><br/><mark class="background">1 </mark><mark class="background weight">tl</mark><mark class="background"> </mark><mark class="background underline">suhkrut</mark><br/><mark class="background">1 </mark><mark class="background weight">tl</mark><mark class="background"> </mark><mark class="background underline">vaniljeekstrakti</mark><br/><mark class="background">0,5 </mark><mark class="background weight">tl</mark><mark class="background"> </mark><mark class="background underline">soola</mark><br/>
+    	</body>
+    </html>
+
+
+
+You can access the annotated layers as you would access typical layers:
+
+.. code:: python
+
+    pprint(text['ingredient'])
+
+
+.. parsed-literal::
+
+    [{'end': 13, 'start': 8, 'text': 'piima'},
+     {'end': 25, 'start': 21, 'text': 'jahu'},
+     {'end': 32, 'start': 28, 'text': 'muna'},
+     {'end': 45, 'start': 38, 'text': 'suhkrut'},
+     {'end': 67, 'start': 51, 'text': 'vaniljeekstrakti'},
+     {'end': 80, 'start': 75, 'text': 'soola'}]
+
+
+See package ``estnltk.grammar.examples`` for more examples.

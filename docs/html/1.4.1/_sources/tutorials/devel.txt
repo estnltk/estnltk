@@ -1,0 +1,247 @@
+
+.. code:: python
+
+    # TODO: decide if this is still relevant and up to date
+
+Estnltk developer guide
+=======================
+
+This document is for everyone who is working on Estnltk project (or
+wishes to work), but do not know how to get started.
+
+Compiling estnltk
+-----------------
+
+::
+
+    python setup.py build
+    python3 setup.py build
+
+Version control and branches
+----------------------------
+
+We have three repositories where we store Estnltk code: you should
+push/pull every time from all of them to make them synced.
+
+First, modify your ``.git/setup`` configuration to look like following:
+
+[core]
+    repositoryformatversion = 0
+    filemode = true
+    bare = false
+    logallrefupdates = true
+[remote "github"]
+    url = git@github.com:estnltk/estnltk.git
+    fetch = +refs/heads/*:refs/remotes/github/*
+[remote "ut"]
+    url = git@estnltk.cs.ut.ee:timo/estnltk.git
+    fetch = +refs/heads/*:refs/remotes/ut/*
+[remote "keeleressursid"]
+    url = git@gitlab.keeleressursid.ee:timo-petmanson/estnltk.git
+    fetch = +refs/heads/*:refs/remotes/keeleressursid/*
+[remote "origin"]
+    url = git@github.com:estnltk/estnltk.git
+    url = git@estnltk.cs.ut.ee:timo/estnltk.git
+    url = git@gitlab.keeleressursid.ee:timo-petmanson/estnltk.git
+[branch "master"]
+    remote = origin
+    merge = refs/heads/master
+[branch "devel"]
+    remote = origin
+    merge = refs/heads/devel
+
+Second, use commands:
+
+::
+
+    git push origin master
+    git pull origin master
+
+to perform pulls and pushes to both repositories without no extra
+hassle.
+
+Third, your're done! ;)
+
+Checking out devel branch
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Try this:
+
+::
+
+    git branch -a
+    git checkout -t devel origin/devel
+    git pull
+    git checkout devel
+    git branch -a
+
+You should see something similar as output:
+
+* devel
+  master
+  timo_dev
+  remotes/github/devel
+  remotes/github/gh-pages
+  remotes/github/master
+  remotes/github/timo_dev
+  remotes/keeleressursid/devel
+  remotes/keeleressursid/master
+  remotes/origin/master
+  remotes/ut/devel
+  remotes/ut/master
+
+Important thing is that you see ``"* devel"`` .
+
+Writing documentation
+---------------------
+
+Documentation resides under docs folder of estnltk and is generated
+using `Sphinx <http://sphinx-doc.org/>`__ document generator.
+
+Setting up Sphinx
+~~~~~~~~~~~~~~~~~
+
+To install Sphinx on your system, issue following commands:
+
+::
+
+    sudo pip3 install Sphinx
+    sudo pip3 install numpydoc
+
+Next, open file ``docs/conf.py`` and find the line:
+
+sys.path.insert(0, '/home/timo/projects/estnltk')
+
+Add a second line there, which tells where estnltk is installed on your
+system. For example, if your user name is ``estnltkdeveloper`` and
+estnltk is in your home folder, add:
+
+sys.path.insert(0, '/home/estnltkdeveloper/estnltk')
+
+After that, move to the docs folder and run:
+
+::
+
+    make html
+
+Now Sphinx builds the documentation and stores it in ``docs/build/html``
+subfolder.
+
+Distributing the documentation to Github pages
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you type ``git branch -a``, you should see a remote branch
+``remotes/github/gh-pages`` containing content that is served at
+http://estnltk.github.io/estnltk/ . This branch does not contain any
+code, so check it out into another directory in order to work with it.
+Then, create a subfolder with the appropriate estnltk version and copy
+the new documentation there.
+
+Creating releases
+-----------------
+
+Linux
+~~~~~
+
+::
+
+    ./clean.sh
+    python setup.py build
+    python setup.py build # yes, two times for now!
+    python setup.py bdist_wheel
+    python setup.py sdist
+    python setup.py upload
+
+Windows
+~~~~~~~
+
+To be able to build on Windows, you will need to install a compatible
+Microsoft Visual C++ compiler for each version of Python. For more
+details please refer to https://wiki.python.org/moin/WindowsCompilers.
+
+**Compiling with Python 2.7**
+
+Install Microsoft Visual C++ Compiler for Python 2.7 from
+https://www.microsoft.com/en-us/download/details.aspx?id=44266
+
+32-bit:
+
+::
+
+    call "C:\Users\distorti\AppData\Local\Programs\Common\Microsoft\Visual C++ for Python\9.0\vcvarsall.bat" x86
+
+64-bit:
+
+::
+
+    call "C:\Users\distorti\AppData\Local\Programs\Common\Microsoft\Visual C++ for Python\9.0\vcvarsall.bat x64
+
+Then build as usual:
+
+::
+
+    python setup.py build
+    python setup.py build
+    python setup.py bdist_wheel
+
+**Compiling with Python 3.4**
+
+Install Microsoft Visual C++ 10.0 compiler as described at
+https://wiki.python.org/moin/WindowsCompilers
+
+32-bits:
+
+::
+
+    call "C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.cmd" /x86
+
+64-bits:
+
+::
+
+    call "C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.cmd" /x64
+
+If you stumble across an error like
+
+    ... c:Program Files (x86)Microsoft Visual Studio
+    10.0VCINCLUDEintrin.h(26) : fatal error C1083: Cannot open include
+    file: 'ammintrin.h': No such file or ...
+
+you are missing a file "ammintrin.h" in "c:Program Files (x86)Microsoft
+Visual Studio 10.0VCINCLUDE". As a quick fix, download it from
+http://se.mathworks.com/matlabcentral/answers/90383-fix-problem-when-mex-cpp-file.
+
+Then build as usual:
+
+::
+
+    python setup.py build
+    python setup.py build
+    python setup.py bdist_wheel
+
+**Compiling with Python 3.5**
+
+Install Microsoft Visual C++ 14.0 compiler as described at
+https://wiki.python.org/moin/WindowsCompilers
+
+32-bit:
+
+::
+
+    call "C:\Program Files (x86)\Microsoft Visual C++ Build Tools\vcbuildtools.bat" x86
+
+64-bit:
+
+::
+
+    call "C:\Program Files (x86)\Microsoft Visual C++ Build Tools\vcbuildtools.bat" x64
+
+TODO: Currently this fails for some reason
+
+Then build as usual:
+
+::
+
+    python setup.py build
+    python setup.py build
+    python setup.py bdist_wheel

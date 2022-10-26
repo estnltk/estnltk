@@ -1,0 +1,422 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>estnltk.database.database &mdash; estnltk 1.4.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../../genindex.html"/>
+        <link rel="search" title="Search" href="../../../search.html"/>
+    <link rel="top" title="estnltk 1.4.1 documentation" href="../../../index.html"/>
+        <link rel="up" title="Module code" href="../../index.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> estnltk
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.4.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/index.html">Estnltk tutorials</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../external/index.html">Other tools</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/index.html">API documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../authors.html">Authors</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../../index.html">estnltk</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      
+    <li>estnltk.database.database</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for estnltk.database.database</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">unicode_literals</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">absolute_import</span>
+<span class="kn">import</span> <span class="nn">json</span>
+
+<span class="kn">from</span> <span class="nn">elasticsearch</span> <span class="k">import</span> <span class="n">Elasticsearch</span>
+<span class="kn">from</span> <span class="nn">..names</span> <span class="k">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">..text</span> <span class="k">import</span> <span class="n">Text</span>
+
+<span class="c1"># define a list of standard layers we will not be indexing</span>
+<span class="n">STANDARD_LAYERS</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">([</span>
+    <span class="n">WORDS</span><span class="p">,</span>
+    <span class="n">PARAGRAPHS</span><span class="p">,</span>
+    <span class="n">SENTENCES</span><span class="p">,</span>
+    <span class="n">CLAUSES</span>
+<span class="p">])</span>
+
+<span class="c1"># we need a way to index lemmas, postags and possibly other complicated data</span>
+<span class="c1"># maybe it would be better to define it in code, but just in case, let&#39;s create a</span>
+<span class="c1"># data structure that can be used to dynamically change the behaviour</span>
+
+<span class="c1"># text.is_tagged(what?), destination layer name, function for value extraction</span>
+<span class="n">METALAYERS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">(</span><span class="n">ANALYSIS</span><span class="p">,</span> <span class="s1">&#39;lemmas&#39;</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">text</span><span class="p">:</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">lemmas</span><span class="p">)),</span>
+    <span class="p">(</span><span class="n">ANALYSIS</span><span class="p">,</span> <span class="s1">&#39;postags&#39;</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">text</span><span class="p">:</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">postags</span><span class="p">))</span>
+<span class="p">]</span>
+
+<span class="c1"># set of layers actually used in metalayers</span>
+<span class="n">METALAYER_NAMES</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">([</span><span class="n">dst</span> <span class="k">for</span> <span class="n">src</span><span class="p">,</span> <span class="n">dst</span><span class="p">,</span> <span class="n">func</span> <span class="ow">in</span> <span class="n">METALAYERS</span><span class="p">])</span>
+
+
+<div class="viewcode-block" id="prepare_text"><a class="viewcode-back" href="../../../api/database.html#estnltk.database.database.prepare_text">[docs]</a><span class="k">def</span> <span class="nf">prepare_text</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Function that converts Text instance to format that can be easily indexed</span>
+<span class="sd">    with ES database.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">layers</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">layer</span><span class="p">,</span> <span class="n">values</span> <span class="ow">in</span> <span class="n">text</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">layer</span> <span class="ow">in</span> <span class="n">STANDARD_LAYERS</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">elements</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">split_by</span><span class="p">(</span><span class="n">layer</span><span class="p">)</span>
+            <span class="n">texts</span> <span class="o">=</span> <span class="p">[</span><span class="n">elem</span><span class="o">.</span><span class="n">text</span> <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">elements</span><span class="p">]</span>
+            <span class="n">lemmas</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">elem</span><span class="o">.</span><span class="n">lemmas</span><span class="p">)</span> <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">elements</span><span class="p">]</span>
+            <span class="n">layers</span><span class="p">[</span><span class="n">layer</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;texts&#39;</span><span class="p">:</span> <span class="n">texts</span><span class="p">,</span> <span class="s1">&#39;lemmas&#39;</span><span class="p">:</span> <span class="n">lemmas</span><span class="p">}</span>
+    <span class="c1"># process metalayers</span>
+    <span class="k">for</span> <span class="n">tag</span><span class="p">,</span> <span class="n">layer</span><span class="p">,</span> <span class="n">extractor</span> <span class="ow">in</span> <span class="n">METALAYERS</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">text</span><span class="o">.</span><span class="n">is_tagged</span><span class="p">(</span><span class="n">tag</span><span class="p">):</span>
+            <span class="n">layers</span><span class="p">[</span><span class="n">layer</span><span class="p">]</span> <span class="o">=</span> <span class="n">extractor</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="n">text</span><span class="p">,</span> <span class="s1">&#39;layers&#39;</span><span class="p">:</span> <span class="n">layers</span><span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="Database"><a class="viewcode-back" href="../../../api/database.html#estnltk.database.database.Database">[docs]</a><span class="k">class</span> <span class="nc">Database</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Database class represents a single index in Elastic</span>
+<span class="sd">    and helps with inserting and querying Estnltk documents.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    index: str</span>
+<span class="sd">        The name of the Elastic index.</span>
+<span class="sd">    doc_type:</span>
+<span class="sd">        The document type to use (default: &#39;document&#39;)</span>
+<span class="sd">    keyword_argument:</span>
+<span class="sd">        All keyword arguments will be passed to Python Elasticsearch constructor.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">doc_type</span><span class="o">=</span><span class="s1">&#39;document&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__es</span> <span class="o">=</span> <span class="n">Elasticsearch</span><span class="p">(</span><span class="n">maxKeepAliveTime</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__index</span> <span class="o">=</span> <span class="n">index</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__doc_type</span> <span class="o">=</span> <span class="n">doc_type</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">index</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The name of the index.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__index</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">doc_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The doc_type property&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__doc_type</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">es</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The ElasticSearch instance.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__es</span>
+
+<div class="viewcode-block" id="Database.insert"><a class="viewcode-back" href="../../../api/database.html#estnltk.database.database.Database.insert">[docs]</a>    <span class="k">def</span> <span class="nf">insert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Insert a document to index.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        text: estnltk.text.Text</span>
+<span class="sd">            The text instance to be inserted.</span>
+<span class="sd">        id: str</span>
+<span class="sd">            Optional id for the document, if not omitted, a default value is generated.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            The id of the created document.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">prepared_text</span> <span class="o">=</span> <span class="n">prepare_text</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+            <span class="s1">&#39;doc_type&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc_type</span><span class="p">,</span>
+            <span class="s1">&#39;body&#39;</span><span class="p">:</span> <span class="n">prepared_text</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="nb">id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+        <span class="n">doc_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">es</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)[</span><span class="s1">&#39;_id&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">refresh</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">doc_id</span></div>
+
+<div class="viewcode-block" id="Database.bulk_insert"><a class="viewcode-back" href="../../../api/database.html#estnltk.database.database.Database.bulk_insert">[docs]</a>    <span class="k">def</span> <span class="nf">bulk_insert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">list_of_texts</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">refresh</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generator to use for bulk inserts</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">bulk_text</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">text</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">list_of_texts</span><span class="p">):</span>
+            <span class="n">prepared_text</span> <span class="o">=</span> <span class="n">prepare_text</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+            <span class="n">bulk_text</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="p">}</span>
+            <span class="p">})</span>
+            <span class="n">bulk_text</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">prepared_text</span><span class="p">)</span>
+
+        <span class="n">insert_data</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">bulk_text</span><span class="p">])</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">es</span><span class="o">.</span><span class="n">bulk</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">doc_type</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">doc_type</span><span class="p">,</span> <span class="n">body</span><span class="o">=</span><span class="n">insert_data</span><span class="p">,</span> <span class="n">refresh</span><span class="o">=</span><span class="n">refresh</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Database.get"><a class="viewcode-back" href="../../../api/database.html#estnltk.database.database.Database.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Retrieve a document with given id.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">es</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">doc_type</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">doc_type</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="nb">id</span><span class="p">,</span> <span class="n">ignore</span><span class="o">=</span><span class="p">[</span><span class="mi">400</span><span class="p">,</span> <span class="mi">404</span><span class="p">])[</span><span class="s1">&#39;_source&#39;</span><span class="p">][</span><span class="s1">&#39;text&#39;</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Database.refresh"><a class="viewcode-back" href="../../../api/database.html#estnltk.database.database.Database.refresh">[docs]</a>    <span class="k">def</span> <span class="nf">refresh</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Commit all changes to the index.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">es</span><span class="o">.</span><span class="n">indices</span><span class="o">.</span><span class="n">refresh</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">ignore</span><span class="o">=</span><span class="p">[</span><span class="mi">400</span><span class="p">,</span> <span class="mi">404</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="Database.delete_index"><a class="viewcode-back" href="../../../api/database.html#estnltk.database.database.Database.delete_index">[docs]</a>    <span class="k">def</span> <span class="nf">delete_index</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Delete the index.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">es</span><span class="o">.</span><span class="n">indices</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">ignore</span><span class="o">=</span><span class="p">[</span><span class="mi">400</span><span class="p">,</span> <span class="mi">404</span><span class="p">])</span></div>
+
+    <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="nb">id</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">es</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="n">index</span><span class="p">,</span> <span class="n">doc_type</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">doc_type</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="nb">id</span><span class="p">,</span> <span class="n">ignore</span><span class="o">=</span><span class="p">[</span><span class="mi">400</span><span class="p">,</span> <span class="mi">404</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">es</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">doc_type</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">doc_type</span><span class="p">,</span> <span class="n">ignore</span><span class="o">=</span><span class="p">[</span><span class="mi">400</span><span class="p">,</span> <span class="mi">404</span><span class="p">])[</span><span class="s1">&#39;count&#39;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">close_connection</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+<div class="viewcode-block" id="Database.query_documents"><a class="viewcode-back" href="../../../api/database.html#estnltk.database.database.Database.query_documents">[docs]</a>    <span class="k">def</span> <span class="nf">query_documents</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">layer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">es_result</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Find all Text documents that match keywords in the query.</span>
+
+<span class="sd">        Check elasticsearch documentation for more information:</span>
+<span class="sd">        https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html</span>
+
+<span class="sd">        Example queries:</span>
+
+<span class="sd">        krokodill Gena</span>
+<span class="sd">            Find documents containing &quot;krokodill&quot; or &quot;gena&quot; or both</span>
+<span class="sd">        +venemaa -eesti</span>
+<span class="sd">            Find documents containing word/lemma about venemaa, but not eesti</span>
+<span class="sd">        &quot;suur pauk&quot;</span>
+<span class="sd">            Find documents containing exact phrase &quot;suur pauk&quot;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        query: str</span>
+<span class="sd">            The keywords to use for search.</span>
+<span class="sd">        layer: str</span>
+<span class="sd">            The layer to search the text from (for example words, sentences, clauses, verb_phrases etc).</span>
+<span class="sd">            If layer is None (default), then use the full document text for search.</span>
+<span class="sd">        start: int (default: 0),</span>
+<span class="sd">            The start index of the results. Same as &quot;from&quot; in Elastic, but</span>
+<span class="sd">            we cannot use this name as it is reseved in Python.</span>
+<span class="sd">        size: int (default: 10)</span>
+<span class="sd">            Return size matches.</span>
+<span class="sd">        es_result: boolean (default: False)</span>
+<span class="sd">            if True, return the elasticsearch results, otherwise return a list of Text instances.</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list of Text instances if es_result is False</span>
+<span class="sd">        dict if es_result is True</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">query_string</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;query&#39;</span><span class="p">:</span> <span class="n">query</span>
+        <span class="p">}</span>
+
+        <span class="k">if</span> <span class="n">layer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># if layer is one of the metalayers, then no need to match both text and lemmas</span>
+            <span class="k">if</span> <span class="n">layer</span> <span class="ow">in</span> <span class="n">METALAYER_NAMES</span><span class="p">:</span>
+                   <span class="n">query_string</span><span class="p">[</span><span class="s1">&#39;default_field&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;document.layers.&#39;</span> <span class="o">+</span> <span class="n">layer</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">query_string</span><span class="p">[</span><span class="s1">&#39;fields&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;document.layers.&#39;</span> <span class="o">+</span> <span class="s1">&#39;lemmas&#39;</span><span class="p">,</span> <span class="s1">&#39;document.layers.&#39;</span> <span class="o">+</span> <span class="s1">&#39;text&#39;</span><span class="p">]</span>
+
+        <span class="n">body</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;from&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">start</span><span class="p">),</span>
+            <span class="s1">&#39;size&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">size</span><span class="p">),</span>
+            <span class="s1">&#39;query&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;bool&#39;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s1">&#39;must&#39;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s1">&#39;query_string&#39;</span><span class="p">:</span> <span class="n">query_string</span>
+                    <span class="p">}</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+
+        <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">es</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">doc_type</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">doc_type</span><span class="p">,</span> <span class="n">body</span><span class="o">=</span><span class="n">body</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">es_result</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">results</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">Text</span><span class="p">(</span><span class="n">doc</span><span class="p">[</span><span class="s1">&#39;_source&#39;</span><span class="p">][</span><span class="s1">&#39;text&#39;</span><span class="p">])</span> <span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">results</span><span class="p">[</span><span class="s1">&#39;hits&#39;</span><span class="p">][</span><span class="s1">&#39;hits&#39;</span><span class="p">]]</span></div>
+
+
+    <span class="k">def</span> <span class="nf">query_matches</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uqwy</span><span class="p">,</span> <span class="n">layer</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, University of Tartu unless specified otherwise in the file headers.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'1.4.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

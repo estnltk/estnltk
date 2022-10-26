@@ -1,0 +1,376 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Morphological disambiguation on a collection of documents &mdash; estnltk 1.4.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="estnltk 1.4.1 documentation" href="../index.html"/>
+        <link rel="up" title="Estnltk tutorials" href="index.html"/>
+        <link rel="next" title="Simple grammars for information extraction" href="grammar.html"/>
+        <link rel="prev" title="Handling large text collections with Elastic database" href="elasticsearch.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> estnltk
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.4.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Estnltk tutorials</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="text.html">Basic Text class operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wikipedia.html">Wikipedia tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="elasticsearch.html">Elasticsearch</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Disambiguation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#basic-usage">Basic usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pre-disambiguation-and-post-disambiguation">Pre-disambiguation and post-disambiguation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="grammar.html">Grammars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="np_chunker.html">Noun-phrase chunker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dependency_syntax.html">Dependency_syntax</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ner.html">Name-Entity Recognition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="prettyprinter.html">Prettyprinter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="terminalprettyprinter.html">Terminal prettyprinter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tei.html">Working with Koondkorpus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="morphology_tables.html">Morphological annotation tables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="devel.html">Developer readme</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../external/index.html">Other tools</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html">API documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../authors.html">Authors</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">estnltk</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="index.html">Estnltk tutorials</a> &raquo;</li>
+      
+    <li>Morphological disambiguation on a collection of documents</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/tutorials/disambiguation.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="morphological-disambiguation-on-a-collection-of-documents">
+<h1>Morphological disambiguation on a collection of documents<a class="headerlink" href="#morphological-disambiguation-on-a-collection-of-documents" title="Permalink to this headline">¶</a></h1>
+<p>Estnltk does basic morphological disambiguation by using a probabilistic
+disambiguator which relies on the local (sentence) context.
+[<a class="reference external" href="#kaalep">KA01</a>] This works well enough for any type of texts: news
+articles, comments, mixed content etc.</p>
+<p>However, the quality of the disambiguation can be further improved if a
+broader context (e.g. the whole text, or a collection of texts) is
+considered in the process. If morphologically ambiguous words (for
+example: proper names) reoccur in other parts of the text or in other
+related texts, one can use the assumption &#8220;one lemma per discourse&#8221;
+(inspired by the observation &#8220;one sense per discourse&#8221; from Word Sense
+Disambiguation) and choose the right analysis based on the most
+frequently occurring lemma candidate. [<a class="reference external" href="#kaalep">KA12</a>]</p>
+<p>[KA01] Kaalep, Heiki-Jaan, and Vaino, Tarmo. “Complete morphological
+analysis in the linguist’s toolbox.” Congressus Nonus Internationalis
+Fenno-Ugristarum Pars V (2001): 9-16.</p>
+<p>[KA12] Kaalep, Heiki Jaan, Riin Kirt, and Kadri Muischnek. “A trivial
+method for choosing the right lemma.” Baltic HLT. 2012.</p>
+<p>Consider the following example of a text collection:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="n">corpus</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Esimesele kohale tuleb Jänes, kuigi tema punktide summa pole kõrgeim.&#39;</span><span class="p">,</span>\
+          <span class="s1">&#39;Lõpparvestuses läks Konnale esimene koht. Teise koha sai seekord Jänes. Uus võistlus toimub 2. mail.&#39;</span><span class="p">,</span> \
+          <span class="s1">&#39;Konn paistis silma suurima punktide summaga. Uue võistluse toimumisajaks on 2. mai.&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>After applying the default (local context) morphological disambiguation,
+some of the words will still be ambiguous, as can be revealed by
+executing the following scipt:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">estnltk</span> <span class="k">import</span> <span class="n">Text</span>
+<span class="kn">from</span> <span class="nn">estnltk.names</span> <span class="k">import</span> <span class="n">TEXT</span><span class="p">,</span> <span class="n">ANALYSIS</span><span class="p">,</span> <span class="n">ROOT</span><span class="p">,</span> <span class="n">POSTAG</span><span class="p">,</span> <span class="n">FORM</span>
+
+<span class="k">for</span> <span class="n">text_str</span> <span class="ow">in</span> <span class="n">corpus</span><span class="p">:</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="n">text_str</span><span class="p">)</span>
+    <span class="c1"># Perform morphological analysis with default disambiguation</span>
+    <span class="n">text</span><span class="o">.</span><span class="n">tag_analysis</span><span class="p">()</span>
+    <span class="c1"># Print out all words with ambiguous analyses</span>
+    <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">text</span><span class="o">.</span><span class="n">words</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">word</span><span class="p">[</span><span class="n">ANALYSIS</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span> <span class="n">word</span><span class="p">[</span><span class="n">TEXT</span><span class="p">],[(</span><span class="n">a</span><span class="p">[</span><span class="n">ROOT</span><span class="p">],</span><span class="n">a</span><span class="p">[</span><span class="n">POSTAG</span><span class="p">],</span><span class="n">a</span><span class="p">[</span><span class="n">FORM</span><span class="p">])</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">word</span><span class="p">[</span><span class="n">ANALYSIS</span><span class="p">]]</span> <span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">kohale</span> <span class="p">[(</span><span class="s1">&#39;koht&#39;</span><span class="p">,</span> <span class="s1">&#39;S&#39;</span><span class="p">,</span> <span class="s1">&#39;sg all&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;koha&#39;</span><span class="p">,</span> <span class="s1">&#39;S&#39;</span><span class="p">,</span> <span class="s1">&#39;sg all&#39;</span><span class="p">)]</span>
+<span class="n">kuigi</span> <span class="p">[(</span><span class="s1">&#39;kuigi&#39;</span><span class="p">,</span> <span class="s1">&#39;D&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;kuigi&#39;</span><span class="p">,</span> <span class="s1">&#39;J&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)]</span>
+<span class="n">Teise</span> <span class="p">[(</span><span class="s1">&#39;teine&#39;</span><span class="p">,</span> <span class="s1">&#39;O&#39;</span><span class="p">,</span> <span class="s1">&#39;sg g&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;teine&#39;</span><span class="p">,</span> <span class="s1">&#39;P&#39;</span><span class="p">,</span> <span class="s1">&#39;sg g&#39;</span><span class="p">)]</span>
+<span class="n">koha</span> <span class="p">[(</span><span class="s1">&#39;koht&#39;</span><span class="p">,</span> <span class="s1">&#39;S&#39;</span><span class="p">,</span> <span class="s1">&#39;sg g&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;koha&#39;</span><span class="p">,</span> <span class="s1">&#39;S&#39;</span><span class="p">,</span> <span class="s1">&#39;sg g&#39;</span><span class="p">)]</span>
+<span class="n">mail</span> <span class="p">[(</span><span class="s1">&#39;maa&#39;</span><span class="p">,</span> <span class="s1">&#39;S&#39;</span><span class="p">,</span> <span class="s1">&#39;pl ad&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;mai&#39;</span><span class="p">,</span> <span class="s1">&#39;S&#39;</span><span class="p">,</span> <span class="s1">&#39;sg ad&#39;</span><span class="p">)]</span>
+<span class="n">summaga</span> <span class="p">[(</span><span class="s1">&#39;summ&#39;</span><span class="p">,</span> <span class="s1">&#39;S&#39;</span><span class="p">,</span> <span class="s1">&#39;sg kom&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;summa&#39;</span><span class="p">,</span> <span class="s1">&#39;S&#39;</span><span class="p">,</span> <span class="s1">&#39;sg kom&#39;</span><span class="p">)]</span>
+<span class="n">on</span> <span class="p">[(</span><span class="s1">&#39;ole&#39;</span><span class="p">,</span> <span class="s1">&#39;V&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;ole&#39;</span><span class="p">,</span> <span class="s1">&#39;V&#39;</span><span class="p">,</span> <span class="s1">&#39;vad&#39;</span><span class="p">)]</span>
+</pre></div>
+</div>
+<div class="section" id="basic-usage">
+<h2>Basic usage<a class="headerlink" href="#basic-usage" title="Permalink to this headline">¶</a></h2>
+<p>Estnltk&#8217;s class <strong>Disambiguator</strong> provides method <strong>disambiguate()</strong>,
+which takes a collection of texts (can be a list of strings or a list of
+<strong>Text</strong> objects) as an input, and performs both local context
+morphological disambiguation and &#8220;one lemma per discourse&#8221;
+disambiguation on the collection:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">estnltk</span> <span class="k">import</span> <span class="n">Disambiguator</span>
+
+<span class="n">corpus</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Esimesele kohale tuleb Jänes, kuigi tema punktide summa pole kõrgeim.&#39;</span><span class="p">,</span>\
+          <span class="s1">&#39;Lõpparvestuses läks Konnale esimene koht. Teise koha sai seekord Jänes. Uus võistlus toimub 2. mail.&#39;</span><span class="p">,</span> \
+          <span class="s1">&#39;Konn paistis silma suurima punktide summaga. Uue võistluse toimumisajaks on 2. mai.&#39;</span><span class="p">]</span>
+
+<span class="n">disamb</span> <span class="o">=</span> <span class="n">Disambiguator</span><span class="p">()</span>
+<span class="n">texts</span> <span class="o">=</span> <span class="n">disamb</span><span class="o">.</span><span class="n">disambiguate</span><span class="p">(</span><span class="n">corpus</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The method returns a list of <strong>Text</strong> objects. We can use the following
+script to check for morphological ambiguities in this list:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">estnltk.names</span> <span class="k">import</span> <span class="n">TEXT</span><span class="p">,</span> <span class="n">ANALYSIS</span><span class="p">,</span> <span class="n">ROOT</span><span class="p">,</span> <span class="n">POSTAG</span><span class="p">,</span> <span class="n">FORM</span>
+
+<span class="k">for</span> <span class="n">text</span> <span class="ow">in</span> <span class="n">texts</span><span class="p">:</span>
+    <span class="c1"># Print out all words with ambiguous analyses</span>
+    <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">text</span><span class="o">.</span><span class="n">words</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">word</span><span class="p">[</span><span class="n">ANALYSIS</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">word</span><span class="p">[</span><span class="n">TEXT</span><span class="p">],[(</span><span class="n">a</span><span class="p">[</span><span class="n">ROOT</span><span class="p">],</span><span class="n">a</span><span class="p">[</span><span class="n">POSTAG</span><span class="p">],</span><span class="n">a</span><span class="p">[</span><span class="n">FORM</span><span class="p">])</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">word</span><span class="p">[</span><span class="n">ANALYSIS</span><span class="p">]])</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">kuigi</span> <span class="p">[(</span><span class="s1">&#39;kuigi&#39;</span><span class="p">,</span> <span class="s1">&#39;D&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;kuigi&#39;</span><span class="p">,</span> <span class="s1">&#39;J&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)]</span>
+<span class="n">Teise</span> <span class="p">[(</span><span class="s1">&#39;teine&#39;</span><span class="p">,</span> <span class="s1">&#39;O&#39;</span><span class="p">,</span> <span class="s1">&#39;sg g&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;teine&#39;</span><span class="p">,</span> <span class="s1">&#39;P&#39;</span><span class="p">,</span> <span class="s1">&#39;sg g&#39;</span><span class="p">)]</span>
+<span class="n">on</span> <span class="p">[(</span><span class="s1">&#39;ole&#39;</span><span class="p">,</span> <span class="s1">&#39;V&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;ole&#39;</span><span class="p">,</span> <span class="s1">&#39;V&#39;</span><span class="p">,</span> <span class="s1">&#39;vad&#39;</span><span class="p">)]</span>
+</pre></div>
+</div>
+<p>The output shows that the ambiguities in the content words (nouns
+<em>kohale</em>, <em>koha</em>, <em>mail</em>, <em>summaga</em>) have been removed.</p>
+</div>
+<div class="section" id="pre-disambiguation-and-post-disambiguation">
+<h2>Pre-disambiguation and post-disambiguation<a class="headerlink" href="#pre-disambiguation-and-post-disambiguation" title="Permalink to this headline">¶</a></h2>
+<p>Under the hood, the disambiguation process implemented in
+<strong>Disambiguator</strong> can be broken down into three steps:</p>
+<ol class="arabic simple">
+<li><strong>pre-disambiguation</strong> during which the collection level
+disambiguation is applied for resolving proper noun vs common noun
+ambiguities;</li>
+<li><strong>local context disambiguation</strong> during which the sentence level
+disambiguation is performed;</li>
+<li><strong>post-disambiguation</strong> during which the collection level
+disambiguation is applied for resolving remaining ambiguities in
+content words;</li>
+</ol>
+<p>By default, all three steps are performed on the input corpus. However,
+if needed, pre-disambiguation and post-disambiguation can also be
+disabled, passing <code class="docutils literal"><span class="pre">pre_disambiguate=False</span></code> and
+<code class="docutils literal"><span class="pre">post_disambiguate=False</span></code> as input arguments for the method
+<strong>disambiguate()</strong>.</p>
+<p>In following example, disambiguation is applied both with
+pre-disambiguation enabled and disabled, and the difference in results
+is printed out:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="n">corpus</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Jänes oli parajasti põllu peal. Hunti nähes ta ehmus ja pani jooksu.&#39;</span><span class="p">,</span>\
+          <span class="s1">&#39;Talupidaja Jänes kommenteeris, et hunte on viimasel ajal liiga palju siginenud. Tema naaber, talunik Lammas, nõustus sellega.&#39;</span><span class="p">,</span> \
+          <span class="s1">&#39;Jänesele ja Lambale oli selge, et midagi tuleb ette võtta. Eile algatasid nad huntidevastase kampaania.&#39;</span><span class="p">]</span>
+
+<span class="kn">from</span> <span class="nn">estnltk.names</span> <span class="k">import</span> <span class="n">TEXT</span><span class="p">,</span> <span class="n">ANALYSIS</span><span class="p">,</span> <span class="n">ROOT</span><span class="p">,</span> <span class="n">POSTAG</span><span class="p">,</span> <span class="n">FORM</span>
+<span class="kn">from</span> <span class="nn">estnltk</span> <span class="k">import</span> <span class="n">Disambiguator</span>
+
+<span class="n">disamb</span> <span class="o">=</span> <span class="n">Disambiguator</span><span class="p">()</span>
+<span class="n">texts_with_predisamb</span>    <span class="o">=</span> <span class="n">disamb</span><span class="o">.</span><span class="n">disambiguate</span><span class="p">(</span><span class="n">corpus</span><span class="p">)</span>
+<span class="n">texts_without_predisamb</span> <span class="o">=</span> <span class="n">disamb</span><span class="o">.</span><span class="n">disambiguate</span><span class="p">(</span><span class="n">corpus</span><span class="p">,</span> <span class="n">pre_disambiguate</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">texts_with_predisamb</span><span class="p">)):</span>
+    <span class="n">with_predisamb</span>    <span class="o">=</span> <span class="n">texts_with_predisamb</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+    <span class="n">without_predisamb</span> <span class="o">=</span> <span class="n">texts_without_predisamb</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">with_predisamb</span><span class="o">.</span><span class="n">words</span><span class="p">)):</span>
+        <span class="n">word1</span> <span class="o">=</span> <span class="n">with_predisamb</span><span class="o">.</span><span class="n">words</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+        <span class="n">word2</span> <span class="o">=</span> <span class="n">without_predisamb</span><span class="o">.</span><span class="n">words</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">word1</span> <span class="o">!=</span> <span class="n">word2</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">word1</span><span class="p">[</span><span class="n">TEXT</span><span class="p">],</span> \
+                  <span class="p">[(</span><span class="n">a</span><span class="p">[</span><span class="n">ROOT</span><span class="p">],</span><span class="n">a</span><span class="p">[</span><span class="n">POSTAG</span><span class="p">],</span><span class="n">a</span><span class="p">[</span><span class="n">FORM</span><span class="p">])</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">word1</span><span class="p">[</span><span class="n">ANALYSIS</span><span class="p">]],</span> \
+                  <span class="s1">&#39; vs &#39;</span><span class="p">,</span> \
+                  <span class="p">[(</span><span class="n">a</span><span class="p">[</span><span class="n">ROOT</span><span class="p">],</span><span class="n">a</span><span class="p">[</span><span class="n">POSTAG</span><span class="p">],</span><span class="n">a</span><span class="p">[</span><span class="n">FORM</span><span class="p">])</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">word2</span><span class="p">[</span><span class="n">ANALYSIS</span><span class="p">]]</span> <span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">Jänes</span> <span class="p">[(</span><span class="s1">&#39;Jänes&#39;</span><span class="p">,</span> <span class="s1">&#39;H&#39;</span><span class="p">,</span> <span class="s1">&#39;sg n&#39;</span><span class="p">)]</span>  <span class="n">vs</span>  <span class="p">[(</span><span class="s1">&#39;jänes&#39;</span><span class="p">,</span> <span class="s1">&#39;S&#39;</span><span class="p">,</span> <span class="s1">&#39;sg n&#39;</span><span class="p">)]</span>
+<span class="n">Hunti</span> <span class="p">[(</span><span class="s1">&#39;hunt&#39;</span><span class="p">,</span> <span class="s1">&#39;S&#39;</span><span class="p">,</span> <span class="s1">&#39;sg p&#39;</span><span class="p">)]</span>  <span class="n">vs</span>  <span class="p">[(</span><span class="s1">&#39;Hunt&#39;</span><span class="p">,</span> <span class="s1">&#39;H&#39;</span><span class="p">,</span> <span class="s1">&#39;sg g&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;Hunti&#39;</span><span class="p">,</span> <span class="s1">&#39;H&#39;</span><span class="p">,</span> <span class="s1">&#39;sg g&#39;</span><span class="p">)]</span>
+<span class="n">Talupidaja</span> <span class="p">[(</span><span class="s1">&#39;talu_pidaja&#39;</span><span class="p">,</span> <span class="s1">&#39;S&#39;</span><span class="p">,</span> <span class="s1">&#39;sg n&#39;</span><span class="p">)]</span>  <span class="n">vs</span>  <span class="p">[(</span><span class="s1">&#39;talu_pidaja&#39;</span><span class="p">,</span> <span class="s1">&#39;S&#39;</span><span class="p">,</span> <span class="s1">&#39;sg g&#39;</span><span class="p">)]</span>
+<span class="n">Jänes</span> <span class="p">[(</span><span class="s1">&#39;Jänes&#39;</span><span class="p">,</span> <span class="s1">&#39;H&#39;</span><span class="p">,</span> <span class="s1">&#39;sg n&#39;</span><span class="p">)]</span>  <span class="n">vs</span>  <span class="p">[(</span><span class="s1">&#39;jänes&#39;</span><span class="p">,</span> <span class="s1">&#39;S&#39;</span><span class="p">,</span> <span class="s1">&#39;sg n&#39;</span><span class="p">)]</span>
+<span class="n">Lammas</span> <span class="p">[(</span><span class="s1">&#39;Lammas&#39;</span><span class="p">,</span> <span class="s1">&#39;H&#39;</span><span class="p">,</span> <span class="s1">&#39;sg n&#39;</span><span class="p">)]</span>  <span class="n">vs</span>  <span class="p">[(</span><span class="s1">&#39;lammas&#39;</span><span class="p">,</span> <span class="s1">&#39;S&#39;</span><span class="p">,</span> <span class="s1">&#39;sg n&#39;</span><span class="p">)]</span>
+<span class="n">Jänesele</span> <span class="p">[(</span><span class="s1">&#39;Jänes&#39;</span><span class="p">,</span> <span class="s1">&#39;H&#39;</span><span class="p">,</span> <span class="s1">&#39;sg all&#39;</span><span class="p">)]</span>  <span class="n">vs</span>  <span class="p">[(</span><span class="s1">&#39;jänes&#39;</span><span class="p">,</span> <span class="s1">&#39;S&#39;</span><span class="p">,</span> <span class="s1">&#39;sg all&#39;</span><span class="p">)]</span>
+<span class="n">Lambale</span> <span class="p">[(</span><span class="s1">&#39;Lammas&#39;</span><span class="p">,</span> <span class="s1">&#39;H&#39;</span><span class="p">,</span> <span class="s1">&#39;sg all&#39;</span><span class="p">)]</span>  <span class="n">vs</span>  <span class="p">[(</span><span class="s1">&#39;lammas&#39;</span><span class="p">,</span> <span class="s1">&#39;S&#39;</span><span class="p">,</span> <span class="s1">&#39;sg all&#39;</span><span class="p">)]</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="grammar.html" class="btn btn-neutral float-right" title="Simple grammars for information extraction" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="elasticsearch.html" class="btn btn-neutral" title="Handling large text collections with Elastic database" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, University of Tartu unless specified otherwise in the file headers.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.4.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

@@ -1,0 +1,314 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>estnltk.timex &mdash; estnltk 1.4.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../genindex.html"/>
+        <link rel="search" title="Search" href="../../search.html"/>
+    <link rel="top" title="estnltk 1.4.1 documentation" href="../../index.html"/>
+        <link rel="up" title="Module code" href="../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> estnltk
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.4.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/index.html">Estnltk tutorials</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../external/index.html">Other tools</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/index.html">API documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../authors.html">Authors</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../index.html">estnltk</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      
+    <li>estnltk.timex</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for estnltk.timex</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">unicode_literals</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">absolute_import</span>
+
+<span class="kn">from</span> <span class="nn">.javaprocess</span> <span class="k">import</span> <span class="n">JavaProcess</span><span class="p">,</span> <span class="n">JAVARES_PATH</span>
+<span class="kn">from</span> <span class="nn">.names</span> <span class="k">import</span> <span class="o">*</span>
+
+<span class="kn">from</span> <span class="nn">pprint</span> <span class="k">import</span> <span class="n">pprint</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+
+
+<div class="viewcode-block" id="TimexTagger"><a class="viewcode-back" href="../../api/timex.html#estnltk.timex.TimexTagger">[docs]</a><span class="k">class</span> <span class="nc">TimexTagger</span><span class="p">(</span><span class="n">JavaProcess</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Class for extracting temporal (TIMEX) expressions.&quot;&quot;&quot;</span>
+    
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">JavaProcess</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;Ajavt.jar&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;-pyvabamorf&#39;</span><span class="p">,</span> <span class="s1">&#39;-r&#39;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">JAVARES_PATH</span><span class="p">,</span> <span class="s1">&#39;reeglid.xml&#39;</span><span class="p">)])</span>
+
+    <span class="k">def</span> <span class="nf">tag_document</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">document</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="c1"># get the arguments</span>
+        <span class="n">remove_unnormalized_timexes</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;remove_unnormalized_timexes&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="n">creation_date</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;creation_date&#39;</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">())</span>
+        <span class="n">creation_date</span> <span class="o">=</span> <span class="n">creation_date</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1">T%H:%M&#39;</span><span class="p">)</span>
+
+        <span class="c1"># add creation date to document</span>
+        <span class="n">document</span><span class="p">[</span><span class="n">CREATION_DATE</span><span class="p">]</span> <span class="o">=</span> <span class="n">creation_date</span>
+
+        <span class="c1"># detect timexes</span>
+        <span class="n">input_data</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">CREATION_DATE</span><span class="p">:</span> <span class="n">creation_date</span><span class="p">,</span>
+            <span class="n">SENTENCES</span><span class="p">:</span> <span class="p">[{</span><span class="n">WORDS</span><span class="p">:</span> <span class="n">words</span><span class="p">}</span> <span class="k">for</span> <span class="n">words</span> <span class="ow">in</span> <span class="n">document</span><span class="o">.</span><span class="n">divide</span><span class="p">()]</span>
+        <span class="p">}</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">process_line</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">input_data</span><span class="p">)))</span>
+
+        <span class="c1"># process output</span>
+        <span class="n">timexes</span> <span class="o">=</span> <span class="n">collect_timexes</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">remove_unnormalized_timexes</span><span class="p">:</span>
+            <span class="n">timexes</span> <span class="o">=</span> <span class="n">remove_unnormalized</span><span class="p">(</span><span class="n">timexes</span><span class="p">)</span>
+
+        <span class="n">text</span> <span class="o">=</span> <span class="n">document</span><span class="o">.</span><span class="n">text</span>
+        <span class="c1">#  (!) Timexes need to be sorted in the order of their appearance in text;</span>
+        <span class="c1">#  text splitting/dividing methods assume such order, and if this is not </span>
+        <span class="c1">#  provided, we may lose some timexes in the process of dividing ...</span>
+        <span class="n">sortedTidsAndTimexes</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span> <span class="n">timexes</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">START</span><span class="p">]</span> <span class="p">)</span>
+        <span class="n">document</span><span class="p">[</span><span class="n">TIMEXES</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span> <span class="n">convert_timex</span><span class="p">(</span><span class="n">timex</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span> <span class="k">for</span> <span class="n">tid</span><span class="p">,</span> <span class="n">timex</span> <span class="ow">in</span> <span class="n">sortedTidsAndTimexes</span> <span class="p">]</span>
+        <span class="k">return</span> <span class="n">document</span></div>
+
+
+<span class="n">RENAMING_MAP</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;temporalFunction&#39;</span><span class="p">:</span> <span class="n">TMX_TEMP_FUNCTION</span><span class="p">,</span>
+    <span class="s1">&#39;anchorTimeID&#39;</span><span class="p">:</span> <span class="n">TMX_ANCHOR_TID</span><span class="p">,</span>
+    <span class="s1">&#39;beginPoint&#39;</span><span class="p">:</span> <span class="n">TMX_BEGINPOINT</span><span class="p">,</span>
+    <span class="s1">&#39;endPoint&#39;</span><span class="p">:</span> <span class="n">TMX_ENDPOINT</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<span class="k">def</span> <span class="nf">rename_attributes</span><span class="p">(</span><span class="n">timex</span><span class="p">):</span>
+    <span class="c1"># rename javaStyle to python_style</span>
+    <span class="k">for</span> <span class="n">oldKey</span><span class="p">,</span> <span class="n">newKey</span> <span class="ow">in</span> <span class="n">RENAMING_MAP</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">oldKey</span> <span class="ow">in</span> <span class="n">timex</span><span class="p">:</span>
+            <span class="n">timex</span><span class="p">[</span><span class="n">newKey</span><span class="p">]</span> <span class="o">=</span> <span class="n">timex</span><span class="p">[</span><span class="n">oldKey</span><span class="p">]</span>
+            <span class="k">del</span> <span class="n">timex</span><span class="p">[</span><span class="n">oldKey</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">timex</span>
+
+
+<span class="k">def</span> <span class="nf">collect_timexes</span><span class="p">(</span><span class="n">output</span><span class="p">):</span>
+    <span class="n">timexes</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">sentidx</span><span class="p">,</span> <span class="n">sentence</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">output</span><span class="p">[</span><span class="n">SENTENCES</span><span class="p">]):</span>
+        <span class="k">for</span> <span class="n">wordidx</span><span class="p">,</span> <span class="n">word</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sentence</span><span class="p">[</span><span class="n">WORDS</span><span class="p">]):</span>
+            <span class="k">if</span> <span class="n">TIMEXES</span> <span class="ow">in</span> <span class="n">word</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">timex</span> <span class="ow">in</span> <span class="n">word</span><span class="p">[</span><span class="n">TIMEXES</span><span class="p">]:</span>
+                    <span class="n">timex</span> <span class="o">=</span> <span class="n">rename_attributes</span><span class="p">(</span><span class="n">timex</span><span class="p">)</span>
+                    <span class="n">timex</span><span class="p">[</span><span class="n">START</span><span class="p">]</span> <span class="o">=</span> <span class="n">word</span><span class="p">[</span><span class="n">START</span><span class="p">]</span>
+                    <span class="n">timex</span><span class="p">[</span><span class="n">END</span><span class="p">]</span> <span class="o">=</span> <span class="n">word</span><span class="p">[</span><span class="n">END</span><span class="p">]</span>
+                    <span class="c1"># merge with existing reference to same timex, if it exists</span>
+                    <span class="n">tid</span> <span class="o">=</span> <span class="n">timex</span><span class="p">[</span><span class="n">TMX_TID</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">tid</span> <span class="ow">in</span> <span class="n">timexes</span><span class="p">:</span>
+                        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">timexes</span><span class="p">[</span><span class="n">tid</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                            <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="n">START</span><span class="p">:</span>
+                                <span class="n">timex</span><span class="p">[</span><span class="n">START</span><span class="p">]</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">timex</span><span class="p">[</span><span class="n">START</span><span class="p">])</span>
+                            <span class="k">elif</span> <span class="n">k</span> <span class="o">==</span> <span class="n">END</span><span class="p">:</span>
+                                <span class="n">timex</span><span class="p">[</span><span class="n">END</span><span class="p">]</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">timex</span><span class="p">[</span><span class="n">END</span><span class="p">])</span>
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="n">timex</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+                    <span class="n">timexes</span><span class="p">[</span><span class="n">tid</span><span class="p">]</span> <span class="o">=</span> <span class="n">timex</span>
+    <span class="k">return</span> <span class="n">timexes</span>
+
+
+<span class="k">def</span> <span class="nf">remove_unnormalized</span><span class="p">(</span><span class="n">timexes</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">dict</span><span class="p">((</span><span class="n">tid</span><span class="p">,</span> <span class="n">timex</span><span class="p">)</span> <span class="k">for</span> <span class="n">tid</span><span class="p">,</span> <span class="n">timex</span> <span class="ow">in</span> <span class="n">timexes</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">TMX_TYPE</span> <span class="ow">in</span> <span class="n">timex</span> <span class="ow">and</span> <span class="n">TMX_VALUE</span> <span class="ow">in</span> <span class="n">timex</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">convert_timex</span><span class="p">(</span><span class="n">timex</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+    <span class="c1">#timex[TEXT] = text[timex[START]:timex[END]]</span>
+    <span class="k">if</span> <span class="n">TMX_TEMP_FUNCTION</span> <span class="ow">in</span> <span class="n">timex</span><span class="p">:</span>
+        <span class="n">tmp</span> <span class="o">=</span> <span class="n">timex</span><span class="p">[</span><span class="n">TMX_TEMP_FUNCTION</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">tmp</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;T&#39;</span><span class="p">):</span>
+            <span class="n">timex</span><span class="p">[</span><span class="n">TMX_TEMP_FUNCTION</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">timex</span><span class="p">[</span><span class="n">TMX_TEMP_FUNCTION</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="c1"># extract integer versions of timexes</span>
+    <span class="k">if</span> <span class="n">TMX_TID</span> <span class="ow">in</span> <span class="n">timex</span><span class="p">:</span>
+        <span class="n">tid</span> <span class="o">=</span> <span class="n">timex</span><span class="p">[</span><span class="n">TMX_TID</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">tid</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;t&#39;</span><span class="p">):</span>
+            <span class="n">tid</span> <span class="o">=</span> <span class="n">tid</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="n">timex</span><span class="p">[</span><span class="n">TMX_ID</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">tid</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span>
+    <span class="c1"># extract anchor ids</span>
+    <span class="k">if</span> <span class="n">TMX_ANCHOR_TID</span> <span class="ow">in</span> <span class="n">timex</span><span class="p">:</span>
+        <span class="n">aid</span> <span class="o">=</span> <span class="n">timex</span><span class="p">[</span><span class="n">TMX_ANCHOR_TID</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">aid</span> <span class="o">!=</span> <span class="s1">&#39;t0&#39;</span> <span class="ow">and</span> <span class="s1">&#39;?&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">aid</span><span class="p">:</span>  <span class="c1"># refers to document creation date:</span>
+            <span class="n">timex</span><span class="p">[</span><span class="n">TMX_ANCHOR_ID</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">aid</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span><span class="o">-</span><span class="mi">1</span>
+    <span class="k">return</span> <span class="n">timex</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, University of Tartu unless specified otherwise in the file headers.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'1.4.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

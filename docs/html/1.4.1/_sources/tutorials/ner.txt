@@ -1,0 +1,1456 @@
+
+Named entity recognition
+========================
+
+Named-entity recognition (NER) (also known as entity identification,
+entity chunking and entity extraction) is a subtask of information
+extraction that seeks to locate and classify elements in text into
+pre-defined categories such as the names of persons, organizations,
+locations.
+
+In this tutorial you will learn how to use estnltk's out of the box NER
+utilities and how to build your own ner-models from scratch.
+
+Getting started with NER
+------------------------
+
+The estnltk package comes with the pre-trained NER-models for Python
+2.7/Python 3.4. The models distinguish 3 types of entities: person
+names, organizations and locations.
+
+A quick example below demonstrates how to extract named entities from
+the raw text:
+
+.. code:: python
+
+    from estnltk import Text
+    from pprint import pprint
+    
+    text = Text('''Eesti Vabariik on riik Põhja-Euroopas. 
+        Eesti piirneb põhjas üle Soome lahe Soome Vabariigiga.
+        Riigikogu on Eesti Vabariigi parlament. Riigikogule kuulub Eestis seadusandlik võim.
+        2005. aastal sai peaministriks Andrus Ansip, kes püsis sellel kohal 2014. aastani.
+        2006. aastal valiti presidendiks Toomas Hendrik Ilves.
+        ''')
+    
+    # Extract named entities
+    pprint(text.named_entities)
+
+
+.. parsed-literal::
+
+    ['Eesti vabariik',
+     'Põhja-Euroobas|Põhja-Euroopa',
+     'Eesti',
+     'Soome laht',
+     'Soome Vabariik',
+     'Riigikogu',
+     'Eesti vabariik',
+     'riigikogu',
+     'Eesti',
+     'Andrus Ansip',
+     'Toomas Hendrik Ilves']
+
+
+When accessing the property **named\_entities** of the **Text**
+instance, estnltk executes on the background the whole text processing
+pipeline, including tokenization, morphological analysis and named
+entity extraction.
+
+The class **Text** additionally provides a number of useful methods to
+get more information on the extracted entities:
+
+.. code:: python
+
+    pprint(list(zip(text.named_entities, text.named_entity_labels, text.named_entity_spans)))
+
+
+.. parsed-literal::
+
+    [('Eesti vabariik', 'LOC', (0, 14)),
+     ('Põhja-Euroobas|Põhja-Euroopa', 'LOC', (23, 37)),
+     ('Eesti', 'LOC', (44, 49)),
+     ('Soome laht', 'LOC', (69, 79)),
+     ('Soome Vabariik', 'LOC', (80, 97)),
+     ('Riigikogu', 'ORG', (103, 112)),
+     ('Eesti vabariik', 'LOC', (116, 131)),
+     ('riigikogu', 'ORG', (143, 154)),
+     ('Eesti', 'LOC', (162, 168)),
+     ('Andrus Ansip', 'PER', (223, 235)),
+     ('Toomas Hendrik Ilves', 'PER', (312, 332))]
+
+
+The default models use tags PER, ORG and LOC to denote person names,
+organizations and locations respectively. Entity tags are encoded using
+a BIO annotation scheme, where each entity label is prefixed with either
+B or I letter. B- denotes the beginning and I- inside of an entity. The
+prefixes are used to detect multiword entities, as shown in the example
+example above. All other words, which don't refer to entities of
+interest, are labelled with the O tag.
+
+The raw labels are accessible via the property **labels** of the
+**Text** instance:
+
+.. code:: python
+
+    pprint(list(zip(text.word_texts, text.labels)))
+
+
+.. parsed-literal::
+
+    [('Eesti', 'B-LOC'),
+     ('Vabariik', 'I-LOC'),
+     ('on', 'O'),
+     ('riik', 'O'),
+     ('Põhja-Euroopas', 'B-LOC'),
+     ('.', 'O'),
+     ('Eesti', 'B-LOC'),
+     ('piirneb', 'O'),
+     ('põhjas', 'O'),
+     ('üle', 'O'),
+     ('Soome', 'B-LOC'),
+     ('lahe', 'I-LOC'),
+     ('Soome', 'B-LOC'),
+     ('Vabariigiga', 'I-LOC'),
+     ('.', 'O'),
+     ('Riigikogu', 'B-ORG'),
+     ('on', 'O'),
+     ('Eesti', 'B-LOC'),
+     ('Vabariigi', 'I-LOC'),
+     ('parlament', 'O'),
+     ('.', 'O'),
+     ('Riigikogule', 'B-ORG'),
+     ('kuulub', 'O'),
+     ('Eestis', 'B-LOC'),
+     ('seadusandlik', 'O'),
+     ('võim', 'O'),
+     ('.', 'O'),
+     ('2005.', 'O'),
+     ('aastal', 'O'),
+     ('sai', 'O'),
+     ('peaministriks', 'O'),
+     ('Andrus', 'B-PER'),
+     ('Ansip', 'I-PER'),
+     (',', 'O'),
+     ('kes', 'O'),
+     ('püsis', 'O'),
+     ('sellel', 'O'),
+     ('kohal', 'O'),
+     ('2014.', 'O'),
+     ('aastani', 'O'),
+     ('.', 'O'),
+     ('2006.', 'O'),
+     ('aastal', 'O'),
+     ('valiti', 'O'),
+     ('presidendiks', 'O'),
+     ('Toomas', 'B-PER'),
+     ('Hendrik', 'I-PER'),
+     ('Ilves', 'I-PER'),
+     ('.', 'O')]
+
+
+Advanced NER
+------------
+
+Training custom models
+~~~~~~~~~~~~~~~~~~~~~~
+
+Default models that come with estnltk are good enough for basic tasks.
+However, for some specific tasks, a custom NER model might be needed. To
+train your own model, you need to provide a training corpus and custom
+configuration settings. The following example demonstrates how to train
+a ner-model using the default training dataset and settings:
+
+.. code:: python
+
+    from estnltk import estner
+    from estnltk.corpus import read_json_corpus 
+    from estnltk.ner import NerTrainer
+    # Read the default training corpus
+    corpus = read_json_corpus('../../../estnltk/corpora/estner.json')
+    
+    
+    # Read the default settings
+    ner_settings = estner.settings
+    
+    # Directory to save the model
+    model_dir = 'output_model_directory'
+    
+    # Train and save the model
+    trainer = NerTrainer(ner_settings)
+    trainer.train(corpus, model_dir)
+
+
+.. parsed-literal::
+
+    Feature generation
+    type: CRF1d
+    feature.minfreq: 0.000000
+    feature.possible_states: 0
+    feature.possible_transitions: 0
+    0....1....2....3....4....5....6....7....8....9....10
+    Number of features: 27502
+    Seconds required: 6.768
+    
+    Stochastic Gradient Descent (SGD)
+    c2: 0.001000
+    max_iterations: 1000
+    period: 10
+    delta: 0.000001
+    
+    Calibrating the learning rate (eta)
+    calibration.eta: 0.100000
+    calibration.rate: 2.000000
+    calibration.samples: 1000
+    calibration.candidates: 10
+    calibration.max_trials: 20
+    Initial loss: 31638.553113
+    Trial #1 (eta = 0.100000): 35731.461497 (worse)
+    Trial #2 (eta = 0.050000): 18483.224381
+    Trial #3 (eta = 0.025000): 8702.151411
+    Trial #4 (eta = 0.012500): 4843.039483
+    Trial #5 (eta = 0.006250): 3396.892994
+    Trial #6 (eta = 0.003125): 3447.987218
+    Trial #7 (eta = 0.001563): 3931.664338
+    Trial #8 (eta = 0.000781): 4644.600628
+    Trial #9 (eta = 0.000391): 5567.995675
+    Trial #10 (eta = 0.000195): 6670.063105
+    Trial #11 (eta = 0.000098): 7850.731749
+    Best learning rate (eta): 0.006250
+    Seconds required: 1.854
+    
+    ***** Epoch #1 *****
+    Loss: 24172.323175
+    Feature L2-norm: 11.489745
+    Learning rate (eta): 0.006250
+    Total number of feature updates: 13627
+    Seconds required for this iteration: 2.242
+    
+    ***** Epoch #2 *****
+    Loss: 17437.850172
+    Feature L2-norm: 14.999275
+    Learning rate (eta): 0.006250
+    Total number of feature updates: 27254
+    Seconds required for this iteration: 2.634
+    
+    ***** Epoch #3 *****
+    Loss: 14603.051437
+    Feature L2-norm: 17.279376
+    Learning rate (eta): 0.006250
+    Total number of feature updates: 40881
+    Seconds required for this iteration: 2.450
+    
+    ***** Epoch #4 *****
+    Loss: 13176.361125
+    Feature L2-norm: 19.118737
+    Learning rate (eta): 0.006250
+    Total number of feature updates: 54508
+    Seconds required for this iteration: 3.042
+    
+    ***** Epoch #5 *****
+    Loss: 12730.723482
+    Feature L2-norm: 20.790962
+    Learning rate (eta): 0.006250
+    Total number of feature updates: 68135
+    Seconds required for this iteration: 2.573
+    
+    ***** Epoch #6 *****
+    Loss: 11931.002309
+    Feature L2-norm: 22.228954
+    Learning rate (eta): 0.006250
+    Total number of feature updates: 81762
+    Seconds required for this iteration: 2.524
+    
+    ***** Epoch #7 *****
+    Loss: 11423.056976
+    Feature L2-norm: 23.490672
+    Learning rate (eta): 0.006249
+    Total number of feature updates: 95389
+    Seconds required for this iteration: 2.386
+    
+    ***** Epoch #8 *****
+    Loss: 10828.498775
+    Feature L2-norm: 24.708994
+    Learning rate (eta): 0.006249
+    Total number of feature updates: 109016
+    Seconds required for this iteration: 2.287
+    
+    ***** Epoch #9 *****
+    Loss: 10788.422810
+    Feature L2-norm: 25.829739
+    Learning rate (eta): 0.006249
+    Total number of feature updates: 122643
+    Seconds required for this iteration: 2.314
+    
+    ***** Epoch #10 *****
+    Loss: 10438.570465
+    Feature L2-norm: 26.938894
+    Learning rate (eta): 0.006249
+    Total number of feature updates: 136270
+    Seconds required for this iteration: 2.281
+    
+    ***** Epoch #11 *****
+    Loss: 10043.065386
+    Improvement ratio: 1.406867
+    Feature L2-norm: 27.925413
+    Learning rate (eta): 0.006249
+    Total number of feature updates: 149897
+    Seconds required for this iteration: 2.237
+    
+    ***** Epoch #12 *****
+    Loss: 9770.657559
+    Improvement ratio: 0.784716
+    Feature L2-norm: 28.854242
+    Learning rate (eta): 0.006249
+    Total number of feature updates: 163524
+    Seconds required for this iteration: 2.332
+    
+    ***** Epoch #13 *****
+    Loss: 9519.320418
+    Improvement ratio: 0.534043
+    Feature L2-norm: 29.784878
+    Learning rate (eta): 0.006249
+    Total number of feature updates: 177151
+    Seconds required for this iteration: 2.260
+    
+    ***** Epoch #14 *****
+    Loss: 9353.606100
+    Improvement ratio: 0.408693
+    Feature L2-norm: 30.665230
+    Learning rate (eta): 0.006249
+    Total number of feature updates: 190778
+    Seconds required for this iteration: 2.228
+    
+    ***** Epoch #15 *****
+    Loss: 9296.988569
+    Improvement ratio: 0.369338
+    Feature L2-norm: 31.547644
+    Learning rate (eta): 0.006249
+    Total number of feature updates: 204405
+    Seconds required for this iteration: 2.248
+    
+    ***** Epoch #16 *****
+    Loss: 8977.041074
+    Improvement ratio: 0.329057
+    Feature L2-norm: 32.310120
+    Learning rate (eta): 0.006249
+    Total number of feature updates: 218032
+    Seconds required for this iteration: 2.384
+    
+    ***** Epoch #17 *****
+    Loss: 8753.414586
+    Improvement ratio: 0.304983
+    Feature L2-norm: 33.077887
+    Learning rate (eta): 0.006249
+    Total number of feature updates: 231659
+    Seconds required for this iteration: 2.260
+    
+    ***** Epoch #18 *****
+    Loss: 8615.470943
+    Improvement ratio: 0.256867
+    Feature L2-norm: 33.819993
+    Learning rate (eta): 0.006249
+    Total number of feature updates: 245286
+    Seconds required for this iteration: 2.369
+    
+    ***** Epoch #19 *****
+    Loss: 8647.210640
+    Improvement ratio: 0.247619
+    Feature L2-norm: 34.548685
+    Learning rate (eta): 0.006249
+    Total number of feature updates: 258913
+    Seconds required for this iteration: 2.285
+    
+    ***** Epoch #20 *****
+    Loss: 8415.766213
+    Improvement ratio: 0.240359
+    Feature L2-norm: 35.239045
+    Learning rate (eta): 0.006248
+    Total number of feature updates: 272540
+    Seconds required for this iteration: 2.208
+    
+    ***** Epoch #21 *****
+    Loss: 8352.817726
+    Improvement ratio: 0.202357
+    Feature L2-norm: 35.923932
+    Learning rate (eta): 0.006248
+    Total number of feature updates: 286167
+    Seconds required for this iteration: 2.215
+    
+    ***** Epoch #22 *****
+    Loss: 8012.951016
+    Improvement ratio: 0.219358
+    Feature L2-norm: 36.593067
+    Learning rate (eta): 0.006248
+    Total number of feature updates: 299794
+    Seconds required for this iteration: 2.227
+    
+    ***** Epoch #23 *****
+    Loss: 8003.668161
+    Improvement ratio: 0.189370
+    Feature L2-norm: 37.232795
+    Learning rate (eta): 0.006248
+    Total number of feature updates: 313421
+    Seconds required for this iteration: 2.284
+    
+    ***** Epoch #24 *****
+    Loss: 7971.556406
+    Improvement ratio: 0.173373
+    Feature L2-norm: 37.851651
+    Learning rate (eta): 0.006248
+    Total number of feature updates: 327048
+    Seconds required for this iteration: 2.314
+    
+    ***** Epoch #25 *****
+    Loss: 7858.109927
+    Improvement ratio: 0.183107
+    Feature L2-norm: 38.474759
+    Learning rate (eta): 0.006248
+    Total number of feature updates: 340675
+    Seconds required for this iteration: 2.233
+    
+    ***** Epoch #26 *****
+    Loss: 7826.285303
+    Improvement ratio: 0.147037
+    Feature L2-norm: 39.084558
+    Learning rate (eta): 0.006248
+    Total number of feature updates: 354302
+    Seconds required for this iteration: 2.228
+    
+    ***** Epoch #27 *****
+    Loss: 7561.982039
+    Improvement ratio: 0.157556
+    Feature L2-norm: 39.662134
+    Learning rate (eta): 0.006248
+    Total number of feature updates: 367929
+    Seconds required for this iteration: 2.307
+    
+    ***** Epoch #28 *****
+    Loss: 7533.611135
+    Improvement ratio: 0.143604
+    Feature L2-norm: 40.243017
+    Learning rate (eta): 0.006248
+    Total number of feature updates: 381556
+    Seconds required for this iteration: 2.323
+    
+    ***** Epoch #29 *****
+    Loss: 7572.395636
+    Improvement ratio: 0.141939
+    Feature L2-norm: 40.804884
+    Learning rate (eta): 0.006248
+    Total number of feature updates: 395183
+    Seconds required for this iteration: 2.577
+    
+    ***** Epoch #30 *****
+    Loss: 7760.523813
+    Improvement ratio: 0.084433
+    Feature L2-norm: 41.402348
+    Learning rate (eta): 0.006248
+    Total number of feature updates: 408810
+    Seconds required for this iteration: 2.340
+    
+    ***** Epoch #31 *****
+    Loss: 7325.448007
+    Improvement ratio: 0.140247
+    Feature L2-norm: 41.936366
+    Learning rate (eta): 0.006248
+    Total number of feature updates: 422437
+    Seconds required for this iteration: 2.220
+    
+    ***** Epoch #32 *****
+    Loss: 7293.024122
+    Improvement ratio: 0.098714
+    Feature L2-norm: 42.438341
+    Learning rate (eta): 0.006248
+    Total number of feature updates: 436064
+    Seconds required for this iteration: 2.221
+    
+    ***** Epoch #33 *****
+    Loss: 7244.779177
+    Improvement ratio: 0.104750
+    Feature L2-norm: 42.976112
+    Learning rate (eta): 0.006247
+    Total number of feature updates: 449691
+    Seconds required for this iteration: 2.214
+    
+    ***** Epoch #34 *****
+    Loss: 7242.763835
+    Improvement ratio: 0.100624
+    Feature L2-norm: 43.494941
+    Learning rate (eta): 0.006247
+    Total number of feature updates: 463318
+    Seconds required for this iteration: 2.209
+    
+    ***** Epoch #35 *****
+    Loss: 7116.230765
+    Improvement ratio: 0.104252
+    Feature L2-norm: 43.986289
+    Learning rate (eta): 0.006247
+    Total number of feature updates: 476945
+    Seconds required for this iteration: 2.207
+    
+    ***** Epoch #36 *****
+    Loss: 6926.261111
+    Improvement ratio: 0.129944
+    Feature L2-norm: 44.456970
+    Learning rate (eta): 0.006247
+    Total number of feature updates: 490572
+    Seconds required for this iteration: 2.212
+    
+    ***** Epoch #37 *****
+    Loss: 6737.924857
+    Improvement ratio: 0.122301
+    Feature L2-norm: 44.917716
+    Learning rate (eta): 0.006247
+    Total number of feature updates: 504199
+    Seconds required for this iteration: 2.212
+    
+    ***** Epoch #38 *****
+    Loss: 6849.786019
+    Improvement ratio: 0.099832
+    Feature L2-norm: 45.409762
+    Learning rate (eta): 0.006247
+    Total number of feature updates: 517826
+    Seconds required for this iteration: 2.213
+    
+    ***** Epoch #39 *****
+    Loss: 6792.568097
+    Improvement ratio: 0.114806
+    Feature L2-norm: 45.879099
+    Learning rate (eta): 0.006247
+    Total number of feature updates: 531453
+    Seconds required for this iteration: 2.211
+    
+    ***** Epoch #40 *****
+    Loss: 6780.774555
+    Improvement ratio: 0.144489
+    Feature L2-norm: 46.343984
+    Learning rate (eta): 0.006247
+    Total number of feature updates: 545080
+    Seconds required for this iteration: 2.207
+    
+    ***** Epoch #41 *****
+    Loss: 6687.597819
+    Improvement ratio: 0.095378
+    Feature L2-norm: 46.810985
+    Learning rate (eta): 0.006247
+    Total number of feature updates: 558707
+    Seconds required for this iteration: 2.247
+    
+    ***** Epoch #42 *****
+    Loss: 6536.067468
+    Improvement ratio: 0.115812
+    Feature L2-norm: 47.258200
+    Learning rate (eta): 0.006247
+    Total number of feature updates: 572334
+    Seconds required for this iteration: 2.339
+    
+    ***** Epoch #43 *****
+    Loss: 6581.846926
+    Improvement ratio: 0.100721
+    Feature L2-norm: 47.695587
+    Learning rate (eta): 0.006247
+    Total number of feature updates: 585961
+    Seconds required for this iteration: 2.544
+    
+    ***** Epoch #44 *****
+    Loss: 6599.960328
+    Improvement ratio: 0.097395
+    Feature L2-norm: 48.124905
+    Learning rate (eta): 0.006247
+    Total number of feature updates: 599588
+    Seconds required for this iteration: 2.475
+    
+    ***** Epoch #45 *****
+    Loss: 6294.837676
+    Improvement ratio: 0.130487
+    Feature L2-norm: 48.534130
+    Learning rate (eta): 0.006246
+    Total number of feature updates: 613215
+    Seconds required for this iteration: 2.705
+    
+    ***** Epoch #46 *****
+    Loss: 6297.926053
+    Improvement ratio: 0.099769
+    Feature L2-norm: 48.958298
+    Learning rate (eta): 0.006246
+    Total number of feature updates: 626842
+    Seconds required for this iteration: 2.660
+    
+    ***** Epoch #47 *****
+    Loss: 6429.674431
+    Improvement ratio: 0.047942
+    Feature L2-norm: 49.377750
+    Learning rate (eta): 0.006246
+    Total number of feature updates: 640469
+    Seconds required for this iteration: 2.430
+    
+    ***** Epoch #48 *****
+    Loss: 6344.073383
+    Improvement ratio: 0.079714
+    Feature L2-norm: 49.793494
+    Learning rate (eta): 0.006246
+    Total number of feature updates: 654096
+    Seconds required for this iteration: 2.542
+    
+    ***** Epoch #49 *****
+    Loss: 6251.740036
+    Improvement ratio: 0.086508
+    Feature L2-norm: 50.191270
+    Learning rate (eta): 0.006246
+    Total number of feature updates: 667723
+    Seconds required for this iteration: 2.643
+    
+    ***** Epoch #50 *****
+    Loss: 6452.066472
+    Improvement ratio: 0.050946
+    Feature L2-norm: 50.633720
+    Learning rate (eta): 0.006246
+    Total number of feature updates: 681350
+    Seconds required for this iteration: 2.461
+    
+    ***** Epoch #51 *****
+    Loss: 6228.274340
+    Improvement ratio: 0.073748
+    Feature L2-norm: 51.022656
+    Learning rate (eta): 0.006246
+    Total number of feature updates: 694977
+    Seconds required for this iteration: 2.212
+    
+    ***** Epoch #52 *****
+    Loss: 6062.460396
+    Improvement ratio: 0.078121
+    Feature L2-norm: 51.402333
+    Learning rate (eta): 0.006246
+    Total number of feature updates: 708604
+    Seconds required for this iteration: 2.228
+    
+    ***** Epoch #53 *****
+    Loss: 6117.835141
+    Improvement ratio: 0.075846
+    Feature L2-norm: 51.798198
+    Learning rate (eta): 0.006246
+    Total number of feature updates: 722231
+    Seconds required for this iteration: 2.419
+    
+    ***** Epoch #54 *****
+    Loss: 6107.244204
+    Improvement ratio: 0.080677
+    Feature L2-norm: 52.192626
+    Learning rate (eta): 0.006246
+    Total number of feature updates: 735858
+    Seconds required for this iteration: 2.483
+    
+    ***** Epoch #55 *****
+    Loss: 5985.627415
+    Improvement ratio: 0.051659
+    Feature L2-norm: 52.561419
+    Learning rate (eta): 0.006246
+    Total number of feature updates: 749485
+    Seconds required for this iteration: 2.415
+    
+    ***** Epoch #56 *****
+    Loss: 5888.322088
+    Improvement ratio: 0.069562
+    Feature L2-norm: 52.912556
+    Learning rate (eta): 0.006246
+    Total number of feature updates: 763112
+    Seconds required for this iteration: 2.735
+    
+    ***** Epoch #57 *****
+    Loss: 5951.860407
+    Improvement ratio: 0.080280
+    Feature L2-norm: 53.297624
+    Learning rate (eta): 0.006246
+    Total number of feature updates: 776739
+    Seconds required for this iteration: 2.751
+    
+    ***** Epoch #58 *****
+    Loss: 6006.490059
+    Improvement ratio: 0.056203
+    Feature L2-norm: 53.674991
+    Learning rate (eta): 0.006245
+    Total number of feature updates: 790366
+    Seconds required for this iteration: 2.877
+    
+    ***** Epoch #59 *****
+    Loss: 5849.553564
+    Improvement ratio: 0.068755
+    Feature L2-norm: 54.031660
+    Learning rate (eta): 0.006245
+    Total number of feature updates: 803993
+    Seconds required for this iteration: 2.747
+    
+    ***** Epoch #60 *****
+    Loss: 5875.815262
+    Improvement ratio: 0.098072
+    Feature L2-norm: 54.398836
+    Learning rate (eta): 0.006245
+    Total number of feature updates: 817620
+    Seconds required for this iteration: 2.269
+    
+    ***** Epoch #61 *****
+    Loss: 5747.739373
+    Improvement ratio: 0.083604
+    Feature L2-norm: 54.750072
+    Learning rate (eta): 0.006245
+    Total number of feature updates: 831247
+    Seconds required for this iteration: 2.222
+    
+    ***** Epoch #62 *****
+    Loss: 5763.525957
+    Improvement ratio: 0.051867
+    Feature L2-norm: 55.101784
+    Learning rate (eta): 0.006245
+    Total number of feature updates: 844874
+    Seconds required for this iteration: 2.245
+    
+    ***** Epoch #63 *****
+    Loss: 5859.015977
+    Improvement ratio: 0.044175
+    Feature L2-norm: 55.452638
+    Learning rate (eta): 0.006245
+    Total number of feature updates: 858501
+    Seconds required for this iteration: 2.442
+    
+    ***** Epoch #64 *****
+    Loss: 5642.765716
+    Improvement ratio: 0.082314
+    Feature L2-norm: 55.792717
+    Learning rate (eta): 0.006245
+    Total number of feature updates: 872128
+    Seconds required for this iteration: 2.637
+    
+    ***** Epoch #65 *****
+    Loss: 5733.884922
+    Improvement ratio: 0.043904
+    Feature L2-norm: 56.140350
+    Learning rate (eta): 0.006245
+    Total number of feature updates: 885755
+    Seconds required for this iteration: 2.308
+    
+    ***** Epoch #66 *****
+    Loss: 5631.802570
+    Improvement ratio: 0.045548
+    Feature L2-norm: 56.465068
+    Learning rate (eta): 0.006245
+    Total number of feature updates: 899382
+    Seconds required for this iteration: 2.252
+    
+    ***** Epoch #67 *****
+    Loss: 5642.788044
+    Improvement ratio: 0.054773
+    Feature L2-norm: 56.810243
+    Learning rate (eta): 0.006245
+    Total number of feature updates: 913009
+    Seconds required for this iteration: 2.225
+    
+    ***** Epoch #68 *****
+    Loss: 5557.149716
+    Improvement ratio: 0.080858
+    Feature L2-norm: 57.131408
+    Learning rate (eta): 0.006245
+    Total number of feature updates: 926636
+    Seconds required for this iteration: 2.219
+    
+    ***** Epoch #69 *****
+    Loss: 5563.991204
+    Improvement ratio: 0.051323
+    Feature L2-norm: 57.463177
+    Learning rate (eta): 0.006245
+    Total number of feature updates: 940263
+    Seconds required for this iteration: 2.216
+    
+    ***** Epoch #70 *****
+    Loss: 5534.039170
+    Improvement ratio: 0.061759
+    Feature L2-norm: 57.779475
+    Learning rate (eta): 0.006245
+    Total number of feature updates: 953890
+    Seconds required for this iteration: 2.301
+    
+    ***** Epoch #71 *****
+    Loss: 5511.189692
+    Improvement ratio: 0.042922
+    Feature L2-norm: 58.100620
+    Learning rate (eta): 0.006244
+    Total number of feature updates: 967517
+    Seconds required for this iteration: 2.223
+    
+    ***** Epoch #72 *****
+    Loss: 5521.831739
+    Improvement ratio: 0.043771
+    Feature L2-norm: 58.429066
+    Learning rate (eta): 0.006244
+    Total number of feature updates: 981144
+    Seconds required for this iteration: 2.236
+    
+    ***** Epoch #73 *****
+    Loss: 5547.368054
+    Improvement ratio: 0.056179
+    Feature L2-norm: 58.738911
+    Learning rate (eta): 0.006244
+    Total number of feature updates: 994771
+    Seconds required for this iteration: 2.218
+    
+    ***** Epoch #74 *****
+    Loss: 5413.542636
+    Improvement ratio: 0.042343
+    Feature L2-norm: 59.066447
+    Learning rate (eta): 0.006244
+    Total number of feature updates: 1008398
+    Seconds required for this iteration: 2.282
+    
+    ***** Epoch #75 *****
+    Loss: 5479.117009
+    Improvement ratio: 0.046498
+    Feature L2-norm: 59.379124
+    Learning rate (eta): 0.006244
+    Total number of feature updates: 1022025
+    Seconds required for this iteration: 2.248
+    
+    ***** Epoch #76 *****
+    Loss: 5364.784325
+    Improvement ratio: 0.049772
+    Feature L2-norm: 59.678795
+    Learning rate (eta): 0.006244
+    Total number of feature updates: 1035652
+    Seconds required for this iteration: 2.233
+    
+    ***** Epoch #77 *****
+    Loss: 5390.763873
+    Improvement ratio: 0.046751
+    Feature L2-norm: 59.987214
+    Learning rate (eta): 0.006244
+    Total number of feature updates: 1049279
+    Seconds required for this iteration: 2.208
+    
+    ***** Epoch #78 *****
+    Loss: 5278.013108
+    Improvement ratio: 0.052887
+    Feature L2-norm: 60.286602
+    Learning rate (eta): 0.006244
+    Total number of feature updates: 1062906
+    Seconds required for this iteration: 2.234
+    
+    ***** Epoch #79 *****
+    Loss: 5503.584990
+    Improvement ratio: 0.010976
+    Feature L2-norm: 60.615750
+    Learning rate (eta): 0.006244
+    Total number of feature updates: 1076533
+    Seconds required for this iteration: 2.255
+    
+    ***** Epoch #80 *****
+    Loss: 5252.502895
+    Improvement ratio: 0.053600
+    Feature L2-norm: 60.905667
+    Learning rate (eta): 0.006244
+    Total number of feature updates: 1090160
+    Seconds required for this iteration: 2.247
+    
+    ***** Epoch #81 *****
+    Loss: 5208.782001
+    Improvement ratio: 0.058057
+    Feature L2-norm: 61.188753
+    Learning rate (eta): 0.006244
+    Total number of feature updates: 1103787
+    Seconds required for this iteration: 2.265
+    
+    ***** Epoch #82 *****
+    Loss: 5301.925370
+    Improvement ratio: 0.041477
+    Feature L2-norm: 61.480326
+    Learning rate (eta): 0.006244
+    Total number of feature updates: 1117414
+    Seconds required for this iteration: 2.330
+    
+    ***** Epoch #83 *****
+    Loss: 5240.890727
+    Improvement ratio: 0.058478
+    Feature L2-norm: 61.783081
+    Learning rate (eta): 0.006244
+    Total number of feature updates: 1131041
+    Seconds required for this iteration: 2.268
+    
+    ***** Epoch #84 *****
+    Loss: 5166.391532
+    Improvement ratio: 0.047838
+    Feature L2-norm: 62.065784
+    Learning rate (eta): 0.006243
+    Total number of feature updates: 1144668
+    Seconds required for this iteration: 2.238
+    
+    ***** Epoch #85 *****
+    Loss: 5210.295613
+    Improvement ratio: 0.051594
+    Feature L2-norm: 62.348039
+    Learning rate (eta): 0.006243
+    Total number of feature updates: 1158295
+    Seconds required for this iteration: 2.310
+    
+    ***** Epoch #86 *****
+    Loss: 5126.991931
+    Improvement ratio: 0.046380
+    Feature L2-norm: 62.635585
+    Learning rate (eta): 0.006243
+    Total number of feature updates: 1171922
+    Seconds required for this iteration: 2.530
+    
+    ***** Epoch #87 *****
+    Loss: 5141.276434
+    Improvement ratio: 0.048526
+    Feature L2-norm: 62.911186
+    Learning rate (eta): 0.006243
+    Total number of feature updates: 1185549
+    Seconds required for this iteration: 2.405
+    
+    ***** Epoch #88 *****
+    Loss: 5066.095799
+    Improvement ratio: 0.041830
+    Feature L2-norm: 63.180545
+    Learning rate (eta): 0.006243
+    Total number of feature updates: 1199176
+    Seconds required for this iteration: 2.214
+    
+    ***** Epoch #89 *****
+    Loss: 5166.625987
+    Improvement ratio: 0.065218
+    Feature L2-norm: 63.475972
+    Learning rate (eta): 0.006243
+    Total number of feature updates: 1212803
+    Seconds required for this iteration: 2.328
+    
+    ***** Epoch #90 *****
+    Loss: 5060.271510
+    Improvement ratio: 0.037988
+    Feature L2-norm: 63.759460
+    Learning rate (eta): 0.006243
+    Total number of feature updates: 1226430
+    Seconds required for this iteration: 2.207
+    
+    ***** Epoch #91 *****
+    Loss: 4964.187813
+    Improvement ratio: 0.049272
+    Feature L2-norm: 64.031666
+    Learning rate (eta): 0.006243
+    Total number of feature updates: 1240057
+    Seconds required for this iteration: 2.215
+    
+    ***** Epoch #92 *****
+    Loss: 5009.853158
+    Improvement ratio: 0.058300
+    Feature L2-norm: 64.293819
+    Learning rate (eta): 0.006243
+    Total number of feature updates: 1253684
+    Seconds required for this iteration: 2.233
+    
+    ***** Epoch #93 *****
+    Loss: 4968.178641
+    Improvement ratio: 0.054892
+    Feature L2-norm: 64.569636
+    Learning rate (eta): 0.006243
+    Total number of feature updates: 1267311
+    Seconds required for this iteration: 2.319
+    
+    ***** Epoch #94 *****
+    Loss: 5047.727315
+    Improvement ratio: 0.023508
+    Feature L2-norm: 64.848972
+    Learning rate (eta): 0.006243
+    Total number of feature updates: 1280938
+    Seconds required for this iteration: 2.248
+    
+    ***** Epoch #95 *****
+    Loss: 4891.409892
+    Improvement ratio: 0.065193
+    Feature L2-norm: 65.108829
+    Learning rate (eta): 0.006243
+    Total number of feature updates: 1294565
+    Seconds required for this iteration: 2.238
+    
+    ***** Epoch #96 *****
+    Loss: 4985.682275
+    Improvement ratio: 0.028343
+    Feature L2-norm: 65.391411
+    Learning rate (eta): 0.006243
+    Total number of feature updates: 1308192
+    Seconds required for this iteration: 2.230
+    
+    ***** Epoch #97 *****
+    Loss: 5114.622015
+    Improvement ratio: 0.005211
+    Feature L2-norm: 65.668532
+    Learning rate (eta): 0.006242
+    Total number of feature updates: 1321819
+    Seconds required for this iteration: 2.233
+    
+    ***** Epoch #98 *****
+    Loss: 4868.592901
+    Improvement ratio: 0.040567
+    Feature L2-norm: 65.933151
+    Learning rate (eta): 0.006242
+    Total number of feature updates: 1335446
+    Seconds required for this iteration: 2.246
+    
+    ***** Epoch #99 *****
+    Loss: 4844.773246
+    Improvement ratio: 0.066433
+    Feature L2-norm: 66.186809
+    Learning rate (eta): 0.006242
+    Total number of feature updates: 1349073
+    Seconds required for this iteration: 2.229
+    
+    ***** Epoch #100 *****
+    Loss: 4921.709631
+    Improvement ratio: 0.028153
+    Feature L2-norm: 66.453857
+    Learning rate (eta): 0.006242
+    Total number of feature updates: 1362700
+    Seconds required for this iteration: 2.231
+    
+    ***** Epoch #101 *****
+    Loss: 4789.900702
+    Improvement ratio: 0.036386
+    Feature L2-norm: 66.716848
+    Learning rate (eta): 0.006242
+    Total number of feature updates: 1376327
+    Seconds required for this iteration: 2.215
+    
+    ***** Epoch #102 *****
+    Loss: 4788.309280
+    Improvement ratio: 0.046268
+    Feature L2-norm: 66.976715
+    Learning rate (eta): 0.006242
+    Total number of feature updates: 1389954
+    Seconds required for this iteration: 2.228
+    
+    ***** Epoch #103 *****
+    Loss: 4795.595050
+    Improvement ratio: 0.035988
+    Feature L2-norm: 67.231667
+    Learning rate (eta): 0.006242
+    Total number of feature updates: 1403581
+    Seconds required for this iteration: 2.220
+    
+    ***** Epoch #104 *****
+    Loss: 4896.397755
+    Improvement ratio: 0.030906
+    Feature L2-norm: 67.490533
+    Learning rate (eta): 0.006242
+    Total number of feature updates: 1417208
+    Seconds required for this iteration: 2.233
+    
+    ***** Epoch #105 *****
+    Loss: 4706.124091
+    Improvement ratio: 0.039371
+    Feature L2-norm: 67.737461
+    Learning rate (eta): 0.006242
+    Total number of feature updates: 1430835
+    Seconds required for this iteration: 2.220
+    
+    ***** Epoch #106 *****
+    Loss: 4753.854731
+    Improvement ratio: 0.048766
+    Feature L2-norm: 67.983183
+    Learning rate (eta): 0.006242
+    Total number of feature updates: 1444462
+    Seconds required for this iteration: 2.318
+    
+    ***** Epoch #107 *****
+    Loss: 4835.783535
+    Improvement ratio: 0.057661
+    Feature L2-norm: 68.237816
+    Learning rate (eta): 0.006242
+    Total number of feature updates: 1458089
+    Seconds required for this iteration: 2.326
+    
+    ***** Epoch #108 *****
+    Loss: 4708.315868
+    Improvement ratio: 0.034041
+    Feature L2-norm: 68.490847
+    Learning rate (eta): 0.006242
+    Total number of feature updates: 1471716
+    Seconds required for this iteration: 2.275
+    
+    ***** Epoch #109 *****
+    Loss: 4714.363397
+    Improvement ratio: 0.027662
+    Feature L2-norm: 68.741470
+    Learning rate (eta): 0.006241
+    Total number of feature updates: 1485343
+    Seconds required for this iteration: 2.285
+    
+    ***** Epoch #110 *****
+    Loss: 4764.498215
+    Improvement ratio: 0.032996
+    Feature L2-norm: 68.989531
+    Learning rate (eta): 0.006241
+    Total number of feature updates: 1498970
+    Seconds required for this iteration: 2.313
+    
+    ***** Epoch #111 *****
+    Loss: 4702.949558
+    Improvement ratio: 0.018489
+    Feature L2-norm: 69.228922
+    Learning rate (eta): 0.006241
+    Total number of feature updates: 1512597
+    Seconds required for this iteration: 2.261
+    
+    ***** Epoch #112 *****
+    Loss: 4681.255269
+    Improvement ratio: 0.022869
+    Feature L2-norm: 69.473358
+    Learning rate (eta): 0.006241
+    Total number of feature updates: 1526224
+    Seconds required for this iteration: 2.251
+    
+    ***** Epoch #113 *****
+    Loss: 4722.102327
+    Improvement ratio: 0.015564
+    Feature L2-norm: 69.720548
+    Learning rate (eta): 0.006241
+    Total number of feature updates: 1539851
+    Seconds required for this iteration: 2.384
+    
+    ***** Epoch #114 *****
+    Loss: 4585.640466
+    Improvement ratio: 0.067767
+    Feature L2-norm: 69.951587
+    Learning rate (eta): 0.006241
+    Total number of feature updates: 1553478
+    Seconds required for this iteration: 2.286
+    
+    ***** Epoch #115 *****
+    Loss: 4664.131282
+    Improvement ratio: 0.009003
+    Feature L2-norm: 70.190197
+    Learning rate (eta): 0.006241
+    Total number of feature updates: 1567105
+    Seconds required for this iteration: 2.235
+    
+    ***** Epoch #116 *****
+    Loss: 4613.366616
+    Improvement ratio: 0.030452
+    Feature L2-norm: 70.425920
+    Learning rate (eta): 0.006241
+    Total number of feature updates: 1580732
+    Seconds required for this iteration: 2.227
+    
+    ***** Epoch #117 *****
+    Loss: 4614.199853
+    Improvement ratio: 0.048022
+    Feature L2-norm: 70.668697
+    Learning rate (eta): 0.006241
+    Total number of feature updates: 1594359
+    Seconds required for this iteration: 2.211
+    
+    ***** Epoch #118 *****
+    Loss: 4609.819200
+    Improvement ratio: 0.021367
+    Feature L2-norm: 70.902847
+    Learning rate (eta): 0.006241
+    Total number of feature updates: 1607986
+    Seconds required for this iteration: 2.504
+    
+    ***** Epoch #119 *****
+    Loss: 4544.535893
+    Improvement ratio: 0.037370
+    Feature L2-norm: 71.130045
+    Learning rate (eta): 0.006241
+    Total number of feature updates: 1621613
+    Seconds required for this iteration: 2.398
+    
+    ***** Epoch #120 *****
+    Loss: 4635.104857
+    Improvement ratio: 0.027916
+    Feature L2-norm: 71.375496
+    Learning rate (eta): 0.006241
+    Total number of feature updates: 1635240
+    Seconds required for this iteration: 2.811
+    
+    ***** Epoch #121 *****
+    Loss: 4530.647645
+    Improvement ratio: 0.038030
+    Feature L2-norm: 71.605246
+    Learning rate (eta): 0.006241
+    Total number of feature updates: 1648867
+    Seconds required for this iteration: 2.707
+    
+    ***** Epoch #122 *****
+    Loss: 4541.986987
+    Improvement ratio: 0.030662
+    Feature L2-norm: 71.837709
+    Learning rate (eta): 0.006240
+    Total number of feature updates: 1662494
+    Seconds required for this iteration: 2.500
+    
+    ***** Epoch #123 *****
+    Loss: 4479.125406
+    Improvement ratio: 0.054247
+    Feature L2-norm: 72.068895
+    Learning rate (eta): 0.006240
+    Total number of feature updates: 1676121
+    Seconds required for this iteration: 2.785
+    
+    ***** Epoch #124 *****
+    Loss: 4459.762067
+    Improvement ratio: 0.028225
+    Feature L2-norm: 72.295359
+    Learning rate (eta): 0.006240
+    Total number of feature updates: 1689748
+    Seconds required for this iteration: 2.540
+    
+    ***** Epoch #125 *****
+    Loss: 4433.583594
+    Improvement ratio: 0.052000
+    Feature L2-norm: 72.518676
+    Learning rate (eta): 0.006240
+    Total number of feature updates: 1703375
+    Seconds required for this iteration: 2.210
+    
+    ***** Epoch #126 *****
+    Loss: 4448.369673
+    Improvement ratio: 0.037092
+    Feature L2-norm: 72.748678
+    Learning rate (eta): 0.006240
+    Total number of feature updates: 1717002
+    Seconds required for this iteration: 2.221
+    
+    ***** Epoch #127 *****
+    Loss: 4434.348927
+    Improvement ratio: 0.040559
+    Feature L2-norm: 72.965152
+    Learning rate (eta): 0.006240
+    Total number of feature updates: 1730629
+    Seconds required for this iteration: 2.494
+    
+    ***** Epoch #128 *****
+    Loss: 4434.377590
+    Improvement ratio: 0.039564
+    Feature L2-norm: 73.191414
+    Learning rate (eta): 0.006240
+    Total number of feature updates: 1744256
+    Seconds required for this iteration: 2.510
+    
+    ***** Epoch #129 *****
+    Loss: 4528.904989
+    Improvement ratio: 0.003451
+    Feature L2-norm: 73.423359
+    Learning rate (eta): 0.006240
+    Total number of feature updates: 1757883
+    Seconds required for this iteration: 2.435
+    
+    ***** Epoch #130 *****
+    Loss: 4317.636528
+    Improvement ratio: 0.073528
+    Feature L2-norm: 73.640535
+    Learning rate (eta): 0.006240
+    Total number of feature updates: 1771510
+    Seconds required for this iteration: 2.337
+    
+    ***** Epoch #131 *****
+    Loss: 4441.530100
+    Improvement ratio: 0.020065
+    Feature L2-norm: 73.862459
+    Learning rate (eta): 0.006240
+    Total number of feature updates: 1785137
+    Seconds required for this iteration: 2.347
+    
+    ***** Epoch #132 *****
+    Loss: 4544.574722
+    Improvement ratio: -0.000569
+    Feature L2-norm: 74.094606
+    Learning rate (eta): 0.006240
+    Total number of feature updates: 1798764
+    Seconds required for this iteration: 2.224
+    
+    SGD terminated with the stopping criteria
+    Loss: 4317.636528
+    Total seconds required for training: 311.247
+    
+    Storing the model
+    Number of active features: 27502 (27502)
+    Number of active attributes: 8385 (8385)
+    Number of active labels: 7 (7)
+    Writing labels
+    Writing attributes
+    Writing feature references for transitions
+    Writing feature references for attributes
+    Seconds required: 0.044
+    
+
+
+The specified output directory will contain a resulting model file
+model.bin and a copy of a settings module used for training. Now we can
+load the model and tag some text using **NerTagger**:
+
+.. code:: python
+
+    from estnltk.ner import NerTagger
+    
+    document = Text('Eesti koeraspordiliidu ( EKL ) presidendi Piret Laanetu intervjuu Eesti Päevalehele.')
+    
+    # Load the model and settings
+    tagger = NerTagger(model_dir)
+    
+    # ne-tag the document
+    tagger.tag_document(document)
+    
+    pprint(list(zip(document.word_texts, document.labels)))
+
+
+.. parsed-literal::
+
+    [('Eesti', 'B-ORG'),
+     ('koeraspordiliidu', 'I-ORG'),
+     ('(', 'O'),
+     ('EKL', 'B-ORG'),
+     (')', 'O'),
+     ('presidendi', 'O'),
+     ('Piret', 'B-PER'),
+     ('Laanetu', 'I-PER'),
+     ('intervjuu', 'O'),
+     ('Eesti', 'B-ORG'),
+     ('Päevalehele', 'I-ORG'),
+     ('.', 'O')]
+
+
+Training dataset
+~~~~~~~~~~~~~~~~
+
+To train a model with estnltk, you need to provide your training data in
+a certain format (see the default dataset
+estnltk/estnltk/corpora/estner.json for example). The training file
+contains one document per line along with ne-labels. Let's create a
+simple document:
+
+.. code:: python
+
+    text = Text('''Eesti Vabariik on riik Põhja-Euroopas.''')
+    text.tokenize_words()
+    pprint(text)
+
+
+.. parsed-literal::
+
+    {'paragraphs': [{'end': 38, 'start': 0}],
+     'sentences': [{'end': 38, 'start': 0}],
+     'text': 'Eesti Vabariik on riik Põhja-Euroopas.',
+     'words': [{'end': 5, 'start': 0, 'text': 'Eesti'},
+               {'end': 14, 'start': 6, 'text': 'Vabariik'},
+               {'end': 17, 'start': 15, 'text': 'on'},
+               {'end': 22, 'start': 18, 'text': 'riik'},
+               {'end': 37, 'start': 23, 'text': 'Põhja-Euroopas'},
+               {'end': 38, 'start': 37, 'text': '.'}]}
+
+
+Next, let's add named entity tags to each word in the document:
+
+.. code:: python
+
+    words = text.words
+    
+    # label each word as "other":
+    for word in words:
+        word['label'] = 'O'
+    
+    # label words "Eesti Vabariik" as a location
+    words[0]['label'] = 'B-LOC'
+    words[1]['label'] = 'I-LOC'
+    
+    # label word "Põhja-Euroopas" as a location
+    words[4]['label'] = 'B-LOC'
+    
+    pprint(text.words)
+
+
+.. parsed-literal::
+
+    [{'end': 5, 'label': 'B-LOC', 'start': 0, 'text': 'Eesti'},
+     {'end': 14, 'label': 'I-LOC', 'start': 6, 'text': 'Vabariik'},
+     {'end': 17, 'label': 'O', 'start': 15, 'text': 'on'},
+     {'end': 22, 'label': 'O', 'start': 18, 'text': 'riik'},
+     {'end': 37, 'label': 'B-LOC', 'start': 23, 'text': 'Põhja-Euroopas'},
+     {'end': 38, 'label': 'O', 'start': 37, 'text': '.'}]
+
+
+Once we have a collection of labelled documents, we can save it to disc
+using the function **write\_json\_corpus()**:
+
+.. code:: python
+
+    from estnltk.corpus import write_json_corpus
+    
+    documents = [text]
+    write_json_corpus(documents, 'output_file_name')
+
+
+
+
+.. parsed-literal::
+
+    [{'paragraphs': [{'end': 38, 'start': 0}],
+      'sentences': [{'end': 38, 'start': 0}],
+      'text': 'Eesti Vabariik on riik Põhja-Euroopas.',
+      'words': [{'end': 5, 'label': 'B-LOC', 'start': 0, 'text': 'Eesti'},
+       {'end': 14, 'label': 'I-LOC', 'start': 6, 'text': 'Vabariik'},
+       {'end': 17, 'label': 'O', 'start': 15, 'text': 'on'},
+       {'end': 22, 'label': 'O', 'start': 18, 'text': 'riik'},
+       {'end': 37, 'label': 'B-LOC', 'start': 23, 'text': 'Põhja-Euroopas'},
+       {'end': 38, 'label': 'O', 'start': 37, 'text': '.'}]}]
+
+
+
+This serializes each document object into a json string and saves to the
+specified file line by line. The resulting training file can be used
+with the **NerTrainer** as shown above.
+
+Ner settings
+~~~~~~~~~~~~
+
+By default, estnltk uses configuration module
+**estnltk.estner.settings**. A settings module defines training
+algorithm parameters, entity categories, feature extractors and feature
+templates. The simplest way to create a custom configuration is to make
+a new settings module, e.g. *custom\_settings.py*, import the default
+settings and override necessary parts. For example, a custom
+minimalistic configuration module could look like this:
+
+.. code:: python
+
+    %%writefile custom_settings.py
+    
+    from estnltk.estner.settings import *
+    
+    # Override feature templates
+    TEMPLATES = [
+        (('lem', 0),),
+    ]
+    
+    # Override feature extractors
+    FEATURE_EXTRACTORS = (
+        "estnltk.estner.featureextraction.MorphFeatureExtractor",
+    )
+
+
+.. parsed-literal::
+
+    Overwriting custom_settings.py
+
+
+.. code:: python
+
+    import custom_settings
+
+.. code:: python
+
+    ner_settings2 = custom_settings
+
+Now, the **NerTrainer** instance can be initialized using the
+custom\_settings module (make sure *custom\_settings.py* is on your
+python path):
+
+.. code:: python
+
+    trainer = NerTrainer(ner_settings2)  

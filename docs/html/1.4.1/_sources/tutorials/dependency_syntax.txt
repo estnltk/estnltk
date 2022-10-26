@@ -1,0 +1,1140 @@
+
+Dependency syntactic analysis
+=============================
+
+EstNLTK provides wrappers for two syntactic analysers:
+`MaltParser <http://www.maltparser.org/>`__ and `VISLCG3 based syntactic
+analyser of Estonian <https://github.com/EstSyntax/EstCG>`__.
+
+MaltParser based syntactic analysis is distributed with EstNLTK and can
+be applied by default. VISLCG3 based syntactic analysis has a
+requirement that VISLCG3 must be installed into the system first (see
+below for further instructions).
+
+Both analysers are using a common syntactic analysis tagset, which is
+introduced in
+https://korpused.keeleressursid.ee/syntaks/dokumendid/syntaksiliides_en.pdf.
+
+Basic usage
+-----------
+
+Calling ``tag_syntax`` method of the ``Text`` instance evokes the
+syntactic analysis on the text, using the default syntactic parser
+(MaltParser):
+
+.. code:: python
+
+    from estnltk.names import LAYER_CONLL
+    from estnltk import Text
+    from pprint import pprint
+    
+    text = Text('Ilus suur karvane kass nurrus punasel diivanil')
+    text.tag_syntax()
+    
+    pprint( text[LAYER_CONLL] )
+
+
+.. parsed-literal::
+
+    [{'end': 4, 'parser_out': [['@AN>', 3]], 'sent_id': 0, 'start': 0},
+     {'end': 9, 'parser_out': [['@AN>', 3]], 'sent_id': 0, 'start': 5},
+     {'end': 17, 'parser_out': [['@AN>', 3]], 'sent_id': 0, 'start': 10},
+     {'end': 22, 'parser_out': [['@SUBJ', 4]], 'sent_id': 0, 'start': 18},
+     {'end': 29, 'parser_out': [['ROOT', -1]], 'sent_id': 0, 'start': 23},
+     {'end': 37, 'parser_out': [['@AN>', 6]], 'sent_id': 0, 'start': 30},
+     {'end': 46, 'parser_out': [['@ADVL', 4]], 'sent_id': 0, 'start': 38}]
+
+
+Results of the analysis are stored in the layer named ``LAYER_CONLL`` (
+note that the name of the layer depends on the parser: in case of
+VISLCG3, the name would be ``LAYER_VISLCG3`` ).
+
+The layer contains a ``dict`` for each word in the text. In order to get
+an idea which word has which syntactic analysis, you can ``zip`` words
+and syntactic layer elements:
+
+.. code:: python
+
+    pprint( list( zip(text.word_texts, text[LAYER_CONLL]) ) )
+
+
+.. parsed-literal::
+
+    [('Ilus', {'end': 4, 'parser_out': [['@AN>', 3]], 'sent_id': 0, 'start': 0}),
+     ('suur', {'end': 9, 'parser_out': [['@AN>', 3]], 'sent_id': 0, 'start': 5}),
+     ('karvane',
+      {'end': 17, 'parser_out': [['@AN>', 3]], 'sent_id': 0, 'start': 10}),
+     ('kass', {'end': 22, 'parser_out': [['@SUBJ', 4]], 'sent_id': 0, 'start': 18}),
+     ('nurrus',
+      {'end': 29, 'parser_out': [['ROOT', -1]], 'sent_id': 0, 'start': 23}),
+     ('punasel',
+      {'end': 37, 'parser_out': [['@AN>', 6]], 'sent_id': 0, 'start': 30}),
+     ('diivanil',
+      {'end': 46, 'parser_out': [['@ADVL', 4]], 'sent_id': 0, 'start': 38})]
+
+
+The ``dict`` representing word's syntactic analysis specifies the
+location of the word (in ``start`` and ``end`` attributes, and in the
+sentence identifier ``sent_id``), and dependency syntactic relations
+associated with the word (in the attribute ``parser_out``).
+
+-  The attribute ``parser_out`` contains a list of dependency syntactic
+   relations. Each relation is a list where:
+
+   -  the first item is the **syntactic function label** (e.g.
+      ``'@SUBJ'`` stands for *subject* and ``'@OBJ'`` for *object*, see
+      the
+      `documentation <https://korpused.keeleressursid.ee/syntaks/dokumendid/syntaksiliides_en.pdf>`__
+      for details), and
+   -  the second item (the integer) is the index of its **governing
+      word** in the sentence.
+
+-  The governing word index ``-1`` marks that the current word is the
+   root node of the tree, and this is also supported by syntactic
+   function label ``'ROOT'`` from MaltParser output. VISLCG3 does not
+   use the label ``'ROOT'``, and only governing word index ``-1`` is
+   used for marking the root in VISLCG3's output.
+
+-  Note: If you are familiar with the CONLL data format, you should
+   remember that EstNLTK uses a bit different indexing system than
+   CONLL. In the CONLL data format, word indices typically start at
+   ``1`` and the root node has the parent index ``0``. In EstNLTK, word
+   indices start at ``0`` and the root node has the parent index ``-1``.
+
+The tree structure described in the previous example of MaltParser's
+output can be illustrated with the following dependency tree:
+
+.. figure:: _static/nurruvkass_2.png
+   :alt: Purring cat example
+
+   Purring cat example
+
+EstNLTK also provides API for processing and making queries on trees
+built from syntactic analyses, see below for further details.
+
+VISLCG3 based syntactic analysis
+--------------------------------
+
+Installation & configuration
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In order to use VISLCG3 based syntactic analysis, the VISLCG3 parser
+must be installed into the system. The information about the parser is
+distributed in the `Constraint Grammar's Google
+Group <http://groups.google.com/group/constraint-grammar>`__, and this
+is also the place to look for the most compact guide about getting &
+installing `the latest version of the
+parser <https://groups.google.com/d/msg/constraint-grammar/hXsbzyyhIVI/nHXRnOomf9wJ>`__.
+
+By default, EstNLTK expects that the directory containing VISLCG3
+parser's executable (``vislcg3`` in UNIX, ``vislcg3.exe`` in Windows) is
+accessible from system's environment variable ``PATH``. If this
+requirement is satisfied, the EstNLTK should always be able to execute
+the parser.
+
+Alternatively ( if the parser's directory is not in system's ``PATH`` ),
+the name of the VISLCG3 executable with full path can be provided via
+the input argument ``vislcg_cmd`` of the parser's class
+``VISLCG3Parser``. Then the parser instance can be added as a custom
+parser of a ``Text`` object via the keyword argument
+``syntactic_parser``:
+
+.. code:: python
+
+    from estnltk.syntax.parsers import VISLCG3Parser
+    from estnltk.names import LAYER_VISLCG3
+    from estnltk import Text
+    from pprint import pprint
+        
+    # Create a new VISLCG3 parser instance, and provide 
+    # the name of the VISLCG3 executable with full path 
+    parser = VISLCG3Parser( vislcg_cmd='C:\\cg3\\bin\\vislcg3.exe' )
+        
+    # Create a new text object and override the default
+    # parser with the VISLCG3 parser
+    text = Text( 'Maril oli väike tall', syntactic_parser=parser )
+        
+    # Tag syntax: now VISLCG3Parser is used 
+    text.tag_syntax()
+
+    pprint( text[LAYER_VISLCG3] )
+
+Provided that you are using a Windows machine, and VISLCG3 is installed
+into the directory ``C:\\cg3\\bin``, the previous example should execute
+successfully and should produce the following output:
+
+::
+
+    [{'end': 5, 'parser_out': [['@ADVL', 1]], 'sent_id': 0, 'start': 0},
+     {'end': 9, 'parser_out': [['@FMV', -1]], 'sent_id': 0, 'start': 6},
+     {'end': 15, 'parser_out': [['@AN>', 3]], 'sent_id': 0, 'start': 10},
+     {'end': 20, 'parser_out': [['@SUBJ', 1]], 'sent_id': 0, 'start': 16}]
+
+In the output: note that the root node (the node with governing word
+index ``-1``) has a syntactic label ``'@FMV'`` instead of ``'ROOT'``,
+indicating that the VISLCG3Parser was used instead of the MaltParser.
+
+Text interface
+~~~~~~~~~~~~~~
+
+``Text`` object provides the method ``tag_syntax_vislcg3``, which
+changes the default parser to a new instance of ``VISLCG3Parser``, and
+parses the text. The results of the parsing are stored in the layer
+``LAYER_VISLCG3``:
+
+.. code:: python
+
+    from estnltk.names import LAYER_VISLCG3
+    from estnltk import Text
+    from pprint import pprint
+        
+    text = Text( 'Valge jänes jooksis metsas' )
+        
+    # Tag text with VISLCG3 parser
+    text.tag_syntax_vislcg3()
+    
+    pprint( text[LAYER_VISLCG3] )
+
+
+.. parsed-literal::
+
+    [{'end': 5, 'parser_out': [['@AN>', 1]], 'sent_id': 0, 'start': 0},
+     {'end': 11, 'parser_out': [['@SUBJ', 2]], 'sent_id': 0, 'start': 6},
+     {'end': 19, 'parser_out': [['@FMV', -1]], 'sent_id': 0, 'start': 12},
+     {'end': 26, 'parser_out': [['@ADVL', 2]], 'sent_id': 0, 'start': 20}]
+
+
+For each word in the text, the layer ``LAYER_VISLCG3`` contains a
+``dict`` storing the syntactic analysis of the word (see the section
+"Basic usage" above for details). The method ``Text.syntax_trees()`` can
+be used to build queryable syntactic trees from ``LAYER_VISLCG3``, see
+below for details.
+
+-  Note: The method ``tag_syntax_vislcg3()`` can only be used if the
+   VISLCG3's directory is in system's environment variable ``PATH``. For
+   an alternative way of providing the parser with the location of the
+   VISLCG3's directory, see the section above.
+
+VISLCG3Parser class
+~~~~~~~~~~~~~~~~~~~
+
+The class ``VISLCG3Parser`` can be used to customize the settings of
+VISLCG3 based syntactic analysis (e.g. provide the location of the
+parser, and the pipeline of rules), and to get a custom output (e.g. the
+original output of the parser).
+
+``VISLCG3Parser`` can be initiated with the following keyword arguments:
+
+-  ``vislcg_cmd`` -- the name of VISLCG3 executable with full path (e.g.
+   ``'C:\\cg3\\bin\\vislcg3.exe'``);
+-  ``pipeline`` -- a list of rule file names that are executed by the
+   VISLCG3Parser, in the order of execution;
+-  ``rules_dir`` -- a default directory from where to find rules that
+   are executed on the pipeline (used for rule files without path);
+
+After the ``VISLCG3Parser`` has been initiated, its method
+``parse_text`` can be used to parse a ``Text`` object. In addition to
+the Text, the method can take the following keyword arguments:
+
+-  ``return_type`` -- specifies the format of the data returned of the
+   method. Can be one of the following: ``'text'`` (default),
+   ``'vislcg3'``, ``'trees'``, ``'dep_graphs'``
+
+   -  ``'text'`` -- returns the input Text object;
+   -  ``'vislcg3'`` -- returns a list of lines (strings) -- the initial
+      output of the parser. See for below details;
+   -  ``'trees'`` -- returns a list of syntactic trees generated from
+      the results of the syntactic analysis. See for below details;
+   -  ``'dep_graphs'`` -- returns a list of NLTK's DependencyGraph
+      objects generated from the results of the syntactic analysis. See
+      for below details;
+
+-  ``keep_old`` -- a boolean specifying whether the initial analysis
+   lines from the output of VISLCG3's should be preserved in the
+   ``LAYER_VISLCG3``. If ``True``, each ``dict`` in the layer will be
+   augmented with attribute ``'init_parser_out'`` containing the
+   initial/old analysis lines (a list of strings); Default: ``False``
+-  ``mark_root`` -- a boolean specifying whether the label of the root
+   node should be renamed to ``ROOT`` (in order to get an output
+   comparable with MaltParser's output); Default: ``False``
+
+In the following, some of the usage possibilities of these arguments are
+introduced in detail.
+
+The initial output of the parser
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+If you want to see the **initial / original output** of the VISLCG3
+parser, you can execute the method ``parse_text`` with the setting
+``return_type='vislcg3'`` -- in this case, the method returns a list of
+lines (strings) from the initial output:
+
+.. code:: python
+
+    from estnltk.syntax.parsers import VISLCG3Parser
+    from estnltk import Text
+
+    text = Text('Maril oli väike tall')
+    parser = VISLCG3Parser()
+    initial_output = parser.parse_text(text, return_type='vislcg3')
+        
+    print( '\n'.join( initial_output) )
+
+the code above should produce the following output:
+
+::
+
+    "<s>"
+
+    "<Maril>"
+            "mari" Ll S com sg ad @ADVL #1->2
+    "<oli>"
+            "ole" Li V main indic impf ps3 sg ps af @FMV #2->0
+    "<väike>"
+            "väike" L0 A pos sg nom @AN> #3->4
+    "<tall>"
+            "tall" L0 S com sg nom @SUBJ #4->2
+    "</s>"
+
+-  *The format of the initial output*. A more detailed description of
+   the format and categories used by the parser is available in
+   Estonian:
+   https://korpused.keeleressursid.ee/syntaks/dokumendid/syntaksiliides\_ee.pdf
+   (2016-09-07) and there is also a detailed description of the
+   annotation principles available in Estonian:
+   https://www.keeletehnoloogia.ee/et/ekt-projektid/vahendid-teksti-mitmekihiliseks-margendamiseks-rakendatuna-koondkorpusele/soltuvussuntaktiliselt-analuusitud-korpus
+   (2016-09-07).
+
+Note that the results of the analysis are also stored in the input Text
+object on the layer ``LAYER_VISLCG3``, but the layer does not preserve
+the original/initial output of the VISLCG3 parser.
+
+In order to preserve the original/initial analysis in the layer
+``LAYER_VISLCG3``, the method ``parse_text`` needs to be executed with
+the setting ``keep_old=True`` -- in this case, the initial syntactic
+analysis lines are also stored in the layer, providing each ``dict`` in
+the layer with the attribute ``'init_parser_out'``:
+
+.. code:: python
+
+    from estnltk.syntax.parsers import VISLCG3Parser
+    from estnltk.names import LAYER_VISLCG3
+    from estnltk import Text
+    from pprint import pprint
+
+    text = Text('Maril oli väike tall')
+    parser = VISLCG3Parser()
+    parser.parse_text(text, keep_old=True)
+        
+    pprint( text[LAYER_VISLCG3] )
+
+the code above should produce the following output:
+
+::
+
+    [{'end': 5,
+      'init_parser_out': ['\t"mari" Ll S com sg ad @ADVL #1->2'],
+      'parser_out': [['@ADVL', 1]],
+      'sent_id': 0,
+      'start': 0},
+     {'end': 9,
+      'init_parser_out': ['\t"ole" Li V main indic impf ps3 sg ps af @FMV '
+                          '#2->0'],
+      'parser_out': [['@FMV', -1]],
+      'sent_id': 0,
+      'start': 6},
+     {'end': 15,
+      'init_parser_out': ['\t"väike" L0 A pos sg nom @AN> #3->4'],
+      'parser_out': [['@AN>', 3]],
+      'sent_id': 0,
+      'start': 10},
+     {'end': 20,
+      'init_parser_out': ['\t"tall" L0 S com sg nom @SUBJ #4->2'],
+      'parser_out': [['@SUBJ', 1]],
+      'sent_id': 0,
+      'start': 16}]
+      
+
+The attribute ``'init_parser_out'`` contains a list of analysis lines
+associated the word -- in case of unsolved ambiguities, there is more
+than one analysis line for the word.
+
+Using a custom pipeline
+^^^^^^^^^^^^^^^^^^^^^^^
+
+If you want to make a custom pipeline based on the **default pipeline**,
+you can make a copy of the list in the variable
+``estnltk.syntax.vislcg3_syntax.SYNTAX_PIPELINE_1_4``, modify some of
+the rule file names listed there, and then pass the new list as
+``pipeline`` argument to the constructor of ``VISLCG3Parser``:
+
+.. code:: python
+
+    from estnltk.syntax.vislcg3_syntax import SYNTAX_PIPELINE_1_4
+    from estnltk.syntax.parsers import VISLCG3Parser
+    from estnltk.names import LAYER_VISLCG3
+    from estnltk import Text
+    from pprint import pprint
+        
+    my_pipeline = SYNTAX_PIPELINE_1_4[:] # make a copy from the default pipeline
+    del my_pipeline[-1]                  # remove the last rule file 
+        
+    text = Text('Konn hüppas kivilt kivile')
+    # Initialize the parser with a custom pipeline:
+    parser = VISLCG3Parser( pipeline=my_pipeline )
+    # Parse the text
+    initial_output = parser.parse_text(text, return_type='vislcg3')
+        
+    print( '\n'.join( initial_output) )
+
+the code above should produce the following output:
+
+::
+
+    "<s>"
+
+    "<Konn>"
+            "konn" L0 S com sg nom @SUBJ
+    "<hüppas>"
+            "hüppa" Ls V main indic impf ps3 sg ps af @FMV
+    "<kivilt>"
+            "kivi" Llt S com sg abl @ADVL
+    "<kivile>"
+            "kivi" Lle S com sg all @<NN @ADVL
+    "</s>"
+
+Note that because the last rule file (containing the rules for
+dependency relations) was removed from the pipeline, the results contain
+only morphological information and surface-syntactic information
+(syntactic function labels), but no dependency information (the
+information in the form ``#Number->Number``).
+
+-  *About the default pipeline*:
+   ``estnltk.syntax.vislcg3_syntax.SYNTAX_PIPELINE_1_4`` refers to the
+   rules (\*.rle files) that are stored in EstNLTK's installation
+   directory, at the location pointed by the variable
+   ``estnltk.syntax.vislcg3_syntax.SYNTAX_PATH``. The original source of
+   the rules is: http://math.ut.ee/~tiinapl/CGParser.tar.gz
+
+If you want to provide your own, **alternative pipeline**, you can
+construct *a list of rule file names with full paths*, and pass them as
+``pipeline`` argument to the constructor of ``VISLCG3Parser``.
+Alternatively, you can put only file names to the ``pipeline`` argument,
+and use the ``rules_dir`` argument to indicate the default directory
+from which all rules files can be found.
+
+MaltParser based syntactic analysis
+-----------------------------------
+
+Training MaltParser models
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Instructions and scripts for training and evaluating MaltParser models
+for EstNLTK can be found from the repository:
+https://github.com/estnltk/maltparser_training
+
+Text interface
+~~~~~~~~~~~~~~
+
+As EstNLTK uses ``MaltParser`` as a default parsing method, you can get
+the syntactic analysis from MaltParser via ``Text`` object's method
+``tag_syntax``.
+
+When you have changed the default parser, e.g. to ``VISLCG3Parser``, you
+can change it back to the ``MaltParser`` and add the layer of
+MaltParser's analyses (``LAYER_CONLL``) via method
+``tag_syntax_maltparser``:
+
+.. code:: python
+
+    from estnltk.names import LAYER_CONLL
+    from estnltk import Text
+    from pprint import pprint
+        
+    text = Text( 'Valge jänes jooksis metsas' )
+        
+    # Tag text with VISLCG3 parser (change default parser to VISLCG3)
+    text.tag_syntax_vislcg3()
+        
+    # Tag text with MaltParser (change default parser back to MaltParser)
+    text.tag_syntax_maltparser()
+
+    pprint( text[LAYER_CONLL] )
+
+This example should produce the following output:
+
+::
+
+    [{'end': 5, 'parser_out': [['@AN>', 1]], 'sent_id': 0, 'start': 0},
+     {'end': 11, 'parser_out': [['@SUBJ', 2]], 'sent_id': 0, 'start': 6},
+     {'end': 19, 'parser_out': [['ROOT', -1]], 'sent_id': 0, 'start': 12},
+     {'end': 26, 'parser_out': [['@ADVL', 2]], 'sent_id': 0, 'start': 20}]
+     
+
+For each word in the text, the layer ``LAYER_CONLL`` contains a ``dict``
+storing the syntactic analysis of the word (see the section "Basic
+usage" above for details). The method ``syntax_trees()`` can be used to
+build queryable syntactic trees from ``LAYER_CONLL``, see below for
+details.
+
+MaltParser class
+~~~~~~~~~~~~~~~~
+
+The class ``MaltParser`` can be used to customize the settings of
+MaltParser based syntactic analysis (e.g. to provide a different
+MaltParser's jar file, or a different model), and to get a custom output
+(e.g. the original output of the parser).
+
+``MaltParser`` can be initiated with the following keyword arguments:
+
+-  ``maltparser_dir`` -- the path to the directory containing
+   Maltparser's jar file and the model file;
+-  ``model_name`` -- name of the Maltparser's model used in parsing,
+   should be located in ``maltparser_dir``;
+-  ``maltparser_jar`` -- name of the Maltparser jar file, which is to be
+   executed and which is located in ``maltparser_dir`` (defaults to
+   ``'maltparser-1.8.jar'``);
+
+After the ``MaltParser`` has been initiated, its method ``parse_text``
+can be used to parse a ``Text`` object. In addition to the Text, the
+method can take the following keyword arguments:
+
+-  ``return_type`` -- specifies the format of the data returned of the
+   method. Can be one of the following: ``'text'`` (default),
+   ``'conll'``, ``'trees'``, ``'dep_graphs'``
+
+   -  ``'text'`` -- returns the input Text object;
+   -  ``'conll'`` -- returns a list of lines (strings) -- the initial
+      output of the parser. See for below details;
+   -  ``'trees'`` -- returns a list of syntactic trees generated from
+      the results of the syntactic analysis. See for below details;
+   -  ``'dep_graphs'`` -- returns a list of NLTK's ``DependencyGraph``
+      objects generated from the results of the syntactic analysis. See
+      for below details;
+
+-  ``keep_old`` -- a boolean specifying whether the initial analysis
+   lines from the output of MaltParser should be preserved in the
+   ``LAYER_CONLL``. If ``True``, each ``dict`` in the layer will be
+   augmented with attribute ``'init_parser_out'`` containing the
+   initial/old analysis lines (a list of strings); Default: ``False``
+
+The initial output of the parser
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+If you want to see the **initial / original output** of the MaltParser,
+you can execute the method ``parse_text`` with the setting
+``return_type='conll'`` -- in this case, the method returns a list of
+lines (strings) from the initial output:
+
+.. code:: python
+
+    from estnltk.syntax.parsers import MaltParser
+    from estnltk import Text
+    
+    text = Text('Maril oli väike tall')
+    parser = MaltParser()
+    initial_output = parser.parse_text(text, return_type='conll')
+        
+    print( '\n'.join( initial_output) )
+
+
+.. parsed-literal::
+
+    1	Maril	mari	S	S	sg|ad	2	@SUBJ	_	_
+    2	oli	ole	V	V	s	0	ROOT	_	_
+    3	väike	väike	A	A	sg|n	4	@AN>	_	_
+    4	tall	tall	S	S	sg|n	2	@PRD	_	_
+    
+
+
+Tree datastructure
+------------------
+
+Syntactic information stored in layers ``LAYER_CONLL`` and
+``LAYER_VISLCG3`` can also be processed in the form of EstNLTK's
+``estnltk.syntax.utils.Tree`` objects (not to be confused with NLTK's
+``nltk.tree.Tree`` objects). This datastructure provides an interface
+for making queries over the data, e.g. one can find all children of a
+tree node that satisfy a certain morphological or syntactic constraint.
+
+Each ``Text`` object provides the method ``syntax_trees`` that can be
+used to build syntactic trees from a syntactic analyses layer. This
+method builds trees from all the sentences of the text (note: there can
+be more than one tree per sentence), and returns a list of ``Tree``
+objects (see below for details) representing root nodes of these trees.
+
+In the following example, the input text is first syntactically parsed,
+and then trees are build from the results of the parsing:
+
+.. code:: python
+
+    from estnltk import Text
+    
+    text = Text('Hiir hüppas ja kass kargas. Ja vana karu lõi trummi.')
+        
+    # Tag syntactic analysis (the prerequisite for trees)
+    text.tag_syntax()
+    # Get syntactic trees (root nodes) of the text
+    trees = text.syntax_trees()
+
+The resulting list of ``estnltk.syntax.utils.Tree`` objects can be used
+for making queries over the syntactic structures. In the following
+example, all nodes labelled ``@SUBJ``, along with the words they govern,
+are retrieved from the text:
+
+.. code:: python
+
+    # Analyse trees
+    for root in trees:
+        # Retrieve nodes labelled SUBJECT
+        subject_nodes = root.get_children( label="@SUBJ" )
+        for subj_node in subject_nodes:
+            # Retrieve children of the subject node (and include the node itself):
+            subject_and_children = subj_node.get_children( include_self=True, sorted=True )
+            # Print SUBJ phrases (texts) and their syntactic labels
+            print( [(node.text, node.labels) for node in subject_and_children] )
+
+
+.. parsed-literal::
+
+    [('Hiir', ['@SUBJ'])]
+    [('kass', ['@SUBJ'])]
+    [('vana', ['@AN>']), ('karu', ['@SUBJ'])]
+
+
+**Specifying the layer.** By default, the method ``syntax_trees`` builds
+trees from the layer corresponding to the current syntactic parser (a
+parser that can be passed to the Text object via the keyword argument
+``syntactic_parser``). If no syntactic parser has been set, it builds
+trees from the first layer available, checking firstly for
+``LAYER_CONLL`` and secondly for ``LAYER_VISLCG3``.
+
+If the current parser has not been specified, and there is no syntactic
+layer available, you should pass the name of the layer to the method via
+keyword argument ``layer``, in order to direct which syntactic parser
+should be used for analysing the text:
+
+.. code:: python
+
+    from estnltk.names import LAYER_VISLCG3
+    #  Build syntactic trees from VISLCG3's output 
+    trees = text.syntax_trees(layer=LAYER_VISLCG3)
+
+**Trees from a custom layer.** If you want to build trees from a text
+layer that has the same structure as layers ``LAYER_CONLL`` and
+``LAYER_VISLCG3`` (see the "Basic Usage" above for details), but a
+different name, you can use the method
+``estnltk.syntax.utils.build_trees_from_text``:
+
+.. code:: python
+
+    from estnltk.syntax.utils import build_trees_from_text
+    #  Build trees from a custom layer 
+    trees = build_trees_from_text( text, layer = 'my_syntactic_layer' )
+
+Tree object and queries
+~~~~~~~~~~~~~~~~~~~~~~~
+
+Each ``estnltk.syntax.utils.Tree`` object represents a node in the
+syntactic tree, and allows an access to its governing node (parent), to
+its children, and to morphological and syntactic information associated
+with the word token. The object has following fields:
+
+-  ``word_id`` -- integer : index of the corresponding word in the
+   sentence;
+-  ``sent_id`` -- integer : index of the sentence (that the word belongs
+   to) in the text;
+-  ``labels`` -- list of syntactic function labels associated with the
+   node (e.g. the label ``'@SUBJ'`` stands for *subject*, see
+   `documentation <https://korpused.keeleressursid.ee/syntaks/dokumendid/syntaksiliides_en.pdf>`__
+   for details); in case of unsolved ambiguities, multiple functions can
+   be associated with the node;
+-  ``parent`` -- Tree object : direct parent / head of this node
+   (``None`` if this node is the root node);
+-  ``children`` -- list of Tree objects : list of all direct children of
+   this node (``None`` if this node is a leaf node);
+-  ``token`` -- dict : an element from the ``'words'`` layer associated
+   with this node. Can be used to access morphological information
+   associated with the node, e.g. the list of morphological analyses is
+   available from ``thisnode.token['analysis']``, and part-of-speech
+   associated with the node can be accessed via
+   ``thisnode.token['analysis'][0]['partofspeech']``;
+-  ``text`` -- string : text corresponding to the node; same as
+   ``thisnode.token['text']``;
+-  ``syntax_token`` -- dict : an element from the syntactic analyses
+   layer (``LAYER_CONLL`` or ``LAYER_VISLCG3``) associated with this
+   node;
+-  ``parser_output`` -- list of strings : list of analysis lines from
+   the initial output of the parser corresponding to the this node;
+   (``None`` if the initial output has not been preserved (a default
+   setting));
+
+In addition to fields ``parent`` and ``children``, each tree node also
+provides methods ``get_root()`` and ``get_children()`` which can be used
+perform more complex queries on the tree:
+
+-  ``get_root()`` -- Moves up via the parent links of this tree until
+   reaching the tree with no parents, and returns the parentless tree as
+   the root. Otherwise (if this tree has no parents), returns this tree.
+-  ``get_children()`` -- Recursively collects and returns all subtrees
+   of this tree (if no arguments are given), or, alternatively, collects
+   and returns subtrees of this tree satisfying some specific criteria
+   (pre-specified in the keyword arguments);
+
+If called without any keyword arguments, the method ``get_children()``
+returns a list of all subtrees of this tree, including both direct
+children, grand-children, and ...-grand-children from unrestricted
+depth. Specific keyword arguments can used to expand or restrict the
+returned list.
+
+The query can be limited by tree depth using the keyword argument
+``depth_limit``:
+
+.. code:: python
+
+    tree = trees[0]
+    
+    # Get all direct children of the tree
+    children = tree.get_children( depth_limit=1 )
+
+Note that you can get the same listing from:
+
+.. code:: python
+
+    # All direct children of the tree
+    children = tree.children
+
+They query can be restricted to retrieving only trees that have a
+specific syntactic function label. The keyword argument ``label`` is
+used for that:
+
+.. code:: python
+
+    from estnltk import Text
+    text = Text('Hiir hüppas ja vana karu lõi trummi.')
+    text.tag_syntax()
+    tree = text.syntax_trees()[0]
+    
+    # Retrieve all nodes labelled @SUBJ
+    subjects = tree.get_children( label="@SUBJ" )
+    
+    print([subj.text for subj in subjects])
+
+
+.. parsed-literal::
+
+    ['Hiir', 'karu']
+
+
+If you want to allow multiple syntactic labels (e.g. ``@SUBJ`` and
+``@SUBJ``), you can use ``label_regexp`` which allows to describe the
+syntactic function label with a regular expression:
+
+.. code:: python
+
+    # Retrieve all nodes labelled @SUBJ and @OBJ
+    subjects_objects = tree.get_children( label_regexp="(@SUBJ|@OBJ)" )
+    
+    print([subj.text for subj in subjects_objects])
+
+
+.. parsed-literal::
+
+    ['Hiir', 'karu', 'trummi']
+
+
+Constraints can be added also at the morphological level. The
+``WordTemplate`` object can be used to describe desirable morphological
+features that the returned words (tree nodes) should have:
+
+.. code:: python
+
+    from estnltk.mw_verbs.utils import WordTemplate
+    from estnltk.names import POSTAG, FORM
+    
+    # word template matching all infinite verbs
+    verb_inf = WordTemplate({POSTAG:'V', FORM:'^(da|des|ma|tama|ta|maks|mas|mast|nud|tud|v|mata)$'})
+
+In the previous example, the created template ``verb_inf`` requires that
+a word matching the template must be a verb (``POSTAG:'V'``), and its
+morphological form must match the regular expression listing all forms
+of the infinite verbs
+(``'^(da|des|ma|tama|ta|maks|mas|mast|nud|tud|v|mata)$'``). The template
+can be passed to the the method ``get_children()`` via the keyword
+argument ``word_template`` to set the morphological constraints:
+
+.. code:: python
+
+    from estnltk import Text
+    text = Text('Tegelikult tahaks hoopis puhata ja mängida.')
+    text.tag_syntax()
+    tree = text.syntax_trees()[0]
+    
+    # retrieve all infinite verbs from the children of this tree
+    inf_verbs = tree.get_children( word_template=verb_inf )
+    
+    print([node.text for node in inf_verbs])
+
+
+.. parsed-literal::
+
+    ['puhata', 'mängida']
+
+
+If both morphological and syntactic constraints are used in a query,
+only nodes satisfying all the constraints are returned:
+
+.. code:: python
+
+    from estnltk.mw_verbs.utils import WordTemplate
+    from estnltk.names import POSTAG, FORM, ROOT
+    
+    # word template matching all infinite verbs
+    verb_inf = WordTemplate({POSTAG:'V', FORM:'^(da|des|ma|tama|ta|maks|mas|mast|nud|tud|v|mata)$'})
+        
+    # retrieve all infinite verbs that function as objects
+    inf_verbs = tree.get_children( word_template=verb_inf, label="@OBJ" )
+    
+    print([(node.text, node.labels) for node in inf_verbs])
+
+
+.. parsed-literal::
+
+    [('puhata', ['@OBJ']), ('mängida', ['@OBJ'])]
+
+
+Sometimes it is desirable that the tree itself is also checked for and,
+in case of the match, included in the list of returned trees. The
+keyword argument ``include_self=True`` can be used to enable this:
+
+.. code:: python
+
+    # Retrieve all nodes labelled @SUBJ, @OBJ or ROOT
+    subjects_objects_roots = tree.get_children( label_regexp="(@SUBJ|ROOT|@OBJ)", include_self=True )
+    
+    print([(node.text, node.labels) for node in subjects_objects_roots])
+
+
+.. parsed-literal::
+
+    [('tahaks', ['ROOT']), ('puhata', ['@OBJ']), ('mängida', ['@OBJ'])]
+
+
+And finally, to ensure that all the returned trees are in the order of
+words in text, the keyword argument ``sorted=True`` can be used:
+
+.. code:: python
+
+    # Retrieve all nodes labelled @SUBJ, ROOT, @OBJ, and sort them according to word order in text
+    subj_verb_obj = tree.get_children( label_regexp="(@SUBJ|ROOT|@OBJ)", include_self=True, sorted=True )
+
+This forces trees to be sorted ascendingly by their ``word_id`` values.
+
+The NLTK interface
+~~~~~~~~~~~~~~~~~~
+
+EstNLTK also provides an interface for converting its
+``estnltk.syntax.utils.Tree`` objects to
+`NLTK <http://www.nltk.org/>`__'s corresponding datastructures:
+dependency graphs and trees.
+
+Dependency graphs
+^^^^^^^^^^^^^^^^^
+
+``estnltk.syntax.utils.Tree`` object has a method
+``as_dependencygraph()`` which constructs NLTK's
+`DependencyGraph <http://www.nltk.org/_modules/nltk/parse/dependencygraph.html>`__
+object from the tree:
+
+.. code:: python
+
+    from estnltk import Text
+    from pprint import pprint
+    
+    text = Text('Ja vana karu lõi trummi.')
+        
+    # Tag syntactic analysis (the prerequisite for trees)
+    text.tag_syntax()
+        
+    # Get syntactic trees (root nodes) of the text
+    trees = text.syntax_trees()
+        
+    # Convert EstNLTK's tree to dependencygraph
+    dependency_graph = trees[0].as_dependencygraph()
+        
+    # Represent syntactic relations as PARENT-RELATION-CHILD triples
+    pprint( list(dependency_graph.triples()) )
+
+
+.. parsed-literal::
+
+    [(('lõi', 'V'), '@J', ('Ja', 'J')),
+     (('lõi', 'V'), '@SUBJ', ('karu', 'S')),
+     (('karu', 'S'), '@AN>', ('vana', 'A')),
+     (('lõi', 'V'), '@OBJ', ('trummi', 'S')),
+     (('trummi', 'S'), 'xxx', ('.', 'Z'))]
+
+
+NLTK's Tree objects
+^^^^^^^^^^^^^^^^^^^
+
+The method ``as_nltk_tree()`` can be used to convert EstNLTK's ``Tree``
+object to `Tree <http://www.nltk.org/_modules/nltk/tree.html>`__ object:
+
+.. code:: python
+
+    from estnltk import Text
+    
+    text = Text('Ja vana karu lõi trummi.')
+        
+    # Tag syntactic analysis (the prerequisite for trees)
+    text.tag_syntax()
+        
+    # Get syntactic trees (root nodes) of the text
+    trees = text.syntax_trees()
+        
+    # Convert EstNLTK's tree to NLTK's tree
+    nltk_tree = trees[0].as_nltk_tree()
+        
+    # Output a parenthesized representation of the tree
+    print( nltk_tree )
+
+
+.. parsed-literal::
+
+    (lõi Ja (karu vana) (trummi .))
+
+
+Importing corpus from a file
+----------------------------
+
+Import CG3 format file
+~~~~~~~~~~~~~~~~~~~~~~
+
+The method ``read_text_from_cg3_file()`` can be used to import a
+``Text`` object from a file containing VISLCG3 format syntactic
+annotations:
+
+.. code:: python
+
+    from estnltk.syntax.utils import read_text_from_cg3_file
+        
+    text = read_text_from_cg3_file( 'ilu_indrikson.inforem' )
+
+The format of the input file is expected to be the same as the format
+used in the `Estonian Dependency
+Treebank <https://github.com/EstSyntax/EDT>`__ (the format of *.inforem*
+files). In the example above, the ``Text`` object is constructed from
+the sentences of the file, and syntactic information is attached to the
+object as layer ``LAYER_VISLCG3``:
+
+.. code:: python
+
+    from pprint import pprint
+        
+    from estnltk.names import LAYER_VISLCG3
+    from estnltk.syntax.utils import read_text_from_cg3_file
+
+    # re-construct text from file
+    text = read_text_from_cg3_file( 'ilu_indrikson.inforem' )
+        
+    # Print the first sentence of the text
+    print( text.sentence_texts[0] )
+
+    # Represent syntactic relations as PARENT-RELATION-CHILD triples
+    trees = text.syntax_trees(layer=LAYER_VISLCG3)
+    pprint( list(trees[0].as_dependencygraph().triples()) )
+
+Provided that you have the file ``'ilu_indrikson.inforem'`` ( from
+`Estonian Dependency Treebank <https://github.com/EstSyntax/EDT>`__ )
+available at the same directory as the script above, the script should
+produce the following output:
+
+::
+
+    Sõna  "  Lufthansa  "  ei  kõlanud  Indriksoni  kodus  ammu  erakordselt  .
+    [(('kõlanud', None), '@SUBJ', ('Sõna', None)),
+     (('Sõna', None), 'xxx', ('"', None)),
+     (('Sõna', None), '@<NN', ('Lufthansa', None)),
+     (('Lufthansa', None), 'xxx', ('"', None)),
+     (('kõlanud', None), '@NEG', ('ei', None)),
+     (('kõlanud', None), '@ADVL', ('kodus', None)),
+     (('kodus', None), '@NN>', ('Indriksoni', None)),
+     (('kõlanud', None), '@ADVL', ('ammu', None)),
+     (('kõlanud', None), '@ADVL', ('erakordselt', None)),
+     (('erakordselt', None), 'xxx', ('.', None))]
+     
+     
+
+**Specifying the layer name.** If you want to store syntactic analyses
+under a different layer name, you can provide a custom name via the
+keyword argument ``layer``:
+
+.. code:: python
+
+    from estnltk.syntax.utils import read_text_from_cg3_file
+        
+    text = read_text_from_cg3_file( 'ilu_indrikson.inforem', layer='my_syntax_layer' )
+
+Note: *Quirks of the import method*:
+
+1. The import method always assumes that the input file is in ``UTF-8``
+   encoding;
+
+2. The import method converts word indices in the syntactic annotation
+   to EstNLTK's format: word indices will start at ``0``, and the root
+   node will have the parent index ``-1``;
+
+3. Be aware that the import method *does not* import *morphological
+   annotations*. As there is no guarantee that morphological annotations
+   in the file are compatible with EstNLTK's format of morphological
+   analysis (e.g. annotations from `Estonian Dependency
+   Treebank <https://github.com/EstSyntax/EDT>`__ are not), these
+   annotations will be skipped and the resulting Text object has no
+   layer of morphological analyses. If you want to make queries
+   involving morphological constraints, you should first add the layer
+   via method ``tag_analysis()``.
+
+4. When reconstructing the text, the method
+   ``read_text_from_cg3_file()`` tries to preserve the original
+   tokenization used in the file. In order to distinguish multiword
+   tokens (e.g. ``'Rio de Jainero'`` as a single word) from ordinary
+   tokens, the method re-constructs the text in a way that words are
+   separated by double space (``'  '``), and a single space (``' '``) is
+   reserved for marking the space in a multiword. In order to preserve
+   sentence boundaries, sentence endings are marked with newlines
+   (``'\n'``).
+
+Note: *Fixing the input*:
+
+1. By default, words that have parent index referring to theirselves
+   (self-links) are fixed: they will be linked to a previous word in the
+   sentence; if there is no previous word, then to the next word in the
+   sentence; and if the word is the only word in the sentence, the link
+   will obtain the value ``-1``;
+
+2. When importing the corpus from a manually annotated file (for
+   instance, from `Estonian Dependency
+   Treebank <https://github.com/EstSyntax/EDT>`__ ), it could be useful
+   to apply several post-correction steps in order to ensure validity of
+   the data. This can be done by passing keyword argument settings
+   ``clean_up=True``, ``fix_sent_tags=True`` and
+   ``fix_out_of_sent=True`` to the method ``read_text_from_cg3_file()``:
+
+-  ``clean_up=True`` -- switches on the clean-up method, which contains
+   routines for handling ``fix_sent_tags=True`` and
+   ``fix_out_of_sent=True``;
+-  ``fix_sent_tags=True`` -- removes analyses mistakenly added to
+   sentence tags (``<s>`` and ``</s>``);
+
+-  ``fix_out_of_sent=True`` -- fixes syntactic links pointing
+   out-of-the-sentence; employs a similar logic as is used for fixing
+   self-links;
+
+Import CONLL format file
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+The method ``read_text_from_conll_file()`` can be used to import a
+``Text`` object from a file containing syntactic annotations in the
+CONLL format:
+
+.. code:: python
+
+    from estnltk.syntax.utils import read_text_from_conll_file
+        
+    text = read_text_from_conll_file( 'et-ud-dev.conllu' )
+
+The format of the input file is expected to be either
+`CONLL-X <http://ilk.uvt.nl/conll/#dataformat>`__ or
+`CONLL-U <http://universaldependencies.org/format.html>`__. The method
+imports information about the sentence boundaries, the word tokenization
+(the field ``FORM``), and dependency syntactic information (from fields
+``HEAD`` and ``DEPREL``), and reconstructs a ``Text`` object based on
+that information. The resulting ``Text`` object has the layer
+``LAYER_CONLL`` containing the syntactic information:
+
+.. code:: python
+
+    from pprint import pprint
+        
+    from estnltk.names import LAYER_CONLL
+    from estnltk.syntax.utils import read_text_from_conll_file
+
+    # re-construct text from file
+    text = read_text_from_conll_file( 'et-ud-dev.conllu' )
+        
+    # Print the first sentence of the text
+    print( text.sentence_texts[0] )
+
+    # Represent syntactic relations as PARENT-RELATION-CHILD triples
+    trees = text.syntax_trees(layer=LAYER_CONLL)
+    pprint( list(trees[0].as_dependencygraph().triples()) )
+
+Provided that you have the file ``'et-ud-dev.conllu'`` from `The
+Estonian UD
+treebank <https://github.com/UniversalDependencies/UD_Estonian>`__
+available at the same directory as the script above, the script should
+produce the following output:
+
+::
+
+    Ta  oli  tulnud  jala  juba  üle  viie  kilomeetri  ,  sest  siia  ,  selle  lossi  juurde  ,  ei  viinud  ühtegi  autoteed  .
+    [(('tulnud', None), 'nsubj', ('Ta', None)),
+     (('tulnud', None), 'aux', ('oli', None)),
+     (('tulnud', None), 'advmod', ('jala', None)),
+     (('tulnud', None), 'advmod', ('juba', None)),
+     (('tulnud', None), 'nmod', ('kilomeetri', None)),
+     (('kilomeetri', None), 'case', ('üle', None)),
+     (('kilomeetri', None), 'nummod', ('viie', None)),
+     (('tulnud', None), 'dep', ('viinud', None)),
+     (('viinud', None), 'punct', (',', None)),
+     (('viinud', None), 'mark', ('sest', None)),
+     (('viinud', None), 'advmod', ('siia', None)),
+     (('siia', None), 'nmod', ('lossi', None)),
+     (('lossi', None), 'det', ('selle', None)),
+     (('lossi', None), 'case', ('juurde', None)),
+     (('juurde', None), 'punct', (',', None)),
+     (('viinud', None), 'punct', (',', None)),
+     (('viinud', None), 'neg', ('ei', None)),
+     (('viinud', None), 'nsubj', ('autoteed', None)),
+     (('autoteed', None), 'nummod', ('ühtegi', None)),
+     (('tulnud', None), 'punct', ('.', None))]
+
+**Specifying the layer name.** If you want to store syntactic analyses
+under a different layer name, you can provide a custom name via the
+keyword argument ``layer``:
+
+.. code:: python
+
+    from estnltk.syntax.utils import read_text_from_conll_file
+        
+    text = read_text_from_conll_file( 'et-ud-dev.conllu', layer='my_syntax_layer' )
+
+Note: *Quirks of the import method*:
+
+1. The import method always assumes that the input file is in ``UTF-8``
+   encoding;
+
+2. The import method converts word indices in the syntactic annotation
+   to EstNLTK's format: word indices will start at ``0``, and the root
+   node will have the parent index ``-1``;
+
+3. Be aware that the import method *does not* import *morphological
+   annotations*. As there is no guarantee that morphological annotations
+   in the file are compatible with EstNLTK's format of morphological
+   analysis (e.g. annotations from `The Estonian UD
+   treebank <https://github.com/UniversalDependencies/UD_Estonian>`__
+   are not), these annotations will be skipped and the resulting Text
+   object has no layer of morphological analyses. If you want to make
+   queries involving morphological constraints, you should first add the
+   layer via method ``tag_analysis()``.
+
+4. When reconstructing the text, the method
+   ``read_text_from_conll_file()`` tries to preserve the original
+   tokenization used in the file. In order to distinguish multiword
+   tokens (e.g. ``'Rio de Jainero'`` as a single word) from ordinary
+   tokens, the method re-constructs the text in a way that words are
+   separated by double space (``'  '``), and a single space (``' '``) is
+   reserved for marking the space in a multiword. In order to preserve
+   sentence boundaries, sentence endings are marked with newlines
+   (``'\n'``).

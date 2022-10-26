@@ -1,0 +1,1283 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>estnltk.text module &mdash; estnltk 1.4.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="estnltk 1.4.1 documentation" href="../index.html"/>
+        <link rel="up" title="API documentation" href="index.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> estnltk
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.4.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/index.html">Estnltk tutorials</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../external/index.html">Other tools</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">API documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="textcleaner.html">estnltk.textcleaner module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vabamorf.html">estnltk.vabamorf.morf module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="match.html">estnltk.grammar.match module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="prettyprinter.html">estnltk.prettyprinter.prettyprinter module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wn.html">estnltk.wordnet.wn module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="grammar.html">estnltk.grammar.grammar module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ner.html">estnltk.ner module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="timex.html">estnltk.timex module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="clausesegmenter.html">estnltk.clausesegmenter module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core.html">estnltk.core module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="teicorpus.html">estnltk.teicorpus module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="database.html">estnltk.database.database module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wordnet_tagger.html">estnltk.wordnet_tagger module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">estnltk.text module</a><ul class="simple">
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../authors.html">Authors</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">estnltk</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="index.html">API documentation</a> &raquo;</li>
+      
+    <li>estnltk.text module</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/api/text.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-estnltk.text">
+<span id="estnltk-text-module"></span><h1>estnltk.text module<a class="headerlink" href="#module-estnltk.text" title="Permalink to this headline">¶</a></h1>
+<p>Text module contains central functionality of Estnltk.
+It sets up standard functionality for tokenziation and tagging and hooks it up with
+<a class="reference internal" href="#estnltk.text.Text" title="estnltk.text.Text"><code class="xref py py-class docutils literal"><span class="pre">Text</span></code></a> class.</p>
+<dl class="class">
+<dt id="estnltk.text.Text">
+<em class="property">class </em><code class="descclassname">estnltk.text.</code><code class="descname">Text</code><span class="sig-paren">(</span><em>text_or_instance</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/text.html#Text"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.text.Text" title="Permalink to this definition">¶</a></dt>
+<dd><p>Central class of Estnltk that is the main interface of performing
+all NLP operations.</p>
+<p class="rubric">Attributes</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">get</span></code></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">capitalize</span></code>()</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#estnltk.text.Text.clean" title="estnltk.text.Text.clean"><code class="xref py py-obj docutils literal"><span class="pre">clean</span></code></a>()</td>
+<td>Return a copy of this Text instance with invalid characters removed.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">clear</span></code>(()&nbsp;-&gt;&nbsp;None.&nbsp;&nbsp;Remove&nbsp;all&nbsp;items&nbsp;from&nbsp;D.)</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">copy</span></code>(()&nbsp;-&gt;&nbsp;a&nbsp;shallow&nbsp;copy&nbsp;of&nbsp;D)</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">count</span></code>(sub,&nbsp;\*args)</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#estnltk.text.Text.divide" title="estnltk.text.Text.divide"><code class="xref py py-obj docutils literal"><span class="pre">divide</span></code></a>([layer,&nbsp;by])</td>
+<td>Divide the Text into pieces by keeping references to original elements, when possible.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#estnltk.text.Text.ends" title="estnltk.text.Text.ends"><code class="xref py py-obj docutils literal"><span class="pre">ends</span></code></a>(layer)</td>
+<td>Retrieve end positions of elements if given layer.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">endswith</span></code>(suffix,&nbsp;\*args)</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">find</span></code>(sub,&nbsp;\*args)</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#estnltk.text.Text.fix_spelling" title="estnltk.text.Text.fix_spelling"><code class="xref py py-obj docutils literal"><span class="pre">fix_spelling</span></code></a>()</td>
+<td>Fix spelling of the text.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">fromkeys</span></code></td>
+<td>Returns a new dict with keys from iterable and values equal to value.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#estnltk.text.Text.get_analysis_element" title="estnltk.text.Text.get_analysis_element"><code class="xref py py-obj docutils literal"><span class="pre">get_analysis_element</span></code></a>(element[,&nbsp;sep])</td>
+<td>The list of analysis elements of <code class="docutils literal"><span class="pre">words</span></code> layer.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">get_elements_in_span</span></code>(element,&nbsp;span)</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#estnltk.text.Text.get_kwargs" title="estnltk.text.Text.get_kwargs"><code class="xref py py-obj docutils literal"><span class="pre">get_kwargs</span></code></a>()</td>
+<td>Get the keyword arguments that were passed to the <a class="reference internal" href="#estnltk.text.Text" title="estnltk.text.Text"><code class="xref py py-class docutils literal"><span class="pre">Text</span></code></a> when it was constructed.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">index</span></code>(sub,&nbsp;\*args)</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">is_multi</span></code>(layer)</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">is_simple</span></code>(layer)</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#estnltk.text.Text.is_tagged" title="estnltk.text.Text.is_tagged"><code class="xref py py-obj docutils literal"><span class="pre">is_tagged</span></code></a>(layer)</td>
+<td>Is the given element tokenized/tagged?</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#estnltk.text.Text.is_valid" title="estnltk.text.Text.is_valid"><code class="xref py py-obj docutils literal"><span class="pre">is_valid</span></code></a>()</td>
+<td>Does this text contain allowed/valid characters as defined by the <a class="reference internal" href="textcleaner.html#estnltk.textcleaner.TextCleaner" title="estnltk.textcleaner.TextCleaner"><code class="xref py py-class docutils literal"><span class="pre">TextCleaner</span></code></a> instances supplied to this Text.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">isalnum</span></code>()</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">isalpha</span></code>()</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">isdigit</span></code>()</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">islower</span></code>()</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">isspace</span></code>()</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">istitle</span></code>()</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">isupper</span></code>()</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">items</span></code>(...)</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">keys</span></code>(...)</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">lower</span></code>()</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">lstrip</span></code>(\*args)</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">pop</span></code>((k[,d])&nbsp;-&gt;&nbsp;v,&nbsp;...)</td>
+<td>If key is not found, d is returned if given, otherwise KeyError is raised</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">popitem</span></code>(()&nbsp;-&gt;&nbsp;(k,&nbsp;v),&nbsp;...)</td>
+<td>2-tuple; but raise KeyError if D is empty.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">replace</span></code>(old,&nbsp;new,&nbsp;\*args)</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">rfind</span></code>(sub,&nbsp;\*args)</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">rindex</span></code>(sub,&nbsp;\*args)</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">rstrip</span></code>(\*args)</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">setdefault</span></code>((k[,d])&nbsp;-&gt;&nbsp;D.get(k,d),&nbsp;...)</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#estnltk.text.Text.spans" title="estnltk.text.Text.spans"><code class="xref py py-obj docutils literal"><span class="pre">spans</span></code></a>(layer)</td>
+<td>Retrieve (start, end) tuples denoting the spans of given layer elements.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#estnltk.text.Text.split_by" title="estnltk.text.Text.split_by"><code class="xref py py-obj docutils literal"><span class="pre">split_by</span></code></a>(layer[,&nbsp;sep])</td>
+<td>Split the text into multiple instances defined by elements of given layer.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#estnltk.text.Text.split_by_regex" title="estnltk.text.Text.split_by_regex"><code class="xref py py-obj docutils literal"><span class="pre">split_by_regex</span></code></a>(regex_or_pattern[,&nbsp;flags,&nbsp;gaps])</td>
+<td>Split the text into multiple instances using a regex.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#estnltk.text.Text.split_by_sentences" title="estnltk.text.Text.split_by_sentences"><code class="xref py py-obj docutils literal"><span class="pre">split_by_sentences</span></code></a>()</td>
+<td>Split the text into individual sentences.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#estnltk.text.Text.split_by_words" title="estnltk.text.Text.split_by_words"><code class="xref py py-obj docutils literal"><span class="pre">split_by_words</span></code></a>()</td>
+<td>Split the text into individual words.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#estnltk.text.Text.split_given_spans" title="estnltk.text.Text.split_given_spans"><code class="xref py py-obj docutils literal"><span class="pre">split_given_spans</span></code></a>(spans[,&nbsp;sep])</td>
+<td>Split the text into several pieces.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#estnltk.text.Text.starts" title="estnltk.text.Text.starts"><code class="xref py py-obj docutils literal"><span class="pre">starts</span></code></a>(layer)</td>
+<td>Retrieve start positions of elements if given layer.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">startswith</span></code>(prefix,&nbsp;\*args)</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">strip</span></code>(\*args)</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#estnltk.text.Text.tag" title="estnltk.text.Text.tag"><code class="xref py py-obj docutils literal"><span class="pre">tag</span></code></a>(layer)</td>
+<td>Tag the annotations of given layer.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#estnltk.text.Text.tag_all" title="estnltk.text.Text.tag_all"><code class="xref py py-obj docutils literal"><span class="pre">tag_all</span></code></a>()</td>
+<td>Tag all layers.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#estnltk.text.Text.tag_analysis" title="estnltk.text.Text.tag_analysis"><code class="xref py py-obj docutils literal"><span class="pre">tag_analysis</span></code></a>()</td>
+<td>Tag <code class="docutils literal"><span class="pre">words</span></code> layer with morphological analysis attributes.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#estnltk.text.Text.tag_clause_annotations" title="estnltk.text.Text.tag_clause_annotations"><code class="xref py py-obj docutils literal"><span class="pre">tag_clause_annotations</span></code></a>()</td>
+<td>Tag clause annotations in <code class="docutils literal"><span class="pre">words</span></code> layer.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#estnltk.text.Text.tag_clauses" title="estnltk.text.Text.tag_clauses"><code class="xref py py-obj docutils literal"><span class="pre">tag_clauses</span></code></a>()</td>
+<td>Create <code class="docutils literal"><span class="pre">clauses</span></code> multilayer.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#estnltk.text.Text.tag_labels" title="estnltk.text.Text.tag_labels"><code class="xref py py-obj docutils literal"><span class="pre">tag_labels</span></code></a>()</td>
+<td>Tag named entity labels in the <code class="docutils literal"><span class="pre">words</span></code> layer.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#estnltk.text.Text.tag_named_entities" title="estnltk.text.Text.tag_named_entities"><code class="xref py py-obj docutils literal"><span class="pre">tag_named_entities</span></code></a>()</td>
+<td>Tag <code class="docutils literal"><span class="pre">named_entities</span></code> layer.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#estnltk.text.Text.tag_syntax" title="estnltk.text.Text.tag_syntax"><code class="xref py py-obj docutils literal"><span class="pre">tag_syntax</span></code></a>()</td>
+<td>Tag syntax attribute in the <code class="docutils literal"><span class="pre">words</span></code> layer.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#estnltk.text.Text.tag_timexes" title="estnltk.text.Text.tag_timexes"><code class="xref py py-obj docutils literal"><span class="pre">tag_timexes</span></code></a>()</td>
+<td>Create <code class="docutils literal"><span class="pre">timexes</span></code> layer.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#estnltk.text.Text.tag_verb_chains" title="estnltk.text.Text.tag_verb_chains"><code class="xref py py-obj docutils literal"><span class="pre">tag_verb_chains</span></code></a>()</td>
+<td>Create <code class="docutils literal"><span class="pre">verb_chains</span></code> layer.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">tag_with_regex</span></code>(name,&nbsp;pattern[,&nbsp;flags])</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#estnltk.text.Text.tag_wordnet" title="estnltk.text.Text.tag_wordnet"><code class="xref py py-obj docutils literal"><span class="pre">tag_wordnet</span></code></a>(\*\*kwargs)</td>
+<td>Create wordnet attribute in <code class="docutils literal"><span class="pre">words</span></code> layer.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#estnltk.text.Text.texts" title="estnltk.text.Text.texts"><code class="xref py py-obj docutils literal"><span class="pre">texts</span></code></a>(layer[,&nbsp;sep])</td>
+<td>Retrieve texts for given layer.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#estnltk.text.Text.texts_from_spans" title="estnltk.text.Text.texts_from_spans"><code class="xref py py-obj docutils literal"><span class="pre">texts_from_spans</span></code></a>(spans[,&nbsp;sep])</td>
+<td>Retrieve texts from a list of (start, end) position spans.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#estnltk.text.Text.tokenize_paragraphs" title="estnltk.text.Text.tokenize_paragraphs"><code class="xref py py-obj docutils literal"><span class="pre">tokenize_paragraphs</span></code></a>()</td>
+<td>Apply paragraph tokenization to this Text instance.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#estnltk.text.Text.tokenize_sentences" title="estnltk.text.Text.tokenize_sentences"><code class="xref py py-obj docutils literal"><span class="pre">tokenize_sentences</span></code></a>()</td>
+<td>Apply sentence tokenization to this Text instance.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#estnltk.text.Text.tokenize_words" title="estnltk.text.Text.tokenize_words"><code class="xref py py-obj docutils literal"><span class="pre">tokenize_words</span></code></a>()</td>
+<td>Apply word tokenization and create <code class="docutils literal"><span class="pre">words</span></code> layer.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">update</span></code>(([E,&nbsp;...)</td>
+<td>If E is present and has a .keys() method, then does:  for k in E: D[k] = E[k]</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">values</span></code>(...)</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="estnltk.text.Text.analysis">
+<code class="descname">analysis</code><a class="headerlink" href="#estnltk.text.Text.analysis" title="Permalink to this definition">¶</a></dt>
+<dd><p>The list of analysis of <code class="docutils literal"><span class="pre">words</span></code> layer elements.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.text.Text.clause_annotations">
+<code class="descname">clause_annotations</code><a class="headerlink" href="#estnltk.text.Text.clause_annotations" title="Permalink to this definition">¶</a></dt>
+<dd><p>The list of clause annotations in <code class="docutils literal"><span class="pre">words</span></code> layer.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.text.Text.clause_indices">
+<code class="descname">clause_indices</code><a class="headerlink" href="#estnltk.text.Text.clause_indices" title="Permalink to this definition">¶</a></dt>
+<dd><p>The list of clause indices in <code class="docutils literal"><span class="pre">words</span></code> layer.
+The indices are unique only in the boundary of a single sentence.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.text.Text.clause_texts">
+<code class="descname">clause_texts</code><a class="headerlink" href="#estnltk.text.Text.clause_texts" title="Permalink to this definition">¶</a></dt>
+<dd><p>The texts of <code class="docutils literal"><span class="pre">clauses</span></code> multilayer elements.
+Non-consequent spans are concatenated with space character by default.
+Use <a class="reference internal" href="#estnltk.text.Text.texts" title="estnltk.text.Text.texts"><code class="xref py py-meth docutils literal"><span class="pre">texts()</span></code></a> method to supply custom separators.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.text.Text.clauses">
+<code class="descname">clauses</code><a class="headerlink" href="#estnltk.text.Text.clauses" title="Permalink to this definition">¶</a></dt>
+<dd><p>The elements of <code class="docutils literal"><span class="pre">clauses</span></code> multilayer.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.text.Text.clean">
+<code class="descname">clean</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/text.html#Text.clean"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.text.Text.clean" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a copy of this Text instance with invalid characters removed.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.text.Text.descriptions">
+<code class="descname">descriptions</code><a class="headerlink" href="#estnltk.text.Text.descriptions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Human readable word descriptions.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.text.Text.divide">
+<code class="descname">divide</code><span class="sig-paren">(</span><em>layer='words'</em>, <em>by='sentences'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/text.html#Text.divide"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.text.Text.divide" title="Permalink to this definition">¶</a></dt>
+<dd><p>Divide the Text into pieces by keeping references to original elements, when possible.
+This is not possible only, if the _element_ is a multispan.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>element: str</strong></p>
+<blockquote>
+<div><p>The element to collect and distribute in resulting bins.</p>
+</div></blockquote>
+<p><strong>by: str</strong></p>
+<blockquote>
+<div><p>Each resulting bin is defined by spans of this element.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">list of (list of dict)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.text.Text.endings">
+<code class="descname">endings</code><a class="headerlink" href="#estnltk.text.Text.endings" title="Permalink to this definition">¶</a></dt>
+<dd><p>The list of word endings.</p>
+<p>Ambiguous cases are separated with pipe character by default.
+Use <a class="reference internal" href="#estnltk.text.Text.get_analysis_element" title="estnltk.text.Text.get_analysis_element"><code class="xref py py-meth docutils literal"><span class="pre">get_analysis_element()</span></code></a> to specify custom separator for ambiguous entries.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.text.Text.ends">
+<code class="descname">ends</code><span class="sig-paren">(</span><em>layer</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/text.html#Text.ends"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.text.Text.ends" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve end positions of elements if given layer.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.text.Text.fix_spelling">
+<code class="descname">fix_spelling</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/text.html#Text.fix_spelling"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.text.Text.fix_spelling" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fix spelling of the text.</p>
+<p>Note that this method uses the first suggestion that is given for each misspelled word.
+It does not perform any sophisticated analysis to determine which one of the suggestions
+fits best into the context.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Text</p>
+<blockquote class="last">
+<div><p>A copy of this instance with automatically fixed spelling.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.text.Text.forms">
+<code class="descname">forms</code><a class="headerlink" href="#estnltk.text.Text.forms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tthe list of word forms.</p>
+<p>Ambiguous cases are separated with pipe character by default.
+Use <a class="reference internal" href="#estnltk.text.Text.get_analysis_element" title="estnltk.text.Text.get_analysis_element"><code class="xref py py-meth docutils literal"><span class="pre">get_analysis_element()</span></code></a> to specify custom separator for ambiguous entries.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.text.Text.get_analysis_element">
+<code class="descname">get_analysis_element</code><span class="sig-paren">(</span><em>element</em>, <em>sep='|'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/text.html#Text.get_analysis_element"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.text.Text.get_analysis_element" title="Permalink to this definition">¶</a></dt>
+<dd><p>The list of analysis elements of <code class="docutils literal"><span class="pre">words</span></code> layer.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>element: str</strong></p>
+<blockquote>
+<div><p>The name of the element, for example &#8220;lemma&#8221;, &#8220;postag&#8221;.</p>
+</div></blockquote>
+<p><strong>sep: str</strong></p>
+<blockquote class="last">
+<div><p>The separator for ambiguous analysis (default: &#8220;|&#8221;).
+As morphological analysis cannot always yield unambiguous results, we
+return ambiguous values separated by the pipe character as default.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.text.Text.get_kwargs">
+<code class="descname">get_kwargs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/text.html#Text.get_kwargs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.text.Text.get_kwargs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the keyword arguments that were passed to the <a class="reference internal" href="#estnltk.text.Text" title="estnltk.text.Text"><code class="xref py py-class docutils literal"><span class="pre">Text</span></code></a> when it was constructed.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.text.Text.invalid_characters">
+<code class="descname">invalid_characters</code><a class="headerlink" href="#estnltk.text.Text.invalid_characters" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of invalid characters found in this text.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.text.Text.is_tagged">
+<code class="descname">is_tagged</code><span class="sig-paren">(</span><em>layer</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/text.html#Text.is_tagged"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.text.Text.is_tagged" title="Permalink to this definition">¶</a></dt>
+<dd><p>Is the given element tokenized/tagged?</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.text.Text.is_valid">
+<code class="descname">is_valid</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/text.html#Text.is_valid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.text.Text.is_valid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Does this text contain allowed/valid characters as defined by
+the <a class="reference internal" href="textcleaner.html#estnltk.textcleaner.TextCleaner" title="estnltk.textcleaner.TextCleaner"><code class="xref py py-class docutils literal"><span class="pre">TextCleaner</span></code></a> instances supplied
+to this Text.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.text.Text.labels">
+<code class="descname">labels</code><a class="headerlink" href="#estnltk.text.Text.labels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Named entity labels.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.text.Text.layer_tagger_mapping">
+<code class="descname">layer_tagger_mapping</code><a class="headerlink" href="#estnltk.text.Text.layer_tagger_mapping" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dictionary that maps layer names to taggers that can create that layer.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.text.Text.lemma_lists">
+<code class="descname">lemma_lists</code><a class="headerlink" href="#estnltk.text.Text.lemma_lists" title="Permalink to this definition">¶</a></dt>
+<dd><p>Lemma lists.</p>
+<p>Ambiguous cases are separate list elements.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.text.Text.lemmas">
+<code class="descname">lemmas</code><a class="headerlink" href="#estnltk.text.Text.lemmas" title="Permalink to this definition">¶</a></dt>
+<dd><p>The list of lemmas.</p>
+<p>Ambiguous cases are separated with pipe character by default.
+Use <a class="reference internal" href="#estnltk.text.Text.get_analysis_element" title="estnltk.text.Text.get_analysis_element"><code class="xref py py-meth docutils literal"><span class="pre">get_analysis_element()</span></code></a> to specify custom separator for ambiguous entries.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.text.Text.named_entities">
+<code class="descname">named_entities</code><a class="headerlink" href="#estnltk.text.Text.named_entities" title="Permalink to this definition">¶</a></dt>
+<dd><p>The elements of <code class="docutils literal"><span class="pre">named_entities</span></code> layer.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.text.Text.named_entity_labels">
+<code class="descname">named_entity_labels</code><a class="headerlink" href="#estnltk.text.Text.named_entity_labels" title="Permalink to this definition">¶</a></dt>
+<dd><p>The named entity labels without BIO prefixes.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.text.Text.named_entity_spans">
+<code class="descname">named_entity_spans</code><a class="headerlink" href="#estnltk.text.Text.named_entity_spans" title="Permalink to this definition">¶</a></dt>
+<dd><p>The spans of named entities.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.text.Text.named_entity_texts">
+<code class="descname">named_entity_texts</code><a class="headerlink" href="#estnltk.text.Text.named_entity_texts" title="Permalink to this definition">¶</a></dt>
+<dd><p>The texts representing named entities.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.text.Text.paragraph_ends">
+<code class="descname">paragraph_ends</code><a class="headerlink" href="#estnltk.text.Text.paragraph_ends" title="Permalink to this definition">¶</a></dt>
+<dd><p>The end positions of <code class="docutils literal"><span class="pre">paragraphs</span></code> layer elements.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.text.Text.paragraph_spans">
+<code class="descname">paragraph_spans</code><a class="headerlink" href="#estnltk.text.Text.paragraph_spans" title="Permalink to this definition">¶</a></dt>
+<dd><p>The list of spans representing <code class="docutils literal"><span class="pre">paragraphs</span></code> layer elements.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.text.Text.paragraph_starts">
+<code class="descname">paragraph_starts</code><a class="headerlink" href="#estnltk.text.Text.paragraph_starts" title="Permalink to this definition">¶</a></dt>
+<dd><p>The start positions of <code class="docutils literal"><span class="pre">paragraphs</span></code> layer elements.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.text.Text.paragraph_texts">
+<code class="descname">paragraph_texts</code><a class="headerlink" href="#estnltk.text.Text.paragraph_texts" title="Permalink to this definition">¶</a></dt>
+<dd><p>The list of texts representing <code class="docutils literal"><span class="pre">paragraphs</span></code> layer elements.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.text.Text.paragraphs">
+<code class="descname">paragraphs</code><a class="headerlink" href="#estnltk.text.Text.paragraphs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the list of <code class="docutils literal"><span class="pre">paragraphs</span></code> layer elements.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.text.Text.postag_descriptions">
+<code class="descname">postag_descriptions</code><a class="headerlink" href="#estnltk.text.Text.postag_descriptions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Human-readable POS-tag descriptions.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.text.Text.postags">
+<code class="descname">postags</code><a class="headerlink" href="#estnltk.text.Text.postags" title="Permalink to this definition">¶</a></dt>
+<dd><p>The list of word part-of-speech tags.</p>
+<p>Ambiguous cases are separated with pipe character by default.
+Use <a class="reference internal" href="#estnltk.text.Text.get_analysis_element" title="estnltk.text.Text.get_analysis_element"><code class="xref py py-meth docutils literal"><span class="pre">get_analysis_element()</span></code></a> to specify custom separator for ambiguous entries.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.text.Text.root_tokens">
+<code class="descname">root_tokens</code><a class="headerlink" href="#estnltk.text.Text.root_tokens" title="Permalink to this definition">¶</a></dt>
+<dd><p>Root tokens of word roots.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.text.Text.roots">
+<code class="descname">roots</code><a class="headerlink" href="#estnltk.text.Text.roots" title="Permalink to this definition">¶</a></dt>
+<dd><p>The list of word roots.</p>
+<p>Ambiguous cases are separated with pipe character by default.
+Use <a class="reference internal" href="#estnltk.text.Text.get_analysis_element" title="estnltk.text.Text.get_analysis_element"><code class="xref py py-meth docutils literal"><span class="pre">get_analysis_element()</span></code></a> to specify custom separator for ambiguous entries.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.text.Text.sentence_ends">
+<code class="descname">sentence_ends</code><a class="headerlink" href="#estnltk.text.Text.sentence_ends" title="Permalink to this definition">¶</a></dt>
+<dd><p>The list of end positions representing <code class="docutils literal"><span class="pre">sentences</span></code> layer elements.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.text.Text.sentence_spans">
+<code class="descname">sentence_spans</code><a class="headerlink" href="#estnltk.text.Text.sentence_spans" title="Permalink to this definition">¶</a></dt>
+<dd><p>The list of spans representing <code class="docutils literal"><span class="pre">sentences</span></code> layer elements.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.text.Text.sentence_starts">
+<code class="descname">sentence_starts</code><a class="headerlink" href="#estnltk.text.Text.sentence_starts" title="Permalink to this definition">¶</a></dt>
+<dd><p>The list of start positions representing <code class="docutils literal"><span class="pre">sentences</span></code> layer elements.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.text.Text.sentence_texts">
+<code class="descname">sentence_texts</code><a class="headerlink" href="#estnltk.text.Text.sentence_texts" title="Permalink to this definition">¶</a></dt>
+<dd><p>The list of texts representing <code class="docutils literal"><span class="pre">sentences</span></code> layer elements.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.text.Text.sentences">
+<code class="descname">sentences</code><a class="headerlink" href="#estnltk.text.Text.sentences" title="Permalink to this definition">¶</a></dt>
+<dd><p>The list of <code class="docutils literal"><span class="pre">sentences</span></code> layer elements.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.text.Text.spans">
+<code class="descname">spans</code><span class="sig-paren">(</span><em>layer</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/text.html#Text.spans"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.text.Text.spans" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve (start, end) tuples denoting the spans of given layer elements.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list of (int, int)</p>
+<blockquote class="last">
+<div><p>List of (start, end) tuples.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.text.Text.spellcheck_results">
+<code class="descname">spellcheck_results</code><a class="headerlink" href="#estnltk.text.Text.spellcheck_results" title="Permalink to this definition">¶</a></dt>
+<dd><p>The list of True/False values denoting the correct spelling of words.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.text.Text.spelling">
+<code class="descname">spelling</code><a class="headerlink" href="#estnltk.text.Text.spelling" title="Permalink to this definition">¶</a></dt>
+<dd><p>Flag incorrectly spelled words.
+Returns a list of booleans, where element at each position denotes, if the word at the same position
+is spelled correctly.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.text.Text.spelling_suggestions">
+<code class="descname">spelling_suggestions</code><a class="headerlink" href="#estnltk.text.Text.spelling_suggestions" title="Permalink to this definition">¶</a></dt>
+<dd><p>The list of spelling suggestions per misspelled word.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.text.Text.split_by">
+<code class="descname">split_by</code><span class="sig-paren">(</span><em>layer</em>, <em>sep=' '</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/text.html#Text.split_by"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.text.Text.split_by" title="Permalink to this definition">¶</a></dt>
+<dd><p>Split the text into multiple instances defined by elements of given layer.</p>
+<p>The spans for layer elements are extracted and feed to <a class="reference internal" href="#estnltk.text.Text.split_given_spans" title="estnltk.text.Text.split_given_spans"><code class="xref py py-meth docutils literal"><span class="pre">split_given_spans()</span></code></a>
+method.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>layer: str</strong></p>
+<blockquote>
+<div><p>String determining the layer that is used to define the start and end positions of resulting splits.</p>
+</div></blockquote>
+<p><strong>sep: str (default: &#8216; &#8216;)</strong></p>
+<blockquote>
+<div><p>The separator to use to join texts of multilayer elements.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">list of Text</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.text.Text.split_by_regex">
+<code class="descname">split_by_regex</code><span class="sig-paren">(</span><em>regex_or_pattern</em>, <em>flags=32</em>, <em>gaps=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/text.html#Text.split_by_regex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.text.Text.split_by_regex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Split the text into multiple instances using a regex.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>regex_or_pattern: str or compiled pattern</strong></p>
+<blockquote>
+<div><p>The regular expression to use for splitting.</p>
+</div></blockquote>
+<p><strong>flags: int (default: re.U)</strong></p>
+<blockquote>
+<div><p>The regular expression flags (only used, when user has not supplied compiled regex).</p>
+</div></blockquote>
+<p><strong>gaps: boolean (default: True)</strong></p>
+<blockquote>
+<div><p>If True, then regions matched by the regex are not included in the resulting Text instances, which
+is expected behaviour.
+If False, then only regions matched by the regex are included in the result.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list of Text</p>
+<blockquote class="last">
+<div><p>The Text instances obtained by splitting.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.text.Text.split_by_sentences">
+<code class="descname">split_by_sentences</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/text.html#Text.split_by_sentences"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.text.Text.split_by_sentences" title="Permalink to this definition">¶</a></dt>
+<dd><p>Split the text into individual sentences.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.text.Text.split_by_words">
+<code class="descname">split_by_words</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/text.html#Text.split_by_words"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.text.Text.split_by_words" title="Permalink to this definition">¶</a></dt>
+<dd><p>Split the text into individual words.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.text.Text.split_given_spans">
+<code class="descname">split_given_spans</code><span class="sig-paren">(</span><em>spans</em>, <em>sep=' '</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/text.html#Text.split_given_spans"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.text.Text.split_given_spans" title="Permalink to this definition">¶</a></dt>
+<dd><p>Split the text into several pieces.</p>
+<p>Resulting texts have all the layers that are present in the text instance that is splitted.
+The elements are copied to resulting pieces that are covered by their spans.
+However, this can result in empty layers if no element of a splitted layer fits into
+a span of a particular output piece.</p>
+<p>The positions of layer elements that are copied are translated according to the container span,
+so they are consistent with returned text lengths.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>spans: list of spans.</strong></p>
+<blockquote>
+<div><p>The positions determining the regions that will end up as individual pieces.
+Spans themselves can be lists of spans, which denote multilayer-style text regions.</p>
+</div></blockquote>
+<p><strong>sep: str</strong></p>
+<blockquote>
+<div><p>The separator that is used to join together text pieces of multilayer spans.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list of Text</p>
+<blockquote class="last">
+<div><p>One instance of text per span.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.text.Text.starts">
+<code class="descname">starts</code><span class="sig-paren">(</span><em>layer</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/text.html#Text.starts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.text.Text.starts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve start positions of elements if given layer.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.text.Text.synsets">
+<code class="descname">synsets</code><a class="headerlink" href="#estnltk.text.Text.synsets" title="Permalink to this definition">¶</a></dt>
+<dd><p>The list of annotated synsets of <code class="docutils literal"><span class="pre">words</span></code> layer.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.text.Text.syntax_lists">
+<code class="descname">syntax_lists</code><a class="headerlink" href="#estnltk.text.Text.syntax_lists" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return syntax annotation variants for every word.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.text.Text.tag">
+<code class="descname">tag</code><span class="sig-paren">(</span><em>layer</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/text.html#Text.tag"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.text.Text.tag" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tag the annotations of given layer. It can automatically tag any built-in layer type.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.text.Text.tag_all">
+<code class="descname">tag_all</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/text.html#Text.tag_all"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.text.Text.tag_all" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tag all layers.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.text.Text.tag_analysis">
+<code class="descname">tag_analysis</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/text.html#Text.tag_analysis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.text.Text.tag_analysis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tag <code class="docutils literal"><span class="pre">words</span></code> layer with morphological analysis attributes.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.text.Text.tag_clause_annotations">
+<code class="descname">tag_clause_annotations</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/text.html#Text.tag_clause_annotations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.text.Text.tag_clause_annotations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tag clause annotations in <code class="docutils literal"><span class="pre">words</span></code> layer.
+Depends on morphological analysis.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.text.Text.tag_clauses">
+<code class="descname">tag_clauses</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/text.html#Text.tag_clauses"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.text.Text.tag_clauses" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create <code class="docutils literal"><span class="pre">clauses</span></code> multilayer.</p>
+<p>Depends on clause annotations.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.text.Text.tag_labels">
+<code class="descname">tag_labels</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/text.html#Text.tag_labels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.text.Text.tag_labels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tag named entity labels in the <code class="docutils literal"><span class="pre">words</span></code> layer.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.text.Text.tag_named_entities">
+<code class="descname">tag_named_entities</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/text.html#Text.tag_named_entities"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.text.Text.tag_named_entities" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tag <code class="docutils literal"><span class="pre">named_entities</span></code> layer.</p>
+<p>This automatically performs morphological analysis along with all dependencies.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.text.Text.tag_syntax">
+<code class="descname">tag_syntax</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/text.html#Text.tag_syntax"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.text.Text.tag_syntax" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tag syntax attribute in the <code class="docutils literal"><span class="pre">words</span></code> layer.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.text.Text.tag_timexes">
+<code class="descname">tag_timexes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/text.html#Text.tag_timexes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.text.Text.tag_timexes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create <code class="docutils literal"><span class="pre">timexes</span></code> layer.
+Depends on morphological analysis data in <code class="docutils literal"><span class="pre">words</span></code> layer
+and tags it automatically, if it is not present.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.text.Text.tag_verb_chains">
+<code class="descname">tag_verb_chains</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/text.html#Text.tag_verb_chains"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.text.Text.tag_verb_chains" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create <code class="docutils literal"><span class="pre">verb_chains</span></code> layer.
+Depends on <code class="docutils literal"><span class="pre">clauses</span></code> layer.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.text.Text.tag_wordnet">
+<code class="descname">tag_wordnet</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/text.html#Text.tag_wordnet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.text.Text.tag_wordnet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create wordnet attribute in <code class="docutils literal"><span class="pre">words</span></code> layer.</p>
+<p>See <code class="xref py py-meth docutils literal"><span class="pre">tag_text()</span></code> method
+for applicable keyword arguments.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.text.Text.text">
+<code class="descname">text</code><a class="headerlink" href="#estnltk.text.Text.text" title="Permalink to this definition">¶</a></dt>
+<dd><p>The raw underlying text that was used to initialize the Text instance.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.text.Text.texts">
+<code class="descname">texts</code><span class="sig-paren">(</span><em>layer</em>, <em>sep=' '</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/text.html#Text.texts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.text.Text.texts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve texts for given layer.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>sep: str</strong></p>
+<blockquote>
+<div><p>Separator for multilayer elements (default: &#8216; &#8216;).</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list of str</p>
+<blockquote class="last">
+<div><p>List of strings that make up given layer.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.text.Text.texts_from_spans">
+<code class="descname">texts_from_spans</code><span class="sig-paren">(</span><em>spans</em>, <em>sep=' '</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/text.html#Text.texts_from_spans"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.text.Text.texts_from_spans" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve texts from a list of (start, end) position spans.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>sep: str</strong></p>
+<blockquote>
+<div><p>Separator for multilayer elements (default: &#8216; &#8216;).</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list of str</p>
+<blockquote class="last">
+<div><p>List of strings that correspond to given spans.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.text.Text.timex_ends">
+<code class="descname">timex_ends</code><a class="headerlink" href="#estnltk.text.Text.timex_ends" title="Permalink to this definition">¶</a></dt>
+<dd><p>The list of end positions of <code class="docutils literal"><span class="pre">timexes</span></code> layer elements.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.text.Text.timex_ids">
+<code class="descname">timex_ids</code><a class="headerlink" href="#estnltk.text.Text.timex_ids" title="Permalink to this definition">¶</a></dt>
+<dd><p>The list of timex id-s of <code class="docutils literal"><span class="pre">timexes</span></code> layer elements.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.text.Text.timex_spans">
+<code class="descname">timex_spans</code><a class="headerlink" href="#estnltk.text.Text.timex_spans" title="Permalink to this definition">¶</a></dt>
+<dd><p>The list of spans of <code class="docutils literal"><span class="pre">timexes</span></code> layer elements.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.text.Text.timex_starts">
+<code class="descname">timex_starts</code><a class="headerlink" href="#estnltk.text.Text.timex_starts" title="Permalink to this definition">¶</a></dt>
+<dd><p>The list of start positions of <code class="docutils literal"><span class="pre">timexes</span></code> layer elements.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.text.Text.timex_texts">
+<code class="descname">timex_texts</code><a class="headerlink" href="#estnltk.text.Text.timex_texts" title="Permalink to this definition">¶</a></dt>
+<dd><p>The list of texts representing <code class="docutils literal"><span class="pre">timexes</span></code> layer elements.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.text.Text.timex_types">
+<code class="descname">timex_types</code><a class="headerlink" href="#estnltk.text.Text.timex_types" title="Permalink to this definition">¶</a></dt>
+<dd><p>The list of timex types of <code class="docutils literal"><span class="pre">timexes</span></code> layer elements.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.text.Text.timex_values">
+<code class="descname">timex_values</code><a class="headerlink" href="#estnltk.text.Text.timex_values" title="Permalink to this definition">¶</a></dt>
+<dd><p>The list of timex values of <code class="docutils literal"><span class="pre">timexes</span></code> layer elements.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.text.Text.timexes">
+<code class="descname">timexes</code><a class="headerlink" href="#estnltk.text.Text.timexes" title="Permalink to this definition">¶</a></dt>
+<dd><p>The list of elements in <code class="docutils literal"><span class="pre">timexes</span></code> layer.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.text.Text.tokenize_paragraphs">
+<code class="descname">tokenize_paragraphs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/text.html#Text.tokenize_paragraphs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.text.Text.tokenize_paragraphs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply paragraph tokenization to this Text instance. Creates <code class="docutils literal"><span class="pre">paragraphs</span></code> layer.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.text.Text.tokenize_sentences">
+<code class="descname">tokenize_sentences</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/text.html#Text.tokenize_sentences"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.text.Text.tokenize_sentences" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply sentence tokenization to this Text instance. Creates <code class="docutils literal"><span class="pre">sentences</span></code> layer.
+Automatically tokenizes paragraphs, if they are not already tokenized.
+Also, if word tokenization has already been performed, tries to fit 
+the sentence tokenization into the existing word tokenization;</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.text.Text.tokenize_words">
+<code class="descname">tokenize_words</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/text.html#Text.tokenize_words"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.text.Text.tokenize_words" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply word tokenization and create <code class="docutils literal"><span class="pre">words</span></code> layer.</p>
+<p>Automatically creates <code class="docutils literal"><span class="pre">paragraphs</span></code> and <code class="docutils literal"><span class="pre">sentences</span></code> layers.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.text.Text.verb_chain_clause_indices">
+<code class="descname">verb_chain_clause_indices</code><a class="headerlink" href="#estnltk.text.Text.verb_chain_clause_indices" title="Permalink to this definition">¶</a></dt>
+<dd><p>The clause indices of <code class="docutils literal"><span class="pre">verb_chains</span></code> elements.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.text.Text.verb_chain_ends">
+<code class="descname">verb_chain_ends</code><a class="headerlink" href="#estnltk.text.Text.verb_chain_ends" title="Permalink to this definition">¶</a></dt>
+<dd><p>The end positions of <code class="docutils literal"><span class="pre">verb_chains</span></code> elements.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.text.Text.verb_chain_moods">
+<code class="descname">verb_chain_moods</code><a class="headerlink" href="#estnltk.text.Text.verb_chain_moods" title="Permalink to this definition">¶</a></dt>
+<dd><p>The mood attributes of <code class="docutils literal"><span class="pre">verb_chains</span></code> elements.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.text.Text.verb_chain_morphs">
+<code class="descname">verb_chain_morphs</code><a class="headerlink" href="#estnltk.text.Text.verb_chain_morphs" title="Permalink to this definition">¶</a></dt>
+<dd><p>The morph attributes of <code class="docutils literal"><span class="pre">verb_chains</span></code> elements.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.text.Text.verb_chain_other_verbs">
+<code class="descname">verb_chain_other_verbs</code><a class="headerlink" href="#estnltk.text.Text.verb_chain_other_verbs" title="Permalink to this definition">¶</a></dt>
+<dd><p>The other verb attributes of <code class="docutils literal"><span class="pre">verb_chains</span></code> elements.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.text.Text.verb_chain_patterns">
+<code class="descname">verb_chain_patterns</code><a class="headerlink" href="#estnltk.text.Text.verb_chain_patterns" title="Permalink to this definition">¶</a></dt>
+<dd><p>The patterns of <code class="docutils literal"><span class="pre">verb_chains</span></code> elements.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.text.Text.verb_chain_polarities">
+<code class="descname">verb_chain_polarities</code><a class="headerlink" href="#estnltk.text.Text.verb_chain_polarities" title="Permalink to this definition">¶</a></dt>
+<dd><p>The polarities of <code class="docutils literal"><span class="pre">verb_chains</span></code> elements.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.text.Text.verb_chain_roots">
+<code class="descname">verb_chain_roots</code><a class="headerlink" href="#estnltk.text.Text.verb_chain_roots" title="Permalink to this definition">¶</a></dt>
+<dd><p>The chain roots of <code class="docutils literal"><span class="pre">verb_chains</span></code> elements.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.text.Text.verb_chain_starts">
+<code class="descname">verb_chain_starts</code><a class="headerlink" href="#estnltk.text.Text.verb_chain_starts" title="Permalink to this definition">¶</a></dt>
+<dd><p>The start positions of <code class="docutils literal"><span class="pre">verb_chains</span></code> elements.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.text.Text.verb_chain_tenses">
+<code class="descname">verb_chain_tenses</code><a class="headerlink" href="#estnltk.text.Text.verb_chain_tenses" title="Permalink to this definition">¶</a></dt>
+<dd><p>The tense attributes of <code class="docutils literal"><span class="pre">verb_chains</span></code> elements.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.text.Text.verb_chain_texts">
+<code class="descname">verb_chain_texts</code><a class="headerlink" href="#estnltk.text.Text.verb_chain_texts" title="Permalink to this definition">¶</a></dt>
+<dd><p>The list of texts of <code class="docutils literal"><span class="pre">verb_chains</span></code> layer elements.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.text.Text.verb_chain_voices">
+<code class="descname">verb_chain_voices</code><a class="headerlink" href="#estnltk.text.Text.verb_chain_voices" title="Permalink to this definition">¶</a></dt>
+<dd><p>The voice attributes of <code class="docutils literal"><span class="pre">verb_chains</span></code> elements.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.text.Text.verb_chains">
+<code class="descname">verb_chains</code><a class="headerlink" href="#estnltk.text.Text.verb_chains" title="Permalink to this definition">¶</a></dt>
+<dd><p>The list of elements of <code class="docutils literal"><span class="pre">verb_chains</span></code> layer.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.text.Text.word_ends">
+<code class="descname">word_ends</code><a class="headerlink" href="#estnltk.text.Text.word_ends" title="Permalink to this definition">¶</a></dt>
+<dd><p>The list of end positions representing <code class="docutils literal"><span class="pre">words</span></code> layer elements.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.text.Text.word_literals">
+<code class="descname">word_literals</code><a class="headerlink" href="#estnltk.text.Text.word_literals" title="Permalink to this definition">¶</a></dt>
+<dd><p>The list of literals per word in <code class="docutils literal"><span class="pre">words</span></code> layer.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.text.Text.word_spans">
+<code class="descname">word_spans</code><a class="headerlink" href="#estnltk.text.Text.word_spans" title="Permalink to this definition">¶</a></dt>
+<dd><p>The list of spans representing <code class="docutils literal"><span class="pre">words</span></code> layer elements.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.text.Text.word_starts">
+<code class="descname">word_starts</code><a class="headerlink" href="#estnltk.text.Text.word_starts" title="Permalink to this definition">¶</a></dt>
+<dd><p>The list of start positions representing <code class="docutils literal"><span class="pre">words</span></code> layer elements.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.text.Text.word_texts">
+<code class="descname">word_texts</code><a class="headerlink" href="#estnltk.text.Text.word_texts" title="Permalink to this definition">¶</a></dt>
+<dd><p>The list of words representing <code class="docutils literal"><span class="pre">words</span></code> layer elements.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.text.Text.wordnet_annotations">
+<code class="descname">wordnet_annotations</code><a class="headerlink" href="#estnltk.text.Text.wordnet_annotations" title="Permalink to this definition">¶</a></dt>
+<dd><p>The list of wordnet annotations of <code class="docutils literal"><span class="pre">words</span></code> layer.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.text.Text.words">
+<code class="descname">words</code><a class="headerlink" href="#estnltk.text.Text.words" title="Permalink to this definition">¶</a></dt>
+<dd><p>The list of word elements in <code class="docutils literal"><span class="pre">words</span></code> layer.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="estnltk.text.ZipBuilder">
+<em class="property">class </em><code class="descclassname">estnltk.text.</code><code class="descname">ZipBuilder</code><span class="sig-paren">(</span><em>text</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/text.html#ZipBuilder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.text.ZipBuilder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper class to aggregate various <a class="reference internal" href="#estnltk.text.Text" title="estnltk.text.Text"><code class="xref py py-class docutils literal"><span class="pre">Text</span></code></a> properties in a simple way.
+Uses builder pattern.</p>
+<p>Example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">text</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s1">&#39;Alles see oli, kui käisin koolis&#39;</span><span class="p">)</span>
+<span class="n">text</span><span class="o">.</span><span class="n">get</span><span class="o">.</span><span class="n">word_texts</span><span class="o">.</span><span class="n">lemmas</span><span class="o">.</span><span class="n">postags</span><span class="o">.</span><span class="n">as_dataframe</span>
+</pre></div>
+</div>
+<p>test.get - this initiates a new <a class="reference internal" href="#estnltk.text.ZipBuilder" title="estnltk.text.ZipBuilder"><code class="xref py py-class docutils literal"><span class="pre">ZipBuilder</span></code></a> instance on the Text object.</p>
+<p>.word_texts - adds word texts
+.postags - adds postags</p>
+<p>.as_dataframe - builds the final object and returns a dataframe</p>
+<p class="rubric">Attributes</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">as_dataframe</span></code></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">as_dict</span></code></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">as_list</span></code></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">as_zip</span></code></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">__call__</span></code>(props)</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, University of Tartu unless specified otherwise in the file headers.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.4.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

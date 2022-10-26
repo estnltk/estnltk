@@ -1,0 +1,1075 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>estnltk.wordnet.wn &mdash; estnltk 1.4.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../../genindex.html"/>
+        <link rel="search" title="Search" href="../../../search.html"/>
+    <link rel="top" title="estnltk 1.4.1 documentation" href="../../../index.html"/>
+        <link rel="up" title="Module code" href="../../index.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> estnltk
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.4.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/index.html">Estnltk tutorials</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../external/index.html">Other tools</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/index.html">API documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../authors.html">Authors</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../../index.html">estnltk</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      
+    <li>estnltk.wordnet.wn</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for estnltk.wordnet.wn</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">unicode_literals</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">absolute_import</span>
+
+<span class="sd">&quot;&quot;&quot;Mid-level module for interacting with Estonian WordNet. Uses Neeme Kahusk&#39;s eurown module to parse WordNet file.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">codecs</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">defaultdict</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">StringIO</span> <span class="k">import</span> <span class="n">StringIO</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span> <span class="c1"># Py3</span>
+    <span class="kn">from</span> <span class="nn">io</span> <span class="k">import</span> <span class="n">StringIO</span>
+    
+<span class="kn">from</span> <span class="nn">estnltk.wordnet.eurown</span> <span class="k">import</span> <span class="n">Parser</span>
+<span class="kn">from</span> <span class="nn">estnltk</span> <span class="k">import</span> <span class="n">analyze</span>
+<span class="kn">from</span> <span class="nn">estnltk.core</span> <span class="k">import</span> <span class="n">PACKAGE_PATH</span>
+<span class="kn">from</span> <span class="nn">estnltk.core</span> <span class="k">import</span> <span class="n">as_unicode</span>
+
+<span class="n">WORDNET_DIR</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">PACKAGE_PATH</span><span class="p">,</span> <span class="s1">&#39;wordnet&#39;</span><span class="p">)</span>
+<span class="n">DATA_DIR</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">WORDNET_DIR</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">)</span>
+
+<span class="n">_LIT_POS_FILE</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DATA_DIR</span><span class="p">,</span> <span class="s2">&quot;lit_pos_synidx.txt&quot;</span><span class="p">)</span>
+<span class="n">_SOI</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DATA_DIR</span><span class="p">,</span> <span class="s2">&quot;kb69a-utf8.soi&quot;</span><span class="p">)</span>
+<span class="n">_WN_FILE</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DATA_DIR</span><span class="p">,</span> <span class="s2">&quot;kb69a-utf8.txt&quot;</span><span class="p">)</span>
+<span class="n">_SENSE_FILE</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DATA_DIR</span><span class="p">,</span> <span class="s2">&quot;sense.txt&quot;</span><span class="p">)</span>
+<span class="n">_MAX_TAX_FILE</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DATA_DIR</span><span class="p">,</span> <span class="s2">&quot;max_tax_depths.cnf&quot;</span><span class="p">)</span>
+
+<span class="n">VERB</span> <span class="o">=</span> <span class="s1">&#39;v&#39;</span>
+<span class="n">NOUN</span> <span class="o">=</span> <span class="s1">&#39;n&#39;</span>
+<span class="n">ADJ</span> <span class="o">=</span> <span class="s1">&#39;a&#39;</span>
+<span class="n">ADV</span> <span class="o">=</span> <span class="s1">&#39;b&#39;</span>
+
+<span class="n">MAX_TAXONOMY_DEPTHS</span> <span class="o">=</span> <span class="p">{}</span> <span class="c1"># necessary for Leacock &amp; Chodorow similarity measure</span>
+
+<span class="n">parser</span> <span class="o">=</span> <span class="kc">None</span>
+
+<span class="k">with</span> <span class="n">codecs</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">_MAX_TAX_FILE</span><span class="p">,</span><span class="s1">&#39;rb&#39;</span><span class="p">,</span> <span class="s1">&#39;utf-8&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fin</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">fin</span><span class="p">:</span>
+        <span class="n">pos</span><span class="p">,</span><span class="n">max_depth</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)</span>
+        <span class="n">MAX_TAXONOMY_DEPTHS</span><span class="p">[</span><span class="n">pos</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">max_depth</span><span class="p">)</span>
+
+<span class="n">SYNSETS_DICT</span> <span class="o">=</span> <span class="p">{}</span> <span class="c1"># global dictionary which stores initialized synsets</span>
+<span class="n">LEMMAS_DICT</span> <span class="o">=</span> <span class="p">{}</span>
+
+<span class="n">LEM_POS_2_SS_IDX</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">))</span> <span class="c1"># map lemma and pos to synset index</span>
+
+<span class="n">LOADED_POS</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">_get_synset_offsets</span><span class="p">(</span><span class="n">synset_idxes</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returs pointer offset in the WordNet file for every synset index.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Internal function. Do not call directly.</span>
+<span class="sd">    Preserves order -- for [x,y,z] returns [offset(x),offset(y),offset(z)].</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    synset_idxes : list of ints</span>
+<span class="sd">      Lists synset IDs, which need offset.</span>
+<span class="sd">      </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list of ints</span>
+<span class="sd">      Lists pointer offsets in Wordnet file.</span>
+
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">offsets</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">current_seeked_offset_idx</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="n">ordered_synset_idxes</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">synset_idxes</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">codecs</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">_SOI</span><span class="p">,</span><span class="s1">&#39;rb&#39;</span><span class="p">,</span> <span class="s1">&#39;utf-8&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fin</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">fin</span><span class="p">:</span>
+            <span class="n">split_line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)</span>
+          
+            <span class="k">while</span> <span class="n">current_seeked_offset_idx</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">ordered_synset_idxes</span><span class="p">)</span> <span class="ow">and</span> <span class="n">split_line</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span><span class="n">ordered_synset_idxes</span><span class="p">[</span><span class="n">current_seeked_offset_idx</span><span class="p">]):</span>
+                <span class="c1"># Looping on single line entries in case synset_indexes contains duplicates.</span>
+                <span class="n">offsets</span><span class="p">[</span><span class="n">synset_idxes</span><span class="p">[</span><span class="n">current_seeked_offset_idx</span><span class="p">]]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">split_line</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="n">current_seeked_offset_idx</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">current_seeked_offset_idx</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">synset_idxes</span><span class="p">):</span>
+                <span class="k">break</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">offsets</span><span class="p">[</span><span class="n">synset_idx</span><span class="p">]</span> <span class="k">for</span> <span class="n">synset_idx</span> <span class="ow">in</span> <span class="n">synset_idxes</span><span class="p">]</span>
+
+<span class="k">def</span> <span class="nf">_get_synsets</span><span class="p">(</span><span class="n">synset_offsets</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Given synset offsets in the WordNet file, parses synset object for every offset.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Internal function. Do not call directly.</span>
+<span class="sd">    Stores every parsed synset into global synset dictionary under two keys:</span>
+<span class="sd">      synset&#39;s name lemma.pos.sense_no and synset&#39;s id (unique integer).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    synset_offsets : list of ints</span>
+<span class="sd">      Lists pointer offsets from which synset objects will be parsed.</span>
+<span class="sd">      </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list of Synsets</span>
+<span class="sd">      Lists synset objects which synset_offsets point to.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">parser</span>
+    <span class="k">if</span> <span class="n">parser</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">parser</span> <span class="o">=</span> <span class="n">Parser</span><span class="p">(</span><span class="n">_WN_FILE</span><span class="p">)</span>
+    <span class="n">synsets</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">offset</span> <span class="ow">in</span> <span class="n">synset_offsets</span><span class="p">:</span>
+        <span class="n">raw_synset</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_synset</span><span class="p">(</span><span class="n">offset</span><span class="p">)</span>
+        <span class="n">synset</span> <span class="o">=</span> <span class="n">Synset</span><span class="p">(</span><span class="n">raw_synset</span><span class="p">)</span>
+
+        <span class="n">SYNSETS_DICT</span><span class="p">[</span><span class="n">_get_key_from_raw_synset</span><span class="p">(</span><span class="n">raw_synset</span><span class="p">)]</span> <span class="o">=</span> <span class="n">synset</span>
+        <span class="n">SYNSETS_DICT</span><span class="p">[</span><span class="n">synset</span><span class="o">.</span><span class="n">id</span><span class="p">]</span> <span class="o">=</span> <span class="n">synset</span>
+
+        <span class="n">synsets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">synset</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">synsets</span>
+
+<span class="k">def</span> <span class="nf">_get_key_from_raw_synset</span><span class="p">(</span><span class="n">raw_synset</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Derives synset key in the form of `lemma.pos.sense_no` from the provided eurown.py Synset class,</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Internal function. Do not call directly.</span>
+
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    raw_synset : eurown.Synset</span>
+<span class="sd">      Synset representation from which lemma, part-of-speech and sense is derived.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    string</span>
+<span class="sd">      Key of the synset in the form of `lemma.pos.sense_no`.</span>
+<span class="sd">      </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">pos</span> <span class="o">=</span> <span class="n">raw_synset</span><span class="o">.</span><span class="n">pos</span>
+    <span class="n">literal</span> <span class="o">=</span> <span class="n">raw_synset</span><span class="o">.</span><span class="n">variants</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">literal</span>
+    <span class="n">sense</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%02d</span><span class="s2">&quot;</span><span class="o">%</span><span class="n">raw_synset</span><span class="o">.</span><span class="n">variants</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">sense</span>
+    <span class="k">return</span> <span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">literal</span><span class="p">,</span><span class="n">pos</span><span class="p">,</span><span class="n">sense</span><span class="p">])</span>
+
+<div class="viewcode-block" id="synset"><a class="viewcode-back" href="../../../api/wn.html#estnltk.wordnet.wn.synset">[docs]</a><span class="k">def</span> <span class="nf">synset</span><span class="p">(</span><span class="n">synset_key</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns synset object with the provided key.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Uses lazy initialization - synsets will be fetched from a dictionary after the first request.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    synset_key : string</span>
+<span class="sd">      Unique synset identifier in the form of `lemma.pos.sense_no`.</span>
+<span class="sd">      </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Synset</span>
+<span class="sd">      Synset with key `synset_key`.</span>
+<span class="sd">      None, if no match was found.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">synset_key</span> <span class="ow">in</span> <span class="n">SYNSETS_DICT</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">SYNSETS_DICT</span><span class="p">[</span><span class="n">synset_key</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">_get_synset_idx</span><span class="p">(</span><span class="n">synset_key</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns synset index for the provided key.</span>
+
+<span class="sd">        Note</span>
+<span class="sd">        ----</span>
+<span class="sd">          Internal function. Do not call directly.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="n">codecs</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">_SENSE_FILE</span><span class="p">,</span><span class="s1">&#39;rb&#39;</span><span class="p">,</span> <span class="s1">&#39;utf-8&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fin</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">fin</span><span class="p">:</span>
+                <span class="n">split_line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">split_line</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">synset_key</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">split_line</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="n">synset_idx</span> <span class="o">=</span> <span class="n">_get_synset_idx</span><span class="p">(</span><span class="n">synset_key</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">synset_idx</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="n">synset_offset</span> <span class="o">=</span> <span class="n">_get_synset_offsets</span><span class="p">([</span><span class="n">synset_idx</span><span class="p">])</span>
+    <span class="n">synset</span> <span class="o">=</span> <span class="n">_get_synsets</span><span class="p">(</span><span class="n">synset_offset</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">synset</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="synsets"><a class="viewcode-back" href="../../../api/wn.html#estnltk.wordnet.wn.synsets">[docs]</a><span class="k">def</span> <span class="nf">synsets</span><span class="p">(</span><span class="n">lemma</span><span class="p">,</span><span class="n">pos</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns all synset objects which have lemma as one of the variant literals and fixed pos, if provided.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Uses lazy initialization - parses only those synsets which are not yet initialized, others are fetched from a dictionary.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    lemma : str</span>
+<span class="sd">      Lemma of the synset.</span>
+<span class="sd">    pos : str, optional</span>
+<span class="sd">      Part-of-speech specification of the searched synsets, defaults to None.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list of Synsets</span>
+<span class="sd">      Synsets which contain `lemma` and of which part-of-speech is `pos`, if specified.</span>
+<span class="sd">      Empty list, if no match was found.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">_get_synset_idxes</span><span class="p">(</span><span class="n">lemma</span><span class="p">,</span><span class="n">pos</span><span class="p">):</span>
+        <span class="n">line_prefix_regexp</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">:</span><span class="si">%s</span><span class="s2">:(.*)&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">lemma</span><span class="p">,</span><span class="n">pos</span> <span class="k">if</span> <span class="n">pos</span> <span class="k">else</span> <span class="s2">&quot;\w+&quot;</span><span class="p">)</span> 
+        <span class="n">line_prefix</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">line_prefix_regexp</span><span class="p">)</span>
+
+        <span class="n">idxes</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">with</span> <span class="n">codecs</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">_LIT_POS_FILE</span><span class="p">,</span><span class="s1">&#39;rb&#39;</span><span class="p">,</span> <span class="s1">&#39;utf-8&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fin</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">fin</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="n">line_prefix</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">result</span><span class="p">:</span>
+                    <span class="n">res_indices</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)]</span>
+                    <span class="n">idxes</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">res_indices</span><span class="p">)</span>
+                    
+        <span class="n">LEM_POS_2_SS_IDX</span><span class="p">[</span><span class="n">lemma</span><span class="p">][</span><span class="n">pos</span><span class="p">]</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">idxes</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">idxes</span><span class="p">)</span>
+
+    <span class="n">synset_idxes</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="n">lemma</span> <span class="ow">in</span> <span class="n">LEM_POS_2_SS_IDX</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">pos</span> <span class="ow">in</span> <span class="n">LEM_POS_2_SS_IDX</span><span class="p">[</span><span class="n">lemma</span><span class="p">]:</span>
+            <span class="n">synset_idxes</span> <span class="o">=</span> <span class="n">LEM_POS_2_SS_IDX</span><span class="p">[</span><span class="n">lemma</span><span class="p">][</span><span class="n">pos</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">synset_idxes</span> <span class="o">=</span> <span class="p">[</span><span class="n">idx</span> <span class="k">for</span> <span class="n">pos</span> <span class="ow">in</span> <span class="n">LEM_POS_2_SS_IDX</span><span class="p">[</span><span class="n">lemma</span><span class="p">]</span> <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">LEM_POS_2_SS_IDX</span><span class="p">[</span><span class="n">lemma</span><span class="p">][</span><span class="n">pos</span><span class="p">]]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">synset_idxes</span><span class="p">:</span>
+        <span class="n">synset_idxes</span> <span class="o">=</span> <span class="n">_get_synset_idxes</span><span class="p">(</span><span class="n">lemma</span><span class="p">,</span><span class="n">pos</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">synset_idxes</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+
+    <span class="n">stored_synsets</span> <span class="o">=</span> <span class="p">[</span><span class="n">SYNSETS_DICT</span><span class="p">[</span><span class="n">synset_idxes</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">synset_idxes</span><span class="p">))</span> <span class="k">if</span> <span class="n">synset_idxes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="ow">in</span> <span class="n">SYNSETS_DICT</span><span class="p">]</span>
+    <span class="n">unstored_synset_idxes</span> <span class="o">=</span> <span class="p">[</span><span class="n">synset_idxes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">synset_idxes</span><span class="p">))</span> <span class="k">if</span> <span class="n">synset_idxes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">SYNSETS_DICT</span><span class="p">]</span>
+
+    <span class="n">synset_offsets</span> <span class="o">=</span> <span class="n">_get_synset_offsets</span><span class="p">(</span><span class="n">unstored_synset_idxes</span><span class="p">)</span>
+    <span class="n">synsets</span> <span class="o">=</span> <span class="n">_get_synsets</span><span class="p">(</span><span class="n">synset_offsets</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">stored_synsets</span> <span class="o">+</span> <span class="n">synsets</span></div>
+
+<div class="viewcode-block" id="all_synsets"><a class="viewcode-back" href="../../../api/wn.html#estnltk.wordnet.wn.all_synsets">[docs]</a><span class="k">def</span> <span class="nf">all_synsets</span><span class="p">(</span><span class="n">pos</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return all the synsets which have the provided pos.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Returns thousands or tens of thousands of synsets - first time will take significant time.</span>
+<span class="sd">    Useful for initializing synsets as each returned synset is also stored in a global dictionary for fast retrieval the next time.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    pos : str</span>
+<span class="sd">      Part-of-speech of the sought synsets. Sensible alternatives are wn.ADJ, wn.ADV, wn.VERB, wn.NOUN and `*`.</span>
+<span class="sd">      If pos == `*`, all the synsets are retrieved and initialized for fast retrieval the next time.</span>
+<span class="sd">      </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list of Synsets</span>
+<span class="sd">      Lists the Synsets which have `pos` as part-of-speech.</span>
+<span class="sd">      Empty list, if `pos` not in [wn.ADJ, wn.ADV, wn.VERB, wn.NOUN, `*`].</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">_get_unique_synset_idxes</span><span class="p">(</span><span class="n">pos</span><span class="p">):</span>
+        <span class="n">idxes</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">with</span> <span class="n">codecs</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">_LIT_POS_FILE</span><span class="p">,</span><span class="s1">&#39;rb&#39;</span><span class="p">,</span> <span class="s1">&#39;utf-8&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fin</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">pos</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">fin</span><span class="p">:</span>
+                  <span class="n">split_line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)</span>
+                  <span class="n">idxes</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">split_line</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">fin</span><span class="p">:</span>
+                    <span class="n">split_line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">split_line</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">pos</span><span class="p">:</span>
+                        <span class="n">idxes</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">split_line</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()])</span>
+        <span class="n">idxes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">idxes</span><span class="p">))</span>
+        <span class="n">idxes</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">idxes</span>
+
+    <span class="k">if</span> <span class="n">pos</span> <span class="ow">in</span> <span class="n">LOADED_POS</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">SYNSETS_DICT</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="k">for</span> <span class="n">lemma</span> <span class="ow">in</span> <span class="n">LEM_POS_2_SS_IDX</span> <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">LEM_POS_2_SS_IDX</span><span class="p">[</span><span class="n">lemma</span><span class="p">][</span><span class="n">pos</span><span class="p">]]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">synset_idxes</span> <span class="o">=</span> <span class="n">_get_unique_synset_idxes</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">synset_idxes</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[]</span>
+
+        <span class="n">stored_synsets</span> <span class="o">=</span> <span class="p">[</span><span class="n">SYNSETS_DICT</span><span class="p">[</span><span class="n">synset_idxes</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">synset_idxes</span><span class="p">))</span> <span class="k">if</span> <span class="n">synset_idxes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="ow">in</span> <span class="n">SYNSETS_DICT</span><span class="p">]</span>
+        <span class="n">unstored_synset_idxes</span> <span class="o">=</span> <span class="p">[</span><span class="n">synset_idxes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">synset_idxes</span><span class="p">))</span> <span class="k">if</span> <span class="n">synset_idxes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">SYNSETS_DICT</span><span class="p">]</span>
+        
+        <span class="n">synset_offsets</span> <span class="o">=</span> <span class="n">_get_synset_offsets</span><span class="p">(</span><span class="n">unstored_synset_idxes</span><span class="p">)</span>
+        <span class="n">synsets</span> <span class="o">=</span> <span class="n">_get_synsets</span><span class="p">(</span><span class="n">synset_offsets</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">synset</span> <span class="ow">in</span> <span class="n">synsets</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">variant</span> <span class="ow">in</span> <span class="n">synset</span><span class="o">.</span><span class="n">get_variants</span><span class="p">():</span>
+                <span class="n">LEM_POS_2_SS_IDX</span><span class="p">[</span><span class="n">variant</span><span class="o">.</span><span class="n">literal</span><span class="p">][</span><span class="n">synset</span><span class="o">.</span><span class="n">pos</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">synset</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+
+        <span class="n">LOADED_POS</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">stored_synsets</span> <span class="o">+</span> <span class="n">synsets</span></div>
+
+<div class="viewcode-block" id="lemma"><a class="viewcode-back" href="../../../api/wn.html#estnltk.wordnet.wn.lemma">[docs]</a><span class="k">def</span> <span class="nf">lemma</span><span class="p">(</span><span class="n">lemma_key</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns the Lemma object with the given key.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    lemma_key : str</span>
+<span class="sd">      Key of the returned lemma.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Lemma</span>
+<span class="sd">      Lemma matching the `lemma_key`.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">lemma_key</span> <span class="ow">in</span> <span class="n">LEMMAS_DICT</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">LEMMAS_DICT</span><span class="p">[</span><span class="n">lemma_key</span><span class="p">]</span>
+    <span class="n">split_lemma_key</span> <span class="o">=</span> <span class="n">lemma_key</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
+
+    <span class="n">synset_key</span> <span class="o">=</span> <span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">split_lemma_key</span><span class="p">[:</span><span class="mi">3</span><span class="p">])</span>
+    <span class="n">lemma_literal</span> <span class="o">=</span> <span class="n">split_lemma_key</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+
+    <span class="n">lemma_obj</span> <span class="o">=</span> <span class="n">Lemma</span><span class="p">(</span><span class="n">synset_key</span><span class="p">,</span><span class="n">lemma_literal</span><span class="p">)</span>
+    <span class="n">LEMMAS_DICT</span><span class="p">[</span><span class="n">lemma_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">lemma_obj</span>
+    <span class="k">return</span> <span class="n">lemma_obj</span></div>
+
+<div class="viewcode-block" id="lemma_from_key"><a class="viewcode-back" href="../../../api/wn.html#estnltk.wordnet.wn.lemma_from_key">[docs]</a><span class="k">def</span> <span class="nf">lemma_from_key</span><span class="p">(</span><span class="n">lemma_key</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Just for comformance with the NLTK WordNet API. No necessary lexical information.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="lemmas"><a class="viewcode-back" href="../../../api/wn.html#estnltk.wordnet.wn.lemmas">[docs]</a><span class="k">def</span> <span class="nf">lemmas</span><span class="p">(</span><span class="n">lemma</span><span class="p">,</span><span class="n">pos</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns all the Lemma objects of which name is `lemma` and which have `pos` as part</span>
+<span class="sd">    of speech.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    lemma : str</span>
+<span class="sd">      Literal of the sought Lemma objects.</span>
+<span class="sd">    pos : str, optional</span>
+<span class="sd">      Part of speech of the sought Lemma objects. If None, matches any part of speech.</span>
+<span class="sd">      Defaults to None</span>
+<span class="sd">      </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list of Lemmas</span>
+<span class="sd">      Lists all the matched Lemmas.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">lemma</span> <span class="o">=</span> <span class="n">lemma</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">lemma_obj</span>
+        <span class="k">for</span> <span class="n">synset</span> <span class="ow">in</span> <span class="n">synsets</span><span class="p">(</span><span class="n">lemma</span><span class="p">,</span><span class="n">pos</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">lemma_obj</span> <span class="ow">in</span> <span class="n">synset</span><span class="o">.</span><span class="n">lemmas</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">lemma_obj</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="n">lemma</span><span class="p">]</span></div>
+  
+
+<div class="viewcode-block" id="morphy"><a class="viewcode-back" href="../../../api/wn.html#estnltk.wordnet.wn.morphy">[docs]</a><span class="k">def</span> <span class="nf">morphy</span><span class="p">(</span><span class="n">word</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Performs morphological analysis on the `word`.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    word : str</span>
+<span class="sd">      Word to be lemmatized.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">      Lemma of the `word`.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">analyzed</span> <span class="o">=</span> <span class="n">analyze</span><span class="p">([</span><span class="n">word</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">analyzed</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;analysis&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;lemma&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">analyzed</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="Synset"><a class="viewcode-back" href="../../../api/wn.html#estnltk.wordnet.wn.Synset">[docs]</a><span class="k">class</span> <span class="nc">Synset</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Represents a WordNet synset.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name : str</span>
+<span class="sd">      Synset  string identifier in the form `lemma.pos.sense_id`.</span>
+<span class="sd">    id : int</span>
+<span class="sd">      Synset integer identifier.</span>
+<span class="sd">    pos : str</span>
+<span class="sd">      Synset&#39;s part-of-speech.</span>
+<span class="sd">    _raw_synset: eurown.Synset</span>
+<span class="sd">      Underlying Synset object. Not intended to access directly.</span>
+<span class="sd">      </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">raw_synset</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">          raw_synset : eurown.Synset</span>
+<span class="sd">        Underlying Synset.</span>
+<span class="sd">          </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">_get_key_from_raw_synset</span><span class="p">(</span><span class="n">raw_synset</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_raw_synset</span> <span class="o">=</span> <span class="n">raw_synset</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">raw_synset</span><span class="o">.</span><span class="n">number</span> <span class="ow">or</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pos</span> <span class="o">=</span> <span class="n">as_unicode</span><span class="p">(</span><span class="n">raw_synset</span><span class="o">.</span><span class="n">pos</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_raw_synset</span><span class="o">.</span><span class="n">number</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">_raw_synset</span><span class="o">.</span><span class="n">number</span>
+
+    <span class="k">def</span> <span class="nf">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">repr</span><span class="p">(</span><span class="s2">&quot;Synset(&#39;</span><span class="si">%s</span><span class="s2">&#39;)&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_recursive_hypernyms</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hypernyms</span><span class="p">):</span>   
+        <span class="sd">&quot;&quot;&quot;Finds all the hypernyms of the synset transitively.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">          Internal method. Do not call directly.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">          hypernyms : set of Synsets</span>
+<span class="sd">        An set of hypernyms met so far.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">          set of Synsets</span>
+<span class="sd">        Returns the input set.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">hypernyms</span> <span class="o">|=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hypernyms</span><span class="p">())</span>
+
+        <span class="k">for</span> <span class="n">synset</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">hypernyms</span><span class="p">():</span>
+            <span class="n">hypernyms</span> <span class="o">|=</span> <span class="n">synset</span><span class="o">.</span><span class="n">_recursive_hypernyms</span><span class="p">(</span><span class="n">hypernyms</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">hypernyms</span>
+
+    <span class="k">def</span> <span class="nf">_min_depth</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Finds minimum path length from the root.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">          Internal method. Do not call directly.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">          int</span>
+<span class="sd">        Minimum path length from the root.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="s2">&quot;min_depth&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span><span class="p">[</span><span class="s2">&quot;min_depth&quot;</span><span class="p">]</span>
+
+        <span class="n">min_depth</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">hypernyms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hypernyms</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">hypernyms</span><span class="p">:</span>
+            <span class="n">min_depth</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="nb">min</span><span class="p">(</span><span class="n">h</span><span class="o">.</span><span class="n">_min_depth</span><span class="p">()</span> <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">hypernyms</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span><span class="p">[</span><span class="s2">&quot;min_depth&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">min_depth</span>
+
+        <span class="k">return</span> <span class="n">min_depth</span>
+
+        <span class="c1">#if &#39;min_depth&#39; in self.__dict__:</span>
+          <span class="c1">#return self.__dict__[&#39;min_depth&#39;]</span>
+
+        <span class="c1">#min_depth = 0</span>
+        <span class="c1">#hypernyms = [(0,hypernym) for hypernym in self.hypernyms()]</span>
+
+        <span class="c1">#while len(hypernyms) &gt; 0:</span>
+          <span class="c1">#hypernym = hypernyms.pop()</span>
+          <span class="c1">#hypernym_hypernyms = hypernym[1].hypernyms()</span>
+          <span class="c1">#if len(hypernym_hypernyms) == 0:</span>
+        <span class="c1">#min_depth = hypernym[0] if hypernym[0] &lt; min_depth else min_depth</span>
+          <span class="c1">#else:</span>
+        <span class="c1">#hypernyms.extend([(hypernym[0]+1,hyp_hyp) for hyp_hyp in hypernym_hypernyms])</span>
+        <span class="c1">#return min_depth</span>
+
+    <span class="k">def</span> <span class="nf">_shortest_path_distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target_synset</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Finds minimum path length from the target synset.</span>
+<span class="sd">      </span>
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">          Internal method. Do not call directly.</span>
+<span class="sd">      </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">          target_synset : Synset</span>
+<span class="sd">        Synset from where the shortest path length is calculated.</span>
+<span class="sd">      </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">          int</span>
+<span class="sd">        Shortest path distance from `target_synset`. Distance to the synset itself is 0, -1 if no path exists between the two synsets,</span>
+<span class="sd">        &gt;0 otherwise.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="s2">&quot;distances&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span><span class="p">[</span><span class="s2">&quot;distances&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">if</span> <span class="s2">&quot;distances&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">target_synset</span><span class="o">.</span><span class="n">__dict__</span><span class="p">:</span>
+            <span class="n">target_synset</span><span class="o">.</span><span class="n">__dict__</span><span class="p">[</span><span class="s2">&quot;distances&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">if</span> <span class="n">target_synset</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span><span class="p">[</span><span class="s2">&quot;distances&quot;</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span><span class="p">[</span><span class="s2">&quot;distances&quot;</span><span class="p">][</span><span class="n">target_synset</span><span class="p">]</span>
+
+        <span class="n">distance</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">visited</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="n">neighbor_synsets</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="bp">self</span><span class="p">])</span>
+
+        <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">neighbor_synsets</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">neighbor_synsets_next_level</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+          
+            <span class="k">for</span> <span class="n">synset</span> <span class="ow">in</span> <span class="n">neighbor_synsets</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">synset</span> <span class="ow">in</span> <span class="n">visited</span><span class="p">:</span>
+                    <span class="k">continue</span>
+        
+                <span class="k">if</span> <span class="n">synset</span> <span class="o">==</span> <span class="n">target_synset</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span><span class="p">[</span><span class="s2">&quot;distances&quot;</span><span class="p">][</span><span class="n">target_synset</span><span class="p">]</span> <span class="o">=</span> <span class="n">distance</span>
+                    <span class="n">target_synset</span><span class="o">.</span><span class="n">__dict__</span><span class="p">[</span><span class="s2">&quot;distances&quot;</span><span class="p">][</span><span class="bp">self</span><span class="p">]</span> <span class="o">=</span> <span class="n">distance</span>
+                    <span class="k">return</span> <span class="n">distance</span>
+                <span class="n">neighbor_synsets_next_level</span> <span class="o">|=</span> <span class="nb">set</span><span class="p">(</span><span class="n">synset</span><span class="o">.</span><span class="n">hypernyms</span><span class="p">())</span>
+                <span class="n">neighbor_synsets_next_level</span> <span class="o">|=</span> <span class="nb">set</span><span class="p">(</span><span class="n">synset</span><span class="o">.</span><span class="n">hyponyms</span><span class="p">())</span>
+                <span class="n">visited</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">synset</span><span class="p">)</span>
+            <span class="n">distance</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">neighbor_synsets</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">neighbor_synsets_next_level</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span><span class="p">[</span><span class="s2">&quot;distances&quot;</span><span class="p">][</span><span class="n">target_synset</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="n">target_synset</span><span class="o">.</span><span class="n">__dict__</span><span class="p">[</span><span class="s2">&quot;distances&quot;</span><span class="p">][</span><span class="bp">self</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="k">return</span> <span class="o">-</span><span class="mi">1</span>            
+
+<div class="viewcode-block" id="Synset.get_related_synsets"><a class="viewcode-back" href="../../../api/wn.html#estnltk.wordnet.wn.Synset.get_related_synsets">[docs]</a>    <span class="k">def</span> <span class="nf">get_related_synsets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">relation</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Retrieves all the synsets which are related by given relation.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">          relation : str</span>
+<span class="sd">        Name of the relation via which the sought synsets are linked.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">          list of Synsets</span>
+<span class="sd">        Synsets which are related via `relation`.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">relation_candidate</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_raw_synset</span><span class="o">.</span><span class="n">internalLinks</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">relation_candidate</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">relation</span><span class="p">:</span>
+                <span class="n">linked_synset</span> <span class="o">=</span> <span class="n">synset</span><span class="p">(</span><span class="n">_get_key_from_raw_synset</span><span class="p">(</span><span class="n">relation_candidate</span><span class="o">.</span><span class="n">target_concept</span><span class="p">))</span>
+                <span class="n">relation_candidate</span><span class="o">.</span><span class="n">target_concept</span> <span class="o">=</span> <span class="n">linked_synset</span><span class="o">.</span><span class="n">_raw_synset</span>
+                <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">linked_synset</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">results</span></div>
+
+<div class="viewcode-block" id="Synset.closure"><a class="viewcode-back" href="../../../api/wn.html#estnltk.wordnet.wn.Synset.closure">[docs]</a>    <span class="k">def</span> <span class="nf">closure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">relation</span><span class="p">,</span> <span class="n">depth</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="s1">&#39;inf&#39;</span><span class="p">)):</span>   
+        <span class="sd">&quot;&quot;&quot;Finds all the ancestors of the synset using provided relation.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">          relation : str</span>
+<span class="sd">        Name of the relation which is recursively used to fetch the ancestors.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">          list of Synsets</span>
+<span class="sd">        Returns the ancestors of the synset via given relations.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+    
+        <span class="n">ancestors</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">unvisited_ancestors</span> <span class="o">=</span> <span class="p">[(</span><span class="n">synset</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">synset</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_related_synsets</span><span class="p">(</span><span class="n">relation</span><span class="p">)]</span>
+
+        <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">unvisited_ancestors</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">ancestor_depth</span> <span class="o">=</span> <span class="n">unvisited_ancestors</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">ancestor_depth</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">depth</span><span class="p">:</span>
+                <span class="k">continue</span>    
+            <span class="n">unvisited_ancestors</span><span class="o">.</span><span class="n">extend</span><span class="p">([(</span><span class="n">synset</span><span class="p">,</span><span class="n">ancestor_depth</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">synset</span> <span class="ow">in</span> <span class="n">ancestor_depth</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_related_synsets</span><span class="p">(</span><span class="n">relation</span><span class="p">)])</span>
+            <span class="n">ancestors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ancestor_depth</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">ancestors</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Synset.hypernyms"><a class="viewcode-back" href="../../../api/wn.html#estnltk.wordnet.wn.Synset.hypernyms">[docs]</a>    <span class="k">def</span> <span class="nf">hypernyms</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Retrieves all the hypernyms.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">          list of Synsets</span>
+<span class="sd">        Synsets which are linked via hypernymy relation.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_related_synsets</span><span class="p">(</span><span class="s2">&quot;has_hyperonym&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Synset.hyponyms"><a class="viewcode-back" href="../../../api/wn.html#estnltk.wordnet.wn.Synset.hyponyms">[docs]</a>    <span class="k">def</span> <span class="nf">hyponyms</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Retrieves all the hyponyms.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">          list of Synsets</span>
+<span class="sd">        Synsets which are linked via hyponymy relation.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_related_synsets</span><span class="p">(</span><span class="s2">&quot;has_hyponym&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Synset.holonyms"><a class="viewcode-back" href="../../../api/wn.html#estnltk.wordnet.wn.Synset.holonyms">[docs]</a>    <span class="k">def</span> <span class="nf">holonyms</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Retrieves all the holonyms.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">          list of Synsets</span>
+<span class="sd">        Synsets which are linked via holonymy relation.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_related_synsets</span><span class="p">(</span><span class="s2">&quot;has_holonym&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Synset.meronyms"><a class="viewcode-back" href="../../../api/wn.html#estnltk.wordnet.wn.Synset.meronyms">[docs]</a>    <span class="k">def</span> <span class="nf">meronyms</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Retrieves all the meronyms.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">          list of Synsets</span>
+<span class="sd">        Synsets which are linked via meronymy relation.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_related_synsets</span><span class="p">(</span><span class="s2">&quot;has_meronym&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Synset.member_holonyms"><a class="viewcode-back" href="../../../api/wn.html#estnltk.wordnet.wn.Synset.member_holonyms">[docs]</a>    <span class="k">def</span> <span class="nf">member_holonyms</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Retrieves all the member holoynms.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">          list of Synsets</span>
+<span class="sd">        Synsets which are &quot;wholes&quot; of what the synset represents.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_related_synsets</span><span class="p">(</span><span class="s2">&quot;has_member_holo&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Synset.root_hypernyms"><a class="viewcode-back" href="../../../api/wn.html#estnltk.wordnet.wn.Synset.root_hypernyms">[docs]</a>    <span class="k">def</span> <span class="nf">root_hypernyms</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Retrieves all the root hypernyms.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">          list of Synsets</span>
+<span class="sd">        Roots via hypernymy relation.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">visited</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="n">hypernyms_next_level</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hypernyms</span><span class="p">())</span>
+        <span class="n">current_hypernyms</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">hypernyms_next_level</span><span class="p">)</span>
+
+        <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">hypernyms_next_level</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">current_hypernyms</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">hypernyms_next_level</span><span class="p">)</span>
+            <span class="n">hypernyms_next_level</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+          
+            <span class="k">for</span> <span class="n">synset</span> <span class="ow">in</span> <span class="n">current_hypernyms</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">synset</span> <span class="ow">in</span> <span class="n">visited</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="n">visited</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">synset</span><span class="p">)</span>
+                <span class="n">hypernyms_next_level</span> <span class="o">|=</span> <span class="nb">set</span><span class="p">(</span><span class="n">synset</span><span class="o">.</span><span class="n">hypernyms</span><span class="p">())</span>
+
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">current_hypernyms</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Synset.path_similarity"><a class="viewcode-back" href="../../../api/wn.html#estnltk.wordnet.wn.Synset.path_similarity">[docs]</a>    <span class="k">def</span> <span class="nf">path_similarity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target_synset</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Calculates path similarity between the two synsets.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">          target_synset : Synset</span>
+<span class="sd">        Synset from which the distance is calculated.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">          float</span>
+<span class="sd">        Path similarity from `target_synset`. Similarity with the synset itself is 1,</span>
+<span class="sd">        similarity with ureachable synset is None, 1/(shortest_path_distance + 1) otherwise.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">distance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_shortest_path_distance</span><span class="p">(</span><span class="n">target_synset</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">distance</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span> 
+            <span class="k">return</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="p">(</span><span class="n">distance</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> 
+        <span class="k">else</span><span class="p">:</span> 
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="Synset.lch_similarity"><a class="viewcode-back" href="../../../api/wn.html#estnltk.wordnet.wn.Synset.lch_similarity">[docs]</a>    <span class="k">def</span> <span class="nf">lch_similarity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">synset</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Calculates Leacock and Chodorow&#39;s similarity between the two synsets.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">          Similarity is calculated using the formula -log( (dist(synset1,synset2)+1) / (2*maximum taxonomy depth) ).</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">          synset : Synset</span>
+<span class="sd">        Synset from which the similarity is calculated.    </span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">          float</span>
+<span class="sd">        Leacock and Chodorow&#39;s from `synset`.</span>
+<span class="sd">        None, if synsets are not connected via hypernymy/hyponymy relations. Obvious, if part-of-speeches don&#39;t match.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_raw_synset</span><span class="o">.</span><span class="n">pos</span> <span class="o">!=</span> <span class="n">synset</span><span class="o">.</span><span class="n">_raw_synset</span><span class="o">.</span><span class="n">pos</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="n">depth</span> <span class="o">=</span> <span class="n">MAX_TAXONOMY_DEPTHS</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_raw_synset</span><span class="o">.</span><span class="n">pos</span><span class="p">]</span> 
+
+        <span class="n">distance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_shortest_path_distance</span><span class="p">(</span><span class="n">synset</span><span class="p">)</span>      
+
+        <span class="k">if</span> <span class="n">distance</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span> 
+            <span class="k">return</span> <span class="o">-</span><span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">((</span><span class="n">distance</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">depth</span><span class="p">))</span> 
+        <span class="k">else</span><span class="p">:</span> 
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="Synset.wup_similarity"><a class="viewcode-back" href="../../../api/wn.html#estnltk.wordnet.wn.Synset.wup_similarity">[docs]</a>    <span class="k">def</span> <span class="nf">wup_similarity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target_synset</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Calculates Wu and Palmer&#39;s similarity between the two synsets.</span>
+<span class="sd">        </span>
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">          Similarity is calculated using the formula ( 2*depth(least_common_subsumer(synset1,synset2)) ) / ( depth(synset1) + depth(synset2) )</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">          synset : Synset</span>
+<span class="sd">        Synset from which the similarity is calculated.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">          float</span>
+<span class="sd">        Wu and Palmer&#39;s similarity from `synset`.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">lchs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lowest_common_hypernyms</span><span class="p">(</span><span class="n">target_synset</span><span class="p">)</span>
+        <span class="n">lcs_depth</span> <span class="o">=</span> <span class="n">lchs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">_min_depth</span><span class="p">()</span> <span class="k">if</span> <span class="n">lchs</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">lchs</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">self_depth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_min_depth</span><span class="p">()</span> 
+        <span class="n">other_depth</span> <span class="o">=</span> <span class="n">target_synset</span><span class="o">.</span><span class="n">_min_depth</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">lcs_depth</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">self_depth</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">other_depth</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span> 
+            <span class="k">return</span> <span class="kc">None</span> 
+
+        <span class="k">return</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">lcs_depth</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">self_depth</span> <span class="o">+</span> <span class="n">other_depth</span><span class="p">)</span></div>
+        
+<div class="viewcode-block" id="Synset.get_variants"><a class="viewcode-back" href="../../../api/wn.html#estnltk.wordnet.wn.Synset.get_variants">[docs]</a>    <span class="k">def</span> <span class="nf">get_variants</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns variants/lemmas of the synset.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">          list of eurown.Variants</span>
+<span class="sd">        Lemmas/variants of the synset.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_raw_synset</span><span class="o">.</span><span class="n">variants</span></div>
+      
+<div class="viewcode-block" id="Synset.definition"><a class="viewcode-back" href="../../../api/wn.html#estnltk.wordnet.wn.Synset.definition">[docs]</a>    <span class="k">def</span> <span class="nf">definition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the definition of the synset.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">          str</span>
+<span class="sd">        Definition of the synset as a new-line separated concatenated string from all its variants&#39; definitions.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">variant</span><span class="o">.</span><span class="n">gloss</span> <span class="k">for</span> <span class="n">variant</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_raw_synset</span><span class="o">.</span><span class="n">variants</span> <span class="k">if</span> <span class="n">variant</span><span class="o">.</span><span class="n">gloss</span><span class="p">])</span></div>
+      
+<div class="viewcode-block" id="Synset.examples"><a class="viewcode-back" href="../../../api/wn.html#estnltk.wordnet.wn.Synset.examples">[docs]</a>    <span class="k">def</span> <span class="nf">examples</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the examples of the synset.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">          list of str</span>
+<span class="sd">        List of its variants&#39; examples.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span> 
+        <span class="n">examples</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">example</span> <span class="ow">in</span> <span class="p">[</span><span class="n">variant</span><span class="o">.</span><span class="n">examples</span> <span class="k">for</span> <span class="n">variant</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_raw_synset</span><span class="o">.</span><span class="n">variants</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">variant</span><span class="o">.</span><span class="n">examples</span><span class="p">)]:</span>
+            <span class="n">examples</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">example</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">examples</span></div>
+      
+<div class="viewcode-block" id="Synset.lemmas"><a class="viewcode-back" href="../../../api/wn.html#estnltk.wordnet.wn.Synset.lemmas">[docs]</a>    <span class="k">def</span> <span class="nf">lemmas</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the synset&#39;s lemmas/variants&#39; literal represantions.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">          list of Lemmas</span>
+<span class="sd">        List of its variations&#39; literals as Lemma objects.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">lemma</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.</span><span class="si">%s</span><span class="s2">&quot;</span><span class="o">%</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span><span class="n">variant</span><span class="o">.</span><span class="n">literal</span><span class="p">))</span> <span class="k">for</span> <span class="n">variant</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_raw_synset</span><span class="o">.</span><span class="n">variants</span><span class="p">]</span></div>
+      
+<div class="viewcode-block" id="Synset.lowest_common_hypernyms"><a class="viewcode-back" href="../../../api/wn.html#estnltk.wordnet.wn.Synset.lowest_common_hypernyms">[docs]</a>    <span class="k">def</span> <span class="nf">lowest_common_hypernyms</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">target_synset</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the common hypernyms of the synset and the target synset, which are furthest from the closest roots.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">          target_synset : Synset</span>
+<span class="sd">        Synset with which the common hypernyms are sought.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">          list of Synsets</span>
+<span class="sd">        Common synsets which are the furthest from the closest roots.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span> 
+        <span class="n">self_hypernyms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_recursive_hypernyms</span><span class="p">(</span><span class="nb">set</span><span class="p">())</span>
+        <span class="n">other_hypernyms</span> <span class="o">=</span> <span class="n">target_synset</span><span class="o">.</span><span class="n">_recursive_hypernyms</span><span class="p">(</span><span class="nb">set</span><span class="p">())</span>
+        <span class="n">common_hypernyms</span> <span class="o">=</span> <span class="n">self_hypernyms</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">other_hypernyms</span><span class="p">)</span>
+        
+        <span class="n">annot_common_hypernyms</span> <span class="o">=</span> <span class="p">[(</span><span class="n">hypernym</span><span class="p">,</span> <span class="n">hypernym</span><span class="o">.</span><span class="n">_min_depth</span><span class="p">())</span> <span class="k">for</span> <span class="n">hypernym</span> <span class="ow">in</span> <span class="n">common_hypernyms</span><span class="p">]</span>
+       
+        <span class="n">annot_common_hypernyms</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">annot_hypernym</span><span class="p">:</span> <span class="n">annot_hypernym</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+       
+        <span class="n">max_depth</span> <span class="o">=</span> <span class="n">annot_common_hypernyms</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">annot_common_hypernyms</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="kc">None</span>
+        
+        <span class="k">if</span> <span class="n">max_depth</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">annot_common_hypernym</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">annot_common_hypernym</span> <span class="ow">in</span> <span class="n">annot_common_hypernyms</span> <span class="k">if</span> <span class="n">annot_common_hypernym</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">max_depth</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span></div></div>
+            
+<div class="viewcode-block" id="Lemma"><a class="viewcode-back" href="../../../api/wn.html#estnltk.wordnet.wn.Lemma">[docs]</a><span class="k">class</span> <span class="nc">Lemma</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Represents a lemma.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    synset_literal : str</span>
+<span class="sd">      Literal part of the synset&#39;s key (literal.pos.sense).</span>
+<span class="sd">    synset_pos : str</span>
+<span class="sd">      Pos part of the synset&#39;s key (literal.pos.sense).</span>
+<span class="sd">    synset_sense : str</span>
+<span class="sd">      Sense part of the synset&#39;s key (literal.pos.sense).</span>
+<span class="sd">    name : str</span>
+<span class="sd">      Literal/Name of the lemma.</span>
+<span class="sd">      </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+  
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">key</span><span class="p">,</span><span class="n">literal</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">synset_literal</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">synset_pos</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">synset_sense</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">literal</span> 
+      
+<div class="viewcode-block" id="Lemma.derivationally_related_forms"><a class="viewcode-back" href="../../../api/wn.html#estnltk.wordnet.wn.Lemma.derivationally_related_forms">[docs]</a>    <span class="k">def</span> <span class="nf">derivationally_related_forms</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Just for comformance with the NLTK WordNet API. No relations between lemmas in Estonian WordNet.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[]</span></div>
+      
+<div class="viewcode-block" id="Lemma.pertainyms"><a class="viewcode-back" href="../../../api/wn.html#estnltk.wordnet.wn.Lemma.pertainyms">[docs]</a>    <span class="k">def</span> <span class="nf">pertainyms</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Just for comformance with the NLTK WordNet API. No relations between lemmas in Estonian WordNet.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[]</span></div>
+      
+<div class="viewcode-block" id="Lemma.antonyms"><a class="viewcode-back" href="../../../api/wn.html#estnltk.wordnet.wn.Lemma.antonyms">[docs]</a>    <span class="k">def</span> <span class="nf">antonyms</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Just for comformance with the NLTK WordNet API. No relations between lemmas in Estonian WordNet.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[]</span></div>
+      
+<div class="viewcode-block" id="Lemma.synset"><a class="viewcode-back" href="../../../api/wn.html#estnltk.wordnet.wn.Lemma.synset">[docs]</a>    <span class="k">def</span> <span class="nf">synset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns synset into which the given lemma belongs to.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">          Synset</span>
+<span class="sd">        Synset into which the given lemma belongs to.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>    
+        <span class="k">return</span> <span class="n">synset</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">.</span><span class="si">%s</span><span class="s1">.</span><span class="si">%s</span><span class="s1">.</span><span class="si">%s</span><span class="s1">&#39;</span><span class="o">%</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">synset_literal</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">synset_pos</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">synset_sense</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">literal</span><span class="p">))</span></div></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, University of Tartu unless specified otherwise in the file headers.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'1.4.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

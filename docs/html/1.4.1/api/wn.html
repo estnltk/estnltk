@@ -1,0 +1,1298 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>estnltk.wordnet.wn module &mdash; estnltk 1.4.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="estnltk 1.4.1 documentation" href="../index.html"/>
+        <link rel="up" title="API documentation" href="index.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> estnltk
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.4.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/index.html">Estnltk tutorials</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../external/index.html">Other tools</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">API documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="textcleaner.html">estnltk.textcleaner module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vabamorf.html">estnltk.vabamorf.morf module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="match.html">estnltk.grammar.match module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="prettyprinter.html">estnltk.prettyprinter.prettyprinter module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">estnltk.wordnet.wn module</a><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="grammar.html">estnltk.grammar.grammar module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ner.html">estnltk.ner module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="timex.html">estnltk.timex module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="clausesegmenter.html">estnltk.clausesegmenter module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core.html">estnltk.core module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="teicorpus.html">estnltk.teicorpus module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="database.html">estnltk.database.database module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wordnet_tagger.html">estnltk.wordnet_tagger module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="text.html">estnltk.text module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../authors.html">Authors</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">estnltk</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="index.html">API documentation</a> &raquo;</li>
+      
+    <li>estnltk.wordnet.wn module</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/api/wn.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-estnltk.wordnet.wn">
+<span id="estnltk-wordnet-wn-module"></span><h1>estnltk.wordnet.wn module<a class="headerlink" href="#module-estnltk.wordnet.wn" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="estnltk.wordnet.wn.Lemma">
+<em class="property">class </em><code class="descclassname">estnltk.wordnet.wn.</code><code class="descname">Lemma</code><span class="sig-paren">(</span><em>key</em>, <em>literal</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/wordnet/wn.html#Lemma"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.wordnet.wn.Lemma" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represents a lemma.</p>
+<p class="rubric">Attributes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="19%" />
+<col width="81%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>synset_literal</td>
+<td>(str) Literal part of the synset&#8217;s key (literal.pos.sense).</td>
+</tr>
+<tr class="row-even"><td>synset_pos</td>
+<td>(str) Pos part of the synset&#8217;s key (literal.pos.sense).</td>
+</tr>
+<tr class="row-odd"><td>synset_sense</td>
+<td>(str) Sense part of the synset&#8217;s key (literal.pos.sense).</td>
+</tr>
+<tr class="row-even"><td>name</td>
+<td>(str) Literal/Name of the lemma.</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#estnltk.wordnet.wn.Lemma.antonyms" title="estnltk.wordnet.wn.Lemma.antonyms"><code class="xref py py-obj docutils literal"><span class="pre">antonyms</span></code></a>()</td>
+<td>Just for comformance with the NLTK WordNet API.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#estnltk.wordnet.wn.Lemma.derivationally_related_forms" title="estnltk.wordnet.wn.Lemma.derivationally_related_forms"><code class="xref py py-obj docutils literal"><span class="pre">derivationally_related_forms</span></code></a>()</td>
+<td>Just for comformance with the NLTK WordNet API.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#estnltk.wordnet.wn.Lemma.pertainyms" title="estnltk.wordnet.wn.Lemma.pertainyms"><code class="xref py py-obj docutils literal"><span class="pre">pertainyms</span></code></a>()</td>
+<td>Just for comformance with the NLTK WordNet API.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#estnltk.wordnet.wn.Lemma.synset" title="estnltk.wordnet.wn.Lemma.synset"><code class="xref py py-obj docutils literal"><span class="pre">synset</span></code></a>()</td>
+<td>Returns synset into which the given lemma belongs to.</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="estnltk.wordnet.wn.Lemma.antonyms">
+<code class="descname">antonyms</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/wordnet/wn.html#Lemma.antonyms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.wordnet.wn.Lemma.antonyms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Just for comformance with the NLTK WordNet API. No relations between lemmas in Estonian WordNet.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.wordnet.wn.Lemma.derivationally_related_forms">
+<code class="descname">derivationally_related_forms</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/wordnet/wn.html#Lemma.derivationally_related_forms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.wordnet.wn.Lemma.derivationally_related_forms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Just for comformance with the NLTK WordNet API. No relations between lemmas in Estonian WordNet.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.wordnet.wn.Lemma.pertainyms">
+<code class="descname">pertainyms</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/wordnet/wn.html#Lemma.pertainyms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.wordnet.wn.Lemma.pertainyms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Just for comformance with the NLTK WordNet API. No relations between lemmas in Estonian WordNet.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.wordnet.wn.Lemma.synset">
+<code class="descname">synset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/wordnet/wn.html#Lemma.synset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.wordnet.wn.Lemma.synset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns synset into which the given lemma belongs to.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Synset</p>
+<p class="last">Synset into which the given lemma belongs to.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="estnltk.wordnet.wn.Synset">
+<em class="property">class </em><code class="descclassname">estnltk.wordnet.wn.</code><code class="descname">Synset</code><span class="sig-paren">(</span><em>raw_synset</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/wordnet/wn.html#Synset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.wordnet.wn.Synset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represents a WordNet synset.</p>
+<p class="rubric">Attributes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="29%" />
+<col width="71%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>name</td>
+<td>(str) Synset  string identifier in the form <cite>lemma.pos.sense_id</cite>.</td>
+</tr>
+<tr class="row-even"><td>id</td>
+<td>(int) Synset integer identifier.</td>
+</tr>
+<tr class="row-odd"><td>pos</td>
+<td>(str) Synset&#8217;s part-of-speech.</td>
+</tr>
+<tr class="row-even"><td>_raw_synset: eurown.Synset</td>
+<td>Underlying Synset object. Not intended to access directly.</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#estnltk.wordnet.wn.Synset.closure" title="estnltk.wordnet.wn.Synset.closure"><code class="xref py py-obj docutils literal"><span class="pre">closure</span></code></a>(relation[,&nbsp;depth])</td>
+<td>Finds all the ancestors of the synset using provided relation.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#estnltk.wordnet.wn.Synset.definition" title="estnltk.wordnet.wn.Synset.definition"><code class="xref py py-obj docutils literal"><span class="pre">definition</span></code></a>()</td>
+<td>Returns the definition of the synset.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#estnltk.wordnet.wn.Synset.examples" title="estnltk.wordnet.wn.Synset.examples"><code class="xref py py-obj docutils literal"><span class="pre">examples</span></code></a>()</td>
+<td>Returns the examples of the synset.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#estnltk.wordnet.wn.Synset.get_related_synsets" title="estnltk.wordnet.wn.Synset.get_related_synsets"><code class="xref py py-obj docutils literal"><span class="pre">get_related_synsets</span></code></a>(relation)</td>
+<td>Retrieves all the synsets which are related by given relation.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#estnltk.wordnet.wn.Synset.get_variants" title="estnltk.wordnet.wn.Synset.get_variants"><code class="xref py py-obj docutils literal"><span class="pre">get_variants</span></code></a>()</td>
+<td>Returns variants/lemmas of the synset.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#estnltk.wordnet.wn.Synset.holonyms" title="estnltk.wordnet.wn.Synset.holonyms"><code class="xref py py-obj docutils literal"><span class="pre">holonyms</span></code></a>()</td>
+<td>Retrieves all the holonyms.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#estnltk.wordnet.wn.Synset.hypernyms" title="estnltk.wordnet.wn.Synset.hypernyms"><code class="xref py py-obj docutils literal"><span class="pre">hypernyms</span></code></a>()</td>
+<td>Retrieves all the hypernyms.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#estnltk.wordnet.wn.Synset.hyponyms" title="estnltk.wordnet.wn.Synset.hyponyms"><code class="xref py py-obj docutils literal"><span class="pre">hyponyms</span></code></a>()</td>
+<td>Retrieves all the hyponyms.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#estnltk.wordnet.wn.Synset.lch_similarity" title="estnltk.wordnet.wn.Synset.lch_similarity"><code class="xref py py-obj docutils literal"><span class="pre">lch_similarity</span></code></a>(synset)</td>
+<td>Calculates Leacock and Chodorow&#8217;s similarity between the two synsets.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#estnltk.wordnet.wn.Synset.lemmas" title="estnltk.wordnet.wn.Synset.lemmas"><code class="xref py py-obj docutils literal"><span class="pre">lemmas</span></code></a>()</td>
+<td>Returns the synset&#8217;s lemmas/variants&#8217; literal represantions.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#estnltk.wordnet.wn.Synset.lowest_common_hypernyms" title="estnltk.wordnet.wn.Synset.lowest_common_hypernyms"><code class="xref py py-obj docutils literal"><span class="pre">lowest_common_hypernyms</span></code></a>(target_synset)</td>
+<td>Returns the common hypernyms of the synset and the target synset, which are furthest from the closest roots.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#estnltk.wordnet.wn.Synset.member_holonyms" title="estnltk.wordnet.wn.Synset.member_holonyms"><code class="xref py py-obj docutils literal"><span class="pre">member_holonyms</span></code></a>()</td>
+<td>Retrieves all the member holoynms.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#estnltk.wordnet.wn.Synset.meronyms" title="estnltk.wordnet.wn.Synset.meronyms"><code class="xref py py-obj docutils literal"><span class="pre">meronyms</span></code></a>()</td>
+<td>Retrieves all the meronyms.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#estnltk.wordnet.wn.Synset.path_similarity" title="estnltk.wordnet.wn.Synset.path_similarity"><code class="xref py py-obj docutils literal"><span class="pre">path_similarity</span></code></a>(target_synset)</td>
+<td>Calculates path similarity between the two synsets.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#estnltk.wordnet.wn.Synset.root_hypernyms" title="estnltk.wordnet.wn.Synset.root_hypernyms"><code class="xref py py-obj docutils literal"><span class="pre">root_hypernyms</span></code></a>()</td>
+<td>Retrieves all the root hypernyms.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#estnltk.wordnet.wn.Synset.wup_similarity" title="estnltk.wordnet.wn.Synset.wup_similarity"><code class="xref py py-obj docutils literal"><span class="pre">wup_similarity</span></code></a>(target_synset)</td>
+<td>Calculates Wu and Palmer&#8217;s similarity between the two synsets.</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="estnltk.wordnet.wn.Synset.closure">
+<code class="descname">closure</code><span class="sig-paren">(</span><em>relation</em>, <em>depth=inf</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/wordnet/wn.html#Synset.closure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.wordnet.wn.Synset.closure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds all the ancestors of the synset using provided relation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>relation</strong> : str</p>
+<p><strong>Name of the relation which is recursively used to fetch the ancestors.</strong></p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list of Synsets</p>
+<p class="last">Returns the ancestors of the synset via given relations.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.wordnet.wn.Synset.definition">
+<code class="descname">definition</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/wordnet/wn.html#Synset.definition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.wordnet.wn.Synset.definition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the definition of the synset.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">str</p>
+<p class="last">Definition of the synset as a new-line separated concatenated string from all its variants&#8217; definitions.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.wordnet.wn.Synset.examples">
+<code class="descname">examples</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/wordnet/wn.html#Synset.examples"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.wordnet.wn.Synset.examples" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the examples of the synset.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list of str</p>
+<p class="last">List of its variants&#8217; examples.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.wordnet.wn.Synset.get_related_synsets">
+<code class="descname">get_related_synsets</code><span class="sig-paren">(</span><em>relation</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/wordnet/wn.html#Synset.get_related_synsets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.wordnet.wn.Synset.get_related_synsets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieves all the synsets which are related by given relation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>relation</strong> : str</p>
+<p><strong>Name of the relation via which the sought synsets are linked.</strong></p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list of Synsets</p>
+<p class="last">Synsets which are related via <cite>relation</cite>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.wordnet.wn.Synset.get_variants">
+<code class="descname">get_variants</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/wordnet/wn.html#Synset.get_variants"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.wordnet.wn.Synset.get_variants" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns variants/lemmas of the synset.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list of eurown.Variants</p>
+<p class="last">Lemmas/variants of the synset.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.wordnet.wn.Synset.holonyms">
+<code class="descname">holonyms</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/wordnet/wn.html#Synset.holonyms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.wordnet.wn.Synset.holonyms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieves all the holonyms.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list of Synsets</p>
+<p class="last">Synsets which are linked via holonymy relation.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.wordnet.wn.Synset.hypernyms">
+<code class="descname">hypernyms</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/wordnet/wn.html#Synset.hypernyms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.wordnet.wn.Synset.hypernyms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieves all the hypernyms.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list of Synsets</p>
+<p class="last">Synsets which are linked via hypernymy relation.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.wordnet.wn.Synset.hyponyms">
+<code class="descname">hyponyms</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/wordnet/wn.html#Synset.hyponyms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.wordnet.wn.Synset.hyponyms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieves all the hyponyms.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list of Synsets</p>
+<p class="last">Synsets which are linked via hyponymy relation.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.wordnet.wn.Synset.lch_similarity">
+<code class="descname">lch_similarity</code><span class="sig-paren">(</span><em>synset</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/wordnet/wn.html#Synset.lch_similarity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.wordnet.wn.Synset.lch_similarity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates Leacock and Chodorow&#8217;s similarity between the two synsets.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>synset</strong> : Synset</p>
+<p><strong>Synset from which the similarity is calculated.</strong></p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">float</p>
+<p>Leacock and Chodorow&#8217;s from <cite>synset</cite>.</p>
+<p class="last">None, if synsets are not connected via hypernymy/hyponymy relations. Obvious, if part-of-speeches don&#8217;t match.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>Similarity is calculated using the formula -log( (dist(synset1,synset2)+1) / (2*maximum taxonomy depth) ).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.wordnet.wn.Synset.lemmas">
+<code class="descname">lemmas</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/wordnet/wn.html#Synset.lemmas"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.wordnet.wn.Synset.lemmas" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the synset&#8217;s lemmas/variants&#8217; literal represantions.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list of Lemmas</p>
+<p class="last">List of its variations&#8217; literals as Lemma objects.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.wordnet.wn.Synset.lowest_common_hypernyms">
+<code class="descname">lowest_common_hypernyms</code><span class="sig-paren">(</span><em>target_synset</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/wordnet/wn.html#Synset.lowest_common_hypernyms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.wordnet.wn.Synset.lowest_common_hypernyms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the common hypernyms of the synset and the target synset, which are furthest from the closest roots.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>target_synset</strong> : Synset</p>
+<p><strong>Synset with which the common hypernyms are sought.</strong></p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list of Synsets</p>
+<p class="last">Common synsets which are the furthest from the closest roots.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.wordnet.wn.Synset.member_holonyms">
+<code class="descname">member_holonyms</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/wordnet/wn.html#Synset.member_holonyms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.wordnet.wn.Synset.member_holonyms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieves all the member holoynms.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list of Synsets</p>
+<p class="last">Synsets which are &#8220;wholes&#8221; of what the synset represents.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.wordnet.wn.Synset.meronyms">
+<code class="descname">meronyms</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/wordnet/wn.html#Synset.meronyms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.wordnet.wn.Synset.meronyms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieves all the meronyms.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list of Synsets</p>
+<p class="last">Synsets which are linked via meronymy relation.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.wordnet.wn.Synset.path_similarity">
+<code class="descname">path_similarity</code><span class="sig-paren">(</span><em>target_synset</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/wordnet/wn.html#Synset.path_similarity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.wordnet.wn.Synset.path_similarity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates path similarity between the two synsets.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>target_synset</strong> : Synset</p>
+<p><strong>Synset from which the distance is calculated.</strong></p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">float</p>
+<p>Path similarity from <cite>target_synset</cite>. Similarity with the synset itself is 1,</p>
+<p class="last">similarity with ureachable synset is None, 1/(shortest_path_distance + 1) otherwise.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.wordnet.wn.Synset.root_hypernyms">
+<code class="descname">root_hypernyms</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/wordnet/wn.html#Synset.root_hypernyms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.wordnet.wn.Synset.root_hypernyms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieves all the root hypernyms.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list of Synsets</p>
+<p class="last">Roots via hypernymy relation.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.wordnet.wn.Synset.wup_similarity">
+<code class="descname">wup_similarity</code><span class="sig-paren">(</span><em>target_synset</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/wordnet/wn.html#Synset.wup_similarity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.wordnet.wn.Synset.wup_similarity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates Wu and Palmer&#8217;s similarity between the two synsets.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>synset</strong> : Synset</p>
+<p><strong>Synset from which the similarity is calculated.</strong></p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">float</p>
+<p class="last">Wu and Palmer&#8217;s similarity from <cite>synset</cite>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>Similarity is calculated using the formula ( 2*depth(least_common_subsumer(synset1,synset2)) ) / ( depth(synset1) + depth(synset2) )</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="estnltk.wordnet.wn.all_synsets">
+<code class="descclassname">estnltk.wordnet.wn.</code><code class="descname">all_synsets</code><span class="sig-paren">(</span><em>pos=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/wordnet/wn.html#all_synsets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.wordnet.wn.all_synsets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return all the synsets which have the provided pos.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>pos</strong> : str</p>
+<blockquote>
+<div><p>Part-of-speech of the sought synsets. Sensible alternatives are wn.ADJ, wn.ADV, wn.VERB, wn.NOUN and <cite>*</cite>.
+If pos == <cite>*</cite>, all the synsets are retrieved and initialized for fast retrieval the next time.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list of Synsets</p>
+<blockquote class="last">
+<div><p>Lists the Synsets which have <cite>pos</cite> as part-of-speech.
+Empty list, if <cite>pos</cite> not in [wn.ADJ, wn.ADV, wn.VERB, wn.NOUN, <cite>*</cite>].</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>Returns thousands or tens of thousands of synsets - first time will take significant time.
+Useful for initializing synsets as each returned synset is also stored in a global dictionary for fast retrieval the next time.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="estnltk.wordnet.wn.lemma">
+<code class="descclassname">estnltk.wordnet.wn.</code><code class="descname">lemma</code><span class="sig-paren">(</span><em>lemma_key</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/wordnet/wn.html#lemma"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.wordnet.wn.lemma" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the Lemma object with the given key.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>lemma_key</strong> : str</p>
+<blockquote>
+<div><p>Key of the returned lemma.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Lemma</p>
+<blockquote class="last">
+<div><p>Lemma matching the <cite>lemma_key</cite>.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="estnltk.wordnet.wn.lemma_from_key">
+<code class="descclassname">estnltk.wordnet.wn.</code><code class="descname">lemma_from_key</code><span class="sig-paren">(</span><em>lemma_key</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/wordnet/wn.html#lemma_from_key"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.wordnet.wn.lemma_from_key" title="Permalink to this definition">¶</a></dt>
+<dd><p>Just for comformance with the NLTK WordNet API. No necessary lexical information.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="estnltk.wordnet.wn.lemmas">
+<code class="descclassname">estnltk.wordnet.wn.</code><code class="descname">lemmas</code><span class="sig-paren">(</span><em>lemma</em>, <em>pos=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/wordnet/wn.html#lemmas"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.wordnet.wn.lemmas" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns all the Lemma objects of which name is <cite>lemma</cite> and which have <cite>pos</cite> as part
+of speech.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>lemma</strong> : str</p>
+<blockquote>
+<div><p>Literal of the sought Lemma objects.</p>
+</div></blockquote>
+<p><strong>pos</strong> : str, optional</p>
+<blockquote>
+<div><p>Part of speech of the sought Lemma objects. If None, matches any part of speech.
+Defaults to None</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list of Lemmas</p>
+<blockquote class="last">
+<div><p>Lists all the matched Lemmas.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="estnltk.wordnet.wn.morphy">
+<code class="descclassname">estnltk.wordnet.wn.</code><code class="descname">morphy</code><span class="sig-paren">(</span><em>word</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/wordnet/wn.html#morphy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.wordnet.wn.morphy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs morphological analysis on the <cite>word</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>word</strong> : str</p>
+<blockquote>
+<div><p>Word to be lemmatized.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">str</p>
+<blockquote class="last">
+<div><p>Lemma of the <cite>word</cite>.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="estnltk.wordnet.wn.synset">
+<code class="descclassname">estnltk.wordnet.wn.</code><code class="descname">synset</code><span class="sig-paren">(</span><em>synset_key</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/wordnet/wn.html#synset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.wordnet.wn.synset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns synset object with the provided key.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>synset_key</strong> : string</p>
+<blockquote>
+<div><p>Unique synset identifier in the form of <cite>lemma.pos.sense_no</cite>.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Synset</p>
+<blockquote class="last">
+<div><p>Synset with key <cite>synset_key</cite>.
+None, if no match was found.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>Uses lazy initialization - synsets will be fetched from a dictionary after the first request.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="estnltk.wordnet.wn.synsets">
+<code class="descclassname">estnltk.wordnet.wn.</code><code class="descname">synsets</code><span class="sig-paren">(</span><em>lemma</em>, <em>pos=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/wordnet/wn.html#synsets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.wordnet.wn.synsets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns all synset objects which have lemma as one of the variant literals and fixed pos, if provided.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>lemma</strong> : str</p>
+<blockquote>
+<div><p>Lemma of the synset.</p>
+</div></blockquote>
+<p><strong>pos</strong> : str, optional</p>
+<blockquote>
+<div><p>Part-of-speech specification of the searched synsets, defaults to None.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list of Synsets</p>
+<blockquote class="last">
+<div><p>Synsets which contain <cite>lemma</cite> and of which part-of-speech is <cite>pos</cite>, if specified.
+Empty list, if no match was found.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>Uses lazy initialization - parses only those synsets which are not yet initialized, others are fetched from a dictionary.</p>
+</dd></dl>
+
+<dl class="class">
+<dt>
+<em class="property">class </em><code class="descclassname">estnltk.wordnet.wn.</code><code class="descname">Lemma</code><span class="sig-paren">(</span><em>key</em>, <em>literal</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/wordnet/wn.html#Lemma"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Represents a lemma.</p>
+<p class="rubric">Attributes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="19%" />
+<col width="81%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>synset_literal</td>
+<td>(str) Literal part of the synset&#8217;s key (literal.pos.sense).</td>
+</tr>
+<tr class="row-even"><td>synset_pos</td>
+<td>(str) Pos part of the synset&#8217;s key (literal.pos.sense).</td>
+</tr>
+<tr class="row-odd"><td>synset_sense</td>
+<td>(str) Sense part of the synset&#8217;s key (literal.pos.sense).</td>
+</tr>
+<tr class="row-even"><td>name</td>
+<td>(str) Literal/Name of the lemma.</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#estnltk.wordnet.wn.Lemma.antonyms" title="estnltk.wordnet.wn.Lemma.antonyms"><code class="xref py py-obj docutils literal"><span class="pre">antonyms</span></code></a>()</td>
+<td>Just for comformance with the NLTK WordNet API.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#estnltk.wordnet.wn.Lemma.derivationally_related_forms" title="estnltk.wordnet.wn.Lemma.derivationally_related_forms"><code class="xref py py-obj docutils literal"><span class="pre">derivationally_related_forms</span></code></a>()</td>
+<td>Just for comformance with the NLTK WordNet API.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#estnltk.wordnet.wn.Lemma.pertainyms" title="estnltk.wordnet.wn.Lemma.pertainyms"><code class="xref py py-obj docutils literal"><span class="pre">pertainyms</span></code></a>()</td>
+<td>Just for comformance with the NLTK WordNet API.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#estnltk.wordnet.wn.Lemma.synset" title="estnltk.wordnet.wn.Lemma.synset"><code class="xref py py-obj docutils literal"><span class="pre">synset</span></code></a>()</td>
+<td>Returns synset into which the given lemma belongs to.</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt>
+<code class="descname">antonyms</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/wordnet/wn.html#Lemma.antonyms"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Just for comformance with the NLTK WordNet API. No relations between lemmas in Estonian WordNet.</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">derivationally_related_forms</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/wordnet/wn.html#Lemma.derivationally_related_forms"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Just for comformance with the NLTK WordNet API. No relations between lemmas in Estonian WordNet.</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">pertainyms</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/wordnet/wn.html#Lemma.pertainyms"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Just for comformance with the NLTK WordNet API. No relations between lemmas in Estonian WordNet.</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">synset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/wordnet/wn.html#Lemma.synset"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Returns synset into which the given lemma belongs to.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Synset</p>
+<p class="last">Synset into which the given lemma belongs to.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt>
+<em class="property">class </em><code class="descclassname">estnltk.wordnet.wn.</code><code class="descname">Synset</code><span class="sig-paren">(</span><em>raw_synset</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/wordnet/wn.html#Synset"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Represents a WordNet synset.</p>
+<p class="rubric">Attributes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="29%" />
+<col width="71%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>name</td>
+<td>(str) Synset  string identifier in the form <cite>lemma.pos.sense_id</cite>.</td>
+</tr>
+<tr class="row-even"><td>id</td>
+<td>(int) Synset integer identifier.</td>
+</tr>
+<tr class="row-odd"><td>pos</td>
+<td>(str) Synset&#8217;s part-of-speech.</td>
+</tr>
+<tr class="row-even"><td>_raw_synset: eurown.Synset</td>
+<td>Underlying Synset object. Not intended to access directly.</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#estnltk.wordnet.wn.Synset.closure" title="estnltk.wordnet.wn.Synset.closure"><code class="xref py py-obj docutils literal"><span class="pre">closure</span></code></a>(relation[,&nbsp;depth])</td>
+<td>Finds all the ancestors of the synset using provided relation.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#estnltk.wordnet.wn.Synset.definition" title="estnltk.wordnet.wn.Synset.definition"><code class="xref py py-obj docutils literal"><span class="pre">definition</span></code></a>()</td>
+<td>Returns the definition of the synset.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#estnltk.wordnet.wn.Synset.examples" title="estnltk.wordnet.wn.Synset.examples"><code class="xref py py-obj docutils literal"><span class="pre">examples</span></code></a>()</td>
+<td>Returns the examples of the synset.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#estnltk.wordnet.wn.Synset.get_related_synsets" title="estnltk.wordnet.wn.Synset.get_related_synsets"><code class="xref py py-obj docutils literal"><span class="pre">get_related_synsets</span></code></a>(relation)</td>
+<td>Retrieves all the synsets which are related by given relation.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#estnltk.wordnet.wn.Synset.get_variants" title="estnltk.wordnet.wn.Synset.get_variants"><code class="xref py py-obj docutils literal"><span class="pre">get_variants</span></code></a>()</td>
+<td>Returns variants/lemmas of the synset.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#estnltk.wordnet.wn.Synset.holonyms" title="estnltk.wordnet.wn.Synset.holonyms"><code class="xref py py-obj docutils literal"><span class="pre">holonyms</span></code></a>()</td>
+<td>Retrieves all the holonyms.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#estnltk.wordnet.wn.Synset.hypernyms" title="estnltk.wordnet.wn.Synset.hypernyms"><code class="xref py py-obj docutils literal"><span class="pre">hypernyms</span></code></a>()</td>
+<td>Retrieves all the hypernyms.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#estnltk.wordnet.wn.Synset.hyponyms" title="estnltk.wordnet.wn.Synset.hyponyms"><code class="xref py py-obj docutils literal"><span class="pre">hyponyms</span></code></a>()</td>
+<td>Retrieves all the hyponyms.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#estnltk.wordnet.wn.Synset.lch_similarity" title="estnltk.wordnet.wn.Synset.lch_similarity"><code class="xref py py-obj docutils literal"><span class="pre">lch_similarity</span></code></a>(synset)</td>
+<td>Calculates Leacock and Chodorow&#8217;s similarity between the two synsets.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#estnltk.wordnet.wn.Synset.lemmas" title="estnltk.wordnet.wn.Synset.lemmas"><code class="xref py py-obj docutils literal"><span class="pre">lemmas</span></code></a>()</td>
+<td>Returns the synset&#8217;s lemmas/variants&#8217; literal represantions.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#estnltk.wordnet.wn.Synset.lowest_common_hypernyms" title="estnltk.wordnet.wn.Synset.lowest_common_hypernyms"><code class="xref py py-obj docutils literal"><span class="pre">lowest_common_hypernyms</span></code></a>(target_synset)</td>
+<td>Returns the common hypernyms of the synset and the target synset, which are furthest from the closest roots.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#estnltk.wordnet.wn.Synset.member_holonyms" title="estnltk.wordnet.wn.Synset.member_holonyms"><code class="xref py py-obj docutils literal"><span class="pre">member_holonyms</span></code></a>()</td>
+<td>Retrieves all the member holoynms.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#estnltk.wordnet.wn.Synset.meronyms" title="estnltk.wordnet.wn.Synset.meronyms"><code class="xref py py-obj docutils literal"><span class="pre">meronyms</span></code></a>()</td>
+<td>Retrieves all the meronyms.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#estnltk.wordnet.wn.Synset.path_similarity" title="estnltk.wordnet.wn.Synset.path_similarity"><code class="xref py py-obj docutils literal"><span class="pre">path_similarity</span></code></a>(target_synset)</td>
+<td>Calculates path similarity between the two synsets.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#estnltk.wordnet.wn.Synset.root_hypernyms" title="estnltk.wordnet.wn.Synset.root_hypernyms"><code class="xref py py-obj docutils literal"><span class="pre">root_hypernyms</span></code></a>()</td>
+<td>Retrieves all the root hypernyms.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#estnltk.wordnet.wn.Synset.wup_similarity" title="estnltk.wordnet.wn.Synset.wup_similarity"><code class="xref py py-obj docutils literal"><span class="pre">wup_similarity</span></code></a>(target_synset)</td>
+<td>Calculates Wu and Palmer&#8217;s similarity between the two synsets.</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt>
+<code class="descname">closure</code><span class="sig-paren">(</span><em>relation</em>, <em>depth=inf</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/wordnet/wn.html#Synset.closure"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Finds all the ancestors of the synset using provided relation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>relation</strong> : str</p>
+<p><strong>Name of the relation which is recursively used to fetch the ancestors.</strong></p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list of Synsets</p>
+<p class="last">Returns the ancestors of the synset via given relations.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">definition</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/wordnet/wn.html#Synset.definition"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Returns the definition of the synset.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">str</p>
+<p class="last">Definition of the synset as a new-line separated concatenated string from all its variants&#8217; definitions.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">examples</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/wordnet/wn.html#Synset.examples"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Returns the examples of the synset.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list of str</p>
+<p class="last">List of its variants&#8217; examples.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">get_related_synsets</code><span class="sig-paren">(</span><em>relation</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/wordnet/wn.html#Synset.get_related_synsets"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Retrieves all the synsets which are related by given relation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>relation</strong> : str</p>
+<p><strong>Name of the relation via which the sought synsets are linked.</strong></p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list of Synsets</p>
+<p class="last">Synsets which are related via <cite>relation</cite>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">get_variants</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/wordnet/wn.html#Synset.get_variants"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Returns variants/lemmas of the synset.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list of eurown.Variants</p>
+<p class="last">Lemmas/variants of the synset.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">holonyms</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/wordnet/wn.html#Synset.holonyms"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Retrieves all the holonyms.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list of Synsets</p>
+<p class="last">Synsets which are linked via holonymy relation.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">hypernyms</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/wordnet/wn.html#Synset.hypernyms"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Retrieves all the hypernyms.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list of Synsets</p>
+<p class="last">Synsets which are linked via hypernymy relation.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">hyponyms</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/wordnet/wn.html#Synset.hyponyms"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Retrieves all the hyponyms.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list of Synsets</p>
+<p class="last">Synsets which are linked via hyponymy relation.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">lch_similarity</code><span class="sig-paren">(</span><em>synset</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/wordnet/wn.html#Synset.lch_similarity"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Calculates Leacock and Chodorow&#8217;s similarity between the two synsets.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>synset</strong> : Synset</p>
+<p><strong>Synset from which the similarity is calculated.</strong></p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">float</p>
+<p>Leacock and Chodorow&#8217;s from <cite>synset</cite>.</p>
+<p class="last">None, if synsets are not connected via hypernymy/hyponymy relations. Obvious, if part-of-speeches don&#8217;t match.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>Similarity is calculated using the formula -log( (dist(synset1,synset2)+1) / (2*maximum taxonomy depth) ).</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">lemmas</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/wordnet/wn.html#Synset.lemmas"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Returns the synset&#8217;s lemmas/variants&#8217; literal represantions.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list of Lemmas</p>
+<p class="last">List of its variations&#8217; literals as Lemma objects.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">lowest_common_hypernyms</code><span class="sig-paren">(</span><em>target_synset</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/wordnet/wn.html#Synset.lowest_common_hypernyms"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Returns the common hypernyms of the synset and the target synset, which are furthest from the closest roots.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>target_synset</strong> : Synset</p>
+<p><strong>Synset with which the common hypernyms are sought.</strong></p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list of Synsets</p>
+<p class="last">Common synsets which are the furthest from the closest roots.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">member_holonyms</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/wordnet/wn.html#Synset.member_holonyms"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Retrieves all the member holoynms.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list of Synsets</p>
+<p class="last">Synsets which are &#8220;wholes&#8221; of what the synset represents.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">meronyms</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/wordnet/wn.html#Synset.meronyms"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Retrieves all the meronyms.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list of Synsets</p>
+<p class="last">Synsets which are linked via meronymy relation.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">path_similarity</code><span class="sig-paren">(</span><em>target_synset</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/wordnet/wn.html#Synset.path_similarity"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Calculates path similarity between the two synsets.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>target_synset</strong> : Synset</p>
+<p><strong>Synset from which the distance is calculated.</strong></p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">float</p>
+<p>Path similarity from <cite>target_synset</cite>. Similarity with the synset itself is 1,</p>
+<p class="last">similarity with ureachable synset is None, 1/(shortest_path_distance + 1) otherwise.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">root_hypernyms</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/wordnet/wn.html#Synset.root_hypernyms"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Retrieves all the root hypernyms.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list of Synsets</p>
+<p class="last">Roots via hypernymy relation.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">wup_similarity</code><span class="sig-paren">(</span><em>target_synset</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/wordnet/wn.html#Synset.wup_similarity"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Calculates Wu and Palmer&#8217;s similarity between the two synsets.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>synset</strong> : Synset</p>
+<p><strong>Synset from which the similarity is calculated.</strong></p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">float</p>
+<p class="last">Wu and Palmer&#8217;s similarity from <cite>synset</cite>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>Similarity is calculated using the formula ( 2*depth(least_common_subsumer(synset1,synset2)) ) / ( depth(synset1) + depth(synset2) )</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, University of Tartu unless specified otherwise in the file headers.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.4.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

@@ -1,0 +1,5318 @@
+
+Working with text
+=================
+
+In this tutorial, we start with Estnltk basics and introduce you to the
+**Text** class. We will take the class apart to bits and pieces and put
+it back together to give a good overview, what it can do for you and how
+can you work with it.
+
+Getting started
+---------------
+
+One of the most important classes in Estnltk is **Text**, which is
+essentally the main interface for doing everything Estnltk is capable
+of. It is actually a subclass of standard ``dict`` class in Python and
+stores all data relevant to the text in this form:
+
+.. code:: python
+
+    from estnltk import Text
+    
+    text = Text('Tere maailm!')
+    print (repr(text))
+
+
+.. parsed-literal::
+
+    {'text': 'Tere maailm!'}
+
+
+You can use **Text** instances the same way as you would use a typical
+``dict`` object in Python:
+
+.. code:: python
+
+    print (text['text'])
+
+
+.. parsed-literal::
+
+    Tere maailm!
+
+
+Naturally, you can initiate a new instance from a dictionary:
+
+.. code:: python
+
+    text2 = Text({'text': 'Tere maailm!'})
+    print (text == text2)
+
+
+.. parsed-literal::
+
+    True
+
+
+As the **Text** class is essentially a dictionary, it has a number of
+**advantages**:
+
+-  via JSON serialization, it is easy to store texts in databases, pass
+   it easily around with HTTP GET/PUT commands,
+-  simple to inspect and debug,
+-  simple to extend and add new layers of annotations.
+
+Main disadvantage is that the dictionary can get quite verbose, so space
+can be an issue when storing large corpora with many layers of
+annotations.
+
+Layers
+~~~~~~
+
+A **Text** instance can have different types of layers that hold
+annotations or denote special regions of the text. For instance,
+``words`` layer defines the word tokens, ``named_entities`` layer
+denotes the positions of named entities etc.
+
+There are two types of layers:
+
+1. **simple** layer has elements that only span a single region *such as
+   words, sentences*.
+2. **multi** layer has elements that can span several regions. For
+   example, sentence *"Kõrred, millel on toitunud viljasääse vastsed,
+   jäävad õhukeseks."* has two clauses:
+
+   a. *"Kõrred jäävad õhukeseks"*,
+
+   b. *", millel on toitunud viljasääse vastsed, "* .
+
+   Clause *a* spans multiple regions in the original text.
+
+Both types of layers require each layer element to define ``start`` and
+``end`` attributes. Simple layer elements define ``start`` and ``end``
+as integers of the range containing the element. Multi layer elements
+similarily define ``start`` and ``end`` attributes, but these are lists
+of respective start and end positions of the element.
+
+Simple layer:
+
+.. code:: python
+
+    from estnltk import Text
+    text = Text('Kõrred, millel on toitunud viljasääse vastsed, jäävad õhukeseks.')
+    text.tokenize_words()
+    text['words']
+
+
+
+
+.. parsed-literal::
+
+    [{'end': 6, 'start': 0, 'text': 'Kõrred'},
+     {'end': 7, 'start': 6, 'text': ','},
+     {'end': 14, 'start': 8, 'text': 'millel'},
+     {'end': 17, 'start': 15, 'text': 'on'},
+     {'end': 26, 'start': 18, 'text': 'toitunud'},
+     {'end': 37, 'start': 27, 'text': 'viljasääse'},
+     {'end': 45, 'start': 38, 'text': 'vastsed'},
+     {'end': 46, 'start': 45, 'text': ','},
+     {'end': 53, 'start': 47, 'text': 'jäävad'},
+     {'end': 63, 'start': 54, 'text': 'õhukeseks'},
+     {'end': 64, 'start': 63, 'text': '.'}]
+
+
+
+Each word has a ``start`` and ``end`` attribute that tells, where the
+word is located in the text. In case of multi layers, we see slightly
+different result:
+
+.. code:: python
+
+    text.tag_clauses()
+    text['clauses']
+
+
+
+
+.. parsed-literal::
+
+    [{'end': [6, 64], 'start': [0, 47]}, {'end': [46], 'start': [6]}]
+
+
+
+We see that first clause has two spans in the text. Although the second
+clause has only one span, it is also defined as a multi layer element.
+Estnltk uses *either* **simple** or **multi** type for a single layer.
+However, nothing stops you from mixing these two, if you wish.
+
+In next sections, we discuss typical NLP operations you can do with
+Estnltk and also explain, how the results are stored in the dictionary
+underneath the **Text** instances.
+
+Tokenization
+------------
+
+One of the most basic tasks of any NLP pipeline is text and sentence
+tokenization. The **Text** class has methods **tokenize\_paragraphs()**,
+**tokenize\_sentences()** and **tokenize\_words()**, which you can call
+to do this explicitly. However, there are also properties
+**word\_texts**, **sentence\_texts** and **paragraph\_texts** that do
+this automatically when you use them and also give you the texts of
+tokenized words or sentences:
+
+.. code:: python
+
+    from estnltk import Text
+    
+    text = Text('Üle oja mäele, läbi oru jõele. Ämber läks ümber.')
+    print (text.word_texts)
+
+
+.. parsed-literal::
+
+    ['Üle', 'oja', 'mäele', ',', 'läbi', 'oru', 'jõele', '.', 'Ämber', 'läks', 'ümber', '.']
+
+
+In order for the tokenization to happen, **Text** instance applies the
+default tokenizer in background and updates the text data:
+
+.. code:: python
+
+    from pprint import pprint
+    pprint (text)
+
+
+.. parsed-literal::
+
+    {'paragraphs': [{'end': 48, 'start': 0}],
+     'sentences': [{'end': 30, 'start': 0}, {'end': 48, 'start': 31}],
+     'text': 'Üle oja mäele, läbi oru jõele. Ämber läks ümber.',
+     'words': [{'end': 3, 'start': 0, 'text': 'Üle'},
+               {'end': 7, 'start': 4, 'text': 'oja'},
+               {'end': 13, 'start': 8, 'text': 'mäele'},
+               {'end': 14, 'start': 13, 'text': ','},
+               {'end': 19, 'start': 15, 'text': 'läbi'},
+               {'end': 23, 'start': 20, 'text': 'oru'},
+               {'end': 29, 'start': 24, 'text': 'jõele'},
+               {'end': 30, 'start': 29, 'text': '.'},
+               {'end': 36, 'start': 31, 'text': 'Ämber'},
+               {'end': 41, 'start': 37, 'text': 'läks'},
+               {'end': 47, 'start': 42, 'text': 'ümber'},
+               {'end': 48, 'start': 47, 'text': '.'}]}
+
+
+As you can see, there is now a ``words`` element in the dictionary,
+which is a list of dictionaries denoting ``start`` and ``end`` positions
+of the respective words. You also see ``sentences`` and ``paragraphs``
+elements, because sentence and paragraph tokenization is a prerequisite
+before word tokenization and Estnltk did this automatically on your
+behalf.
+
+The **word\_texts** property does basically the same as the following
+snippet:
+
+.. code:: python
+
+    text = Text('Üle oja mäele, läbi oru jõele. Ämber läks ümber.')
+    text.tokenize_words() # this method applies text tokenization
+    print ([text['text'][word['start']:word['end']] for word in text['words']])
+
+
+.. parsed-literal::
+
+    ['Üle', 'oja', 'mäele', ',', 'läbi', 'oru', 'jõele', '.', 'Ämber', 'läks', 'ümber', '.']
+
+
+Only difference is that by using **word\_texts** property twice does not
+perform tokenization twice. Second call would use the ``start`` and
+``end`` attributes already stored in the **Text** instance.
+
+The default word tokenizer is a modification of
+`WordPunctTokenizer <http://www.nltk.org/api/nltk.tokenize.html#nltk.tokenize.regexp.WordPunctTokenizer>`__
+:
+
+.. code:: python
+
+    from nltk.tokenize.regexp import WordPunctTokenizer
+    tok = WordPunctTokenizer()
+    print (tok.tokenize('Tere maailm!'))
+
+
+.. parsed-literal::
+
+    ['Tere', 'maailm', '!']
+
+
+Also, the default sentence tokenizer comes from NLTK:
+
+.. code:: python
+
+    import nltk.data
+    tok = nltk.data.load('tokenizers/punkt/estonian.pickle')
+    tok.tokenize('Esimene lause. Teine lause?')
+
+
+
+
+.. parsed-literal::
+
+    ['Esimene lause.', 'Teine lause?']
+
+
+
+In order to plug in custom tokenization functionality, you need to
+implement interface defined by NLTK
+`StringTokenizer <http://www.nltk.org/api/nltk.tokenize.html#nltk.tokenize.api.StringTokenizer>`__
+and supply them as keyword arguments when initiating **Text** objects.
+Of course, all other NLTK tokenizers follow this interface:
+
+.. code:: python
+
+    from nltk.tokenize.regexp import WhitespaceTokenizer
+    from nltk.tokenize.simple import LineTokenizer
+    
+    kwargs = {
+        "word_tokenizer": WhitespaceTokenizer(),
+        "sentence_tokenizer": LineTokenizer()
+    }
+    
+    plain = '''Hmm, lausemärgid jäävad sõnade külge. Ja laused
+    tuvastatakse praegu
+    
+    reavahetuste järgi'''
+    
+    text = Text(plain, **kwargs)
+    print (text.word_texts)
+    print (text.sentence_texts)
+
+
+.. parsed-literal::
+
+    ['Hmm,', 'lausemärgid', 'jäävad', 'sõnade', 'külge.', 'Ja', 'laused', 'tuvastatakse', 'praegu', 'reavahetuste', 'järgi']
+    ['Hmm, lausemärgid jäävad sõnade külge. Ja laused', 'tuvastatakse praegu', 'reavahetuste järgi']
+
+
+After both word and sentence tokenization, a **Text** instance looks
+like this:
+
+.. code:: python
+
+    text
+
+
+
+
+.. parsed-literal::
+
+    {'paragraphs': [{'end': 67, 'start': 0}, {'end': 87, 'start': 69}],
+     'sentences': [{'end': 47, 'start': 0},
+      {'end': 67, 'start': 48},
+      {'end': 87, 'start': 69}],
+     'text': 'Hmm, lausemärgid jäävad sõnade külge. Ja laused\ntuvastatakse praegu\n\nreavahetuste järgi',
+     'words': [{'end': 4, 'start': 0, 'text': 'Hmm,'},
+      {'end': 16, 'start': 5, 'text': 'lausemärgid'},
+      {'end': 23, 'start': 17, 'text': 'jäävad'},
+      {'end': 30, 'start': 24, 'text': 'sõnade'},
+      {'end': 37, 'start': 31, 'text': 'külge.'},
+      {'end': 40, 'start': 38, 'text': 'Ja'},
+      {'end': 47, 'start': 41, 'text': 'laused'},
+      {'end': 60, 'start': 48, 'text': 'tuvastatakse'},
+      {'end': 67, 'start': 61, 'text': 'praegu'},
+      {'end': 81, 'start': 69, 'text': 'reavahetuste'},
+      {'end': 87, 'start': 82, 'text': 'järgi'}]}
+
+
+
+This is the full list of tokenization related properties of **Text**:
+
+-  **text** - the text string itself
+-  **words** - list of word dictionaries
+-  **word\_texts** - word texts
+-  **word\_starts** - word start positions
+-  **word\_ends** - word end positions
+-  **word\_spans** - word (start, end) position tuples
+-  **sentence\_texts** - list of sentence dictionaries
+-  **sentence\_texts** - list of sentence texts
+-  **sentence\_starts** - sentence start positions
+-  **sentence\_ends** - sentence end positions
+-  **sentence\_spans** - sentence (start, end) position pairs
+-  **paragraph\_texts** - paragraph texts
+-  **paragraph\_starts** - paragraph start positions
+-  **paragraph\_ends** - paragraph end positions
+-  **paragraph\_spans** - paragraph (start, end) position pairs
+
+Example:
+
+.. code:: python
+
+    from estnltk import Text
+    
+    text = Text('Esimene lause. Teine lause')
+    
+    text.text
+
+
+
+
+.. parsed-literal::
+
+    'Esimene lause. Teine lause'
+
+
+
+.. code:: python
+
+    text.words
+
+
+
+
+.. parsed-literal::
+
+    [{'end': 7, 'start': 0, 'text': 'Esimene'},
+     {'end': 13, 'start': 8, 'text': 'lause'},
+     {'end': 14, 'start': 13, 'text': '.'},
+     {'end': 20, 'start': 15, 'text': 'Teine'},
+     {'end': 26, 'start': 21, 'text': 'lause'}]
+
+
+
+.. code:: python
+
+    text.word_texts
+
+
+
+
+.. parsed-literal::
+
+    ['Esimene', 'lause', '.', 'Teine', 'lause']
+
+
+
+.. code:: python
+
+    text.word_starts
+
+
+
+
+.. parsed-literal::
+
+    [0, 8, 13, 15, 21]
+
+
+
+.. code:: python
+
+    text.word_ends
+
+
+
+
+.. parsed-literal::
+
+    [7, 13, 14, 20, 26]
+
+
+
+.. code:: python
+
+    text.word_spans
+
+
+
+
+.. parsed-literal::
+
+    [(0, 7), (8, 13), (13, 14), (15, 20), (21, 26)]
+
+
+
+.. code:: python
+
+    text.sentences
+
+
+
+
+.. parsed-literal::
+
+    [{'end': 14, 'start': 0}, {'end': 26, 'start': 15}]
+
+
+
+.. code:: python
+
+    text.sentence_texts
+
+
+
+
+.. parsed-literal::
+
+    ['Esimene lause.', 'Teine lause']
+
+
+
+.. code:: python
+
+    text.sentence_starts
+
+
+
+
+.. parsed-literal::
+
+    [0, 15]
+
+
+
+.. code:: python
+
+    text.sentence_ends
+
+
+
+
+.. parsed-literal::
+
+    [14, 26]
+
+
+
+.. code:: python
+
+    text.sentence_spans
+
+
+
+
+.. parsed-literal::
+
+    [(0, 14), (15, 26)]
+
+
+
+Note that if a dictionary already has ``words``, ``sentences`` or
+``paragraphs`` elements (or any other element that we introduce later),
+accessing these elements in a newly initialized **Text** object does not
+require recomputing them:
+
+.. code:: python
+
+    text = Text({'paragraphs': [{'end': 27, 'start': 0}],
+                 'sentences': [{'end': 14, 'start': 0}, {'end': 27, 'start': 15}],
+                 'text': 'Esimene lause. Teine lause.',
+                 'words': [{'end': 7, 'start': 0, 'text': 'Esimene'},
+                           {'end': 13, 'start': 8, 'text': 'lause'},
+                           {'end': 14, 'start': 13, 'text': '.'},
+                           {'end': 20, 'start': 15, 'text': 'Teine'},
+                           {'end': 26, 'start': 21, 'text': 'lause'},
+                           {'end': 27, 'start': 26, 'text': '.'}]}
+    )
+    
+    print (text.word_texts) # tokenization is already done, just extract words using the positions
+
+
+.. parsed-literal::
+
+    ['Esimene', 'lause', '.', 'Teine', 'lause', '.']
+
+
+You should also remember this, when you have defined custom tokenizers.
+In such cases you can force retokenization by calling
+**tokenize\_words()**, **tokenize\_sentences()** or
+**tokenize\_words()**.
+
+    **note**
+
+    Things to remember!
+
+    1. ``words``, ``sentences`` and ``paragraphs`` are **simple**
+       layers.
+    2. use properties to access the tokenized word/sentence texts and
+       avoid **tokenize\_words()**, **tokenize\_sentences()** or
+       **tokenize\_paragraphs()**, unless you have a meaningful reason
+       to use them (for example, preparing documents for indexing in a
+       database).
+
+Morphological analysis
+----------------------
+
+In linguistics, morphology is the identification, analysis, and
+description of the structure of a given language's morphemes and other
+linguistic units, such as root words, lemmas, suffixes, parts of speech
+etc. Estnltk wraps `Vabamorf <https://github.com/Filosoft/vabamorf>`__
+morphological analyzer, which can do both morphological analysis and
+synthesis.
+
+Esnltk **Text** class properties for extracting morphological
+information:
+
+-  **analysis** - raw analysis data.
+-  **roots** - root forms of words.
+-  **root\_tokens** - for compound words, all the tokens the root is
+   made of.
+-  **lemmas** - dictionary (canonical) word forms.
+-  **forms** - word form expressing the case, plurality, voice etc.
+-  **endings** - word inflective suffixes.
+-  **postags** - part-of-speech (POS) tags (word types).
+-  **postag\_descriptions** - Estonian descriptions for POS tags.
+-  **descriptions** - Estonian descriptions for forms.
+
+These properties call **tag\_analysis()** method in background, which
+also call **tokenize\_paragraphs()**, **tokenize\_sentences()** and
+**tokenize\_words()** as word tokenization is required in order add
+morphological analysis. Morphological analysis adds extra information to
+``words`` layer, which we'll explain in following sections.
+
+See
+`postag\_table <http://estnltk.github.io/estnltk/1.4/tutorials/morf_tables.html#postag-table>`__,
+`nounform\_table <http://estnltk.github.io/estnltk/1.4/tutorials/morf_tables.html#nounform-table>`__
+and
+`verbform\_table <http://estnltk.github.io/estnltk/1.4/tutorials/morf_tables.html#verbform-table>`__
+for more detailed information about various analysis tags.
+
+Property aggregation
+~~~~~~~~~~~~~~~~~~~~
+
+Before we continue with morphological analysis, we introduce a way to
+put together various information in a simple way. Often you want to
+extract various information, such as words, lemmas, postags and put them
+together such that you could easily access all of them. Estnltk has
+**ZipBuilder** class, which can compile together properties you need and
+then format them in various ways. First, you can initiate the builder on
+a Text object by calling **get** attribute and then chain together the
+attributes you wish to have. Last step is telling the format you want
+the data to appear. get ... as You can think of this process as building
+a sentence: **get ``<item_1> <item_2> ... <item_n> as <format>``**.
+Output formats include Pandas
+`DataFrame <http://pandas.pydata.org/pandas-docs/dev/generated/pandas.DataFrame.html>`__:
+
+.. code:: python
+
+    from estnltk import Text
+    text = Text('Usjas kaslane ründas künklikul maastikul tünjat Tallinnfilmi režissööri')
+    text.get.word_texts.postags.postag_descriptions.as_dataframe
+
+
+
+
+.. raw:: html
+
+    <div>
+    <table border="1" class="dataframe">
+      <thead>
+        <tr style="text-align: right;">
+          <th></th>
+          <th>word_texts</th>
+          <th>postags</th>
+          <th>postag_descriptions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th>0</th>
+          <td>Usjas</td>
+          <td>A</td>
+          <td>omadussõna algvõrre</td>
+        </tr>
+        <tr>
+          <th>1</th>
+          <td>kaslane</td>
+          <td>S</td>
+          <td>nimisõna</td>
+        </tr>
+        <tr>
+          <th>2</th>
+          <td>ründas</td>
+          <td>V</td>
+          <td>tegusõna</td>
+        </tr>
+        <tr>
+          <th>3</th>
+          <td>künklikul</td>
+          <td>A</td>
+          <td>omadussõna algvõrre</td>
+        </tr>
+        <tr>
+          <th>4</th>
+          <td>maastikul</td>
+          <td>S</td>
+          <td>nimisõna</td>
+        </tr>
+        <tr>
+          <th>5</th>
+          <td>tünjat</td>
+          <td>A</td>
+          <td>omadussõna algvõrre</td>
+        </tr>
+        <tr>
+          <th>6</th>
+          <td>Tallinnfilmi</td>
+          <td>H</td>
+          <td>pärisnimi</td>
+        </tr>
+        <tr>
+          <th>7</th>
+          <td>režissööri</td>
+          <td>S</td>
+          <td>nimisõna</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+
+
+
+A list of tuples:
+
+.. code:: python
+
+    list(text.get.word_texts.postags.postag_descriptions.as_zip)
+
+
+
+
+.. parsed-literal::
+
+    [('Usjas', 'A', 'omadussõna algvõrre'),
+     ('kaslane', 'S', 'nimisõna'),
+     ('ründas', 'V', 'tegusõna'),
+     ('künklikul', 'A', 'omadussõna algvõrre'),
+     ('maastikul', 'S', 'nimisõna'),
+     ('tünjat', 'A', 'omadussõna algvõrre'),
+     ('Tallinnfilmi', 'H', 'pärisnimi'),
+     ('režissööri', 'S', 'nimisõna')]
+
+
+
+A list of lists:
+
+.. code:: python
+
+    text.get.word_texts.postags.postag_descriptions.as_list
+
+
+
+
+.. parsed-literal::
+
+    [['Usjas',
+      'kaslane',
+      'ründas',
+      'künklikul',
+      'maastikul',
+      'tünjat',
+      'Tallinnfilmi',
+      'režissööri'],
+     ['A', 'S', 'V', 'A', 'S', 'A', 'H', 'S'],
+     ['omadussõna algvõrre',
+      'nimisõna',
+      'tegusõna',
+      'omadussõna algvõrre',
+      'nimisõna',
+      'omadussõna algvõrre',
+      'pärisnimi',
+      'nimisõna']]
+
+
+
+A dictionary:
+
+.. code:: python
+
+    text.get.word_texts.postags.postag_descriptions.as_dict
+
+
+
+
+.. parsed-literal::
+
+    {'postag_descriptions': ['omadussõna algvõrre',
+      'nimisõna',
+      'tegusõna',
+      'omadussõna algvõrre',
+      'nimisõna',
+      'omadussõna algvõrre',
+      'pärisnimi',
+      'nimisõna'],
+     'postags': ['A', 'S', 'V', 'A', 'S', 'A', 'H', 'S'],
+     'word_texts': ['Usjas',
+      'kaslane',
+      'ründas',
+      'künklikul',
+      'maastikul',
+      'tünjat',
+      'Tallinnfilmi',
+      'režissööri']}
+
+
+
+All the properties can be given also as a list, which can be convinient
+in some situations:
+
+.. code:: python
+
+    text.get(['word_texts', 'postags', 'postag_descriptions']).as_dataframe
+
+
+
+
+.. raw:: html
+
+    <div>
+    <table border="1" class="dataframe">
+      <thead>
+        <tr style="text-align: right;">
+          <th></th>
+          <th>word_texts</th>
+          <th>postags</th>
+          <th>postag_descriptions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th>0</th>
+          <td>Usjas</td>
+          <td>A</td>
+          <td>omadussõna algvõrre</td>
+        </tr>
+        <tr>
+          <th>1</th>
+          <td>kaslane</td>
+          <td>S</td>
+          <td>nimisõna</td>
+        </tr>
+        <tr>
+          <th>2</th>
+          <td>ründas</td>
+          <td>V</td>
+          <td>tegusõna</td>
+        </tr>
+        <tr>
+          <th>3</th>
+          <td>künklikul</td>
+          <td>A</td>
+          <td>omadussõna algvõrre</td>
+        </tr>
+        <tr>
+          <th>4</th>
+          <td>maastikul</td>
+          <td>S</td>
+          <td>nimisõna</td>
+        </tr>
+        <tr>
+          <th>5</th>
+          <td>tünjat</td>
+          <td>A</td>
+          <td>omadussõna algvõrre</td>
+        </tr>
+        <tr>
+          <th>6</th>
+          <td>Tallinnfilmi</td>
+          <td>H</td>
+          <td>pärisnimi</td>
+        </tr>
+        <tr>
+          <th>7</th>
+          <td>režissööri</td>
+          <td>S</td>
+          <td>nimisõna</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+
+
+
+    **Note**
+
+    Estnltk does not stop the programmer doing wrong things
+
+    You can chain together any **Text** property, but only thing you
+    must take care of is that all the properties act on same layer/unit
+    data. So, when you mix sentence and word properties, you get either
+    an error or malformed output.
+
+Word analysis
+~~~~~~~~~~~~~
+
+Morphological analysis is performed with method **tag\_analysis()** and
+is invoked by accessing any property requiring this. In such case, also
+methods **tokenize\_paragraphs()**, **tokenize\_sentences()** and
+**tokenize\_words()** are called as word and sentence tokenization is
+required in order add morphological analysis. Morphological analysis
+adds extra information to ``words`` layer, which we'll explain below.
+
+After doing morphological analysis, ideally only one unambiguous
+dictionary containing all the raw data is generated. However, sometimes
+the disambiguator cannot really eliminate all ambiguity and you get
+multiple analysis variants:
+
+.. code:: python
+
+    from estnltk import Text
+    text = Text('mõeldud')
+    text.tag_analysis()
+
+
+
+
+.. parsed-literal::
+
+    {'paragraphs': [{'end': 7, 'start': 0}],
+     'sentences': [{'end': 7, 'start': 0}],
+     'text': 'mõeldud',
+     'words': [{'analysis': [{'clitic': '',
+         'ending': '0',
+         'form': '',
+         'lemma': 'mõeldud',
+         'partofspeech': 'A',
+         'root': 'mõel=dud',
+         'root_tokens': ['mõeldud']},
+        {'clitic': '',
+         'ending': '0',
+         'form': 'sg n',
+         'lemma': 'mõeldud',
+         'partofspeech': 'A',
+         'root': 'mõel=dud',
+         'root_tokens': ['mõeldud']},
+        {'clitic': '',
+         'ending': 'd',
+         'form': 'pl n',
+         'lemma': 'mõeldud',
+         'partofspeech': 'A',
+         'root': 'mõel=dud',
+         'root_tokens': ['mõeldud']},
+        {'clitic': '',
+         'ending': 'dud',
+         'form': 'tud',
+         'lemma': 'mõtlema',
+         'partofspeech': 'V',
+         'root': 'mõtle',
+         'root_tokens': ['mõtle']}],
+       'end': 7,
+       'start': 0,
+       'text': 'mõeldud'}]}
+
+
+
+The word *mõeldud* has quite a lot ambiguity as it can be interpreted
+either as a *verb* or *adjective*. Adjective version itself can be
+though of as singular or plural and with different suffixes.
+
+This ambiguity also affects how properties work. In this case, there are
+two lemmas and when accessing **lemmas** property, estnltk displays both
+unique cases, sorted alphabetically and separated by a pipe:
+
+.. code:: python
+
+    print (text.lemmas)
+    print (text.postags)
+
+
+.. parsed-literal::
+
+    ['mõeldud|mõtlema']
+    ['A|V']
+
+
+Now, we have already seen that morphological data is added to word level
+dictionary under element ``analysis``. Let's also look at a single
+analysis dictionary element for word "raudteejaamadelgi":
+
+.. code:: python
+
+    Text('raudteejaamadelgi').analysis
+
+
+
+
+.. parsed-literal::
+
+    [[{'clitic': 'gi',
+       'ending': 'del',
+       'form': 'pl ad',
+       'lemma': 'raudteejaam',
+       'partofspeech': 'S',
+       'root': 'raud_tee_jaam',
+       'root_tokens': ['raud', 'tee', 'jaam']}]]
+
+
+
+.. code:: python
+
+    {'clitic': 'gi',                         # In Estonian, -gi and -ki suffixes
+     'ending': 'del',                        # word suffix without clitic
+     'form': 'pl ad',                        # word form, in this case plural and adessive (alalütlev) case
+     'lemma': 'raudteejaam',                 # the dictionary form of the word
+     'partofspeech': 'S',                    # POS tag, in this case substantive
+     'root': 'raud_tee_jaam',                # root form (same as lemma, but verbs do not have -ma suffix)
+                                             # also has compound word markers and optional phonetic markers
+     'root_tokens': ['raud', 'tee', 'jaam']} # for compund word roots, a list of simple roots the compound is made of
+
+
+
+
+.. parsed-literal::
+
+    {'clitic': 'gi',
+     'ending': 'del',
+     'form': 'pl ad',
+     'lemma': 'raudteejaam',
+     'partofspeech': 'S',
+     'root': 'raud_tee_jaam',
+     'root_tokens': ['raud', 'tee', 'jaam']}
+
+
+
+Human-readable descriptions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**Text** class has properties **postag\_descriptions** and
+**descriptions**, which give Estonian descriptions respectively to POS
+tags and word forms:
+
+.. code:: python
+
+    from estnltk import Text
+    text = Text('Usjas kaslane ründas künklikul maastikul tünjat Tallinnfilmi režissööri')
+    
+    text.get.word_texts.postags.postag_descriptions.as_dataframe
+
+
+
+
+.. raw:: html
+
+    <div>
+    <table border="1" class="dataframe">
+      <thead>
+        <tr style="text-align: right;">
+          <th></th>
+          <th>word_texts</th>
+          <th>postags</th>
+          <th>postag_descriptions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th>0</th>
+          <td>Usjas</td>
+          <td>A</td>
+          <td>omadussõna algvõrre</td>
+        </tr>
+        <tr>
+          <th>1</th>
+          <td>kaslane</td>
+          <td>S</td>
+          <td>nimisõna</td>
+        </tr>
+        <tr>
+          <th>2</th>
+          <td>ründas</td>
+          <td>V</td>
+          <td>tegusõna</td>
+        </tr>
+        <tr>
+          <th>3</th>
+          <td>künklikul</td>
+          <td>A</td>
+          <td>omadussõna algvõrre</td>
+        </tr>
+        <tr>
+          <th>4</th>
+          <td>maastikul</td>
+          <td>S</td>
+          <td>nimisõna</td>
+        </tr>
+        <tr>
+          <th>5</th>
+          <td>tünjat</td>
+          <td>A</td>
+          <td>omadussõna algvõrre</td>
+        </tr>
+        <tr>
+          <th>6</th>
+          <td>Tallinnfilmi</td>
+          <td>H</td>
+          <td>pärisnimi</td>
+        </tr>
+        <tr>
+          <th>7</th>
+          <td>režissööri</td>
+          <td>S</td>
+          <td>nimisõna</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+
+
+
+.. code:: python
+
+    text.get.word_texts.forms.descriptions.as_dataframe
+
+
+
+
+.. raw:: html
+
+    <div>
+    <table border="1" class="dataframe">
+      <thead>
+        <tr style="text-align: right;">
+          <th></th>
+          <th>word_texts</th>
+          <th>forms</th>
+          <th>descriptions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th>0</th>
+          <td>Usjas</td>
+          <td>sg n</td>
+          <td>ainsus nimetav (nominatiiv)</td>
+        </tr>
+        <tr>
+          <th>1</th>
+          <td>kaslane</td>
+          <td>sg n</td>
+          <td>ainsus nimetav (nominatiiv)</td>
+        </tr>
+        <tr>
+          <th>2</th>
+          <td>ründas</td>
+          <td>s</td>
+          <td>kindel kõneviis lihtminevik 3. isik ainsus akt...</td>
+        </tr>
+        <tr>
+          <th>3</th>
+          <td>künklikul</td>
+          <td>sg ad</td>
+          <td>ainsus alalütlev (adessiiv)</td>
+        </tr>
+        <tr>
+          <th>4</th>
+          <td>maastikul</td>
+          <td>sg ad</td>
+          <td>ainsus alalütlev (adessiiv)</td>
+        </tr>
+        <tr>
+          <th>5</th>
+          <td>tünjat</td>
+          <td>sg p</td>
+          <td>ainsus osastav (partitiiv)</td>
+        </tr>
+        <tr>
+          <th>6</th>
+          <td>Tallinnfilmi</td>
+          <td>sg g</td>
+          <td>ainsus omastav (genitiiv)</td>
+        </tr>
+        <tr>
+          <th>7</th>
+          <td>režissööri</td>
+          <td>sg p</td>
+          <td>ainsus osastav (partitiiv)</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+
+
+
+Also, see
+`nounform\_table <http://estnltk.github.io/estnltk/1.4/tutorials/morf_tables.html#nounform-table>`__,
+`verbform\_table <http://estnltk.github.io/estnltk/1.4/tutorials/morf_tables.html#verbform-table>`__
+and
+`postag\_table <http://estnltk.github.io/estnltk/1.4/tutorials/morf_tables.html#postag-table>`__
+that contains detailed information with examples about the morphological
+attributes.
+
+Analysis options & phonetic information
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+By default, estnltk does not add phonetic information to analyzed word
+roots, but this functionality can be changed. Here are all the options
+that can be given to the **Text** class that will affect the analysis
+results:
+
+-  disambiguate: boolean (default: True)
+
+   -  Disambiguate the output and remove incosistent analyses.
+
+-  guess: boolean (default: True)
+
+   -  Use guessing in case of unknown words
+
+   **NB!** In order to switch guessing off, disambiguation and proper
+   name analysis have to be set to False as well.
+
+-  propername: boolean (default: True)
+
+-  Perform additional analysis of proper names.
+
+-  compound: boolean (default: True)
+
+-  Add compound word markers to root forms.
+
+-  phonetic: boolean (default: False)
+
+-  Add phonetic information to root forms.
+
+.. code:: python
+
+    from estnltk import Text
+    print (Text('tosinkond palki sai oma palga', phonetic=True, compound=False).roots)
+
+
+.. parsed-literal::
+
+    ['t?os]in~k<ond', 'p<al]k', 's<aa', 'oma', 'p<alk']
+
+
+See
+`phonetic\_markers <http://estnltk.github.io/estnltk/1.4/tutorials/morf_tables.html#phonetic-markers>`__
+for more information.
+
+    **Note**
+
+    Things to remember about morphological analysis!
+
+    1. Morphological analysis is stored in ``analysis`` attribute of
+       each word.
+    2. Morphological analysis is in ``words`` layer.
+    3. Use **ZipBuilder** class simplify data retrieval.
+    4. If you write something that needs better performance, access the
+       **Text** directly as a dictionary, because when using properties,
+       one loop per property is executed.
+
+Giellatekno (gt) tagset
+-----------------------
+
+.. raw:: html
+
+   <!-- (http://www.filosoft.ee/html_morf_et/morfoutinfo.html) -->
+
+Giellatekno (gt) morphological analysis tagset is an alternative tagset
+that can be used in parallel with the default (Filosoft's) tagset.
+Estnltk has function **convert\_to\_gt()**, which can be used to convert
+existing (Filosoft's) morphological analyses in *Text* object to
+Giellatekno's analyses:
+
+.. code:: python
+
+    from estnltk.converters.gt_conversion import convert_to_gt
+    from estnltk import Text
+    
+    text = Text('Rändur võttis istet.')
+    
+    # Tag analysis in the text (using Filosoft's morphological categories)
+    text.tag_analysis()
+    
+    # Convert analyses into gt format
+    text = convert_to_gt(text)
+
+As a result of the conversion, a new layer named ``"gt_words"`` is
+attached to the *Text* object, containing words and their analyses in
+the gt format:
+
+.. code:: python
+
+    text['gt_words']
+
+
+
+
+.. parsed-literal::
+
+    [{'analysis': [{'clitic': '',
+        'ending': '0',
+        'form': 'Sg Nom',
+        'lemma': 'rändur',
+        'partofspeech': 'S',
+        'root': 'rändur',
+        'root_tokens': ['rändur']}],
+      'end': 6,
+      'start': 0,
+      'text': 'Rändur'},
+     {'analysis': [{'clitic': '',
+        'ending': 'is',
+        'form': 'Pers Prt Ind Sg 3 Aff',
+        'lemma': 'võtma',
+        'partofspeech': 'V',
+        'root': 'võt',
+        'root_tokens': ['võt']}],
+      'end': 13,
+      'start': 7,
+      'text': 'võttis'},
+     {'analysis': [{'clitic': '',
+        'ending': 't',
+        'form': 'Sg Par',
+        'lemma': 'iste',
+        'partofspeech': 'S',
+        'root': 'iste',
+        'root_tokens': ['iste']}],
+      'end': 19,
+      'start': 14,
+      'text': 'istet'},
+     {'analysis': [{'clitic': '',
+        'ending': '',
+        'form': '',
+        'lemma': '.',
+        'partofspeech': 'Z',
+        'root': '.',
+        'root_tokens': ['.']}],
+      'end': 20,
+      'start': 19,
+      'text': '.'}]
+
+
+
+The layer ``"gt_words"`` has the same structure as the layer
+``"words"``. However, the categories used in analyses are different, and
+the number of analyses in each word can also be different.
+
+.. raw:: html
+
+   <!-- (The method **convert_to_gt()** also performs clause segmentation, and adds the layer with clause annotation to the *Text*, as this information is required for the conversion.) -->
+
+If the parameter **layer\_name** is passed to the function
+**convert\_to\_gt()**, gt analyses will be stored into the corresponding
+layer. For example, this can be used to overwrite the original
+morphological analysis layer ``"words"``:
+
+.. code:: python
+
+    from estnltk.converters.gt_conversion import convert_to_gt
+    from estnltk import Text
+    
+    text2 = Text('Rändur haaras vile')
+    
+    # Tag analysis in the text (using Filosoft's morphological categories)
+    text2.tag_analysis()
+    
+    # Convert analyses to gt format, and overwrite the 'words' layer
+    text2 = convert_to_gt(text2, layer_name='words')
+
+.. code:: python
+
+    # Analyses with gt categories
+    text2.get.word_texts.postags.forms.as_dataframe
+
+
+
+
+.. raw:: html
+
+    <div>
+    <table border="1" class="dataframe">
+      <thead>
+        <tr style="text-align: right;">
+          <th></th>
+          <th>word_texts</th>
+          <th>postags</th>
+          <th>forms</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th>0</th>
+          <td>Rändur</td>
+          <td>S</td>
+          <td>Sg Nom</td>
+        </tr>
+        <tr>
+          <th>1</th>
+          <td>haaras</td>
+          <td>V</td>
+          <td>Pers Prt Ind Sg 3 Aff</td>
+        </tr>
+        <tr>
+          <th>2</th>
+          <td>vile</td>
+          <td>S</td>
+          <td>Sg Nom</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+
+
+
+**(!) Important!** If you overwrite the layer ``"words"`` with gt format
+analyses, tools depending on the morphological analysis (e.g. named
+entity recognizer, temporal expression tagger, or verb chain detector)
+are no longer applicable on the *Text* object, as most of the tools
+assume that the Filosoft's tagset is used, so they won't work with the
+gt tagset.
+
+Morphological synthesis
+-----------------------
+
+The reverse operation of morphological analysis is synthesis. That is,
+given the dictionary form of the word and some options, generating all
+possible inflections that match given criteria.
+
+Estnltk has function **synthesize()**, which accepts these parameters:
+
+1. word dictionary form (lemma).
+2. word form (see
+   `nounform\_table <http://estnltk.github.io/estnltk/1.4/tutorials/morf_tables.html#nounform-table>`__
+   and
+   `verbform\_table <http://estnltk.github.io/estnltk/1.4/tutorials/morf_tables.html#verbform-table>`__).
+3. *(optional)* POS tag (see
+   `postag\_table <http://estnltk.github.io/estnltk/1.4/tutorials/morf_tables.html#postag-table>`__).
+4. *(optional)* hint, essentially a prefix filter.
+
+Let's generate plural genitive forms for lemma "palk" (in English a
+*paycheck* and a *log*):
+
+.. code:: python
+
+    from estnltk import synthesize
+    synthesize('palk', 'pl g')
+
+
+
+
+.. parsed-literal::
+
+    ['palkade', 'palkide']
+
+
+
+We can hint the synthesizer so that it outputs only inflections that
+match prefix *palka*:
+
+.. code:: python
+
+    synthesize('palk', 'pl g', hint='palka')
+
+
+
+
+.. parsed-literal::
+
+    ['palkade']
+
+
+
+For fun, here is some demo code for synthesizing all forms of any given
+noun (See
+`nounform\_table <http://estnltk.github.io/estnltk/1.4/tutorials/morf_tables.html#nounform-table>`__):
+
+.. code:: python
+
+    from estnltk import synthesize
+    import pandas
+    
+    cases = [
+        ('n', 'nimetav'),
+        ('g', 'omastav'),
+        ('p', 'osastav'),
+        ('ill', 'sisseütlev'),
+        ('in', 'seesütlev'),
+        ('el', 'seestütlev'),
+        ('all', 'alaleütlev'),
+        ('ad', 'alalütlev'),
+        ('abl', 'alaltütlev'),
+        ('tr', 'saav'),
+        ('ter', 'rajav'),
+        ('es', 'olev'),
+        ('ab', 'ilmaütlev'),
+        ('kom', 'kaasaütlev')]
+    
+    def synthesize_all(word):
+        case_rows = []
+        sing_rows = []
+        plur_rows = []
+        for case, name in cases:
+            case_rows.append(name)
+            sing_rows.append(', '.join(synthesize(word, 'sg ' + case, 'S')))
+            plur_rows.append(', '.join(synthesize(word, 'pl ' + case, 'S')))
+        return pandas.DataFrame({'case': case_rows, 'singular': sing_rows, 'plural': plur_rows}, columns=['case', 'singular', 'plural'])
+
+.. code:: python
+
+    synthesize_all('kuusk')
+
+
+
+
+.. raw:: html
+
+    <div>
+    <table border="1" class="dataframe">
+      <thead>
+        <tr style="text-align: right;">
+          <th></th>
+          <th>case</th>
+          <th>singular</th>
+          <th>plural</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th>0</th>
+          <td>nimetav</td>
+          <td>kuusk</td>
+          <td>kuused</td>
+        </tr>
+        <tr>
+          <th>1</th>
+          <td>omastav</td>
+          <td>kuuse</td>
+          <td>kuuskede</td>
+        </tr>
+        <tr>
+          <th>2</th>
+          <td>osastav</td>
+          <td>kuuske</td>
+          <td>kuuski, kuuskesid</td>
+        </tr>
+        <tr>
+          <th>3</th>
+          <td>sisseütlev</td>
+          <td>kuusesse</td>
+          <td>kuuskedesse</td>
+        </tr>
+        <tr>
+          <th>4</th>
+          <td>seesütlev</td>
+          <td>kuuses</td>
+          <td>kuuskedes</td>
+        </tr>
+        <tr>
+          <th>5</th>
+          <td>seestütlev</td>
+          <td>kuusest</td>
+          <td>kuuskedest</td>
+        </tr>
+        <tr>
+          <th>6</th>
+          <td>alaleütlev</td>
+          <td>kuusele</td>
+          <td>kuuskedele</td>
+        </tr>
+        <tr>
+          <th>7</th>
+          <td>alalütlev</td>
+          <td>kuusel</td>
+          <td>kuuskedel</td>
+        </tr>
+        <tr>
+          <th>8</th>
+          <td>alaltütlev</td>
+          <td>kuuselt</td>
+          <td>kuuskedelt</td>
+        </tr>
+        <tr>
+          <th>9</th>
+          <td>saav</td>
+          <td>kuuseks</td>
+          <td>kuuskedeks</td>
+        </tr>
+        <tr>
+          <th>10</th>
+          <td>rajav</td>
+          <td>kuuseni</td>
+          <td>kuuskedeni</td>
+        </tr>
+        <tr>
+          <th>11</th>
+          <td>olev</td>
+          <td>kuusena</td>
+          <td>kuuskedena</td>
+        </tr>
+        <tr>
+          <th>12</th>
+          <td>ilmaütlev</td>
+          <td>kuuseta</td>
+          <td>kuuskedeta</td>
+        </tr>
+        <tr>
+          <th>13</th>
+          <td>kaasaütlev</td>
+          <td>kuusega</td>
+          <td>kuuskedega</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+
+
+
+Let's try something funny as well:
+
+.. code:: python
+
+    synthesize_all('luuslang-lendur')
+
+
+
+
+.. raw:: html
+
+    <div>
+    <table border="1" class="dataframe">
+      <thead>
+        <tr style="text-align: right;">
+          <th></th>
+          <th>case</th>
+          <th>singular</th>
+          <th>plural</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th>0</th>
+          <td>nimetav</td>
+          <td>luuslang-lendur</td>
+          <td>luuslang-lendurid</td>
+        </tr>
+        <tr>
+          <th>1</th>
+          <td>omastav</td>
+          <td>luuslang-lenduri</td>
+          <td>luuslang-lendurite</td>
+        </tr>
+        <tr>
+          <th>2</th>
+          <td>osastav</td>
+          <td>luuslang-lendurit</td>
+          <td>luuslang-lendureid</td>
+        </tr>
+        <tr>
+          <th>3</th>
+          <td>sisseütlev</td>
+          <td>luuslang-lendurisse</td>
+          <td>luuslang-lendureisse, luuslang-lenduritesse</td>
+        </tr>
+        <tr>
+          <th>4</th>
+          <td>seesütlev</td>
+          <td>luuslang-lenduris</td>
+          <td>luuslang-lendureis, luuslang-lendurites</td>
+        </tr>
+        <tr>
+          <th>5</th>
+          <td>seestütlev</td>
+          <td>luuslang-lendurist</td>
+          <td>luuslang-lendureist, luuslang-lenduritest</td>
+        </tr>
+        <tr>
+          <th>6</th>
+          <td>alaleütlev</td>
+          <td>luuslang-lendurile</td>
+          <td>luuslang-lendureile, luuslang-lenduritele</td>
+        </tr>
+        <tr>
+          <th>7</th>
+          <td>alalütlev</td>
+          <td>luuslang-lenduril</td>
+          <td>luuslang-lendureil, luuslang-lenduritel</td>
+        </tr>
+        <tr>
+          <th>8</th>
+          <td>alaltütlev</td>
+          <td>luuslang-lendurilt</td>
+          <td>luuslang-lendureilt, luuslang-lenduritelt</td>
+        </tr>
+        <tr>
+          <th>9</th>
+          <td>saav</td>
+          <td>luuslang-lenduriks</td>
+          <td>luuslang-lendureiks, luuslang-lenduriteks</td>
+        </tr>
+        <tr>
+          <th>10</th>
+          <td>rajav</td>
+          <td>luuslang-lendurini</td>
+          <td>luuslang-lendureini, luuslang-lenduriteni</td>
+        </tr>
+        <tr>
+          <th>11</th>
+          <td>olev</td>
+          <td>luuslang-lendurina</td>
+          <td>luuslang-lendureina, luuslang-lenduritena</td>
+        </tr>
+        <tr>
+          <th>12</th>
+          <td>ilmaütlev</td>
+          <td>luuslang-lendurita</td>
+          <td>luuslang-lenduriteta</td>
+        </tr>
+        <tr>
+          <th>13</th>
+          <td>kaasaütlev</td>
+          <td>luuslang-lenduriga</td>
+          <td>luuslang-lenduritega</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+
+
+
+Correcting spelling
+-------------------
+
+Many applications can benefit from spellcheck functionality, which flags
+incorrect words and also provides suggestions. Estnltk Text class has
+properties **spelling**, that tells which words are correctly spelled
+and **spelling\_suggestions**, which lists suggestions for incorrect
+words:
+
+.. code:: python
+
+    from estnltk import Text
+    text = Text('Vikastes lausetes on trügivigasid!')
+    
+    text.get.word_texts.spelling.spelling_suggestions.as_dataframe
+
+
+
+
+.. raw:: html
+
+    <div>
+    <table border="1" class="dataframe">
+      <thead>
+        <tr style="text-align: right;">
+          <th></th>
+          <th>word_texts</th>
+          <th>spelling</th>
+          <th>spelling_suggestions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th>0</th>
+          <td>Vikastes</td>
+          <td>False</td>
+          <td>[Vigastes, Vihastes]</td>
+        </tr>
+        <tr>
+          <th>1</th>
+          <td>lausetes</td>
+          <td>True</td>
+          <td>[]</td>
+        </tr>
+        <tr>
+          <th>2</th>
+          <td>on</td>
+          <td>True</td>
+          <td>[]</td>
+        </tr>
+        <tr>
+          <th>3</th>
+          <td>trügivigasid</td>
+          <td>False</td>
+          <td>[trükivigasid]</td>
+        </tr>
+        <tr>
+          <th>4</th>
+          <td>!</td>
+          <td>True</td>
+          <td>[]</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+
+
+
+There is also **spellcheck\_results** that gives both spelling and
+suggestions together. This is more efficient than calling **spelling**
+and **spelling\_suggestions** separately:
+
+.. code:: python
+
+    text.spellcheck_results
+
+
+
+
+.. parsed-literal::
+
+    [{'spelling': False,
+      'suggestions': ['Vigastes', 'Vihastes'],
+      'text': 'Vikastes'},
+     {'spelling': True, 'suggestions': [], 'text': 'lausetes'},
+     {'spelling': True, 'suggestions': [], 'text': 'on'},
+     {'spelling': False, 'suggestions': ['trükivigasid'], 'text': 'trügivigasid'},
+     {'spelling': True, 'suggestions': [], 'text': '!'}]
+
+
+
+Lastly, there is function **fix\_spelling()** that replaces incorrect
+words with first suggestion in the list. It is very naive, but it may be
+handy:
+
+.. code:: python
+
+    print(text.fix_spelling())
+
+
+.. parsed-literal::
+
+    Vigastes lausetes on trükivigasid!
+
+
+Detecting invalid characters
+----------------------------
+
+Often, during preprocessing of text files, we wish to check if the files
+satisfy certain assumptions. One such possible requirement is check if
+the files contain characters that can be handled by our application. For
+example, an application assuming Estonian input might not work with
+Cyrillic characters. In such cases, it is necessary to detect invalid
+input.
+
+Predefined alphabets
+~~~~~~~~~~~~~~~~~~~~
+
+Estnltk has predefined alphabets for Estonian and Russian, that can be
+combined with various punctuation and whitespace:
+
+.. code:: python
+
+    from estnltk import EST_ALPHA, RUS_ALPHA, DIGITS, WHITESPACE, PUNCTUATION, ESTONIAN, RUSSIAN
+
+**Estonian alphabet (EST\_ALPHA):**
+
+``abcdefghijklmnoprsšzžtuvwõäöüxyzABCDEFGHIJKLMNOPRSŠZŽTUVWÕÄÖÜXYZ``
+
+**Russian alphabet (RUS\_ALPHA):**
+
+``абвгдеёжзийклмнопрстуфхцчшщъыьэюяАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ``
+
+**Standard punctuation (PUNCTUATION):**
+
+``!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~–``
+
+**Digits:**
+
+``0123456789``
+
+**Whitespace:**
+
+``' \t\n\r\x0b\x0c'``
+
+**Estonian combined with punctuation and whitespace:**
+
+``'abcdefghijklmnoprsšzžtuvwõäöüxyzABCDEFGHIJKLMNOPRSŠZŽTUVWÕÄÖÜXYZ0123456789 \t\n\r\x0b\x0c!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~–'``
+
+**Russian combined with punctuation and whitespace:**
+
+``'абвгдеёжзийклмнопрстуфхцчшщъыьэюяАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ0123456789 \t\n\r\x0b\x0c!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~–'``
+
+Detecting characters
+~~~~~~~~~~~~~~~~~~~~
+
+By default, Estnltk assumes Estonian alphabet with whitespace and
+punctuation, but you can supply **TextCleaner** instances with other
+dictionaries to a Text instance:
+
+.. code:: python
+
+    from estnltk import Text, TextCleaner, RUSSIAN
+    td_ru = TextCleaner(RUSSIAN)
+    
+    et_plain = 'Segan suhkrut malbelt tassis, kus nii armsalt aurab tee.'
+    ru_plain = 'Дождь, звонкой пеленой наполнил небо майский дождь.'
+    
+    et_correct = Text(et_plain)
+    et_invalid = Text(ru_plain)
+    ru_correct = Text(ru_plain, text_cleaner=td_ru)
+    ru_invalid = Text(et_plain, text_cleaner=td_ru)
+
+Now you can use **is\_valid()** method to check if the text contains
+only characters defined in the alphabet:
+
+.. code:: python
+
+    et_correct.is_valid()
+
+
+
+
+.. parsed-literal::
+
+    True
+
+
+
+.. code:: python
+
+    et_invalid.is_valid()
+
+
+
+
+.. parsed-literal::
+
+    False
+
+
+
+.. code:: python
+
+    ru_correct.is_valid()
+
+
+
+
+.. parsed-literal::
+
+    True
+
+
+
+.. code:: python
+
+    ru_invalid.is_valid()
+
+
+
+
+.. parsed-literal::
+
+    False
+
+
+
+In addition to checking just for correctness, we might want to get the
+list of invalid characters:
+
+.. code:: python
+
+    from estnltk import Text
+    
+    text = Text('Esmaspäeval (27.04) liikus madalrōhkkond Pōhjalahelt Soome kohale.¶')
+    print (text.invalid_characters)
+
+
+.. parsed-literal::
+
+    ¶ō
+
+
+Surprisingly, in addition to ``¶`` we also see character ``ō`` as
+invalid. Well, the reason is that is not the correct ``õ``.
+
+    **note**
+
+    Different Unicode characters
+
+    -  ō latin small letter o with macron (U+014D)
+    -  õ latin small letter o with tilde (U+00F5)
+
+It is really hard to distinguish the difference visually, but in case we
+are indexing the text, we fail to find it via search later if we assume
+it used correct character ``õ``.
+
+So, let's replace the wrong ``ō`` and remove other invalid characters
+using method **clean()**:
+
+.. code:: python
+
+    text = text.replace('ō', 'õ').clean()
+    print (text)
+    print (text.is_valid())
+
+
+.. parsed-literal::
+
+    Esmaspäeval (27.04) liikus madalrõhkkond Põhjalahelt Soome kohale.
+    True
+
+
+Searching, replacing and splitting
+----------------------------------
+
+Estnltk **Text** class mimics the behaviour of some string functions for
+convenience: **capitalize()**, **count()**, **endswith()**, **find()**,
+**index()**, **isalnum()**, **isalpha()**, **isdigit()**, **islower()**,
+**isspace()**, **istitle()**, **isupper()**, **lower()**, **lstrip()**,
+**replace()**, **rfind()**, **rindex()**, **rstrip()**,
+**startswith()**, **strip()**.
+
+However, if the method modifies the string, such as **strip()**, the
+method returns a new **Text** instance, invalidating all computed
+attributes such as the start and end positions as a result of
+tokenization. These attributes won't be copied to the resulting string.
+However, all the original keyword arguments are passed to the new copy.
+It is recommended to use these methods in case the text does not have
+any layers.
+
+Here is an example showing few of these methods at work:
+
+.. code:: python
+
+    from estnltk import Text
+    
+    text = Text('        TERE MAAILM  ').strip().capitalize().replace('maailm', 'estnltk!')
+    print (text)
+
+
+.. parsed-literal::
+
+    Tere estnltk!
+
+
+Splitting by layers
+~~~~~~~~~~~~~~~~~~~
+
+A more important concept is splitting text into smaller pieces in order
+to work with them independently. For example, we might want to process
+the text one sentence at a time. Estnltk has **split\_by()** method,
+that takes one parameter: the layer defining the splits:
+
+.. code:: python
+
+    from estnltk import Text
+    from pprint import pprint
+    text = Text('Esimene lause. Teine lause. Kolmas lause.')
+    for sentence in text.split_by('sentences'):
+        pprint(sentence)
+
+
+.. parsed-literal::
+
+    {'paragraphs': [],
+     'sentences': [{'end': 14, 'start': 0}],
+     'text': 'Esimene lause.'}
+    {'paragraphs': [],
+     'sentences': [{'end': 12, 'start': 0}],
+     'text': 'Teine lause.'}
+    {'paragraphs': [],
+     'sentences': [{'end': 13, 'start': 0}],
+     'text': 'Kolmas lause.'}
+
+
+An example with **multi** layer:
+
+.. code:: python
+
+    from estnltk import Text
+    
+    text = Text('Kõrred, millel on toitunud viljasääse vastsed, jäävad õhukeseks.')
+    for clause in text.split_by('clauses'):
+        print (clause)
+
+
+.. parsed-literal::
+
+    Kõrred jäävad õhukeseks.
+    , millel on toitunud viljasääse vastsed,
+
+
+    **note**
+
+    Things to remember!
+
+    1. The resulting sentences are also **Text** instances.
+    2. **Simple** layer elements that do not belong entirely to a single
+       split, **are discarded**!
+    3. **Multi** layer element regions that do not belong entirely to a
+       single split, **are discarded**!
+    4. **Multi** layer elements will end up in several splits, if spans
+       of the element are distributed in several splits.
+    5. Start and end positions defining the layer element locations are
+       modified so they align with the split they are moved into.
+    6. Splitting only deals with ``start`` and ``end`` attributes of
+       layer elements. Other attributes are not modified and are copied
+       as they are.
+    7. **Multi** layer split texts are by default separated with a space
+       character ' '.
+
+Splitting with regular expressions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Sometimes it can be useful to split the text using regular expressions:
+
+.. code:: python
+
+    from estnltk import Text
+    text = Text('Pidage meeles, et <red font>teete kodused tööd kõik ära</red font>, muidu tuleb pahandus!')
+    text.split_by_regex('<red font>.*?</red font>')
+
+
+
+
+.. parsed-literal::
+
+    [{'text': 'Pidage meeles, et '}, {'text': ', muidu tuleb pahandus!'}]
+
+
+
+By default, the matched regions are discarded and used as separators.
+This can be changed by using ``gaps=False`` argument that reverses the
+behaviour:
+
+.. code:: python
+
+    text.split_by_regex('<red font>.*?</red font>', gaps=False)
+
+
+
+
+.. parsed-literal::
+
+    [{'text': '<red font>teete kodused tööd kõik ära</red font>'}]
+
+
+
+Dividing elements by layers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In addition to splitting, we use a term *dividing* if we actually do not
+want **Text** instances as the result. Instead, we may just want to
+access the words, one sentence at a time, having the reference to the
+original instance. Estnltk has **divide()** method, that takes two
+parameters: the element to divide into bins, the element that defines
+the bins:
+
+.. code:: python
+
+    from estnltk import Text
+    
+    text = Text('Esimene lause. Teine lause.')
+    for sentence in text.divide('words', 'sentences'):
+        for word in sentence:
+            word['new_attribute'] = 'Estnltk greets the word ' + word['text']
+
+.. code:: python
+
+    text
+
+
+
+
+.. parsed-literal::
+
+    {'paragraphs': [{'end': 27, 'start': 0}],
+     'sentences': [{'end': 14, 'start': 0}, {'end': 27, 'start': 15}],
+     'text': 'Esimene lause. Teine lause.',
+     'words': [{'end': 7,
+       'new_attribute': 'Estnltk greets the word Esimene',
+       'start': 0,
+       'text': 'Esimene'},
+      {'end': 13,
+       'new_attribute': 'Estnltk greets the word lause',
+       'start': 8,
+       'text': 'lause'},
+      {'end': 14,
+       'new_attribute': 'Estnltk greets the word .',
+       'start': 13,
+       'text': '.'},
+      {'end': 20,
+       'new_attribute': 'Estnltk greets the word Teine',
+       'start': 15,
+       'text': 'Teine'},
+      {'end': 26,
+       'new_attribute': 'Estnltk greets the word lause',
+       'start': 21,
+       'text': 'lause'},
+      {'end': 27,
+       'new_attribute': 'Estnltk greets the word .',
+       'start': 26,
+       'text': '.'}]}
+
+
+
+The **divide()** method is useful for
+
+1. adding new attributes to existing elements/layers in the text
+2. keeping the original start and end positions when
+
+    **note**
+
+    Nota bene!
+
+    The original references are lost in elements having ``start`` and
+    ``end`` positions in **multi layer format**. The reason is that
+    multi layer elements can span regions that end up in different
+    splits/divisions, thus invalidating the ``start`` and ``end``
+    attributes. Updating the invalidated attributes requires modifying
+    them, which we cannot do as this would also modify the original
+    element. Thus, instead a copy is made of the element, the attributes
+    are updated, and the element is returned.
+
+Temporal expression (TIMEX) tagging
+-----------------------------------
+
+Temporal expressions tagger identifies temporal expressions (timexes) in
+text and normalizes these expressions, providing corresponding
+calendrical dates and times. The current version of the temporal
+expressions tagger is tuned for processing news texts (so the quality of
+the analysis may be suboptimal in other domains). The program outputs an
+annotation in a format similar to TimeML's TIMEX3 (more detailed
+description can be found in `annotation
+guidelines <https://github.com/soras/Ajavt/blob/master/doc/margendusformaat_et.pdf?raw=true>`__,
+which are currently only in Estonian).
+
+The **Text** class has property **timexes**, which returns a list of
+time expressions found in the text:
+
+.. code:: python
+
+    from estnltk import Text
+    from pprint import pprint
+    
+    text = Text('Järgmisel kolmapäeval, kõige hiljemalt kell 18.00 algab viiepäevane koosolek, mida korraldatakse igal aastal')
+
+The output is a list of four dictionaries, each representing an timex
+found in text:
+
+.. code:: python
+
+    pprint(text.timexes)
+
+
+.. parsed-literal::
+
+    [{'end': 21,
+      'id': 0,
+      'start': 0,
+      'temporal_function': True,
+      'text': 'Järgmisel kolmapäeval',
+      'tid': 't1',
+      'type': 'DATE',
+      'value': '2016-11-23'},
+     {'anchor_id': 0,
+      'anchor_tid': 't1',
+      'end': 49,
+      'id': 1,
+      'start': 39,
+      'temporal_function': True,
+      'text': 'kell 18. 00',
+      'tid': 't2',
+      'type': 'TIME',
+      'value': '2016-11-23T18:00'},
+     {'end': 67,
+      'id': 2,
+      'start': 56,
+      'temporal_function': False,
+      'text': 'viiepäevane',
+      'tid': 't3',
+      'type': 'DURATION',
+      'value': 'P5D'},
+     {'end': 108,
+      'id': 3,
+      'quant': 'EVERY',
+      'start': 97,
+      'temporal_function': True,
+      'text': 'igal aastal',
+      'tid': 't4',
+      'type': 'SET',
+      'value': 'P1Y'}]
+
+
+There are a number of mandatory attributes present in the dictionaries:
+
+-  **start, end** - the expression start and end positions in the text.
+
+-  **tid** - TimeML format *id* of the expression.
+
+-  **id** - the zero-based *id* of the expressions, matches the position
+   of the respective dictionary in the resulting list.
+
+-  **type** - following the TimeML specification, four types of temporal
+   expressions are distinguished:
+
+-  *DATE expressions*, e.g. *järgmisel kolmapäeval* (*on next
+   Wednesday*)
+-  ::
+
+       *TIME expressions*, e.g. *kell 18.00* (*at 18 o’clock*)
+
+-  ::
+
+         *DURATIONs*, e.g. *viis päeva* (*five days*)
+
+   -  *SETs of times*, e.g. *igal aastal* (*on every year*)
+
+-  **temporal\_function** - boolean value indicating whether the
+   semantics of the expression are relative to the context.
+-  For DATE and TIME expressions:
+
+   -  *True* indicates that the expression is relative and semantics
+      have been computed by heuristics;
+   -  *False* indicates that the expression is absolute and semantics
+      haven't been computed by heuristics;
+
+-  For DURATION expressions, *temporal\_function* is mostly *False*,
+   except for vague durations;
+-  For SET expressions, *temporal\_function* is always *True*;
+
+The **value** is a mandatory attribute containing the semantics and has
+four possible formats:
+
+1. Date and time **yyyy-mm-ddThh:mm**
+
+-  *yyyy* - year (4 digits)
+-  *mm* - month (01-12)
+-  *dd* - day (01-31)
+
+2. Week-based **yyyy-Wnn-wdThh:mm**
+
+-  *nn* - the week of the year (01-53)
+-  *wd* - day of the week (1-7, where 1 denotes Monday).
+
+3. Time based **Thh:mm**
+
+4. Time span **Pn1Yn2Mn3Wn4DTn5Hn6M**
+
+   ni denotes a value and Y (year), M (month), W (week), D (day), H
+   (hours), M (minutes) denotes respective time granularity.
+
+Formats (1) and (2) are used with DATE, TIME and SET types. Format (1)
+is always preferred if both (1) and (2) can be used. Format (3) is used
+in cases it is impossible to extract the date. Format (4) is used is
+used in time span expressions.
+
+In addition, there are dedicated markers for special time notions:
+
+1. Different times of the day
+
+-  *MO* - morning - hommik
+-  *AF* - afternoon - pärastlõuna
+-  *EV* - evening - õhtu
+-  *NI* - night - öö
+-  *DT* - daytime - päevane aeg
+
+2. Weekends/workdays
+
+-  *WD* - workday - tööpäev
+-  *WE* - weekend - nädalalõpp
+
+3. Seasons
+
+-  *SP* - spring - kevad
+-  *SU* - summer - suvi
+-  *FA* - fall - sügis
+-  *WI* - winter - talv
+
+4. Quarters
+
+-  *Q1, Q2, Q3, Q4*
+-  *QX* - unknown/unspecified quarter
+
+Document creation date
+~~~~~~~~~~~~~~~~~~~~~~
+
+Relative temporal expressions often depend on document creation date,
+which can be supplied as ``creation_date`` parameter. If no
+``creation_date`` argument is passed, it is set as the date the code is
+run (June 8, 2015 in the example):
+
+.. code:: python
+
+    from estnltk import Text
+    Text('Täna on ilus ilm').timexes
+
+
+
+
+.. parsed-literal::
+
+    [{'end': 4,
+      'id': 0,
+      'start': 0,
+      'temporal_function': True,
+      'text': 'Täna',
+      'tid': 't1',
+      'type': 'DATE',
+      'value': '2016-11-15'}]
+
+
+
+However, when passing ``creation_date=datetime.datetime(1986, 12, 21)``,
+we see that word "today" (*täna*) refers to to December 21, 1986:
+
+.. code:: python
+
+    import datetime
+    Text('Täna on ilus ilm', creation_date=datetime.datetime(1986, 12, 21)).timexes
+
+
+
+
+.. parsed-literal::
+
+    [{'end': 4,
+      'id': 0,
+      'start': 0,
+      'temporal_function': True,
+      'text': 'Täna',
+      'tid': 't1',
+      'type': 'DATE',
+      'value': '1986-12-21'}]
+
+
+
+TIMEX examples
+~~~~~~~~~~~~~~
+
+Here are some examples of temporal expressions and fields that the
+tagger can extract. The document creation date is fixed to Dec 21, 1986
+in the examples below. See `annotation
+guidelines <https://github.com/soras/Ajavt/blob/master/doc/margendusformaat_et.pdf?raw=true>`__
+for more detailed explanations.
+
++-------------+------------------------+---------------+--------------+--------------+
+| Example     | Temporal expression    | Type          | Value        | Modifier     |
++=============+========================+===============+==============+==============+
+| Järgmisel   | Järgmisel reedel       | DATE          | 1986-12-26   |              |
+| reedel      |                        |               |              |              |
++-------------+------------------------+---------------+--------------+--------------+
+| 2004.       | 2004. aastal           | DATE          | 2004         |              |
+| aastal      |                        |               |              |              |
++-------------+------------------------+---------------+--------------+--------------+
+| esmaspäeva  | esmaspäeva hommikul    | TIME          | 1986-12-15TM |              |
+| hommikul    |                        |               | O            |              |
++-------------+------------------------+---------------+--------------+--------------+
+| järgmisel   | järgmisel reedel kell  | TIME          | 1986-12-26T1 |              |
+| reedel kell | 14. 00                 |               | 4:00         |              |
+| 14.00       |                        |               |              |              |
++-------------+------------------------+---------------+--------------+--------------+
+| neljapäevit | neljapäeviti           | SET           | XXXX-WXX-XX  |              |
+| i           |                        |               |              |              |
++-------------+------------------------+---------------+--------------+--------------+
+| hommikuti   | hommikuti              | SET           | XXXX-XX-XXTM |              |
+|             |                        |               | O            |              |
++-------------+------------------------+---------------+--------------+--------------+
+| selle kuu   | selle kuu alguses      | DATE          | 1986-12      | START        |
+| alguses     |                        |               |              |              |
++-------------+------------------------+---------------+--------------+--------------+
+| 1990ndate   | 1990ndate lõpus        | DATE          | 199          | END          |
+| lõpus       |                        |               |              |              |
++-------------+------------------------+---------------+--------------+--------------+
+| VI          | VI sajandist e.m.a     | DATE          | BC05         |              |
+| sajandist   |                        |               |              |              |
+| e.m.a       |                        |               |              |              |
++-------------+------------------------+---------------+--------------+--------------+
+| kolm tundi  | kolm tundi             | DURATION      | PT3H         |              |
++-------------+------------------------+---------------+--------------+--------------+
+| viis kuud   | viis kuud              | DURATION      | P5M          |              |
++-------------+------------------------+---------------+--------------+--------------+
+| kaks        | kaks minutit           | DURATION      | PT2M         |              |
+| minutit     |                        |               |              |              |
++-------------+------------------------+---------------+--------------+--------------+
+| teisipäevit | teisipäeviti           | SET           | XXXX-WXX-XX  |              |
+| i           |                        |               |              |              |
++-------------+------------------------+---------------+--------------+--------------+
+| kolm päeva  | kolm päeva             | DURATION      | P3D          |              |
+| igas kuus   |                        |               |              |              |
++-------------+------------------------+---------------+--------------+--------------+
+| kolm päeva  | igas kuus              | SET           | P1M          |              |
+| igas kuus   |                        |               |              |              |
++-------------+------------------------+---------------+--------------+--------------+
+| hiljuti     | hiljuti                | DATE          | PAST\_REF    |              |
++-------------+------------------------+---------------+--------------+--------------+
+| tulevikus   | tulevikus              | DATE          | FUTURE\_REF  |              |
++-------------+------------------------+---------------+--------------+--------------+
+| 2009. aasta | 2009. aasta alguses    | DATE          | 2009         | START        |
+| alguses     |                        |               |              |              |
++-------------+------------------------+---------------+--------------+--------------+
+| juuni       | juuni alguseks         | DATE          | 1986-06      | START        |
+| alguseks    |                        |               |              |              |
+| 2007.       |                        |               |              |              |
+| aastal      |                        |               |              |              |
++-------------+------------------------+---------------+--------------+--------------+
+| juuni       | 2007. aastal           | DATE          | 2007         |              |
+| alguseks    |                        |               |              |              |
+| 2007.       |                        |               |              |              |
+| aastal      |                        |               |              |              |
++-------------+------------------------+---------------+--------------+--------------+
+| 2009. aasta | 2009. aasta esimesel   | DATE          | 2009         | FIRST\_HALF  |
+| esimesel    | poolel                 |               |              |              |
+| poolel      |                        |               |              |              |
++-------------+------------------------+---------------+--------------+--------------+
+| umbes 4     | umbes 4 aastat         | DURATION      | P4Y          | APPROX       |
+| aastat      |                        |               |              |              |
++-------------+------------------------+---------------+--------------+--------------+
+| peaaegu 4   | peaaegu 4 aastat       | DURATION      | P4Y          | LESS\_THAN   |
+| aastat      |                        |               |              |              |
++-------------+------------------------+---------------+--------------+--------------+
+| 12-15 märts | 12-                    | DATE          | 2009-03-12   |              |
+| 2009        |                        |               |              |              |
++-------------+------------------------+---------------+--------------+--------------+
+| 12-15 märts | 15 märts 2009          | DATE          | 2009-03-15   |              |
+| 2009        |                        |               |              |              |
++-------------+------------------------+---------------+--------------+--------------+
+| 12-15 märts | DURATION               | PXXD          |              |              |
+| 2009        |                        |               |              |              |
++-------------+------------------------+---------------+--------------+--------------+
+| eelmise kuu | eelmise kuu lõpus      | DATE          | 1986-11      | END          |
+| lõpus       |                        |               |              |              |
++-------------+------------------------+---------------+--------------+--------------+
+| 2004. aasta | 2004. aasta suvel      | DATE          | 2004-SU      |              |
+| suvel       |                        |               |              |              |
++-------------+------------------------+---------------+--------------+--------------+
+| Detsembris  | Detsembris             | DATE          | 1986-12      |              |
+| oli         |                        |               |              |              |
+| keskmine    |                        |               |              |              |
+| temperatuur |                        |               |              |              |
+| kaks korda  |                        |               |              |              |
+| madalam kui |                        |               |              |              |
+| kuu aega    |                        |               |              |              |
+| varem       |                        |               |              |              |
++-------------+------------------------+---------------+--------------+--------------+
+| Detsembris  | kuu aega varem         | DATE          | 1986-11      |              |
+| oli         |                        |               |              |              |
+| keskmine    |                        |               |              |              |
+| temperatuur |                        |               |              |              |
+| kaks korda  |                        |               |              |              |
+| madalam kui |                        |               |              |              |
+| kuu aega    |                        |               |              |              |
+| varem       |                        |               |              |              |
++-------------+------------------------+---------------+--------------+--------------+
+| neljapäeval | neljapäeval , 17.      | DATE          | 1986-06-17   |              |
+| ,           | juunil                 |               |              |              |
+| 17. juunil  |                        |               |              |              |
++-------------+------------------------+---------------+--------------+--------------+
+| täna, 100   | täna                   | DATE          | 1986-12-21   |              |
+| aastat      |                        |               |              |              |
+| tagasi      |                        |               |              |              |
++-------------+------------------------+---------------+--------------+--------------+
+| täna, 100   | 100 aastat tagasi      | DATE          | 1886         |              |
+| aastat      |                        |               |              |              |
+| tagasi      |                        |               |              |              |
++-------------+------------------------+---------------+--------------+--------------+
+| neljapäeva  | neljapäeva öösel vastu | TIME          | 1986-12-19TN |              |
+| öösel vastu | reedet                 |               | I            |              |
+| reedet      |                        |               |              |              |
++-------------+------------------------+---------------+--------------+--------------+
+| viimase     | viimase aasta jooksul  | DURATION      | P1Y          |              |
+| aasta       |                        |               |              |              |
+| jooksul     |                        |               |              |              |
++-------------+------------------------+---------------+--------------+--------------+
+| viimase     | DATE                   | 1985          |              |              |
+| aasta       |                        |               |              |              |
+| jooksul     |                        |               |              |              |
++-------------+------------------------+---------------+--------------+--------------+
+| viimase     | viimase kolme aasta    | DURATION      | P3Y          |              |
+| kolme aasta | jooksul                |               |              |              |
+| jooksul     |                        |               |              |              |
++-------------+------------------------+---------------+--------------+--------------+
+| viimase     | DATE                   | 1983          |              |              |
+| kolme aasta |                        |               |              |              |
+| jooksul     |                        |               |              |              |
++-------------+------------------------+---------------+--------------+--------------+
+| aastaid     | aastaid tagasi         | DATE          | PAST\_REF    |              |
+| tagasi      |                        |               |              |              |
++-------------+------------------------+---------------+--------------+--------------+
+| aastate     | aastate pärast         | DATE          | FUTURE\_REF  |              |
+| pärast      |                        |               |              |              |
++-------------+------------------------+---------------+--------------+--------------+
+
+Tagging clauses
+---------------
+
+Basic usage
+~~~~~~~~~~~
+
+A simple sentence, also called an independent clause, typically contains
+a finite verb, and expresses a complete thought. However, natural
+language sentences can also be long and complex, consisting of two or
+more clauses joined together. The clause structure can be made even more
+complex due to embedded clauses, which divide their parent clauses into
+two halves:
+
+.. code:: python
+
+    from estnltk import Text
+    text = Text('Mees, keda seal kohtasime, oli tuttav ja teretas meid.')
+
+The clause annotations define embedded clauses and clause boundaries.
+Additionally, each word in a sentence is associated with a clause index:
+
+.. code:: python
+
+    text.get.word_texts.clause_indices.clause_annotations.as_dataframe
+
+
+
+
+.. raw:: html
+
+    <div>
+    <table border="1" class="dataframe">
+      <thead>
+        <tr style="text-align: right;">
+          <th></th>
+          <th>word_texts</th>
+          <th>clause_indices</th>
+          <th>clause_annotations</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th>0</th>
+          <td>Mees</td>
+          <td>0</td>
+          <td>None</td>
+        </tr>
+        <tr>
+          <th>1</th>
+          <td>,</td>
+          <td>1</td>
+          <td>embedded_clause_start</td>
+        </tr>
+        <tr>
+          <th>2</th>
+          <td>keda</td>
+          <td>1</td>
+          <td>None</td>
+        </tr>
+        <tr>
+          <th>3</th>
+          <td>seal</td>
+          <td>1</td>
+          <td>None</td>
+        </tr>
+        <tr>
+          <th>4</th>
+          <td>kohtasime</td>
+          <td>1</td>
+          <td>None</td>
+        </tr>
+        <tr>
+          <th>5</th>
+          <td>,</td>
+          <td>1</td>
+          <td>embedded_clause_end</td>
+        </tr>
+        <tr>
+          <th>6</th>
+          <td>oli</td>
+          <td>0</td>
+          <td>None</td>
+        </tr>
+        <tr>
+          <th>7</th>
+          <td>tuttav</td>
+          <td>0</td>
+          <td>None</td>
+        </tr>
+        <tr>
+          <th>8</th>
+          <td>ja</td>
+          <td>0</td>
+          <td>clause_boundary</td>
+        </tr>
+        <tr>
+          <th>9</th>
+          <td>teretas</td>
+          <td>2</td>
+          <td>None</td>
+        </tr>
+        <tr>
+          <th>10</th>
+          <td>meid</td>
+          <td>2</td>
+          <td>None</td>
+        </tr>
+        <tr>
+          <th>11</th>
+          <td>.</td>
+          <td>2</td>
+          <td>None</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+
+
+
+Clause annotation information is stored in ``words`` layer as
+``clause_index`` and ``clause_annotation`` attributes:
+
+.. code:: python
+
+    text.words
+
+
+
+
+.. parsed-literal::
+
+    [{'analysis': [{'clitic': '',
+        'ending': '0',
+        'form': 'sg n',
+        'lemma': 'mees',
+        'partofspeech': 'S',
+        'root': 'mees',
+        'root_tokens': ['mees']}],
+      'clause_index': 0,
+      'end': 4,
+      'start': 0,
+      'text': 'Mees'},
+     {'analysis': [{'clitic': '',
+        'ending': '',
+        'form': '',
+        'lemma': ',',
+        'partofspeech': 'Z',
+        'root': ',',
+        'root_tokens': [',']}],
+      'clause_annotation': 'embedded_clause_start',
+      'clause_index': 1,
+      'end': 5,
+      'start': 4,
+      'text': ','},
+     {'analysis': [{'clitic': '',
+        'ending': 'da',
+        'form': 'pl p',
+        'lemma': 'kes',
+        'partofspeech': 'P',
+        'root': 'kes',
+        'root_tokens': ['kes']},
+       {'clitic': '',
+        'ending': 'da',
+        'form': 'sg p',
+        'lemma': 'kes',
+        'partofspeech': 'P',
+        'root': 'kes',
+        'root_tokens': ['kes']}],
+      'clause_index': 1,
+      'end': 10,
+      'start': 6,
+      'text': 'keda'},
+     {'analysis': [{'clitic': '',
+        'ending': '0',
+        'form': '',
+        'lemma': 'seal',
+        'partofspeech': 'D',
+        'root': 'seal',
+        'root_tokens': ['seal']}],
+      'clause_index': 1,
+      'end': 15,
+      'start': 11,
+      'text': 'seal'},
+     {'analysis': [{'clitic': '',
+        'ending': 'sime',
+        'form': 'sime',
+        'lemma': 'kohtama',
+        'partofspeech': 'V',
+        'root': 'kohta',
+        'root_tokens': ['kohta']}],
+      'clause_index': 1,
+      'end': 25,
+      'start': 16,
+      'text': 'kohtasime'},
+     {'analysis': [{'clitic': '',
+        'ending': '',
+        'form': '',
+        'lemma': ',',
+        'partofspeech': 'Z',
+        'root': ',',
+        'root_tokens': [',']}],
+      'clause_annotation': 'embedded_clause_end',
+      'clause_index': 1,
+      'end': 26,
+      'start': 25,
+      'text': ','},
+     {'analysis': [{'clitic': '',
+        'ending': 'i',
+        'form': 's',
+        'lemma': 'olema',
+        'partofspeech': 'V',
+        'root': 'ole',
+        'root_tokens': ['ole']}],
+      'clause_index': 0,
+      'end': 30,
+      'start': 27,
+      'text': 'oli'},
+     {'analysis': [{'clitic': '',
+        'ending': '0',
+        'form': 'sg n',
+        'lemma': 'tuttav',
+        'partofspeech': 'A',
+        'root': 'tuttav',
+        'root_tokens': ['tuttav']}],
+      'clause_index': 0,
+      'end': 37,
+      'start': 31,
+      'text': 'tuttav'},
+     {'analysis': [{'clitic': '',
+        'ending': '0',
+        'form': '',
+        'lemma': 'ja',
+        'partofspeech': 'J',
+        'root': 'ja',
+        'root_tokens': ['ja']}],
+      'clause_annotation': 'clause_boundary',
+      'clause_index': 0,
+      'end': 40,
+      'start': 38,
+      'text': 'ja'},
+     {'analysis': [{'clitic': '',
+        'ending': 's',
+        'form': 's',
+        'lemma': 'teretama',
+        'partofspeech': 'V',
+        'root': 'tereta',
+        'root_tokens': ['tereta']}],
+      'clause_index': 2,
+      'end': 48,
+      'start': 41,
+      'text': 'teretas'},
+     {'analysis': [{'clitic': '',
+        'ending': 'd',
+        'form': 'pl p',
+        'lemma': 'mina',
+        'partofspeech': 'P',
+        'root': 'mina',
+        'root_tokens': ['mina']}],
+      'clause_index': 2,
+      'end': 53,
+      'start': 49,
+      'text': 'meid'},
+     {'analysis': [{'clitic': '',
+        'ending': '',
+        'form': '',
+        'lemma': '.',
+        'partofspeech': 'Z',
+        'root': '.',
+        'root_tokens': ['.']}],
+      'clause_index': 2,
+      'end': 54,
+      'start': 53,
+      'text': '.'}]
+
+
+
+Clause indices and annotations can be explicitly tagged with method
+**tag\_clause\_annotations()**.
+
+Property **clause\_texts()** can be used to see the full clauses
+themselves:
+
+.. code:: python
+
+    text.clause_texts
+
+
+
+
+.. parsed-literal::
+
+    ['Mees oli tuttav ja', ', keda seal kohtasime,', 'teretas meid.']
+
+
+
+Method **tag\_clauses()** can be used create a special ``clauses``
+multilayer, that lists character-level indices of start and end
+positions of clause regions:
+
+.. code:: python
+
+    text.tag_clauses()
+    text['clauses']
+
+
+
+
+.. parsed-literal::
+
+    [{'end': [4, 40], 'start': [0, 27]},
+     {'end': [26], 'start': [4]},
+     {'end': [54], 'start': [41]}]
+
+
+
+It might be useful to process each clause of the sentence independently:
+
+.. code:: python
+
+    for clause in text.split_by('clauses'):
+        print (clause.text)
+
+
+.. parsed-literal::
+
+    Mees oli tuttav ja
+    , keda seal kohtasime,
+    teretas meid.
+
+
+The 'ignore\_missing\_commas' mode
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Because commas are important clause delimiters in Estonian, the quality
+of the clause segmentation may suffer due to accidentially missing
+commas in the input text. To address this issue, the clause segmenter
+can be initialized in a mode in which the program tries to be less
+sensitive to missing commas while detecting clause boundaries.
+
+Example:
+
+.. code:: python
+
+    from estnltk import ClauseSegmenter
+    from estnltk import Text
+    
+    segmenter = ClauseSegmenter( ignore_missing_commas=True )
+    text = Text('Keegi teine ka siin ju kirjutas et ütles et saab ise asjadele järgi minna aga vastust seepeale ei tulnudki.', clause_segmenter = segmenter)
+    
+    for clause in text.split_by('clauses'):
+        print (clause.text)
+
+
+.. parsed-literal::
+
+    Keegi teine ka siin ju kirjutas
+    et ütles
+    et saab ise asjadele järgi minna
+    aga vastust seepeale ei tulnudki.
+
+
+Note that this mode is experimental and compared to the basic mode, it
+may introduce additional incorrect clause boundaries, although it also
+improves clause boundary detection in texts with (a lot of) missing
+commas.
+
+Verb chain tagging
+------------------
+
+Verb chain tagger identifies main verbs (predicates) in clauses. The
+current version of the program aims to detect following verb chain
+constructions:
+
+-  basic main verbs:
+
+   -  (affirmative) single non-\ *olema* main verbs (example: Pidevalt
+      **uurivad** asjade seisu ka hollandlased);
+   -  (affirmative) single *olema* main verbs (e.g. Raha **on** alati
+      vähe) and two word *olema* verb chains (**Oleme** sellist kino
+      ennegi **näinud**);
+   -  negated main verbs: *ei/ära/pole/ega* + verb (e.g. Helistasin
+      korraks Carmenile, kuid ta **ei vastanud.**);
+
+-  verb chain extensions:
+
+   -  verb + verb : the chain is extended with an infinite verb if the
+      last verb of the chain subcategorizes for it, e.g. the verb
+      *kutsuma* is extended with *ma*-verb arguments (for example:
+      Kevadpäike **kutsub** mind **suusatama**) and the verb *püüdma* is
+      extended with *da*-verb arguments (Aita **ei püüdnudki** Leenat
+      **mõista**);
+   -  verb + nom/adv + verb : the last verb of the chain is extended
+      with nominal/adverb arguments which subcategorize for an infinite
+      verb, e.g. the verb *otsima* forms a multiword unit with the
+      nominal *võimalust* which, in turn, takes infinite *da*-verb as an
+      argument (for example: Seepärast **otsisimegi võimalust** kusagilt
+      mõned ilvesed **hankida**);
+
+Verb chains are stored as a simple layer named ``verb_chains``:
+
+.. code:: python
+
+    from estnltk import Text
+    text = Text('Ta oleks pidanud sinna minema, aga ei läinud.')
+    text.verb_chains
+
+
+
+
+.. parsed-literal::
+
+    [{'analysis_ids': [[0], [0], [0]],
+      'clause_index': 0,
+      'end': [8, 16, 29],
+      'mood': 'condit',
+      'morph': ['V_ks', 'V_nud', 'V_ma'],
+      'other_verbs': False,
+      'pattern': ['ole', 'verb', 'verb'],
+      'phrase': [1, 2, 4],
+      'pol': 'POS',
+      'roots': ['ole', 'pida', 'mine'],
+      'start': [3, 9, 23],
+      'tense': 'past',
+      'voice': 'personal'},
+     {'analysis_ids': [[0], [3]],
+      'clause_index': 1,
+      'end': [37, 44],
+      'mood': 'indic',
+      'morph': ['V_neg', 'V_nud'],
+      'other_verbs': False,
+      'pattern': ['ei', 'verb'],
+      'phrase': [7, 8],
+      'pol': 'NEG',
+      'roots': ['ei', 'mine'],
+      'start': [35, 38],
+      'tense': 'imperfect',
+      'voice': 'personal'}]
+
+
+
+Following is a brief description of the attributes:
+
+-  ``analysis_ids`` - the indices of analysis ids of the words in the
+   phrase of this chain.
+-  ``clause_index`` - the clause id this chain was tagged in.
+-  ``mood`` - mood of the finite verb. Possible values: *'indic'*
+   (indicative), *'imper'* (imperative), *'condit'* (conditional),
+   *'quotat'* (quotative) or *'??'* (undetermined);
+-  ``morph`` - for each word in the chain, lists its morphological
+   features: part of speech tag and form (in one string, separated by
+   '\_', and multiple variants of the pos/form are separated by '/');
+-  ``other_verbs`` - boolean, marks whether there are other verbs in the
+   context, which can be potentially added to the verb chain; if
+   ``True``,then it is uncertain whether the chain is complete or not;
+-  ``pattern`` - the general pattern of the chain: for each word in the
+   chain, lists whether it is *'ega'*, *'ei'*, *'ära'*, *'pole'*,
+   *'ole'*, *'&'* (conjunction: ja/ning/ega/või), *'verb'* (verb
+   different than *'ole'*) or *'nom/adv'* (nominal/adverb);
+-  ``phrase`` - the word indices of the sentence that make up the verb
+   chain phrase.
+-  ``pol`` - grammatical polarity of the finite verb. Possible values:
+   *'POS'*, *'NEG'* or *'??'*. *'NEG'* means that the chain begins with
+   a negation word *ei/pole/ega/ära*; *'??'* is reserved for cases where
+   it is uncertain whether *ära* forms a negated verb chain or not;
+-  ``roots`` - for each word in the chain, lists its corresponding
+   'root' value from the morphological analysis;
+-  ``tense`` - tense of the finite verb. Possible values depend on the
+   mood value. Tenses of indicative: *'present'*, *'imperfect'*,
+   *'perfect'*, *'pluperfect'*; tense of imperative: *'present'*; tenses
+   of conditional and quotative: *'present'* and *'past'*. Additionally,
+   the tense may remain undetermined (*'??'*).
+-  ``voice`` - voice of the finite verb. Possible values: *'personal'*,
+   *'impersonal'*, *'??'* (undetermined).
+
+Note that the words in the verb chain (in ``phrase``, ``pattern``,
+``morph`` and ``roots``) are ordered by the order of the grammatical
+relations - the order which may not coincide with the word order in
+text. The first word is the finite verb (main verb) of the clause
+(except in case of the negation constructions, where the first word is
+typically a negation word), and each following word is governed by the
+previous word in the chain. An exception: the chain may end with a
+conjunction of two infinite verbs (general pattern *verb & verb*), in
+this case, both infinite verbs can be considered as being governed by
+the preceding word in the chain.
+
+Attributes ``start`` and ``end`` contain start and end positions for
+each token in the phrase, and these token positions are listed in the
+ascending order, regardless the order of the grammatical relations.
+
+Estonian wordnet
+----------------
+
+Estonian WordNet API provides means to query Estonian WordNet. WordNet
+is a network of synsets, in which synsets are collections of synonymous
+words and are connected to other synsets via relations. For example, the
+synset which contains the word "koer" ("dog") has a generalisation via
+hypernymy relation in the form of synset which contains the word
+"koerlane" ("canine").
+
+Estonian WordNet contains synsets with different types of
+part-of-speech: *adverbs, adjectives, verbs* and *nouns*.
+
++------------------+------------------+
+| Part of speech   | API equivalent   |
++==================+==================+
+| Adverb           | wn.ADV           |
++------------------+------------------+
+| Adjective        | wn.ADJ           |
++------------------+------------------+
+| Noun             | wn.NOUN          |
++------------------+------------------+
+| Verb             | wn.VERB          |
++------------------+------------------+
+
+Given API is on most parts in conformance with NLTK WordNet's API
+(http://www.nltk.org/howto/wordnet.html). However, there are some
+differences due to different structure of the WordNets.
+
+-  Lemma classes' relations return empty sets. Reason: In Estonian
+   WordNet relations are only between synsets.
+-  No verb frames. Reason: No information on verb frames.
+-  Only path, Leacock-Chodorow and Wu-Palmer similarities. No
+   information on Information Content.
+
+Existing relations:
+
+*antonym, be\_in\_state, belongs\_to\_class, causes, fuzzynym,
+has\_holo\_location, has\_holo\_madeof, has\_holo\_member,
+has\_holo\_part, has\_holo\_portion, has\_holonym, has\_hyperonym,
+has\_hyponym, has\_instance, has\_mero\_location, has\_mero\_madeof,
+has\_mero\_member, has\_mero\_part, has\_mero\_portion, has\_meronym,
+has\_subevent, has\_xpos\_hyperonym, has\_xpos\_hyponym, involved,
+involved\_agent, involved\_instrument, involved\_location,
+involved\_patient, involved\_target\_direction, is\_caused\_by,
+is\_subevent\_of, near\_antonym, near\_synonym, role, role\_agent,
+role\_instrument, role\_location, role\_patient,
+role\_target\_direction, state\_of, xpos\_fuzzynym, xpos\_near\_antonym,
+xpos\_near\_synonym .*
+
+Wordnet API
+~~~~~~~~~~~
+
+Before anything else, let's import the module:
+
+.. code:: python
+
+    from estnltk.wordnet import wn
+
+The most common use for the API is to query synsets. Synsets can be
+queried in several ways. The easiest way is to query all the synsets
+which match some conditions. For that we can either use:
+
+.. code:: python
+
+    wn.all_synsets()
+
+
+
+
+.. parsed-literal::
+
+    ["Synset('korraldama.v.07')",
+     "Synset('korraldamine.n.03')",
+     "Synset('küsima.v.02')",
+     "Synset('küsimine.n.02')",
+     "Synset('mõjutama.v.01')",
+     "Synset('mõjutamine.n.02')",
+     "Synset('lubama.v.01')",
+     "Synset('lubamine.n.01')",
+     "Synset('üksmeelel olema.v.01')",
+     "Synset('informeerima.v.01')",
+     "Synset('informeerimine.n.02')",
+     "Synset('selgitama.v.01')",
+     "Synset('selgitamine.n.02')",
+     "Synset('väljendama.v.03')",
+     "Synset('väljendamine.n.04')",
+     "Synset('rääkima.v.04')",
+     "Synset('avaldama.v.04')",
+     "Synset('avaldamine.n.02')",
+     "Synset('mõtlema.v.02')",
+     "Synset('mõtlemine.n.02')",
+     "Synset('häälitsema.v.01')",
+     "Synset('valimistulemus.n.01')",
+     "Synset('kirjutama.v.02')",
+     "Synset('kirjutamine.n.02')",
+     "Synset('sisse kandma.v.01')",
+     "Synset('registreerimine.n.02')",
+     "Synset('väljendama.v.01')",
+     "Synset('väljendamine.n.06')",
+     "Synset('mängima.v.01')",
+     "Synset('mängimine.n.01')",
+     "Synset('loobuma.v.02')",
+     "Synset('loobumine.n.02')",
+     "Synset('võitlema.v.01')",
+     "Synset('võitlemine.n.01')",
+     "Synset('ründama.v.01')",
+     "Synset('ründamine.n.02')",
+     "Synset('toituma.v.01')",
+     "Synset('rakendama.v.01')",
+     "Synset('rakendamine.n.01')",
+     "Synset('hankima.v.02')",
+     "Synset('hankimine.n.02')",
+     "Synset('kokku puutuma.v.01')",
+     "Synset('külgnemine.n.01')",
+     "Synset('puutuma.v.02')",
+     "Synset('võtma.v.01')",
+     "Synset('võtmine.n.02')",
+     "Synset('põrkama.v.01')",
+     "Synset('põrkamine.n.02')",
+     "Synset('katma.v.02')",
+     "Synset('katmine.n.02')",
+     "Synset('sulgema.v.01')",
+     "Synset('sulgemine.n.03')",
+     "Synset('ühendama.v.01')",
+     "Synset('ühendamine.n.02')",
+     "Synset('viima.v.02')",
+     "Synset('viimine.n.02')",
+     "Synset('viskama.v.02')",
+     "Synset('viskamine.n.02')",
+     "Synset('puhastama.v.01')",
+     "Synset('puhastamine.n.02')",
+     "Synset('lahutama.v.01')",
+     "Synset('lahutamine.n.01')",
+     "Synset('looma.v.02')",
+     "Synset('loomine.n.03')",
+     "Synset('looma.v.05')",
+     "Synset('loomine.n.04')",
+     "Synset('tegema.v.06')",
+     "Synset('tegemine.n.04')",
+     "Synset('vormima.v.01')",
+     "Synset('vormimine.n.01')",
+     "Synset('kaunistama.v.01')",
+     "Synset('kaunistamine.n.02')",
+     "Synset('kujutama.v.01')",
+     "Synset('kujutamine.n.02')",
+     "Synset('seletama.v.01')",
+     "Synset('seletamine.n.03')",
+     "Synset('sooritama.v.04')",
+     "Synset('sooritamine.n.02')",
+     "Synset('ihaldama.v.01')",
+     "Synset('ihaldamine.n.01')",
+     "Synset('liikuma.v.03')",
+     "Synset('liikuma.v.02')",
+     "Synset('liikumine.n.06')",
+     "Synset('lahkuma.v.03')",
+     "Synset('lahkumine.n.03')",
+     "Synset('liigutama.v.02')",
+     "Synset('liigutamine.n.03')",
+     "Synset('käima.v.01')",
+     "Synset('käimine.n.01')",
+     "Synset('sõitma.v.02')",
+     "Synset('sõitmine.n.02')",
+     "Synset('laskuma.v.01')",
+     "Synset('laskumine.n.02')",
+     "Synset('juhtima.v.03')",
+     "Synset('juhtimine.n.02')",
+     "Synset('saabuma.v.03')",
+     "Synset('saabumine.n.02')",
+     "Synset('sisenema.v.01')",
+     "Synset('sisenemine.n.01')",
+     "Synset('mööda minema.v.01')",
+     "Synset('möödumine.n.01')",
+     "Synset('kogema.v.02')",
+     "Synset('kogemine.n.02')",
+     "Synset('vaatama.v.02')",
+     "Synset('vaatamine.n.04')",
+     "Synset('näima.v.01')",
+     "Synset('näimine.n.01')",
+     "Synset('kõlama.v.02')",
+     "Synset('kõlamine.n.01')",
+     "Synset('kinkima.v.01')",
+     "Synset('kinkimine.n.02')",
+     "Synset('olema.v.09')",
+     "Synset('olemine.n.03')",
+     "Synset('omama.v.02')",
+     "Synset('omamine.n.02')",
+     "Synset('omandama.v.02')",
+     "Synset('omandamine.n.04')",
+     "Synset('maksma.v.02')",
+     "Synset('maksmine.n.02')",
+     "Synset('kaotama.v.01')",
+     "Synset('kaotamine.n.03')",
+     "Synset('kahju kannatama.v.01')",
+     "Synset('tekitama.v.02')",
+     "Synset('tekitamine.n.05')",
+     "Synset('varustama.v.02')",
+     "Synset('varustamine.n.02')",
+     "Synset('varustama.v.01')",
+     "Synset('varustamine.n.03')",
+     "Synset('tegutsema.v.03')",
+     "Synset('tegutsemine.n.02')",
+     "Synset('vaeva nägema.v.01')",
+     "Synset('pingutamine.n.01')",
+     "Synset('hoolitsema.v.02')",
+     "Synset('hoolitsemine.n.02')",
+     "Synset('juhtima.v.02')",
+     "Synset('juhtimine.n.03')",
+     "Synset('määrama.v.04')",
+     "Synset('määramine.n.03')",
+     "Synset('kontrollima.v.01')",
+     "Synset('kontrollimine.n.02')",
+     "Synset('püüdma.v.02')",
+     "Synset('püüdmine.n.03')",
+     "Synset('abistama.v.02')",
+     "Synset('abistamine.n.03')",
+     "Synset('sooritama.v.03')",
+     "Synset('sooritamine.n.03')",
+     "Synset('petma.v.01')",
+     "Synset('petmine.n.02')",
+     "Synset('olema.v.08')",
+     "Synset('lõppema.v.02')",
+     "Synset('lõppemine.n.01')",
+     "Synset('ootama.v.02')",
+     "Synset('ootamine.n.02')",
+     "Synset('olema.v.07')",
+     "Synset('olemine.n.05')",
+     "Synset('sobima.v.04')",
+     "Synset('sobimine.n.02')",
+     "Synset('võrdne olema.v.01')",
+     "Synset('võrdumine.n.01')",
+     "Synset('juurde kuuluma.v.01')",
+     "Synset('lõpetama.v.03')",
+     "Synset('lõpetamine.n.03')",
+     "Synset('hoidma.v.02')",
+     "Synset('hoidmine.n.02')",
+     "Synset('jätkama.v.02')",
+     "Synset('jätkamine.n.01')",
+     "Synset('veetma.v.01')",
+     "Synset('veetmine.n.01')",
+     "Synset('võima.v.01')",
+     "Synset('müüma.v.01')",
+     "Synset('müümine.n.02')",
+     "Synset('alla tulema.v.01')",
+     "Synset('sadamine.n.01')",
+     "Synset('korrastama.v.03')",
+     "Synset('sugemine.n.01')",
+     "Synset('vigastama.v.01')",
+     "Synset('haavamine.n.01')",
+     "Synset('hoolitsema.v.01')",
+     "Synset('muutuma.v.01')",
+     "Synset('muutumine.n.02')",
+     "Synset('jääma.v.01')",
+     "Synset('jäämine.n.02')",
+     "Synset('kujundama.v.02')",
+     "Synset('kujundamine.n.02')",
+     "Synset('jääma.v.04')",
+     "Synset('jäämine.n.03')",
+     "Synset('vähenema.v.02')",
+     "Synset('vähenemine.n.02')",
+     "Synset('kasvama.v.04')",
+     "Synset('kasvamine.n.03')",
+     "Synset('kõrvaldama.v.01')",
+     "Synset('kõrvaldamine.n.02')",
+     "Synset('halvenema.v.01')",
+     "Synset('halvenemine.n.02')",
+     "Synset('parandama.v.02')",
+     "Synset('parandamine.n.03')",
+     "Synset('kahjustuma.v.02')",
+     "Synset('kahjustumine.n.01')",
+     "Synset('murduma.v.01')",
+     "Synset('murdumine.n.01')",
+     "Synset('käituma.v.01')",
+     "Synset('käitumine.n.02')",
+     "Synset('juhtuma.v.03')",
+     "Synset('juhtumine.n.01')",
+     "Synset('jätkama.v.01')",
+     "Synset('jätkamine.n.02')",
+     "Synset('lõpetama.v.02')",
+     "Synset('lõpetamine.n.04')",
+     "Synset('katkestama.v.01')",
+     "Synset('katkestamine.n.03')",
+     "Synset('vähendama.v.01')",
+     "Synset('vähendamine.n.02')",
+     "Synset('täitma.v.01')",
+     "Synset('täitmine.n.04')",
+     "Synset('märkima.v.01')",
+     "Synset('märkimine.n.01')",
+     "Synset('teadma.v.01')",
+     "Synset('teadmine.n.03')",
+     "Synset('meelde tulema.v.01')",
+     "Synset('meenumine.n.01')",
+     "Synset('meelde tuletama.v.01')",
+     "Synset('meenutamine.n.02')",
+     "Synset('mõtlema.v.01')",
+     "Synset('tuvastama.v.01')",
+     "Synset('tuvastamine.n.02')",
+     "Synset('otsustama.v.03')",
+     "Synset('otsustamine.n.02')",
+     "Synset('valima.v.01')",
+     "Synset('valimine.n.02')",
+     "Synset('arvama.v.02')",
+     "Synset('arvamine.n.01')",
+     "Synset('arvama.v.05')",
+     "Synset('otsustama.v.02')",
+     "Synset('otsustamine.n.03')",
+     "Synset('kindlaks määrama.v.01')",
+     "Synset('fikseerimine.n.02')",
+     "Synset('kavandama.v.01')",
+     "Synset('kavandamine.n.02')",
+     "Synset('ootama.v.01')",
+     "Synset('ootamine.n.03')",
+     "Synset('ettevõtmine.n.01')",
+     "Synset('seks.n.01')",
+     "Synset('tootmine.n.01')",
+     "Synset('kunst.n.02')",
+     "Synset('toit.n.03')",
+     "Synset('võitlus.n.01')",
+     "Synset('rünnak.n.01')",
+     "Synset('asi.n.04')",
+     "Synset('menetlus.n.02')",
+     "Synset('rühmategevus.n.01')",
+     "Synset('karistus.n.01')",
+     "Synset('löök.n.02')",
+     "Synset('artikkel.n.01')",
+     "Synset('abi.n.01')",
+     "Synset('järglane.n.01')",
+     "Synset('mikroorganism.n.01')",
+     "Synset('teadmine.n.01')",
+     "Synset('lind.n.01')",
+     "Synset('motiiv.n.01')",
+     "Synset('tunne.n.02')",
+     "Synset('koht.n.04')",
+     "Synset('imetaja.n.01')",
+     "Synset('vorm.n.01')",
+     "Synset('selgrootu.n.01')",
+     "Synset('mollusk.n.01')",
+     "Synset('aeg.n.02')",
+     "Synset('koer.n.01')",
+     "Synset('ruum.n.03')",
+     "Synset('olend.n.01')",
+     "Synset('putukas.n.01')",
+     "Synset('seisund.n.03')",
+     "Synset('sündmus.n.02')",
+     "Synset('vastne.n.01')",
+     "Synset('hobune.n.01')",
+     "Synset('hominiid.n.01')",
+     "Synset('kala.n.01')",
+     "Synset('asi.n.03')",
+     "Synset('üksus.n.01')",
+     "Synset('kontor.n.01')",
+     "Synset('töökoht.n.02')",
+     "Synset('olmerajatis.n.01')",
+     "Synset('tegu.n.03')",
+     "Synset('riie.n.02')",
+     "Synset('nõu.n.01')",
+     "Synset('transpordivahend.n.01')",
+     "Synset('kate.n.02')",
+     "Synset('looming.n.01')",
+     "Synset('riistapuu.n.01')",
+     "Synset('mõjuaine.n.01')",
+     "Synset('varustus.n.01')",
+     "Synset('mööbliese.n.01')",
+     "Synset('grupp.n.02')",
+     "Synset('vahend.n.02')",
+     "Synset('mehhanism.n.01')",
+     "Synset('arstim.n.02')",
+     "Synset('ravimisviis.n.01')",
+     "Synset('ava.n.02')",
+     "Synset('dekoratsioon.n.01')",
+     "Synset('ornament.n.01')",
+     "Synset('tee.n.04')",
+     "Synset('mänguasi.n.01')",
+     "Synset('omand.n.02')",
+     "Synset('ehitatu.n.01')",
+     "Synset('süsteem.n.04')",
+     "Synset('õhusõiduk.n.01')",
+     "Synset('aparaat.n.01')",
+     "Synset('kott.n.01')",
+     "Synset('barjäär.n.01')",
+     "Synset('paat.n.01')",
+     "Synset('köide.n.01')",
+     "Synset('pudel.n.01')",
+     "Synset('omadus.n.02')",
+     "Synset('auto.n.01')",
+     "Synset('kaart.n.01')",
+     "Synset('tool.n.01')",
+     "Synset('riided.n.01')",
+     "Synset('rõivas.n.01')",
+     "Synset('kaup.n.01')",
+     "Synset('komponent.n.01')",
+     "Synset('kujutamine.n.01')",
+     "Synset('kujutis.n.01')",
+     "Synset('seos.n.02')",
+     "Synset('niit.n.02')",
+     "Synset('aed.n.01')",
+     "Synset('mootor.n.01')",
+     "Synset('kaevand.n.01')",
+     "Synset('pind.n.03')",
+     "Synset('pind.n.02')",
+     "Synset('pool.n.02')",
+     "Synset('kinnitusvahend.n.01')",
+     "Synset('peakate.n.01')",
+     "Synset('hulk.n.03')",
+     "Synset('valgustus.n.02')",
+     "Synset('kiht.n.02')",
+     "Synset('tuba.n.01')",
+     "Synset('maja.n.01')",
+     "Synset('masin.n.01')",
+     "Synset('mõõteriist.n.01')",
+     "Synset('pill.n.01')",
+     "Synset('polster.n.01')",
+     "Synset('osa.n.04')",
+     "Synset('fenomen.n.01')",
+     "Synset('läbikäik.n.01')",
+     "Synset('pilt.n.01')",
+     "Synset('kilp.n.01')",
+     "Synset('käsitöökoda.n.01')",
+     "Synset('teivas.n.01')",
+     "Synset('kepp.n.01')",
+     "Synset('toodang.n.02')",
+     "Synset('töö.n.04')",
+     "Synset('saavutus.n.01')",
+     "Synset('rakk.n.01')",
+     "Synset('kunstiteos.n.01')",
+     "Synset('tee.n.03')",
+     "Synset('plaat.n.01')",
+     "Synset('laev.n.01')",
+     "Synset('pood.n.01')",
+     "Synset('riba.n.01')",
+     "Synset('tugi.n.01')",
+     "Synset('alus.n.02')",
+     "Synset('laud.n.01')",
+     "Synset('tööriist.n.01')",
+     "Synset('tegu.n.02')",
+     "Synset('toru.n.01')",
+     "Synset('sõiduk.n.01')",
+     "Synset('laev.n.02')",
+     "Synset('relv.n.01')",
+     "Synset('iseloomujoon.n.01')",
+     "Synset('välimus.n.01')",
+     "Synset('põhijoon.n.01')",
+     "Synset('käitumine.n.01')",
+     "Synset('omadus.n.01')",
+     "Synset('viis.n.03')",
+     "Synset('värv.n.01')",
+     "Synset('distants.n.01')",
+     "Synset('mõõde.n.01')",
+     "Synset('aste.n.02')",
+     "Synset('arv.n.01')",
+     "Synset('väärtus.n.01')",
+     "Synset('õigus.n.01')",
+     "Synset('võimelisus.n.01')",
+     "Synset('keha.n.02')",
+     "Synset('nahk.n.01')",
+     "Synset('kaotus.n.01')",
+     "Synset('trakt.n.01')",
+     "Synset('habe.n.01')",
+     "Synset('kude.n.01')",
+     "Synset('luu.n.01')",
+     "Synset('muskel.n.01')",
+     "Synset('organ.n.02')",
+     "Synset('eritis.n.01')",
+     "Synset('hormoon.n.01')",
+     "Synset('veresoon.n.01')",
+     "Synset('veen.n.01')",
+     "Synset('eksitus.n.01')",
+     "Synset('kile.n.01')",
+     "Synset('võime.n.01')",
+     "Synset('osavus.n.01')",
+     "Synset('võimetus.n.01')",
+     "Synset('meel.n.02')",
+     "Synset('taju.n.01')",
+     "Synset('meetod.n.02')",
+     "Synset('süsteem.n.03')",
+     "Synset('tunnetusprotsess.n.01')",
+     "Synset('aisting.n.01')",
+     "Synset('struktuur.n.01')",
+     "Synset('korraldus.n.03')",
+     "Synset('liigitamine.n.01')",
+     "Synset('teadmised.n.01')",
+     "Synset('idee.n.01')",
+     "Synset('käsitus.n.01')",
+     "Synset('tüüp.n.01')",
+     "Synset('kogus.n.01')",
+     "Synset('kava.n.01')",
+     "Synset('õpetus.n.01')",
+     "Synset('usk.n.01')",
+     "Synset('siht.n.03')",
+     "Synset('teooria.n.01')",
+     "Synset('ainevaldkond.n.01')",
+     "Synset('teadus.n.01')",
+     "Synset('bioloogia.n.01')",
+     "Synset('meditsiin.n.01')",
+     "Synset('füüsika.n.01')",
+     "Synset('hoiak.n.01')",
+     "Synset('kalduvus.n.01')",
+     "Synset('tõuge.n.01')",
+     "Synset('suhtlus.n.02')",
+     "Synset('teade.n.02')",
+     "Synset('paberileht.n.01')",
+     "Synset('keel.n.03')",
+     "Synset('sõna.n.01')",
+     "Synset('nimi.n.01')",
+     "Synset('tiitel.n.01')",
+     "Synset('kirjutis.n.01')",
+     "Synset('luuletus.n.01')",
+     "Synset('tekst.n.01')",
+     "Synset('raamat.n.01')",
+     "Synset('käsiraamat.n.01')",
+     "Synset('nimekiri.n.02')",
+     "Synset('arvutiprogramm.n.01')",
+     "Synset('sõnum.n.01')",
+     "Synset('näitamine.n.01')",
+     "Synset('kiri.n.01')",
+     "Synset('informatsioon.n.01')",
+     "Synset('poliitika.n.01')",
+     "Synset('avaldus.n.02')",
+     "Synset('deklaratsioon.n.01')",
+     "Synset('signaal.n.01')",
+     "Synset('tundemärk.n.01')",
+     "Synset('sümbol.n.01')",
+     "Synset('tähis.n.01')",
+     "Synset('täht.n.02')",
+     "Synset('kirjatäht.n.01')",
+     "Synset('embleem.n.01')",
+     "Synset('kokkupuude.n.01')",
+     "Synset('põhjus.n.01')",
+     "Synset('keel.n.02')",
+     "Synset('suhtlus.n.01')",
+     "Synset('kompositsioon.n.01')",
+     "Synset('laul.n.01')",
+     "Synset('väljendusstiil.n.01')",
+     "Synset('retooriline vahend.n.01')",
+     "Synset('jutt.n.01')",
+     "Synset('keel.n.01')",
+     "Synset('hääl.n.02')",
+     "Synset('käsk.n.01')",
+     "Synset('palve.n.02')",
+     "Synset('juhtum.n.01')",
+     "Synset('muutus.n.01')",
+     "Synset('halb õnn.n.01')",
+     "Synset('liikumine.n.03')",
+     "Synset('kasv.n.02')",
+     "Synset('heli.n.01')",
+     "Synset('võistlus.n.01')",
+     "Synset('emotsioon.n.01')",
+     "Synset('iha.n.01')",
+     "Synset('nauding.n.01')",
+     "Synset('tuju.n.01')",
+     "Synset('toit.n.02')",
+     "Synset('portsjon.n.01')",
+     "Synset('toit.n.01')",
+     "Synset('kondiitritoode.n.02')",
+     "Synset('kompvek.n.01')",
+     "Synset('magustoit.n.01')",
+     "Synset('pagaritoode.n.01')",
+     "Synset('kondiitritoode.n.01')",
+     "Synset('kook.n.01')",
+     "Synset('liha.n.01')",
+     "Synset('jahutoode.n.01')",
+     "Synset('söödav vili.n.01')",
+     "Synset('köögivili.n.01')",
+     "Synset('maitseaine.n.01')",
+     "Synset('valik.n.01')",
+     "Synset('kaste.n.01')",
+     "Synset('piimatoode.n.01')",
+     "Synset('juust.n.01')",
+     "Synset('jook.n.01')",
+     "Synset('vein.n.01')",
+     "Synset('korraldus.n.01')",
+     "Synset('inimkond.n.01')",
+     "Synset('inimesed.n.01')",
+     "Synset('kogu.n.02')",
+     "Synset('kogu.n.01')",
+     "Synset('komplekt.n.01')",
+     "Synset('organisatsioon.n.01')",
+     "Synset('ühing.n.01')",
+     "Synset('valitsus.n.01')",
+     "Synset('asutus.n.01')",
+     "Synset('kirik.n.01')",
+     "Synset('osakond.n.02')",
+     "Synset('maa.n.04')",
+     "Synset('kompanii.n.01')",
+     "Synset('osakond.n.01')",
+     "Synset('vahend.n.01')",
+     "Synset('halduskogu.n.01')",
+     "Synset('klubi.n.01')",
+     "Synset('kool.n.01')",
+     "Synset('komisjon.n.01')",
+     "Synset('valitsusasutus.n.01')",
+     "Synset('instituut.n.01')",
+     "Synset('süsteem.n.01')",
+     "Synset('liikumine.n.02')",
+     "Synset('ala.n.04')",
+     "Synset('külg.n.01')",
+     "Synset('piir.n.01')",
+     "Synset('linn.n.01')",
+     "Synset('maa.n.03')",
+     "Synset('piirkond.n.03')",
+     "Synset('joon.n.02')",
+     "Synset('punkt.n.02')",
+     "Synset('osa.n.03')",
+     "Synset('ala.n.02')",
+     "Synset('maakond.n.01')",
+     "Synset('pind.n.01')",
+     "Synset('muutmine.n.01')",
+     "Synset('maa-ala.n.01')",
+     "Synset('suund.n.02')",
+     "Synset('jääk.n.01')",
+     "Synset('kate.n.01')",
+     "Synset('kere.n.01')",
+     "Synset('osa.n.02')",
+     "Synset('kõrgendik.n.01')",
+     "Synset('lohk.n.01')",
+     "Synset('muutumine.n.01')",
+     "Synset('sete.n.01')",
+     "Synset('auk.n.01')",
+     "Synset('taevakeha.n.01')",
+     "Synset('vesi.n.01')",
+     "Synset('maa.n.02')",
+     "Synset('kujuteldav olend.n.01')",
+     "Synset('jumalus.n.01')",
+     "Synset('looja.n.01')",
+     "Synset('üleminek.n.01')",
+     "Synset('kaitsja.n.02')",
+     "Synset('meelelahutuskunstnik.n.01')",
+     "Synset('ekspert.n.01')",
+     "Synset('naine.n.02')",
+     "Synset('elanik.n.01')",
+     "Synset('pärismaalane.n.01')",
+     "Synset('intellektuaal.n.01')",
+     "Synset('liider.n.01')",
+     "Synset('mees.n.02')",
+     "Synset('omataoline.n.01')",
+     "Synset('usklik.n.01')",
+     "Synset('õnnetu inimene.n.01')",
+     "Synset('töötaja.n.01')",
+     "Synset('eurooplane.n.01')",
+     "Synset('tuttav.n.01')",
+     "Synset('advokaat.n.01')",
+     "Synset('kunstiinimene.n.01')",
+     "Synset('assistent.n.01')",
+     "Synset('atleet.n.01')",
+     "Synset('laps.n.02')",
+     "Synset('laps.n.01')",
+     "Synset('kunstnik.n.01')",
+     "Synset('pooldaja.n.01')",
+     "Synset('arst.n.01')",
+     "Synset('teenistuja.n.01')",
+     "Synset('järelkäija.n.01')",
+     "Synset('sõber.n.01')",
+     "Synset('sugulane.n.01')",
+     "Synset('poiss.n.01')",
+     "Synset('tapmine.n.01')",
+     "Synset('muusik.n.01')",
+     "Synset('kantseleitöötaja.n.01')",
+     "Synset('mõjujõud.n.01')",
+     "Synset('esindaja.n.01')",
+     "Synset('valitseja.n.01')",
+     "Synset('sõdur.n.01')",
+     "Synset('naine.n.01')",
+     "Synset('kirjanik.n.01')",
+     "Synset('looduslik fenomen.n.01')",
+     "Synset('tagajärg.n.01')",
+     "Synset('puhastamine.n.01')",
+     "Synset('fortuuna.n.01')",
+     "Synset('jõud.n.01')",
+     "Synset('seen.n.01')",
+     "Synset('puu.n.01')",
+     "Synset('põõsas.n.01')",
+     "Synset('vili.n.01')",
+     "Synset('lehestik.n.01')",
+     "Synset('omand.n.01')",
+     "Synset('aktiva.n.01')",
+     "Synset('rahahulk.n.01')",
+     "Synset('raha.n.01')",
+     "Synset('valuuta.n.01')",
+     "Synset('münt.n.01')",
+     "Synset('rahalised kohustused.n.01')",
+     "Synset('dokument.n.01')",
+     "Synset('register.n.01')",
+     "Synset('protsess.n.01')",
+     "Synset('areng.n.01')",
+     "Synset('töötlemine.n.01')",
+     "Synset('liikumine.n.01')",
+     "Synset('ühik.n.01')",
+     "Synset('arv.n.02')",
+     "Synset('ruum.n.01')",
+     "Synset('ühendus.n.01')",
+     "Synset('osa.n.01')",
+     "Synset('sugulus.n.01')",
+     "Synset('suhe.n.03')",
+     "Synset('suund.n.01')",
+     "Synset('keha.n.01')",
+     "Synset('kujund.n.01')",
+     "Synset('reis.n.01')",
+     "Synset('joon.n.01')",
+     "Synset('olukord.n.02')",
+     "Synset('seisund.n.02')",
+     "Synset('situatsioon.n.01')",
+     "Synset('suhe.n.02')",
+     "Synset('suhe.n.01')",
+     "Synset('staatus.n.02')",
+     "Synset('ühiskondlik seisund.n.01')",
+     "Synset('liigutus.n.01')",
+     "Synset('üksmeel.n.01')",
+     "Synset('korralagedus.n.01')",
+     "Synset('haigus.n.02')",
+     "Synset('tõbi.n.01')",
+     "Synset('kasvaja.n.01')",
+     "Synset('õli.n.01')",
+     "Synset('taimehaigus.n.01')",
+     "Synset('trauma.n.01')",
+     "Synset('vaevus.n.01')",
+     "Synset('põletik.n.01')",
+     "Synset('vähendamine.n.01')",
+     "Synset('vaimuhaigus.n.01')",
+     "Synset('liit.n.01')",
+     "Synset('ametiväärikus.n.01')",
+     "Synset('puudus.n.02')",
+     "Synset('puue.n.01')",
+     "Synset('materjal.n.01')",
+     "Synset('segu.n.01')",
+     "Synset('sulam.n.01')",
+     "Synset('hape.n.01')",
+     "Synset('aatom.n.01')",
+     "Synset('element.n.02')",
+     "Synset('metalliline element.n.01')",
+     "Synset('proteiin.n.01')",
+     "Synset('reaktiiv.n.01')",
+     "Synset('keemiline ühend.n.01')",
+     "Synset('algaine.n.01')",
+     "Synset('maapind.n.01')",
+     "Synset('rasv.n.01')",
+     "Synset('kasv.n.01')",
+     "Synset('kiud.n.01')",
+     "Synset('kütus.n.01')",
+     "Synset('voolav aine.n.01')",
+     "Synset('mineraal.n.01')",
+     "Synset('paber.n.01')",
+     "Synset('pulber.n.01')",
+     "Synset('sool.n.01')",
+     "Synset('mürk.n.01')",
+     "Synset('tahke aine.n.01')",
+     "Synset('puit.n.01')",
+     "Synset('kellaaeg.n.01')",
+     "Synset('päev.n.01')",
+     "Synset('kuu.n.01')",
+     "Synset('moment.n.01')",
+     "Synset('tegevus.n.01')",
+     "Synset('tava.n.01')",
+     "Synset('mäng.n.01')",
+     "Synset('loom.n.01')",
+     "Synset('etendus.n.01')",
+     "Synset('tants.n.01')",
+     "Synset('muusika.n.01')",
+     "Synset('manööver.n.02')",
+     "Synset('mängujoonis.n.01')",
+     "Synset('löök.n.01')",
+     "Synset('taim.n.01')",
+     "Synset('töö.n.02')",
+     "Synset('tegevusala.n.01')",
+     "Synset('töökoht.n.03')",
+     "Synset('objekt.n.01')",
+     "Synset('hool.n.01')",
+     "Synset('ravi.n.01')",
+     "Synset('töö.n.01')",
+     "Synset('aine.n.01')",
+     "Synset('tundma.v.01')",
+     "Synset('tundmine.n.02')",
+     "Synset('vedelik.n.01')",
+     "Synset('pigment.n.01')",
+     "Synset('rääkima.v.02')",
+     "Synset('panema.v.01')",
+     "Synset('panemine.n.02')",
+     "Synset('olema.v.04')",
+     "Synset('seadma.v.01')",
+     "Synset('seadmine.n.03')",
+     "Synset('esinema.v.02')",
+     "Synset('esinemine.n.03')",
+     "Synset('tegelema.v.01')",
+     "Synset('tegelemine.n.02')",
+     "Synset('käsitlema.v.01')",
+     "Synset('käsitlemine.n.01')",
+     "Synset('esitama.v.05')",
+     "Synset('esitamine.n.02')",
+     "Synset('uurima.v.01')",
+     "Synset('uurimine.n.04')",
+     "Synset('uurima.v.02')",
+     "Synset('uurimine.n.05')",
+     "Synset('seadma.v.02')",
+     "Synset('seadmine.n.04')",
+     "Synset('arranžeerima.v.01')",
+     "Synset('arranžeerimine.n.01')",
+     "Synset('ümber seadma.v.01')",
+     "Synset('dramatiseerima.v.01')",
+     "Synset('dramatiseerimine.n.01')",
+     "Synset('ennistama.v.01')",
+     "Synset('vestlema.v.01')",
+     "Synset('vestlemine.n.01')",
+     "Synset('elama.v.01')",
+     "Synset('elamine.n.02')",
+     "Synset('jooksma.v.02')",
+     "Synset('jooksmine.n.02')",
+     "Synset('minema.v.07')",
+     "Synset('minemine.n.04')",
+     "Synset('arenema.v.01')",
+     "Synset('arenemine.n.03')",
+     "Synset('minema.v.11')",
+     "Synset('minemine.n.05')",
+     "Synset('andma.v.01')",
+     "Synset('andmine.n.04')",
+     "Synset('andma.v.02')",
+     "Synset('andmine.n.05')",
+     "Synset('andma.v.05')",
+     "Synset('andmine.n.06')",
+     "Synset('hakkama.v.02')",
+     "Synset('hakkamine.n.02')",
+     "Synset('hakkama.v.03')",
+     "Synset('hakkamine.n.03')",
+     "Synset('tekkima.v.01')",
+     "Synset('hakkama.v.05')",
+     "Synset('muutma.v.02')",
+     "Synset('muutmine.n.02')",
+     "Synset('nägema.v.01')",
+     "Synset('nägemine.n.04')",
+     "Synset('leidma.v.02')",
+     "Synset('leidmine.n.02')",
+     "Synset('nägema.v.03')",
+     "Synset('nägemine.n.05')",
+     "Synset('algama.v.04')",
+     "Synset('algamine.n.02')",
+     "Synset('avama.v.01')",
+     "Synset('avamine.n.02')",
+     "Synset('kasutama.v.01')",
+     "Synset('kasutamine.n.02')",
+     "Synset('leidma.v.01')",
+     "Synset('leidmine.n.03')",
+     "Synset('otsima.v.01')",
+     "Synset('otsimine.n.02')",
+     "Synset('leidma.v.04')",
+     "Synset('leidmine.n.04')",
+     "Synset('leidma.v.05')",
+     "Synset('leidmine.n.05')",
+     "Synset('suutma.v.01')",
+     "Synset('suutmine.n.01')",
+     "Synset('kandma.v.01')",
+     "Synset('kandmine.n.01')",
+     "Synset('ajama.v.06')",
+     "Synset('ajamine.n.01')",
+     "Synset('ajama.v.07')",
+     "Synset('ajamine.n.02')",
+     "Synset('lõikama.v.01')",
+     "Synset('lõikamine.n.02')",
+     "Synset('hääldama.v.01')",
+     "Synset('hääldamine.n.02')",
+     "Synset('kuuluma.v.01')",
+     "Synset('kuulumine.n.01')",
+     "Synset('kuuluma.v.02')",
+     "Synset('tekkima.v.03')",
+     "Synset('tekkimine.n.03')",
+     "Synset('koosnema.v.01')",
+     "Synset('koosnemine.n.01')",
+     "Synset('valmistama.v.02')",
+     "Synset('valmistamine.n.03')",
+     "Synset('valmistama.v.03')",
+     "Synset('valmistamine.n.04')",
+     "Synset('moodustama.v.02')",
+     "Synset('moodustamine.n.02')",
+     "Synset('moodustama.v.04')",
+     "Synset('moodustamine.n.03')",
+     "Synset('moodustama.v.05')",
+     "Synset('moodustamine.n.04')",
+     "Synset('osutama.v.02')",
+     "Synset('osutamine.n.01')",
+     "Synset('osutama.v.03')",
+     "Synset('osutamine.n.02')",
+     "Synset('esitama.v.04')",
+     "Synset('esitamine.n.03')",
+     "Synset('esitama.v.07')",
+     "Synset('esitamine.n.04')",
+     "Synset('esitama.v.06')",
+     "Synset('esitamine.n.05')",
+     "Synset('kasvatama.v.02')",
+     "Synset('kasvatamine.n.03')",
+     "Synset('kasvatama.v.05')",
+     "Synset('kasvatamine.n.04')",
+     "Synset('kasvatama.v.06')",
+     "Synset('kasvatamine.n.05')",
+     "Synset('elama.v.02')",
+     "Synset('elamine.n.03')",
+     "Synset('elama.v.03')",
+     "Synset('elamine.n.04')",
+     "Synset('elama.v.04')",
+     "Synset('elamine.n.05')",
+     "Synset('lähtuma.v.01')",
+     "Synset('lähtumine.n.01')",
+     "Synset('lähtuma.v.03')",
+     "Synset('lähtumine.n.02')",
+     "Synset('lähtuma.v.04')",
+     "Synset('lähtumine.n.03')",
+     "Synset('ümbritsema.v.01')",
+     "Synset('ümbritsemine.n.01')",
+     "Synset('ümbritsema.v.02')",
+     "Synset('ümbritsemine.n.02')",
+     "Synset('ümbritsema.v.03')",
+     "Synset('ümbritsemine.n.03')",
+     "Synset('tõmbama.v.02')",
+     "Synset('tõmbamine.n.02')",
+     "Synset('tõmbama.v.05')",
+     "Synset('tõmbamine.n.03')",
+     "Synset('kandma.v.02')",
+     "Synset('kandmine.n.02')",
+     "Synset('sallima.v.01')",
+     "Synset('sallimine.n.01')",
+     "Synset('kandma.v.05')",
+     "Synset('kandmine.n.03')",
+     "Synset('kandma.v.06')",
+     "Synset('kandmine.n.04')",
+     "Synset('kandma.v.07')",
+     "Synset('kandmine.n.05')",
+     "Synset('rõhutama.v.01')",
+     "Synset('rõhutamine.n.02')",
+     "Synset('rõhutama.v.02')",
+     "Synset('rõhutamine.n.03')",
+     "Synset('piirama.v.05')",
+     "Synset('piiramine.n.03')",
+     "Synset('piirama.v.06')",
+     "Synset('piiramine.n.04')",
+     "Synset('piirama.v.07')",
+     "Synset('piiramine.n.05')",
+     "Synset('tooma.v.01')",
+     "Synset('toomine.n.01')",
+     "Synset('kestma.v.02')",
+     "Synset('kestmine.n.01')",
+     "Synset('kestmine.n.02')",
+     "Synset('tingima.v.01')",
+     "Synset('tingimine.n.03')",
+     "Synset('kuluma.v.04')",
+     "Synset('kulumine.n.03')",
+     "Synset('töötlema.v.01')",
+     "Synset('töötlemine.n.02')",
+     "Synset('töötlema.v.02')",
+     "Synset('töötlemine.n.03')",
+     "Synset('töötlema.v.03')",
+     "Synset('töötlemine.n.04')",
+     "Synset('kahjustama.v.01')",
+     "Synset('kahjustamine.n.02')",
+     "Synset('einestama.v.01')",
+     "Synset('einestamine.n.01')",
+     "Synset('märkima.v.02')",
+     "Synset('märkimine.n.02')",
+     "Synset('võimaldama.v.02')",
+     "Synset('võimaldamine.n.02')",
+     "Synset('võimaldama.v.03')",
+     "Synset('võimaldamine.n.03')",
+     "Synset('arenema.v.02')",
+     "Synset('arenemine.n.04')",
+     "Synset('kujunema.v.02')",
+     "Synset('kujunemine.n.02')",
+     "Synset('moodustuma.v.02')",
+     "Synset('moodustumine.n.01')",
+     "Synset('kaduma.v.06')",
+     "Synset('kadumine.n.03')",
+     "Synset('kaduma.v.10')",
+     "Synset('kadumine.n.04')",
+     "Synset('vedama.v.02')",
+     "Synset('vedamine.n.04')",
+     "Synset('ilmuma.v.02')",
+     "Synset('ilmumine.n.02')",
+     "Synset('ilmuma.v.03')",
+     "Synset('ilmumine.n.03')",
+     "Synset('ilmumine.n.04')",
+     "Synset('lisama.v.02')",
+     "Synset('lisamine.n.03')",
+     "Synset('lisama.v.03')",
+     "Synset('lisamine.n.04')",
+     "Synset('koguma.v.01')",
+     "Synset('kogumine.n.01')",
+     "Synset('puuduma.v.01')",
+     "Synset('puudumine.n.02')",
+     "Synset('puuduma.v.02')",
+     "Synset('puudumine.n.03')",
+     "Synset('jooksma.v.04')",
+     "Synset('jooksmine.n.03')",
+     "Synset('rõhuma.v.01')",
+     "Synset('rõhumine.n.01')",
+     "Synset('rõhuma.v.03')",
+     "Synset('rõhumine.n.02')",
+     "Synset('takistama.v.01')",
+     "Synset('takistamine.n.01')",
+     "Synset('avama.v.02')",
+     "Synset('avamine.n.03')",
+     "Synset('sisaldama.v.01')",
+     "Synset('sisaldamine.n.01')",
+     "Synset('minema.v.01')",
+     "Synset('minemine.n.06')",
+     "Synset('asendit muutma.v.01')",
+     "Synset('liigutamine.n.04')",
+     "Synset('minema.v.04')",
+     "Synset('minemine.n.07')",
+     "Synset('jalutama.v.01')",
+     "Synset('jalutamine.n.02')",
+     "Synset('põrutama.v.01')",
+     "Synset('põrutamine.n.01')",
+     "Synset('purjetama.v.01')",
+     "Synset('purjetamine.n.01')",
+     "Synset('minema.v.03')",
+     "Synset('minemine.n.08')",
+     "Synset('suunduma.v.01')",
+     "Synset('suundumine.n.01')",
+     "Synset('eemalduma.v.01')",
+     "Synset('eemaldumine.n.01')",
+     "Synset('minema.v.05')",
+     "Synset('minemine.n.09')",
+     "Synset('lõppema.v.01')",
+     "Synset('lõppemine.n.02')",
+     "Synset('minema.v.06')",
+     "Synset('minemine.n.10')",
+     "Synset('vallanduma.v.01')",
+     "Synset('vallandumine.n.01')",
+     "Synset('minema.v.09')",
+     "Synset('minemine.n.11')",
+     "Synset('õnnestuma.v.01')",
+     "Synset('õnnestumine.n.02')",
+     "Synset('minema.v.10')",
+     "Synset('minemine.n.12')",
+     "Synset('sünnis olema.v.01')",
+     "Synset('minema.v.12')",
+     "Synset('minemine.n.13')",
+     "Synset('minema.v.15')",
+     "Synset('minemine.n.14')",
+     "Synset('minema.v.16')",
+     "Synset('minemine.n.15')",
+     "Synset('olema.v.03')",
+     "Synset('olemine.n.09')",
+     "Synset('jääma.v.02')",
+     "Synset('jäämine.n.04')",
+     "Synset('jääma.v.03')",
+     "Synset('jäämine.n.05')",
+     "Synset('jääma.v.05')",
+     "Synset('jäämine.n.06')",
+     "Synset('annetama.v.01')",
+     "Synset('annetamine.n.02')",
+     "Synset('maksma.v.01')",
+     "Synset('maksmine.n.03')",
+     "Synset('laenama.v.01')",
+     "Synset('laenamine.n.01')",
+     "Synset('loobuma.v.01')",
+     "Synset('loobumine.n.03')",
+     "Synset('andma.v.03')",
+     "Synset('andmine.n.08')",
+     "Synset('saak.n.01')",
+     "Synset('andma.v.06')",
+     "Synset('andmine.n.09')",
+     "Synset('andma.v.07')",
+     "Synset('andmine.n.10')",
+     "Synset('andma.v.08')",
+     "Synset('andmine.n.11')",
+     "Synset('andma.v.09')",
+     "Synset('andmine.n.12')",
+     "Synset('korraldama.v.03')",
+     "Synset('korraldamine.n.06')",
+     "Synset('andma.v.10')",
+     "Synset('andmine.n.13')",
+     "Synset('andma.v.11')",
+     "Synset('andmine.n.14')",
+     "Synset('andma.v.12')",
+     "Synset('andmine.n.15')",
+     "Synset('panema.v.10')",
+     "Synset('panemine.n.05')",
+     ...]
+
+
+
+which returns all the synsets there are or:
+
+.. code:: python
+
+    wn.all_synsets(pos=wn.ADV)
+
+
+
+
+.. parsed-literal::
+
+    ["Synset('veel.b.01')",
+     "Synset('veel.b.02')",
+     "Synset('veel.b.03')",
+     "Synset('veel.b.05')",
+     "Synset('veel.b.06')",
+     "Synset('alles.b.01')",
+     "Synset('alles.b.02')",
+     "Synset('alles.b.03')",
+     "Synset('alles.b.04')",
+     "Synset('alles.b.05')",
+     "Synset('juba.b.01')",
+     "Synset('juba.b.02')",
+     "Synset('juba.b.03')",
+     "Synset('jälle.b.01')",
+     "Synset('jälle.b.02')",
+     "Synset('jälle.b.03')",
+     "Synset('eile.b.01')",
+     "Synset('eile.b.02')",
+     "Synset('varem.b.01')",
+     "Synset('varem.b.02')",
+     "Synset('kohe.b.01')",
+     "Synset('kohe.b.02')",
+     "Synset('pärast.b.01')",
+     "Synset('pärast.b.02')",
+     "Synset('pärast.b.03')",
+     "Synset('edaspidi.b.02')",
+     "Synset('tagurpidi.b.01')",
+     "Synset('tagurpidi.b.02')",
+     "Synset('tagurpidi.b.03')",
+     "Synset('järsku.b.01')",
+     "Synset('järsku.b.02')",
+     "Synset('kohe.b.03')",
+     "Synset('kohe.b.04')",
+     "Synset('pärale.b.03')",
+     "Synset('kohale.b.01')",
+     "Synset('kohale.b.02')",
+     "Synset('enne.b.01')",
+     "Synset('enne.b.02')",
+     "Synset('enne.b.03')",
+     "Synset('kõigepealt.b.01')",
+     "Synset('enne.b.04')",
+     "Synset('esmalt.b.02')",
+     "Synset('eelnevalt.b.01')",
+     "Synset('eelnevalt.b.02')",
+     "Synset('eeskätt.b.01')",
+     "Synset('eeskätt.b.02')",
+     "Synset('esmajoones.b.01')",
+     "Synset('esmajoones.b.02')",
+     "Synset('eelkõige.b.01')",
+     "Synset('eelkõige.b.02')",
+     "Synset('eriti.b.01')",
+     "Synset('hiljuti.b.01')",
+     "Synset('ammu.b.01')",
+     "Synset('ammu.b.02')",
+     "Synset('ammu.b.03')",
+     "Synset('ammuks.b.02')",
+     "Synset('nüüd.b.01')",
+     "Synset('nüüd.b.02')",
+     "Synset('samuti.b.01')",
+     "Synset('pealegi.b.03')",
+     "Synset('muudkui.b.02')",
+     "Synset('aina.b.02')",
+     "Synset('aina.b.03')",
+     "Synset('liiati.b.02')",
+     "Synset('ainuüksi.b.02')",
+     "Synset('ainult.b.03')",
+     "Synset('järjest.b.02')",
+     "Synset('järgemööda.b.02')",
+     "Synset('ainult.b.04')",
+     "Synset('alatasa.b.02')",
+     "Synset('pidevalt.b.01')",
+     "Synset('pidevalt.b.02')",
+     "Synset('viimati.b.01')",
+     "Synset('viivitamata.b.01')",
+     "Synset('otsekohe.b.01')",
+     "Synset('algul.b.01')",
+     "Synset('algul.b.02')",
+     "Synset('esiti.b.02')",
+     "Synset('tegelikult.b.01')",
+     "Synset('tegelikult.b.02')",
+     "Synset('esiteks.b.01')",
+     "Synset('esiteks.b.02')",
+     "Synset('aga.b.02')",
+     "Synset('aga.b.03')",
+     "Synset('küll.b.02')",
+     "Synset('küll.b.03')",
+     "Synset('kindlasti.b.01')",
+     "Synset('vähemalt.b.01')",
+     "Synset('siiski.b.02')",
+     "Synset('küll.b.04')",
+     "Synset('küll.b.05')",
+     "Synset('küll.b.06')",
+     "Synset('ootamatult.b.01')",
+     "Synset('kindlasti.b.02')",
+     "Synset('tugevasti.b.01')",
+     "Synset('kõvasti.b.01')",
+     "Synset('valjult.b.01')",
+     "Synset('kindlalt.b.02')",
+     "Synset('vääramatult.b.01')",
+     "Synset('vankumatult.b.01')",
+     "Synset('kõigutamatult.b.01')",
+     "Synset('vapralt.b.01')",
+     "Synset('kindlalt.b.04')",
+     "Synset('otse.b.02')",
+     "Synset('otse.b.03')",
+     "Synset('püstiselt.b.01')",
+     "Synset('hiljem.b.01')",
+     "Synset('pärast.b.04')",
+     "Synset('pealegi.b.04')",
+     "Synset('lihtsalt.b.01')",
+     "Synset('lausa.b.02')",
+     "Synset('otsekoheselt.b.01')",
+     "Synset('avameelselt.b.01')",
+     "Synset('siiralt.b.01')",
+     "Synset('ometi.b.01')",
+     "Synset('otse.b.05')",
+     "Synset('otsejoones.b.04')",
+     "Synset('nüüd.b.03')",
+     "Synset('ometi.b.02')",
+     "Synset('ometi.b.03')",
+     "Synset('siis.b.02')",
+     "Synset('ometi.b.04')",
+     "Synset('otsekohe.b.02')",
+     "Synset('otsekohe.b.03')",
+     "Synset('otsekohe.b.04')",
+     "Synset('otsekohe.b.05')",
+     "Synset('otsekui.b.01')",
+     "Synset('püsti.b.02')",
+     "Synset('ülespoole.b.01')",
+     "Synset('püsti.b.03')",
+     "Synset('õigetpidi.b.01')",
+     "Synset('püsti.b.04')",
+     "Synset('uhkelt.b.01')",
+     "Synset('püsti.b.05')",
+     "Synset('püsti.b.06')",
+     "Synset('püsti.b.07')",
+     "Synset('õieli.b.01')",
+     "Synset('püsti.b.08')",
+     "Synset('väga.b.01')",
+     "Synset('püstivarvukil.b.01')",
+     "Synset('kikivarvul.b.01')",
+     "Synset('kikivarvul.b.02')",
+     "Synset('hiilivalt.b.01')",
+     "Synset('salaja.b.01')",
+     "Synset('vaikselt.b.01')",
+     "Synset('püstijalu.b.01')",
+     "Synset('püstijalu.b.02')",
+     "Synset('täna.b.01')",
+     "Synset('täna.b.02')",
+     "Synset('praegu.b.02')",
+     "Synset('praegu.b.01')",
+     "Synset('hetketi.b.01')",
+     "Synset('mõnikord.b.01')",
+     "Synset('vahepeal.b.03')",
+     "Synset('vahepeal.b.04')",
+     "Synset('mõneti.b.01')",
+     "Synset('kuidagi-viisi.b.01')",
+     "Synset('aeg-ajalt.b.01')",
+     "Synset('perioodiliselt.b.01')",
+     "Synset('hetkeliselt.b.01')",
+     "Synset('hetkeliselt.b.02')",
+     "Synset('hetkelt.b.01')",
+     "Synset('poolenisti.b.01')",
+     "Synset('poolenisti.b.02')",
+     "Synset('osaliselt.b.01')",
+     "Synset('peaaegu.b.01')",
+     "Synset('peaaegu.b.02')",
+     "Synset('ligikaudu.b.01')",
+     "Synset('enam-vähem.b.01')",
+     "Synset('peaaegu.b.03')",
+     "Synset('äärepealt.b.01')",
+     "Synset('vaikselt.b.02')",
+     "Synset('aeglaselt.b.01')",
+     "Synset('aegamööda.b.01')",
+     "Synset('aegamööda.b.02')",
+     "Synset('aeglasevõitu.b.01')",
+     "Synset('täpselt.b.02')",
+     "Synset('perfektselt.b.01')",
+     "Synset('täiesti.b.02')",
+     "Synset('absoluutselt.b.02')",
+     "Synset('üldse.b.02')",
+     "Synset('täpselt.b.03')",
+     "Synset('täpselt.b.04')",
+     "Synset('arusaadavalt.b.01')",
+     "Synset('arusaadavalt.b.02')",
+     "Synset('loomulikult.b.01')",
+     "Synset('nimelt.b.02')",
+     "Synset('täpsemalt.b.02')",
+     "Synset('nimelt.b.04')",
+     "Synset('teadlikult.b.01')",
+     "Synset('sihilikult.b.01')",
+     "Synset('meelega.b.01')",
+     "Synset('sendipealt.b.01')",
+     "Synset('loomulikult.b.02')",
+     "Synset('loomulikult.b.03')",
+     "Synset('üsna.b.01')",
+     "Synset('võrdlemisi.b.01')",
+     "Synset('täpselt.b.06')",
+     "Synset('täpselt.b.07')",
+     "Synset('parasjagu.b.02')",
+     "Synset('parasjagu.b.04')",
+     "Synset('mõõdukalt.b.01')",
+     "Synset('liialdamatult.b.01')",
+     "Synset('liialdamata.b.02')",
+     "Synset('liialdatult.b.01')",
+     "Synset('liialdatult.b.02')",
+     "Synset('piisavalt.b.01')",
+     "Synset('küllaldaselt.b.01')",
+     "Synset('homme.b.01')",
+     "Synset('hommepäev.b.01')",
+     "Synset('hommepäev.b.02')",
+     "Synset('varsti.b.01')",
+     "Synset('peagi.b.01')",
+     "Synset('homme.b.02')",
+     "Synset('ülehomme.b.01')",
+     "Synset('päev-päevalt.b.01')",
+     "Synset('päev päeva järel.b.01')",
+     "Synset('alati.b.01')",
+     "Synset('alati.b.02')",
+     "Synset('ikka.b.02')",
+     "Synset('alati.b.04')",
+     "Synset('igavesti.b.01')",
+     "Synset('alati.b.05')",
+     "Synset('jäädavalt.b.01')",
+     "Synset('jäägitult.b.01')",
+     "Synset('sageli.b.01')",
+     "Synset('alatihti.b.01')",
+     "Synset('pidevalt.b.03')",
+     "Synset('pahatihti.b.01')",
+     "Synset('ilma.b.01')",
+     "Synset('ilma.b.02')",
+     "Synset('iial.b.01')",
+     "Synset('eal.b.01')",
+     "Synset('ilmaasjata.b.01')",
+     "Synset('asjatult.b.01')",
+     "Synset('kasutult.b.01')",
+     "Synset('niisama.b.04')",
+     "Synset('kergesti.b.01')",
+     "Synset('naljalt.b.01')",
+     "Synset('pealegi.b.02')",
+     "Synset('tasuta.b.01')",
+     "Synset('samuti.b.02')",
+     "Synset('sarnaselt.b.01')",
+     "Synset('naljaviluks.b.01')",
+     "Synset('naljatamisi.b.01')",
+     "Synset('ajaliselt.b.01')",
+     "Synset('varakult.b.01')",
+     "Synset('aegsasti.b.01')",
+     "Synset('kunagi.b.02')",
+     "Synset('ikka ja jälle.b.01')",
+     "Synset('ammu.b.04')",
+     "Synset('kaua.b.01')",
+     "Synset('igavesti.b.02')",
+     "Synset('igavesti.b.03')",
+     "Synset('alalõpmata.b.01')",
+     "Synset('igavesti.b.04')",
+     "Synset('tohutult.b.01')",
+     "Synset('igaviisi.b.01')",
+     "Synset('igati.b.02')",
+     "Synset('üüratult.b.01')",
+     "Synset('lähemal.b.01')",
+     "Synset('ligemal.b.01')",
+     "Synset('lähemalt.b.01')",
+     "Synset('üksikasjalikumalt.b.01')",
+     "Synset('ligemalt.b.01')",
+     "Synset('täpsemalt.b.03')",
+     "Synset('lähemalt.b.02')",
+     "Synset('lähemale.b.01')",
+     "Synset('lähemale.b.02')",
+     "Synset('kaugemal.b.01')",
+     "Synset('kaugemal.b.02')",
+     "Synset('lähemal.b.02')",
+     "Synset('peamiselt.b.01')",
+     "Synset('põhiliselt.b.01')",
+     "Synset('põhiliselt.b.02')",
+     "Synset('peaasjalikult.b.02')",
+     "Synset('enamasti.b.01')",
+     "Synset('tavaliselt.b.01')",
+     "Synset('peamiselt.b.02')",
+     "Synset('tavaliselt.b.02')",
+     "Synset('normaalselt.b.01')",
+     "Synset('standardselt.b.01')",
+     "Synset('tavaliselt.b.03')",
+     "Synset('korrapäraselt.b.01')",
+     "Synset('üldiselt.b.01')",
+     "Synset('korrapäraselt.b.02')",
+     "Synset('korralikult.b.01')",
+     "Synset('korratult.b.01')",
+     "Synset('korrektselt.b.01')",
+     "Synset('ilusasti.b.01')",
+     "Synset('ilusasti.b.02')",
+     "Synset('õigesti.b.01')",
+     "Synset('korrektselt.b.02')",
+     "Synset('puhtalt.b.01')",
+     "Synset('puhtalt.b.02')",
+     "Synset('kohati.b.01')",
+     "Synset('tükati.b.01')",
+     "Synset('laiguti.b.01')",
+     "Synset('kohati.b.02')",
+     "Synset('kohati.b.03')",
+     "Synset('osalt.b.02')",
+     "Synset('kohkumisi.b.01')",
+     "Synset('hirmunult.b.01')",
+     "Synset('hirmukahkvel.b.01')",
+     "Synset('aastati.b.01')",
+     "Synset('kunagi.b.03')",
+     "Synset('vähehaaval.b.01')",
+     "Synset('aja jooksul.b.01')",
+     "Synset('lõpuks.b.01')",
+     "Synset('viimaks.b.01')",
+     "Synset('lõpuks.b.02')",
+     "Synset('päriselt.b.01')",
+     "Synset('päriselt.b.02')",
+     "Synset('päriselt.b.04')",
+     "Synset('päriseks.b.02')",
+     "Synset('aineti.b.01')",
+     "Synset('ainiti.b.01')",
+     "Synset('ainiti.b.02')",
+     "Synset('kikikõrvu.b.01')",
+     "Synset('kikikõrvu.b.02')",
+     "Synset('ainuüksi.b.03')",
+     "Synset('aiva.b.01')",
+     "Synset('samaaegselt.b.01')",
+     "Synset('alal.b.01')",
+     "Synset('alaliselt.b.01')",
+     "Synset('püsivalt.b.01')",
+     "Synset('katkematult.b.01')",
+     "Synset('lõpmatuseni.b.01')",
+     "Synset('alamal.b.01')",
+     "Synset('allpool.b.01')",
+     "Synset('allpool.b.02')",
+     "Synset('edaspidi.b.03')",
+     "Synset('järgnevalt.b.01')",
+     "Synset('anuvalt.b.01')",
+     "Synset('paluvalt.b.01')",
+     "Synset('aplamisi.b.01')",
+     "Synset('ahnesti.b.01')",
+     "Synset('küpsiküüsi.b.01')",
+     "Synset('nobedasti.b.01')",
+     "Synset('väledasti.b.01')",
+     "Synset('vilkalt.b.01')",
+     "Synset('silmapilkselt.b.01')",
+     "Synset('momentaanselt.b.01')",
+     "Synset('samas.b.01')",
+     "Synset('ülikiiresti.b.01')",
+     "Synset('armetult.b.01')",
+     "Synset('viletsalt.b.01')",
+     "Synset('armetult.b.02')",
+     "Synset('armetult.b.03')",
+     "Synset('haletsusväärselt.b.01')",
+     "Synset('õnnetult.b.01')",
+     "Synset('kehvasti.b.01')",
+     "Synset('halvasti.b.01')",
+     "Synset('arutult.b.01')",
+     "Synset('ebaharilikult.b.01')",
+     "Synset('ennekuulmatult.b.01')",
+     "Synset('ennenägematult.b.01')",
+     "Synset('piiskhaaval.b.01')",
+     "Synset('vähehaaval.b.02')",
+     "Synset('terahaaval.b.01')",
+     "Synset('kildhaaval.b.01')",
+     "Synset('vähehaaval.b.03')",
+     "Synset('sammhaaval.b.01')",
+     "Synset('tollhaaval.b.01')",
+     "Synset('tasapisi.b.01')",
+     "Synset('lühidalt.b.01')",
+     "Synset('kokkuvõtlikult.b.01')",
+     "Synset('lakooniliselt.b.01')",
+     "Synset('napisõnaliselt.b.01')",
+     "Synset('tänavu.b.01')",
+     "Synset('eks.b.01')",
+     "Synset('eks.b.02')",
+     "Synset('eksprompt.b.01')",
+     "Synset('ekstra.b.01')",
+     "Synset('eraldi.b.02')",
+     "Synset('eriliselt.b.02')",
+     "Synset('eraldi.b.01')",
+     "Synset('ärevil.b.01')",
+     "Synset('erutatult.b.01')",
+     "Synset('murelikult.b.01')",
+     "Synset('esialgselt.b.01')",
+     "Synset('esialgu.b.02')",
+     "Synset('esimese hooga.b.01')",
+     "Synset('kõigepealt.b.02')",
+     "Synset('kogemata.b.01')",
+     "Synset('arupidavalt.b.01')",
+     "Synset('kaaluvalt.b.01')",
+     "Synset('järelemõtlevalt.b.01')",
+     "Synset('kaalutletult.b.01')",
+     "Synset('mõistlikult.b.01')",
+     "Synset('arutult.b.02')",
+     "Synset('inimese moodi.b.01')",
+     "Synset('rumalalt.b.01')",
+     "Synset('totralt.b.01')",
+     "Synset('ogaralt.b.01')",
+     "Synset('erksalt.b.01')",
+     "Synset('vilkalt.b.02')",
+     "Synset('reipalt.b.01')",
+     "Synset('virgelt.b.01')",
+     "Synset('haigevõitu.b.01')",
+     "Synset('hajakil.b.01')",
+     "Synset('hajali.b.01')",
+     "Synset('hajali.b.02')",
+     "Synset('hajameelselt.b.01')",
+     "Synset('hõredalt.b.01')",
+     "Synset('laialipillatult.b.01')",
+     "Synset('tihedalt.b.01')",
+     "Synset('sporaadiliselt.b.01')",
+     "Synset('harva.b.01')",
+     "Synset('haruharva.b.01')",
+     "Synset('harvavõitu.b.01')",
+     "Synset('hõredavõitu.b.01')",
+     "Synset('harvem.b.01')",
+     "Synset('tihedalt.b.02')",
+     "Synset('kokkusurutult.b.02')",
+     "Synset('hasartselt.b.01')",
+     "Synset('innukalt.b.01')",
+     "Synset('entusiastlikult.b.01')",
+     "Synset('vaimustunult.b.01')",
+     "Synset('agaralt.b.01')",
+     "Synset('heakskiitvalt.b.01')",
+     "Synset('tuliselt.b.01')",
+     "Synset('tuhinal.b.01')",
+     "Synset('ahinal.b.01')",
+     "Synset('temperamentselt.b.01')",
+     "Synset('kiretult.b.01')",
+     "Synset('tundeliselt.b.01')",
+     "Synset('jaatavalt.b.01')",
+     "Synset('jaatavalt.b.02')",
+     "Synset('eitavalt.b.01')",
+     "Synset('eitavalt.b.02')",
+     "Synset('hukkamõistvalt.b.01')",
+     "Synset('laitvalt.b.01')",
+     "Synset('laiuti.b.01')",
+     "Synset('laitmatult.b.01')",
+     "Synset('laksti.b.01')",
+     "Synset('lamaskil.b.01')",
+     "Synset('lamaskile.b.01')",
+     "Synset('pikali.b.01')",
+     "Synset('pikali.b.02')",
+     "Synset('maha.b.01')",
+     "Synset('pikali.b.03')",
+     "Synset('maha.b.02')",
+     "Synset('allapoole.b.01')",
+     "Synset('madalamale.b.01')",
+     "Synset('alla.b.01')",
+     "Synset('maha.b.03')",
+     "Synset('allapoole.b.02')",
+     "Synset('ülespoole.b.02')",
+     "Synset('alaspidi.b.01')",
+     "Synset('alaspäi.b.01')",
+     "Synset('madalale.b.02')",
+     "Synset('madalale.b.03')",
+     "Synset('maha.b.04')",
+     "Synset('alasti.b.01')",
+     "Synset('alasti.b.02')",
+     "Synset('alasti.b.03')",
+     "Synset('allatuult.b.01')",
+     "Synset('vastutuult.b.01')",
+     "Synset('ülesmäge.b.01')",
+     "Synset('allamäge.b.01')",
+     "Synset('allamäge.b.02')",
+     "Synset('ülesmäge.b.02')",
+     "Synset('allavoolu.b.01')",
+     "Synset('allajõge.b.01')",
+     "Synset('vastuvoolu.b.01')",
+     "Synset('allpool.b.03')",
+     "Synset('küüsitsi.b.01')",
+     "Synset('laatsakil.b.01')",
+     "Synset('laatsakile.b.01')",
+     "Synset('lösakil.b.01')",
+     "Synset('lösakile.b.01')",
+     "Synset('röötsakil.b.01')",
+     "Synset('lääbakil.b.01')",
+     "Synset('viltu.b.01')",
+     "Synset('upakil.b.01')",
+     "Synset('viltu.b.02')",
+     "Synset('kaldu.b.01')",
+     "Synset('kaldu.b.02')",
+     "Synset('kreenis.b.01')",
+     "Synset('kreeni.b.01')",
+     "Synset('längakil.b.01')",
+     "Synset('längakile.b.01')",
+     "Synset('längamisi.b.01')",
+     "Synset('kiivas.b.01')",
+     "Synset('kiiva.b.01')",
+     "Synset('kiiva.b.02')",
+     "Synset('kiiva.b.03')",
+     "Synset('kaardu.b.01')",
+     "Synset('kõõrdi.b.02')",
+     "Synset('kõõrdi.b.03')",
+     "Synset('kõõrdi.b.04')",
+     "Synset('kõõrdis.b.01')",
+     "Synset('käekõrvalt.b.01')",
+     "Synset('käekõrvale.b.01')",
+     "Synset('käsikäes.b.01')",
+     "Synset('käsikäes.b.02')",
+     "Synset('sõbralikult.b.01')",
+     "Synset('käsitsi.b.01')",
+     "Synset('käsitsi.b.02')",
+     "Synset('käsipuusakil.b.01')",
+     "Synset('käsipõsakil.b.01')",
+     "Synset('käsipuusakile.b.01')",
+     "Synset('käsipõsakile.b.01')",
+     "Synset('kätte.b.01')",
+     "Synset('kätte.b.02')",
+     "Synset('kätte.b.03')",
+     "Synset('kätte.b.04')",
+     "Synset('kätte.b.05')",
+     "Synset('kätte.b.06')",
+     "Synset('kätte.b.07')",
+     "Synset('käuhti.b.01')",
+     "Synset('käuksti.b.01')",
+     "Synset('täiendavalt.b.01')",
+     "Synset('pealekauba.b.02')",
+     "Synset('pealekuti.b.01')",
+     "Synset('ülestikku.b.01')",
+     "Synset('kohakuti.b.01')",
+     "Synset('vastamisi.b.01')",
+     "Synset('silmitsi.b.01')",
+     "Synset('seljakuti.b.01')",
+     "Synset('selili.b.01')",
+     "Synset('selili.b.02')",
+     "Synset('kohaselt.b.01')",
+     "Synset('kohaselt.b.02')",
+     "Synset('kohaselt.b.03')",
+     "Synset('sobivalt.b.02')",
+     "Synset('kõlblikult.b.01')",
+     "Synset('sündsalt.b.01')",
+     "Synset('kohatult.b.01')",
+     "Synset('võimekalt.b.01')",
+     "Synset('kombe.b.01')",
+     "Synset('jutti.b.02')",
+     "Synset('järsult.b.01')",
+     "Synset('järsku.b.04')",
+     "Synset('kibestunult.b.01')",
+     "Synset('mürgiselt.b.01')",
+     "Synset('leebelt.b.01')",
+     "Synset('lehthaaval.b.01')",
+     "Synset('lehvikjalt.b.01')",
+     "Synset('leigelt.b.01')",
+     "Synset('jahedalt.b.01')",
+     "Synset('ametlikult.b.01')",
+     "Synset('jahedavõitu.b.01')",
+     "Synset('ametlikult.b.02')",
+     "Synset('mitteametlikult.b.01')",
+     "Synset('mitutpidi.b.01')",
+     "Synset('molukil.b.01')",
+     "Synset('monarhistlikult.b.01')",
+     "Synset('monotoonselt.b.01')",
+     "Synset('mornilt.b.01')",
+     "Synset('tusaselt.b.01')",
+     "Synset('süngelt.b.01')",
+     "Synset('masendavalt.b.01')",
+     "Synset('masendavalt.b.02')",
+     "Synset('kurvameelselt.b.01')",
+     "Synset('rõõmsameelselt.b.01')",
+     "Synset('nukrameelselt.b.01')",
+     "Synset('meeleldi.b.01')",
+     "Synset('kurblikult.b.01')",
+     "Synset('mahlakalt.b.01')",
+     "Synset('huvitavalt.b.01')",
+     "Synset('igavalt.b.01')",
+     "Synset('üksluiselt.b.01')",
+     "Synset('murdeti.b.01')",
+     "Synset('muretult.b.01')",
+     "Synset('rahulikult.b.01')",
+     "Synset('rahutult.b.01')",
+     "Synset('rahulikult.b.02')",
+     "Synset('rahulikult.b.03')",
+     "Synset('rahulikult.b.04')",
+     "Synset('rahulikult.b.05')",
+     "Synset('vaoshoitult.b.01')",
+     "Synset('rahustavalt.b.01')",
+     "Synset('kärsitult.b.01')",
+     "Synset('rahvuseti.b.01')",
+     "Synset('rajuvil.b.01')",
+     "Synset('rakkes.b.01')",
+     "Synset('rakkus.b.01')",
+     "Synset('raksti.b.01')",
+     "Synset('raksu.b.01')",
+     "Synset('raksupealt.b.01')",
+     "Synset('raskelt.b.02')",
+     "Synset('raskelt.b.03')",
+     "Synset('nässu.b.01')",
+     "Synset('katki.b.01')",
+     "Synset('katki.b.02')",
+     "Synset('katki.b.03')",
+     "Synset('katki.b.04')",
+     "Synset('katki.b.05')",
+     "Synset('halvasti.b.02')",
+     "Synset('korras.b.01')",
+     "Synset('hästi.b.02')",
+     "Synset('üdini.b.01')",
+     "Synset('sügavalt.b.01')",
+     "Synset('üle kere.b.01')",
+     "Synset('näruselt.b.01')",
+     "Synset('nigerlikult.b.01')",
+     "Synset('näruselt.b.02')",
+     "Synset('kõrgel.b.01')",
+     "Synset('madalal.b.01')",
+     "Synset('kõrgel.b.02')",
+     "Synset('madalal.b.02')",
+     "Synset('kõrgel.b.03')",
+     "Synset('madalal.b.03')",
+     "Synset('madalalt.b.01')",
+     "Synset('madalalt.b.02')",
+     "Synset('kõrgelt.b.01')",
+     "Synset('sügavalt.b.02')",
+     "Synset('madalalt.b.03')",
+     "Synset('kõrgelt.b.02')",
+     "Synset('madalalt.b.04')",
+     "Synset('kõrgelt.b.03')",
+     "Synset('heledalt.b.01')",
+     "Synset('peenikeselt.b.01')",
+     "Synset('kõrgelt.b.04')",
+     "Synset('rohkesti.b.01')",
+     "Synset('silmapaistvalt.b.01')",
+     "Synset('rikkalikult.b.01')",
+     "Synset('arvukalt.b.01')",
+     "Synset('palju.b.01')",
+     "Synset('vähe.b.01')",
+     "Synset('vähevõitu.b.01')",
+     "Synset('kõrgelt.b.05')",
+     "Synset('arvuliselt.b.01')",
+     "Synset('vaevu.b.01')",
+     "Synset('põgusalt.b.01')",
+     "Synset('kergelt.b.01')",
+     "Synset('vaevu.b.02')",
+     "Synset('põgusalt.b.02')",
+     "Synset('korraks.b.01')",
+     "Synset('põgusalt.b.03')",
+     "Synset('korraks.b.02')",
+     "Synset('korraga.b.03')",
+     "Synset('kergakil.b.01')",
+     "Synset('kergelt.b.03')",
+     "Synset('veidi.b.01')",
+     "Synset('raasuke.b.01')",
+     "Synset('tsipake.b.01')",
+     "Synset('palju.b.02')",
+     "Synset('kergelt.b.04')",
+     "Synset('sujuvalt.b.02')",
+     "Synset('ladusalt.b.01')",
+     "Synset('kergelt.b.05')",
+     "Synset('õhukeselt.b.01')",
+     "Synset('nattipidi.b.01')",
+     "Synset('karvupidi.b.01')",
+     "Synset('natukesehaaval.b.01')",
+     "Synset('tasapisi.b.03')",
+     "Synset('sosinal.b.01')",
+     "Synset('valjuhäälselt.b.01')",
+     "Synset('kuuldavalt.b.01')",
+     "Synset('rangelt.b.01')",
+     "Synset('rangelt.b.02')",
+     "Synset('kurjalt.b.01')",
+     "Synset('nõudlikult.b.01')",
+     "Synset('vihaselt.b.01')",
+     "Synset('kurjalt.b.02')",
+     "Synset('kurjalt.b.03')",
+     "Synset('nõudlikult.b.02')",
+     "Synset('pirtsakalt.b.01')",
+     "Synset('valivalt.b.01')",
+     "Synset('kapriisselt.b.01')",
+     "Synset('kiivalt.b.01')",
+     "Synset('kiivalt.b.02')",
+     "Synset('armukadedalt.b.01')",
+     "Synset('hoolega.b.01')",
+     "Synset('hooletult.b.01')",
+     "Synset('lohakavõitu.b.01')",
+     "Synset('ettevaatamatult.b.01')",
+     "Synset('hooletult.b.02')",
+     "Synset('ettevaatlikult.b.01')",
+     "Synset('ülepeakaela.b.01')",
+     "Synset('ligadi-logadi.b.01')",
+     "Synset('etteotsa.b.01')",
+     "Synset('ettepoole.b.01')",
+     "Synset('tahapoole.b.01')",
+     "Synset('edasisuunas.b.01')",
+     "Synset('tagasisuunas.b.01')",
+     "Synset('ette-taha.b.01')",
+     "Synset('edasi-tagasi.b.01')",
+     "Synset('edasi-tagasi.b.02')",
+     "Synset('ettepoole.b.02')",
+     "Synset('edasi-tagasi.b.03')",
+     "Synset('edasi.b.02')",
+     "Synset('edasi.b.03')",
+     "Synset('edasi.b.04')",
+     "Synset('jätkuvalt.b.01')",
+     "Synset('endistviisi.b.01')",
+     "Synset('edasi.b.05')",
+     "Synset('edasi.b.06')",
+     "Synset('edasi.b.07')",
+     "Synset('järsult.b.02')",
+     "Synset('täielikult.b.03')",
+     "Synset('järsult.b.04')",
+     "Synset('laugelt.b.01')",
+     "Synset('mahedasti.b.01')",
+     "Synset('laugelt.b.02')",
+     "Synset('sumedalt.b.01')",
+     "Synset('kaheti.b.01')",
+     "Synset('kaheti.b.02')",
+     "Synset('muuseas.b.01')",
+     "Synset('kahjuks.b.01')",
+     "Synset('õnneks.b.01')",
+     "Synset('hea.b.01')",
+     "Synset('õnnetuseks.b.01')",
+     "Synset('paraku.b.01')",
+     "Synset('paraku.b.02')",
+     "Synset('lohakil.b.01')",
+     "Synset('laokil.b.01')",
+     "Synset('hukas.b.01')",
+     "Synset('räämas.b.01')",
+     "Synset('lohakil.b.02')",
+     "Synset('segamini.b.01')",
+     "Synset('segamini.b.02')",
+     "Synset('segamini.b.03')",
+     "Synset('üha.b.02')",
+     "Synset('kord-korralt.b.01')",
+     "Synset('vist.b.01')",
+     "Synset('ilmselt.b.01')",
+     "Synset('nähtavasti.b.01')",
+     "Synset('küllap.b.01')",
+     "Synset('oletatavasti.b.01')",
+     "Synset('ehk.b.01')",
+     "Synset('küllap.b.02')",
+     "Synset('usutavasti.b.01')",
+     "Synset('silmnähtavalt.b.01')",
+     "Synset('küllakil.b.01')",
+     "Synset('küllakile.b.01')",
+     "Synset('küllalt.b.01')",
+     "Synset('küllalt.b.02')",
+     "Synset('küllalt.b.03')",
+     "Synset('külmalt.b.01')",
+     "Synset('ükskõikselt.b.01')",
+     "Synset('külmalt.b.02')",
+     "Synset('asjalikult.b.01')",
+     "Synset('ebamõistlikult.b.01')",
+     "Synset('külmalt.b.03')",
+     "Synset('külmalt.b.04')",
+     "Synset('soojalt.b.01')",
+     "Synset('südamlikult.b.01')",
+     "Synset('osavõtlikult.b.01')",
+     "Synset('kaastundlikult.b.01')",
+     "Synset('heldelt.b.01')",
+     "Synset('hoolimatult.b.01')",
+     "Synset('jõhkralt.b.01')",
+     "Synset('heldinult.b.01')",
+     "Synset('härdalt.b.01')",
+     "Synset('härgamisi.b.01')",
+     "Synset('raskepäraselt.b.01')",
+     "Synset('haledasti.b.01')",
+     "Synset('haledasti.b.02')",
+     "Synset('haledavõitu.b.01')",
+     "Synset('rängalt.b.01')",
+     "Synset('põhjalikult.b.01')",
+     "Synset('põhjalikult.b.02')",
+     "Synset('rängalt.b.02')",
+     "Synset('kõvasti.b.03')",
+     "Synset('kõvasti.b.04')",
+     "Synset('vastupidavalt.b.01')",
+     "Synset('püsivalt.b.02')",
+     "Synset('energiliselt.b.01')",
+     "Synset('kõvasti.b.05')",
+     "Synset('järeleandmatult.b.01')",
+     "Synset('visalt.b.01')",
+     "Synset('visalt.b.02')",
+     "Synset('visalt.b.03')",
+     "Synset('aeglaselt.b.02')",
+     "Synset('kõvasti.b.06')",
+     "Synset('kõvasti.b.07')",
+     "Synset('ohtralt.b.01')",
+     "Synset('tõsiselt.b.01')",
+     "Synset('eluohtlikult.b.01')",
+     "Synset('rängalt.b.04')",
+     "Synset('rusuvalt.b.01')",
+     "Synset('rängalt.b.05')",
+     "Synset('ränkraskelt.b.01')",
+     "Synset('nõrgalt.b.01')",
+     "Synset('tugevasti.b.03')",
+     "Synset('nõrgalt.b.02')",
+     "Synset('nõrgalt.b.03')",
+     "Synset('nõudekohaselt.b.01')",
+     "Synset('nõrgamõistuslikult.b.01')",
+     "Synset('nässu.b.02')",
+     "Synset('valesti.b.01')",
+     "Synset('mokas.b.01')",
+     "Synset('lörris.b.01')",
+     "Synset('lörri.b.01')",
+     "Synset('sassi.b.01')",
+     "Synset('kortsu.b.01')",
+     "Synset('kortsu.b.02')",
+     "Synset('krussi.b.01')",
+     "Synset('rulli.b.01')",
+     "Synset('keerdu.b.01')",
+     "Synset('lokki.b.01')",
+     "Synset('keerdu.b.02')",
+     "Synset('krussi.b.02')",
+     "Synset('keerdu.b.03')",
+     "Synset('siia-sinna.b.01')",
+     "Synset('lonkshaaval.b.01')",
+     "Synset('lonksti.b.01')",
+     "Synset('lonksu.b.01')",
+     "Synset('loiult.b.01')",
+     "Synset('lõdvalt.b.01')",
+     "Synset('lõdvalt.b.02')",
+     "Synset('ette.b.02')",
+     "Synset('külge.b.01')",
+     "Synset('ette.b.03')",
+     "Synset('ette.b.04')",
+     "Synset('ette.b.06')",
+     "Synset('tagantjärele.b.01')",
+     "Synset('tagatipuks.b.01')",
+     "Synset('ette.b.07')",
+     "Synset('ette.b.09')",
+     "Synset('ette.b.10')",
+     "Synset('ette.b.11')",
+     "Synset('ette.b.13')",
+     "Synset('külge.b.02')",
+     "Synset('külge.b.03')",
+     "Synset('kinni.b.01')",
+     "Synset('lahti.b.01')",
+     "Synset('kinni.b.02')",
+     "Synset('külge.b.04')",
+     "Synset('juurde.b.02')",
+     "Synset('külge.b.05')",
+     "Synset('külge.b.06')",
+     "Synset('ligi.b.02')",
+     "Synset('külge.b.07')",
+     "Synset('pihta.b.01')",
+     "Synset('kinniselt.b.01')",
+     "Synset('vastu.b.01')",
+     "Synset('avatult.b.01')",
+     "Synset('kinniselt.b.02')",
+     "Synset('avatult.b.02')",
+     "Synset('kinniselt.b.03')",
+     "Synset('kinniselt.b.04')",
+     "Synset('kinnisevõitu.b.01')",
+     "Synset('kinni.b.03')",
+     "Synset('kinni.b.04')",
+     "Synset('umbe.b.01')",
+     "Synset('kinni.b.05')",
+     "Synset('kinni.b.06')",
+     "Synset('kinni.b.07')",
+     "Synset('kinni.b.08')",
+     "Synset('kinni.b.09')",
+     "Synset('kinni.b.10')",
+     "Synset('nässi.b.01')",
+     "Synset('kängu.b.01')",
+     "Synset('käpuli.b.01')",
+     "Synset('käpuli.b.02')",
+     "Synset('ninali.b.01')",
+     "Synset('näoli.b.01')",
+     "Synset('suuli.b.01')",
+     "Synset('käppapidi.b.01')",
+     "Synset('käppapidi.b.02')",
+     "Synset('ninapidi.b.01')",
+     "Synset('ninapidi.b.02')",
+     "Synset('koos.b.01')",
+     "Synset('koos.b.02')",
+     "Synset('koos.b.03')",
+     "Synset('koos.b.04')",
+     "Synset('koos.b.05')",
+     "Synset('kobaras.b.01')",
+     "Synset('koos.b.06')",
+     "Synset('kooris.b.01')",
+     "Synset('läbisegi.b.01')",
+     "Synset('läbisegi.b.02')",
+     "Synset('ühtlasi.b.01')",
+     "Synset('üksiti.b.01')",
+     "Synset('samaaegselt.b.02')",
+     "Synset('kõrvuti.b.01')",
+     "Synset('rööbiti.b.01')",
+     "Synset('samas.b.03')",
+     "Synset('sealsamas.b.01')",
+     "Synset('siinsamas.b.01')",
+     "Synset('sealsamas.b.02')",
+     "Synset('sealkandis.b.01')",
+     "Synset('seal.b.03')",
+     "Synset('seal.b.04')",
+     "Synset('siis.b.03')",
+     "Synset('sealhulgas.b.01')",
+     "Synset('kusjuures.b.01')",
+     "Synset('niikaugel.b.01')",
+     "Synset('ausalt.b.01')",
+     "Synset('kuskil.b.01')",
+     "Synset('kuskil.b.02')",
+     "Synset('kuhugi.b.01')",
+     "Synset('kuskil.b.03')",
+     "Synset('umbes.b.01')",
+     "Synset('kus.b.01')",
+     "Synset('kusmaal.b.01')",
+     "Synset('kuspool.b.01')",
+     "Synset('kõikjal.b.01')",
+     "Synset('kus.b.02')",
+     "Synset('kus.b.03')",
+     "Synset('kus.b.04')",
+     "Synset('kus.b.05')",
+     "Synset('niikaua.b.01')",
+     "Synset('laiali.b.01')",
+     "Synset('laiali.b.02')",
+     "Synset('lahti.b.02')",
+     "Synset('lahti.b.03')",
+     "Synset('avakil.b.01')",
+     "Synset('laiali.b.03')",
+     "Synset('laiali.b.04')",
+     "Synset('avalikult.b.01')",
+     "Synset('varjamatult.b.01')",
+     "Synset('avalikult.b.02')",
+     "Synset('kõrvuti.b.02')",
+     "Synset('rinnu.b.01')",
+     "Synset('küljekuti.b.01')",
+     "Synset('külgepidi.b.01')",
+     "Synset('külitsi.b.03')",
+     "Synset('samamoodi.b.02')",
+     "Synset('ühesuguselt.b.01')",
+     "Synset('võrdselt.b.01')",
+     "Synset('võrdselt.b.02')",
+     "Synset('viigiliselt.b.01')",
+     "Synset('praokil.b.01')",
+     "Synset('kissis.b.01')",
+     "Synset('irvakil.b.01')",
+     "Synset('irvisui.b.01')",
+     "Synset('irvitamisi.b.01')",
+     "Synset('laialdaselt.b.01')",
+     "Synset('ulatuslikult.b.01')",
+     "Synset('rikkalt.b.01')",
+     "Synset('laialt.b.03')",
+     "Synset('priskelt.b.01')",
+     "Synset('lahedalt.b.01')",
+     "Synset('külluslikult.b.01')",
+     "Synset('külluslikult.b.02')",
+     "Synset('pillavalt.b.01')",
+     "Synset('uhkesti.b.01')",
+     "Synset('ekstravagantselt.b.01')",
+     "Synset('kuninglikult.b.01')",
+     "Synset('imestunult.b.01')",
+     "Synset('imestusväärselt.b.01')",
+     "Synset('imetoredasti.b.01')",
+     "Synset('toredasti.b.01')",
+     "Synset('toredasti.b.02')",
+     "Synset('luksuslikult.b.01')",
+     "Synset('šikilt.b.01')",
+     "Synset('vahvasti.b.01')",
+     "Synset('fantastiliselt.b.01')",
+     "Synset('suurepäraselt.b.01')",
+     "Synset('klassikaliselt.b.01')",
+     "Synset('kaugele.b.01')",
+     "Synset('kaugele.b.02')",
+     "Synset('kaugele.b.03')",
+     "Synset('jantlikult.b.01')",
+     "Synset('naeruväärselt.b.01')",
+     "Synset('kentsakalt.b.01')",
+     "Synset('maitsekalt.b.01')",
+     "Synset('nooblilt.b.01')",
+     "Synset('peenelt.b.01')",
+     "Synset('suursuguselt.b.01')",
+     "Synset('majesteetselt.b.01')",
+     "Synset('väärikalt.b.01')",
+     "Synset('väljapeetult.b.01')",
+     "Synset('peenelt.b.02')",
+     "Synset('peenelt.b.03')",
+     "Synset('hästi.b.03')",
+     "Synset('detailselt.b.01')",
+     "Synset('pulk-pulgalt.b.01')",
+     "Synset('oskuslikult.b.01')",
+     "Synset('lõnghaaval.b.01')",
+     "Synset('igakülgselt.b.01')",
+     "Synset('sügavuti.b.01')",
+     "Synset('meisterlikult.b.01')",
+     "Synset('oskuslikult.b.02')",
+     "Synset('kavalalt.b.01')",
+     "Synset('peenelt.b.04')",
+     "Synset('velpalt.b.01')",
+     "Synset('leidlikult.b.01')",
+     "Synset('nupukalt.b.01')",
+     "Synset('peenutsevalt.b.01')",
+     "Synset('sügavuti.b.02')",
+     "Synset('südikalt.b.01')",
+     "Synset('apaatselt.b.01')",
+     "Synset('tragilt.b.01')",
+     "Synset('ettevõtlikult.b.01')",
+     "Synset('toimekalt.b.01')",
+     "Synset('krapsakalt.b.01')",
+     "Synset('krapsti.b.01')",
+     "Synset('sügaval.b.01')",
+     "Synset('sügavalt.b.04')",
+     "Synset('ohtlikult.b.01')",
+     "Synset('tõsiselt.b.02')",
+     "Synset('tõsiselt.b.03')",
+     "Synset('otsas.b.01')",
+     "Synset('otsas.b.02')",
+     "Synset('peal.b.01')",
+     "Synset('otsast.b.01')",
+     "Synset('pealt.b.01')",
+     "Synset('otsast.b.02')",
+     "Synset('otsakuti.b.01')",
+     "Synset('otsakuti.b.02')",
+     "Synset('otsakuti.b.03')",
+     "Synset('otsatult.b.01')",
+     "Synset('pealt.b.02')",
+     ...]
+
+
+
+which returns all the synset of which part of speech is "adverb". We can
+also query synsets by providing a lemma and a part of speech using:
+
+.. code:: python
+
+    wn.synsets("koer",pos=wn.VERB)
+
+
+
+
+.. parsed-literal::
+
+    ["Synset('koer.n.01')", "Synset('kaak.n.01')"]
+
+
+
+By neglecting "pos", it matches once again all the synsets with "koer"
+as lemma:
+
+.. code:: python
+
+    wn.synsets("koer")
+
+
+
+
+.. parsed-literal::
+
+    ["Synset('koer.n.01')", "Synset('kaak.n.01')"]
+
+
+
+The API allows to query synset's details. For example, we can retrieve
+name and pos:
+
+.. code:: python
+
+    synset = wn.synset("king.n.01")
+    synset.name
+
+
+
+
+.. parsed-literal::
+
+    'king.n.01'
+
+
+
+We can also query definition and examples:
+
+.. code:: python
+
+    synset.definition()
+
+
+
+
+.. parsed-literal::
+
+    'jalalaba kattev kontsaga jalats, mis ei ulatu pahkluust kõrgemale'
+
+
+
+.. code:: python
+
+    synset.examples()
+
+
+
+
+.. parsed-literal::
+
+    ['Jalad hakkasid katkistes kingades külmetama.']
+
+
+
+Relations
+~~~~~~~~~
+
+We can also query related synsets. There are relations, for which there
+are specific methods:
+
+.. code:: python
+
+    synset.hypernyms()
+
+
+
+
+.. parsed-literal::
+
+    ["Synset('jalats.n.01')"]
+
+
+
+.. code:: python
+
+    synset.hyponyms()
+
+
+
+
+.. parsed-literal::
+
+    ["Synset('peoking.n.01')",
+     "Synset('rihmking.n.01')",
+     "Synset('lapseking.n.01')"]
+
+
+
+.. code:: python
+
+    synset.meronyms()
+
+
+
+
+.. parsed-literal::
+
+    []
+
+
+
+.. code:: python
+
+    synset.holonyms()
+
+
+
+
+.. parsed-literal::
+
+    []
+
+
+
+More specific relations can be queried with a universal method:
+
+.. code:: python
+
+    synset = wn.synset('jäätis.n.01')
+    synset.get_related_synsets('fuzzynym')
+
+
+
+
+.. parsed-literal::
+
+    ["Synset('jäätisemüüja.n.01')",
+     "Synset('jäätisekauplus.n.01')",
+     "Synset('jäätisekampaania.n.01')",
+     "Synset('jäätisekohvik.n.01')"]
+
+
+
+Similarities
+~~~~~~~~~~~~
+
+We can measure distance or similarity between two synsets in several
+ways. For calculating similarity, we provide path, Leacock-Chodorow and
+Wu-Palmer similarities:
+
+.. code:: python
+
+    synset = wn.synset('jalats.n.01')
+    target_synset = wn.synset('kinnas.n.01')
+
+.. code:: python
+
+    synset.path_similarity(target_synset)
+
+
+
+
+.. parsed-literal::
+
+    0.3333333333333333
+
+
+
+.. code:: python
+
+    synset.lch_similarity(target_synset)
+
+
+
+
+.. parsed-literal::
+
+    2.159484249353372
+
+
+
+.. code:: python
+
+    synset.wup_similarity(target_synset)
+
+
+
+
+.. parsed-literal::
+
+    0.8571428571428571
+
+
+
+In addition, we can also find the closest common ancestor via hypernyms:
+
+.. code:: python
+
+    synset.lowest_common_hypernyms(target_synset)
+
+
+
+
+.. parsed-literal::
+
+    ["Synset('kehakate.n.01')"]
+
+

@@ -1,0 +1,325 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>estnltk.wordnet_tagger &mdash; estnltk 1.4.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../genindex.html"/>
+        <link rel="search" title="Search" href="../../search.html"/>
+    <link rel="top" title="estnltk 1.4.1 documentation" href="../../index.html"/>
+        <link rel="up" title="Module code" href="../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> estnltk
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.4.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/index.html">Estnltk tutorials</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../external/index.html">Other tools</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/index.html">API documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../authors.html">Authors</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../index.html">estnltk</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      
+    <li>estnltk.wordnet_tagger</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for estnltk.wordnet_tagger</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">unicode_literals</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">absolute_import</span>
+
+<span class="sd">&quot;&quot;&quot;Module which holds Wordnet class for annotating texts.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">.wordnet</span> <span class="k">import</span> <span class="n">wn</span>
+<span class="kn">from</span> <span class="nn">pprint</span> <span class="k">import</span> <span class="n">pprint</span>
+
+<span class="n">PYVABAMORF_TO_WORDNET_POS_MAP</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;A&#39;</span><span class="p">:</span> <span class="n">wn</span><span class="o">.</span><span class="n">ADJ</span><span class="p">,</span> <span class="s1">&#39;S&#39;</span><span class="p">:</span> <span class="n">wn</span><span class="o">.</span><span class="n">NOUN</span><span class="p">,</span> <span class="s1">&#39;V&#39;</span><span class="p">:</span> <span class="n">wn</span><span class="o">.</span><span class="n">VERB</span><span class="p">,</span> <span class="s1">&#39;D&#39;</span><span class="p">:</span> <span class="n">wn</span><span class="o">.</span><span class="n">ADV</span><span class="p">}</span>
+
+
+<div class="viewcode-block" id="WordnetTagger"><a class="viewcode-back" href="../../api/wordnet_tagger.html#estnltk.wordnet_tagger.WordnetTagger">[docs]</a><span class="k">class</span> <span class="nc">WordnetTagger</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Annotates `analysis` entries in corpus with queried Estonian WordNet data.</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+<span class="sd">      wn = Wordnet()</span>
+
+<span class="sd">      wn.tag_text(textvariants=True, var_literal=True) # annotates &#39;analysis&#39; entries with all the variants and their literals for every synset</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="WordnetTagger.tag_text"><a class="viewcode-back" href="../../api/wordnet_tagger.html#estnltk.wordnet_tagger.WordnetTagger.tag_text">[docs]</a>    <span class="k">def</span> <span class="nf">tag_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Annotates `analysis` entries in `corpus` with a list of lemmas` synsets and queried WordNet data in a &#39;wordnet&#39; entry.</span>
+
+<span class="sd">        Note</span>
+<span class="sd">        ----</span>
+<span class="sd">          Annotates every `analysis` entry with a `wordnet`:{`synsets`:[..]}.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        text: estnltk.text.Text</span>
+<span class="sd">          Representation of a corpus in a disassembled form for automatic text analysis with word-level `analysis` entry.</span>
+<span class="sd">          E.g. corpus disassembled into paragraphs, sentences, words ({&#39;paragraphs&#39;:[{&#39;sentences&#39;:[{&#39;words&#39;:[{&#39;analysis&#39;:{...}},..]},..]},..]}).</span>
+<span class="sd">        pos : boolean, optional</span>
+<span class="sd">          If True, annotates each synset with a correspnding `pos` (part-of-speech) tag.</span>
+<span class="sd">        variants : boolean, optional</span>
+<span class="sd">          If True, annotates each synset with a list of all its variants&#39; (lemmas&#39;) literals.</span>
+<span class="sd">        var_sense : boolean, optional</span>
+<span class="sd">          If True and `variants` is True, annotates each variant/lemma with its sense number.</span>
+<span class="sd">        var_definition : boolean, optional</span>
+<span class="sd">          If True and `variants` is True, annotates each variant/lemma with its definition. Definitions often missing in WordNet.</span>
+<span class="sd">        var_examples : boolean, optional</span>
+<span class="sd">          If True and `variants` is True, annotates each variant/lemma with a list of its examples. Examples often missing in WordNet.</span>
+<span class="sd">        relations : list of str, optional</span>
+<span class="sd">          Holds interested relations. Legal relations are as follows:</span>
+<span class="sd">        `antonym`, `be_in_state`, `belongs_to_class`, `causes`, `fuzzynym`, `has_holo_location`, `has_holo_madeof`, `has_holo_member`,</span>
+<span class="sd">        `has_holo_part`, `has_holo_portion`, `has_holonym`, `has_hyperonym`, `has_hyponym`, `has_instance`, `has_mero_location`,</span>
+<span class="sd">        `has_mero_madeof`, `has_mero_member`, `has_mero_part`, `has_mero_portion`, `has_meronym`, `has_subevent`, `has_xpos_hyperonym`,</span>
+<span class="sd">        `has_xpos_hyponym`, `involved`, `involved_agent`, `involved_instrument`, `involved_location`, `involved_patient`,</span>
+<span class="sd">        `involved_target_direction`, `is_caused_by`, `is_subevent_of`, `near_antonym`, `near_synonym`, `role`, `role_agent`, `role_instrument`,</span>
+<span class="sd">        `role_location`, `role_patient`, `role_target_direction`, `state_of`, `xpos_fuzzynym`, `xpos_near_antonym`, `xpos_near_synonym`.</span>
+<span class="sd">          Annotates each synset with related synsets&#39; indices with respect to queried relations.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        estnltk.text.Text</span>
+<span class="sd">          In-place annotated `text`.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="n">analysis_match</span> <span class="ow">in</span> <span class="n">text</span><span class="o">.</span><span class="n">analysis</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">candidate</span> <span class="ow">in</span> <span class="n">analysis_match</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">candidate</span><span class="p">[</span><span class="s1">&#39;partofspeech&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">PYVABAMORF_TO_WORDNET_POS_MAP</span><span class="p">:</span>
+                    <span class="c1"># Wordnet contains data about the given lemma and pos combination - will annotate.</span>
+                    <span class="n">wordnet_obj</span> <span class="o">=</span> <span class="p">{}</span>
+                    <span class="n">tag_synsets</span><span class="p">(</span><span class="n">wordnet_obj</span><span class="p">,</span> <span class="n">candidate</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">text</span></div></div>
+
+
+<span class="k">def</span> <span class="nf">tag_synsets</span><span class="p">(</span><span class="n">wordnet_obj</span><span class="p">,</span> <span class="n">candidate</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="n">candidate_synsets</span> <span class="o">=</span> <span class="p">[({</span><span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="n">synset</span><span class="o">.</span><span class="n">id</span><span class="p">},</span> <span class="n">synset</span><span class="p">)</span> <span class="k">for</span> <span class="n">synset</span> <span class="ow">in</span> <span class="n">wn</span><span class="o">.</span><span class="n">synsets</span><span class="p">(</span><span class="n">candidate</span><span class="p">[</span><span class="s1">&#39;lemma&#39;</span><span class="p">],</span>
+                                                                              <span class="n">pos</span><span class="o">=</span><span class="n">PYVABAMORF_TO_WORDNET_POS_MAP</span><span class="p">[</span>
+                                                                                  <span class="n">candidate</span><span class="p">[</span><span class="s1">&#39;partofspeech&#39;</span><span class="p">]])]</span>
+
+    <span class="k">for</span> <span class="n">synset_dict</span><span class="p">,</span> <span class="n">synset</span> <span class="ow">in</span> <span class="n">candidate_synsets</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s1">&#39;pos&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;pos&#39;</span><span class="p">]:</span>
+                <span class="n">synset_dict</span><span class="p">[</span><span class="s1">&#39;pos&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">synset</span><span class="o">.</span><span class="n">pos</span>
+        <span class="k">if</span> <span class="s1">&#39;variants&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;variants&#39;</span><span class="p">]:</span>
+                <span class="n">variants</span> <span class="o">=</span> <span class="p">[({</span><span class="s1">&#39;literal&#39;</span><span class="p">:</span> <span class="n">variant</span><span class="o">.</span><span class="n">literal</span><span class="p">},</span> <span class="n">variant</span><span class="p">)</span> <span class="k">for</span> <span class="n">variant</span> <span class="ow">in</span> <span class="n">synset</span><span class="o">.</span><span class="n">get_variants</span><span class="p">()]</span>
+                <span class="k">for</span> <span class="n">variant_dict</span><span class="p">,</span> <span class="n">variant</span> <span class="ow">in</span> <span class="n">variants</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="s1">&#39;var_sense&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;var_sense&#39;</span><span class="p">]:</span>
+                            <span class="n">variant_dict</span><span class="p">[</span><span class="s1">&#39;sense&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">variant</span><span class="o">.</span><span class="n">sense</span>
+                    <span class="k">if</span> <span class="s1">&#39;var_definition&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;var_definition&#39;</span><span class="p">]:</span>
+                            <span class="n">variant_dict</span><span class="p">[</span><span class="s1">&#39;definition&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">variant</span><span class="o">.</span><span class="n">definition</span>
+                    <span class="k">if</span> <span class="s1">&#39;var_examples&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;var_examples&#39;</span><span class="p">]:</span>
+                            <span class="n">variant_dict</span><span class="p">[</span><span class="s1">&#39;examples&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">variant</span><span class="o">.</span><span class="n">examples</span>
+                <span class="n">synset_dict</span><span class="p">[</span><span class="s1">&#39;variants&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">variant_dict</span> <span class="k">for</span> <span class="n">variant_dict</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">variants</span><span class="p">]</span>
+        <span class="n">tag_relations</span><span class="p">(</span><span class="n">wordnet_obj</span><span class="p">,</span> <span class="n">synset</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">tag_ancestors</span><span class="p">(</span><span class="n">wordnet_obj</span><span class="p">,</span> <span class="n">candidate</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="n">wordnet_obj</span><span class="p">[</span><span class="s1">&#39;synsets&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">synset_dict</span> <span class="k">for</span> <span class="n">synset_dict</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">candidate_synsets</span><span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">tag_relations</span><span class="p">(</span><span class="n">wordnet_obj</span><span class="p">,</span> <span class="n">synset</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">if</span> <span class="s1">&#39;relations&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;relations&#39;</span><span class="p">]):</span>
+
+            <span class="n">relations_dict</span> <span class="o">=</span> <span class="p">{}</span>
+
+            <span class="k">for</span> <span class="n">relation_str</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;relations&#39;</span><span class="p">]:</span>
+                <span class="n">related_synsets</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="n">synset</span><span class="o">.</span><span class="n">id</span><span class="p">}</span> <span class="k">for</span> <span class="n">synset</span> <span class="ow">in</span> <span class="n">synset</span><span class="o">.</span><span class="n">get_related_synsets</span><span class="p">(</span><span class="n">relation_str</span><span class="p">)]</span>
+                <span class="n">relations_dict</span><span class="p">[</span><span class="n">relation_str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">synset_dict</span> <span class="k">for</span> <span class="n">synset_dict</span> <span class="ow">in</span> <span class="n">related_synsets</span><span class="p">]</span>
+
+            <span class="n">wordnet_obj</span><span class="p">[</span><span class="s1">&#39;relations&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">relations_dict</span>
+
+
+<span class="k">def</span> <span class="nf">tag_ancestors</span><span class="p">(</span><span class="n">wordnet_obj</span><span class="p">,</span> <span class="n">candidate</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">if</span> <span class="s1">&#39;ancestors_by&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;ancestors_by&#39;</span><span class="p">]):</span>
+
+            <span class="n">ancestors_dict</span> <span class="o">=</span> <span class="p">{}</span>
+
+            <span class="k">for</span> <span class="n">ancestor_str</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;ancestors_by&#39;</span><span class="p">]:</span>
+                <span class="n">ancestors</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="n">synset</span><span class="o">.</span><span class="n">id</span><span class="p">}</span> <span class="k">for</span> <span class="n">synset</span> <span class="ow">in</span> <span class="n">synset</span><span class="o">.</span><span class="n">get_ancestors</span><span class="p">(</span><span class="n">ancestor_str</span><span class="p">)]</span>
+                <span class="n">ancestors_dict</span><span class="p">[</span><span class="n">ancestor_str</span><span class="p">]</span> <span class="o">=</span> <span class="n">ancestors</span>
+
+            <span class="n">wordnet_obj</span><span class="p">[</span><span class="s1">&#39;ancestors_by&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ancestors_dict</span>
+
+    <span class="n">candidate</span><span class="p">[</span><span class="s1">&#39;wordnet&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">wordnet_obj</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, University of Tartu unless specified otherwise in the file headers.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'1.4.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

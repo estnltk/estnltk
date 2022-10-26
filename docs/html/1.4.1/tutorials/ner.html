@@ -1,0 +1,1635 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Named entity recognition &mdash; estnltk 1.4.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="estnltk 1.4.1 documentation" href="../index.html"/>
+        <link rel="up" title="Estnltk tutorials" href="index.html"/>
+        <link rel="next" title="HTML Prettyprinter" href="prettyprinter.html"/>
+        <link rel="prev" title="Dependency syntactic analysis" href="dependency_syntax.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> estnltk
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.4.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Estnltk tutorials</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="text.html">Basic Text class operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wikipedia.html">Wikipedia tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="elasticsearch.html">Elasticsearch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="disambiguation.html">Disambiguation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="grammar.html">Grammars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="np_chunker.html">Noun-phrase chunker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dependency_syntax.html">Dependency_syntax</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Name-Entity Recognition</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#getting-started-with-ner">Getting started with NER</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#advanced-ner">Advanced NER</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#training-custom-models">Training custom models</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#training-dataset">Training dataset</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ner-settings">Ner settings</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="prettyprinter.html">Prettyprinter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="terminalprettyprinter.html">Terminal prettyprinter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tei.html">Working with Koondkorpus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="morphology_tables.html">Morphological annotation tables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="devel.html">Developer readme</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../external/index.html">Other tools</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html">API documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../authors.html">Authors</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">estnltk</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="index.html">Estnltk tutorials</a> &raquo;</li>
+      
+    <li>Named entity recognition</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/tutorials/ner.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="named-entity-recognition">
+<h1>Named entity recognition<a class="headerlink" href="#named-entity-recognition" title="Permalink to this headline">¶</a></h1>
+<p>Named-entity recognition (NER) (also known as entity identification,
+entity chunking and entity extraction) is a subtask of information
+extraction that seeks to locate and classify elements in text into
+pre-defined categories such as the names of persons, organizations,
+locations.</p>
+<p>In this tutorial you will learn how to use estnltk&#8217;s out of the box NER
+utilities and how to build your own ner-models from scratch.</p>
+<div class="section" id="getting-started-with-ner">
+<h2>Getting started with NER<a class="headerlink" href="#getting-started-with-ner" title="Permalink to this headline">¶</a></h2>
+<p>The estnltk package comes with the pre-trained NER-models for Python
+2.7/Python 3.4. The models distinguish 3 types of entities: person
+names, organizations and locations.</p>
+<p>A quick example below demonstrates how to extract named entities from
+the raw text:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">estnltk</span> <span class="k">import</span> <span class="n">Text</span>
+<span class="kn">from</span> <span class="nn">pprint</span> <span class="k">import</span> <span class="n">pprint</span>
+
+<span class="n">text</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s1">&#39;&#39;&#39;Eesti Vabariik on riik Põhja-Euroopas.</span>
+<span class="s1">    Eesti piirneb põhjas üle Soome lahe Soome Vabariigiga.</span>
+<span class="s1">    Riigikogu on Eesti Vabariigi parlament. Riigikogule kuulub Eestis seadusandlik võim.</span>
+<span class="s1">    2005. aastal sai peaministriks Andrus Ansip, kes püsis sellel kohal 2014. aastani.</span>
+<span class="s1">    2006. aastal valiti presidendiks Toomas Hendrik Ilves.</span>
+<span class="s1">    &#39;&#39;&#39;</span><span class="p">)</span>
+
+<span class="c1"># Extract named entities</span>
+<span class="n">pprint</span><span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">named_entities</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="s1">&#39;Eesti vabariik&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;Põhja-Euroobas|Põhja-Euroopa&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;Eesti&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;Soome laht&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;Soome Vabariik&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;Riigikogu&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;Eesti vabariik&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;riigikogu&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;Eesti&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;Andrus Ansip&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;Toomas Hendrik Ilves&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>When accessing the property <strong>named_entities</strong> of the <strong>Text</strong>
+instance, estnltk executes on the background the whole text processing
+pipeline, including tokenization, morphological analysis and named
+entity extraction.</p>
+<p>The class <strong>Text</strong> additionally provides a number of useful methods to
+get more information on the extracted entities:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="n">pprint</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">named_entities</span><span class="p">,</span> <span class="n">text</span><span class="o">.</span><span class="n">named_entity_labels</span><span class="p">,</span> <span class="n">text</span><span class="o">.</span><span class="n">named_entity_spans</span><span class="p">)))</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[(</span><span class="s1">&#39;Eesti vabariik&#39;</span><span class="p">,</span> <span class="s1">&#39;LOC&#39;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">14</span><span class="p">)),</span>
+ <span class="p">(</span><span class="s1">&#39;Põhja-Euroobas|Põhja-Euroopa&#39;</span><span class="p">,</span> <span class="s1">&#39;LOC&#39;</span><span class="p">,</span> <span class="p">(</span><span class="mi">23</span><span class="p">,</span> <span class="mi">37</span><span class="p">)),</span>
+ <span class="p">(</span><span class="s1">&#39;Eesti&#39;</span><span class="p">,</span> <span class="s1">&#39;LOC&#39;</span><span class="p">,</span> <span class="p">(</span><span class="mi">44</span><span class="p">,</span> <span class="mi">49</span><span class="p">)),</span>
+ <span class="p">(</span><span class="s1">&#39;Soome laht&#39;</span><span class="p">,</span> <span class="s1">&#39;LOC&#39;</span><span class="p">,</span> <span class="p">(</span><span class="mi">69</span><span class="p">,</span> <span class="mi">79</span><span class="p">)),</span>
+ <span class="p">(</span><span class="s1">&#39;Soome Vabariik&#39;</span><span class="p">,</span> <span class="s1">&#39;LOC&#39;</span><span class="p">,</span> <span class="p">(</span><span class="mi">80</span><span class="p">,</span> <span class="mi">97</span><span class="p">)),</span>
+ <span class="p">(</span><span class="s1">&#39;Riigikogu&#39;</span><span class="p">,</span> <span class="s1">&#39;ORG&#39;</span><span class="p">,</span> <span class="p">(</span><span class="mi">103</span><span class="p">,</span> <span class="mi">112</span><span class="p">)),</span>
+ <span class="p">(</span><span class="s1">&#39;Eesti vabariik&#39;</span><span class="p">,</span> <span class="s1">&#39;LOC&#39;</span><span class="p">,</span> <span class="p">(</span><span class="mi">116</span><span class="p">,</span> <span class="mi">131</span><span class="p">)),</span>
+ <span class="p">(</span><span class="s1">&#39;riigikogu&#39;</span><span class="p">,</span> <span class="s1">&#39;ORG&#39;</span><span class="p">,</span> <span class="p">(</span><span class="mi">143</span><span class="p">,</span> <span class="mi">154</span><span class="p">)),</span>
+ <span class="p">(</span><span class="s1">&#39;Eesti&#39;</span><span class="p">,</span> <span class="s1">&#39;LOC&#39;</span><span class="p">,</span> <span class="p">(</span><span class="mi">162</span><span class="p">,</span> <span class="mi">168</span><span class="p">)),</span>
+ <span class="p">(</span><span class="s1">&#39;Andrus Ansip&#39;</span><span class="p">,</span> <span class="s1">&#39;PER&#39;</span><span class="p">,</span> <span class="p">(</span><span class="mi">223</span><span class="p">,</span> <span class="mi">235</span><span class="p">)),</span>
+ <span class="p">(</span><span class="s1">&#39;Toomas Hendrik Ilves&#39;</span><span class="p">,</span> <span class="s1">&#39;PER&#39;</span><span class="p">,</span> <span class="p">(</span><span class="mi">312</span><span class="p">,</span> <span class="mi">332</span><span class="p">))]</span>
+</pre></div>
+</div>
+<p>The default models use tags PER, ORG and LOC to denote person names,
+organizations and locations respectively. Entity tags are encoded using
+a BIO annotation scheme, where each entity label is prefixed with either
+B or I letter. B- denotes the beginning and I- inside of an entity. The
+prefixes are used to detect multiword entities, as shown in the example
+example above. All other words, which don&#8217;t refer to entities of
+interest, are labelled with the O tag.</p>
+<p>The raw labels are accessible via the property <strong>labels</strong> of the
+<strong>Text</strong> instance:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="n">pprint</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">word_texts</span><span class="p">,</span> <span class="n">text</span><span class="o">.</span><span class="n">labels</span><span class="p">)))</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[(</span><span class="s1">&#39;Eesti&#39;</span><span class="p">,</span> <span class="s1">&#39;B-LOC&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;Vabariik&#39;</span><span class="p">,</span> <span class="s1">&#39;I-LOC&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;on&#39;</span><span class="p">,</span> <span class="s1">&#39;O&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;riik&#39;</span><span class="p">,</span> <span class="s1">&#39;O&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;Põhja-Euroopas&#39;</span><span class="p">,</span> <span class="s1">&#39;B-LOC&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="s1">&#39;O&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;Eesti&#39;</span><span class="p">,</span> <span class="s1">&#39;B-LOC&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;piirneb&#39;</span><span class="p">,</span> <span class="s1">&#39;O&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;põhjas&#39;</span><span class="p">,</span> <span class="s1">&#39;O&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;üle&#39;</span><span class="p">,</span> <span class="s1">&#39;O&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;Soome&#39;</span><span class="p">,</span> <span class="s1">&#39;B-LOC&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;lahe&#39;</span><span class="p">,</span> <span class="s1">&#39;I-LOC&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;Soome&#39;</span><span class="p">,</span> <span class="s1">&#39;B-LOC&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;Vabariigiga&#39;</span><span class="p">,</span> <span class="s1">&#39;I-LOC&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="s1">&#39;O&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;Riigikogu&#39;</span><span class="p">,</span> <span class="s1">&#39;B-ORG&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;on&#39;</span><span class="p">,</span> <span class="s1">&#39;O&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;Eesti&#39;</span><span class="p">,</span> <span class="s1">&#39;B-LOC&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;Vabariigi&#39;</span><span class="p">,</span> <span class="s1">&#39;I-LOC&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;parlament&#39;</span><span class="p">,</span> <span class="s1">&#39;O&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="s1">&#39;O&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;Riigikogule&#39;</span><span class="p">,</span> <span class="s1">&#39;B-ORG&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;kuulub&#39;</span><span class="p">,</span> <span class="s1">&#39;O&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;Eestis&#39;</span><span class="p">,</span> <span class="s1">&#39;B-LOC&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;seadusandlik&#39;</span><span class="p">,</span> <span class="s1">&#39;O&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;võim&#39;</span><span class="p">,</span> <span class="s1">&#39;O&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="s1">&#39;O&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;2005.&#39;</span><span class="p">,</span> <span class="s1">&#39;O&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;aastal&#39;</span><span class="p">,</span> <span class="s1">&#39;O&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;sai&#39;</span><span class="p">,</span> <span class="s1">&#39;O&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;peaministriks&#39;</span><span class="p">,</span> <span class="s1">&#39;O&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;Andrus&#39;</span><span class="p">,</span> <span class="s1">&#39;B-PER&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;Ansip&#39;</span><span class="p">,</span> <span class="s1">&#39;I-PER&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="s1">&#39;O&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;kes&#39;</span><span class="p">,</span> <span class="s1">&#39;O&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;püsis&#39;</span><span class="p">,</span> <span class="s1">&#39;O&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;sellel&#39;</span><span class="p">,</span> <span class="s1">&#39;O&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;kohal&#39;</span><span class="p">,</span> <span class="s1">&#39;O&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;2014.&#39;</span><span class="p">,</span> <span class="s1">&#39;O&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;aastani&#39;</span><span class="p">,</span> <span class="s1">&#39;O&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="s1">&#39;O&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;2006.&#39;</span><span class="p">,</span> <span class="s1">&#39;O&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;aastal&#39;</span><span class="p">,</span> <span class="s1">&#39;O&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;valiti&#39;</span><span class="p">,</span> <span class="s1">&#39;O&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;presidendiks&#39;</span><span class="p">,</span> <span class="s1">&#39;O&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;Toomas&#39;</span><span class="p">,</span> <span class="s1">&#39;B-PER&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;Hendrik&#39;</span><span class="p">,</span> <span class="s1">&#39;I-PER&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;Ilves&#39;</span><span class="p">,</span> <span class="s1">&#39;I-PER&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="s1">&#39;O&#39;</span><span class="p">)]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="advanced-ner">
+<h2>Advanced NER<a class="headerlink" href="#advanced-ner" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="training-custom-models">
+<h3>Training custom models<a class="headerlink" href="#training-custom-models" title="Permalink to this headline">¶</a></h3>
+<p>Default models that come with estnltk are good enough for basic tasks.
+However, for some specific tasks, a custom NER model might be needed. To
+train your own model, you need to provide a training corpus and custom
+configuration settings. The following example demonstrates how to train
+a ner-model using the default training dataset and settings:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">estnltk</span> <span class="k">import</span> <span class="n">estner</span>
+<span class="kn">from</span> <span class="nn">estnltk.corpus</span> <span class="k">import</span> <span class="n">read_json_corpus</span>
+<span class="kn">from</span> <span class="nn">estnltk.ner</span> <span class="k">import</span> <span class="n">NerTrainer</span>
+<span class="c1"># Read the default training corpus</span>
+<span class="n">corpus</span> <span class="o">=</span> <span class="n">read_json_corpus</span><span class="p">(</span><span class="s1">&#39;../../../estnltk/corpora/estner.json&#39;</span><span class="p">)</span>
+
+
+<span class="c1"># Read the default settings</span>
+<span class="n">ner_settings</span> <span class="o">=</span> <span class="n">estner</span><span class="o">.</span><span class="n">settings</span>
+
+<span class="c1"># Directory to save the model</span>
+<span class="n">model_dir</span> <span class="o">=</span> <span class="s1">&#39;output_model_directory&#39;</span>
+
+<span class="c1"># Train and save the model</span>
+<span class="n">trainer</span> <span class="o">=</span> <span class="n">NerTrainer</span><span class="p">(</span><span class="n">ner_settings</span><span class="p">)</span>
+<span class="n">trainer</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">corpus</span><span class="p">,</span> <span class="n">model_dir</span><span class="p">)</span>
+</pre></div>
+</div>
+<pre class="literal-block">
+Feature generation
+type: CRF1d
+feature.minfreq: 0.000000
+feature.possible_states: 0
+feature.possible_transitions: 0
+0....1....2....3....4....5....6....7....8....9....10
+Number of features: 27502
+Seconds required: 6.768
+
+Stochastic Gradient Descent (SGD)
+c2: 0.001000
+max_iterations: 1000
+period: 10
+delta: 0.000001
+
+Calibrating the learning rate (eta)
+calibration.eta: 0.100000
+calibration.rate: 2.000000
+calibration.samples: 1000
+calibration.candidates: 10
+calibration.max_trials: 20
+Initial loss: 31638.553113
+Trial #1 (eta = 0.100000): 35731.461497 (worse)
+Trial #2 (eta = 0.050000): 18483.224381
+Trial #3 (eta = 0.025000): 8702.151411
+Trial #4 (eta = 0.012500): 4843.039483
+Trial #5 (eta = 0.006250): 3396.892994
+Trial #6 (eta = 0.003125): 3447.987218
+Trial #7 (eta = 0.001563): 3931.664338
+Trial #8 (eta = 0.000781): 4644.600628
+Trial #9 (eta = 0.000391): 5567.995675
+Trial #10 (eta = 0.000195): 6670.063105
+Trial #11 (eta = 0.000098): 7850.731749
+Best learning rate (eta): 0.006250
+Seconds required: 1.854
+
+<strong>*</strong> Epoch #1 <strong>*</strong>
+Loss: 24172.323175
+Feature L2-norm: 11.489745
+Learning rate (eta): 0.006250
+Total number of feature updates: 13627
+Seconds required for this iteration: 2.242
+
+<strong>*</strong> Epoch #2 <strong>*</strong>
+Loss: 17437.850172
+Feature L2-norm: 14.999275
+Learning rate (eta): 0.006250
+Total number of feature updates: 27254
+Seconds required for this iteration: 2.634
+
+<strong>*</strong> Epoch #3 <strong>*</strong>
+Loss: 14603.051437
+Feature L2-norm: 17.279376
+Learning rate (eta): 0.006250
+Total number of feature updates: 40881
+Seconds required for this iteration: 2.450
+
+<strong>*</strong> Epoch #4 <strong>*</strong>
+Loss: 13176.361125
+Feature L2-norm: 19.118737
+Learning rate (eta): 0.006250
+Total number of feature updates: 54508
+Seconds required for this iteration: 3.042
+
+<strong>*</strong> Epoch #5 <strong>*</strong>
+Loss: 12730.723482
+Feature L2-norm: 20.790962
+Learning rate (eta): 0.006250
+Total number of feature updates: 68135
+Seconds required for this iteration: 2.573
+
+<strong>*</strong> Epoch #6 <strong>*</strong>
+Loss: 11931.002309
+Feature L2-norm: 22.228954
+Learning rate (eta): 0.006250
+Total number of feature updates: 81762
+Seconds required for this iteration: 2.524
+
+<strong>*</strong> Epoch #7 <strong>*</strong>
+Loss: 11423.056976
+Feature L2-norm: 23.490672
+Learning rate (eta): 0.006249
+Total number of feature updates: 95389
+Seconds required for this iteration: 2.386
+
+<strong>*</strong> Epoch #8 <strong>*</strong>
+Loss: 10828.498775
+Feature L2-norm: 24.708994
+Learning rate (eta): 0.006249
+Total number of feature updates: 109016
+Seconds required for this iteration: 2.287
+
+<strong>*</strong> Epoch #9 <strong>*</strong>
+Loss: 10788.422810
+Feature L2-norm: 25.829739
+Learning rate (eta): 0.006249
+Total number of feature updates: 122643
+Seconds required for this iteration: 2.314
+
+<strong>*</strong> Epoch #10 <strong>*</strong>
+Loss: 10438.570465
+Feature L2-norm: 26.938894
+Learning rate (eta): 0.006249
+Total number of feature updates: 136270
+Seconds required for this iteration: 2.281
+
+<strong>*</strong> Epoch #11 <strong>*</strong>
+Loss: 10043.065386
+Improvement ratio: 1.406867
+Feature L2-norm: 27.925413
+Learning rate (eta): 0.006249
+Total number of feature updates: 149897
+Seconds required for this iteration: 2.237
+
+<strong>*</strong> Epoch #12 <strong>*</strong>
+Loss: 9770.657559
+Improvement ratio: 0.784716
+Feature L2-norm: 28.854242
+Learning rate (eta): 0.006249
+Total number of feature updates: 163524
+Seconds required for this iteration: 2.332
+
+<strong>*</strong> Epoch #13 <strong>*</strong>
+Loss: 9519.320418
+Improvement ratio: 0.534043
+Feature L2-norm: 29.784878
+Learning rate (eta): 0.006249
+Total number of feature updates: 177151
+Seconds required for this iteration: 2.260
+
+<strong>*</strong> Epoch #14 <strong>*</strong>
+Loss: 9353.606100
+Improvement ratio: 0.408693
+Feature L2-norm: 30.665230
+Learning rate (eta): 0.006249
+Total number of feature updates: 190778
+Seconds required for this iteration: 2.228
+
+<strong>*</strong> Epoch #15 <strong>*</strong>
+Loss: 9296.988569
+Improvement ratio: 0.369338
+Feature L2-norm: 31.547644
+Learning rate (eta): 0.006249
+Total number of feature updates: 204405
+Seconds required for this iteration: 2.248
+
+<strong>*</strong> Epoch #16 <strong>*</strong>
+Loss: 8977.041074
+Improvement ratio: 0.329057
+Feature L2-norm: 32.310120
+Learning rate (eta): 0.006249
+Total number of feature updates: 218032
+Seconds required for this iteration: 2.384
+
+<strong>*</strong> Epoch #17 <strong>*</strong>
+Loss: 8753.414586
+Improvement ratio: 0.304983
+Feature L2-norm: 33.077887
+Learning rate (eta): 0.006249
+Total number of feature updates: 231659
+Seconds required for this iteration: 2.260
+
+<strong>*</strong> Epoch #18 <strong>*</strong>
+Loss: 8615.470943
+Improvement ratio: 0.256867
+Feature L2-norm: 33.819993
+Learning rate (eta): 0.006249
+Total number of feature updates: 245286
+Seconds required for this iteration: 2.369
+
+<strong>*</strong> Epoch #19 <strong>*</strong>
+Loss: 8647.210640
+Improvement ratio: 0.247619
+Feature L2-norm: 34.548685
+Learning rate (eta): 0.006249
+Total number of feature updates: 258913
+Seconds required for this iteration: 2.285
+
+<strong>*</strong> Epoch #20 <strong>*</strong>
+Loss: 8415.766213
+Improvement ratio: 0.240359
+Feature L2-norm: 35.239045
+Learning rate (eta): 0.006248
+Total number of feature updates: 272540
+Seconds required for this iteration: 2.208
+
+<strong>*</strong> Epoch #21 <strong>*</strong>
+Loss: 8352.817726
+Improvement ratio: 0.202357
+Feature L2-norm: 35.923932
+Learning rate (eta): 0.006248
+Total number of feature updates: 286167
+Seconds required for this iteration: 2.215
+
+<strong>*</strong> Epoch #22 <strong>*</strong>
+Loss: 8012.951016
+Improvement ratio: 0.219358
+Feature L2-norm: 36.593067
+Learning rate (eta): 0.006248
+Total number of feature updates: 299794
+Seconds required for this iteration: 2.227
+
+<strong>*</strong> Epoch #23 <strong>*</strong>
+Loss: 8003.668161
+Improvement ratio: 0.189370
+Feature L2-norm: 37.232795
+Learning rate (eta): 0.006248
+Total number of feature updates: 313421
+Seconds required for this iteration: 2.284
+
+<strong>*</strong> Epoch #24 <strong>*</strong>
+Loss: 7971.556406
+Improvement ratio: 0.173373
+Feature L2-norm: 37.851651
+Learning rate (eta): 0.006248
+Total number of feature updates: 327048
+Seconds required for this iteration: 2.314
+
+<strong>*</strong> Epoch #25 <strong>*</strong>
+Loss: 7858.109927
+Improvement ratio: 0.183107
+Feature L2-norm: 38.474759
+Learning rate (eta): 0.006248
+Total number of feature updates: 340675
+Seconds required for this iteration: 2.233
+
+<strong>*</strong> Epoch #26 <strong>*</strong>
+Loss: 7826.285303
+Improvement ratio: 0.147037
+Feature L2-norm: 39.084558
+Learning rate (eta): 0.006248
+Total number of feature updates: 354302
+Seconds required for this iteration: 2.228
+
+<strong>*</strong> Epoch #27 <strong>*</strong>
+Loss: 7561.982039
+Improvement ratio: 0.157556
+Feature L2-norm: 39.662134
+Learning rate (eta): 0.006248
+Total number of feature updates: 367929
+Seconds required for this iteration: 2.307
+
+<strong>*</strong> Epoch #28 <strong>*</strong>
+Loss: 7533.611135
+Improvement ratio: 0.143604
+Feature L2-norm: 40.243017
+Learning rate (eta): 0.006248
+Total number of feature updates: 381556
+Seconds required for this iteration: 2.323
+
+<strong>*</strong> Epoch #29 <strong>*</strong>
+Loss: 7572.395636
+Improvement ratio: 0.141939
+Feature L2-norm: 40.804884
+Learning rate (eta): 0.006248
+Total number of feature updates: 395183
+Seconds required for this iteration: 2.577
+
+<strong>*</strong> Epoch #30 <strong>*</strong>
+Loss: 7760.523813
+Improvement ratio: 0.084433
+Feature L2-norm: 41.402348
+Learning rate (eta): 0.006248
+Total number of feature updates: 408810
+Seconds required for this iteration: 2.340
+
+<strong>*</strong> Epoch #31 <strong>*</strong>
+Loss: 7325.448007
+Improvement ratio: 0.140247
+Feature L2-norm: 41.936366
+Learning rate (eta): 0.006248
+Total number of feature updates: 422437
+Seconds required for this iteration: 2.220
+
+<strong>*</strong> Epoch #32 <strong>*</strong>
+Loss: 7293.024122
+Improvement ratio: 0.098714
+Feature L2-norm: 42.438341
+Learning rate (eta): 0.006248
+Total number of feature updates: 436064
+Seconds required for this iteration: 2.221
+
+<strong>*</strong> Epoch #33 <strong>*</strong>
+Loss: 7244.779177
+Improvement ratio: 0.104750
+Feature L2-norm: 42.976112
+Learning rate (eta): 0.006247
+Total number of feature updates: 449691
+Seconds required for this iteration: 2.214
+
+<strong>*</strong> Epoch #34 <strong>*</strong>
+Loss: 7242.763835
+Improvement ratio: 0.100624
+Feature L2-norm: 43.494941
+Learning rate (eta): 0.006247
+Total number of feature updates: 463318
+Seconds required for this iteration: 2.209
+
+<strong>*</strong> Epoch #35 <strong>*</strong>
+Loss: 7116.230765
+Improvement ratio: 0.104252
+Feature L2-norm: 43.986289
+Learning rate (eta): 0.006247
+Total number of feature updates: 476945
+Seconds required for this iteration: 2.207
+
+<strong>*</strong> Epoch #36 <strong>*</strong>
+Loss: 6926.261111
+Improvement ratio: 0.129944
+Feature L2-norm: 44.456970
+Learning rate (eta): 0.006247
+Total number of feature updates: 490572
+Seconds required for this iteration: 2.212
+
+<strong>*</strong> Epoch #37 <strong>*</strong>
+Loss: 6737.924857
+Improvement ratio: 0.122301
+Feature L2-norm: 44.917716
+Learning rate (eta): 0.006247
+Total number of feature updates: 504199
+Seconds required for this iteration: 2.212
+
+<strong>*</strong> Epoch #38 <strong>*</strong>
+Loss: 6849.786019
+Improvement ratio: 0.099832
+Feature L2-norm: 45.409762
+Learning rate (eta): 0.006247
+Total number of feature updates: 517826
+Seconds required for this iteration: 2.213
+
+<strong>*</strong> Epoch #39 <strong>*</strong>
+Loss: 6792.568097
+Improvement ratio: 0.114806
+Feature L2-norm: 45.879099
+Learning rate (eta): 0.006247
+Total number of feature updates: 531453
+Seconds required for this iteration: 2.211
+
+<strong>*</strong> Epoch #40 <strong>*</strong>
+Loss: 6780.774555
+Improvement ratio: 0.144489
+Feature L2-norm: 46.343984
+Learning rate (eta): 0.006247
+Total number of feature updates: 545080
+Seconds required for this iteration: 2.207
+
+<strong>*</strong> Epoch #41 <strong>*</strong>
+Loss: 6687.597819
+Improvement ratio: 0.095378
+Feature L2-norm: 46.810985
+Learning rate (eta): 0.006247
+Total number of feature updates: 558707
+Seconds required for this iteration: 2.247
+
+<strong>*</strong> Epoch #42 <strong>*</strong>
+Loss: 6536.067468
+Improvement ratio: 0.115812
+Feature L2-norm: 47.258200
+Learning rate (eta): 0.006247
+Total number of feature updates: 572334
+Seconds required for this iteration: 2.339
+
+<strong>*</strong> Epoch #43 <strong>*</strong>
+Loss: 6581.846926
+Improvement ratio: 0.100721
+Feature L2-norm: 47.695587
+Learning rate (eta): 0.006247
+Total number of feature updates: 585961
+Seconds required for this iteration: 2.544
+
+<strong>*</strong> Epoch #44 <strong>*</strong>
+Loss: 6599.960328
+Improvement ratio: 0.097395
+Feature L2-norm: 48.124905
+Learning rate (eta): 0.006247
+Total number of feature updates: 599588
+Seconds required for this iteration: 2.475
+
+<strong>*</strong> Epoch #45 <strong>*</strong>
+Loss: 6294.837676
+Improvement ratio: 0.130487
+Feature L2-norm: 48.534130
+Learning rate (eta): 0.006246
+Total number of feature updates: 613215
+Seconds required for this iteration: 2.705
+
+<strong>*</strong> Epoch #46 <strong>*</strong>
+Loss: 6297.926053
+Improvement ratio: 0.099769
+Feature L2-norm: 48.958298
+Learning rate (eta): 0.006246
+Total number of feature updates: 626842
+Seconds required for this iteration: 2.660
+
+<strong>*</strong> Epoch #47 <strong>*</strong>
+Loss: 6429.674431
+Improvement ratio: 0.047942
+Feature L2-norm: 49.377750
+Learning rate (eta): 0.006246
+Total number of feature updates: 640469
+Seconds required for this iteration: 2.430
+
+<strong>*</strong> Epoch #48 <strong>*</strong>
+Loss: 6344.073383
+Improvement ratio: 0.079714
+Feature L2-norm: 49.793494
+Learning rate (eta): 0.006246
+Total number of feature updates: 654096
+Seconds required for this iteration: 2.542
+
+<strong>*</strong> Epoch #49 <strong>*</strong>
+Loss: 6251.740036
+Improvement ratio: 0.086508
+Feature L2-norm: 50.191270
+Learning rate (eta): 0.006246
+Total number of feature updates: 667723
+Seconds required for this iteration: 2.643
+
+<strong>*</strong> Epoch #50 <strong>*</strong>
+Loss: 6452.066472
+Improvement ratio: 0.050946
+Feature L2-norm: 50.633720
+Learning rate (eta): 0.006246
+Total number of feature updates: 681350
+Seconds required for this iteration: 2.461
+
+<strong>*</strong> Epoch #51 <strong>*</strong>
+Loss: 6228.274340
+Improvement ratio: 0.073748
+Feature L2-norm: 51.022656
+Learning rate (eta): 0.006246
+Total number of feature updates: 694977
+Seconds required for this iteration: 2.212
+
+<strong>*</strong> Epoch #52 <strong>*</strong>
+Loss: 6062.460396
+Improvement ratio: 0.078121
+Feature L2-norm: 51.402333
+Learning rate (eta): 0.006246
+Total number of feature updates: 708604
+Seconds required for this iteration: 2.228
+
+<strong>*</strong> Epoch #53 <strong>*</strong>
+Loss: 6117.835141
+Improvement ratio: 0.075846
+Feature L2-norm: 51.798198
+Learning rate (eta): 0.006246
+Total number of feature updates: 722231
+Seconds required for this iteration: 2.419
+
+<strong>*</strong> Epoch #54 <strong>*</strong>
+Loss: 6107.244204
+Improvement ratio: 0.080677
+Feature L2-norm: 52.192626
+Learning rate (eta): 0.006246
+Total number of feature updates: 735858
+Seconds required for this iteration: 2.483
+
+<strong>*</strong> Epoch #55 <strong>*</strong>
+Loss: 5985.627415
+Improvement ratio: 0.051659
+Feature L2-norm: 52.561419
+Learning rate (eta): 0.006246
+Total number of feature updates: 749485
+Seconds required for this iteration: 2.415
+
+<strong>*</strong> Epoch #56 <strong>*</strong>
+Loss: 5888.322088
+Improvement ratio: 0.069562
+Feature L2-norm: 52.912556
+Learning rate (eta): 0.006246
+Total number of feature updates: 763112
+Seconds required for this iteration: 2.735
+
+<strong>*</strong> Epoch #57 <strong>*</strong>
+Loss: 5951.860407
+Improvement ratio: 0.080280
+Feature L2-norm: 53.297624
+Learning rate (eta): 0.006246
+Total number of feature updates: 776739
+Seconds required for this iteration: 2.751
+
+<strong>*</strong> Epoch #58 <strong>*</strong>
+Loss: 6006.490059
+Improvement ratio: 0.056203
+Feature L2-norm: 53.674991
+Learning rate (eta): 0.006245
+Total number of feature updates: 790366
+Seconds required for this iteration: 2.877
+
+<strong>*</strong> Epoch #59 <strong>*</strong>
+Loss: 5849.553564
+Improvement ratio: 0.068755
+Feature L2-norm: 54.031660
+Learning rate (eta): 0.006245
+Total number of feature updates: 803993
+Seconds required for this iteration: 2.747
+
+<strong>*</strong> Epoch #60 <strong>*</strong>
+Loss: 5875.815262
+Improvement ratio: 0.098072
+Feature L2-norm: 54.398836
+Learning rate (eta): 0.006245
+Total number of feature updates: 817620
+Seconds required for this iteration: 2.269
+
+<strong>*</strong> Epoch #61 <strong>*</strong>
+Loss: 5747.739373
+Improvement ratio: 0.083604
+Feature L2-norm: 54.750072
+Learning rate (eta): 0.006245
+Total number of feature updates: 831247
+Seconds required for this iteration: 2.222
+
+<strong>*</strong> Epoch #62 <strong>*</strong>
+Loss: 5763.525957
+Improvement ratio: 0.051867
+Feature L2-norm: 55.101784
+Learning rate (eta): 0.006245
+Total number of feature updates: 844874
+Seconds required for this iteration: 2.245
+
+<strong>*</strong> Epoch #63 <strong>*</strong>
+Loss: 5859.015977
+Improvement ratio: 0.044175
+Feature L2-norm: 55.452638
+Learning rate (eta): 0.006245
+Total number of feature updates: 858501
+Seconds required for this iteration: 2.442
+
+<strong>*</strong> Epoch #64 <strong>*</strong>
+Loss: 5642.765716
+Improvement ratio: 0.082314
+Feature L2-norm: 55.792717
+Learning rate (eta): 0.006245
+Total number of feature updates: 872128
+Seconds required for this iteration: 2.637
+
+<strong>*</strong> Epoch #65 <strong>*</strong>
+Loss: 5733.884922
+Improvement ratio: 0.043904
+Feature L2-norm: 56.140350
+Learning rate (eta): 0.006245
+Total number of feature updates: 885755
+Seconds required for this iteration: 2.308
+
+<strong>*</strong> Epoch #66 <strong>*</strong>
+Loss: 5631.802570
+Improvement ratio: 0.045548
+Feature L2-norm: 56.465068
+Learning rate (eta): 0.006245
+Total number of feature updates: 899382
+Seconds required for this iteration: 2.252
+
+<strong>*</strong> Epoch #67 <strong>*</strong>
+Loss: 5642.788044
+Improvement ratio: 0.054773
+Feature L2-norm: 56.810243
+Learning rate (eta): 0.006245
+Total number of feature updates: 913009
+Seconds required for this iteration: 2.225
+
+<strong>*</strong> Epoch #68 <strong>*</strong>
+Loss: 5557.149716
+Improvement ratio: 0.080858
+Feature L2-norm: 57.131408
+Learning rate (eta): 0.006245
+Total number of feature updates: 926636
+Seconds required for this iteration: 2.219
+
+<strong>*</strong> Epoch #69 <strong>*</strong>
+Loss: 5563.991204
+Improvement ratio: 0.051323
+Feature L2-norm: 57.463177
+Learning rate (eta): 0.006245
+Total number of feature updates: 940263
+Seconds required for this iteration: 2.216
+
+<strong>*</strong> Epoch #70 <strong>*</strong>
+Loss: 5534.039170
+Improvement ratio: 0.061759
+Feature L2-norm: 57.779475
+Learning rate (eta): 0.006245
+Total number of feature updates: 953890
+Seconds required for this iteration: 2.301
+
+<strong>*</strong> Epoch #71 <strong>*</strong>
+Loss: 5511.189692
+Improvement ratio: 0.042922
+Feature L2-norm: 58.100620
+Learning rate (eta): 0.006244
+Total number of feature updates: 967517
+Seconds required for this iteration: 2.223
+
+<strong>*</strong> Epoch #72 <strong>*</strong>
+Loss: 5521.831739
+Improvement ratio: 0.043771
+Feature L2-norm: 58.429066
+Learning rate (eta): 0.006244
+Total number of feature updates: 981144
+Seconds required for this iteration: 2.236
+
+<strong>*</strong> Epoch #73 <strong>*</strong>
+Loss: 5547.368054
+Improvement ratio: 0.056179
+Feature L2-norm: 58.738911
+Learning rate (eta): 0.006244
+Total number of feature updates: 994771
+Seconds required for this iteration: 2.218
+
+<strong>*</strong> Epoch #74 <strong>*</strong>
+Loss: 5413.542636
+Improvement ratio: 0.042343
+Feature L2-norm: 59.066447
+Learning rate (eta): 0.006244
+Total number of feature updates: 1008398
+Seconds required for this iteration: 2.282
+
+<strong>*</strong> Epoch #75 <strong>*</strong>
+Loss: 5479.117009
+Improvement ratio: 0.046498
+Feature L2-norm: 59.379124
+Learning rate (eta): 0.006244
+Total number of feature updates: 1022025
+Seconds required for this iteration: 2.248
+
+<strong>*</strong> Epoch #76 <strong>*</strong>
+Loss: 5364.784325
+Improvement ratio: 0.049772
+Feature L2-norm: 59.678795
+Learning rate (eta): 0.006244
+Total number of feature updates: 1035652
+Seconds required for this iteration: 2.233
+
+<strong>*</strong> Epoch #77 <strong>*</strong>
+Loss: 5390.763873
+Improvement ratio: 0.046751
+Feature L2-norm: 59.987214
+Learning rate (eta): 0.006244
+Total number of feature updates: 1049279
+Seconds required for this iteration: 2.208
+
+<strong>*</strong> Epoch #78 <strong>*</strong>
+Loss: 5278.013108
+Improvement ratio: 0.052887
+Feature L2-norm: 60.286602
+Learning rate (eta): 0.006244
+Total number of feature updates: 1062906
+Seconds required for this iteration: 2.234
+
+<strong>*</strong> Epoch #79 <strong>*</strong>
+Loss: 5503.584990
+Improvement ratio: 0.010976
+Feature L2-norm: 60.615750
+Learning rate (eta): 0.006244
+Total number of feature updates: 1076533
+Seconds required for this iteration: 2.255
+
+<strong>*</strong> Epoch #80 <strong>*</strong>
+Loss: 5252.502895
+Improvement ratio: 0.053600
+Feature L2-norm: 60.905667
+Learning rate (eta): 0.006244
+Total number of feature updates: 1090160
+Seconds required for this iteration: 2.247
+
+<strong>*</strong> Epoch #81 <strong>*</strong>
+Loss: 5208.782001
+Improvement ratio: 0.058057
+Feature L2-norm: 61.188753
+Learning rate (eta): 0.006244
+Total number of feature updates: 1103787
+Seconds required for this iteration: 2.265
+
+<strong>*</strong> Epoch #82 <strong>*</strong>
+Loss: 5301.925370
+Improvement ratio: 0.041477
+Feature L2-norm: 61.480326
+Learning rate (eta): 0.006244
+Total number of feature updates: 1117414
+Seconds required for this iteration: 2.330
+
+<strong>*</strong> Epoch #83 <strong>*</strong>
+Loss: 5240.890727
+Improvement ratio: 0.058478
+Feature L2-norm: 61.783081
+Learning rate (eta): 0.006244
+Total number of feature updates: 1131041
+Seconds required for this iteration: 2.268
+
+<strong>*</strong> Epoch #84 <strong>*</strong>
+Loss: 5166.391532
+Improvement ratio: 0.047838
+Feature L2-norm: 62.065784
+Learning rate (eta): 0.006243
+Total number of feature updates: 1144668
+Seconds required for this iteration: 2.238
+
+<strong>*</strong> Epoch #85 <strong>*</strong>
+Loss: 5210.295613
+Improvement ratio: 0.051594
+Feature L2-norm: 62.348039
+Learning rate (eta): 0.006243
+Total number of feature updates: 1158295
+Seconds required for this iteration: 2.310
+
+<strong>*</strong> Epoch #86 <strong>*</strong>
+Loss: 5126.991931
+Improvement ratio: 0.046380
+Feature L2-norm: 62.635585
+Learning rate (eta): 0.006243
+Total number of feature updates: 1171922
+Seconds required for this iteration: 2.530
+
+<strong>*</strong> Epoch #87 <strong>*</strong>
+Loss: 5141.276434
+Improvement ratio: 0.048526
+Feature L2-norm: 62.911186
+Learning rate (eta): 0.006243
+Total number of feature updates: 1185549
+Seconds required for this iteration: 2.405
+
+<strong>*</strong> Epoch #88 <strong>*</strong>
+Loss: 5066.095799
+Improvement ratio: 0.041830
+Feature L2-norm: 63.180545
+Learning rate (eta): 0.006243
+Total number of feature updates: 1199176
+Seconds required for this iteration: 2.214
+
+<strong>*</strong> Epoch #89 <strong>*</strong>
+Loss: 5166.625987
+Improvement ratio: 0.065218
+Feature L2-norm: 63.475972
+Learning rate (eta): 0.006243
+Total number of feature updates: 1212803
+Seconds required for this iteration: 2.328
+
+<strong>*</strong> Epoch #90 <strong>*</strong>
+Loss: 5060.271510
+Improvement ratio: 0.037988
+Feature L2-norm: 63.759460
+Learning rate (eta): 0.006243
+Total number of feature updates: 1226430
+Seconds required for this iteration: 2.207
+
+<strong>*</strong> Epoch #91 <strong>*</strong>
+Loss: 4964.187813
+Improvement ratio: 0.049272
+Feature L2-norm: 64.031666
+Learning rate (eta): 0.006243
+Total number of feature updates: 1240057
+Seconds required for this iteration: 2.215
+
+<strong>*</strong> Epoch #92 <strong>*</strong>
+Loss: 5009.853158
+Improvement ratio: 0.058300
+Feature L2-norm: 64.293819
+Learning rate (eta): 0.006243
+Total number of feature updates: 1253684
+Seconds required for this iteration: 2.233
+
+<strong>*</strong> Epoch #93 <strong>*</strong>
+Loss: 4968.178641
+Improvement ratio: 0.054892
+Feature L2-norm: 64.569636
+Learning rate (eta): 0.006243
+Total number of feature updates: 1267311
+Seconds required for this iteration: 2.319
+
+<strong>*</strong> Epoch #94 <strong>*</strong>
+Loss: 5047.727315
+Improvement ratio: 0.023508
+Feature L2-norm: 64.848972
+Learning rate (eta): 0.006243
+Total number of feature updates: 1280938
+Seconds required for this iteration: 2.248
+
+<strong>*</strong> Epoch #95 <strong>*</strong>
+Loss: 4891.409892
+Improvement ratio: 0.065193
+Feature L2-norm: 65.108829
+Learning rate (eta): 0.006243
+Total number of feature updates: 1294565
+Seconds required for this iteration: 2.238
+
+<strong>*</strong> Epoch #96 <strong>*</strong>
+Loss: 4985.682275
+Improvement ratio: 0.028343
+Feature L2-norm: 65.391411
+Learning rate (eta): 0.006243
+Total number of feature updates: 1308192
+Seconds required for this iteration: 2.230
+
+<strong>*</strong> Epoch #97 <strong>*</strong>
+Loss: 5114.622015
+Improvement ratio: 0.005211
+Feature L2-norm: 65.668532
+Learning rate (eta): 0.006242
+Total number of feature updates: 1321819
+Seconds required for this iteration: 2.233
+
+<strong>*</strong> Epoch #98 <strong>*</strong>
+Loss: 4868.592901
+Improvement ratio: 0.040567
+Feature L2-norm: 65.933151
+Learning rate (eta): 0.006242
+Total number of feature updates: 1335446
+Seconds required for this iteration: 2.246
+
+<strong>*</strong> Epoch #99 <strong>*</strong>
+Loss: 4844.773246
+Improvement ratio: 0.066433
+Feature L2-norm: 66.186809
+Learning rate (eta): 0.006242
+Total number of feature updates: 1349073
+Seconds required for this iteration: 2.229
+
+<strong>*</strong> Epoch #100 <strong>*</strong>
+Loss: 4921.709631
+Improvement ratio: 0.028153
+Feature L2-norm: 66.453857
+Learning rate (eta): 0.006242
+Total number of feature updates: 1362700
+Seconds required for this iteration: 2.231
+
+<strong>*</strong> Epoch #101 <strong>*</strong>
+Loss: 4789.900702
+Improvement ratio: 0.036386
+Feature L2-norm: 66.716848
+Learning rate (eta): 0.006242
+Total number of feature updates: 1376327
+Seconds required for this iteration: 2.215
+
+<strong>*</strong> Epoch #102 <strong>*</strong>
+Loss: 4788.309280
+Improvement ratio: 0.046268
+Feature L2-norm: 66.976715
+Learning rate (eta): 0.006242
+Total number of feature updates: 1389954
+Seconds required for this iteration: 2.228
+
+<strong>*</strong> Epoch #103 <strong>*</strong>
+Loss: 4795.595050
+Improvement ratio: 0.035988
+Feature L2-norm: 67.231667
+Learning rate (eta): 0.006242
+Total number of feature updates: 1403581
+Seconds required for this iteration: 2.220
+
+<strong>*</strong> Epoch #104 <strong>*</strong>
+Loss: 4896.397755
+Improvement ratio: 0.030906
+Feature L2-norm: 67.490533
+Learning rate (eta): 0.006242
+Total number of feature updates: 1417208
+Seconds required for this iteration: 2.233
+
+<strong>*</strong> Epoch #105 <strong>*</strong>
+Loss: 4706.124091
+Improvement ratio: 0.039371
+Feature L2-norm: 67.737461
+Learning rate (eta): 0.006242
+Total number of feature updates: 1430835
+Seconds required for this iteration: 2.220
+
+<strong>*</strong> Epoch #106 <strong>*</strong>
+Loss: 4753.854731
+Improvement ratio: 0.048766
+Feature L2-norm: 67.983183
+Learning rate (eta): 0.006242
+Total number of feature updates: 1444462
+Seconds required for this iteration: 2.318
+
+<strong>*</strong> Epoch #107 <strong>*</strong>
+Loss: 4835.783535
+Improvement ratio: 0.057661
+Feature L2-norm: 68.237816
+Learning rate (eta): 0.006242
+Total number of feature updates: 1458089
+Seconds required for this iteration: 2.326
+
+<strong>*</strong> Epoch #108 <strong>*</strong>
+Loss: 4708.315868
+Improvement ratio: 0.034041
+Feature L2-norm: 68.490847
+Learning rate (eta): 0.006242
+Total number of feature updates: 1471716
+Seconds required for this iteration: 2.275
+
+<strong>*</strong> Epoch #109 <strong>*</strong>
+Loss: 4714.363397
+Improvement ratio: 0.027662
+Feature L2-norm: 68.741470
+Learning rate (eta): 0.006241
+Total number of feature updates: 1485343
+Seconds required for this iteration: 2.285
+
+<strong>*</strong> Epoch #110 <strong>*</strong>
+Loss: 4764.498215
+Improvement ratio: 0.032996
+Feature L2-norm: 68.989531
+Learning rate (eta): 0.006241
+Total number of feature updates: 1498970
+Seconds required for this iteration: 2.313
+
+<strong>*</strong> Epoch #111 <strong>*</strong>
+Loss: 4702.949558
+Improvement ratio: 0.018489
+Feature L2-norm: 69.228922
+Learning rate (eta): 0.006241
+Total number of feature updates: 1512597
+Seconds required for this iteration: 2.261
+
+<strong>*</strong> Epoch #112 <strong>*</strong>
+Loss: 4681.255269
+Improvement ratio: 0.022869
+Feature L2-norm: 69.473358
+Learning rate (eta): 0.006241
+Total number of feature updates: 1526224
+Seconds required for this iteration: 2.251
+
+<strong>*</strong> Epoch #113 <strong>*</strong>
+Loss: 4722.102327
+Improvement ratio: 0.015564
+Feature L2-norm: 69.720548
+Learning rate (eta): 0.006241
+Total number of feature updates: 1539851
+Seconds required for this iteration: 2.384
+
+<strong>*</strong> Epoch #114 <strong>*</strong>
+Loss: 4585.640466
+Improvement ratio: 0.067767
+Feature L2-norm: 69.951587
+Learning rate (eta): 0.006241
+Total number of feature updates: 1553478
+Seconds required for this iteration: 2.286
+
+<strong>*</strong> Epoch #115 <strong>*</strong>
+Loss: 4664.131282
+Improvement ratio: 0.009003
+Feature L2-norm: 70.190197
+Learning rate (eta): 0.006241
+Total number of feature updates: 1567105
+Seconds required for this iteration: 2.235
+
+<strong>*</strong> Epoch #116 <strong>*</strong>
+Loss: 4613.366616
+Improvement ratio: 0.030452
+Feature L2-norm: 70.425920
+Learning rate (eta): 0.006241
+Total number of feature updates: 1580732
+Seconds required for this iteration: 2.227
+
+<strong>*</strong> Epoch #117 <strong>*</strong>
+Loss: 4614.199853
+Improvement ratio: 0.048022
+Feature L2-norm: 70.668697
+Learning rate (eta): 0.006241
+Total number of feature updates: 1594359
+Seconds required for this iteration: 2.211
+
+<strong>*</strong> Epoch #118 <strong>*</strong>
+Loss: 4609.819200
+Improvement ratio: 0.021367
+Feature L2-norm: 70.902847
+Learning rate (eta): 0.006241
+Total number of feature updates: 1607986
+Seconds required for this iteration: 2.504
+
+<strong>*</strong> Epoch #119 <strong>*</strong>
+Loss: 4544.535893
+Improvement ratio: 0.037370
+Feature L2-norm: 71.130045
+Learning rate (eta): 0.006241
+Total number of feature updates: 1621613
+Seconds required for this iteration: 2.398
+
+<strong>*</strong> Epoch #120 <strong>*</strong>
+Loss: 4635.104857
+Improvement ratio: 0.027916
+Feature L2-norm: 71.375496
+Learning rate (eta): 0.006241
+Total number of feature updates: 1635240
+Seconds required for this iteration: 2.811
+
+<strong>*</strong> Epoch #121 <strong>*</strong>
+Loss: 4530.647645
+Improvement ratio: 0.038030
+Feature L2-norm: 71.605246
+Learning rate (eta): 0.006241
+Total number of feature updates: 1648867
+Seconds required for this iteration: 2.707
+
+<strong>*</strong> Epoch #122 <strong>*</strong>
+Loss: 4541.986987
+Improvement ratio: 0.030662
+Feature L2-norm: 71.837709
+Learning rate (eta): 0.006240
+Total number of feature updates: 1662494
+Seconds required for this iteration: 2.500
+
+<strong>*</strong> Epoch #123 <strong>*</strong>
+Loss: 4479.125406
+Improvement ratio: 0.054247
+Feature L2-norm: 72.068895
+Learning rate (eta): 0.006240
+Total number of feature updates: 1676121
+Seconds required for this iteration: 2.785
+
+<strong>*</strong> Epoch #124 <strong>*</strong>
+Loss: 4459.762067
+Improvement ratio: 0.028225
+Feature L2-norm: 72.295359
+Learning rate (eta): 0.006240
+Total number of feature updates: 1689748
+Seconds required for this iteration: 2.540
+
+<strong>*</strong> Epoch #125 <strong>*</strong>
+Loss: 4433.583594
+Improvement ratio: 0.052000
+Feature L2-norm: 72.518676
+Learning rate (eta): 0.006240
+Total number of feature updates: 1703375
+Seconds required for this iteration: 2.210
+
+<strong>*</strong> Epoch #126 <strong>*</strong>
+Loss: 4448.369673
+Improvement ratio: 0.037092
+Feature L2-norm: 72.748678
+Learning rate (eta): 0.006240
+Total number of feature updates: 1717002
+Seconds required for this iteration: 2.221
+
+<strong>*</strong> Epoch #127 <strong>*</strong>
+Loss: 4434.348927
+Improvement ratio: 0.040559
+Feature L2-norm: 72.965152
+Learning rate (eta): 0.006240
+Total number of feature updates: 1730629
+Seconds required for this iteration: 2.494
+
+<strong>*</strong> Epoch #128 <strong>*</strong>
+Loss: 4434.377590
+Improvement ratio: 0.039564
+Feature L2-norm: 73.191414
+Learning rate (eta): 0.006240
+Total number of feature updates: 1744256
+Seconds required for this iteration: 2.510
+
+<strong>*</strong> Epoch #129 <strong>*</strong>
+Loss: 4528.904989
+Improvement ratio: 0.003451
+Feature L2-norm: 73.423359
+Learning rate (eta): 0.006240
+Total number of feature updates: 1757883
+Seconds required for this iteration: 2.435
+
+<strong>*</strong> Epoch #130 <strong>*</strong>
+Loss: 4317.636528
+Improvement ratio: 0.073528
+Feature L2-norm: 73.640535
+Learning rate (eta): 0.006240
+Total number of feature updates: 1771510
+Seconds required for this iteration: 2.337
+
+<strong>*</strong> Epoch #131 <strong>*</strong>
+Loss: 4441.530100
+Improvement ratio: 0.020065
+Feature L2-norm: 73.862459
+Learning rate (eta): 0.006240
+Total number of feature updates: 1785137
+Seconds required for this iteration: 2.347
+
+<strong>*</strong> Epoch #132 <strong>*</strong>
+Loss: 4544.574722
+Improvement ratio: -0.000569
+Feature L2-norm: 74.094606
+Learning rate (eta): 0.006240
+Total number of feature updates: 1798764
+Seconds required for this iteration: 2.224
+
+SGD terminated with the stopping criteria
+Loss: 4317.636528
+Total seconds required for training: 311.247
+
+Storing the model
+Number of active features: 27502 (27502)
+Number of active attributes: 8385 (8385)
+Number of active labels: 7 (7)
+Writing labels
+Writing attributes
+Writing feature references for transitions
+Writing feature references for attributes
+Seconds required: 0.044
+</pre>
+<p>The specified output directory will contain a resulting model file
+model.bin and a copy of a settings module used for training. Now we can
+load the model and tag some text using <strong>NerTagger</strong>:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">estnltk.ner</span> <span class="k">import</span> <span class="n">NerTagger</span>
+
+<span class="n">document</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s1">&#39;Eesti koeraspordiliidu ( EKL ) presidendi Piret Laanetu intervjuu Eesti Päevalehele.&#39;</span><span class="p">)</span>
+
+<span class="c1"># Load the model and settings</span>
+<span class="n">tagger</span> <span class="o">=</span> <span class="n">NerTagger</span><span class="p">(</span><span class="n">model_dir</span><span class="p">)</span>
+
+<span class="c1"># ne-tag the document</span>
+<span class="n">tagger</span><span class="o">.</span><span class="n">tag_document</span><span class="p">(</span><span class="n">document</span><span class="p">)</span>
+
+<span class="n">pprint</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">document</span><span class="o">.</span><span class="n">word_texts</span><span class="p">,</span> <span class="n">document</span><span class="o">.</span><span class="n">labels</span><span class="p">)))</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[(</span><span class="s1">&#39;Eesti&#39;</span><span class="p">,</span> <span class="s1">&#39;B-ORG&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;koeraspordiliidu&#39;</span><span class="p">,</span> <span class="s1">&#39;I-ORG&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;(&#39;</span><span class="p">,</span> <span class="s1">&#39;O&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;EKL&#39;</span><span class="p">,</span> <span class="s1">&#39;B-ORG&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;)&#39;</span><span class="p">,</span> <span class="s1">&#39;O&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;presidendi&#39;</span><span class="p">,</span> <span class="s1">&#39;O&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;Piret&#39;</span><span class="p">,</span> <span class="s1">&#39;B-PER&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;Laanetu&#39;</span><span class="p">,</span> <span class="s1">&#39;I-PER&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;intervjuu&#39;</span><span class="p">,</span> <span class="s1">&#39;O&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;Eesti&#39;</span><span class="p">,</span> <span class="s1">&#39;B-ORG&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;Päevalehele&#39;</span><span class="p">,</span> <span class="s1">&#39;I-ORG&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="s1">&#39;O&#39;</span><span class="p">)]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="training-dataset">
+<h3>Training dataset<a class="headerlink" href="#training-dataset" title="Permalink to this headline">¶</a></h3>
+<p>To train a model with estnltk, you need to provide your training data in
+a certain format (see the default dataset
+estnltk/estnltk/corpora/estner.json for example). The training file
+contains one document per line along with ne-labels. Let&#8217;s create a
+simple document:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="n">text</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s1">&#39;&#39;&#39;Eesti Vabariik on riik Põhja-Euroopas.&#39;&#39;&#39;</span><span class="p">)</span>
+<span class="n">text</span><span class="o">.</span><span class="n">tokenize_words</span><span class="p">()</span>
+<span class="n">pprint</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">&#39;paragraphs&#39;</span><span class="p">:</span> <span class="p">[{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">38</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}],</span>
+ <span class="s1">&#39;sentences&#39;</span><span class="p">:</span> <span class="p">[{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">38</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}],</span>
+ <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="s1">&#39;Eesti Vabariik on riik Põhja-Euroopas.&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;words&#39;</span><span class="p">:</span> <span class="p">[{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="s1">&#39;Eesti&#39;</span><span class="p">},</span>
+           <span class="p">{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">14</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="s1">&#39;Vabariik&#39;</span><span class="p">},</span>
+           <span class="p">{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">17</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="s1">&#39;on&#39;</span><span class="p">},</span>
+           <span class="p">{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">22</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">18</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="s1">&#39;riik&#39;</span><span class="p">},</span>
+           <span class="p">{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">37</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">23</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="s1">&#39;Põhja-Euroopas&#39;</span><span class="p">},</span>
+           <span class="p">{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">38</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">37</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="s1">&#39;.&#39;</span><span class="p">}]}</span>
+</pre></div>
+</div>
+<p>Next, let&#8217;s add named entity tags to each word in the document:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="n">words</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">words</span>
+
+<span class="c1"># label each word as &quot;other&quot;:</span>
+<span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">words</span><span class="p">:</span>
+    <span class="n">word</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;O&#39;</span>
+
+<span class="c1"># label words &quot;Eesti Vabariik&quot; as a location</span>
+<span class="n">words</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;label&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;B-LOC&#39;</span>
+<span class="n">words</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;label&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;I-LOC&#39;</span>
+
+<span class="c1"># label word &quot;Põhja-Euroopas&quot; as a location</span>
+<span class="n">words</span><span class="p">[</span><span class="mi">4</span><span class="p">][</span><span class="s1">&#39;label&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;B-LOC&#39;</span>
+
+<span class="n">pprint</span><span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">words</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;B-LOC&#39;</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="s1">&#39;Eesti&#39;</span><span class="p">},</span>
+ <span class="p">{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">14</span><span class="p">,</span> <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;I-LOC&#39;</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="s1">&#39;Vabariik&#39;</span><span class="p">},</span>
+ <span class="p">{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">17</span><span class="p">,</span> <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;O&#39;</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="s1">&#39;on&#39;</span><span class="p">},</span>
+ <span class="p">{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">22</span><span class="p">,</span> <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;O&#39;</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">18</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="s1">&#39;riik&#39;</span><span class="p">},</span>
+ <span class="p">{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">37</span><span class="p">,</span> <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;B-LOC&#39;</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">23</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="s1">&#39;Põhja-Euroopas&#39;</span><span class="p">},</span>
+ <span class="p">{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">38</span><span class="p">,</span> <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;O&#39;</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">37</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="s1">&#39;.&#39;</span><span class="p">}]</span>
+</pre></div>
+</div>
+<p>Once we have a collection of labelled documents, we can save it to disc
+using the function <strong>write_json_corpus()</strong>:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">estnltk.corpus</span> <span class="k">import</span> <span class="n">write_json_corpus</span>
+
+<span class="n">documents</span> <span class="o">=</span> <span class="p">[</span><span class="n">text</span><span class="p">]</span>
+<span class="n">write_json_corpus</span><span class="p">(</span><span class="n">documents</span><span class="p">,</span> <span class="s1">&#39;output_file_name&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[{</span><span class="s1">&#39;paragraphs&#39;</span><span class="p">:</span> <span class="p">[{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">38</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}],</span>
+  <span class="s1">&#39;sentences&#39;</span><span class="p">:</span> <span class="p">[{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">38</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}],</span>
+  <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="s1">&#39;Eesti Vabariik on riik Põhja-Euroopas.&#39;</span><span class="p">,</span>
+  <span class="s1">&#39;words&#39;</span><span class="p">:</span> <span class="p">[{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;B-LOC&#39;</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="s1">&#39;Eesti&#39;</span><span class="p">},</span>
+   <span class="p">{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">14</span><span class="p">,</span> <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;I-LOC&#39;</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="s1">&#39;Vabariik&#39;</span><span class="p">},</span>
+   <span class="p">{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">17</span><span class="p">,</span> <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;O&#39;</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="s1">&#39;on&#39;</span><span class="p">},</span>
+   <span class="p">{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">22</span><span class="p">,</span> <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;O&#39;</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">18</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="s1">&#39;riik&#39;</span><span class="p">},</span>
+   <span class="p">{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">37</span><span class="p">,</span> <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;B-LOC&#39;</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">23</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="s1">&#39;Põhja-Euroopas&#39;</span><span class="p">},</span>
+   <span class="p">{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">38</span><span class="p">,</span> <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;O&#39;</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">37</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="s1">&#39;.&#39;</span><span class="p">}]}]</span>
+</pre></div>
+</div>
+<p>This serializes each document object into a json string and saves to the
+specified file line by line. The resulting training file can be used
+with the <strong>NerTrainer</strong> as shown above.</p>
+</div>
+<div class="section" id="ner-settings">
+<h3>Ner settings<a class="headerlink" href="#ner-settings" title="Permalink to this headline">¶</a></h3>
+<p>By default, estnltk uses configuration module
+<strong>estnltk.estner.settings</strong>. A settings module defines training
+algorithm parameters, entity categories, feature extractors and feature
+templates. The simplest way to create a custom configuration is to make
+a new settings module, e.g. <em>custom_settings.py</em>, import the default
+settings and override necessary parts. For example, a custom
+minimalistic configuration module could look like this:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="o">%%</span><span class="n">writefile</span> <span class="n">custom_settings</span><span class="o">.</span><span class="n">py</span>
+
+<span class="kn">from</span> <span class="nn">estnltk.estner.settings</span> <span class="k">import</span> <span class="o">*</span>
+
+<span class="c1"># Override feature templates</span>
+<span class="n">TEMPLATES</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">((</span><span class="s1">&#39;lem&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),),</span>
+<span class="p">]</span>
+
+<span class="c1"># Override feature extractors</span>
+<span class="n">FEATURE_EXTRACTORS</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;estnltk.estner.featureextraction.MorphFeatureExtractor&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">Overwriting</span> <span class="n">custom_settings</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">custom_settings</span>
+</pre></div>
+</div>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="n">ner_settings2</span> <span class="o">=</span> <span class="n">custom_settings</span>
+</pre></div>
+</div>
+<p>Now, the <strong>NerTrainer</strong> instance can be initialized using the
+custom_settings module (make sure <em>custom_settings.py</em> is on your
+python path):</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="n">trainer</span> <span class="o">=</span> <span class="n">NerTrainer</span><span class="p">(</span><span class="n">ner_settings2</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="prettyprinter.html" class="btn btn-neutral float-right" title="HTML Prettyprinter" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="dependency_syntax.html" class="btn btn-neutral" title="Dependency syntactic analysis" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, University of Tartu unless specified otherwise in the file headers.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.4.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

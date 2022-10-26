@@ -1,0 +1,297 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Estnltk – Open source tools for Estonian natural language processing &mdash; estnltk 1.4.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="estnltk 1.4.1 documentation" href="#"/>
+        <link rel="next" title="Estnltk tutorials" href="tutorials/index.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="#" class="icon icon-home"> estnltk
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.4.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Estnltk tutorials</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="external/index.html">Other tools</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api/index.html">API documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authors.html">Authors</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="#">estnltk</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="#">Docs</a> &raquo;</li>
+      
+    <li>Estnltk &#8211; Open source tools for Estonian natural language processing</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/index.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="estnltk-open-source-tools-for-estonian-natural-language-processing">
+<h1>Estnltk &#8211; Open source tools for Estonian natural language processing<a class="headerlink" href="#estnltk-open-source-tools-for-estonian-natural-language-processing" title="Permalink to this headline">¶</a></h1>
+<p>Estnltk provides common natural language processing functionality such
+as paragraph, sentence and word tokenization, morphological analysis,
+named entity recognition, etc. for the Estonian language.</p>
+<p>The project is funded by EKT (Eesti Keeletehnoloogia Riiklik Programm,
+<a class="reference external" href="https://www.keeletehnoloogia.ee/">https://www.keeletehnoloogia.ee/</a>).</p>
+<div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<p>The recommended way of installing estnltk is by using the <a class="reference external" href="https://www.continuum.io/downloads">anaconda
+python distribution</a> and python
+3.5+.</p>
+<p>We have installable packages built for osx, windows-64, and linux-64.</p>
+<p>The command for installing estnltk is:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">install</span> <span class="o">-</span><span class="n">c</span> <span class="n">estnltk</span> <span class="o">-</span><span class="n">c</span> <span class="n">conda</span><span class="o">-</span><span class="n">forge</span> <span class="n">estnltk</span>
+</pre></div>
+</div>
+<p>The alternative way for installing if you are unable to use the anaconda
+distribution is:</p>
+<p><code class="docutils literal"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">pip</span> <span class="pre">install</span> <span class="pre">estnltk</span></code></p>
+<p>This is slower, more error-prone and requires you to have the
+appropriate compilers for building the scientific computation packages
+for your platform.</p>
+<p>Find more details in the <a class="reference external" href="tutorials/installation.html">installation
+tutorial</a>.</p>
+</div>
+<div class="section" id="documentation">
+<h2>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h2>
+<p>Release 1.4 documentation is available at
+<a class="reference external" href="index.html">http://estnltk.github.io/estnltk/1.4/index.html</a>.</p>
+<p>Additional educational materials on estnltk are available on the web
+page of the NLP course taught at the University of Tartu:
+<a class="reference external" href="https://courses.cs.ut.ee/2015/pynlp/fall">https://courses.cs.ut.ee/2015/pynlp/fall</a>.</p>
+</div>
+<div class="section" id="citation">
+<h2>Citation<a class="headerlink" href="#citation" title="Permalink to this headline">¶</a></h2>
+<p>Once you use Estnltk in your work, plase cite us as follows:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="nd">@InProceedings</span><span class="p">{</span><span class="n">ORASMAA16</span><span class="o">.</span><span class="mi">332</span><span class="p">,</span>
+<span class="n">author</span> <span class="o">=</span> <span class="p">{</span><span class="n">Siim</span> <span class="n">Orasmaa</span> <span class="ow">and</span> <span class="n">Timo</span> <span class="n">Petmanson</span> <span class="ow">and</span> <span class="n">Alexander</span> <span class="n">Tkachenko</span> <span class="ow">and</span> <span class="n">Sven</span> <span class="n">Laur</span> <span class="ow">and</span> <span class="n">Heiki</span><span class="o">-</span><span class="n">Jaan</span> <span class="n">Kaalep</span><span class="p">},</span>
+<span class="n">title</span> <span class="o">=</span> <span class="p">{</span><span class="n">EstNLTK</span> <span class="o">-</span> <span class="n">NLP</span> <span class="n">Toolkit</span> <span class="k">for</span> <span class="n">Estonian</span><span class="p">},</span>
+<span class="n">booktitle</span> <span class="o">=</span> <span class="p">{</span><span class="n">Proceedings</span> <span class="n">of</span> <span class="n">the</span> <span class="n">Tenth</span> <span class="n">International</span> <span class="n">Conference</span> <span class="n">on</span> <span class="n">Language</span> <span class="n">Resources</span> <span class="ow">and</span> <span class="n">Evaluation</span> <span class="p">(</span><span class="n">LREC</span> <span class="mi">2016</span><span class="p">)},</span>
+<span class="n">year</span> <span class="o">=</span> <span class="p">{</span><span class="mi">2016</span><span class="p">},</span>
+<span class="n">month</span> <span class="o">=</span> <span class="p">{</span><span class="n">may</span><span class="p">},</span>
+<span class="n">date</span> <span class="o">=</span> <span class="p">{</span><span class="mi">23</span><span class="o">-</span><span class="mi">28</span><span class="p">},</span>
+<span class="n">location</span> <span class="o">=</span> <span class="p">{</span><span class="n">Portorož</span><span class="p">,</span> <span class="n">Slovenia</span><span class="p">},</span>
+<span class="n">editor</span> <span class="o">=</span> <span class="p">{</span><span class="n">Nicoletta</span> <span class="n">Calzolari</span> <span class="p">(</span><span class="n">Conference</span> <span class="n">Chair</span><span class="p">)</span> <span class="ow">and</span> <span class="n">Khalid</span> <span class="n">Choukri</span> <span class="ow">and</span> <span class="n">Thierry</span> <span class="n">Declerck</span> <span class="ow">and</span> <span class="n">Marko</span> <span class="n">Grobelnik</span> <span class="ow">and</span> <span class="n">Bente</span> <span class="n">Maegaard</span> <span class="ow">and</span> <span class="n">Joseph</span> <span class="n">Mariani</span> <span class="ow">and</span> <span class="n">Asuncion</span> <span class="n">Moreno</span> <span class="ow">and</span> <span class="n">Jan</span> <span class="n">Odijk</span> <span class="ow">and</span> <span class="n">Stelios</span> <span class="n">Piperidis</span><span class="p">},</span>
+<span class="n">publisher</span> <span class="o">=</span> <span class="p">{</span><span class="n">European</span> <span class="n">Language</span> <span class="n">Resources</span> <span class="n">Association</span> <span class="p">(</span><span class="n">ELRA</span><span class="p">)},</span>
+<span class="n">address</span> <span class="o">=</span> <span class="p">{</span><span class="n">Paris</span><span class="p">,</span> <span class="n">France</span><span class="p">},</span>
+<span class="n">isbn</span> <span class="o">=</span> <span class="p">{</span><span class="mi">978</span><span class="o">-</span><span class="mi">2</span><span class="o">-</span><span class="mi">9517408</span><span class="o">-</span><span class="mi">9</span><span class="o">-</span><span class="mi">1</span><span class="p">},</span>
+<span class="n">language</span> <span class="o">=</span> <span class="p">{</span><span class="n">english</span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Estnltk tutorials</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/installation.html">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/text.html">Basic Text class operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/wikipedia.html">Wikipedia tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/elasticsearch.html">Elasticsearch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/disambiguation.html">Disambiguation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/grammar.html">Grammars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/np_chunker.html">Noun-phrase chunker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/dependency_syntax.html">Dependency_syntax</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/ner.html">Name-Entity Recognition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/prettyprinter.html">Prettyprinter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/terminalprettyprinter.html">Terminal prettyprinter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tei.html">Working with Koondkorpus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/morphology_tables.html">Morphological annotation tables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/devel.html">Developer readme</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="external/index.html">Other tools</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="external/textclassifier.html">Text classification tool</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api/index.html">API documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authors.html">Authors</a></li>
+</ul>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="tutorials/index.html" class="btn btn-neutral float-right" title="Estnltk tutorials" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, University of Tartu unless specified otherwise in the file headers.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'1.4.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

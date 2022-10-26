@@ -1,0 +1,424 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Installation &mdash; estnltk 1.4.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="estnltk 1.4.1 documentation" href="../index.html"/>
+        <link rel="up" title="Estnltk tutorials" href="index.html"/>
+        <link rel="next" title="Working with text" href="text.html"/>
+        <link rel="prev" title="Estnltk tutorials" href="index.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> estnltk
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.4.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Estnltk tutorials</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Installation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#installation-on-linux-mint-17-2">Installation on Linux Mint 17.2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#installation-on-windows">Installation on Windows</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#full-list-of-dependencies">Full list of dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#building-from-source">Building from source</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#post-installation-steps">Post-installation steps</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="text.html">Basic Text class operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wikipedia.html">Wikipedia tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="elasticsearch.html">Elasticsearch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="disambiguation.html">Disambiguation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="grammar.html">Grammars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="np_chunker.html">Noun-phrase chunker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dependency_syntax.html">Dependency_syntax</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ner.html">Name-Entity Recognition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="prettyprinter.html">Prettyprinter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="terminalprettyprinter.html">Terminal prettyprinter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tei.html">Working with Koondkorpus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="morphology_tables.html">Morphological annotation tables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="devel.html">Developer readme</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../external/index.html">Other tools</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html">API documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../authors.html">Authors</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">estnltk</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="index.html">Estnltk tutorials</a> &raquo;</li>
+      
+    <li>Installation</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/tutorials/installation.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="installation">
+<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
+<p>Estnltk works with Python versions 2.7 and 3.4 on Windows and Linux.</p>
+<div class="section" id="installation-on-linux-mint-17-2">
+<h2>Installation on Linux Mint 17.2<a class="headerlink" href="#installation-on-linux-mint-17-2" title="Permalink to this headline">¶</a></h2>
+<p>In Linux, install dependences, install estnltk and test the
+installation:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="n">g</span><span class="o">++</span> <span class="n">python3</span><span class="o">-</span><span class="n">dev</span> <span class="n">python3</span><span class="o">-</span><span class="n">pip</span> <span class="n">python3</span><span class="o">-</span><span class="n">wheel</span> <span class="n">python3</span><span class="o">-</span><span class="n">numpy</span> <span class="n">swig</span>
+<span class="n">sudo</span> <span class="n">pip3</span> <span class="n">install</span> <span class="n">estnltk</span>
+</pre></div>
+</div>
+<p>As a first test, try to run this line of code in your terminal:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="o">-</span><span class="n">c</span> <span class="s2">&quot;import estnltk; print( estnltk.Text(&#39;Tere estnltk&#39;).lemmas )&quot;</span>
+</pre></div>
+</div>
+<p>It should print:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">nltk_data</span><span class="p">]</span> <span class="n">Downloading</span> <span class="n">package</span> <span class="n">punkt</span> <span class="n">to</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">user</span><span class="o">/</span><span class="n">nltk_data</span><span class="o">...</span>
+<span class="p">[</span><span class="n">nltk_data</span><span class="p">]</span>   <span class="n">Unzipping</span> <span class="n">tokenizers</span><span class="o">/</span><span class="n">punkt</span><span class="o">.</span><span class="n">zip</span><span class="o">.</span>
+<span class="p">[</span><span class="s1">&#39;tere&#39;</span><span class="p">,</span> <span class="s1">&#39;estnltk&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>You see that NLTK data is being dowloaded on first use of the library.
+Then, run the unittest suite:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="o">-</span><span class="n">m</span> <span class="n">estnltk</span><span class="o">.</span><span class="n">run_tests</span>
+</pre></div>
+</div>
+<p>This should report the number of tests run and the status. If it is
+&#8220;OK&#8221;, then you are good to go:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">Ran</span> <span class="mi">157</span> <span class="n">tests</span> <span class="ow">in</span> <span class="mf">35.207</span><span class="n">s</span>
+
+<span class="n">OK</span>
+</pre></div>
+</div>
+<p>Although this is Linux Mint 17.2 specific, it should also work in
+Ubuntu.</p>
+<p>(Optional) You might want to use Oracle JDK instead of OpenJDK, because
+Estnltk uses Java for some tasks. These tutorials will help you install
+it: <a class="reference external" href="http://community.linuxmint.com/tutorial/view/1372">http://community.linuxmint.com/tutorial/view/1372</a> ,
+<a class="reference external" href="http://community.linuxmint.com/tutorial/view/1091">http://community.linuxmint.com/tutorial/view/1091</a> .</p>
+</div>
+<div class="section" id="installation-on-windows">
+<h2>Installation on Windows<a class="headerlink" href="#installation-on-windows" title="Permalink to this headline">¶</a></h2>
+<p>The process involves installation of the pre-compiled version of estnltk
+and its dependencies so that no compiler is required. We assume you have
+python 3.4 installed and run a 64-bit Windows OS. Installation on a
+32-bit platform is identical.</p>
+<p>First, obtain the required packages:</p>
+<ul class="simple">
+<li>numpy-1.10.0b1+mkl-cp34-none-win_amd64.whl from
+<a class="reference external" href="http://www.lfd.uci.edu/~gohlke/pythonlibs/">http://www.lfd.uci.edu/~gohlke/pythonlibs/</a></li>
+<li>python_crfsuite-0.8.3-cp34-none-win_amd64.whl from
+<a class="reference external" href="https://github.com/estnltk/estnltk/blob/version1.4/dist/python-crfsuite">https://github.com/estnltk/estnltk/blob/version1.4/dist/python-crfsuite</a></li>
+<li>estnltk-1.4-cp34-cp34m-win_amd64.whl from
+<a class="reference external" href="https://github.com/estnltk/estnltk/releases">https://github.com/estnltk/estnltk/releases</a></li>
+</ul>
+<p>Next, install the dependencies and estnltk:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">python</span><span class="o">.</span><span class="n">exe</span> <span class="o">-</span><span class="n">m</span> <span class="n">pip</span> <span class="n">install</span> <span class="n">numpy</span><span class="o">-</span><span class="mf">1.10</span><span class="o">.</span><span class="mb">0b1</span><span class="o">+</span><span class="n">mkl</span><span class="o">-</span><span class="n">cp34</span><span class="o">-</span><span class="n">none</span><span class="o">-</span><span class="n">win_amd64</span><span class="o">.</span><span class="n">whl</span>
+<span class="n">python</span><span class="o">.</span><span class="n">exe</span> <span class="o">-</span><span class="n">m</span> <span class="n">pip</span> <span class="n">install</span> <span class="n">python_crfsuite</span><span class="o">-</span><span class="mf">0.8</span><span class="o">.</span><span class="mi">3</span><span class="o">-</span><span class="n">cp34</span><span class="o">-</span><span class="n">none</span><span class="o">-</span><span class="n">win_amd64</span><span class="o">.</span><span class="n">whl</span>
+<span class="n">python</span><span class="o">.</span><span class="n">exe</span> <span class="o">-</span><span class="n">m</span> <span class="n">pip</span> <span class="n">install</span> <span class="n">estnltk</span><span class="o">-</span><span class="mf">1.4</span><span class="o">-</span><span class="n">cp34</span><span class="o">-</span><span class="n">cp34m</span><span class="o">-</span><span class="n">win_amd64</span><span class="o">.</span><span class="n">whl</span>
+</pre></div>
+</div>
+<p>Make sure the installation was successfull by running:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">python</span><span class="o">.</span><span class="n">exe</span> <span class="o">-</span><span class="n">c</span> <span class="s2">&quot;import estnltk; print( estnltk.Text(&#39;Tere estnltk&#39;).lemmas )&quot;</span>
+</pre></div>
+</div>
+<p>which should output:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">nltk_data</span><span class="p">]</span> <span class="n">Downloading</span> <span class="n">package</span> <span class="n">punkt</span> <span class="n">to</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">user</span><span class="o">/</span><span class="n">nltk_data</span><span class="o">...</span>
+
+<span class="p">[</span><span class="n">nltk_data</span><span class="p">]</span> <span class="n">Unzipping</span> <span class="n">tokenizers</span><span class="o">/</span><span class="n">punkt</span><span class="o">.</span><span class="n">zip</span><span class="o">.</span>
+
+<span class="p">[</span><span class="s1">&#39;tere&#39;</span><span class="p">,</span> <span class="s1">&#39;estnltk&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Finally, run the unittests:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">python</span><span class="o">.</span><span class="n">exe</span> <span class="o">-</span><span class="n">m</span> <span class="n">estnltk</span><span class="o">.</span><span class="n">run_tests</span>
+</pre></div>
+</div>
+<p>This should report the number of tests run and the status. If the status
+is &#8220;OK&#8221;, then you are good to go:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">Ran</span> <span class="mi">157</span> <span class="n">tests</span> <span class="ow">in</span> <span class="mf">35.207</span><span class="n">s</span>
+
+<span class="n">OK</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="full-list-of-dependencies">
+<h2>Full list of dependencies<a class="headerlink" href="#full-list-of-dependencies" title="Permalink to this headline">¶</a></h2>
+<p><strong>Python with development headers.</strong> <a class="reference external" href="https://www.python.org/">https://www.python.org/</a> . The most
+obvious dependency of course is Python itself. Estnltk currently
+supports <em>versions 2.7 and 3.4</em>. Other versions may work as well, but
+are not tested. Python installer for Windows includes the development
+headers that are saved to the Python folder. In Linux, depending on the
+flavor and distribution, you usually have to install the headers
+separately. Either by building the Python from source or using a package
+manager. The package is typically named <code class="docutils literal"><span class="pre">python-dev</span></code> for Python 2 and
+<code class="docutils literal"><span class="pre">python3-dev</span></code> for Python3.</p>
+<p><strong>SWIG wrapper generator</strong>, <a class="reference external" href="http://swig.org/">http://swig.org/</a> . SWIG is a software
+development tool that connects programs written in C and C++ with a
+variety of high-level programming languages. SWIG is used with different
+types of target languages including common scripting languages such as
+Javascript, Perl, PHP, Python, Tcl and Ruby. Estnltk contains C++ code
+that uses SWIG to extend Python. In Linux, this package is usually named
+<code class="docutils literal"><span class="pre">swig</span></code> and can be installed with a package manager.</p>
+<p><strong>C++ compiler</strong>. In <em>Linux</em> systems, Estnltk can be built using GNU C++
+compiler which can be installed with a package manager. Typically the
+package is named <code class="docutils literal"><span class="pre">g++</span></code>. It is also possible to manually download the
+compiler from <a class="reference external" href="https://gcc.gnu.org/">https://gcc.gnu.org/</a> .</p>
+<p>In <em>Windows</em>, we recommend using Visual Studio 2008 for Python2.7 and
+Visual Studio 2010 for Python3.4. Note that for 64-bit versions you need
+to have also 64-bit toolchains, which are not included in Express
+versions of the Visual Studio. We recommend downloading the full Visual
+Studio SDK and performing the building process through the Visual studio
+command prompt interface.</p>
+<p><strong>Java VM</strong>. Several Estnltk components are written in Java and
+interfaced with Python. Therefore, you also need latest Java Runtime
+installed on your system. The <code class="docutils literal"><span class="pre">java</span></code> virtual machine must be in the
+system <code class="docutils literal"><span class="pre">PATH</span></code>. We recommend using Oracle Java
+<a class="reference external" href="http://www.oracle.com/technetwork/java/javase/downloads/index.html">http://www.oracle.com/technetwork/java/javase/downloads/index.html</a>,
+although alternatives such as OpenJDK (<a class="reference external" href="http://openjdk.java.net/">http://openjdk.java.net/</a>) should
+also work.</p>
+<p><strong>Elasticsearch server</strong>. Estnltk database module has a wrapper around
+Elastic database. In order to use Elastic, see
+<a class="reference external" href="https://www.elastic.co/products/elasticsearch">https://www.elastic.co/products/elasticsearch</a> .</p>
+<p><strong>setuptools</strong>. <a class="reference external" href="https://pypi.python.org/pypi/setuptools">https://pypi.python.org/pypi/setuptools</a> . A popular
+toolchain to build Python packages. In Linux package managers, typically
+called <code class="docutils literal"><span class="pre">python-setuptools</span></code> .</p>
+<p><strong>Numpy/Scipy stack</strong>. <a class="reference external" href="http://www.scipy.org/install.html">http://www.scipy.org/install.html</a> We include
+numpy/scipy in this list as it is quite difficult to build it from
+scratch due to ATLAS/BLAS dependencies. Thus, we recommend installing a
+pre-built binaries (see <a class="reference external" href="http://www.scipy.org/install.html">http://www.scipy.org/install.html</a>).</p>
+<p><strong>python-crfsuite (version 0.8.3)</strong>. Conditional random field library.
+There should be no problems building it automatically, but just in case
+we have included pre-built binaries in our repository:
+<a class="reference external" href="https://github.com/estnltk/estnltk/tree/master/dist/python-crfsuite">https://github.com/estnltk/estnltk/tree/master/dist/python-crfsuite</a> .</p>
+<p><strong>Other dependencies</strong></p>
+<p>The rest of the dependencies should be easy to build, but just in case
+they wont, here is the list of their names and precise version required
+by Estnltk.</p>
+<p>Windows users should check out Christoph Gohlke&#8217;s website:
+<a class="reference external" href="http://www.lfd.uci.edu/~gohlke/pythonlibs/">http://www.lfd.uci.edu/~gohlke/pythonlibs/</a> , that contains an marvellous
+list of pre-built binaries, including the ones required by Estnltk.</p>
+<ul class="simple">
+<li><strong>regex (version 2015.07.19)</strong></li>
+<li><strong>six (version 1.9.0)</strong></li>
+<li><strong>nltk (version 3.0.4)</strong></li>
+<li><strong>pandas (version 0.16.2)</strong></li>
+<li><strong>cached-property (version 1.2.0)</strong></li>
+<li><strong>beautifulsoup4 (version 4.4.0)</strong></li>
+<li><strong>elasticsearch (1.6.0)</strong></li>
+<li><strong>html5lib (0.9999999)</strong></li>
+</ul>
+</div>
+<div class="section" id="building-from-source">
+<h2>Building from source<a class="headerlink" href="#building-from-source" title="Permalink to this headline">¶</a></h2>
+<p>First thing after installing the dependencies is to get the source. One
+option is cloing the repository using latest code:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">estnltk</span><span class="o">/</span><span class="n">estnltk</span> <span class="n">estnltk</span>
+</pre></div>
+</div>
+<p>Then, issue following commands in the cloned folder to build and
+install:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">build</span>
+<span class="n">sudo</span> <span class="n">python3</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">install</span>
+</pre></div>
+</div>
+<p>Note that <code class="docutils literal"><span class="pre">python</span></code> usually refers to default Python version installed
+with the system. Usually, you can also use more specific versions by
+replacing <code class="docutils literal"><span class="pre">python</span></code> with <code class="docutils literal"><span class="pre">python2.7</span></code> or <code class="docutils literal"><span class="pre">python3.4</span></code>. Note that the
+same commands work when building in Windows, but you need to execute
+them in Visual Studio SDK command prompt.</p>
+<p>If you want to set up estnltk for development, see developer_guide.</p>
+</div>
+<div class="section" id="post-installation-steps">
+<h2>Post-installation steps<a class="headerlink" href="#post-installation-steps" title="Permalink to this headline">¶</a></h2>
+<p>Downloading NLTK tokenizers for Estonian. These are necessary for
+tokenization. This should happen automatically, but if it does not, use
+this command to download them:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="o">-</span><span class="n">m</span> <span class="n">nltk</span><span class="o">.</span><span class="n">downloader</span> <span class="n">punkt</span>
+</pre></div>
+</div>
+<p>Estnltk comes with pre-built named entity taggers, but you can
+optionally rebuild them if you have lost them for some reason. The
+command to build the default named entity tagger for Estonian:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="o">-</span><span class="n">m</span> <span class="n">estnltk</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">train_default_ner_model</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="text.html" class="btn btn-neutral float-right" title="Working with text" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral" title="Estnltk tutorials" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, University of Tartu unless specified otherwise in the file headers.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.4.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

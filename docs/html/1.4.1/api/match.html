@@ -1,0 +1,345 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>estnltk.grammar.match module &mdash; estnltk 1.4.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="estnltk 1.4.1 documentation" href="../index.html"/>
+        <link rel="up" title="API documentation" href="index.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> estnltk
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.4.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/index.html">Estnltk tutorials</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../external/index.html">Other tools</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">API documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="textcleaner.html">estnltk.textcleaner module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vabamorf.html">estnltk.vabamorf.morf module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">estnltk.grammar.match module</a><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="prettyprinter.html">estnltk.prettyprinter.prettyprinter module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wn.html">estnltk.wordnet.wn module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="grammar.html">estnltk.grammar.grammar module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ner.html">estnltk.ner module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="timex.html">estnltk.timex module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="clausesegmenter.html">estnltk.clausesegmenter module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core.html">estnltk.core module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="teicorpus.html">estnltk.teicorpus module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="database.html">estnltk.database.database module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wordnet_tagger.html">estnltk.wordnet_tagger module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="text.html">estnltk.text module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../authors.html">Authors</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">estnltk</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="index.html">API documentation</a> &raquo;</li>
+      
+    <li>estnltk.grammar.match module</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/api/match.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-estnltk.grammar.match">
+<span id="estnltk-grammar-match-module"></span><h1>estnltk.grammar.match module<a class="headerlink" href="#module-estnltk.grammar.match" title="Permalink to this headline">¶</a></h1>
+<p>This module defines Match objects.</p>
+<dl class="class">
+<dt id="estnltk.grammar.match.Match">
+<em class="property">class </em><code class="descclassname">estnltk.grammar.match.</code><code class="descname">Match</code><span class="sig-paren">(</span><em>start</em>, <em>end</em>, <em>text</em>, <em>name=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/grammar/match.html#Match"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.grammar.match.Match" title="Permalink to this definition">¶</a></dt>
+<dd><p>Match of a grammar symbol.</p>
+<p class="rubric">Attributes</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#estnltk.grammar.match.Match.dict" title="estnltk.grammar.match.Match.dict"><code class="xref py py-obj docutils literal"><span class="pre">dict</span></code></a></td>
+<td>Dictionary representing this match and all child symbol matches.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#estnltk.grammar.match.Match.end" title="estnltk.grammar.match.Match.end"><code class="xref py py-obj docutils literal"><span class="pre">end</span></code></a></td>
+<td>The end position of the match.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#estnltk.grammar.match.Match.matches" title="estnltk.grammar.match.Match.matches"><code class="xref py py-obj docutils literal"><span class="pre">matches</span></code></a></td>
+<td>Matches of child symbols.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#estnltk.grammar.match.Match.name" title="estnltk.grammar.match.Match.name"><code class="xref py py-obj docutils literal"><span class="pre">name</span></code></a></td>
+<td>The name of the match.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#estnltk.grammar.match.Match.start" title="estnltk.grammar.match.Match.start"><code class="xref py py-obj docutils literal"><span class="pre">start</span></code></a></td>
+<td>The start position of the match.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#estnltk.grammar.match.Match.text" title="estnltk.grammar.match.Match.text"><code class="xref py py-obj docutils literal"><span class="pre">text</span></code></a></td>
+<td>Matched text.</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">clear</span></code>(()&nbsp;-&gt;&nbsp;None.&nbsp;&nbsp;Remove&nbsp;all&nbsp;items&nbsp;from&nbsp;D.)</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">copy</span></code>(()&nbsp;-&gt;&nbsp;a&nbsp;shallow&nbsp;copy&nbsp;of&nbsp;D)</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">fromkeys</span></code></td>
+<td>Returns a new dict with keys from iterable and values equal to value.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">get</span></code>((k[,d])&nbsp;-&gt;&nbsp;D[k]&nbsp;if&nbsp;k&nbsp;in&nbsp;D,&nbsp;...)</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">is_before</span></code>(other)</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">items</span></code>(...)</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">keys</span></code>(...)</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">pop</span></code>((k[,d])&nbsp;-&gt;&nbsp;v,&nbsp;...)</td>
+<td>If key is not found, d is returned if given, otherwise KeyError is raised</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">popitem</span></code>(()&nbsp;-&gt;&nbsp;(k,&nbsp;v),&nbsp;...)</td>
+<td>2-tuple; but raise KeyError if D is empty.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">setdefault</span></code>((k[,d])&nbsp;-&gt;&nbsp;D.get(k,d),&nbsp;...)</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">update</span></code>(([E,&nbsp;...)</td>
+<td>If E is present and has a .keys() method, then does:  for k in E: D[k] = E[k]</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">values</span></code>(...)</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="estnltk.grammar.match.Match.dict">
+<code class="descname">dict</code><a class="headerlink" href="#estnltk.grammar.match.Match.dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dictionary representing this match and all child symbol matches.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.grammar.match.Match.end">
+<code class="descname">end</code><a class="headerlink" href="#estnltk.grammar.match.Match.end" title="Permalink to this definition">¶</a></dt>
+<dd><p>The end position of the match.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.grammar.match.Match.matches">
+<code class="descname">matches</code><a class="headerlink" href="#estnltk.grammar.match.Match.matches" title="Permalink to this definition">¶</a></dt>
+<dd><p>Matches of child symbols.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.grammar.match.Match.name">
+<code class="descname">name</code><a class="headerlink" href="#estnltk.grammar.match.Match.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>The name of the match.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.grammar.match.Match.start">
+<code class="descname">start</code><a class="headerlink" href="#estnltk.grammar.match.Match.start" title="Permalink to this definition">¶</a></dt>
+<dd><p>The start position of the match.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.grammar.match.Match.text">
+<code class="descname">text</code><a class="headerlink" href="#estnltk.grammar.match.Match.text" title="Permalink to this definition">¶</a></dt>
+<dd><p>Matched text.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="estnltk.grammar.match.concatenate_matches">
+<code class="descclassname">estnltk.grammar.match.</code><code class="descname">concatenate_matches</code><span class="sig-paren">(</span><em>a</em>, <em>b</em>, <em>text</em>, <em>name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/grammar/match.html#concatenate_matches"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.grammar.match.concatenate_matches" title="Permalink to this definition">¶</a></dt>
+<dd><p>Concatenate matches a and b.
+All submatches will be copied to result.</p>
+</dd></dl>
+
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, University of Tartu unless specified otherwise in the file headers.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.4.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

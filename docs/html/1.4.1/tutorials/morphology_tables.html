@@ -1,0 +1,1076 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Tables &mdash; estnltk 1.4.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="estnltk 1.4.1 documentation" href="../index.html"/>
+        <link rel="up" title="Estnltk tutorials" href="index.html"/>
+        <link rel="next" title="Estnltk developer guide" href="devel.html"/>
+        <link rel="prev" title="Working with Estonian Koondkorpus" href="tei.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> estnltk
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.4.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Estnltk tutorials</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="text.html">Basic Text class operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wikipedia.html">Wikipedia tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="elasticsearch.html">Elasticsearch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="disambiguation.html">Disambiguation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="grammar.html">Grammars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="np_chunker.html">Noun-phrase chunker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dependency_syntax.html">Dependency_syntax</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ner.html">Name-Entity Recognition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="prettyprinter.html">Prettyprinter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="terminalprettyprinter.html">Terminal prettyprinter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tei.html">Working with Koondkorpus</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Morphological annotation tables</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#table-pos-tag-descriptions">Table: POS tag descriptions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#table-noun-form-descriptions-vabamorf">Table: Noun form descriptions (Vabamorf)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#table-verb-form-descriptions-vabamorf">Table: Verb form descriptions (Vabamorf)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#table-noun-form-descriptions-gt">Table: Noun form descriptions (GT)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#table-verb-form-descriptions-gt">Table: Verb form descriptions (GT)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#table-pronoun-type-descriptions-cg">Table: Pronoun type descriptions (CG)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#table-phonetic-markers">Table: Phonetic markers</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="devel.html">Developer readme</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../external/index.html">Other tools</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html">API documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../authors.html">Authors</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">estnltk</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="index.html">Estnltk tutorials</a> &raquo;</li>
+      
+    <li>Tables</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/tutorials/morphology_tables.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="tables">
+<h1>Tables<a class="headerlink" href="#tables" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="table-pos-tag-descriptions">
+<h2>Table: POS tag descriptions<a class="headerlink" href="#table-pos-tag-descriptions" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="docutils">
+<colgroup>
+<col width="12%" />
+<col width="70%" />
+<col width="18%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">POS tag</th>
+<th class="head">Description</th>
+<th class="head">Example</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>A</td>
+<td>omadussõna - algvõrre (adjektiiv - positiiv), nii
+käänduvad kui käändumatud</td>
+<td>kallis või
+eht</td>
+</tr>
+<tr class="row-odd"><td>C</td>
+<td>omadussõna - keskvõrre (adjektiiv - komparatiiv)</td>
+<td>laiem</td>
+</tr>
+<tr class="row-even"><td>D</td>
+<td>määrsõna (adverb)</td>
+<td>kõrvuti</td>
+</tr>
+<tr class="row-odd"><td>G</td>
+<td>genitiivatribuut (käändumatu omadussõna)</td>
+<td>balti</td>
+</tr>
+<tr class="row-even"><td>H</td>
+<td>pärisnimi</td>
+<td>Edgar</td>
+</tr>
+<tr class="row-odd"><td>I</td>
+<td>hüüdsõna (interjektsioon)</td>
+<td>tere</td>
+</tr>
+<tr class="row-even"><td>J</td>
+<td>sidesõna (konjunktsioon)</td>
+<td>ja</td>
+</tr>
+<tr class="row-odd"><td>K</td>
+<td>kaassõna (pre/postpositsioon)</td>
+<td>kaudu</td>
+</tr>
+<tr class="row-even"><td>N</td>
+<td>põhiarvsõna (kardinaalnumeraal)</td>
+<td>kaks</td>
+</tr>
+<tr class="row-odd"><td>O</td>
+<td>järgarvsõna (ordinaalnumeraal)</td>
+<td>teine</td>
+</tr>
+<tr class="row-even"><td>P</td>
+<td>asesõna (pronoomen)</td>
+<td>see</td>
+</tr>
+<tr class="row-odd"><td>S</td>
+<td>nimisõna (substantiiv)</td>
+<td>asi</td>
+</tr>
+<tr class="row-even"><td>U</td>
+<td>omadussõna - ülivõrre (adjektiiv - superlatiiv)</td>
+<td>pikim</td>
+</tr>
+<tr class="row-odd"><td>V</td>
+<td>tegusõna (verb)</td>
+<td>lugema</td>
+</tr>
+<tr class="row-even"><td>X</td>
+<td>verbi juurde kuuluv sõna, millel eraldi sõnaliigi
+tähistus puudub</td>
+<td>plehku</td>
+</tr>
+<tr class="row-odd"><td>Y</td>
+<td>lühend</td>
+<td>USA</td>
+</tr>
+<tr class="row-even"><td>Z</td>
+<td>lausemärk</td>
+<td>-, /, ...</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="table-noun-form-descriptions-vabamorf">
+<h2>Table: Noun form descriptions (Vabamorf)<a class="headerlink" href="#table-noun-form-descriptions-vabamorf" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="docutils">
+<colgroup>
+<col width="13%" />
+<col width="87%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Form</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>ab</td>
+<td>abessiiv (ilmaütlev)</td>
+</tr>
+<tr class="row-odd"><td>abl</td>
+<td>ablatiiv (alaltütlev)</td>
+</tr>
+<tr class="row-even"><td>ad</td>
+<td>adessiiv (alalütlev)</td>
+</tr>
+<tr class="row-odd"><td>adt</td>
+<td>aditiiv suunduv (lühike sisseütlev), nt. &#8220;majja&#8221;</td>
+</tr>
+<tr class="row-even"><td>all</td>
+<td>allatiiv (alaleütlev)</td>
+</tr>
+<tr class="row-odd"><td>el</td>
+<td>elatiiv (seestütlev)</td>
+</tr>
+<tr class="row-even"><td>es</td>
+<td>essiiv (olev)</td>
+</tr>
+<tr class="row-odd"><td>g</td>
+<td>genitiiv (omastav)</td>
+</tr>
+<tr class="row-even"><td>ill</td>
+<td>illatiiv (sisseütlev)</td>
+</tr>
+<tr class="row-odd"><td>in</td>
+<td>inessiiv (seesütlev)</td>
+</tr>
+<tr class="row-even"><td>kom</td>
+<td>komitatiiv (kaasaütlev)</td>
+</tr>
+<tr class="row-odd"><td>n</td>
+<td>nominatiiv (nimetav)</td>
+</tr>
+<tr class="row-even"><td>p</td>
+<td>partitiiv (osastav)</td>
+</tr>
+<tr class="row-odd"><td>pl</td>
+<td>pluural (mitmus)</td>
+</tr>
+<tr class="row-even"><td>sg</td>
+<td>ainsus (ainsus)</td>
+</tr>
+<tr class="row-odd"><td>ter</td>
+<td>terminatiiv (rajav)</td>
+</tr>
+<tr class="row-even"><td>tr</td>
+<td>translatiiv (saav)</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="table-verb-form-descriptions-vabamorf">
+<h2>Table: Verb form descriptions (Vabamorf)<a class="headerlink" href="#table-verb-form-descriptions-vabamorf" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="docutils">
+<colgroup>
+<col width="13%" />
+<col width="66%" />
+<col width="21%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Form</th>
+<th class="head">Description</th>
+<th class="head">Example</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>b</td>
+<td>kindel kõneviis olevik 3. isik ainsus aktiiv
+jaatav kõne</td>
+<td>loeb</td>
+</tr>
+<tr class="row-odd"><td>d</td>
+<td>kindel kõneviis olevik 2. isik ainsus aktiiv
+jaatav kõne</td>
+<td>loed</td>
+</tr>
+<tr class="row-even"><td>da</td>
+<td>infinitiiv jaatav kõne</td>
+<td>lugeda</td>
+</tr>
+<tr class="row-odd"><td>des</td>
+<td>gerundium jaatav kõne</td>
+<td>lugedes</td>
+</tr>
+<tr class="row-even"><td>ge</td>
+<td>käskiv kõneviis olevik 2. isik mitmus aktiiv
+jaatav kõne</td>
+<td>lugege</td>
+</tr>
+<tr class="row-odd"><td>gem</td>
+<td>käskiv kõneviis olevik 1. isik mitmus aktiiv
+jaatav kõne</td>
+<td>lugegem</td>
+</tr>
+<tr class="row-even"><td>gu</td>
+<td>käskiv kõneviis olevik 3. isik mitmus aktiiv
+jaatav kõne</td>
+<td>(nad) lugegu</td>
+</tr>
+<tr class="row-odd"><td>gu</td>
+<td>käskiv kõneviis olevik 3. isik ainsus aktiiv
+jaatav kõne</td>
+<td>(ta) lugegu</td>
+</tr>
+<tr class="row-even"><td>ks</td>
+<td>tingiv kõneviis olevik 1. isik mitmus aktiiv
+jaatav kõne</td>
+<td>(me) loeks</td>
+</tr>
+<tr class="row-odd"><td>ks</td>
+<td>tingiv kõneviis olevik 1. isik ainsus aktiiv
+jaatav kõne</td>
+<td>(ma) loeks</td>
+</tr>
+<tr class="row-even"><td>ks</td>
+<td>tingiv kõneviis olevik 2. isik mitmus aktiiv
+jaatav kõne</td>
+<td>(te) loeks</td>
+</tr>
+<tr class="row-odd"><td>ks</td>
+<td>tingiv kõneviis olevik 2. isik ainsus aktiiv
+jaatav kõne</td>
+<td>(sa) loeks</td>
+</tr>
+<tr class="row-even"><td>ks</td>
+<td>tingiv kõneviis olevik 3. isik mitmus aktiiv
+jaatav kõne</td>
+<td>(nad) loeks</td>
+</tr>
+<tr class="row-odd"><td>ks</td>
+<td>tingiv kõneviis olevik 3. isik ainsus aktiiv
+jaatav kõne</td>
+<td>(ta) loeks</td>
+</tr>
+<tr class="row-even"><td>ksid</td>
+<td>tingiv kõneviis olevik 2. isik ainsus aktiiv
+jaatav kõne</td>
+<td>(sa) loeksid</td>
+</tr>
+<tr class="row-odd"><td>ksid</td>
+<td>tingiv kõneviis olevik 3. isik mitmus aktiiv
+jaatav kõne</td>
+<td>(nad) loeksid</td>
+</tr>
+<tr class="row-even"><td>ksime</td>
+<td>tingiv kõneviis olevik 1. isik mitmus aktiiv
+jaatav kõne</td>
+<td>(me) loeksime</td>
+</tr>
+<tr class="row-odd"><td>ksin</td>
+<td>tingiv kõneviis olevik 1. isik ainsus aktiiv
+jaatav kõne</td>
+<td>(ma) loeksin</td>
+</tr>
+<tr class="row-even"><td>ksite</td>
+<td>tingiv kõneviis olevik 2. isik mitmus aktiiv
+jaatav kõne</td>
+<td>(te) loeksite</td>
+</tr>
+<tr class="row-odd"><td>ma</td>
+<td>supiin aktiiv jaatav kõne sisseütlev</td>
+<td>lugema</td>
+</tr>
+<tr class="row-even"><td>maks</td>
+<td>supiin aktiiv jaatav kõne saav</td>
+<td>lugemaks</td>
+</tr>
+<tr class="row-odd"><td>mas</td>
+<td>supiin aktiiv jaatav kõne seesütlev</td>
+<td>lugemas</td>
+</tr>
+<tr class="row-even"><td>mast</td>
+<td>supiin aktiiv jaatav kõne seestütlev</td>
+<td>lugemast</td>
+</tr>
+<tr class="row-odd"><td>mata</td>
+<td>supiin aktiiv jaatav kõne ilmaütlev</td>
+<td>lugemata</td>
+</tr>
+<tr class="row-even"><td>me</td>
+<td>kindel kõneviis olevik 1. isik mitmus aktiiv
+jaatav kõne</td>
+<td>loeme</td>
+</tr>
+<tr class="row-odd"><td>n</td>
+<td>kindel kõneviis olevik 1. isik ainsus aktiiv
+jaatav kõne</td>
+<td>loen</td>
+</tr>
+<tr class="row-even"><td>neg</td>
+<td>eitav kõne</td>
+<td>ei</td>
+</tr>
+<tr class="row-odd"><td>neg ge</td>
+<td>käskiv kõneviis olevik 2. isik mitmus aktiiv
+eitav kõne</td>
+<td>ärge</td>
+</tr>
+<tr class="row-even"><td>neg gem</td>
+<td>käskiv kõneviis olevik 1. isik mitmus aktiiv
+eitav kõne</td>
+<td>ärgem</td>
+</tr>
+<tr class="row-odd"><td>neg gu</td>
+<td>käskiv kõneviis olevik 3. isik mitmus aktiiv
+eitav kõne</td>
+<td>(nad) ärgu</td>
+</tr>
+<tr class="row-even"><td>neg gu</td>
+<td>käskiv kõneviis olevik 3. isik ainsus aktiiv
+eitav kõne</td>
+<td>(ta) ärgu</td>
+</tr>
+<tr class="row-odd"><td>neg gu</td>
+<td>käskiv kõneviis olevik passiiv eitav kõne</td>
+<td>ärgu</td>
+</tr>
+<tr class="row-even"><td>neg ks</td>
+<td>tingiv kõneviis olevik 1. isik mitmus aktiiv
+eitav kõne</td>
+<td>(me) poleks</td>
+</tr>
+<tr class="row-odd"><td>neg ks</td>
+<td>tingiv kõneviis olevik 1. isik ainsus aktiiv
+eitav kõne</td>
+<td>(ma) poleks</td>
+</tr>
+<tr class="row-even"><td>neg ks</td>
+<td>tingiv kõneviis olevik 2. isik mitmus aktiiv
+eitav kõne</td>
+<td>(te) poleks</td>
+</tr>
+<tr class="row-odd"><td>neg ks</td>
+<td>tingiv kõneviis olevik 2. isik ainsus aktiiv
+eitav kõne</td>
+<td>(sa) poleks</td>
+</tr>
+<tr class="row-even"><td>neg ks</td>
+<td>tingiv kõneviis olevik 3. isik mitmus aktiiv
+eitav kõne</td>
+<td>(nad) poleks</td>
+</tr>
+<tr class="row-odd"><td>neg ks</td>
+<td>tingiv kõneviis olevik 3. isik ainsus aktiiv
+eitav kõne</td>
+<td>(ta) poleks</td>
+</tr>
+<tr class="row-even"><td>neg me</td>
+<td>käskiv kõneviis olevik 1. isik mitmus aktiiv
+eitav kõne</td>
+<td>ärme</td>
+</tr>
+<tr class="row-odd"><td>neg nud</td>
+<td>kindel kõneviis lihtminevik 1. isik mitmus aktiiv
+eitav kõne</td>
+<td>(me) polnud</td>
+</tr>
+<tr class="row-even"><td>neg nud</td>
+<td>kindel kõneviis lihtminevik 1. isik ainsus aktiiv
+eitav kõne</td>
+<td>(ma) polnud</td>
+</tr>
+<tr class="row-odd"><td>neg nud</td>
+<td>kindel kõneviis lihtminevik 2. isik mitmus aktiiv
+eitav kõne</td>
+<td>(te) polnud</td>
+</tr>
+<tr class="row-even"><td>neg nud</td>
+<td>kindel kõneviis lihtminevik 2. isik ainsus aktiiv
+eitav kõne</td>
+<td>(sa) polnud</td>
+</tr>
+<tr class="row-odd"><td>neg nud</td>
+<td>kindel kõneviis lihtminevik 3. isik mitmus aktiiv
+eitav kõne</td>
+<td>(nad) polnud</td>
+</tr>
+<tr class="row-even"><td>neg nud</td>
+<td>kindel kõneviis lihtminevik 3. isik ainsus aktiiv
+eitav kõne</td>
+<td>(ta) polnud</td>
+</tr>
+<tr class="row-odd"><td>neg nuks</td>
+<td>tingiv kõneviis minevik 1. isik mitmus aktiiv
+eitav kõne</td>
+<td>(me) polnuks</td>
+</tr>
+<tr class="row-even"><td>neg nuks</td>
+<td>tingiv kõneviis minevik 1. isik ainsus aktiiv
+eitav kõne</td>
+<td>(ma) polnuks</td>
+</tr>
+<tr class="row-odd"><td>neg nuks</td>
+<td>tingiv kõneviis minevik 2. isik mitmus aktiiv
+eitav kõne</td>
+<td>(te) polnuks</td>
+</tr>
+<tr class="row-even"><td>neg nuks</td>
+<td>tingiv kõneviis minevik 2. isik ainsus aktiiv
+eitav kõne</td>
+<td>(sa) polnuks</td>
+</tr>
+<tr class="row-odd"><td>neg nuks</td>
+<td>tingiv kõneviis minevik 3. isik mitmus aktiiv
+eitav kõne</td>
+<td>(nad) polnuks</td>
+</tr>
+<tr class="row-even"><td>neg nuks</td>
+<td>tingiv kõneviis minevik 3. isik ainsus aktiiv
+eitav kõne</td>
+<td>(ta) polnuks</td>
+</tr>
+<tr class="row-odd"><td>neg o</td>
+<td>käskiv kõneviis olevik 2. isik ainsus aktiiv
+eitav kõne</td>
+<td>ära</td>
+</tr>
+<tr class="row-even"><td>neg o</td>
+<td>kindel kõneviis olevik 1. isik mitmus aktiiv
+eitav kõne</td>
+<td>(me) pole</td>
+</tr>
+<tr class="row-odd"><td>neg o</td>
+<td>kindel kõneviis olevik 1. isik ainsus aktiiv
+eitav kõne</td>
+<td>(ma) pole</td>
+</tr>
+<tr class="row-even"><td>neg o</td>
+<td>kindel kõneviis olevik 2. isik mitmus aktiiv
+eitav kõne</td>
+<td>(te) pole</td>
+</tr>
+<tr class="row-odd"><td>neg o</td>
+<td>kindel kõneviis olevik 2. isik ainsus aktiiv
+eitav kõne</td>
+<td>(sa) pole</td>
+</tr>
+<tr class="row-even"><td>neg o</td>
+<td>kindel kõneviis olevik 3. isik mitmus aktiiv
+eitav kõne</td>
+<td>(nad) pole</td>
+</tr>
+<tr class="row-odd"><td>neg o</td>
+<td>kindel kõneviis olevik 3. isik ainsus aktiiv
+eitav kõne</td>
+<td>(ta) pole</td>
+</tr>
+<tr class="row-even"><td>neg vat</td>
+<td>kaudne kõneviis olevik 1. isik mitmus aktiiv
+eitav kõne</td>
+<td>(me) polevat</td>
+</tr>
+<tr class="row-odd"><td>neg vat</td>
+<td>kaudne kõneviis olevik 1. isik ainsus aktiiv
+eitav kõne</td>
+<td>(ma) polevat</td>
+</tr>
+<tr class="row-even"><td>neg tud</td>
+<td>kesksõna minevik passiiv eitav kõne</td>
+<td>poldud</td>
+</tr>
+<tr class="row-odd"><td>neg vat</td>
+<td>kaudne kõneviis olevik 2. isik mitmus aktiiv
+eitav kõne</td>
+<td>(te) polevat</td>
+</tr>
+<tr class="row-even"><td>neg vat</td>
+<td>kaudne kõneviis olevik 2. isik ainsus aktiiv
+eitav kõne</td>
+<td>(sa) polevat</td>
+</tr>
+<tr class="row-odd"><td>neg vat</td>
+<td>kaudne kõneviis olevik 3. isik mitmus aktiiv
+eitav kõne</td>
+<td>(nad) polevat</td>
+</tr>
+<tr class="row-even"><td>neg vat</td>
+<td>kaudne kõneviis olevik 3. isik ainsus aktiiv
+eitav kõne</td>
+<td>(ta) polevat</td>
+</tr>
+<tr class="row-odd"><td>nud</td>
+<td>kesksõna minevik aktiiv jaatav kõne</td>
+<td>lugenud</td>
+</tr>
+<tr class="row-even"><td>nuks</td>
+<td>tingiv kõneviis minevik 1. isik mitmus aktiiv
+jaatav kõne</td>
+<td>(me) lugenuks</td>
+</tr>
+<tr class="row-odd"><td>nuks</td>
+<td>tingiv kõneviis minevik 1. isik ainsus aktiiv
+jaatav kõne</td>
+<td>(ma) lugenuks</td>
+</tr>
+<tr class="row-even"><td>nuks</td>
+<td>tingiv kõneviis minevik 2. isik mitmus aktiiv
+jaatav kõne</td>
+<td>(te) lugenuks</td>
+</tr>
+<tr class="row-odd"><td>nuks</td>
+<td>tingiv kõneviis minevik 2. isik ainsus aktiiv
+jaatav kõne</td>
+<td>(sa) lugenuks</td>
+</tr>
+<tr class="row-even"><td>nuks</td>
+<td>tingiv kõneviis minevik 3. isik mitmus aktiiv
+jaatav kõne</td>
+<td>(nad) lugenuks</td>
+</tr>
+<tr class="row-odd"><td>nuks</td>
+<td>tingiv kõneviis minevik 3. isik ainsus aktiiv
+jaatav kõne</td>
+<td>(ta) lugenuks</td>
+</tr>
+<tr class="row-even"><td>nuksid</td>
+<td>tingiv kõneviis minevik 2. isik ainsus aktiiv
+jaatav kõne</td>
+<td>(sa)
+lugenuksid</td>
+</tr>
+<tr class="row-odd"><td>nuksid</td>
+<td>tingiv kõneviis minevik 3. isik mitmus aktiiv
+jaatav kõne</td>
+<td>(nad)
+lugenuksid</td>
+</tr>
+<tr class="row-even"><td>nuksime</td>
+<td>tingiv kõneviis minevik 1. isik mitmus aktiiv
+jaatav kõne</td>
+<td>lugenuksime</td>
+</tr>
+<tr class="row-odd"><td>nuksin</td>
+<td>tingiv kõneviis minevik 1. isik ainsus aktiiv
+jaatav kõne</td>
+<td>lugenuksin</td>
+</tr>
+<tr class="row-even"><td>nuksite</td>
+<td>tingiv kõneviis minevik 2. isik mitmus aktiiv
+jaatav kõne</td>
+<td>lugenuksite</td>
+</tr>
+<tr class="row-odd"><td>nuvat</td>
+<td>kaudne kõneviis minevik 1. isik mitmus aktiiv
+jaatav kõne</td>
+<td>(me) lugenuvat</td>
+</tr>
+<tr class="row-even"><td>nuvat</td>
+<td>kaudne kõneviis minevik 1. isik ainsus aktiiv
+jaatav kõne</td>
+<td>(ma) lugenuvat</td>
+</tr>
+<tr class="row-odd"><td>nuvat</td>
+<td>kaudne kõneviis minevik 2. isik mitmus aktiiv
+jaatav kõne</td>
+<td>(te) lugenuvat</td>
+</tr>
+<tr class="row-even"><td>nuvat</td>
+<td>kaudne kõneviis minevik 2. isik ainsus aktiiv
+jaatav kõne</td>
+<td>(sa) lugenuvat</td>
+</tr>
+<tr class="row-odd"><td>nuvat</td>
+<td>kaudne kõneviis minevik 3. isik mitmus aktiiv
+jaatav kõne</td>
+<td>(nad)
+lugenuvat</td>
+</tr>
+<tr class="row-even"><td>nuvat</td>
+<td>kaudne kõneviis minevik 3. isik ainsus aktiiv
+jaatav kõne</td>
+<td>(ta) lugenuvat</td>
+</tr>
+<tr class="row-odd"><td>o</td>
+<td>käskiv kõneviis olevik 2. isik ainsus aktiiv
+jaatav kõne</td>
+<td>loe</td>
+</tr>
+<tr class="row-even"><td>s</td>
+<td>kindel kõneviis lihtminevik 3. isik ainsus aktiiv
+jaatav kõne</td>
+<td>luges</td>
+</tr>
+<tr class="row-odd"><td>sid</td>
+<td>kindel kõneviis lihtminevik 2. isik ainsus aktiiv
+jaatav kõne</td>
+<td>(sa) lugesid</td>
+</tr>
+<tr class="row-even"><td>sid</td>
+<td>kindel kõneviis lihtminevik 3. isik mitmus aktiiv
+jaatav kõne</td>
+<td>(nad) lugesid</td>
+</tr>
+<tr class="row-odd"><td>sime</td>
+<td>kindel kõneviis lihtminevik 1. isik mitmus aktiiv
+jaatav kõne</td>
+<td>lugesime</td>
+</tr>
+<tr class="row-even"><td>sin</td>
+<td>kindel kõneviis lihtminevik 1. isik ainsus aktiiv
+jaatav kõne</td>
+<td>lugesin</td>
+</tr>
+<tr class="row-odd"><td>site</td>
+<td>kindel kõneviis lihtminevik 2. isik mitmus aktiiv
+jaatav kõne</td>
+<td>lugesite</td>
+</tr>
+<tr class="row-even"><td>ta</td>
+<td>kindel kõneviis olevik passiiv eitav kõne</td>
+<td>loeta</td>
+</tr>
+<tr class="row-odd"><td>tagu</td>
+<td>käskiv kõneviis olevik passiiv jaatav kõne</td>
+<td>loetagu</td>
+</tr>
+<tr class="row-even"><td>taks</td>
+<td>tingiv kõneviis olevik passiiv jaatav kõne</td>
+<td>loetaks</td>
+</tr>
+<tr class="row-odd"><td>takse</td>
+<td>kindel kõneviis olevik passiiv jaatav kõne</td>
+<td>loetakse</td>
+</tr>
+<tr class="row-even"><td>tama</td>
+<td>supiin passiiv jaatav kõne</td>
+<td>loetama</td>
+</tr>
+<tr class="row-odd"><td>tav</td>
+<td>kesksõna olevik passiiv jaatav kõne</td>
+<td>loetav</td>
+</tr>
+<tr class="row-even"><td>tavat</td>
+<td>kaudne kõneviis olevik passiiv jaatav kõne</td>
+<td>loetavat</td>
+</tr>
+<tr class="row-odd"><td>te</td>
+<td>kindel kõneviis olevik 2. isik mitmus aktiiv
+jaatav kõne</td>
+<td>loete</td>
+</tr>
+<tr class="row-even"><td>ti</td>
+<td>kindel kõneviis lihtminevik passiiv jaatav kõne</td>
+<td>loeti</td>
+</tr>
+<tr class="row-odd"><td>tud</td>
+<td>kesksõna minevik passiiv jaatav kõne</td>
+<td>loetud</td>
+</tr>
+<tr class="row-even"><td>tuks</td>
+<td>tingiv kõneviis minevik passiiv jaatav kõne</td>
+<td>loetuks</td>
+</tr>
+<tr class="row-odd"><td>tuvat</td>
+<td>kaudne kõneviis minevik passiiv jaatav kõne</td>
+<td>loetuvat</td>
+</tr>
+<tr class="row-even"><td>v</td>
+<td>kesksõna olevik aktiiv jaatav kõne</td>
+<td>lugev</td>
+</tr>
+<tr class="row-odd"><td>vad</td>
+<td>kindel kõneviis olevik 3. isik mitmus aktiiv
+jaatav kõne</td>
+<td>loevad</td>
+</tr>
+<tr class="row-even"><td>vat</td>
+<td>kaudne kõneviis olevik 1. isik mitmus aktiiv
+jaatav kõne</td>
+<td>(me) lugevat</td>
+</tr>
+<tr class="row-odd"><td>vat</td>
+<td>kaudne kõneviis olevik 1. isik ainsus aktiiv
+jaatav kõne</td>
+<td>(ma) lugevat</td>
+</tr>
+<tr class="row-even"><td>vat</td>
+<td>kaudne kõneviis olevik 2. isik mitmus aktiiv
+jaatav kõne</td>
+<td>(te) lugevat</td>
+</tr>
+<tr class="row-odd"><td>vat</td>
+<td>kaudne kõneviis olevik 2. isik ainsus aktiiv
+jaatav kõne</td>
+<td>(sa) lugevat</td>
+</tr>
+<tr class="row-even"><td>vat</td>
+<td>kaudne kõneviis olevik 3. isik mitmus aktiiv
+jaatav kõne</td>
+<td>(nad) lugevat</td>
+</tr>
+<tr class="row-odd"><td>vat</td>
+<td>kaudne kõneviis olevik 3. isik ainsus aktiiv
+jaatav kõne</td>
+<td>(ta) lugevat</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="table-noun-form-descriptions-gt">
+<h2>Table: Noun form descriptions (GT)<a class="headerlink" href="#table-noun-form-descriptions-gt" title="Permalink to this headline">¶</a></h2>
+<p>Form |Description
+&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;|&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8211;
+<strong>number (arv)</strong> | Sg |singular (ainsus) Pl |plural (mitmus) <strong>case
+(kääne)</strong> | Nom |nominative (nimetav) Gen |genitive (omastav) Par
+|partitive (osastav) Ill |illative (sisseütlev, sh ka lühike) Ine
+|inessive (seesütlev) Ela |elative (seestütlev) All |allative
+(alaleütlev) Ade |adessive (alalütlev) Abl |ablative (alaltütlev) Tra
+|translative (saav) Trm |terminative (rajav) Ess |essive (olev) Abe
+|abessive (ilmaütlev) Com |comitative (kaasaütlev)</p>
+</div>
+<div class="section" id="table-verb-form-descriptions-gt">
+<h2>Table: Verb form descriptions (GT)<a class="headerlink" href="#table-verb-form-descriptions-gt" title="Permalink to this headline">¶</a></h2>
+<div class="line-block">
+<div class="line">Form |Description</div>
+<div class="line">&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8211;|&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;- <strong>voice
+(tegumood)</strong> |</div>
+<div class="line">Impers | impersonal (umbisikuline) Pers | personal (isikuline)
+<strong>tense (aeg)</strong> | Prs | present (olevik) Prt | past, i.e. not
+present (minevik) ** mood (kõneviis)** | Ind | indicative
+(kindel) Cond | conditional (tingiv) Imprt | imperative / jussive
+(käskiv / kasutatav ka möönvas tähenduses) Quot | quotative (kaudne)
+** arv (number)** | Sg | singular (ainusus) Pl | plural
+(mitmus) ** isik (person)** | 1 | 1st person (1. isik) 2 | 2nd
+person (2. isik) 3 | 3rd person (3. isik) ** kõneliik
+(negation)** | Aff | affirmative (jaatav kõne) Neg | negative
+(eitav kõne) ** infinite forms (infiniitsed/käänduvad
+verbivormid)** | Sup | supine / ma-infinitive (ma-tegevusnimi) Inf
+| infinitive / da-infinitive (da-tegevusnimi) Ger | gerund
+(des-vorm) Prc | participle (kesksõna)</div>
+</div>
+</div>
+<div class="section" id="table-pronoun-type-descriptions-cg">
+<h2>Table: Pronoun type descriptions (CG)<a class="headerlink" href="#table-pronoun-type-descriptions-cg" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="docutils">
+<colgroup>
+<col width="15%" />
+<col width="68%" />
+<col width="17%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Tag</th>
+<th class="head">Description</th>
+<th class="head">Example</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>pers ps1</td>
+<td>personaalpronoomen (isikuline asesõna) 1. isik</td>
+<td>mina</td>
+</tr>
+<tr class="row-odd"><td>pers ps2</td>
+<td>personaalpronoomen (isikuline asesõna) 2. isik</td>
+<td>sina</td>
+</tr>
+<tr class="row-even"><td>pers ps2</td>
+<td>personaalpronoomen (isikuline asesõna) 3. isik</td>
+<td>tema</td>
+</tr>
+<tr class="row-odd"><td>rec</td>
+<td>retsiprookpronoomen (vastastikune asesõna)</td>
+<td>teineteise</td>
+</tr>
+<tr class="row-even"><td>refl</td>
+<td>refleksiivpronoomen (enesekohane asesõna)</td>
+<td>enda</td>
+</tr>
+<tr class="row-odd"><td>pos</td>
+<td>possessiivpronoomen (omastav asesõna)</td>
+<td>oma</td>
+</tr>
+<tr class="row-even"><td>dem</td>
+<td>demonstratiivpronoomen (näitav asesõna)</td>
+<td>see</td>
+</tr>
+<tr class="row-odd"><td>inter rel</td>
+<td>interrogatiiv-relatiivpronoomen (küsiv-siduv asesõna)</td>
+<td>kes</td>
+</tr>
+<tr class="row-even"><td>det</td>
+<td>determinatiivpronoomen (määratlev asesõna)</td>
+<td>mõlemad</td>
+</tr>
+<tr class="row-odd"><td>indef</td>
+<td>indefiniitpronoomen (umbmäärane asesõna)</td>
+<td>mingi</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="table-phonetic-markers">
+<h2>Table: Phonetic markers<a class="headerlink" href="#table-phonetic-markers" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="docutils">
+<colgroup>
+<col width="4%" />
+<col width="96%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">M
+a
+r
+k
+e
+r</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>&lt;</td>
+<td>silp on kolmandas vältes; asetseb vahetult silbi tuuma moodustava
+täishääliku ees</td>
+</tr>
+<tr class="row-odd"><td>?</td>
+<td>silp on rõhuline; asetseb vahetult silbi tuuma moodustava täishääliku
+ees (silbi rõhulisust märgitakse ainult sellisel juhul, kui rõhuline
+silp on midagi muud kui võiks ennustada, ja ennustamine käib
+järgmiselt: kui sõnas on kolmandas vältes silp, siis rõhk on sellel;
+muidu, kui sõnas on pika täishääliku või täishäälikuühendiga silp,
+siis rõhk on sellel; muidu on rõhk esimesel silbil)</td>
+</tr>
+<tr class="row-even"><td>]</td>
+<td>eelmine häälik on palataliseeritud</td>
+</tr>
+<tr class="row-odd"><td>~</td>
+<td>n ja k ühendis hääldatakse n ja k selgelt eraldi, mitte ei sulandu
+kokku; kasutuses ainult sõnades soonkond ja tosinkond</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="devel.html" class="btn btn-neutral float-right" title="Estnltk developer guide" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="tei.html" class="btn btn-neutral" title="Working with Estonian Koondkorpus" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, University of Tartu unless specified otherwise in the file headers.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.4.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

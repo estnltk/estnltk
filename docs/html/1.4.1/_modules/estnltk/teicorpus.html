@@ -1,0 +1,388 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>estnltk.teicorpus &mdash; estnltk 1.4.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../genindex.html"/>
+        <link rel="search" title="Search" href="../../search.html"/>
+    <link rel="top" title="estnltk 1.4.1 documentation" href="../../index.html"/>
+        <link rel="up" title="Module code" href="../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> estnltk
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.4.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/index.html">Estnltk tutorials</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../external/index.html">Other tools</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/index.html">API documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../authors.html">Authors</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../index.html">estnltk</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      
+    <li>estnltk.teicorpus</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for estnltk.teicorpus</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;Module for reading koondcorpus files. See http://www.cl.ut.ee/korpused/segakorpus/index.php?lang=et</span>
+
+<span class="sd">The corpus contains variety of documents from different domains and can be used freely for non-commercial purposes.</span>
+<span class="sd">Estnltk is capable of reading XML formatted files of the corpus and parse the</span>
+<span class="sd">documents, paragraphs, sentences and words with some additional metadata found in XML files.</span>
+
+<span class="sd">The implementation is currently quite simplistic, though. But it should</span>
+<span class="sd">be sufficient for simpler use cases.</span>
+<span class="sd">The resulting documents have paragraphs separated by two newlines and sentences by single newline.</span>
+<span class="sd">The original plain text is not known for XML TEI files.</span>
+<span class="sd">Note that all punctuation has been separated from words in the TEI files.</span>
+
+<span class="sd">TODO: Make this module faster, it is dead slow, probably due to BeautifulSoup4.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">unicode_literals</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">absolute_import</span>
+
+<span class="kn">from</span> <span class="nn">.core</span> <span class="k">import</span> <span class="n">get_filenames</span>
+<span class="kn">from</span> <span class="nn">.names</span> <span class="k">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">.text</span> <span class="k">import</span> <span class="n">Text</span>
+<span class="kn">from</span> <span class="nn">bs4</span> <span class="k">import</span> <span class="n">BeautifulSoup</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="k">import</span> <span class="n">deepcopy</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+
+
+<div class="viewcode-block" id="parse_tei_corpora"><a class="viewcode-back" href="../../api/teicorpus.html#estnltk.teicorpus.parse_tei_corpora">[docs]</a><span class="k">def</span> <span class="nf">parse_tei_corpora</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s1">&#39;.xml&#39;</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;artikkel&#39;</span><span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot;Parse documents from TEI style XML files.</span>
+<span class="sd">    </span>
+<span class="sd">    Gives each document FILE attribute that denotes the original filename.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    root: str</span>
+<span class="sd">        The directory path containing the TEI corpora XMl files.</span>
+<span class="sd">    prefix: str</span>
+<span class="sd">        The prefix of filenames to include (default: &#39;&#39;)</span>
+<span class="sd">    suffix: str</span>
+<span class="sd">        The suffix of filenames to include (default: &#39;.xml&#39;)</span>
+<span class="sd">    target: list of str</span>
+<span class="sd">        List of &lt;div&gt; types, that are considered documents in the XML files (default: [&quot;artikkel&quot;]).</span>
+<span class="sd">        </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list of estnltk.text.Text</span>
+<span class="sd">        Corpus containing parsed documents from all files. The file path</span>
+<span class="sd">        is stored in FILE attribute of the documents.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">documents</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">fnm</span> <span class="ow">in</span> <span class="n">get_filenames</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">suffix</span><span class="p">):</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">fnm</span><span class="p">)</span>
+        <span class="n">docs</span> <span class="o">=</span> <span class="n">parse_tei_corpus</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">docs</span><span class="p">:</span>
+            <span class="n">doc</span><span class="p">[</span><span class="n">FILE</span><span class="p">]</span> <span class="o">=</span> <span class="n">fnm</span>
+        <span class="n">documents</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">docs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">documents</span></div>
+
+
+<div class="viewcode-block" id="parse_tei_corpus"><a class="viewcode-back" href="../../api/teicorpus.html#estnltk.teicorpus.parse_tei_corpus">[docs]</a><span class="k">def</span> <span class="nf">parse_tei_corpus</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;artikkel&#39;</span><span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot;Parse documents from a TEI style XML file.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    path: str</span>
+<span class="sd">        The path of the XML file.</span>
+<span class="sd">    target: list of str</span>
+<span class="sd">        List of &lt;div&gt; types, that are considered documents in the XML files (default: [&quot;artikkel&quot;]).</span>
+<span class="sd">        </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list of esnltk.text.Text</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">html_doc</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+    <span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">html_doc</span><span class="p">,</span> <span class="s1">&#39;html5lib&#39;</span><span class="p">)</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s1">&#39;title&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">string</span>
+    
+    <span class="n">documents</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">div1</span> <span class="ow">in</span> <span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s1">&#39;div1&#39;</span><span class="p">):</span>
+        <span class="n">documents</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">parse_div</span><span class="p">(</span><span class="n">div1</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(),</span> <span class="n">target</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">tokenize_documents</span><span class="p">(</span><span class="n">documents</span><span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">get_subdiv</span><span class="p">(</span><span class="n">div</span><span class="p">):</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="n">div</span><span class="p">[</span><span class="mi">3</span><span class="p">:]</span>
+    <span class="k">return</span> <span class="s1">&#39;div&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">parse_div</span><span class="p">(</span><span class="n">soup</span><span class="p">,</span> <span class="n">metadata</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Parse a &lt;div&gt; tag from the file.</span>
+<span class="sd">    </span>
+<span class="sd">    The sections in XML files are given in &lt;div1&gt;, &lt;div2&gt; and &lt;div3&gt;</span>
+<span class="sd">    tags. Each such tag has a type and name (plus possibly more extra attributes).</span>
+<span class="sd">    </span>
+<span class="sd">    If the div type is found in target variable, the div is parsed</span>
+<span class="sd">    into structured paragraphs, sentences and words.</span>
+<span class="sd">    </span>
+<span class="sd">    Otherwise, the type and name are added as metadata to subdivs</span>
+<span class="sd">    and stored in.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    soup: bs4.BeautifulSoup</span>
+<span class="sd">        The parsed XML data.</span>
+<span class="sd">    metdata: dict</span>
+<span class="sd">        The metadata for parent divs.</span>
+<span class="sd">    target: list of str</span>
+<span class="sd">        List of &lt;div&gt; types, that are considered documents in the XML files.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">documents</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">div_type</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;type&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">div_title</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">soup</span><span class="o">.</span><span class="n">children</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">string</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    
+    <span class="k">if</span> <span class="n">div_type</span> <span class="ow">in</span> <span class="n">target</span><span class="p">:</span>
+        <span class="n">div_authors</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s1">&#39;author&#39;</span><span class="p">)</span>
+        <span class="n">document</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="n">div_type</span><span class="p">,</span>
+            <span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="n">div_title</span><span class="p">,</span>
+            <span class="s1">&#39;paragraphs&#39;</span><span class="p">:</span> <span class="n">parse_paragraphs</span><span class="p">(</span><span class="n">soup</span><span class="p">)</span>
+        <span class="p">}</span>
+        <span class="c1"># add author, if it exists</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">div_authors</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">div_author</span> <span class="o">=</span> <span class="n">div_authors</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="n">document</span><span class="p">[</span><span class="s1">&#39;author&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">div_author</span>
+        <span class="c1"># add collected metadata</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">metadata</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">document</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+        <span class="n">documents</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">document</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">metadata</span><span class="p">[</span><span class="n">div_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">div_title</span>
+
+        <span class="c1"># recurse subdivs</span>
+        <span class="n">subdiv_name</span> <span class="o">=</span> <span class="n">get_subdiv</span><span class="p">(</span><span class="n">soup</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">subdivs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">subdiv_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">subdivs</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="n">subdiv_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">subdivs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">subdiv</span> <span class="ow">in</span> <span class="n">subdivs</span><span class="p">:</span>
+                <span class="n">documents</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">parse_div</span><span class="p">(</span><span class="n">subdiv</span><span class="p">,</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">metadata</span><span class="p">),</span> <span class="n">target</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">documents</span>
+
+
+<span class="k">def</span> <span class="nf">parse_paragraphs</span><span class="p">(</span><span class="n">soup</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Parse sentences and paragraphs in the section.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    soup: bs4.BeautifulSoup</span>
+<span class="sd">        The parsed XML data.</span>
+<span class="sd">        </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list of (list of str)</span>
+<span class="sd">        List of paragraphs given as list of sentences.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">paragraphs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">para</span> <span class="ow">in</span> <span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s1">&#39;p&#39;</span><span class="p">):</span>
+        <span class="n">sentences</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">sent</span> <span class="ow">in</span> <span class="n">para</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s1">&#39;s&#39;</span><span class="p">):</span>
+            <span class="n">sentence</span> <span class="o">=</span> <span class="n">sent</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sentence</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">sentences</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sentence</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sentences</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">paragraphs</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;sentences&#39;</span><span class="p">:</span> <span class="n">sentences</span><span class="p">})</span>
+    <span class="k">return</span> <span class="n">paragraphs</span>
+
+
+<span class="k">def</span> <span class="nf">concatenate</span><span class="p">(</span><span class="n">texts</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="n">l</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sep</span><span class="p">)</span>
+    <span class="n">spans</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">texts</span><span class="p">:</span>
+        <span class="n">spans</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="n">START</span><span class="p">:</span> <span class="n">offset</span><span class="p">,</span> <span class="n">END</span><span class="p">:</span> <span class="n">offset</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">t</span><span class="p">)})</span>
+        <span class="n">offset</span> <span class="o">+=</span> <span class="n">l</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">sep</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">texts</span><span class="p">),</span> <span class="n">spans</span>
+
+
+<span class="k">def</span> <span class="nf">tokenize_documents</span><span class="p">(</span><span class="n">docs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Convert the imported documents to :py:class:&#39;~estnltk.text.Text&#39; instances.&quot;&quot;&quot;</span>
+    <span class="n">sep</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&#39;</span>
+    <span class="n">texts</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">docs</span><span class="p">:</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">para</span><span class="p">[</span><span class="n">SENTENCES</span><span class="p">])</span> <span class="k">for</span> <span class="n">para</span> <span class="ow">in</span> <span class="n">doc</span><span class="p">[</span><span class="n">PARAGRAPHS</span><span class="p">]])</span>
+        <span class="n">doc</span><span class="p">[</span><span class="n">TEXT</span><span class="p">]</span> <span class="o">=</span> <span class="n">text</span>
+        <span class="k">del</span> <span class="n">doc</span><span class="p">[</span><span class="n">PARAGRAPHS</span><span class="p">]</span>
+        <span class="n">texts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Text</span><span class="p">(</span><span class="n">doc</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">texts</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, University of Tartu unless specified otherwise in the file headers.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'1.4.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

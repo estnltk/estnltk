@@ -1,0 +1,709 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>estnltk.grammar.grammar module &mdash; estnltk 1.4.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="estnltk 1.4.1 documentation" href="../index.html"/>
+        <link rel="up" title="API documentation" href="index.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> estnltk
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.4.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/index.html">Estnltk tutorials</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../external/index.html">Other tools</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">API documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="textcleaner.html">estnltk.textcleaner module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vabamorf.html">estnltk.vabamorf.morf module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="match.html">estnltk.grammar.match module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="prettyprinter.html">estnltk.prettyprinter.prettyprinter module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wn.html">estnltk.wordnet.wn module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">estnltk.grammar.grammar module</a><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ner.html">estnltk.ner module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="timex.html">estnltk.timex module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="clausesegmenter.html">estnltk.clausesegmenter module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core.html">estnltk.core module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="teicorpus.html">estnltk.teicorpus module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="database.html">estnltk.database.database module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wordnet_tagger.html">estnltk.wordnet_tagger module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="text.html">estnltk.text module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../authors.html">Authors</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">estnltk</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="index.html">API documentation</a> &raquo;</li>
+      
+    <li>estnltk.grammar.grammar module</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/api/grammar.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-estnltk.grammar.grammar">
+<span id="estnltk-grammar-grammar-module"></span><h1>estnltk.grammar.grammar module<a class="headerlink" href="#module-estnltk.grammar.grammar" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="estnltk.grammar.grammar.AllGaps">
+<em class="property">class </em><code class="descclassname">estnltk.grammar.grammar.</code><code class="descname">AllGaps</code><span class="sig-paren">(</span><em>*symbols</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/grammar/grammar.html#AllGaps"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.grammar.grammar.AllGaps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Concatenate symbols, but allow gaps of any size between the symbols.</p>
+<p class="rubric">Attributes</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">name</span></code></td>
+<td>The name of the symbol.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">symbols</span></code></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">annotate</span></code>(text[,&nbsp;conflict_resolver])</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">get_matches</span></code>(text[,&nbsp;cache,&nbsp;conflict_resolver])</td>
+<td>Get the matches of the symbol on given text.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">get_matches_without_cache</span></code>(text,&nbsp;\*\*env)</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="estnltk.grammar.grammar.Concatenation">
+<em class="property">class </em><code class="descclassname">estnltk.grammar.grammar.</code><code class="descname">Concatenation</code><span class="sig-paren">(</span><em>*symbols</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/grammar/grammar.html#Concatenation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.grammar.grammar.Concatenation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Concatenate symbols.</p>
+<p class="rubric">Attributes</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">name</span></code></td>
+<td>The name of the symbol.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">symbols</span></code></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">annotate</span></code>(text[,&nbsp;conflict_resolver])</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">get_matches</span></code>(text[,&nbsp;cache,&nbsp;conflict_resolver])</td>
+<td>Get the matches of the symbol on given text.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">get_matches_without_cache</span></code>(text,&nbsp;\*\*env)</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="estnltk.grammar.grammar.IRegex">
+<em class="property">class </em><code class="descclassname">estnltk.grammar.grammar.</code><code class="descname">IRegex</code><span class="sig-paren">(</span><em>pattern</em>, <em>flags=42</em>, <em>name=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/grammar/grammar.html#IRegex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.grammar.grammar.IRegex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Case insensitive regular expression symbol.</p>
+<p class="rubric">Attributes</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">name</span></code></td>
+<td>The name of the symbol.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">pattern</span></code></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">annotate</span></code>(text[,&nbsp;conflict_resolver])</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">get_matches</span></code>(text[,&nbsp;cache,&nbsp;conflict_resolver])</td>
+<td>Get the matches of the symbol on given text.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">get_matches_without_cache</span></code>(text,&nbsp;\*\*env)</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="estnltk.grammar.grammar.Intersection">
+<em class="property">class </em><code class="descclassname">estnltk.grammar.grammar.</code><code class="descname">Intersection</code><span class="sig-paren">(</span><em>*symbols</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/grammar/grammar.html#Intersection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.grammar.grammar.Intersection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Symbol that intersects two different symbols.</p>
+<p class="rubric">Attributes</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">name</span></code></td>
+<td>The name of the symbol.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">symbols</span></code></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">annotate</span></code>(text[,&nbsp;conflict_resolver])</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">get_matches</span></code>(text[,&nbsp;cache,&nbsp;conflict_resolver])</td>
+<td>Get the matches of the symbol on given text.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">get_matches_without_cache</span></code>(text,&nbsp;\*\*env)</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="estnltk.grammar.grammar.Layer">
+<em class="property">class </em><code class="descclassname">estnltk.grammar.grammar.</code><code class="descname">Layer</code><span class="sig-paren">(</span><em>layer_name</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/grammar/grammar.html#Layer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.grammar.grammar.Layer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Symbol that matches elements of given layer.</p>
+<p class="rubric">Attributes</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">layer_name</span></code></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">name</span></code></td>
+<td>The name of the symbol.</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">annotate</span></code>(text[,&nbsp;conflict_resolver])</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">get_matches</span></code>(text[,&nbsp;cache,&nbsp;conflict_resolver])</td>
+<td>Get the matches of the symbol on given text.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">get_matches_without_cache</span></code>(text,&nbsp;\*\*env)</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="estnltk.grammar.grammar.LayerRegex">
+<em class="property">class </em><code class="descclassname">estnltk.grammar.grammar.</code><code class="descname">LayerRegex</code><span class="sig-paren">(</span><em>layer_name</em>, <em>regex</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/grammar/grammar.html#LayerRegex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.grammar.grammar.LayerRegex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Symbol that matches regular expressions on texts of the given layer.</p>
+<p class="rubric">Attributes</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">layer_name</span></code></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">name</span></code></td>
+<td>The name of the symbol.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">regex</span></code></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">annotate</span></code>(text[,&nbsp;conflict_resolver])</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">get_matches</span></code>(text[,&nbsp;cache,&nbsp;conflict_resolver])</td>
+<td>Get the matches of the symbol on given text.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">get_matches_without_cache</span></code>(text,&nbsp;\*\*env)</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="estnltk.grammar.grammar.Lemmas">
+<em class="property">class </em><code class="descclassname">estnltk.grammar.grammar.</code><code class="descname">Lemmas</code><span class="sig-paren">(</span><em>*lemmas</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/grammar/grammar.html#Lemmas"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.grammar.grammar.Lemmas" title="Permalink to this definition">¶</a></dt>
+<dd><p>Symbol that matches a list of lemmas.</p>
+<p class="rubric">Attributes</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">lemmas</span></code></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">name</span></code></td>
+<td>The name of the symbol.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">pattern</span></code></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">annotate</span></code>(text[,&nbsp;conflict_resolver])</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">get_matches</span></code>(text[,&nbsp;cache,&nbsp;conflict_resolver])</td>
+<td>Get the matches of the symbol on given text.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">get_matches_without_cache</span></code>(text,&nbsp;\*\*env)</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="estnltk.grammar.grammar.Postags">
+<em class="property">class </em><code class="descclassname">estnltk.grammar.grammar.</code><code class="descname">Postags</code><span class="sig-paren">(</span><em>*postags</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/grammar/grammar.html#Postags"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.grammar.grammar.Postags" title="Permalink to this definition">¶</a></dt>
+<dd><p>Symbol that matches a list of part-of-speech tags.</p>
+<p class="rubric">Attributes</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">name</span></code></td>
+<td>The name of the symbol.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">pattern</span></code></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">postags</span></code></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">annotate</span></code>(text[,&nbsp;conflict_resolver])</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">get_matches</span></code>(text[,&nbsp;cache,&nbsp;conflict_resolver])</td>
+<td>Get the matches of the symbol on given text.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">get_matches_without_cache</span></code>(text,&nbsp;\*\*env)</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="estnltk.grammar.grammar.Regex">
+<em class="property">class </em><code class="descclassname">estnltk.grammar.grammar.</code><code class="descname">Regex</code><span class="sig-paren">(</span><em>pattern</em>, <em>flags=40</em>, <em>name=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/grammar/grammar.html#Regex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.grammar.grammar.Regex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Regular expression symbol.</p>
+<p class="rubric">Attributes</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">name</span></code></td>
+<td>The name of the symbol.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">pattern</span></code></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">annotate</span></code>(text[,&nbsp;conflict_resolver])</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">get_matches</span></code>(text[,&nbsp;cache,&nbsp;conflict_resolver])</td>
+<td>Get the matches of the symbol on given text.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">get_matches_without_cache</span></code>(text,&nbsp;\*\*env)</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="estnltk.grammar.grammar.Suffix">
+<em class="property">class </em><code class="descclassname">estnltk.grammar.grammar.</code><code class="descname">Suffix</code><span class="sig-paren">(</span><em>suffix</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/grammar/grammar.html#Suffix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.grammar.grammar.Suffix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Symbol that matches word suffixes.</p>
+<p class="rubric">Attributes</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">name</span></code></td>
+<td>The name of the symbol.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">suffix</span></code></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">annotate</span></code>(text[,&nbsp;conflict_resolver])</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">get_matches</span></code>(text[,&nbsp;cache,&nbsp;conflict_resolver])</td>
+<td>Get the matches of the symbol on given text.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">get_matches_without_cache</span></code>(text,&nbsp;\*\*env)</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="estnltk.grammar.grammar.Symbol">
+<em class="property">class </em><code class="descclassname">estnltk.grammar.grammar.</code><code class="descname">Symbol</code><span class="sig-paren">(</span><em>name=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/grammar/grammar.html#Symbol"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.grammar.grammar.Symbol" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base symbol for the grammar.</p>
+<p class="rubric">Attributes</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#estnltk.grammar.grammar.Symbol.name" title="estnltk.grammar.grammar.Symbol.name"><code class="xref py py-obj docutils literal"><span class="pre">name</span></code></a></td>
+<td>The name of the symbol.</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">annotate</span></code>(text[,&nbsp;conflict_resolver])</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#estnltk.grammar.grammar.Symbol.get_matches" title="estnltk.grammar.grammar.Symbol.get_matches"><code class="xref py py-obj docutils literal"><span class="pre">get_matches</span></code></a>(text[,&nbsp;cache,&nbsp;conflict_resolver])</td>
+<td>Get the matches of the symbol on given text.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">get_matches_without_cache</span></code>(text,&nbsp;\*\*env)</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="estnltk.grammar.grammar.Symbol.get_matches">
+<code class="descname">get_matches</code><span class="sig-paren">(</span><em>text</em>, <em>cache=None</em>, <em>conflict_resolver=&lt;function resolve_using_maximal_coverage&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/grammar/grammar.html#Symbol.get_matches"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.grammar.grammar.Symbol.get_matches" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the matches of the symbol on given text.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.grammar.grammar.Symbol.name">
+<code class="descname">name</code><a class="headerlink" href="#estnltk.grammar.grammar.Symbol.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>The name of the symbol. If there is no name, this is None</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="estnltk.grammar.grammar.Union">
+<em class="property">class </em><code class="descclassname">estnltk.grammar.grammar.</code><code class="descname">Union</code><span class="sig-paren">(</span><em>*symbols</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/grammar/grammar.html#Union"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.grammar.grammar.Union" title="Permalink to this definition">¶</a></dt>
+<dd><p>Symbol that unions two other symbols.</p>
+<p class="rubric">Attributes</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">name</span></code></td>
+<td>The name of the symbol.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">symbols</span></code></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">annotate</span></code>(text[,&nbsp;conflict_resolver])</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">get_matches</span></code>(text[,&nbsp;cache,&nbsp;conflict_resolver])</td>
+<td>Get the matches of the symbol on given text.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">get_matches_without_cache</span></code>(text,&nbsp;\*\*env)</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, University of Tartu unless specified otherwise in the file headers.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.4.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

@@ -1,0 +1,1258 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Dependency syntactic analysis &mdash; estnltk 1.4.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="estnltk 1.4.1 documentation" href="../index.html"/>
+        <link rel="up" title="Estnltk tutorials" href="index.html"/>
+        <link rel="next" title="Named entity recognition" href="ner.html"/>
+        <link rel="prev" title="Experimental NP chunking" href="np_chunker.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> estnltk
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.4.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Estnltk tutorials</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="text.html">Basic Text class operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wikipedia.html">Wikipedia tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="elasticsearch.html">Elasticsearch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="disambiguation.html">Disambiguation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="grammar.html">Grammars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="np_chunker.html">Noun-phrase chunker</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Dependency_syntax</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#basic-usage">Basic usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#vislcg3-based-syntactic-analysis">VISLCG3 based syntactic analysis</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#installation-configuration">Installation &amp; configuration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#text-interface">Text interface</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#vislcg3parser-class">VISLCG3Parser class</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#the-initial-output-of-the-parser">The initial output of the parser</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#using-a-custom-pipeline">Using a custom pipeline</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#maltparser-based-syntactic-analysis">MaltParser based syntactic analysis</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#training-maltparser-models">Training MaltParser models</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id1">Text interface</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#maltparser-class">MaltParser class</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#id2">The initial output of the parser</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#tree-datastructure">Tree datastructure</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#tree-object-and-queries">Tree object and queries</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#the-nltk-interface">The NLTK interface</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#dependency-graphs">Dependency graphs</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#nltk-s-tree-objects">NLTK&#8217;s Tree objects</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#importing-corpus-from-a-file">Importing corpus from a file</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#import-cg3-format-file">Import CG3 format file</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#import-conll-format-file">Import CONLL format file</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ner.html">Name-Entity Recognition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="prettyprinter.html">Prettyprinter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="terminalprettyprinter.html">Terminal prettyprinter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tei.html">Working with Koondkorpus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="morphology_tables.html">Morphological annotation tables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="devel.html">Developer readme</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../external/index.html">Other tools</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html">API documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../authors.html">Authors</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">estnltk</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="index.html">Estnltk tutorials</a> &raquo;</li>
+      
+    <li>Dependency syntactic analysis</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/tutorials/dependency_syntax.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="dependency-syntactic-analysis">
+<h1>Dependency syntactic analysis<a class="headerlink" href="#dependency-syntactic-analysis" title="Permalink to this headline">¶</a></h1>
+<p>EstNLTK provides wrappers for two syntactic analysers:
+<a class="reference external" href="http://www.maltparser.org/">MaltParser</a> and <a class="reference external" href="https://github.com/EstSyntax/EstCG">VISLCG3 based syntactic
+analyser of Estonian</a>.</p>
+<p>MaltParser based syntactic analysis is distributed with EstNLTK and can
+be applied by default. VISLCG3 based syntactic analysis has a
+requirement that VISLCG3 must be installed into the system first (see
+below for further instructions).</p>
+<p>Both analysers are using a common syntactic analysis tagset, which is
+introduced in
+<a class="reference external" href="https://korpused.keeleressursid.ee/syntaks/dokumendid/syntaksiliides_en.pdf">https://korpused.keeleressursid.ee/syntaks/dokumendid/syntaksiliides_en.pdf</a>.</p>
+<div class="section" id="basic-usage">
+<h2>Basic usage<a class="headerlink" href="#basic-usage" title="Permalink to this headline">¶</a></h2>
+<p>Calling <code class="docutils literal"><span class="pre">tag_syntax</span></code> method of the <code class="docutils literal"><span class="pre">Text</span></code> instance evokes the
+syntactic analysis on the text, using the default syntactic parser
+(MaltParser):</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">estnltk.names</span> <span class="k">import</span> <span class="n">LAYER_CONLL</span>
+<span class="kn">from</span> <span class="nn">estnltk</span> <span class="k">import</span> <span class="n">Text</span>
+<span class="kn">from</span> <span class="nn">pprint</span> <span class="k">import</span> <span class="n">pprint</span>
+
+<span class="n">text</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s1">&#39;Ilus suur karvane kass nurrus punasel diivanil&#39;</span><span class="p">)</span>
+<span class="n">text</span><span class="o">.</span><span class="n">tag_syntax</span><span class="p">()</span>
+
+<span class="n">pprint</span><span class="p">(</span> <span class="n">text</span><span class="p">[</span><span class="n">LAYER_CONLL</span><span class="p">]</span> <span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s1">&#39;parser_out&#39;</span><span class="p">:</span> <span class="p">[[</span><span class="s1">&#39;@AN&gt;&#39;</span><span class="p">,</span> <span class="mi">3</span><span class="p">]],</span> <span class="s1">&#39;sent_id&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+ <span class="p">{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span> <span class="s1">&#39;parser_out&#39;</span><span class="p">:</span> <span class="p">[[</span><span class="s1">&#39;@AN&gt;&#39;</span><span class="p">,</span> <span class="mi">3</span><span class="p">]],</span> <span class="s1">&#39;sent_id&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">},</span>
+ <span class="p">{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">17</span><span class="p">,</span> <span class="s1">&#39;parser_out&#39;</span><span class="p">:</span> <span class="p">[[</span><span class="s1">&#39;@AN&gt;&#39;</span><span class="p">,</span> <span class="mi">3</span><span class="p">]],</span> <span class="s1">&#39;sent_id&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">},</span>
+ <span class="p">{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">22</span><span class="p">,</span> <span class="s1">&#39;parser_out&#39;</span><span class="p">:</span> <span class="p">[[</span><span class="s1">&#39;@SUBJ&#39;</span><span class="p">,</span> <span class="mi">4</span><span class="p">]],</span> <span class="s1">&#39;sent_id&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">18</span><span class="p">},</span>
+ <span class="p">{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">29</span><span class="p">,</span> <span class="s1">&#39;parser_out&#39;</span><span class="p">:</span> <span class="p">[[</span><span class="s1">&#39;ROOT&#39;</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]],</span> <span class="s1">&#39;sent_id&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">23</span><span class="p">},</span>
+ <span class="p">{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">37</span><span class="p">,</span> <span class="s1">&#39;parser_out&#39;</span><span class="p">:</span> <span class="p">[[</span><span class="s1">&#39;@AN&gt;&#39;</span><span class="p">,</span> <span class="mi">6</span><span class="p">]],</span> <span class="s1">&#39;sent_id&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">30</span><span class="p">},</span>
+ <span class="p">{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">46</span><span class="p">,</span> <span class="s1">&#39;parser_out&#39;</span><span class="p">:</span> <span class="p">[[</span><span class="s1">&#39;@ADVL&#39;</span><span class="p">,</span> <span class="mi">4</span><span class="p">]],</span> <span class="s1">&#39;sent_id&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">38</span><span class="p">}]</span>
+</pre></div>
+</div>
+<p>Results of the analysis are stored in the layer named <code class="docutils literal"><span class="pre">LAYER_CONLL</span></code> (
+note that the name of the layer depends on the parser: in case of
+VISLCG3, the name would be <code class="docutils literal"><span class="pre">LAYER_VISLCG3</span></code> ).</p>
+<p>The layer contains a <code class="docutils literal"><span class="pre">dict</span></code> for each word in the text. In order to get
+an idea which word has which syntactic analysis, you can <code class="docutils literal"><span class="pre">zip</span></code> words
+and syntactic layer elements:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="n">pprint</span><span class="p">(</span> <span class="nb">list</span><span class="p">(</span> <span class="nb">zip</span><span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">word_texts</span><span class="p">,</span> <span class="n">text</span><span class="p">[</span><span class="n">LAYER_CONLL</span><span class="p">])</span> <span class="p">)</span> <span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[(</span><span class="s1">&#39;Ilus&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s1">&#39;parser_out&#39;</span><span class="p">:</span> <span class="p">[[</span><span class="s1">&#39;@AN&gt;&#39;</span><span class="p">,</span> <span class="mi">3</span><span class="p">]],</span> <span class="s1">&#39;sent_id&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}),</span>
+ <span class="p">(</span><span class="s1">&#39;suur&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span> <span class="s1">&#39;parser_out&#39;</span><span class="p">:</span> <span class="p">[[</span><span class="s1">&#39;@AN&gt;&#39;</span><span class="p">,</span> <span class="mi">3</span><span class="p">]],</span> <span class="s1">&#39;sent_id&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">}),</span>
+ <span class="p">(</span><span class="s1">&#39;karvane&#39;</span><span class="p">,</span>
+  <span class="p">{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">17</span><span class="p">,</span> <span class="s1">&#39;parser_out&#39;</span><span class="p">:</span> <span class="p">[[</span><span class="s1">&#39;@AN&gt;&#39;</span><span class="p">,</span> <span class="mi">3</span><span class="p">]],</span> <span class="s1">&#39;sent_id&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">}),</span>
+ <span class="p">(</span><span class="s1">&#39;kass&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">22</span><span class="p">,</span> <span class="s1">&#39;parser_out&#39;</span><span class="p">:</span> <span class="p">[[</span><span class="s1">&#39;@SUBJ&#39;</span><span class="p">,</span> <span class="mi">4</span><span class="p">]],</span> <span class="s1">&#39;sent_id&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">18</span><span class="p">}),</span>
+ <span class="p">(</span><span class="s1">&#39;nurrus&#39;</span><span class="p">,</span>
+  <span class="p">{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">29</span><span class="p">,</span> <span class="s1">&#39;parser_out&#39;</span><span class="p">:</span> <span class="p">[[</span><span class="s1">&#39;ROOT&#39;</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]],</span> <span class="s1">&#39;sent_id&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">23</span><span class="p">}),</span>
+ <span class="p">(</span><span class="s1">&#39;punasel&#39;</span><span class="p">,</span>
+  <span class="p">{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">37</span><span class="p">,</span> <span class="s1">&#39;parser_out&#39;</span><span class="p">:</span> <span class="p">[[</span><span class="s1">&#39;@AN&gt;&#39;</span><span class="p">,</span> <span class="mi">6</span><span class="p">]],</span> <span class="s1">&#39;sent_id&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">30</span><span class="p">}),</span>
+ <span class="p">(</span><span class="s1">&#39;diivanil&#39;</span><span class="p">,</span>
+  <span class="p">{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">46</span><span class="p">,</span> <span class="s1">&#39;parser_out&#39;</span><span class="p">:</span> <span class="p">[[</span><span class="s1">&#39;@ADVL&#39;</span><span class="p">,</span> <span class="mi">4</span><span class="p">]],</span> <span class="s1">&#39;sent_id&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">38</span><span class="p">})]</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal"><span class="pre">dict</span></code> representing word&#8217;s syntactic analysis specifies the
+location of the word (in <code class="docutils literal"><span class="pre">start</span></code> and <code class="docutils literal"><span class="pre">end</span></code> attributes, and in the
+sentence identifier <code class="docutils literal"><span class="pre">sent_id</span></code>), and dependency syntactic relations
+associated with the word (in the attribute <code class="docutils literal"><span class="pre">parser_out</span></code>).</p>
+<ul class="simple">
+<li>The attribute <code class="docutils literal"><span class="pre">parser_out</span></code> contains a list of dependency syntactic
+relations. Each relation is a list where:<ul>
+<li>the first item is the <strong>syntactic function label</strong> (e.g.
+<code class="docutils literal"><span class="pre">'&#64;SUBJ'</span></code> stands for <em>subject</em> and <code class="docutils literal"><span class="pre">'&#64;OBJ'</span></code> for <em>object</em>, see
+the
+<a class="reference external" href="https://korpused.keeleressursid.ee/syntaks/dokumendid/syntaksiliides_en.pdf">documentation</a>
+for details), and</li>
+<li>the second item (the integer) is the index of its <strong>governing
+word</strong> in the sentence.</li>
+</ul>
+</li>
+<li>The governing word index <code class="docutils literal"><span class="pre">-1</span></code> marks that the current word is the
+root node of the tree, and this is also supported by syntactic
+function label <code class="docutils literal"><span class="pre">'ROOT'</span></code> from MaltParser output. VISLCG3 does not
+use the label <code class="docutils literal"><span class="pre">'ROOT'</span></code>, and only governing word index <code class="docutils literal"><span class="pre">-1</span></code> is
+used for marking the root in VISLCG3&#8217;s output.</li>
+<li>Note: If you are familiar with the CONLL data format, you should
+remember that EstNLTK uses a bit different indexing system than
+CONLL. In the CONLL data format, word indices typically start at
+<code class="docutils literal"><span class="pre">1</span></code> and the root node has the parent index <code class="docutils literal"><span class="pre">0</span></code>. In EstNLTK, word
+indices start at <code class="docutils literal"><span class="pre">0</span></code> and the root node has the parent index <code class="docutils literal"><span class="pre">-1</span></code>.</li>
+</ul>
+<p>The tree structure described in the previous example of MaltParser&#8217;s
+output can be illustrated with the following dependency tree:</p>
+<div class="figure" id="id3">
+<img alt="Purring cat example" src="../_images/nurruvkass_2.png" />
+<p class="caption"><span class="caption-text">Purring cat example</span></p>
+</div>
+<p>EstNLTK also provides API for processing and making queries on trees
+built from syntactic analyses, see below for further details.</p>
+</div>
+<div class="section" id="vislcg3-based-syntactic-analysis">
+<h2>VISLCG3 based syntactic analysis<a class="headerlink" href="#vislcg3-based-syntactic-analysis" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="installation-configuration">
+<h3>Installation &amp; configuration<a class="headerlink" href="#installation-configuration" title="Permalink to this headline">¶</a></h3>
+<p>In order to use VISLCG3 based syntactic analysis, the VISLCG3 parser
+must be installed into the system. The information about the parser is
+distributed in the <a class="reference external" href="http://groups.google.com/group/constraint-grammar">Constraint Grammar&#8217;s Google
+Group</a>, and this
+is also the place to look for the most compact guide about getting &amp;
+installing <a class="reference external" href="https://groups.google.com/d/msg/constraint-grammar/hXsbzyyhIVI/nHXRnOomf9wJ">the latest version of the
+parser</a>.</p>
+<p>By default, EstNLTK expects that the directory containing VISLCG3
+parser&#8217;s executable (<code class="docutils literal"><span class="pre">vislcg3</span></code> in UNIX, <code class="docutils literal"><span class="pre">vislcg3.exe</span></code> in Windows) is
+accessible from system&#8217;s environment variable <code class="docutils literal"><span class="pre">PATH</span></code>. If this
+requirement is satisfied, the EstNLTK should always be able to execute
+the parser.</p>
+<p>Alternatively ( if the parser&#8217;s directory is not in system&#8217;s <code class="docutils literal"><span class="pre">PATH</span></code> ),
+the name of the VISLCG3 executable with full path can be provided via
+the input argument <code class="docutils literal"><span class="pre">vislcg_cmd</span></code> of the parser&#8217;s class
+<code class="docutils literal"><span class="pre">VISLCG3Parser</span></code>. Then the parser instance can be added as a custom
+parser of a <code class="docutils literal"><span class="pre">Text</span></code> object via the keyword argument
+<code class="docutils literal"><span class="pre">syntactic_parser</span></code>:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">estnltk.syntax.parsers</span> <span class="k">import</span> <span class="n">VISLCG3Parser</span>
+<span class="kn">from</span> <span class="nn">estnltk.names</span> <span class="k">import</span> <span class="n">LAYER_VISLCG3</span>
+<span class="kn">from</span> <span class="nn">estnltk</span> <span class="k">import</span> <span class="n">Text</span>
+<span class="kn">from</span> <span class="nn">pprint</span> <span class="k">import</span> <span class="n">pprint</span>
+
+<span class="c1"># Create a new VISLCG3 parser instance, and provide</span>
+<span class="c1"># the name of the VISLCG3 executable with full path</span>
+<span class="n">parser</span> <span class="o">=</span> <span class="n">VISLCG3Parser</span><span class="p">(</span> <span class="n">vislcg_cmd</span><span class="o">=</span><span class="s1">&#39;C:</span><span class="se">\\</span><span class="s1">cg3</span><span class="se">\\</span><span class="s1">bin</span><span class="se">\\</span><span class="s1">vislcg3.exe&#39;</span> <span class="p">)</span>
+
+<span class="c1"># Create a new text object and override the default</span>
+<span class="c1"># parser with the VISLCG3 parser</span>
+<span class="n">text</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span> <span class="s1">&#39;Maril oli väike tall&#39;</span><span class="p">,</span> <span class="n">syntactic_parser</span><span class="o">=</span><span class="n">parser</span> <span class="p">)</span>
+
+<span class="c1"># Tag syntax: now VISLCG3Parser is used</span>
+<span class="n">text</span><span class="o">.</span><span class="n">tag_syntax</span><span class="p">()</span>
+
+<span class="n">pprint</span><span class="p">(</span> <span class="n">text</span><span class="p">[</span><span class="n">LAYER_VISLCG3</span><span class="p">]</span> <span class="p">)</span>
+</pre></div>
+</div>
+<p>Provided that you are using a Windows machine, and VISLCG3 is installed
+into the directory <code class="docutils literal"><span class="pre">C:\\cg3\\bin</span></code>, the previous example should execute
+successfully and should produce the following output:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="s1">&#39;parser_out&#39;</span><span class="p">:</span> <span class="p">[[</span><span class="s1">&#39;@ADVL&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">]],</span> <span class="s1">&#39;sent_id&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+ <span class="p">{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span> <span class="s1">&#39;parser_out&#39;</span><span class="p">:</span> <span class="p">[[</span><span class="s1">&#39;@FMV&#39;</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]],</span> <span class="s1">&#39;sent_id&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">6</span><span class="p">},</span>
+ <span class="p">{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span> <span class="s1">&#39;parser_out&#39;</span><span class="p">:</span> <span class="p">[[</span><span class="s1">&#39;@AN&gt;&#39;</span><span class="p">,</span> <span class="mi">3</span><span class="p">]],</span> <span class="s1">&#39;sent_id&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">},</span>
+ <span class="p">{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span> <span class="s1">&#39;parser_out&#39;</span><span class="p">:</span> <span class="p">[[</span><span class="s1">&#39;@SUBJ&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">]],</span> <span class="s1">&#39;sent_id&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">16</span><span class="p">}]</span>
+</pre></div>
+</div>
+<p>In the output: note that the root node (the node with governing word
+index <code class="docutils literal"><span class="pre">-1</span></code>) has a syntactic label <code class="docutils literal"><span class="pre">'&#64;FMV'</span></code> instead of <code class="docutils literal"><span class="pre">'ROOT'</span></code>,
+indicating that the VISLCG3Parser was used instead of the MaltParser.</p>
+</div>
+<div class="section" id="text-interface">
+<h3>Text interface<a class="headerlink" href="#text-interface" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal"><span class="pre">Text</span></code> object provides the method <code class="docutils literal"><span class="pre">tag_syntax_vislcg3</span></code>, which
+changes the default parser to a new instance of <code class="docutils literal"><span class="pre">VISLCG3Parser</span></code>, and
+parses the text. The results of the parsing are stored in the layer
+<code class="docutils literal"><span class="pre">LAYER_VISLCG3</span></code>:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">estnltk.names</span> <span class="k">import</span> <span class="n">LAYER_VISLCG3</span>
+<span class="kn">from</span> <span class="nn">estnltk</span> <span class="k">import</span> <span class="n">Text</span>
+<span class="kn">from</span> <span class="nn">pprint</span> <span class="k">import</span> <span class="n">pprint</span>
+
+<span class="n">text</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span> <span class="s1">&#39;Valge jänes jooksis metsas&#39;</span> <span class="p">)</span>
+
+<span class="c1"># Tag text with VISLCG3 parser</span>
+<span class="n">text</span><span class="o">.</span><span class="n">tag_syntax_vislcg3</span><span class="p">()</span>
+
+<span class="n">pprint</span><span class="p">(</span> <span class="n">text</span><span class="p">[</span><span class="n">LAYER_VISLCG3</span><span class="p">]</span> <span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="s1">&#39;parser_out&#39;</span><span class="p">:</span> <span class="p">[[</span><span class="s1">&#39;@AN&gt;&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">]],</span> <span class="s1">&#39;sent_id&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+ <span class="p">{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span> <span class="s1">&#39;parser_out&#39;</span><span class="p">:</span> <span class="p">[[</span><span class="s1">&#39;@SUBJ&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">]],</span> <span class="s1">&#39;sent_id&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">6</span><span class="p">},</span>
+ <span class="p">{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">19</span><span class="p">,</span> <span class="s1">&#39;parser_out&#39;</span><span class="p">:</span> <span class="p">[[</span><span class="s1">&#39;@FMV&#39;</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]],</span> <span class="s1">&#39;sent_id&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">12</span><span class="p">},</span>
+ <span class="p">{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">26</span><span class="p">,</span> <span class="s1">&#39;parser_out&#39;</span><span class="p">:</span> <span class="p">[[</span><span class="s1">&#39;@ADVL&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">]],</span> <span class="s1">&#39;sent_id&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">20</span><span class="p">}]</span>
+</pre></div>
+</div>
+<p>For each word in the text, the layer <code class="docutils literal"><span class="pre">LAYER_VISLCG3</span></code> contains a
+<code class="docutils literal"><span class="pre">dict</span></code> storing the syntactic analysis of the word (see the section
+&#8220;Basic usage&#8221; above for details). The method <code class="docutils literal"><span class="pre">Text.syntax_trees()</span></code> can
+be used to build queryable syntactic trees from <code class="docutils literal"><span class="pre">LAYER_VISLCG3</span></code>, see
+below for details.</p>
+<ul class="simple">
+<li>Note: The method <code class="docutils literal"><span class="pre">tag_syntax_vislcg3()</span></code> can only be used if the
+VISLCG3&#8217;s directory is in system&#8217;s environment variable <code class="docutils literal"><span class="pre">PATH</span></code>. For
+an alternative way of providing the parser with the location of the
+VISLCG3&#8217;s directory, see the section above.</li>
+</ul>
+</div>
+<div class="section" id="vislcg3parser-class">
+<h3>VISLCG3Parser class<a class="headerlink" href="#vislcg3parser-class" title="Permalink to this headline">¶</a></h3>
+<p>The class <code class="docutils literal"><span class="pre">VISLCG3Parser</span></code> can be used to customize the settings of
+VISLCG3 based syntactic analysis (e.g. provide the location of the
+parser, and the pipeline of rules), and to get a custom output (e.g. the
+original output of the parser).</p>
+<p><code class="docutils literal"><span class="pre">VISLCG3Parser</span></code> can be initiated with the following keyword arguments:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">vislcg_cmd</span></code> &#8211; the name of VISLCG3 executable with full path (e.g.
+<code class="docutils literal"><span class="pre">'C:\\cg3\\bin\\vislcg3.exe'</span></code>);</li>
+<li><code class="docutils literal"><span class="pre">pipeline</span></code> &#8211; a list of rule file names that are executed by the
+VISLCG3Parser, in the order of execution;</li>
+<li><code class="docutils literal"><span class="pre">rules_dir</span></code> &#8211; a default directory from where to find rules that
+are executed on the pipeline (used for rule files without path);</li>
+</ul>
+<p>After the <code class="docutils literal"><span class="pre">VISLCG3Parser</span></code> has been initiated, its method
+<code class="docutils literal"><span class="pre">parse_text</span></code> can be used to parse a <code class="docutils literal"><span class="pre">Text</span></code> object. In addition to
+the Text, the method can take the following keyword arguments:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">return_type</span></code> &#8211; specifies the format of the data returned of the
+method. Can be one of the following: <code class="docutils literal"><span class="pre">'text'</span></code> (default),
+<code class="docutils literal"><span class="pre">'vislcg3'</span></code>, <code class="docutils literal"><span class="pre">'trees'</span></code>, <code class="docutils literal"><span class="pre">'dep_graphs'</span></code><ul>
+<li><code class="docutils literal"><span class="pre">'text'</span></code> &#8211; returns the input Text object;</li>
+<li><code class="docutils literal"><span class="pre">'vislcg3'</span></code> &#8211; returns a list of lines (strings) &#8211; the initial
+output of the parser. See for below details;</li>
+<li><code class="docutils literal"><span class="pre">'trees'</span></code> &#8211; returns a list of syntactic trees generated from
+the results of the syntactic analysis. See for below details;</li>
+<li><code class="docutils literal"><span class="pre">'dep_graphs'</span></code> &#8211; returns a list of NLTK&#8217;s DependencyGraph
+objects generated from the results of the syntactic analysis. See
+for below details;</li>
+</ul>
+</li>
+<li><code class="docutils literal"><span class="pre">keep_old</span></code> &#8211; a boolean specifying whether the initial analysis
+lines from the output of VISLCG3&#8217;s should be preserved in the
+<code class="docutils literal"><span class="pre">LAYER_VISLCG3</span></code>. If <code class="docutils literal"><span class="pre">True</span></code>, each <code class="docutils literal"><span class="pre">dict</span></code> in the layer will be
+augmented with attribute <code class="docutils literal"><span class="pre">'init_parser_out'</span></code> containing the
+initial/old analysis lines (a list of strings); Default: <code class="docutils literal"><span class="pre">False</span></code></li>
+<li><code class="docutils literal"><span class="pre">mark_root</span></code> &#8211; a boolean specifying whether the label of the root
+node should be renamed to <code class="docutils literal"><span class="pre">ROOT</span></code> (in order to get an output
+comparable with MaltParser&#8217;s output); Default: <code class="docutils literal"><span class="pre">False</span></code></li>
+</ul>
+<p>In the following, some of the usage possibilities of these arguments are
+introduced in detail.</p>
+<div class="section" id="the-initial-output-of-the-parser">
+<h4>The initial output of the parser<a class="headerlink" href="#the-initial-output-of-the-parser" title="Permalink to this headline">¶</a></h4>
+<p>If you want to see the <strong>initial / original output</strong> of the VISLCG3
+parser, you can execute the method <code class="docutils literal"><span class="pre">parse_text</span></code> with the setting
+<code class="docutils literal"><span class="pre">return_type='vislcg3'</span></code> &#8211; in this case, the method returns a list of
+lines (strings) from the initial output:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">estnltk.syntax.parsers</span> <span class="k">import</span> <span class="n">VISLCG3Parser</span>
+<span class="kn">from</span> <span class="nn">estnltk</span> <span class="k">import</span> <span class="n">Text</span>
+
+<span class="n">text</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s1">&#39;Maril oli väike tall&#39;</span><span class="p">)</span>
+<span class="n">parser</span> <span class="o">=</span> <span class="n">VISLCG3Parser</span><span class="p">()</span>
+<span class="n">initial_output</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_text</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">return_type</span><span class="o">=</span><span class="s1">&#39;vislcg3&#39;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span> <span class="n">initial_output</span><span class="p">)</span> <span class="p">)</span>
+</pre></div>
+</div>
+<p>the code above should produce the following output:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="s2">&quot;&lt;s&gt;&quot;</span>
+
+<span class="s2">&quot;&lt;Maril&gt;&quot;</span>
+        <span class="s2">&quot;mari&quot;</span> <span class="n">Ll</span> <span class="n">S</span> <span class="n">com</span> <span class="n">sg</span> <span class="n">ad</span> <span class="nd">@ADVL</span> <span class="c1">#1-&gt;2</span>
+<span class="s2">&quot;&lt;oli&gt;&quot;</span>
+        <span class="s2">&quot;ole&quot;</span> <span class="n">Li</span> <span class="n">V</span> <span class="n">main</span> <span class="n">indic</span> <span class="n">impf</span> <span class="n">ps3</span> <span class="n">sg</span> <span class="n">ps</span> <span class="n">af</span> <span class="nd">@FMV</span> <span class="c1">#2-&gt;0</span>
+<span class="s2">&quot;&lt;väike&gt;&quot;</span>
+        <span class="s2">&quot;väike&quot;</span> <span class="n">L0</span> <span class="n">A</span> <span class="n">pos</span> <span class="n">sg</span> <span class="n">nom</span> <span class="nd">@AN</span><span class="o">&gt;</span> <span class="c1">#3-&gt;4</span>
+<span class="s2">&quot;&lt;tall&gt;&quot;</span>
+        <span class="s2">&quot;tall&quot;</span> <span class="n">L0</span> <span class="n">S</span> <span class="n">com</span> <span class="n">sg</span> <span class="n">nom</span> <span class="nd">@SUBJ</span> <span class="c1">#4-&gt;2</span>
+<span class="s2">&quot;&lt;/s&gt;&quot;</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><em>The format of the initial output</em>. A more detailed description of
+the format and categories used by the parser is available in
+Estonian:
+<a class="reference external" href="https://korpused.keeleressursid.ee/syntaks/dokumendid/syntaksiliides_ee.pdf">https://korpused.keeleressursid.ee/syntaks/dokumendid/syntaksiliides_ee.pdf</a>
+(2016-09-07) and there is also a detailed description of the
+annotation principles available in Estonian:
+<a class="reference external" href="https://www.keeletehnoloogia.ee/et/ekt-projektid/vahendid-teksti-mitmekihiliseks-margendamiseks-rakendatuna-koondkorpusele/soltuvussuntaktiliselt-analuusitud-korpus">https://www.keeletehnoloogia.ee/et/ekt-projektid/vahendid-teksti-mitmekihiliseks-margendamiseks-rakendatuna-koondkorpusele/soltuvussuntaktiliselt-analuusitud-korpus</a>
+(2016-09-07).</li>
+</ul>
+<p>Note that the results of the analysis are also stored in the input Text
+object on the layer <code class="docutils literal"><span class="pre">LAYER_VISLCG3</span></code>, but the layer does not preserve
+the original/initial output of the VISLCG3 parser.</p>
+<p>In order to preserve the original/initial analysis in the layer
+<code class="docutils literal"><span class="pre">LAYER_VISLCG3</span></code>, the method <code class="docutils literal"><span class="pre">parse_text</span></code> needs to be executed with
+the setting <code class="docutils literal"><span class="pre">keep_old=True</span></code> &#8211; in this case, the initial syntactic
+analysis lines are also stored in the layer, providing each <code class="docutils literal"><span class="pre">dict</span></code> in
+the layer with the attribute <code class="docutils literal"><span class="pre">'init_parser_out'</span></code>:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">estnltk.syntax.parsers</span> <span class="k">import</span> <span class="n">VISLCG3Parser</span>
+<span class="kn">from</span> <span class="nn">estnltk.names</span> <span class="k">import</span> <span class="n">LAYER_VISLCG3</span>
+<span class="kn">from</span> <span class="nn">estnltk</span> <span class="k">import</span> <span class="n">Text</span>
+<span class="kn">from</span> <span class="nn">pprint</span> <span class="k">import</span> <span class="n">pprint</span>
+
+<span class="n">text</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s1">&#39;Maril oli väike tall&#39;</span><span class="p">)</span>
+<span class="n">parser</span> <span class="o">=</span> <span class="n">VISLCG3Parser</span><span class="p">()</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">parse_text</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">keep_old</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">pprint</span><span class="p">(</span> <span class="n">text</span><span class="p">[</span><span class="n">LAYER_VISLCG3</span><span class="p">]</span> <span class="p">)</span>
+</pre></div>
+</div>
+<p>the code above should produce the following output:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+  <span class="s1">&#39;init_parser_out&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&quot;mari&quot; Ll S com sg ad @ADVL #1-&gt;2&#39;</span><span class="p">],</span>
+  <span class="s1">&#39;parser_out&#39;</span><span class="p">:</span> <span class="p">[[</span><span class="s1">&#39;@ADVL&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">]],</span>
+  <span class="s1">&#39;sent_id&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+  <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+ <span class="p">{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span>
+  <span class="s1">&#39;init_parser_out&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&quot;ole&quot; Li V main indic impf ps3 sg ps af @FMV &#39;</span>
+                      <span class="s1">&#39;#2-&gt;0&#39;</span><span class="p">],</span>
+  <span class="s1">&#39;parser_out&#39;</span><span class="p">:</span> <span class="p">[[</span><span class="s1">&#39;@FMV&#39;</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]],</span>
+  <span class="s1">&#39;sent_id&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+  <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">6</span><span class="p">},</span>
+ <span class="p">{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span>
+  <span class="s1">&#39;init_parser_out&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&quot;väike&quot; L0 A pos sg nom @AN&gt; #3-&gt;4&#39;</span><span class="p">],</span>
+  <span class="s1">&#39;parser_out&#39;</span><span class="p">:</span> <span class="p">[[</span><span class="s1">&#39;@AN&gt;&#39;</span><span class="p">,</span> <span class="mi">3</span><span class="p">]],</span>
+  <span class="s1">&#39;sent_id&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+  <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">},</span>
+ <span class="p">{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span>
+  <span class="s1">&#39;init_parser_out&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&quot;tall&quot; L0 S com sg nom @SUBJ #4-&gt;2&#39;</span><span class="p">],</span>
+  <span class="s1">&#39;parser_out&#39;</span><span class="p">:</span> <span class="p">[[</span><span class="s1">&#39;@SUBJ&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">]],</span>
+  <span class="s1">&#39;sent_id&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+  <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">16</span><span class="p">}]</span>
+</pre></div>
+</div>
+<p>The attribute <code class="docutils literal"><span class="pre">'init_parser_out'</span></code> contains a list of analysis lines
+associated the word &#8211; in case of unsolved ambiguities, there is more
+than one analysis line for the word.</p>
+</div>
+<div class="section" id="using-a-custom-pipeline">
+<h4>Using a custom pipeline<a class="headerlink" href="#using-a-custom-pipeline" title="Permalink to this headline">¶</a></h4>
+<p>If you want to make a custom pipeline based on the <strong>default pipeline</strong>,
+you can make a copy of the list in the variable
+<code class="docutils literal"><span class="pre">estnltk.syntax.vislcg3_syntax.SYNTAX_PIPELINE_1_4</span></code>, modify some of
+the rule file names listed there, and then pass the new list as
+<code class="docutils literal"><span class="pre">pipeline</span></code> argument to the constructor of <code class="docutils literal"><span class="pre">VISLCG3Parser</span></code>:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">estnltk.syntax.vislcg3_syntax</span> <span class="k">import</span> <span class="n">SYNTAX_PIPELINE_1_4</span>
+<span class="kn">from</span> <span class="nn">estnltk.syntax.parsers</span> <span class="k">import</span> <span class="n">VISLCG3Parser</span>
+<span class="kn">from</span> <span class="nn">estnltk.names</span> <span class="k">import</span> <span class="n">LAYER_VISLCG3</span>
+<span class="kn">from</span> <span class="nn">estnltk</span> <span class="k">import</span> <span class="n">Text</span>
+<span class="kn">from</span> <span class="nn">pprint</span> <span class="k">import</span> <span class="n">pprint</span>
+
+<span class="n">my_pipeline</span> <span class="o">=</span> <span class="n">SYNTAX_PIPELINE_1_4</span><span class="p">[:]</span> <span class="c1"># make a copy from the default pipeline</span>
+<span class="k">del</span> <span class="n">my_pipeline</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>                  <span class="c1"># remove the last rule file</span>
+
+<span class="n">text</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s1">&#39;Konn hüppas kivilt kivile&#39;</span><span class="p">)</span>
+<span class="c1"># Initialize the parser with a custom pipeline:</span>
+<span class="n">parser</span> <span class="o">=</span> <span class="n">VISLCG3Parser</span><span class="p">(</span> <span class="n">pipeline</span><span class="o">=</span><span class="n">my_pipeline</span> <span class="p">)</span>
+<span class="c1"># Parse the text</span>
+<span class="n">initial_output</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_text</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">return_type</span><span class="o">=</span><span class="s1">&#39;vislcg3&#39;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span> <span class="n">initial_output</span><span class="p">)</span> <span class="p">)</span>
+</pre></div>
+</div>
+<p>the code above should produce the following output:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="s2">&quot;&lt;s&gt;&quot;</span>
+
+<span class="s2">&quot;&lt;Konn&gt;&quot;</span>
+        <span class="s2">&quot;konn&quot;</span> <span class="n">L0</span> <span class="n">S</span> <span class="n">com</span> <span class="n">sg</span> <span class="n">nom</span> <span class="nd">@SUBJ</span>
+<span class="s2">&quot;&lt;hüppas&gt;&quot;</span>
+        <span class="s2">&quot;hüppa&quot;</span> <span class="n">Ls</span> <span class="n">V</span> <span class="n">main</span> <span class="n">indic</span> <span class="n">impf</span> <span class="n">ps3</span> <span class="n">sg</span> <span class="n">ps</span> <span class="n">af</span> <span class="nd">@FMV</span>
+<span class="s2">&quot;&lt;kivilt&gt;&quot;</span>
+        <span class="s2">&quot;kivi&quot;</span> <span class="n">Llt</span> <span class="n">S</span> <span class="n">com</span> <span class="n">sg</span> <span class="n">abl</span> <span class="nd">@ADVL</span>
+<span class="s2">&quot;&lt;kivile&gt;&quot;</span>
+        <span class="s2">&quot;kivi&quot;</span> <span class="n">Lle</span> <span class="n">S</span> <span class="n">com</span> <span class="n">sg</span> <span class="nb">all</span> <span class="o">@&lt;</span><span class="n">NN</span> <span class="nd">@ADVL</span>
+<span class="s2">&quot;&lt;/s&gt;&quot;</span>
+</pre></div>
+</div>
+<p>Note that because the last rule file (containing the rules for
+dependency relations) was removed from the pipeline, the results contain
+only morphological information and surface-syntactic information
+(syntactic function labels), but no dependency information (the
+information in the form <code class="docutils literal"><span class="pre">#Number-&gt;Number</span></code>).</p>
+<ul class="simple">
+<li><em>About the default pipeline</em>:
+<code class="docutils literal"><span class="pre">estnltk.syntax.vislcg3_syntax.SYNTAX_PIPELINE_1_4</span></code> refers to the
+rules (*.rle files) that are stored in EstNLTK&#8217;s installation
+directory, at the location pointed by the variable
+<code class="docutils literal"><span class="pre">estnltk.syntax.vislcg3_syntax.SYNTAX_PATH</span></code>. The original source of
+the rules is: <a class="reference external" href="http://math.ut.ee/~tiinapl/CGParser.tar.gz">http://math.ut.ee/~tiinapl/CGParser.tar.gz</a></li>
+</ul>
+<p>If you want to provide your own, <strong>alternative pipeline</strong>, you can
+construct <em>a list of rule file names with full paths</em>, and pass them as
+<code class="docutils literal"><span class="pre">pipeline</span></code> argument to the constructor of <code class="docutils literal"><span class="pre">VISLCG3Parser</span></code>.
+Alternatively, you can put only file names to the <code class="docutils literal"><span class="pre">pipeline</span></code> argument,
+and use the <code class="docutils literal"><span class="pre">rules_dir</span></code> argument to indicate the default directory
+from which all rules files can be found.</p>
+</div>
+</div>
+</div>
+<div class="section" id="maltparser-based-syntactic-analysis">
+<h2>MaltParser based syntactic analysis<a class="headerlink" href="#maltparser-based-syntactic-analysis" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="training-maltparser-models">
+<h3>Training MaltParser models<a class="headerlink" href="#training-maltparser-models" title="Permalink to this headline">¶</a></h3>
+<p>Instructions and scripts for training and evaluating MaltParser models
+for EstNLTK can be found from the repository:
+<a class="reference external" href="https://github.com/estnltk/maltparser_training">https://github.com/estnltk/maltparser_training</a></p>
+</div>
+<div class="section" id="id1">
+<h3>Text interface<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<p>As EstNLTK uses <code class="docutils literal"><span class="pre">MaltParser</span></code> as a default parsing method, you can get
+the syntactic analysis from MaltParser via <code class="docutils literal"><span class="pre">Text</span></code> object&#8217;s method
+<code class="docutils literal"><span class="pre">tag_syntax</span></code>.</p>
+<p>When you have changed the default parser, e.g. to <code class="docutils literal"><span class="pre">VISLCG3Parser</span></code>, you
+can change it back to the <code class="docutils literal"><span class="pre">MaltParser</span></code> and add the layer of
+MaltParser&#8217;s analyses (<code class="docutils literal"><span class="pre">LAYER_CONLL</span></code>) via method
+<code class="docutils literal"><span class="pre">tag_syntax_maltparser</span></code>:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">estnltk.names</span> <span class="k">import</span> <span class="n">LAYER_CONLL</span>
+<span class="kn">from</span> <span class="nn">estnltk</span> <span class="k">import</span> <span class="n">Text</span>
+<span class="kn">from</span> <span class="nn">pprint</span> <span class="k">import</span> <span class="n">pprint</span>
+
+<span class="n">text</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span> <span class="s1">&#39;Valge jänes jooksis metsas&#39;</span> <span class="p">)</span>
+
+<span class="c1"># Tag text with VISLCG3 parser (change default parser to VISLCG3)</span>
+<span class="n">text</span><span class="o">.</span><span class="n">tag_syntax_vislcg3</span><span class="p">()</span>
+
+<span class="c1"># Tag text with MaltParser (change default parser back to MaltParser)</span>
+<span class="n">text</span><span class="o">.</span><span class="n">tag_syntax_maltparser</span><span class="p">()</span>
+
+<span class="n">pprint</span><span class="p">(</span> <span class="n">text</span><span class="p">[</span><span class="n">LAYER_CONLL</span><span class="p">]</span> <span class="p">)</span>
+</pre></div>
+</div>
+<p>This example should produce the following output:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="s1">&#39;parser_out&#39;</span><span class="p">:</span> <span class="p">[[</span><span class="s1">&#39;@AN&gt;&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">]],</span> <span class="s1">&#39;sent_id&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+ <span class="p">{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span> <span class="s1">&#39;parser_out&#39;</span><span class="p">:</span> <span class="p">[[</span><span class="s1">&#39;@SUBJ&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">]],</span> <span class="s1">&#39;sent_id&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">6</span><span class="p">},</span>
+ <span class="p">{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">19</span><span class="p">,</span> <span class="s1">&#39;parser_out&#39;</span><span class="p">:</span> <span class="p">[[</span><span class="s1">&#39;ROOT&#39;</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]],</span> <span class="s1">&#39;sent_id&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">12</span><span class="p">},</span>
+ <span class="p">{</span><span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="mi">26</span><span class="p">,</span> <span class="s1">&#39;parser_out&#39;</span><span class="p">:</span> <span class="p">[[</span><span class="s1">&#39;@ADVL&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">]],</span> <span class="s1">&#39;sent_id&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">20</span><span class="p">}]</span>
+</pre></div>
+</div>
+<p>For each word in the text, the layer <code class="docutils literal"><span class="pre">LAYER_CONLL</span></code> contains a <code class="docutils literal"><span class="pre">dict</span></code>
+storing the syntactic analysis of the word (see the section &#8220;Basic
+usage&#8221; above for details). The method <code class="docutils literal"><span class="pre">syntax_trees()</span></code> can be used to
+build queryable syntactic trees from <code class="docutils literal"><span class="pre">LAYER_CONLL</span></code>, see below for
+details.</p>
+</div>
+<div class="section" id="maltparser-class">
+<h3>MaltParser class<a class="headerlink" href="#maltparser-class" title="Permalink to this headline">¶</a></h3>
+<p>The class <code class="docutils literal"><span class="pre">MaltParser</span></code> can be used to customize the settings of
+MaltParser based syntactic analysis (e.g. to provide a different
+MaltParser&#8217;s jar file, or a different model), and to get a custom output
+(e.g. the original output of the parser).</p>
+<p><code class="docutils literal"><span class="pre">MaltParser</span></code> can be initiated with the following keyword arguments:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">maltparser_dir</span></code> &#8211; the path to the directory containing
+Maltparser&#8217;s jar file and the model file;</li>
+<li><code class="docutils literal"><span class="pre">model_name</span></code> &#8211; name of the Maltparser&#8217;s model used in parsing,
+should be located in <code class="docutils literal"><span class="pre">maltparser_dir</span></code>;</li>
+<li><code class="docutils literal"><span class="pre">maltparser_jar</span></code> &#8211; name of the Maltparser jar file, which is to be
+executed and which is located in <code class="docutils literal"><span class="pre">maltparser_dir</span></code> (defaults to
+<code class="docutils literal"><span class="pre">'maltparser-1.8.jar'</span></code>);</li>
+</ul>
+<p>After the <code class="docutils literal"><span class="pre">MaltParser</span></code> has been initiated, its method <code class="docutils literal"><span class="pre">parse_text</span></code>
+can be used to parse a <code class="docutils literal"><span class="pre">Text</span></code> object. In addition to the Text, the
+method can take the following keyword arguments:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">return_type</span></code> &#8211; specifies the format of the data returned of the
+method. Can be one of the following: <code class="docutils literal"><span class="pre">'text'</span></code> (default),
+<code class="docutils literal"><span class="pre">'conll'</span></code>, <code class="docutils literal"><span class="pre">'trees'</span></code>, <code class="docutils literal"><span class="pre">'dep_graphs'</span></code><ul>
+<li><code class="docutils literal"><span class="pre">'text'</span></code> &#8211; returns the input Text object;</li>
+<li><code class="docutils literal"><span class="pre">'conll'</span></code> &#8211; returns a list of lines (strings) &#8211; the initial
+output of the parser. See for below details;</li>
+<li><code class="docutils literal"><span class="pre">'trees'</span></code> &#8211; returns a list of syntactic trees generated from
+the results of the syntactic analysis. See for below details;</li>
+<li><code class="docutils literal"><span class="pre">'dep_graphs'</span></code> &#8211; returns a list of NLTK&#8217;s <code class="docutils literal"><span class="pre">DependencyGraph</span></code>
+objects generated from the results of the syntactic analysis. See
+for below details;</li>
+</ul>
+</li>
+<li><code class="docutils literal"><span class="pre">keep_old</span></code> &#8211; a boolean specifying whether the initial analysis
+lines from the output of MaltParser should be preserved in the
+<code class="docutils literal"><span class="pre">LAYER_CONLL</span></code>. If <code class="docutils literal"><span class="pre">True</span></code>, each <code class="docutils literal"><span class="pre">dict</span></code> in the layer will be
+augmented with attribute <code class="docutils literal"><span class="pre">'init_parser_out'</span></code> containing the
+initial/old analysis lines (a list of strings); Default: <code class="docutils literal"><span class="pre">False</span></code></li>
+</ul>
+<div class="section" id="id2">
+<h4>The initial output of the parser<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h4>
+<p>If you want to see the <strong>initial / original output</strong> of the MaltParser,
+you can execute the method <code class="docutils literal"><span class="pre">parse_text</span></code> with the setting
+<code class="docutils literal"><span class="pre">return_type='conll'</span></code> &#8211; in this case, the method returns a list of
+lines (strings) from the initial output:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">estnltk.syntax.parsers</span> <span class="k">import</span> <span class="n">MaltParser</span>
+<span class="kn">from</span> <span class="nn">estnltk</span> <span class="k">import</span> <span class="n">Text</span>
+
+<span class="n">text</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s1">&#39;Maril oli väike tall&#39;</span><span class="p">)</span>
+<span class="n">parser</span> <span class="o">=</span> <span class="n">MaltParser</span><span class="p">()</span>
+<span class="n">initial_output</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_text</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">return_type</span><span class="o">=</span><span class="s1">&#39;conll&#39;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span> <span class="n">initial_output</span><span class="p">)</span> <span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="mi">1</span>   <span class="n">Maril</span>   <span class="n">mari</span>    <span class="n">S</span>       <span class="n">S</span>       <span class="n">sg</span><span class="o">|</span><span class="n">ad</span>   <span class="mi">2</span>       <span class="nd">@SUBJ</span>   <span class="n">_</span>       <span class="n">_</span>
+<span class="mi">2</span>   <span class="n">oli</span>     <span class="n">ole</span>     <span class="n">V</span>       <span class="n">V</span>       <span class="n">s</span>       <span class="mi">0</span>       <span class="n">ROOT</span>    <span class="n">_</span>       <span class="n">_</span>
+<span class="mi">3</span>   <span class="n">väike</span>   <span class="n">väike</span>   <span class="n">A</span>       <span class="n">A</span>       <span class="n">sg</span><span class="o">|</span><span class="n">n</span>    <span class="mi">4</span>       <span class="nd">@AN</span><span class="o">&gt;</span>    <span class="n">_</span>       <span class="n">_</span>
+<span class="mi">4</span>   <span class="n">tall</span>    <span class="n">tall</span>    <span class="n">S</span>       <span class="n">S</span>       <span class="n">sg</span><span class="o">|</span><span class="n">n</span>    <span class="mi">2</span>       <span class="nd">@PRD</span>    <span class="n">_</span>       <span class="n">_</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="tree-datastructure">
+<h2>Tree datastructure<a class="headerlink" href="#tree-datastructure" title="Permalink to this headline">¶</a></h2>
+<p>Syntactic information stored in layers <code class="docutils literal"><span class="pre">LAYER_CONLL</span></code> and
+<code class="docutils literal"><span class="pre">LAYER_VISLCG3</span></code> can also be processed in the form of EstNLTK&#8217;s
+<code class="docutils literal"><span class="pre">estnltk.syntax.utils.Tree</span></code> objects (not to be confused with NLTK&#8217;s
+<code class="docutils literal"><span class="pre">nltk.tree.Tree</span></code> objects). This datastructure provides an interface
+for making queries over the data, e.g. one can find all children of a
+tree node that satisfy a certain morphological or syntactic constraint.</p>
+<p>Each <code class="docutils literal"><span class="pre">Text</span></code> object provides the method <code class="docutils literal"><span class="pre">syntax_trees</span></code> that can be
+used to build syntactic trees from a syntactic analyses layer. This
+method builds trees from all the sentences of the text (note: there can
+be more than one tree per sentence), and returns a list of <code class="docutils literal"><span class="pre">Tree</span></code>
+objects (see below for details) representing root nodes of these trees.</p>
+<p>In the following example, the input text is first syntactically parsed,
+and then trees are build from the results of the parsing:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">estnltk</span> <span class="k">import</span> <span class="n">Text</span>
+
+<span class="n">text</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s1">&#39;Hiir hüppas ja kass kargas. Ja vana karu lõi trummi.&#39;</span><span class="p">)</span>
+
+<span class="c1"># Tag syntactic analysis (the prerequisite for trees)</span>
+<span class="n">text</span><span class="o">.</span><span class="n">tag_syntax</span><span class="p">()</span>
+<span class="c1"># Get syntactic trees (root nodes) of the text</span>
+<span class="n">trees</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">syntax_trees</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The resulting list of <code class="docutils literal"><span class="pre">estnltk.syntax.utils.Tree</span></code> objects can be used
+for making queries over the syntactic structures. In the following
+example, all nodes labelled <code class="docutils literal"><span class="pre">&#64;SUBJ</span></code>, along with the words they govern,
+are retrieved from the text:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="c1"># Analyse trees</span>
+<span class="k">for</span> <span class="n">root</span> <span class="ow">in</span> <span class="n">trees</span><span class="p">:</span>
+    <span class="c1"># Retrieve nodes labelled SUBJECT</span>
+    <span class="n">subject_nodes</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="n">get_children</span><span class="p">(</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;@SUBJ&quot;</span> <span class="p">)</span>
+    <span class="k">for</span> <span class="n">subj_node</span> <span class="ow">in</span> <span class="n">subject_nodes</span><span class="p">:</span>
+        <span class="c1"># Retrieve children of the subject node (and include the node itself):</span>
+        <span class="n">subject_and_children</span> <span class="o">=</span> <span class="n">subj_node</span><span class="o">.</span><span class="n">get_children</span><span class="p">(</span> <span class="n">include_self</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="nb">sorted</span><span class="o">=</span><span class="kc">True</span> <span class="p">)</span>
+        <span class="c1"># Print SUBJ phrases (texts) and their syntactic labels</span>
+        <span class="nb">print</span><span class="p">(</span> <span class="p">[(</span><span class="n">node</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">labels</span><span class="p">)</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">subject_and_children</span><span class="p">]</span> <span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[(</span><span class="s1">&#39;Hiir&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;@SUBJ&#39;</span><span class="p">])]</span>
+<span class="p">[(</span><span class="s1">&#39;kass&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;@SUBJ&#39;</span><span class="p">])]</span>
+<span class="p">[(</span><span class="s1">&#39;vana&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;@AN&gt;&#39;</span><span class="p">]),</span> <span class="p">(</span><span class="s1">&#39;karu&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;@SUBJ&#39;</span><span class="p">])]</span>
+</pre></div>
+</div>
+<p><strong>Specifying the layer.</strong> By default, the method <code class="docutils literal"><span class="pre">syntax_trees</span></code> builds
+trees from the layer corresponding to the current syntactic parser (a
+parser that can be passed to the Text object via the keyword argument
+<code class="docutils literal"><span class="pre">syntactic_parser</span></code>). If no syntactic parser has been set, it builds
+trees from the first layer available, checking firstly for
+<code class="docutils literal"><span class="pre">LAYER_CONLL</span></code> and secondly for <code class="docutils literal"><span class="pre">LAYER_VISLCG3</span></code>.</p>
+<p>If the current parser has not been specified, and there is no syntactic
+layer available, you should pass the name of the layer to the method via
+keyword argument <code class="docutils literal"><span class="pre">layer</span></code>, in order to direct which syntactic parser
+should be used for analysing the text:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">estnltk.names</span> <span class="k">import</span> <span class="n">LAYER_VISLCG3</span>
+<span class="c1">#  Build syntactic trees from VISLCG3&#39;s output</span>
+<span class="n">trees</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">syntax_trees</span><span class="p">(</span><span class="n">layer</span><span class="o">=</span><span class="n">LAYER_VISLCG3</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Trees from a custom layer.</strong> If you want to build trees from a text
+layer that has the same structure as layers <code class="docutils literal"><span class="pre">LAYER_CONLL</span></code> and
+<code class="docutils literal"><span class="pre">LAYER_VISLCG3</span></code> (see the &#8220;Basic Usage&#8221; above for details), but a
+different name, you can use the method
+<code class="docutils literal"><span class="pre">estnltk.syntax.utils.build_trees_from_text</span></code>:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">estnltk.syntax.utils</span> <span class="k">import</span> <span class="n">build_trees_from_text</span>
+<span class="c1">#  Build trees from a custom layer</span>
+<span class="n">trees</span> <span class="o">=</span> <span class="n">build_trees_from_text</span><span class="p">(</span> <span class="n">text</span><span class="p">,</span> <span class="n">layer</span> <span class="o">=</span> <span class="s1">&#39;my_syntactic_layer&#39;</span> <span class="p">)</span>
+</pre></div>
+</div>
+<div class="section" id="tree-object-and-queries">
+<h3>Tree object and queries<a class="headerlink" href="#tree-object-and-queries" title="Permalink to this headline">¶</a></h3>
+<p>Each <code class="docutils literal"><span class="pre">estnltk.syntax.utils.Tree</span></code> object represents a node in the
+syntactic tree, and allows an access to its governing node (parent), to
+its children, and to morphological and syntactic information associated
+with the word token. The object has following fields:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">word_id</span></code> &#8211; integer : index of the corresponding word in the
+sentence;</li>
+<li><code class="docutils literal"><span class="pre">sent_id</span></code> &#8211; integer : index of the sentence (that the word belongs
+to) in the text;</li>
+<li><code class="docutils literal"><span class="pre">labels</span></code> &#8211; list of syntactic function labels associated with the
+node (e.g. the label <code class="docutils literal"><span class="pre">'&#64;SUBJ'</span></code> stands for <em>subject</em>, see
+<a class="reference external" href="https://korpused.keeleressursid.ee/syntaks/dokumendid/syntaksiliides_en.pdf">documentation</a>
+for details); in case of unsolved ambiguities, multiple functions can
+be associated with the node;</li>
+<li><code class="docutils literal"><span class="pre">parent</span></code> &#8211; Tree object : direct parent / head of this node
+(<code class="docutils literal"><span class="pre">None</span></code> if this node is the root node);</li>
+<li><code class="docutils literal"><span class="pre">children</span></code> &#8211; list of Tree objects : list of all direct children of
+this node (<code class="docutils literal"><span class="pre">None</span></code> if this node is a leaf node);</li>
+<li><code class="docutils literal"><span class="pre">token</span></code> &#8211; dict : an element from the <code class="docutils literal"><span class="pre">'words'</span></code> layer associated
+with this node. Can be used to access morphological information
+associated with the node, e.g. the list of morphological analyses is
+available from <code class="docutils literal"><span class="pre">thisnode.token['analysis']</span></code>, and part-of-speech
+associated with the node can be accessed via
+<code class="docutils literal"><span class="pre">thisnode.token['analysis'][0]['partofspeech']</span></code>;</li>
+<li><code class="docutils literal"><span class="pre">text</span></code> &#8211; string : text corresponding to the node; same as
+<code class="docutils literal"><span class="pre">thisnode.token['text']</span></code>;</li>
+<li><code class="docutils literal"><span class="pre">syntax_token</span></code> &#8211; dict : an element from the syntactic analyses
+layer (<code class="docutils literal"><span class="pre">LAYER_CONLL</span></code> or <code class="docutils literal"><span class="pre">LAYER_VISLCG3</span></code>) associated with this
+node;</li>
+<li><code class="docutils literal"><span class="pre">parser_output</span></code> &#8211; list of strings : list of analysis lines from
+the initial output of the parser corresponding to the this node;
+(<code class="docutils literal"><span class="pre">None</span></code> if the initial output has not been preserved (a default
+setting));</li>
+</ul>
+<p>In addition to fields <code class="docutils literal"><span class="pre">parent</span></code> and <code class="docutils literal"><span class="pre">children</span></code>, each tree node also
+provides methods <code class="docutils literal"><span class="pre">get_root()</span></code> and <code class="docutils literal"><span class="pre">get_children()</span></code> which can be used
+perform more complex queries on the tree:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">get_root()</span></code> &#8211; Moves up via the parent links of this tree until
+reaching the tree with no parents, and returns the parentless tree as
+the root. Otherwise (if this tree has no parents), returns this tree.</li>
+<li><code class="docutils literal"><span class="pre">get_children()</span></code> &#8211; Recursively collects and returns all subtrees
+of this tree (if no arguments are given), or, alternatively, collects
+and returns subtrees of this tree satisfying some specific criteria
+(pre-specified in the keyword arguments);</li>
+</ul>
+<p>If called without any keyword arguments, the method <code class="docutils literal"><span class="pre">get_children()</span></code>
+returns a list of all subtrees of this tree, including both direct
+children, grand-children, and ...-grand-children from unrestricted
+depth. Specific keyword arguments can used to expand or restrict the
+returned list.</p>
+<p>The query can be limited by tree depth using the keyword argument
+<code class="docutils literal"><span class="pre">depth_limit</span></code>:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="n">tree</span> <span class="o">=</span> <span class="n">trees</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="c1"># Get all direct children of the tree</span>
+<span class="n">children</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">get_children</span><span class="p">(</span> <span class="n">depth_limit</span><span class="o">=</span><span class="mi">1</span> <span class="p">)</span>
+</pre></div>
+</div>
+<p>Note that you can get the same listing from:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="c1"># All direct children of the tree</span>
+<span class="n">children</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">children</span>
+</pre></div>
+</div>
+<p>They query can be restricted to retrieving only trees that have a
+specific syntactic function label. The keyword argument <code class="docutils literal"><span class="pre">label</span></code> is
+used for that:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">estnltk</span> <span class="k">import</span> <span class="n">Text</span>
+<span class="n">text</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s1">&#39;Hiir hüppas ja vana karu lõi trummi.&#39;</span><span class="p">)</span>
+<span class="n">text</span><span class="o">.</span><span class="n">tag_syntax</span><span class="p">()</span>
+<span class="n">tree</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">syntax_trees</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="c1"># Retrieve all nodes labelled @SUBJ</span>
+<span class="n">subjects</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">get_children</span><span class="p">(</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;@SUBJ&quot;</span> <span class="p">)</span>
+
+<span class="nb">print</span><span class="p">([</span><span class="n">subj</span><span class="o">.</span><span class="n">text</span> <span class="k">for</span> <span class="n">subj</span> <span class="ow">in</span> <span class="n">subjects</span><span class="p">])</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="s1">&#39;Hiir&#39;</span><span class="p">,</span> <span class="s1">&#39;karu&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>If you want to allow multiple syntactic labels (e.g. <code class="docutils literal"><span class="pre">&#64;SUBJ</span></code> and
+<code class="docutils literal"><span class="pre">&#64;SUBJ</span></code>), you can use <code class="docutils literal"><span class="pre">label_regexp</span></code> which allows to describe the
+syntactic function label with a regular expression:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="c1"># Retrieve all nodes labelled @SUBJ and @OBJ</span>
+<span class="n">subjects_objects</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">get_children</span><span class="p">(</span> <span class="n">label_regexp</span><span class="o">=</span><span class="s2">&quot;(@SUBJ|@OBJ)&quot;</span> <span class="p">)</span>
+
+<span class="nb">print</span><span class="p">([</span><span class="n">subj</span><span class="o">.</span><span class="n">text</span> <span class="k">for</span> <span class="n">subj</span> <span class="ow">in</span> <span class="n">subjects_objects</span><span class="p">])</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="s1">&#39;Hiir&#39;</span><span class="p">,</span> <span class="s1">&#39;karu&#39;</span><span class="p">,</span> <span class="s1">&#39;trummi&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Constraints can be added also at the morphological level. The
+<code class="docutils literal"><span class="pre">WordTemplate</span></code> object can be used to describe desirable morphological
+features that the returned words (tree nodes) should have:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">estnltk.mw_verbs.utils</span> <span class="k">import</span> <span class="n">WordTemplate</span>
+<span class="kn">from</span> <span class="nn">estnltk.names</span> <span class="k">import</span> <span class="n">POSTAG</span><span class="p">,</span> <span class="n">FORM</span>
+
+<span class="c1"># word template matching all infinite verbs</span>
+<span class="n">verb_inf</span> <span class="o">=</span> <span class="n">WordTemplate</span><span class="p">({</span><span class="n">POSTAG</span><span class="p">:</span><span class="s1">&#39;V&#39;</span><span class="p">,</span> <span class="n">FORM</span><span class="p">:</span><span class="s1">&#39;^(da|des|ma|tama|ta|maks|mas|mast|nud|tud|v|mata)$&#39;</span><span class="p">})</span>
+</pre></div>
+</div>
+<p>In the previous example, the created template <code class="docutils literal"><span class="pre">verb_inf</span></code> requires that
+a word matching the template must be a verb (<code class="docutils literal"><span class="pre">POSTAG:'V'</span></code>), and its
+morphological form must match the regular expression listing all forms
+of the infinite verbs
+(<code class="docutils literal"><span class="pre">'^(da|des|ma|tama|ta|maks|mas|mast|nud|tud|v|mata)$'</span></code>). The template
+can be passed to the the method <code class="docutils literal"><span class="pre">get_children()</span></code> via the keyword
+argument <code class="docutils literal"><span class="pre">word_template</span></code> to set the morphological constraints:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">estnltk</span> <span class="k">import</span> <span class="n">Text</span>
+<span class="n">text</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s1">&#39;Tegelikult tahaks hoopis puhata ja mängida.&#39;</span><span class="p">)</span>
+<span class="n">text</span><span class="o">.</span><span class="n">tag_syntax</span><span class="p">()</span>
+<span class="n">tree</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">syntax_trees</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="c1"># retrieve all infinite verbs from the children of this tree</span>
+<span class="n">inf_verbs</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">get_children</span><span class="p">(</span> <span class="n">word_template</span><span class="o">=</span><span class="n">verb_inf</span> <span class="p">)</span>
+
+<span class="nb">print</span><span class="p">([</span><span class="n">node</span><span class="o">.</span><span class="n">text</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">inf_verbs</span><span class="p">])</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="s1">&#39;puhata&#39;</span><span class="p">,</span> <span class="s1">&#39;mängida&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>If both morphological and syntactic constraints are used in a query,
+only nodes satisfying all the constraints are returned:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">estnltk.mw_verbs.utils</span> <span class="k">import</span> <span class="n">WordTemplate</span>
+<span class="kn">from</span> <span class="nn">estnltk.names</span> <span class="k">import</span> <span class="n">POSTAG</span><span class="p">,</span> <span class="n">FORM</span><span class="p">,</span> <span class="n">ROOT</span>
+
+<span class="c1"># word template matching all infinite verbs</span>
+<span class="n">verb_inf</span> <span class="o">=</span> <span class="n">WordTemplate</span><span class="p">({</span><span class="n">POSTAG</span><span class="p">:</span><span class="s1">&#39;V&#39;</span><span class="p">,</span> <span class="n">FORM</span><span class="p">:</span><span class="s1">&#39;^(da|des|ma|tama|ta|maks|mas|mast|nud|tud|v|mata)$&#39;</span><span class="p">})</span>
+
+<span class="c1"># retrieve all infinite verbs that function as objects</span>
+<span class="n">inf_verbs</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">get_children</span><span class="p">(</span> <span class="n">word_template</span><span class="o">=</span><span class="n">verb_inf</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;@OBJ&quot;</span> <span class="p">)</span>
+
+<span class="nb">print</span><span class="p">([(</span><span class="n">node</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">labels</span><span class="p">)</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">inf_verbs</span><span class="p">])</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[(</span><span class="s1">&#39;puhata&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;@OBJ&#39;</span><span class="p">]),</span> <span class="p">(</span><span class="s1">&#39;mängida&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;@OBJ&#39;</span><span class="p">])]</span>
+</pre></div>
+</div>
+<p>Sometimes it is desirable that the tree itself is also checked for and,
+in case of the match, included in the list of returned trees. The
+keyword argument <code class="docutils literal"><span class="pre">include_self=True</span></code> can be used to enable this:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="c1"># Retrieve all nodes labelled @SUBJ, @OBJ or ROOT</span>
+<span class="n">subjects_objects_roots</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">get_children</span><span class="p">(</span> <span class="n">label_regexp</span><span class="o">=</span><span class="s2">&quot;(@SUBJ|ROOT|@OBJ)&quot;</span><span class="p">,</span> <span class="n">include_self</span><span class="o">=</span><span class="kc">True</span> <span class="p">)</span>
+
+<span class="nb">print</span><span class="p">([(</span><span class="n">node</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">labels</span><span class="p">)</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">subjects_objects_roots</span><span class="p">])</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[(</span><span class="s1">&#39;tahaks&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;ROOT&#39;</span><span class="p">]),</span> <span class="p">(</span><span class="s1">&#39;puhata&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;@OBJ&#39;</span><span class="p">]),</span> <span class="p">(</span><span class="s1">&#39;mängida&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;@OBJ&#39;</span><span class="p">])]</span>
+</pre></div>
+</div>
+<p>And finally, to ensure that all the returned trees are in the order of
+words in text, the keyword argument <code class="docutils literal"><span class="pre">sorted=True</span></code> can be used:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="c1"># Retrieve all nodes labelled @SUBJ, ROOT, @OBJ, and sort them according to word order in text</span>
+<span class="n">subj_verb_obj</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">get_children</span><span class="p">(</span> <span class="n">label_regexp</span><span class="o">=</span><span class="s2">&quot;(@SUBJ|ROOT|@OBJ)&quot;</span><span class="p">,</span> <span class="n">include_self</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="nb">sorted</span><span class="o">=</span><span class="kc">True</span> <span class="p">)</span>
+</pre></div>
+</div>
+<p>This forces trees to be sorted ascendingly by their <code class="docutils literal"><span class="pre">word_id</span></code> values.</p>
+</div>
+<div class="section" id="the-nltk-interface">
+<h3>The NLTK interface<a class="headerlink" href="#the-nltk-interface" title="Permalink to this headline">¶</a></h3>
+<p>EstNLTK also provides an interface for converting its
+<code class="docutils literal"><span class="pre">estnltk.syntax.utils.Tree</span></code> objects to
+<a class="reference external" href="http://www.nltk.org/">NLTK</a>&#8216;s corresponding datastructures:
+dependency graphs and trees.</p>
+<div class="section" id="dependency-graphs">
+<h4>Dependency graphs<a class="headerlink" href="#dependency-graphs" title="Permalink to this headline">¶</a></h4>
+<p><code class="docutils literal"><span class="pre">estnltk.syntax.utils.Tree</span></code> object has a method
+<code class="docutils literal"><span class="pre">as_dependencygraph()</span></code> which constructs NLTK&#8217;s
+<a class="reference external" href="http://www.nltk.org/_modules/nltk/parse/dependencygraph.html">DependencyGraph</a>
+object from the tree:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">estnltk</span> <span class="k">import</span> <span class="n">Text</span>
+<span class="kn">from</span> <span class="nn">pprint</span> <span class="k">import</span> <span class="n">pprint</span>
+
+<span class="n">text</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s1">&#39;Ja vana karu lõi trummi.&#39;</span><span class="p">)</span>
+
+<span class="c1"># Tag syntactic analysis (the prerequisite for trees)</span>
+<span class="n">text</span><span class="o">.</span><span class="n">tag_syntax</span><span class="p">()</span>
+
+<span class="c1"># Get syntactic trees (root nodes) of the text</span>
+<span class="n">trees</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">syntax_trees</span><span class="p">()</span>
+
+<span class="c1"># Convert EstNLTK&#39;s tree to dependencygraph</span>
+<span class="n">dependency_graph</span> <span class="o">=</span> <span class="n">trees</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">as_dependencygraph</span><span class="p">()</span>
+
+<span class="c1"># Represent syntactic relations as PARENT-RELATION-CHILD triples</span>
+<span class="n">pprint</span><span class="p">(</span> <span class="nb">list</span><span class="p">(</span><span class="n">dependency_graph</span><span class="o">.</span><span class="n">triples</span><span class="p">())</span> <span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[((</span><span class="s1">&#39;lõi&#39;</span><span class="p">,</span> <span class="s1">&#39;V&#39;</span><span class="p">),</span> <span class="s1">&#39;@J&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;Ja&#39;</span><span class="p">,</span> <span class="s1">&#39;J&#39;</span><span class="p">)),</span>
+ <span class="p">((</span><span class="s1">&#39;lõi&#39;</span><span class="p">,</span> <span class="s1">&#39;V&#39;</span><span class="p">),</span> <span class="s1">&#39;@SUBJ&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;karu&#39;</span><span class="p">,</span> <span class="s1">&#39;S&#39;</span><span class="p">)),</span>
+ <span class="p">((</span><span class="s1">&#39;karu&#39;</span><span class="p">,</span> <span class="s1">&#39;S&#39;</span><span class="p">),</span> <span class="s1">&#39;@AN&gt;&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;vana&#39;</span><span class="p">,</span> <span class="s1">&#39;A&#39;</span><span class="p">)),</span>
+ <span class="p">((</span><span class="s1">&#39;lõi&#39;</span><span class="p">,</span> <span class="s1">&#39;V&#39;</span><span class="p">),</span> <span class="s1">&#39;@OBJ&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;trummi&#39;</span><span class="p">,</span> <span class="s1">&#39;S&#39;</span><span class="p">)),</span>
+ <span class="p">((</span><span class="s1">&#39;trummi&#39;</span><span class="p">,</span> <span class="s1">&#39;S&#39;</span><span class="p">),</span> <span class="s1">&#39;xxx&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="s1">&#39;Z&#39;</span><span class="p">))]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="nltk-s-tree-objects">
+<h4>NLTK&#8217;s Tree objects<a class="headerlink" href="#nltk-s-tree-objects" title="Permalink to this headline">¶</a></h4>
+<p>The method <code class="docutils literal"><span class="pre">as_nltk_tree()</span></code> can be used to convert EstNLTK&#8217;s <code class="docutils literal"><span class="pre">Tree</span></code>
+object to <a class="reference external" href="http://www.nltk.org/_modules/nltk/tree.html">Tree</a> object:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">estnltk</span> <span class="k">import</span> <span class="n">Text</span>
+
+<span class="n">text</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s1">&#39;Ja vana karu lõi trummi.&#39;</span><span class="p">)</span>
+
+<span class="c1"># Tag syntactic analysis (the prerequisite for trees)</span>
+<span class="n">text</span><span class="o">.</span><span class="n">tag_syntax</span><span class="p">()</span>
+
+<span class="c1"># Get syntactic trees (root nodes) of the text</span>
+<span class="n">trees</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">syntax_trees</span><span class="p">()</span>
+
+<span class="c1"># Convert EstNLTK&#39;s tree to NLTK&#39;s tree</span>
+<span class="n">nltk_tree</span> <span class="o">=</span> <span class="n">trees</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">as_nltk_tree</span><span class="p">()</span>
+
+<span class="c1"># Output a parenthesized representation of the tree</span>
+<span class="nb">print</span><span class="p">(</span> <span class="n">nltk_tree</span> <span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">lõi</span> <span class="n">Ja</span> <span class="p">(</span><span class="n">karu</span> <span class="n">vana</span><span class="p">)</span> <span class="p">(</span><span class="n">trummi</span> <span class="o">.</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="importing-corpus-from-a-file">
+<h2>Importing corpus from a file<a class="headerlink" href="#importing-corpus-from-a-file" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="import-cg3-format-file">
+<h3>Import CG3 format file<a class="headerlink" href="#import-cg3-format-file" title="Permalink to this headline">¶</a></h3>
+<p>The method <code class="docutils literal"><span class="pre">read_text_from_cg3_file()</span></code> can be used to import a
+<code class="docutils literal"><span class="pre">Text</span></code> object from a file containing VISLCG3 format syntactic
+annotations:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">estnltk.syntax.utils</span> <span class="k">import</span> <span class="n">read_text_from_cg3_file</span>
+
+<span class="n">text</span> <span class="o">=</span> <span class="n">read_text_from_cg3_file</span><span class="p">(</span> <span class="s1">&#39;ilu_indrikson.inforem&#39;</span> <span class="p">)</span>
+</pre></div>
+</div>
+<p>The format of the input file is expected to be the same as the format
+used in the <a class="reference external" href="https://github.com/EstSyntax/EDT">Estonian Dependency
+Treebank</a> (the format of <em>.inforem</em>
+files). In the example above, the <code class="docutils literal"><span class="pre">Text</span></code> object is constructed from
+the sentences of the file, and syntactic information is attached to the
+object as layer <code class="docutils literal"><span class="pre">LAYER_VISLCG3</span></code>:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pprint</span> <span class="k">import</span> <span class="n">pprint</span>
+
+<span class="kn">from</span> <span class="nn">estnltk.names</span> <span class="k">import</span> <span class="n">LAYER_VISLCG3</span>
+<span class="kn">from</span> <span class="nn">estnltk.syntax.utils</span> <span class="k">import</span> <span class="n">read_text_from_cg3_file</span>
+
+<span class="c1"># re-construct text from file</span>
+<span class="n">text</span> <span class="o">=</span> <span class="n">read_text_from_cg3_file</span><span class="p">(</span> <span class="s1">&#39;ilu_indrikson.inforem&#39;</span> <span class="p">)</span>
+
+<span class="c1"># Print the first sentence of the text</span>
+<span class="nb">print</span><span class="p">(</span> <span class="n">text</span><span class="o">.</span><span class="n">sentence_texts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="p">)</span>
+
+<span class="c1"># Represent syntactic relations as PARENT-RELATION-CHILD triples</span>
+<span class="n">trees</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">syntax_trees</span><span class="p">(</span><span class="n">layer</span><span class="o">=</span><span class="n">LAYER_VISLCG3</span><span class="p">)</span>
+<span class="n">pprint</span><span class="p">(</span> <span class="nb">list</span><span class="p">(</span><span class="n">trees</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">as_dependencygraph</span><span class="p">()</span><span class="o">.</span><span class="n">triples</span><span class="p">())</span> <span class="p">)</span>
+</pre></div>
+</div>
+<p>Provided that you have the file <code class="docutils literal"><span class="pre">'ilu_indrikson.inforem'</span></code> ( from
+<a class="reference external" href="https://github.com/EstSyntax/EDT">Estonian Dependency Treebank</a> )
+available at the same directory as the script above, the script should
+produce the following output:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">Sõna</span>  <span class="s2">&quot;  Lufthansa  &quot;</span>  <span class="n">ei</span>  <span class="n">kõlanud</span>  <span class="n">Indriksoni</span>  <span class="n">kodus</span>  <span class="n">ammu</span>  <span class="n">erakordselt</span>  <span class="o">.</span>
+<span class="p">[((</span><span class="s1">&#39;kõlanud&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="s1">&#39;@SUBJ&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;Sõna&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)),</span>
+ <span class="p">((</span><span class="s1">&#39;Sõna&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="s1">&#39;xxx&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;&quot;&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)),</span>
+ <span class="p">((</span><span class="s1">&#39;Sõna&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="s1">&#39;@&lt;NN&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;Lufthansa&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)),</span>
+ <span class="p">((</span><span class="s1">&#39;Lufthansa&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="s1">&#39;xxx&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;&quot;&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)),</span>
+ <span class="p">((</span><span class="s1">&#39;kõlanud&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="s1">&#39;@NEG&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;ei&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)),</span>
+ <span class="p">((</span><span class="s1">&#39;kõlanud&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="s1">&#39;@ADVL&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;kodus&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)),</span>
+ <span class="p">((</span><span class="s1">&#39;kodus&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="s1">&#39;@NN&gt;&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;Indriksoni&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)),</span>
+ <span class="p">((</span><span class="s1">&#39;kõlanud&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="s1">&#39;@ADVL&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;ammu&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)),</span>
+ <span class="p">((</span><span class="s1">&#39;kõlanud&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="s1">&#39;@ADVL&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;erakordselt&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)),</span>
+ <span class="p">((</span><span class="s1">&#39;erakordselt&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="s1">&#39;xxx&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">))]</span>
+</pre></div>
+</div>
+<p><strong>Specifying the layer name.</strong> If you want to store syntactic analyses
+under a different layer name, you can provide a custom name via the
+keyword argument <code class="docutils literal"><span class="pre">layer</span></code>:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">estnltk.syntax.utils</span> <span class="k">import</span> <span class="n">read_text_from_cg3_file</span>
+
+<span class="n">text</span> <span class="o">=</span> <span class="n">read_text_from_cg3_file</span><span class="p">(</span> <span class="s1">&#39;ilu_indrikson.inforem&#39;</span><span class="p">,</span> <span class="n">layer</span><span class="o">=</span><span class="s1">&#39;my_syntax_layer&#39;</span> <span class="p">)</span>
+</pre></div>
+</div>
+<p>Note: <em>Quirks of the import method</em>:</p>
+<ol class="arabic simple">
+<li>The import method always assumes that the input file is in <code class="docutils literal"><span class="pre">UTF-8</span></code>
+encoding;</li>
+<li>The import method converts word indices in the syntactic annotation
+to EstNLTK&#8217;s format: word indices will start at <code class="docutils literal"><span class="pre">0</span></code>, and the root
+node will have the parent index <code class="docutils literal"><span class="pre">-1</span></code>;</li>
+<li>Be aware that the import method <em>does not</em> import <em>morphological
+annotations</em>. As there is no guarantee that morphological annotations
+in the file are compatible with EstNLTK&#8217;s format of morphological
+analysis (e.g. annotations from <a class="reference external" href="https://github.com/EstSyntax/EDT">Estonian Dependency
+Treebank</a> are not), these
+annotations will be skipped and the resulting Text object has no
+layer of morphological analyses. If you want to make queries
+involving morphological constraints, you should first add the layer
+via method <code class="docutils literal"><span class="pre">tag_analysis()</span></code>.</li>
+<li>When reconstructing the text, the method
+<code class="docutils literal"><span class="pre">read_text_from_cg3_file()</span></code> tries to preserve the original
+tokenization used in the file. In order to distinguish multiword
+tokens (e.g. <code class="docutils literal"><span class="pre">'Rio</span> <span class="pre">de</span> <span class="pre">Jainero'</span></code> as a single word) from ordinary
+tokens, the method re-constructs the text in a way that words are
+separated by double space (<code class="docutils literal"><span class="pre">'</span>&#160; <span class="pre">'</span></code>), and a single space (<code class="docutils literal"><span class="pre">'</span> <span class="pre">'</span></code>) is
+reserved for marking the space in a multiword. In order to preserve
+sentence boundaries, sentence endings are marked with newlines
+(<code class="docutils literal"><span class="pre">'\n'</span></code>).</li>
+</ol>
+<p>Note: <em>Fixing the input</em>:</p>
+<ol class="arabic simple">
+<li>By default, words that have parent index referring to theirselves
+(self-links) are fixed: they will be linked to a previous word in the
+sentence; if there is no previous word, then to the next word in the
+sentence; and if the word is the only word in the sentence, the link
+will obtain the value <code class="docutils literal"><span class="pre">-1</span></code>;</li>
+<li>When importing the corpus from a manually annotated file (for
+instance, from <a class="reference external" href="https://github.com/EstSyntax/EDT">Estonian Dependency
+Treebank</a> ), it could be useful
+to apply several post-correction steps in order to ensure validity of
+the data. This can be done by passing keyword argument settings
+<code class="docutils literal"><span class="pre">clean_up=True</span></code>, <code class="docutils literal"><span class="pre">fix_sent_tags=True</span></code> and
+<code class="docutils literal"><span class="pre">fix_out_of_sent=True</span></code> to the method <code class="docutils literal"><span class="pre">read_text_from_cg3_file()</span></code>:</li>
+</ol>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">clean_up=True</span></code> &#8211; switches on the clean-up method, which contains
+routines for handling <code class="docutils literal"><span class="pre">fix_sent_tags=True</span></code> and
+<code class="docutils literal"><span class="pre">fix_out_of_sent=True</span></code>;</li>
+<li><code class="docutils literal"><span class="pre">fix_sent_tags=True</span></code> &#8211; removes analyses mistakenly added to
+sentence tags (<code class="docutils literal"><span class="pre">&lt;s&gt;</span></code> and <code class="docutils literal"><span class="pre">&lt;/s&gt;</span></code>);</li>
+<li><code class="docutils literal"><span class="pre">fix_out_of_sent=True</span></code> &#8211; fixes syntactic links pointing
+out-of-the-sentence; employs a similar logic as is used for fixing
+self-links;</li>
+</ul>
+</div>
+<div class="section" id="import-conll-format-file">
+<h3>Import CONLL format file<a class="headerlink" href="#import-conll-format-file" title="Permalink to this headline">¶</a></h3>
+<p>The method <code class="docutils literal"><span class="pre">read_text_from_conll_file()</span></code> can be used to import a
+<code class="docutils literal"><span class="pre">Text</span></code> object from a file containing syntactic annotations in the
+CONLL format:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">estnltk.syntax.utils</span> <span class="k">import</span> <span class="n">read_text_from_conll_file</span>
+
+<span class="n">text</span> <span class="o">=</span> <span class="n">read_text_from_conll_file</span><span class="p">(</span> <span class="s1">&#39;et-ud-dev.conllu&#39;</span> <span class="p">)</span>
+</pre></div>
+</div>
+<p>The format of the input file is expected to be either
+<a class="reference external" href="http://ilk.uvt.nl/conll/#dataformat">CONLL-X</a> or
+<a class="reference external" href="http://universaldependencies.org/format.html">CONLL-U</a>. The method
+imports information about the sentence boundaries, the word tokenization
+(the field <code class="docutils literal"><span class="pre">FORM</span></code>), and dependency syntactic information (from fields
+<code class="docutils literal"><span class="pre">HEAD</span></code> and <code class="docutils literal"><span class="pre">DEPREL</span></code>), and reconstructs a <code class="docutils literal"><span class="pre">Text</span></code> object based on
+that information. The resulting <code class="docutils literal"><span class="pre">Text</span></code> object has the layer
+<code class="docutils literal"><span class="pre">LAYER_CONLL</span></code> containing the syntactic information:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pprint</span> <span class="k">import</span> <span class="n">pprint</span>
+
+<span class="kn">from</span> <span class="nn">estnltk.names</span> <span class="k">import</span> <span class="n">LAYER_CONLL</span>
+<span class="kn">from</span> <span class="nn">estnltk.syntax.utils</span> <span class="k">import</span> <span class="n">read_text_from_conll_file</span>
+
+<span class="c1"># re-construct text from file</span>
+<span class="n">text</span> <span class="o">=</span> <span class="n">read_text_from_conll_file</span><span class="p">(</span> <span class="s1">&#39;et-ud-dev.conllu&#39;</span> <span class="p">)</span>
+
+<span class="c1"># Print the first sentence of the text</span>
+<span class="nb">print</span><span class="p">(</span> <span class="n">text</span><span class="o">.</span><span class="n">sentence_texts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="p">)</span>
+
+<span class="c1"># Represent syntactic relations as PARENT-RELATION-CHILD triples</span>
+<span class="n">trees</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">syntax_trees</span><span class="p">(</span><span class="n">layer</span><span class="o">=</span><span class="n">LAYER_CONLL</span><span class="p">)</span>
+<span class="n">pprint</span><span class="p">(</span> <span class="nb">list</span><span class="p">(</span><span class="n">trees</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">as_dependencygraph</span><span class="p">()</span><span class="o">.</span><span class="n">triples</span><span class="p">())</span> <span class="p">)</span>
+</pre></div>
+</div>
+<p>Provided that you have the file <code class="docutils literal"><span class="pre">'et-ud-dev.conllu'</span></code> from <a class="reference external" href="https://github.com/UniversalDependencies/UD_Estonian">The
+Estonian UD
+treebank</a>
+available at the same directory as the script above, the script should
+produce the following output:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">Ta</span>  <span class="n">oli</span>  <span class="n">tulnud</span>  <span class="n">jala</span>  <span class="n">juba</span>  <span class="n">üle</span>  <span class="n">viie</span>  <span class="n">kilomeetri</span>  <span class="p">,</span>  <span class="n">sest</span>  <span class="n">siia</span>  <span class="p">,</span>  <span class="n">selle</span>  <span class="n">lossi</span>  <span class="n">juurde</span>  <span class="p">,</span>  <span class="n">ei</span>  <span class="n">viinud</span>  <span class="n">ühtegi</span>  <span class="n">autoteed</span>  <span class="o">.</span>
+<span class="p">[((</span><span class="s1">&#39;tulnud&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="s1">&#39;nsubj&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;Ta&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)),</span>
+ <span class="p">((</span><span class="s1">&#39;tulnud&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="s1">&#39;aux&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;oli&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)),</span>
+ <span class="p">((</span><span class="s1">&#39;tulnud&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="s1">&#39;advmod&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;jala&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)),</span>
+ <span class="p">((</span><span class="s1">&#39;tulnud&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="s1">&#39;advmod&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;juba&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)),</span>
+ <span class="p">((</span><span class="s1">&#39;tulnud&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="s1">&#39;nmod&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;kilomeetri&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)),</span>
+ <span class="p">((</span><span class="s1">&#39;kilomeetri&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="s1">&#39;case&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;üle&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)),</span>
+ <span class="p">((</span><span class="s1">&#39;kilomeetri&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="s1">&#39;nummod&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;viie&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)),</span>
+ <span class="p">((</span><span class="s1">&#39;tulnud&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="s1">&#39;dep&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;viinud&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)),</span>
+ <span class="p">((</span><span class="s1">&#39;viinud&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="s1">&#39;punct&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)),</span>
+ <span class="p">((</span><span class="s1">&#39;viinud&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="s1">&#39;mark&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;sest&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)),</span>
+ <span class="p">((</span><span class="s1">&#39;viinud&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="s1">&#39;advmod&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;siia&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)),</span>
+ <span class="p">((</span><span class="s1">&#39;siia&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="s1">&#39;nmod&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;lossi&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)),</span>
+ <span class="p">((</span><span class="s1">&#39;lossi&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="s1">&#39;det&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;selle&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)),</span>
+ <span class="p">((</span><span class="s1">&#39;lossi&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="s1">&#39;case&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;juurde&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)),</span>
+ <span class="p">((</span><span class="s1">&#39;juurde&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="s1">&#39;punct&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)),</span>
+ <span class="p">((</span><span class="s1">&#39;viinud&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="s1">&#39;punct&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)),</span>
+ <span class="p">((</span><span class="s1">&#39;viinud&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="s1">&#39;neg&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;ei&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)),</span>
+ <span class="p">((</span><span class="s1">&#39;viinud&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="s1">&#39;nsubj&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;autoteed&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)),</span>
+ <span class="p">((</span><span class="s1">&#39;autoteed&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="s1">&#39;nummod&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;ühtegi&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)),</span>
+ <span class="p">((</span><span class="s1">&#39;tulnud&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="s1">&#39;punct&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">))]</span>
+</pre></div>
+</div>
+<p><strong>Specifying the layer name.</strong> If you want to store syntactic analyses
+under a different layer name, you can provide a custom name via the
+keyword argument <code class="docutils literal"><span class="pre">layer</span></code>:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">estnltk.syntax.utils</span> <span class="k">import</span> <span class="n">read_text_from_conll_file</span>
+
+<span class="n">text</span> <span class="o">=</span> <span class="n">read_text_from_conll_file</span><span class="p">(</span> <span class="s1">&#39;et-ud-dev.conllu&#39;</span><span class="p">,</span> <span class="n">layer</span><span class="o">=</span><span class="s1">&#39;my_syntax_layer&#39;</span> <span class="p">)</span>
+</pre></div>
+</div>
+<p>Note: <em>Quirks of the import method</em>:</p>
+<ol class="arabic simple">
+<li>The import method always assumes that the input file is in <code class="docutils literal"><span class="pre">UTF-8</span></code>
+encoding;</li>
+<li>The import method converts word indices in the syntactic annotation
+to EstNLTK&#8217;s format: word indices will start at <code class="docutils literal"><span class="pre">0</span></code>, and the root
+node will have the parent index <code class="docutils literal"><span class="pre">-1</span></code>;</li>
+<li>Be aware that the import method <em>does not</em> import <em>morphological
+annotations</em>. As there is no guarantee that morphological annotations
+in the file are compatible with EstNLTK&#8217;s format of morphological
+analysis (e.g. annotations from <a class="reference external" href="https://github.com/UniversalDependencies/UD_Estonian">The Estonian UD
+treebank</a>
+are not), these annotations will be skipped and the resulting Text
+object has no layer of morphological analyses. If you want to make
+queries involving morphological constraints, you should first add the
+layer via method <code class="docutils literal"><span class="pre">tag_analysis()</span></code>.</li>
+<li>When reconstructing the text, the method
+<code class="docutils literal"><span class="pre">read_text_from_conll_file()</span></code> tries to preserve the original
+tokenization used in the file. In order to distinguish multiword
+tokens (e.g. <code class="docutils literal"><span class="pre">'Rio</span> <span class="pre">de</span> <span class="pre">Jainero'</span></code> as a single word) from ordinary
+tokens, the method re-constructs the text in a way that words are
+separated by double space (<code class="docutils literal"><span class="pre">'</span>&#160; <span class="pre">'</span></code>), and a single space (<code class="docutils literal"><span class="pre">'</span> <span class="pre">'</span></code>) is
+reserved for marking the space in a multiword. In order to preserve
+sentence boundaries, sentence endings are marked with newlines
+(<code class="docutils literal"><span class="pre">'\n'</span></code>).</li>
+</ol>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="ner.html" class="btn btn-neutral float-right" title="Named entity recognition" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="np_chunker.html" class="btn btn-neutral" title="Experimental NP chunking" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, University of Tartu unless specified otherwise in the file headers.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.4.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

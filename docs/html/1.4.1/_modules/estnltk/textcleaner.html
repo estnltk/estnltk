@@ -1,0 +1,329 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>estnltk.textcleaner &mdash; estnltk 1.4.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../genindex.html"/>
+        <link rel="search" title="Search" href="../../search.html"/>
+    <link rel="top" title="estnltk 1.4.1 documentation" href="../../index.html"/>
+        <link rel="up" title="Module code" href="../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> estnltk
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.4.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/index.html">Estnltk tutorials</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../external/index.html">Other tools</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/index.html">API documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../authors.html">Authors</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../index.html">estnltk</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      
+    <li>estnltk.textcleaner</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for estnltk.textcleaner</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">unicode_literals</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">absolute_import</span>
+
+<span class="kn">import</span> <span class="nn">string</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">random</span> <span class="k">import</span> <span class="n">sample</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">defaultdict</span>
+
+<span class="c1"># estonian alphabet with foreign characters</span>
+<span class="n">EST_ALPHA_LOWER</span> <span class="o">=</span> <span class="s1">&#39;abcdefghijklmnoprsšzžtuvwõäöüxyz&#39;</span>
+<span class="n">EST_ALPHA_UPPER</span> <span class="o">=</span> <span class="n">EST_ALPHA_LOWER</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+<span class="n">EST_ALPHA</span> <span class="o">=</span> <span class="n">EST_ALPHA_LOWER</span> <span class="o">+</span> <span class="n">EST_ALPHA_UPPER</span>
+
+<span class="c1"># cyrillic alphabet</span>
+<span class="n">RUS_ALPHA_LOWER</span> <span class="o">=</span> <span class="s1">&#39;абвгдеёжзийклмнопрстуфхцчшщъыьэюя&#39;</span>
+<span class="n">RUS_ALPHA_UPPER</span> <span class="o">=</span> <span class="n">RUS_ALPHA_LOWER</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+<span class="n">RUS_ALPHA</span> <span class="o">=</span> <span class="n">RUS_ALPHA_LOWER</span> <span class="o">+</span> <span class="n">RUS_ALPHA_UPPER</span>
+
+<span class="n">DIGITS</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">digits</span>
+<span class="n">PUNCTUATION</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">punctuation</span> <span class="o">+</span> <span class="s1">&#39;–&#39;</span>
+<span class="n">WHITESPACE</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">whitespace</span>
+
+<span class="c1"># some common alphabets</span>
+<span class="n">ESTONIAN</span> <span class="o">=</span> <span class="n">EST_ALPHA</span> <span class="o">+</span> <span class="n">DIGITS</span> <span class="o">+</span> <span class="n">WHITESPACE</span> <span class="o">+</span> <span class="n">PUNCTUATION</span>
+<span class="n">RUSSIAN</span> <span class="o">=</span> <span class="n">RUS_ALPHA</span> <span class="o">+</span> <span class="n">DIGITS</span> <span class="o">+</span> <span class="n">WHITESPACE</span> <span class="o">+</span> <span class="n">PUNCTUATION</span>
+
+
+<div class="viewcode-block" id="TextCleaner"><a class="viewcode-back" href="../../api/textcleaner.html#estnltk.textcleaner.TextCleaner">[docs]</a><span class="k">class</span> <span class="nc">TextCleaner</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Class for comparing texts against a predefined alphabet</span>
+<span class="sd">    and filtering out unwanted characters.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">alphabet</span><span class="o">=</span><span class="n">ESTONIAN</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alphabet</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">alphabet</span><span class="p">)</span>
+
+<div class="viewcode-block" id="TextCleaner.clean"><a class="viewcode-back" href="../../api/textcleaner.html#estnltk.textcleaner.TextCleaner.clean">[docs]</a>    <span class="k">def</span> <span class="nf">clean</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Remove all unwanted characters from text.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">text</span> <span class="k">if</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">alphabet</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="TextCleaner.is_valid"><a class="viewcode-back" href="../../api/textcleaner.html#estnltk.textcleaner.TextCleaner.is_valid">[docs]</a>    <span class="k">def</span> <span class="nf">is_valid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Check if the text is valid and contains no unwanted characters.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        True, if text has no unwanted characters.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">find_invalid_chars</span><span class="p">(</span><span class="n">text</span><span class="p">))</span> <span class="o">==</span> <span class="mi">0</span></div>
+
+<div class="viewcode-block" id="TextCleaner.invalid_characters"><a class="viewcode-back" href="../../api/textcleaner.html#estnltk.textcleaner.TextCleaner.invalid_characters">[docs]</a>    <span class="k">def</span> <span class="nf">invalid_characters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Give simple list of invalid characters present in text.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">text</span> <span class="k">if</span> <span class="n">c</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">alphabet</span><span class="p">])))</span></div>
+
+<div class="viewcode-block" id="TextCleaner.find_invalid_chars"><a class="viewcode-back" href="../../api/textcleaner.html#estnltk.textcleaner.TextCleaner.find_invalid_chars">[docs]</a>    <span class="k">def</span> <span class="nf">find_invalid_chars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">context_size</span><span class="o">=</span><span class="mi">20</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Find invalid characters in text and store information about</span>
+<span class="sd">        the findings.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        context_size: int</span>
+<span class="sd">            How many characters to return as the context.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">char</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">char</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">alphabet</span><span class="p">:</span>
+                <span class="n">start</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">idx</span><span class="o">-</span><span class="n">context_size</span><span class="p">)</span>
+                <span class="n">end</span>   <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">text</span><span class="p">),</span> <span class="n">idx</span><span class="o">+</span><span class="n">context_size</span><span class="p">)</span>
+                <span class="n">result</span><span class="p">[</span><span class="n">char</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">text</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+
+<div class="viewcode-block" id="TextCleaner.compute_report"><a class="viewcode-back" href="../../api/textcleaner.html#estnltk.textcleaner.TextCleaner.compute_report">[docs]</a>    <span class="k">def</span> <span class="nf">compute_report</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">texts</span><span class="p">,</span> <span class="n">context_size</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Compute statistics of invalid characters on given texts.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        texts: list of str</span>
+<span class="sd">            The texts to search for invalid characters.</span>
+<span class="sd">        context_size: int</span>
+<span class="sd">            How many characters to return as the context.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict of (char -&gt; list of tuple (index, context))</span>
+<span class="sd">            Returns a dictionary, where keys are invalid characters.</span>
+<span class="sd">            Values are lists containign tuples with character indices</span>
+<span class="sd">            and context strings.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">text</span> <span class="ow">in</span> <span class="n">texts</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">char</span><span class="p">,</span> <span class="n">examples</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_invalid_chars</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">context_size</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">result</span><span class="p">[</span><span class="n">char</span><span class="p">]</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">examples</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+
+<div class="viewcode-block" id="TextCleaner.report"><a class="viewcode-back" href="../../api/textcleaner.html#estnltk.textcleaner.TextCleaner.report">[docs]</a>    <span class="k">def</span> <span class="nf">report</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">texts</span><span class="p">,</span> <span class="n">n_examples</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">context_size</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">f</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Compute statistics of invalid characters and print them.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        texts: list of str</span>
+<span class="sd">            The texts to search for invalid characters.</span>
+<span class="sd">        n_examples: int</span>
+<span class="sd">            How many examples to display per invalid character.</span>
+<span class="sd">        context_size: int</span>
+<span class="sd">            How many characters to return as the context.</span>
+<span class="sd">        f: file</span>
+<span class="sd">            The file to print the report (default is sys.stdout)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">compute_report</span><span class="p">(</span><span class="n">texts</span><span class="p">,</span> <span class="n">context_size</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="s1">&#39;Analyzed </span><span class="si">{0}</span><span class="s1"> texts.</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">texts</span><span class="p">))</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">texts</span><span class="p">))</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;Invalid characters and their counts:</span><span class="se">\n</span><span class="s1">&#39;</span>
+            <span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="n">examples</span> <span class="ow">in</span> <span class="n">result</span><span class="p">:</span>
+                <span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;&quot;</span><span class="si">{0}</span><span class="s1">&quot;</span><span class="se">\t</span><span class="si">{1}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">examples</span><span class="p">))</span>
+            <span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+            <span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="n">examples</span> <span class="ow">in</span> <span class="n">result</span><span class="p">:</span>
+                <span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;For character &quot;</span><span class="si">{0}</span><span class="s1">&quot;, found </span><span class="si">{1}</span><span class="s1"> occurrences.</span><span class="se">\n</span><span class="s1">Examples:</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">examples</span><span class="p">))</span>
+                <span class="n">examples</span> <span class="o">=</span> <span class="n">sample</span><span class="p">(</span><span class="n">examples</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">examples</span><span class="p">),</span> <span class="n">n_examples</span><span class="p">))</span>
+                <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">example</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">examples</span><span class="p">):</span>
+                    <span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;example </span><span class="si">{0}</span><span class="s1">: </span><span class="si">{1}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">idx</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">example</span><span class="p">)</span>
+                <span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;All OK</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, University of Tartu unless specified otherwise in the file headers.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'1.4.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

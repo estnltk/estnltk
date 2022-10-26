@@ -1,0 +1,280 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>estnltk.clausesegmenter module &mdash; estnltk 1.4.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="estnltk 1.4.1 documentation" href="../index.html"/>
+        <link rel="up" title="API documentation" href="index.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> estnltk
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.4.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/index.html">Estnltk tutorials</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../external/index.html">Other tools</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">API documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="textcleaner.html">estnltk.textcleaner module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vabamorf.html">estnltk.vabamorf.morf module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="match.html">estnltk.grammar.match module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="prettyprinter.html">estnltk.prettyprinter.prettyprinter module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wn.html">estnltk.wordnet.wn module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="grammar.html">estnltk.grammar.grammar module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ner.html">estnltk.ner module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="timex.html">estnltk.timex module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">estnltk.clausesegmenter module</a><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="core.html">estnltk.core module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="teicorpus.html">estnltk.teicorpus module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="database.html">estnltk.database.database module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wordnet_tagger.html">estnltk.wordnet_tagger module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="text.html">estnltk.text module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../authors.html">Authors</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">estnltk</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="index.html">API documentation</a> &raquo;</li>
+      
+    <li>estnltk.clausesegmenter module</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/api/clausesegmenter.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-estnltk.clausesegmenter">
+<span id="estnltk-clausesegmenter-module"></span><h1>estnltk.clausesegmenter module<a class="headerlink" href="#module-estnltk.clausesegmenter" title="Permalink to this headline">¶</a></h1>
+<p>Wrapper class around Java-based clause segmenter (Osalausestaja). 
+Allows to process results sentence by sentence.</p>
+<dl class="class">
+<dt id="estnltk.clausesegmenter.ClauseSegmenter">
+<em class="property">class </em><code class="descclassname">estnltk.clausesegmenter.</code><code class="descname">ClauseSegmenter</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/clausesegmenter.html#ClauseSegmenter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.clausesegmenter.ClauseSegmenter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wrapper class around Java-based clause segmenter (Osalausestaja). 
+Allows to process results sentence by sentence.</p>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#estnltk.clausesegmenter.ClauseSegmenter.annotate_indices" title="estnltk.clausesegmenter.ClauseSegmenter.annotate_indices"><code class="xref py py-obj docutils literal"><span class="pre">annotate_indices</span></code></a>(sentence)</td>
+<td>Add clause indexes to already annotated sentence.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">detect_annotations</span></code>(sentence)</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">mark_annotations</span></code>(sentence)</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#estnltk.clausesegmenter.ClauseSegmenter.prepare_sentence" title="estnltk.clausesegmenter.ClauseSegmenter.prepare_sentence"><code class="xref py py-obj docutils literal"><span class="pre">prepare_sentence</span></code></a>(sentence)</td>
+<td>Prepare the sentence for segment detection.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">process_line</span></code>(line)</td>
+<td>Process a line of data.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#estnltk.clausesegmenter.ClauseSegmenter.rename_annotations" title="estnltk.clausesegmenter.ClauseSegmenter.rename_annotations"><code class="xref py py-obj docutils literal"><span class="pre">rename_annotations</span></code></a>(sentence)</td>
+<td>Function that renames and restructures clause information.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">tag</span></code>(text)</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="estnltk.clausesegmenter.ClauseSegmenter.annotate_indices">
+<code class="descname">annotate_indices</code><span class="sig-paren">(</span><em>sentence</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/clausesegmenter.html#ClauseSegmenter.annotate_indices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.clausesegmenter.ClauseSegmenter.annotate_indices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add clause indexes to already annotated sentence.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.clausesegmenter.ClauseSegmenter.prepare_sentence">
+<code class="descname">prepare_sentence</code><span class="sig-paren">(</span><em>sentence</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/clausesegmenter.html#ClauseSegmenter.prepare_sentence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.clausesegmenter.ClauseSegmenter.prepare_sentence" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prepare the sentence for segment detection.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.clausesegmenter.ClauseSegmenter.rename_annotations">
+<code class="descname">rename_annotations</code><span class="sig-paren">(</span><em>sentence</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/clausesegmenter.html#ClauseSegmenter.rename_annotations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.clausesegmenter.ClauseSegmenter.rename_annotations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function that renames and restructures clause information.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, University of Tartu unless specified otherwise in the file headers.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.4.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

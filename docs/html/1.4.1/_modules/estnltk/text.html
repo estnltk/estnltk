@@ -1,0 +1,1580 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>estnltk.text &mdash; estnltk 1.4.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../genindex.html"/>
+        <link rel="search" title="Search" href="../../search.html"/>
+    <link rel="top" title="estnltk 1.4.1 documentation" href="../../index.html"/>
+        <link rel="up" title="Module code" href="../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> estnltk
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.4.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/index.html">Estnltk tutorials</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../external/index.html">Other tools</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/index.html">API documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../authors.html">Authors</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../index.html">estnltk</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      
+    <li>estnltk.text</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for estnltk.text</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Text module contains central functionality of Estnltk.</span>
+<span class="sd">It sets up standard functionality for tokenziation and tagging and hooks it up with</span>
+<span class="sd">:py:class:`~estnltk.text.Text` class.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">unicode_literals</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">absolute_import</span>
+
+<span class="kn">from</span> <span class="nn">.core</span> <span class="k">import</span> <span class="n">as_unicode</span><span class="p">,</span> <span class="n">POSTAG_DESCRIPTIONS</span><span class="p">,</span> <span class="n">CASES</span><span class="p">,</span> <span class="n">PLURALITY</span><span class="p">,</span> <span class="n">VERB_TYPES</span>
+<span class="kn">from</span> <span class="nn">.core</span> <span class="k">import</span> <span class="n">VERB_CHAIN_RES_PATH</span>
+<span class="kn">from</span> <span class="nn">.names</span> <span class="k">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">.dividing</span> <span class="k">import</span> <span class="n">divide</span><span class="p">,</span> <span class="n">divide_by_spans</span>
+<span class="kn">from</span> <span class="nn">.vabamorf</span> <span class="k">import</span> <span class="n">morf</span> <span class="k">as</span> <span class="n">vabamorf</span>
+<span class="kn">from</span> <span class="nn">.ner</span> <span class="k">import</span> <span class="n">NerTagger</span>
+<span class="kn">from</span> <span class="nn">.timex</span> <span class="k">import</span> <span class="n">TimexTagger</span>
+<span class="kn">from</span> <span class="nn">.wordnet_tagger</span> <span class="k">import</span> <span class="n">WordnetTagger</span>
+<span class="kn">from</span> <span class="nn">.clausesegmenter</span> <span class="k">import</span> <span class="n">ClauseSegmenter</span>
+<span class="kn">from</span> <span class="nn">.mw_verbs.verbchain_detector</span> <span class="k">import</span> <span class="n">VerbChainDetector</span>
+<span class="kn">from</span> <span class="nn">.textcleaner</span> <span class="k">import</span> <span class="n">TextCleaner</span>
+<span class="kn">from</span> <span class="nn">.tokenizers</span> <span class="k">import</span> <span class="n">EstWordTokenizer</span>
+<span class="kn">from</span> <span class="nn">.syntax</span> <span class="k">import</span> <span class="n">SyntaxTagger</span>
+
+<span class="kn">import</span> <span class="nn">six</span>
+<span class="kn">import</span> <span class="nn">pandas</span>
+<span class="kn">import</span> <span class="nn">nltk.data</span>
+<span class="kn">import</span> <span class="nn">regex</span> <span class="k">as</span> <span class="nn">re</span>
+<span class="kn">from</span> <span class="nn">nltk.tokenize.regexp</span> <span class="k">import</span> <span class="n">RegexpTokenizer</span>
+
+<span class="kn">from</span> <span class="nn">cached_property</span> <span class="k">import</span> <span class="n">cached_property</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="k">import</span> <span class="n">deepcopy</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">defaultdict</span>
+<span class="kn">from</span> <span class="nn">pprint</span> <span class="k">import</span> <span class="n">pprint</span>
+
+
+<span class="c1"># default functionality</span>
+<span class="n">paragraph_tokenizer</span> <span class="o">=</span> <span class="n">RegexpTokenizer</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">gaps</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">discard_empty</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># use NLTK-s sentence tokenizer for Estonian, in case it is not downloaded, try to download it first</span>
+<span class="n">sentence_tokenizer</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">sentence_tokenizer</span> <span class="o">=</span> <span class="n">nltk</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">&#39;tokenizers/punkt/estonian.pickle&#39;</span><span class="p">)</span>
+<span class="k">except</span> <span class="ne">LookupError</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">nltk.downloader</span>
+    <span class="n">nltk</span><span class="o">.</span><span class="n">downloader</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="s1">&#39;punkt&#39;</span><span class="p">)</span>
+<span class="k">finally</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">sentence_tokenizer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">sentence_tokenizer</span> <span class="o">=</span> <span class="n">nltk</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">&#39;tokenizers/punkt/estonian.pickle&#39;</span><span class="p">)</span>
+
+<span class="n">word_tokenizer</span> <span class="o">=</span> <span class="n">EstWordTokenizer</span><span class="p">()</span>
+<span class="n">nertagger</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">timextagger</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">textcleaner</span> <span class="o">=</span> <span class="n">TextCleaner</span><span class="p">()</span>
+<span class="n">clausesegmenter</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">verbchain_detector</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">wordnet_tagger</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">syntax_tagger</span> <span class="o">=</span> <span class="n">SyntaxTagger</span><span class="p">()</span>
+
+
+<span class="k">def</span> <span class="nf">load_default_ner_tagger</span><span class="p">():</span>
+    <span class="k">global</span> <span class="n">nertagger</span>
+    <span class="k">if</span> <span class="n">nertagger</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">nertagger</span> <span class="o">=</span> <span class="n">NerTagger</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">nertagger</span>
+
+
+<span class="k">def</span> <span class="nf">load_default_timex_tagger</span><span class="p">():</span>
+    <span class="k">global</span> <span class="n">timextagger</span>
+    <span class="k">if</span> <span class="n">timextagger</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">timextagger</span> <span class="o">=</span> <span class="n">TimexTagger</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">timextagger</span>
+
+
+<span class="k">def</span> <span class="nf">load_default_clausesegmenter</span><span class="p">():</span>
+    <span class="k">global</span> <span class="n">clausesegmenter</span>
+    <span class="k">if</span> <span class="n">clausesegmenter</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">clausesegmenter</span> <span class="o">=</span> <span class="n">ClauseSegmenter</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">clausesegmenter</span>
+
+
+<span class="k">def</span> <span class="nf">load_default_verbchain_detector</span><span class="p">():</span>
+    <span class="k">global</span> <span class="n">verbchain_detector</span>
+    <span class="k">if</span> <span class="n">verbchain_detector</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">verbchain_detector</span> <span class="o">=</span> <span class="n">VerbChainDetector</span><span class="p">(</span><span class="n">resourcesPath</span><span class="o">=</span><span class="n">VERB_CHAIN_RES_PATH</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">verbchain_detector</span>
+
+
+<div class="viewcode-block" id="Text"><a class="viewcode-back" href="../../api/text.html#estnltk.text.Text">[docs]</a><span class="k">class</span> <span class="nc">Text</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Central class of Estnltk that is the main interface of performing</span>
+<span class="sd">    all NLP operations.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text_or_instance</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize a new text instance.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        text_or_instance: dict, Text, str, unicode</span>
+<span class="sd">            If ``str`` or ``unicode``, creates a new Text object.</span>
+<span class="sd">            If ``Text`` or ``dict``, acts essentially as a copy constructor.</span>
+<span class="sd">            However, it does not create a deep copy.</span>
+<span class="sd">        paragraph_tokenizer: nltk.tokenize.api.StringTokenizer</span>
+<span class="sd">            Tokenizer for paragraphs.</span>
+<span class="sd">        sentence_tokenizer: nltk.tokenize.api.StringTokenizer</span>
+<span class="sd">            Tokenizer for sentences.</span>
+<span class="sd">        word_tokenizer: nltk.tokenize.api.StringTokenizer</span>
+<span class="sd">            Tokenizer for words.</span>
+<span class="sd">        ner_tagger: estnltk.ner.NerTagger</span>
+<span class="sd">            Tagger for annotating named entities.</span>
+<span class="sd">        timex_tagger: estnltk.timex.TimexTagger</span>
+<span class="sd">            Tagger for temporal expressions.</span>
+<span class="sd">        creation_date: datetime.datetime</span>
+<span class="sd">            The date the document was created. Relevant for temporal expressions tagging.</span>
+<span class="sd">        clause_segmenter: estnltk.clausesegmenter.ClauseSegmenter</span>
+<span class="sd">            Class for detecting clauses.</span>
+<span class="sd">        verbchain_detector: estnltk.mw_verbs.verbchain_detector.VerbChainDetector</span>
+<span class="sd">            Verb chain tagger.</span>
+<span class="sd">        wordnet_tagger: estnltk.wordnet_tagger.WordnetTagger</span>
+<span class="sd">            Tagger for synsets and relations.</span>
+<span class="sd">        text_cleaner: estnltk.textcleaner.TextCleaner</span>
+<span class="sd">            TextCleaner class.</span>
+<span class="sd">        syntax_tagger: estnltk.syntax.tagger.SyntaxTagger</span>
+<span class="sd">            Kaili&#39;s and Tiina&#39;s syntax tagger wrapper.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">encoding</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;encoding&#39;</span><span class="p">,</span> <span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">text_or_instance</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="nb">super</span><span class="p">(</span><span class="n">Text</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">text_or_instance</span><span class="p">)</span>
+            <span class="bp">self</span><span class="p">[</span><span class="n">TEXT</span><span class="p">]</span> <span class="o">=</span> <span class="n">as_unicode</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">TEXT</span><span class="p">],</span> <span class="n">encoding</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">super</span><span class="p">(</span><span class="n">Text</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
+            <span class="bp">self</span><span class="p">[</span><span class="n">TEXT</span><span class="p">]</span> <span class="o">=</span> <span class="n">as_unicode</span><span class="p">(</span><span class="n">text_or_instance</span><span class="p">,</span> <span class="n">encoding</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__kwargs</span> <span class="o">=</span> <span class="n">kwargs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__load_functionality</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__load_functionality</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__paragraph_tokenizer</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="s1">&#39;paragraph_tokenizer&#39;</span><span class="p">,</span> <span class="n">paragraph_tokenizer</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__sentence_tokenizer</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="s1">&#39;sentence_tokenizer&#39;</span><span class="p">,</span> <span class="n">sentence_tokenizer</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__word_tokenizer</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="s1">&#39;word_tokenizer&#39;</span><span class="p">,</span> <span class="n">word_tokenizer</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__ner_tagger</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span> <span class="c1"># ner models take time to load, load only when needed</span>
+            <span class="s1">&#39;ner_tagger&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__timex_tagger</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span> <span class="c1"># lazy loading for timex tagger</span>
+            <span class="s1">&#39;timex_tagger&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__clause_segmenter</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="s1">&#39;clause_segmenter&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__verbchain_detector</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="s1">&#39;verbchain_detector&#39;</span><span class="p">,</span> <span class="kc">None</span> <span class="c1"># lazy loading</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__wordnet_tagger</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="s1">&#39;wordnet_tagger&#39;</span><span class="p">,</span> <span class="kc">None</span> <span class="c1"># lazy loading</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__text_cleaner</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;text_cleaner&#39;</span><span class="p">,</span> <span class="n">textcleaner</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__syntax_tagger</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;syntax_tagger&#39;</span><span class="p">,</span> <span class="n">syntax_tagger</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Text.get_kwargs"><a class="viewcode-back" href="../../api/text.html#estnltk.text.Text.get_kwargs">[docs]</a>    <span class="k">def</span> <span class="nf">get_kwargs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the keyword arguments that were passed to the :py:class:`~estnltk.text.Text` when it was constructed.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__kwargs</span></div>
+
+<div class="viewcode-block" id="Text.is_tagged"><a class="viewcode-back" href="../../api/text.html#estnltk.text.Text.is_tagged">[docs]</a>    <span class="k">def</span> <span class="nf">is_tagged</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Is the given element tokenized/tagged?&quot;&quot;&quot;</span>
+        <span class="c1"># we have a number of special names that are not layers but instead</span>
+        <span class="c1"># attributes of &quot;words&quot; layer</span>
+        <span class="k">if</span> <span class="n">layer</span> <span class="o">==</span> <span class="n">ANALYSIS</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">WORDS</span> <span class="ow">in</span> <span class="bp">self</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">WORDS</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">ANALYSIS</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="n">WORDS</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">layer</span> <span class="o">==</span> <span class="n">SYNTAX</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">WORDS</span> <span class="ow">in</span> <span class="bp">self</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">WORDS</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">SYNTAX</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="n">WORDS</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">layer</span> <span class="o">==</span> <span class="n">LABEL</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">WORDS</span> <span class="ow">in</span> <span class="bp">self</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">WORDS</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">LABEL</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="n">WORDS</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">layer</span> <span class="o">==</span> <span class="n">CLAUSE_ANNOTATION</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">WORDS</span> <span class="ow">in</span> <span class="bp">self</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">WORDS</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">CLAUSE_ANNOTATION</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="n">WORDS</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">layer</span> <span class="o">==</span> <span class="n">WORDNET</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">WORDS</span> <span class="ow">in</span> <span class="bp">self</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">WORDS</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">ANALYSIS</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="n">WORDS</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">WORDS</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="n">ANALYSIS</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">WORDNET</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="n">WORDS</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="n">ANALYSIS</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">layer</span> <span class="ow">in</span> <span class="bp">self</span>
+        <span class="k">return</span> <span class="kc">False</span>  <span class="c1"># do not remove False</span></div>
+
+<div class="viewcode-block" id="Text.tag_all"><a class="viewcode-back" href="../../api/text.html#estnltk.text.Text.tag_all">[docs]</a>    <span class="k">def</span> <span class="nf">tag_all</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Tag all layers.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">tag_timexes</span><span class="p">()</span><span class="o">.</span><span class="n">tag_named_entities</span><span class="p">()</span><span class="o">.</span><span class="n">tag_verb_chains</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Text.texts"><a class="viewcode-back" href="../../api/text.html#estnltk.text.Text.texts">[docs]</a>    <span class="k">def</span> <span class="nf">texts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Retrieve texts for given layer.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        sep: str</span>
+<span class="sd">            Separator for multilayer elements (default: &#39; &#39;).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list of str</span>
+<span class="sd">            List of strings that make up given layer.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">texts_from_spans</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spans</span><span class="p">(</span><span class="n">layer</span><span class="p">),</span> <span class="n">sep</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Text.texts_from_spans"><a class="viewcode-back" href="../../api/text.html#estnltk.text.Text.texts_from_spans">[docs]</a>    <span class="k">def</span> <span class="nf">texts_from_spans</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spans</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Retrieve texts from a list of (start, end) position spans.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        sep: str</span>
+<span class="sd">            Separator for multilayer elements (default: &#39; &#39;).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list of str</span>
+<span class="sd">            List of strings that correspond to given spans.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">text</span>
+        <span class="n">texts</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="ow">in</span> <span class="n">spans</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="n">texts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sep</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">text</span><span class="p">[</span><span class="n">s</span><span class="p">:</span><span class="n">e</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">texts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">text</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">texts</span></div>
+
+<div class="viewcode-block" id="Text.spans"><a class="viewcode-back" href="../../api/text.html#estnltk.text.Text.spans">[docs]</a>    <span class="k">def</span> <span class="nf">spans</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Retrieve (start, end) tuples denoting the spans of given layer elements.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list of (int, int)</span>
+<span class="sd">            List of (start, end) tuples.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">spans</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="n">layer</span><span class="p">]:</span>
+            <span class="n">spans</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">data</span><span class="p">[</span><span class="n">START</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="n">END</span><span class="p">]))</span>
+        <span class="k">return</span> <span class="n">spans</span></div>
+
+<div class="viewcode-block" id="Text.starts"><a class="viewcode-back" href="../../api/text.html#estnltk.text.Text.starts">[docs]</a>    <span class="k">def</span> <span class="nf">starts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Retrieve start positions of elements if given layer.&quot;&quot;&quot;</span>
+        <span class="n">starts</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="n">layer</span><span class="p">]:</span>
+            <span class="n">starts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">START</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">starts</span></div>
+
+<div class="viewcode-block" id="Text.ends"><a class="viewcode-back" href="../../api/text.html#estnltk.text.Text.ends">[docs]</a>    <span class="k">def</span> <span class="nf">ends</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Retrieve end positions of elements if given layer.&quot;&quot;&quot;</span>
+        <span class="n">ends</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="n">layer</span><span class="p">]:</span>
+            <span class="n">ends</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">END</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">ends</span></div>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">TEXT</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">__unicode__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">TEXT</span><span class="p">]</span>
+
+    <span class="c1"># ///////////////////////////////////////////////////////////////////</span>
+    <span class="c1"># STRING METHODS</span>
+    <span class="c1"># ///////////////////////////////////////////////////////////////////</span>
+
+    <span class="k">def</span> <span class="nf">capitalize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Text</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">TEXT</span><span class="p">]</span><span class="o">.</span><span class="n">capitalize</span><span class="p">(),</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">__kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">count</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sub</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">TEXT</span><span class="p">]</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">sub</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">endswith</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">suffix</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">TEXT</span><span class="p">]</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">suffix</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">find</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sub</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">TEXT</span><span class="p">]</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">sub</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sub</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">TEXT</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">sub</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">isalnum</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">TEXT</span><span class="p">]</span><span class="o">.</span><span class="n">isalnum</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">isalpha</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">TEXT</span><span class="p">]</span><span class="o">.</span><span class="n">isalpha</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">isdigit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">TEXT</span><span class="p">]</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">islower</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">TEXT</span><span class="p">]</span><span class="o">.</span><span class="n">islower</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">isspace</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">TEXT</span><span class="p">]</span><span class="o">.</span><span class="n">isspace</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">istitle</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">TEXT</span><span class="p">]</span><span class="o">.</span><span class="n">istitle</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">isupper</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">TEXT</span><span class="p">]</span><span class="o">.</span><span class="n">isupper</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">lower</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Text</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">TEXT</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">__kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">lstrip</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Text</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">TEXT</span><span class="p">]</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">),</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">__kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">replace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">old</span><span class="p">,</span> <span class="n">new</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Text</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">TEXT</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">old</span><span class="p">,</span> <span class="n">new</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">),</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">__kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">rfind</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sub</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">TEXT</span><span class="p">]</span><span class="o">.</span><span class="n">rfind</span><span class="p">(</span><span class="n">sub</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">rindex</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sub</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">TEXT</span><span class="p">]</span><span class="o">.</span><span class="n">rindex</span><span class="p">(</span><span class="n">sub</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">rstrip</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Text</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">TEXT</span><span class="p">]</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">),</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">__kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">startswith</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">TEXT</span><span class="p">]</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">strip</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Text</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">TEXT</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">),</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">__kwargs</span><span class="p">)</span>
+
+
+    <span class="c1"># ///////////////////////////////////////////////////////////////////</span>
+    <span class="c1"># RETRIEVING AND COMPUTING PROPERTIES</span>
+    <span class="c1"># ///////////////////////////////////////////////////////////////////</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">text</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The raw underlying text that was used to initialize the Text instance.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">TEXT</span><span class="p">]</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">layer_tagger_mapping</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Dictionary that maps layer names to taggers that can create that layer.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="n">PARAGRAPHS</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">tokenize_paragraphs</span><span class="p">,</span>
+            <span class="n">SENTENCES</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">tokenize_sentences</span><span class="p">,</span>
+            <span class="n">WORDS</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">tokenize_words</span><span class="p">,</span>
+            <span class="n">ANALYSIS</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">tag_analysis</span><span class="p">,</span>
+            <span class="n">SYNTAX</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">tag_syntax</span><span class="p">,</span>
+            <span class="n">TIMEXES</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">tag_timexes</span><span class="p">,</span>
+            <span class="n">NAMED_ENTITIES</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">tag_named_entities</span><span class="p">,</span>
+            <span class="n">CLAUSE_ANNOTATION</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">tag_clause_annotations</span><span class="p">,</span>
+            <span class="n">CLAUSES</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">tag_clauses</span><span class="p">,</span>
+            <span class="n">SYNTAX</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">tag_syntax</span><span class="p">,</span>
+            <span class="n">WORDNET</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">tag_wordnet</span>
+        <span class="p">}</span>
+
+<div class="viewcode-block" id="Text.tag"><a class="viewcode-back" href="../../api/text.html#estnltk.text.Text.tag">[docs]</a>    <span class="k">def</span> <span class="nf">tag</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Tag the annotations of given layer. It can automatically tag any built-in layer type.&quot;&quot;&quot;</span>
+        <span class="n">mapping</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">layer_tagger_mapping</span>
+        <span class="k">if</span> <span class="n">layer</span> <span class="ow">in</span> <span class="n">mapping</span><span class="p">:</span>
+            <span class="n">mapping</span><span class="p">[</span><span class="n">layer</span><span class="p">]()</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="Text.tokenize_paragraphs"><a class="viewcode-back" href="../../api/text.html#estnltk.text.Text.tokenize_paragraphs">[docs]</a>    <span class="k">def</span> <span class="nf">tokenize_paragraphs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Apply paragraph tokenization to this Text instance. Creates ``paragraphs`` layer.&quot;&quot;&quot;</span>
+        <span class="n">tok</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__paragraph_tokenizer</span>
+        <span class="n">spans</span> <span class="o">=</span> <span class="n">tok</span><span class="o">.</span><span class="n">span_tokenize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+        <span class="n">dicts</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="ow">in</span> <span class="n">spans</span><span class="p">:</span>
+            <span class="n">dicts</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="n">start</span><span class="p">,</span> <span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="n">end</span><span class="p">})</span>
+        <span class="bp">self</span><span class="p">[</span><span class="n">PARAGRAPHS</span><span class="p">]</span> <span class="o">=</span> <span class="n">dicts</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">paragraphs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the list of ``paragraphs`` layer elements.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_tagged</span><span class="p">(</span><span class="n">PARAGRAPHS</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tokenize_paragraphs</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">PARAGRAPHS</span><span class="p">]</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">paragraph_texts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The list of texts representing ``paragraphs`` layer elements.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_tagged</span><span class="p">(</span><span class="n">PARAGRAPHS</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tokenize_paragraphs</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">texts</span><span class="p">(</span><span class="n">PARAGRAPHS</span><span class="p">)</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">paragraph_spans</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The list of spans representing ``paragraphs`` layer elements.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_tagged</span><span class="p">(</span><span class="n">PARAGRAPHS</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tokenize_paragraphs</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">spans</span><span class="p">(</span><span class="n">PARAGRAPHS</span><span class="p">)</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">paragraph_starts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The start positions of ``paragraphs`` layer elements.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_tagged</span><span class="p">(</span><span class="n">PARAGRAPHS</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tokenize_paragraphs</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">starts</span><span class="p">(</span><span class="n">PARAGRAPHS</span><span class="p">)</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">paragraph_ends</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The end positions of ``paragraphs`` layer elements.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_tagged</span><span class="p">(</span><span class="n">PARAGRAPHS</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tokenize_paragraphs</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ends</span><span class="p">(</span><span class="n">PARAGRAPHS</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Text.tokenize_sentences"><a class="viewcode-back" href="../../api/text.html#estnltk.text.Text.tokenize_sentences">[docs]</a>    <span class="k">def</span> <span class="nf">tokenize_sentences</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Apply sentence tokenization to this Text instance. Creates ``sentences`` layer.</span>
+<span class="sd">           Automatically tokenizes paragraphs, if they are not already tokenized.</span>
+<span class="sd">           Also, if word tokenization has already been performed, tries to fit </span>
+<span class="sd">           the sentence tokenization into the existing word tokenization;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_tagged</span><span class="p">(</span><span class="n">PARAGRAPHS</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tokenize_paragraphs</span><span class="p">()</span>
+        <span class="n">tok</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__sentence_tokenizer</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">text</span>
+        <span class="n">dicts</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">paragraph</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="n">PARAGRAPHS</span><span class="p">]:</span>
+            <span class="n">para_start</span><span class="p">,</span> <span class="n">para_end</span> <span class="o">=</span> <span class="n">paragraph</span><span class="p">[</span><span class="n">START</span><span class="p">],</span> <span class="n">paragraph</span><span class="p">[</span><span class="n">END</span><span class="p">]</span>
+            <span class="n">para_text</span> <span class="o">=</span> <span class="n">text</span><span class="p">[</span><span class="n">para_start</span><span class="p">:</span><span class="n">para_end</span><span class="p">]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_tagged</span><span class="p">(</span><span class="n">WORDS</span><span class="p">):</span>
+                <span class="c1"># Non-hack variant: word tokenization has not been applied yet,</span>
+                <span class="c1"># so we proceed in natural order (first sentences, then words)</span>
+                <span class="n">spans</span> <span class="o">=</span> <span class="n">tok</span><span class="o">.</span><span class="n">span_tokenize</span><span class="p">(</span><span class="n">para_text</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="ow">in</span> <span class="n">spans</span><span class="p">:</span>
+                    <span class="n">dicts</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="n">start</span><span class="o">+</span><span class="n">para_start</span><span class="p">,</span> <span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="n">end</span><span class="o">+</span><span class="n">para_start</span><span class="p">})</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># A hack variant: word tokenization has already been made, so</span>
+                <span class="c1"># we try to use existing word tokenization (first words, then sentences)</span>
+                <span class="n">para_words</span> <span class="o">=</span> \
+                    <span class="p">[</span> <span class="n">w</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="n">WORDS</span><span class="p">]</span> <span class="k">if</span> <span class="n">w</span><span class="p">[</span><span class="n">START</span><span class="p">]</span><span class="o">&gt;=</span><span class="n">para_start</span> <span class="ow">and</span> <span class="n">w</span><span class="p">[</span><span class="n">END</span><span class="p">]</span><span class="o">&lt;=</span><span class="n">para_end</span> <span class="p">]</span>
+                <span class="n">para_word_texts</span> <span class="o">=</span> \
+                    <span class="p">[</span> <span class="n">w</span><span class="p">[</span><span class="n">TEXT</span><span class="p">]</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">para_words</span> <span class="p">]</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="c1"># Apply sentences_from_tokens method (if available)</span>
+                    <span class="n">sents</span> <span class="o">=</span> <span class="n">tok</span><span class="o">.</span><span class="n">sentences_from_tokens</span><span class="p">(</span> <span class="n">para_word_texts</span> <span class="p">)</span>
+                <span class="k">except</span> <span class="ne">AttributeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="k">raise</span>
+                <span class="c1"># Align result of the sentence tokenization with the initial word tokenization</span>
+                <span class="c1"># in order to determine the sentence boundaries</span>
+                <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">for</span> <span class="n">sentence</span> <span class="ow">in</span> <span class="n">sents</span><span class="p">:</span>
+                    <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span>
+                    <span class="n">firstToken</span> <span class="o">=</span> <span class="kc">None</span>
+                    <span class="n">lastToken</span>  <span class="o">=</span> <span class="kc">None</span>
+                    <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">para_words</span><span class="p">):</span>
+                        <span class="k">if</span> <span class="n">para_words</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">TEXT</span><span class="p">]</span> <span class="o">!=</span> <span class="n">sentence</span><span class="p">[</span><span class="n">j</span><span class="p">]:</span>
+                            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Error on aligning: &#39;</span><span class="p">,</span> <span class="n">para_word_texts</span><span class="p">,</span><span class="s1">&#39; and &#39;</span><span class="p">,</span><span class="n">sentence</span><span class="p">,</span><span class="s1">&#39; at positions &#39;</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">j</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                            <span class="n">firstToken</span> <span class="o">=</span> <span class="n">para_words</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                        <span class="k">if</span> <span class="n">j</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">sentence</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+                            <span class="n">lastToken</span> <span class="o">=</span> <span class="n">para_words</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                            <span class="n">i</span><span class="o">+=</span><span class="mi">1</span>
+                            <span class="k">break</span>
+                        <span class="n">j</span><span class="o">+=</span><span class="mi">1</span>
+                        <span class="n">i</span><span class="o">+=</span><span class="mi">1</span>
+                    <span class="n">sentenceDict</span> <span class="o">=</span> \
+                        <span class="p">{</span><span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="n">firstToken</span><span class="p">[</span><span class="n">START</span><span class="p">],</span> <span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="n">lastToken</span><span class="p">[</span><span class="n">END</span><span class="p">]}</span>
+                    <span class="n">dicts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">sentenceDict</span> <span class="p">)</span>
+                <span class="c1"># Note: We also need to invalidate the cached properties providing the</span>
+                <span class="c1">#       sentence information, as otherwise, if the properties have been</span>
+                <span class="c1">#       called already, new calls would return the old state of sentence </span>
+                <span class="c1">#       tokenization;</span>
+                <span class="k">for</span> <span class="n">sentence_attrib</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;sentences&#39;</span><span class="p">,</span> <span class="s1">&#39;sentence_texts&#39;</span><span class="p">,</span> <span class="s1">&#39;sentence_spans&#39;</span><span class="p">,</span> \
+                                        <span class="s1">&#39;sentence_starts&#39;</span><span class="p">,</span> <span class="s1">&#39;sentence_ends&#39;</span><span class="p">]:</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="c1"># invalidate the cache</span>
+                        <span class="nb">delattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sentence_attrib</span><span class="p">)</span>
+                    <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+                        <span class="c1"># it&#39;s ok, if the cached property has not been called yet</span>
+                        <span class="k">pass</span>
+        <span class="bp">self</span><span class="p">[</span><span class="n">SENTENCES</span><span class="p">]</span> <span class="o">=</span> <span class="n">dicts</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">sentences</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The list of ``sentences`` layer elements.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_tagged</span><span class="p">(</span><span class="n">SENTENCES</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tokenize_sentences</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">SENTENCES</span><span class="p">]</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">sentence_texts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The list of texts representing ``sentences`` layer elements.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_tagged</span><span class="p">(</span><span class="n">SENTENCES</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tokenize_sentences</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">texts</span><span class="p">(</span><span class="n">SENTENCES</span><span class="p">)</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">sentence_spans</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The list of spans representing ``sentences`` layer elements.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_tagged</span><span class="p">(</span><span class="n">SENTENCES</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tokenize_sentences</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">spans</span><span class="p">(</span><span class="n">SENTENCES</span><span class="p">)</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">sentence_starts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The list of start positions representing ``sentences`` layer elements.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_tagged</span><span class="p">(</span><span class="n">SENTENCES</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tokenize_sentences</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">starts</span><span class="p">(</span><span class="n">SENTENCES</span><span class="p">)</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">sentence_ends</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The list of end positions representing ``sentences`` layer elements.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_tagged</span><span class="p">(</span><span class="n">SENTENCES</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tokenize_sentences</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ends</span><span class="p">(</span><span class="n">SENTENCES</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Text.tokenize_words"><a class="viewcode-back" href="../../api/text.html#estnltk.text.Text.tokenize_words">[docs]</a>    <span class="k">def</span> <span class="nf">tokenize_words</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Apply word tokenization and create ``words`` layer.</span>
+
+<span class="sd">        Automatically creates ``paragraphs`` and ``sentences`` layers.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_tagged</span><span class="p">(</span><span class="n">SENTENCES</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tokenize_sentences</span><span class="p">()</span>
+        <span class="n">tok</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__word_tokenizer</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">text</span>
+        <span class="n">dicts</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">sentence</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="n">SENTENCES</span><span class="p">]:</span>
+            <span class="n">sent_start</span><span class="p">,</span> <span class="n">sent_end</span> <span class="o">=</span> <span class="n">sentence</span><span class="p">[</span><span class="n">START</span><span class="p">],</span> <span class="n">sentence</span><span class="p">[</span><span class="n">END</span><span class="p">]</span>
+            <span class="n">sent_text</span> <span class="o">=</span> <span class="n">text</span><span class="p">[</span><span class="n">sent_start</span><span class="p">:</span><span class="n">sent_end</span><span class="p">]</span>
+            <span class="n">spans</span> <span class="o">=</span> <span class="n">tok</span><span class="o">.</span><span class="n">span_tokenize</span><span class="p">(</span><span class="n">sent_text</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="ow">in</span> <span class="n">spans</span><span class="p">:</span>
+                <span class="n">dicts</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="n">START</span><span class="p">:</span> <span class="n">start</span><span class="o">+</span><span class="n">sent_start</span><span class="p">,</span> <span class="n">END</span><span class="p">:</span> <span class="n">end</span><span class="o">+</span><span class="n">sent_start</span><span class="p">,</span> <span class="n">TEXT</span><span class="p">:</span> <span class="n">sent_text</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]})</span>
+        <span class="bp">self</span><span class="p">[</span><span class="n">WORDS</span><span class="p">]</span> <span class="o">=</span> <span class="n">dicts</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="Text.tag_analysis"><a class="viewcode-back" href="../../api/text.html#estnltk.text.Text.tag_analysis">[docs]</a>    <span class="k">def</span> <span class="nf">tag_analysis</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Tag ``words`` layer with morphological analysis attributes.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_tagged</span><span class="p">(</span><span class="n">WORDS</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tokenize_words</span><span class="p">()</span>
+        <span class="n">sentences</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="n">WORDS</span><span class="p">,</span> <span class="n">SENTENCES</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">sentence</span> <span class="ow">in</span> <span class="n">sentences</span><span class="p">:</span>
+            <span class="n">texts</span> <span class="o">=</span> <span class="p">[</span><span class="n">word</span><span class="p">[</span><span class="n">TEXT</span><span class="p">]</span> <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">sentence</span><span class="p">]</span>
+            <span class="n">all_analysis</span> <span class="o">=</span> <span class="n">vabamorf</span><span class="o">.</span><span class="n">analyze</span><span class="p">(</span><span class="n">texts</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">__kwargs</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">word</span><span class="p">,</span> <span class="n">analysis</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">sentence</span><span class="p">,</span> <span class="n">all_analysis</span><span class="p">):</span>
+                <span class="n">word</span><span class="p">[</span><span class="n">ANALYSIS</span><span class="p">]</span> <span class="o">=</span> <span class="n">analysis</span><span class="p">[</span><span class="n">ANALYSIS</span><span class="p">]</span>
+                <span class="n">word</span><span class="p">[</span><span class="n">TEXT</span><span class="p">]</span> <span class="o">=</span> <span class="n">analysis</span><span class="p">[</span><span class="n">TEXT</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">words</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The list of word elements in ``words`` layer.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_tagged</span><span class="p">(</span><span class="n">WORDS</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tokenize_words</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">WORDS</span><span class="p">]</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">word_texts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The list of words representing ``words`` layer elements.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_tagged</span><span class="p">(</span><span class="n">WORDS</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tokenize_words</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">word</span><span class="p">[</span><span class="n">TEXT</span><span class="p">]</span> <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="n">WORDS</span><span class="p">]]</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">word_spans</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The list of spans representing ``words`` layer elements.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_tagged</span><span class="p">(</span><span class="n">WORDS</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tokenize_words</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">spans</span><span class="p">(</span><span class="n">WORDS</span><span class="p">)</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">word_starts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The list of start positions representing ``words`` layer elements.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_tagged</span><span class="p">(</span><span class="n">WORDS</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tokenize_words</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">starts</span><span class="p">(</span><span class="n">WORDS</span><span class="p">)</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">word_ends</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The list of end positions representing ``words`` layer elements.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_tagged</span><span class="p">(</span><span class="n">WORDS</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tokenize_words</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ends</span><span class="p">(</span><span class="n">WORDS</span><span class="p">)</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">analysis</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The list of analysis of ``words`` layer elements.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_tagged</span><span class="p">(</span><span class="n">ANALYSIS</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tag_analysis</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">word</span><span class="p">[</span><span class="n">ANALYSIS</span><span class="p">]</span> <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">words</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">__get_key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dicts</span><span class="p">,</span> <span class="n">element</span><span class="p">,</span> <span class="n">sep</span><span class="p">):</span>
+        <span class="n">matches</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="nb">dict</span> <span class="ow">in</span> <span class="n">dicts</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">element</span> <span class="ow">in</span> <span class="nb">dict</span><span class="p">:</span>
+                <span class="n">matches</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">dict</span><span class="p">[</span><span class="n">element</span><span class="p">])</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">matches</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">matches</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">matches</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">element</span> <span class="o">==</span> <span class="n">ROOT_TOKENS</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">matches</span>
+            <span class="k">return</span> <span class="n">sep</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">matches</span><span class="p">)))</span>
+
+<div class="viewcode-block" id="Text.get_analysis_element"><a class="viewcode-back" href="../../api/text.html#estnltk.text.Text.get_analysis_element">[docs]</a>    <span class="k">def</span> <span class="nf">get_analysis_element</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;|&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The list of analysis elements of ``words`` layer.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        element: str</span>
+<span class="sd">            The name of the element, for example &quot;lemma&quot;, &quot;postag&quot;.</span>
+<span class="sd">        sep: str</span>
+<span class="sd">            The separator for ambiguous analysis (default: &quot;|&quot;).</span>
+<span class="sd">            As morphological analysis cannot always yield unambiguous results, we</span>
+<span class="sd">            return ambiguous values separated by the pipe character as default.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">__get_key</span><span class="p">(</span><span class="n">word</span><span class="p">[</span><span class="n">ANALYSIS</span><span class="p">],</span> <span class="n">element</span><span class="p">,</span> <span class="n">sep</span><span class="p">)</span> <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">words</span><span class="p">]</span></div>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">roots</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The list of word roots.</span>
+
+<span class="sd">        Ambiguous cases are separated with pipe character by default.</span>
+<span class="sd">        Use :py:meth:`~estnltk.text.Text.get_analysis_element` to specify custom separator for ambiguous entries.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_tagged</span><span class="p">(</span><span class="n">ANALYSIS</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tag_analysis</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_analysis_element</span><span class="p">(</span><span class="n">ROOT</span><span class="p">)</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">lemmas</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The list of lemmas.</span>
+
+<span class="sd">        Ambiguous cases are separated with pipe character by default.</span>
+<span class="sd">        Use :py:meth:`~estnltk.text.Text.get_analysis_element` to specify custom separator for ambiguous entries.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_tagged</span><span class="p">(</span><span class="n">ANALYSIS</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tag_analysis</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_analysis_element</span><span class="p">(</span><span class="n">LEMMA</span><span class="p">)</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">lemma_lists</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Lemma lists.</span>
+
+<span class="sd">        Ambiguous cases are separate list elements.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_tagged</span><span class="p">(</span><span class="n">ANALYSIS</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tag_analysis</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">[[</span><span class="n">an</span><span class="p">[</span><span class="n">LEMMA</span><span class="p">]</span> <span class="k">for</span> <span class="n">an</span> <span class="ow">in</span> <span class="n">word</span><span class="p">[</span><span class="n">ANALYSIS</span><span class="p">]]</span> <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="n">WORDS</span><span class="p">]]</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">endings</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The list of word endings.</span>
+
+<span class="sd">        Ambiguous cases are separated with pipe character by default.</span>
+<span class="sd">        Use :py:meth:`~estnltk.text.Text.get_analysis_element` to specify custom separator for ambiguous entries.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_tagged</span><span class="p">(</span><span class="n">ANALYSIS</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tag_analysis</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_analysis_element</span><span class="p">(</span><span class="n">ENDING</span><span class="p">)</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">forms</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Tthe list of word forms.</span>
+
+<span class="sd">        Ambiguous cases are separated with pipe character by default.</span>
+<span class="sd">        Use :py:meth:`~estnltk.text.Text.get_analysis_element` to specify custom separator for ambiguous entries.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_tagged</span><span class="p">(</span><span class="n">ANALYSIS</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tag_analysis</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_analysis_element</span><span class="p">(</span><span class="n">FORM</span><span class="p">)</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">postags</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The list of word part-of-speech tags.</span>
+
+<span class="sd">        Ambiguous cases are separated with pipe character by default.</span>
+<span class="sd">        Use :py:meth:`~estnltk.text.Text.get_analysis_element` to specify custom separator for ambiguous entries.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_tagged</span><span class="p">(</span><span class="n">ANALYSIS</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tag_analysis</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_analysis_element</span><span class="p">(</span><span class="n">POSTAG</span><span class="p">)</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">postag_lists</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_tagged</span><span class="p">(</span><span class="n">ANALYSIS</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tag_analysis</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">[[</span><span class="n">an</span><span class="p">[</span><span class="n">POSTAG</span><span class="p">]</span> <span class="k">for</span> <span class="n">an</span> <span class="ow">in</span> <span class="n">word</span><span class="p">[</span><span class="n">ANALYSIS</span><span class="p">]]</span> <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="n">WORDS</span><span class="p">]]</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">postag_descriptions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Human-readable POS-tag descriptions.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_tagged</span><span class="p">(</span><span class="n">ANALYSIS</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tag_analysis</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">POSTAG_DESCRIPTIONS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">tag</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_analysis_element</span><span class="p">(</span><span class="n">POSTAG</span><span class="p">)]</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">root_tokens</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Root tokens of word roots.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_tagged</span><span class="p">(</span><span class="n">ANALYSIS</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tag_analysis</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_analysis_element</span><span class="p">(</span><span class="n">ROOT_TOKENS</span><span class="p">)</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">descriptions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Human readable word descriptions.&quot;&quot;&quot;</span>
+        <span class="n">descs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">postag</span><span class="p">,</span> <span class="n">form</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">postags</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">forms</span><span class="p">):</span>
+            <span class="n">desc</span> <span class="o">=</span> <span class="n">VERB_TYPES</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">form</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">desc</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">toks</span> <span class="o">=</span> <span class="n">form</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">toks</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="n">plur_desc</span> <span class="o">=</span> <span class="n">PLURALITY</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">toks</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="kc">None</span><span class="p">)</span>
+                    <span class="n">case_desc</span> <span class="o">=</span> <span class="n">CASES</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">toks</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="kc">None</span><span class="p">)</span>
+                    <span class="n">toks</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="k">if</span> <span class="n">plur_desc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">toks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">plur_desc</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">case_desc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">toks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">case_desc</span><span class="p">)</span>
+                    <span class="n">desc</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">toks</span><span class="p">)</span>
+            <span class="n">descs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">desc</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">descs</span>
+
+<div class="viewcode-block" id="Text.tag_syntax"><a class="viewcode-back" href="../../api/text.html#estnltk.text.Text.tag_syntax">[docs]</a>    <span class="k">def</span> <span class="nf">tag_syntax</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Tag syntax attribute in the ``words`` layer.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_tagged</span><span class="p">(</span><span class="n">ANALYSIS</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tag_analysis</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__syntax_tagger</span><span class="o">.</span><span class="n">tag_text</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">syntax_lists</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return syntax annotation variants for every word.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_tagged</span><span class="p">(</span><span class="n">SYNTAX</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tag_syntax</span><span class="p">()</span>
+        <span class="n">tokens</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="n">WORDS</span><span class="p">]:</span>
+            <span class="n">wl</span> <span class="o">=</span> <span class="p">[</span><span class="n">variant</span><span class="p">[</span><span class="n">SYNTAX</span><span class="p">]</span> <span class="k">for</span> <span class="n">variant</span> <span class="ow">in</span> <span class="n">w</span><span class="p">[</span><span class="n">SYNTAX</span><span class="p">]]</span>
+            <span class="n">tokens</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">wl</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">tokens</span>
+
+<div class="viewcode-block" id="Text.tag_labels"><a class="viewcode-back" href="../../api/text.html#estnltk.text.Text.tag_labels">[docs]</a>    <span class="k">def</span> <span class="nf">tag_labels</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Tag named entity labels in the ``words`` layer.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_tagged</span><span class="p">(</span><span class="n">ANALYSIS</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tag_analysis</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__ner_tagger</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__ner_tagger</span> <span class="o">=</span> <span class="n">load_default_ner_tagger</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__ner_tagger</span><span class="o">.</span><span class="n">tag_document</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">labels</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Named entity labels.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_tagged</span><span class="p">(</span><span class="n">LABEL</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tag_labels</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">word</span><span class="p">[</span><span class="n">LABEL</span><span class="p">]</span> <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">words</span><span class="p">]</span>
+
+<div class="viewcode-block" id="Text.tag_named_entities"><a class="viewcode-back" href="../../api/text.html#estnltk.text.Text.tag_named_entities">[docs]</a>    <span class="k">def</span> <span class="nf">tag_named_entities</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Tag ``named_entities`` layer.</span>
+
+<span class="sd">        This automatically performs morphological analysis along with all dependencies.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_tagged</span><span class="p">(</span><span class="n">LABEL</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tag_labels</span><span class="p">()</span>
+        <span class="n">nes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">word_start</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">labels</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;O&#39;</span><span class="p">]</span> <span class="c1"># last is sentinel</span>
+        <span class="n">words</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">words</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="s1">&#39;O&#39;</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">l</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">labels</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">l</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;B-&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">l</span> <span class="o">==</span> <span class="s1">&#39;O&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">word_start</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                    <span class="n">nes</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="n">START</span><span class="p">:</span> <span class="n">words</span><span class="p">[</span><span class="n">word_start</span><span class="p">][</span><span class="n">START</span><span class="p">],</span>
+                                <span class="n">END</span><span class="p">:</span> <span class="n">words</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="n">END</span><span class="p">],</span>
+                                <span class="n">LABEL</span><span class="p">:</span> <span class="n">label</span><span class="p">})</span>
+                <span class="k">if</span> <span class="n">l</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;B-&#39;</span><span class="p">):</span>
+                    <span class="n">word_start</span> <span class="o">=</span> <span class="n">i</span>
+                    <span class="n">label</span> <span class="o">=</span> <span class="n">l</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">word_start</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="bp">self</span><span class="p">[</span><span class="n">NAMED_ENTITIES</span><span class="p">]</span> <span class="o">=</span> <span class="n">nes</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">named_entities</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The elements of ``named_entities`` layer.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_tagged</span><span class="p">(</span><span class="n">NAMED_ENTITIES</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tag_named_entities</span><span class="p">()</span>
+        <span class="n">phrases</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">split_by</span><span class="p">(</span><span class="n">NAMED_ENTITIES</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">phrase</span><span class="o">.</span><span class="n">lemmas</span><span class="p">)</span> <span class="k">for</span> <span class="n">phrase</span> <span class="ow">in</span> <span class="n">phrases</span><span class="p">]</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">named_entity_texts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The texts representing named entities.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_tagged</span><span class="p">(</span><span class="n">NAMED_ENTITIES</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tag_named_entities</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">texts</span><span class="p">(</span><span class="n">NAMED_ENTITIES</span><span class="p">)</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">named_entity_spans</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The spans of named entities.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_tagged</span><span class="p">(</span><span class="n">NAMED_ENTITIES</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tag_named_entities</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">spans</span><span class="p">(</span><span class="n">NAMED_ENTITIES</span><span class="p">)</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">named_entity_labels</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The named entity labels without BIO prefixes.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_tagged</span><span class="p">(</span><span class="n">NAMED_ENTITIES</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tag_named_entities</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">ne</span><span class="p">[</span><span class="n">LABEL</span><span class="p">]</span> <span class="k">for</span> <span class="n">ne</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="n">NAMED_ENTITIES</span><span class="p">]]</span>
+
+<div class="viewcode-block" id="Text.tag_timexes"><a class="viewcode-back" href="../../api/text.html#estnltk.text.Text.tag_timexes">[docs]</a>    <span class="k">def</span> <span class="nf">tag_timexes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create ``timexes`` layer.</span>
+<span class="sd">        Depends on morphological analysis data in ``words`` layer</span>
+<span class="sd">        and tags it automatically, if it is not present.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_tagged</span><span class="p">(</span><span class="n">ANALYSIS</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tag_analysis</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_tagged</span><span class="p">(</span><span class="n">TIMEXES</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__timex_tagger</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__timex_tagger</span> <span class="o">=</span> <span class="n">load_default_timex_tagger</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__timex_tagger</span><span class="o">.</span><span class="n">tag_document</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">__kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">timexes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The list of elements in ``timexes`` layer.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_tagged</span><span class="p">(</span><span class="n">TIMEXES</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tag_timexes</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">TIMEXES</span><span class="p">]</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">timex_texts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The list of texts representing ``timexes`` layer elements.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">timex</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">TEXT</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">timex</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">timexes</span><span class="p">]</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">timex_values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The list of timex values of ``timexes`` layer elements.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">timex</span><span class="p">[</span><span class="n">TMX_VALUE</span><span class="p">]</span> <span class="k">for</span> <span class="n">timex</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">timexes</span><span class="p">]</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">timex_types</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The list of timex types of ``timexes`` layer elements.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">timex</span><span class="p">[</span><span class="n">TMX_TYPE</span><span class="p">]</span> <span class="k">for</span> <span class="n">timex</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">timexes</span><span class="p">]</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">timex_ids</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The list of timex id-s of ``timexes`` layer elements.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">timex</span><span class="p">[</span><span class="n">TMX_ID</span><span class="p">]</span> <span class="k">for</span> <span class="n">timex</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">timexes</span><span class="p">]</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">timex_starts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The list of start positions of ``timexes`` layer elements.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_tagged</span><span class="p">(</span><span class="n">TIMEXES</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tag_timexes</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">starts</span><span class="p">(</span><span class="n">TIMEXES</span><span class="p">)</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">timex_ends</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The list of end positions of ``timexes`` layer elements.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_tagged</span><span class="p">(</span><span class="n">TIMEXES</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tag_timexes</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ends</span><span class="p">(</span><span class="n">TIMEXES</span><span class="p">)</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">timex_spans</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The list of spans of ``timexes`` layer elements.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_tagged</span><span class="p">(</span><span class="n">TIMEXES</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tag_timexes</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">spans</span><span class="p">(</span><span class="n">TIMEXES</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Text.tag_clause_annotations"><a class="viewcode-back" href="../../api/text.html#estnltk.text.Text.tag_clause_annotations">[docs]</a>    <span class="k">def</span> <span class="nf">tag_clause_annotations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Tag clause annotations in ``words`` layer.</span>
+<span class="sd">        Depends on morphological analysis.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_tagged</span><span class="p">(</span><span class="n">ANALYSIS</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tag_analysis</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__clause_segmenter</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__clause_segmenter</span> <span class="o">=</span> <span class="n">load_default_clausesegmenter</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__clause_segmenter</span><span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">clause_annotations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The list of clause annotations in ``words`` layer.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_tagged</span><span class="p">(</span><span class="n">CLAUSE_ANNOTATION</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tag_clause_annotations</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">word</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">CLAUSE_ANNOTATION</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="n">WORDS</span><span class="p">]]</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">clause_indices</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The list of clause indices in ``words`` layer.</span>
+<span class="sd">        The indices are unique only in the boundary of a single sentence.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_tagged</span><span class="p">(</span><span class="n">CLAUSE_ANNOTATION</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tag_clause_annotations</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">word</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">CLAUSE_IDX</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="n">WORDS</span><span class="p">]]</span>
+
+<div class="viewcode-block" id="Text.tag_clauses"><a class="viewcode-back" href="../../api/text.html#estnltk.text.Text.tag_clauses">[docs]</a>    <span class="k">def</span> <span class="nf">tag_clauses</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create ``clauses`` multilayer.</span>
+
+<span class="sd">        Depends on clause annotations.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_tagged</span><span class="p">(</span><span class="n">CLAUSE_ANNOTATION</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tag_clause_annotations</span><span class="p">()</span>
+
+        <span class="k">def</span> <span class="nf">from_sentence</span><span class="p">(</span><span class="n">words</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;Function that extracts clauses from a signle sentence.&quot;&quot;&quot;</span>
+            <span class="n">clauses</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="n">words</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">START</span><span class="p">]</span>
+            <span class="n">end</span> <span class="o">=</span> <span class="n">words</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">END</span><span class="p">]</span>
+            <span class="n">clause</span> <span class="o">=</span> <span class="n">words</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">CLAUSE_IDX</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">words</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">word</span><span class="p">[</span><span class="n">CLAUSE_IDX</span><span class="p">]</span> <span class="o">!=</span> <span class="n">clause</span><span class="p">:</span>
+                    <span class="n">clauses</span><span class="p">[</span><span class="n">clause</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">))</span>
+                    <span class="n">start</span><span class="p">,</span> <span class="n">clause</span> <span class="o">=</span> <span class="n">word</span><span class="p">[</span><span class="n">START</span><span class="p">],</span> <span class="n">word</span><span class="p">[</span><span class="n">CLAUSE_IDX</span><span class="p">]</span>
+                <span class="n">end</span> <span class="o">=</span> <span class="n">word</span><span class="p">[</span><span class="n">END</span><span class="p">]</span>
+            <span class="n">clauses</span><span class="p">[</span><span class="n">clause</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">start</span><span class="p">,</span> <span class="n">words</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="n">END</span><span class="p">]))</span>
+            <span class="n">clauses</span> <span class="o">=</span> <span class="p">[(</span><span class="n">key</span><span class="p">,</span> <span class="p">{</span><span class="n">START</span><span class="p">:</span> <span class="p">[</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">clause</span><span class="p">],</span> <span class="n">END</span><span class="p">:</span> <span class="p">[</span><span class="n">e</span> <span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">clause</span><span class="p">]})</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">clause</span> <span class="ow">in</span> <span class="n">clauses</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">clauses</span><span class="p">)]</span>
+
+        <span class="n">clauses</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">sentences</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">divide</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">sentence</span> <span class="ow">in</span> <span class="n">sentences</span><span class="p">:</span>
+            <span class="n">clauses</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">from_sentence</span><span class="p">(</span><span class="n">sentence</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="p">[</span><span class="n">CLAUSES</span><span class="p">]</span> <span class="o">=</span> <span class="n">clauses</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">clauses</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The elements of ``clauses`` multilayer.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_tagged</span><span class="p">(</span><span class="n">CLAUSES</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tag_clauses</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">CLAUSES</span><span class="p">]</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">clause_texts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The texts of ``clauses`` multilayer elements.</span>
+<span class="sd">        Non-consequent spans are concatenated with space character by default.</span>
+<span class="sd">        Use :py:meth:`~estnltk.text.Text.texts` method to supply custom separators.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_tagged</span><span class="p">(</span><span class="n">CLAUSES</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tag_clauses</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">texts</span><span class="p">(</span><span class="n">CLAUSES</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Text.tag_verb_chains"><a class="viewcode-back" href="../../api/text.html#estnltk.text.Text.tag_verb_chains">[docs]</a>    <span class="k">def</span> <span class="nf">tag_verb_chains</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create ``verb_chains`` layer.</span>
+<span class="sd">           Depends on ``clauses`` layer.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_tagged</span><span class="p">(</span><span class="n">CLAUSES</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tag_clauses</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__verbchain_detector</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__verbchain_detector</span> <span class="o">=</span> <span class="n">load_default_verbchain_detector</span><span class="p">()</span>
+        <span class="n">sentences</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">divide</span><span class="p">()</span>
+        <span class="n">verbchains</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">sentence</span> <span class="ow">in</span> <span class="n">sentences</span><span class="p">:</span>
+            <span class="n">chains</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__verbchain_detector</span><span class="o">.</span><span class="n">detectVerbChainsFromSent</span><span class="p">(</span> <span class="n">sentence</span> <span class="p">)</span>
+            <span class="k">for</span> <span class="n">chain</span> <span class="ow">in</span> <span class="n">chains</span><span class="p">:</span>
+                <span class="c1"># 1) Get spans for all words of the phrase</span>
+                <span class="n">word_spans</span> <span class="o">=</span> <span class="p">[</span> <span class="p">(</span> <span class="n">sentence</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="n">START</span><span class="p">],</span> <span class="n">sentence</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="n">END</span><span class="p">]</span> <span class="p">)</span> \
+                                 <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span> <span class="n">chain</span><span class="p">[</span><span class="n">PHRASE</span><span class="p">]</span> <span class="p">)</span> <span class="p">]</span>
+                <span class="c1"># 2) Assign to the chain</span>
+                <span class="n">chain</span><span class="p">[</span><span class="n">START</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span> <span class="n">span</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">span</span> <span class="ow">in</span> <span class="n">word_spans</span> <span class="p">]</span>
+                <span class="n">chain</span><span class="p">[</span><span class="n">END</span><span class="p">]</span>   <span class="o">=</span> <span class="p">[</span> <span class="n">span</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">span</span> <span class="ow">in</span> <span class="n">word_spans</span> <span class="p">]</span>
+            <span class="n">verbchains</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">chains</span><span class="p">)</span>
+        <span class="bp">self</span><span class="p">[</span><span class="n">VERB_CHAINS</span><span class="p">]</span> <span class="o">=</span> <span class="n">verbchains</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">verb_chains</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The list of elements of ``verb_chains`` layer.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_tagged</span><span class="p">(</span><span class="n">VERB_CHAINS</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tag_verb_chains</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">VERB_CHAINS</span><span class="p">]</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">verb_chain_texts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The list of texts of ``verb_chains`` layer elements.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_tagged</span><span class="p">(</span><span class="n">VERB_CHAINS</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tag_verb_chains</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">texts</span><span class="p">(</span><span class="n">VERB_CHAINS</span><span class="p">)</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">verb_chain_patterns</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The patterns of ``verb_chains`` elements.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">vc</span><span class="p">[</span><span class="n">PATTERN</span><span class="p">]</span> <span class="k">for</span> <span class="n">vc</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">verb_chains</span><span class="p">]</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">verb_chain_roots</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The chain roots of ``verb_chains`` elements.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">vc</span><span class="p">[</span><span class="n">ROOTS</span><span class="p">]</span> <span class="k">for</span> <span class="n">vc</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">verb_chains</span><span class="p">]</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">verb_chain_morphs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The morph attributes of ``verb_chains`` elements.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">vc</span><span class="p">[</span><span class="n">MORPH</span><span class="p">]</span> <span class="k">for</span> <span class="n">vc</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">verb_chains</span><span class="p">]</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">verb_chain_polarities</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The polarities of ``verb_chains`` elements.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">vc</span><span class="p">[</span><span class="n">POLARITY</span><span class="p">]</span> <span class="k">for</span> <span class="n">vc</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">verb_chains</span><span class="p">]</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">verb_chain_tenses</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The tense attributes of ``verb_chains`` elements.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">vc</span><span class="p">[</span><span class="n">TENSE</span><span class="p">]</span> <span class="k">for</span> <span class="n">vc</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">verb_chains</span><span class="p">]</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">verb_chain_moods</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The mood attributes of ``verb_chains`` elements.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">vc</span><span class="p">[</span><span class="n">MOOD</span><span class="p">]</span> <span class="k">for</span> <span class="n">vc</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">verb_chains</span><span class="p">]</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">verb_chain_voices</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The voice attributes of ``verb_chains`` elements.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">vc</span><span class="p">[</span><span class="n">VOICE</span><span class="p">]</span> <span class="k">for</span> <span class="n">vc</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">verb_chains</span><span class="p">]</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">verb_chain_clause_indices</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The clause indices of ``verb_chains`` elements.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">vc</span><span class="p">[</span><span class="n">CLAUSE_IDX</span><span class="p">]</span> <span class="k">for</span> <span class="n">vc</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">verb_chains</span><span class="p">]</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">verb_chain_starts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The start positions of ``verb_chains`` elements.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_tagged</span><span class="p">(</span><span class="n">VERB_CHAINS</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tag_verb_chains</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">starts</span><span class="p">(</span><span class="n">VERB_CHAINS</span><span class="p">)</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">verb_chain_ends</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The end positions of ``verb_chains`` elements.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_tagged</span><span class="p">(</span><span class="n">VERB_CHAINS</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tag_verb_chains</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ends</span><span class="p">(</span><span class="n">VERB_CHAINS</span><span class="p">)</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">verb_chain_other_verbs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The other verb attributes of ``verb_chains`` elements.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">vc</span><span class="p">[</span><span class="n">OTHER_VERBS</span><span class="p">]</span> <span class="k">for</span> <span class="n">vc</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">verb_chains</span><span class="p">]</span>
+
+<div class="viewcode-block" id="Text.tag_wordnet"><a class="viewcode-back" href="../../api/text.html#estnltk.text.Text.tag_wordnet">[docs]</a>    <span class="k">def</span> <span class="nf">tag_wordnet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create wordnet attribute in ``words`` layer.</span>
+
+<span class="sd">        See :py:meth:`~estnltk.text.wordnet_tagger.WordnetTagger.tag_text` method</span>
+<span class="sd">        for applicable keyword arguments.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">global</span> <span class="n">wordnet_tagger</span>
+        <span class="k">if</span> <span class="n">wordnet_tagger</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span> <span class="c1"># cached wn tagger</span>
+            <span class="n">wordnet_tagger</span> <span class="o">=</span> <span class="n">WordnetTagger</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__wordnet_tagger</span> <span class="o">=</span> <span class="n">wordnet_tagger</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__wordnet_tagger</span><span class="o">.</span><span class="n">tag_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__wordnet_tagger</span><span class="o">.</span><span class="n">tag_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">__kwargs</span><span class="p">)</span></div>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">wordnet_annotations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The list of wordnet annotations of ``words`` layer.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_tagged</span><span class="p">(</span><span class="n">WORDNET</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tag_wordnet</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">[[</span><span class="n">a</span><span class="p">[</span><span class="n">WORDNET</span><span class="p">]</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">analysis</span><span class="p">]</span> <span class="k">for</span> <span class="n">analysis</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">analysis</span><span class="p">]</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">synsets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The list of annotated synsets of ``words`` layer.&quot;&quot;&quot;</span>
+        <span class="n">synsets</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">wn_annots</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">wordnet_annotations</span><span class="p">:</span>
+            <span class="n">word_synsets</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">wn_annot</span> <span class="ow">in</span> <span class="n">wn_annots</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">synset</span> <span class="ow">in</span> <span class="n">wn_annot</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">SYNSETS</span><span class="p">,</span> <span class="p">[]):</span>
+                    <span class="n">word_synsets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">synset</span><span class="p">))</span>
+            <span class="n">synsets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">word_synsets</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">synsets</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">word_literals</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The list of literals per word in ``words`` layer.&quot;&quot;&quot;</span>
+        <span class="n">literals</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">word_synsets</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">synsets</span><span class="p">:</span>
+            <span class="n">word_literals</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">synset</span> <span class="ow">in</span> <span class="n">word_synsets</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">variant</span> <span class="ow">in</span> <span class="n">synset</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">SYN_VARIANTS</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">LITERAL</span> <span class="ow">in</span> <span class="n">variant</span><span class="p">:</span>
+                        <span class="n">word_literals</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">variant</span><span class="p">[</span><span class="n">LITERAL</span><span class="p">])</span>
+            <span class="n">literals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">word_literals</span><span class="p">)))</span>
+        <span class="k">return</span> <span class="n">literals</span>
+
+    <span class="c1"># ///////////////////////////////////////////////////////////////////</span>
+    <span class="c1"># SPELLCHECK</span>
+    <span class="c1"># ///////////////////////////////////////////////////////////////////</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">spelling</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Flag incorrectly spelled words.</span>
+<span class="sd">        Returns a list of booleans, where element at each position denotes, if the word at the same position</span>
+<span class="sd">        is spelled correctly.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_tagged</span><span class="p">(</span><span class="n">WORDS</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tokenize_words</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="n">SPELLING</span><span class="p">]</span> <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">vabamorf</span><span class="o">.</span><span class="n">spellcheck</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">word_texts</span><span class="p">,</span> <span class="n">suggestions</span><span class="o">=</span><span class="kc">False</span><span class="p">)]</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">spelling_suggestions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The list of spelling suggestions per misspelled word.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_tagged</span><span class="p">(</span><span class="n">WORDS</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tokenize_words</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="n">SUGGESTIONS</span><span class="p">]</span> <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">vabamorf</span><span class="o">.</span><span class="n">spellcheck</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">word_texts</span><span class="p">,</span> <span class="n">suggestions</span><span class="o">=</span><span class="kc">True</span><span class="p">)]</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">spellcheck_results</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The list of True/False values denoting the correct spelling of words.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_tagged</span><span class="p">(</span><span class="n">WORDS</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tokenize_words</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">vabamorf</span><span class="o">.</span><span class="n">spellcheck</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">word_texts</span><span class="p">,</span> <span class="n">suggestions</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Text.fix_spelling"><a class="viewcode-back" href="../../api/text.html#estnltk.text.Text.fix_spelling">[docs]</a>    <span class="k">def</span> <span class="nf">fix_spelling</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Fix spelling of the text.</span>
+
+<span class="sd">        Note that this method uses the first suggestion that is given for each misspelled word.</span>
+<span class="sd">        It does not perform any sophisticated analysis to determine which one of the suggestions</span>
+<span class="sd">        fits best into the context.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Text</span>
+<span class="sd">            A copy of this instance with automatically fixed spelling.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_tagged</span><span class="p">(</span><span class="n">WORDS</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tokenize_words</span><span class="p">()</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">text</span>
+        <span class="n">fixed</span> <span class="o">=</span> <span class="n">vabamorf</span><span class="o">.</span><span class="n">fix_spelling</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">word_texts</span><span class="p">,</span> <span class="n">join</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">spans</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">word_spans</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">fixed</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">spans</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">spans</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">newtoks</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">lastend</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">fix</span><span class="p">,</span> <span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">fixed</span><span class="p">,</span> <span class="n">spans</span><span class="p">):</span>
+                <span class="n">newtoks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">text</span><span class="p">[</span><span class="n">lastend</span><span class="p">:</span><span class="n">start</span><span class="p">])</span>
+                <span class="n">newtoks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fix</span><span class="p">)</span>
+                <span class="n">lastend</span> <span class="o">=</span> <span class="n">end</span>
+            <span class="n">newtoks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">text</span><span class="p">[</span><span class="n">lastend</span><span class="p">:])</span>
+            <span class="k">return</span> <span class="n">Text</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">newtoks</span><span class="p">),</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">__kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+    <span class="c1"># ///////////////////////////////////////////////////////////////////</span>
+    <span class="c1"># TEXTCLEANER</span>
+    <span class="c1"># ///////////////////////////////////////////////////////////////////</span>
+
+<div class="viewcode-block" id="Text.is_valid"><a class="viewcode-back" href="../../api/text.html#estnltk.text.Text.is_valid">[docs]</a>    <span class="k">def</span> <span class="nf">is_valid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Does this text contain allowed/valid characters as defined by</span>
+<span class="sd">        the :py:class:`~estnltk.textcleaner.TextCleaner` instances supplied</span>
+<span class="sd">        to this Text.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__text_cleaner</span><span class="o">.</span><span class="n">is_valid</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">TEXT</span><span class="p">])</span></div>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">invalid_characters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;List of invalid characters found in this text.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__text_cleaner</span><span class="o">.</span><span class="n">invalid_characters</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">TEXT</span><span class="p">])</span>
+
+<div class="viewcode-block" id="Text.clean"><a class="viewcode-back" href="../../api/text.html#estnltk.text.Text.clean">[docs]</a>    <span class="k">def</span> <span class="nf">clean</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a copy of this Text instance with invalid characters removed.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Text</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__text_cleaner</span><span class="o">.</span><span class="n">clean</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">TEXT</span><span class="p">]),</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">__kwargs</span><span class="p">)</span></div>
+
+    <span class="c1"># ///////////////////////////////////////////////////////////////////</span>
+    <span class="c1"># LAYERS</span>
+    <span class="c1"># ///////////////////////////////////////////////////////////////////</span>
+
+    <span class="k">def</span> <span class="nf">is_simple</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer</span><span class="p">):</span>
+        <span class="n">elems</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">layer</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">elems</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">elems</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">START</span><span class="p">],</span> <span class="nb">int</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="nf">is_multi</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer</span><span class="p">):</span>
+        <span class="n">elems</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">layer</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">elems</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">elems</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">START</span><span class="p">],</span> <span class="nb">list</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="nf">tag_with_regex</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">pattern</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Layer or attribute with name &lt;</span><span class="si">{0}</span><span class="s1">&gt; already exists!&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">):</span>
+            <span class="n">pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">flags</span><span class="p">)</span>
+        <span class="bp">self</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">[{</span><span class="n">START</span><span class="p">:</span> <span class="n">mo</span><span class="o">.</span><span class="n">start</span><span class="p">(),</span> <span class="n">END</span><span class="p">:</span> <span class="n">mo</span><span class="o">.</span><span class="n">end</span><span class="p">()}</span> <span class="k">for</span> <span class="n">mo</span> <span class="ow">in</span> <span class="n">pattern</span><span class="o">.</span><span class="n">finditer</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">TEXT</span><span class="p">])]</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="c1"># ///////////////////////////////////////////////////////////////////</span>
+    <span class="c1"># SPLITTING</span>
+    <span class="c1"># ///////////////////////////////////////////////////////////////////</span>
+
+<div class="viewcode-block" id="Text.split_given_spans"><a class="viewcode-back" href="../../api/text.html#estnltk.text.Text.split_given_spans">[docs]</a>    <span class="k">def</span> <span class="nf">split_given_spans</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spans</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Split the text into several pieces.</span>
+
+<span class="sd">        Resulting texts have all the layers that are present in the text instance that is splitted.</span>
+<span class="sd">        The elements are copied to resulting pieces that are covered by their spans.</span>
+<span class="sd">        However, this can result in empty layers if no element of a splitted layer fits into</span>
+<span class="sd">        a span of a particular output piece.</span>
+
+<span class="sd">        The positions of layer elements that are copied are translated according to the container span,</span>
+<span class="sd">        so they are consistent with returned text lengths.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        spans: list of spans.</span>
+<span class="sd">            The positions determining the regions that will end up as individual pieces.</span>
+<span class="sd">            Spans themselves can be lists of spans, which denote multilayer-style text regions.</span>
+<span class="sd">        sep: str</span>
+<span class="sd">            The separator that is used to join together text pieces of multilayer spans.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list of Text</span>
+<span class="sd">            One instance of text per span.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">spans</span><span class="p">)</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="p">[{</span><span class="n">TEXT</span><span class="p">:</span> <span class="n">text</span><span class="p">}</span> <span class="k">for</span> <span class="n">text</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">texts_from_spans</span><span class="p">(</span><span class="n">spans</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="n">sep</span><span class="p">)]</span>
+        <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">elem</span><span class="p">],</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="n">splits</span> <span class="o">=</span> <span class="n">divide_by_spans</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">elem</span><span class="p">],</span> <span class="n">spans</span><span class="p">,</span> <span class="n">translate</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="n">sep</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+                    <span class="n">results</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="n">elem</span><span class="p">]</span> <span class="o">=</span> <span class="n">splits</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">Text</span><span class="p">(</span><span class="n">res</span><span class="p">)</span> <span class="k">for</span> <span class="n">res</span> <span class="ow">in</span> <span class="n">results</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Text.split_by"><a class="viewcode-back" href="../../api/text.html#estnltk.text.Text.split_by">[docs]</a>    <span class="k">def</span> <span class="nf">split_by</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Split the text into multiple instances defined by elements of given layer.</span>
+
+<span class="sd">        The spans for layer elements are extracted and feed to :py:meth:`~estnltk.text.Text.split_given_spans`</span>
+<span class="sd">        method.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        layer: str</span>
+<span class="sd">            String determining the layer that is used to define the start and end positions of resulting splits.</span>
+<span class="sd">        sep: str (default: &#39; &#39;)</span>
+<span class="sd">            The separator to use to join texts of multilayer elements.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list of Text</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_tagged</span><span class="p">(</span><span class="n">layer</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="n">layer</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">split_given_spans</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spans</span><span class="p">(</span><span class="n">layer</span><span class="p">),</span> <span class="n">sep</span><span class="o">=</span><span class="n">sep</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Text.split_by_sentences"><a class="viewcode-back" href="../../api/text.html#estnltk.text.Text.split_by_sentences">[docs]</a>    <span class="k">def</span> <span class="nf">split_by_sentences</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Split the text into individual sentences.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">split_by</span><span class="p">(</span><span class="n">SENTENCES</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Text.split_by_words"><a class="viewcode-back" href="../../api/text.html#estnltk.text.Text.split_by_words">[docs]</a>    <span class="k">def</span> <span class="nf">split_by_words</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Split the text into individual words.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">split_by</span><span class="p">(</span><span class="n">WORDS</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Text.split_by_regex"><a class="viewcode-back" href="../../api/text.html#estnltk.text.Text.split_by_regex">[docs]</a>    <span class="k">def</span> <span class="nf">split_by_regex</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">regex_or_pattern</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">re</span><span class="o">.</span><span class="n">U</span><span class="p">,</span> <span class="n">gaps</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Split the text into multiple instances using a regex.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        regex_or_pattern: str or compiled pattern</span>
+<span class="sd">            The regular expression to use for splitting.</span>
+<span class="sd">        flags: int (default: re.U)</span>
+<span class="sd">            The regular expression flags (only used, when user has not supplied compiled regex).</span>
+<span class="sd">        gaps: boolean (default: True)</span>
+<span class="sd">            If True, then regions matched by the regex are not included in the resulting Text instances, which</span>
+<span class="sd">            is expected behaviour.</span>
+<span class="sd">            If False, then only regions matched by the regex are included in the result.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list of Text</span>
+<span class="sd">            The Text instances obtained by splitting.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">TEXT</span><span class="p">]</span>
+        <span class="n">regex</span> <span class="o">=</span> <span class="n">regex_or_pattern</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">regex</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">):</span>
+            <span class="n">regex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">regex_or_pattern</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">flags</span><span class="p">)</span>
+        <span class="c1"># else is assumed pattern</span>
+        <span class="n">last_end</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">spans</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">gaps</span><span class="p">:</span> <span class="c1"># tag cap spans</span>
+            <span class="k">for</span> <span class="n">mo</span> <span class="ow">in</span> <span class="n">regex</span><span class="o">.</span><span class="n">finditer</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+                <span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="o">=</span> <span class="n">mo</span><span class="o">.</span><span class="n">start</span><span class="p">(),</span> <span class="n">mo</span><span class="o">.</span><span class="n">end</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">start</span> <span class="o">&gt;</span> <span class="n">last_end</span><span class="p">:</span>
+                    <span class="n">spans</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">last_end</span><span class="p">,</span> <span class="n">start</span><span class="p">))</span>
+                <span class="n">last_end</span> <span class="o">=</span> <span class="n">end</span>
+            <span class="k">if</span> <span class="n">last_end</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+                <span class="n">spans</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">last_end</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">text</span><span class="p">)))</span>
+        <span class="k">else</span><span class="p">:</span> <span class="c1"># use matched regions</span>
+            <span class="n">spans</span> <span class="o">=</span> <span class="p">[(</span><span class="n">mo</span><span class="o">.</span><span class="n">start</span><span class="p">(),</span> <span class="n">mo</span><span class="o">.</span><span class="n">end</span><span class="p">())</span> <span class="k">for</span> <span class="n">mo</span> <span class="ow">in</span> <span class="n">regex</span><span class="o">.</span><span class="n">finditer</span><span class="p">(</span><span class="n">text</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">split_given_spans</span><span class="p">(</span><span class="n">spans</span><span class="p">)</span></div>
+
+    <span class="c1"># ///////////////////////////////////////////////////////////////////</span>
+    <span class="c1"># DIVIDING</span>
+    <span class="c1"># ///////////////////////////////////////////////////////////////////</span>
+
+<div class="viewcode-block" id="Text.divide"><a class="viewcode-back" href="../../api/text.html#estnltk.text.Text.divide">[docs]</a>    <span class="k">def</span> <span class="nf">divide</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer</span><span class="o">=</span><span class="n">WORDS</span><span class="p">,</span> <span class="n">by</span><span class="o">=</span><span class="n">SENTENCES</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Divide the Text into pieces by keeping references to original elements, when possible.</span>
+<span class="sd">        This is not possible only, if the _element_ is a multispan.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        element: str</span>
+<span class="sd">            The element to collect and distribute in resulting bins.</span>
+<span class="sd">        by: str</span>
+<span class="sd">            Each resulting bin is defined by spans of this element.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list of (list of dict)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_tagged</span><span class="p">(</span><span class="n">layer</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="n">layer</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_tagged</span><span class="p">(</span><span class="n">by</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="n">by</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">divide</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">layer</span><span class="p">],</span> <span class="bp">self</span><span class="p">[</span><span class="n">by</span><span class="p">])</span></div>
+
+    <span class="c1"># ///////////////////////////////////////////////////////////////////</span>
+    <span class="c1"># FILTERING</span>
+    <span class="c1"># ///////////////////////////////////////////////////////////////////</span>
+
+    <span class="k">def</span> <span class="nf">get_elements_in_span</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="p">,</span> <span class="n">span</span><span class="p">):</span>
+        <span class="n">items</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">element</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="n">element</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">item</span><span class="p">[</span><span class="n">START</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">span</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">and</span> <span class="n">item</span><span class="p">[</span><span class="n">END</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">span</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                    <span class="n">items</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">items</span>
+
+
+    <span class="c1"># ///////////////////////////////////////////////////////////////////</span>
+    <span class="c1"># AGGREGATE GETTER</span>
+    <span class="c1"># ///////////////////////////////////////////////////////////////////</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">ZipBuilder</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ZipBuilder"><a class="viewcode-back" href="../../api/text.html#estnltk.text.ZipBuilder">[docs]</a><span class="k">class</span> <span class="nc">ZipBuilder</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Helper class to aggregate various :py:class:`~estnltk.text.Text` properties in a simple way.</span>
+<span class="sd">    Uses builder pattern.</span>
+
+<span class="sd">    Example::</span>
+
+<span class="sd">        text = Text(&#39;Alles see oli, kui käisin koolis&#39;)</span>
+<span class="sd">        text.get.word_texts.lemmas.postags.as_dataframe</span>
+
+<span class="sd">    test.get - this initiates a new :py:class:`~estnltk.text.ZipBuilder` instance on the Text object.</span>
+
+<span class="sd">    .word_texts - adds word texts</span>
+<span class="sd">    .postags - adds postags</span>
+
+<span class="sd">    .as_dataframe - builds the final object and returns a dataframe</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__text</span> <span class="o">=</span> <span class="n">text</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__keys</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__values</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">def</span> <span class="nf">__getattribute__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">item</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;__&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">item</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__keys</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">object</span><span class="o">.</span><span class="n">__getattribute__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__text</span><span class="p">,</span> <span class="n">item</span><span class="p">))</span>
+            <span class="k">return</span> <span class="bp">self</span>
+        <span class="k">return</span> <span class="nb">object</span><span class="o">.</span><span class="n">__getattribute__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">props</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">prop</span> <span class="ow">in</span> <span class="n">props</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__getattribute__</span><span class="p">(</span><span class="n">prop</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">as_dataframe</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">as_dict</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">df</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">__keys</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">as_zip</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">__values</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">as_list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__values</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__keys</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__values</span><span class="p">))</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, University of Tartu unless specified otherwise in the file headers.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'1.4.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

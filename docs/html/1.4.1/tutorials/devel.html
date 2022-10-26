@@ -1,0 +1,442 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Estnltk developer guide &mdash; estnltk 1.4.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="estnltk 1.4.1 documentation" href="../index.html"/>
+        <link rel="up" title="Estnltk tutorials" href="index.html"/>
+        <link rel="next" title="Other tools" href="../external/index.html"/>
+        <link rel="prev" title="Tables" href="morphology_tables.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> estnltk
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.4.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Estnltk tutorials</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="text.html">Basic Text class operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wikipedia.html">Wikipedia tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="elasticsearch.html">Elasticsearch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="disambiguation.html">Disambiguation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="grammar.html">Grammars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="np_chunker.html">Noun-phrase chunker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dependency_syntax.html">Dependency_syntax</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ner.html">Name-Entity Recognition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="prettyprinter.html">Prettyprinter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="terminalprettyprinter.html">Terminal prettyprinter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tei.html">Working with Koondkorpus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="morphology_tables.html">Morphological annotation tables</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Developer readme</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#compiling-estnltk">Compiling estnltk</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#version-control-and-branches">Version control and branches</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#checking-out-devel-branch">Checking out devel branch</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#writing-documentation">Writing documentation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#setting-up-sphinx">Setting up Sphinx</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#distributing-the-documentation-to-github-pages">Distributing the documentation to Github pages</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#creating-releases">Creating releases</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#linux">Linux</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#windows">Windows</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../external/index.html">Other tools</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html">API documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../authors.html">Authors</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">estnltk</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="index.html">Estnltk tutorials</a> &raquo;</li>
+      
+    <li>Estnltk developer guide</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/tutorials/devel.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="c1"># TODO: decide if this is still relevant and up to date</span>
+</pre></div>
+</div>
+<div class="section" id="estnltk-developer-guide">
+<h1>Estnltk developer guide<a class="headerlink" href="#estnltk-developer-guide" title="Permalink to this headline">¶</a></h1>
+<p>This document is for everyone who is working on Estnltk project (or
+wishes to work), but do not know how to get started.</p>
+<div class="section" id="compiling-estnltk">
+<h2>Compiling estnltk<a class="headerlink" href="#compiling-estnltk" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">build</span>
+<span class="n">python3</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">build</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="version-control-and-branches">
+<h2>Version control and branches<a class="headerlink" href="#version-control-and-branches" title="Permalink to this headline">¶</a></h2>
+<p>We have three repositories where we store Estnltk code: you should
+push/pull every time from all of them to make them synced.</p>
+<p>First, modify your <code class="docutils literal"><span class="pre">.git/setup</span></code> configuration to look like following:</p>
+<dl class="docutils">
+<dt>[core]</dt>
+<dd>repositoryformatversion = 0
+filemode = true
+bare = false
+logallrefupdates = true</dd>
+<dt>[remote &#8220;github&#8221;]</dt>
+<dd>url = <a class="reference external" href="mailto:git&#37;&#52;&#48;github&#46;com">git<span>&#64;</span>github<span>&#46;</span>com</a>:estnltk/estnltk.git
+fetch = +refs/heads/<em>:refs/remotes/github/</em></dd>
+<dt>[remote &#8220;ut&#8221;]</dt>
+<dd>url = <a class="reference external" href="mailto:git&#37;&#52;&#48;estnltk&#46;cs&#46;ut&#46;ee">git<span>&#64;</span>estnltk<span>&#46;</span>cs<span>&#46;</span>ut<span>&#46;</span>ee</a>:timo/estnltk.git
+fetch = +refs/heads/<em>:refs/remotes/ut/</em></dd>
+<dt>[remote &#8220;keeleressursid&#8221;]</dt>
+<dd>url = <a class="reference external" href="mailto:git&#37;&#52;&#48;gitlab&#46;keeleressursid&#46;ee">git<span>&#64;</span>gitlab<span>&#46;</span>keeleressursid<span>&#46;</span>ee</a>:timo-petmanson/estnltk.git
+fetch = +refs/heads/<em>:refs/remotes/keeleressursid/</em></dd>
+<dt>[remote &#8220;origin&#8221;]</dt>
+<dd>url = <a class="reference external" href="mailto:git&#37;&#52;&#48;github&#46;com">git<span>&#64;</span>github<span>&#46;</span>com</a>:estnltk/estnltk.git
+url = <a class="reference external" href="mailto:git&#37;&#52;&#48;estnltk&#46;cs&#46;ut&#46;ee">git<span>&#64;</span>estnltk<span>&#46;</span>cs<span>&#46;</span>ut<span>&#46;</span>ee</a>:timo/estnltk.git
+url = <a class="reference external" href="mailto:git&#37;&#52;&#48;gitlab&#46;keeleressursid&#46;ee">git<span>&#64;</span>gitlab<span>&#46;</span>keeleressursid<span>&#46;</span>ee</a>:timo-petmanson/estnltk.git</dd>
+<dt>[branch &#8220;master&#8221;]</dt>
+<dd>remote = origin
+merge = refs/heads/master</dd>
+<dt>[branch &#8220;devel&#8221;]</dt>
+<dd>remote = origin
+merge = refs/heads/devel</dd>
+</dl>
+<p>Second, use commands:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">push</span> <span class="n">origin</span> <span class="n">master</span>
+<span class="n">git</span> <span class="n">pull</span> <span class="n">origin</span> <span class="n">master</span>
+</pre></div>
+</div>
+<p>to perform pulls and pushes to both repositories without no extra
+hassle.</p>
+<p>Third, your&#8217;re done! ;)</p>
+<div class="section" id="checking-out-devel-branch">
+<h3>Checking out devel branch<a class="headerlink" href="#checking-out-devel-branch" title="Permalink to this headline">¶</a></h3>
+<p>Try this:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">branch</span> <span class="o">-</span><span class="n">a</span>
+<span class="n">git</span> <span class="n">checkout</span> <span class="o">-</span><span class="n">t</span> <span class="n">devel</span> <span class="n">origin</span><span class="o">/</span><span class="n">devel</span>
+<span class="n">git</span> <span class="n">pull</span>
+<span class="n">git</span> <span class="n">checkout</span> <span class="n">devel</span>
+<span class="n">git</span> <span class="n">branch</span> <span class="o">-</span><span class="n">a</span>
+</pre></div>
+</div>
+<p>You should see something similar as output:</p>
+<ul class="simple">
+<li>devel
+master
+timo_dev
+remotes/github/devel
+remotes/github/gh-pages
+remotes/github/master
+remotes/github/timo_dev
+remotes/keeleressursid/devel
+remotes/keeleressursid/master
+remotes/origin/master
+remotes/ut/devel
+remotes/ut/master</li>
+</ul>
+<p>Important thing is that you see <code class="docutils literal"><span class="pre">&quot;*</span> <span class="pre">devel&quot;</span></code> .</p>
+</div>
+</div>
+<div class="section" id="writing-documentation">
+<h2>Writing documentation<a class="headerlink" href="#writing-documentation" title="Permalink to this headline">¶</a></h2>
+<p>Documentation resides under docs folder of estnltk and is generated
+using <a class="reference external" href="http://sphinx-doc.org/">Sphinx</a> document generator.</p>
+<div class="section" id="setting-up-sphinx">
+<h3>Setting up Sphinx<a class="headerlink" href="#setting-up-sphinx" title="Permalink to this headline">¶</a></h3>
+<p>To install Sphinx on your system, issue following commands:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">pip3</span> <span class="n">install</span> <span class="n">Sphinx</span>
+<span class="n">sudo</span> <span class="n">pip3</span> <span class="n">install</span> <span class="n">numpydoc</span>
+</pre></div>
+</div>
+<p>Next, open file <code class="docutils literal"><span class="pre">docs/conf.py</span></code> and find the line:</p>
+<p>sys.path.insert(0, &#8216;/home/timo/projects/estnltk&#8217;)</p>
+<p>Add a second line there, which tells where estnltk is installed on your
+system. For example, if your user name is <code class="docutils literal"><span class="pre">estnltkdeveloper</span></code> and
+estnltk is in your home folder, add:</p>
+<p>sys.path.insert(0, &#8216;/home/estnltkdeveloper/estnltk&#8217;)</p>
+<p>After that, move to the docs folder and run:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">html</span>
+</pre></div>
+</div>
+<p>Now Sphinx builds the documentation and stores it in <code class="docutils literal"><span class="pre">docs/build/html</span></code>
+subfolder.</p>
+</div>
+<div class="section" id="distributing-the-documentation-to-github-pages">
+<h3>Distributing the documentation to Github pages<a class="headerlink" href="#distributing-the-documentation-to-github-pages" title="Permalink to this headline">¶</a></h3>
+<p>If you type <code class="docutils literal"><span class="pre">git</span> <span class="pre">branch</span> <span class="pre">-a</span></code>, you should see a remote branch
+<code class="docutils literal"><span class="pre">remotes/github/gh-pages</span></code> containing content that is served at
+<a class="reference external" href="http://estnltk.github.io/estnltk/">http://estnltk.github.io/estnltk/</a> . This branch does not contain any
+code, so check it out into another directory in order to work with it.
+Then, create a subfolder with the appropriate estnltk version and copy
+the new documentation there.</p>
+</div>
+</div>
+<div class="section" id="creating-releases">
+<h2>Creating releases<a class="headerlink" href="#creating-releases" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="linux">
+<h3>Linux<a class="headerlink" href="#linux" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">clean</span><span class="o">.</span><span class="n">sh</span>
+<span class="n">python</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">build</span>
+<span class="n">python</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">build</span> <span class="c1"># yes, two times for now!</span>
+<span class="n">python</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">bdist_wheel</span>
+<span class="n">python</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">sdist</span>
+<span class="n">python</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">upload</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="windows">
+<h3>Windows<a class="headerlink" href="#windows" title="Permalink to this headline">¶</a></h3>
+<p>To be able to build on Windows, you will need to install a compatible
+Microsoft Visual C++ compiler for each version of Python. For more
+details please refer to <a class="reference external" href="https://wiki.python.org/moin/WindowsCompilers">https://wiki.python.org/moin/WindowsCompilers</a>.</p>
+<p><strong>Compiling with Python 2.7</strong></p>
+<p>Install Microsoft Visual C++ Compiler for Python 2.7 from
+<a class="reference external" href="https://www.microsoft.com/en-us/download/details.aspx?id=44266">https://www.microsoft.com/en-us/download/details.aspx?id=44266</a></p>
+<p>32-bit:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">call</span> <span class="s2">&quot;C:\Users\distorti\AppData\Local\Programs\Common\Microsoft\Visual C++ for Python\9.0</span><span class="se">\v</span><span class="s2">cvarsall.bat&quot;</span> <span class="n">x86</span>
+</pre></div>
+</div>
+<p>64-bit:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">call</span> <span class="s2">&quot;C:\Users\distorti\AppData\Local\Programs\Common\Microsoft\Visual C++ for Python\9.0</span><span class="se">\v</span><span class="s2">cvarsall.bat x64</span>
+</pre></div>
+</div>
+<p>Then build as usual:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">build</span>
+<span class="n">python</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">build</span>
+<span class="n">python</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">bdist_wheel</span>
+</pre></div>
+</div>
+<p><strong>Compiling with Python 3.4</strong></p>
+<p>Install Microsoft Visual C++ 10.0 compiler as described at
+<a class="reference external" href="https://wiki.python.org/moin/WindowsCompilers">https://wiki.python.org/moin/WindowsCompilers</a></p>
+<p>32-bits:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">call</span> <span class="s2">&quot;C:\Program Files\Microsoft SDKs\Windows</span><span class="se">\v</span><span class="s2">7.1\Bin\SetEnv.cmd&quot;</span> <span class="o">/</span><span class="n">x86</span>
+</pre></div>
+</div>
+<p>64-bits:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">call</span> <span class="s2">&quot;C:\Program Files\Microsoft SDKs\Windows</span><span class="se">\v</span><span class="s2">7.1\Bin\SetEnv.cmd&quot;</span> <span class="o">/</span><span class="n">x64</span>
+</pre></div>
+</div>
+<p>If you stumble across an error like</p>
+<blockquote>
+<div>... c:Program Files (x86)Microsoft Visual Studio
+10.0VCINCLUDEintrin.h(26) : fatal error C1083: Cannot open include
+file: &#8216;ammintrin.h&#8217;: No such file or ...</div></blockquote>
+<p>you are missing a file &#8220;ammintrin.h&#8221; in &#8220;c:Program Files (x86)Microsoft
+Visual Studio 10.0VCINCLUDE&#8221;. As a quick fix, download it from
+http://se.mathworks.com/matlabcentral/answers/90383-fix-problem-when-mex-cpp-file.</p>
+<p>Then build as usual:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">build</span>
+<span class="n">python</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">build</span>
+<span class="n">python</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">bdist_wheel</span>
+</pre></div>
+</div>
+<p><strong>Compiling with Python 3.5</strong></p>
+<p>Install Microsoft Visual C++ 14.0 compiler as described at
+<a class="reference external" href="https://wiki.python.org/moin/WindowsCompilers">https://wiki.python.org/moin/WindowsCompilers</a></p>
+<p>32-bit:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">call</span> <span class="s2">&quot;C:\Program Files (x86)\Microsoft Visual C++ Build Tools</span><span class="se">\v</span><span class="s2">cbuildtools.bat&quot;</span> <span class="n">x86</span>
+</pre></div>
+</div>
+<p>64-bit:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">call</span> <span class="s2">&quot;C:\Program Files (x86)\Microsoft Visual C++ Build Tools</span><span class="se">\v</span><span class="s2">cbuildtools.bat&quot;</span> <span class="n">x64</span>
+</pre></div>
+</div>
+<p>TODO: Currently this fails for some reason</p>
+<p>Then build as usual:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">build</span>
+<span class="n">python</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">build</span>
+<span class="n">python</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">bdist_wheel</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../external/index.html" class="btn btn-neutral float-right" title="Other tools" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="morphology_tables.html" class="btn btn-neutral" title="Tables" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, University of Tartu unless specified otherwise in the file headers.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.4.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

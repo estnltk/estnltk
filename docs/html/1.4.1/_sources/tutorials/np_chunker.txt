@@ -1,0 +1,268 @@
+
+Experimental NP chunking
+========================
+
+Estnltk includes an experimental noun phrase chunker, which can be used
+to detect non-overlapping noun phrases from the text.
+
+Basic usage
+-----------
+
+The class **NounPhraseChunker** provides method **analyze\_text()**,
+which takes a **Text** object as an input, detects potential noun
+phrases, and stores in the layer ``NOUN_CHUNKS``:
+
+.. code:: python
+
+    # TODO: check if works on devel 
+    
+    from estnltk import Text
+    from estnltk.np_chunker import NounPhraseChunker
+    from estnltk.names import TEXT, NOUN_CHUNKS
+    from pprint import pprint
+    
+    # initialise the chunker
+    chunker = NounPhraseChunker()
+    
+    text = Text('Suur karvane kass nurrus punasel diivanil, väike hiir aga hiilis temast mööda.')
+    # chunk the input text
+    text = chunker.analyze_text( text )
+    
+    # output the results (found phrases)
+    pprint( text[NOUN_CHUNKS] )
+
+
+::
+
+
+    ---------------------------------------------------------------------------
+
+    ImportError                               Traceback (most recent call last)
+
+    <ipython-input-1-1533f62602b5> in <module>()
+          3 from estnltk import Text
+          4 from estnltk.np_chunker import NounPhraseChunker
+    ----> 5 from estnltk.names import TEXT, NOUN_CHUNKS
+          6 from pprint import pprint
+          7 
+
+
+    ImportError: cannot import name 'NOUN_CHUNKS'
+
+
+By default, the method
+:py~estnltk.np\_chunker.NounPhraseChunker.analyze\_text returns the
+input text. The keyword argument ``return_type`` can be used to change
+the type of data returned. If ``return_type='labels'``, the method
+returns results of chunking in a BIO annotation scheme:
+
+.. code:: python
+
+    # TODO: check if works on devel 
+    
+    from estnltk import Text
+    from estnltk.np_chunker import NounPhraseChunker
+    from estnltk.names import TEXT
+    
+    # initialise the chunker
+    chunker = NounPhraseChunker()
+    
+    text = Text('Suur karvane kass nurrus punasel diivanil, väike hiir aga hiilis temast mööda.')
+    
+    # chunk the input text, get the results in BIO annotation format
+    np_labels = chunker.analyze_text( text, return_type='labels' )
+    
+    # output results of the chunking in BIO annotation format
+    for word, np_label in zip(text.words, np_labels):
+        print( word[TEXT]+'  '+str(np_label) )
+
+
+::
+
+
+    ---------------------------------------------------------------------------
+
+    Exception                                 Traceback (most recent call last)
+
+    <ipython-input-2-428b19369789> in <module>()
+         11 
+         12 # chunk the input text, get the results in BIO annotation format
+    ---> 13 np_labels = chunker.analyze_text( text, return_type='labels' )
+         14 
+         15 # output results of the chunking in BIO annotation format
+
+
+    /home/dage/anaconda3/envs/working_estnltk/lib/python3.5/site-packages/estnltk/np_chunker.py in analyze_text(self, text, **kwargs)
+        118                     return_type = argVal.lower()
+        119                 else:
+    --> 120                     raise Exception(' Unexpected return type: ', argVal)
+        121             else:
+        122                 raise Exception(' Unsupported argument given: '+argName)
+
+
+    Exception: (' Unexpected return type: ', 'labels')
+
+
+In the above example, the resulting list ``np_labels`` contains a label
+for each word in the input text, indicating word's position in phrase:
+``"B"`` denotes that the word begins a phrase, ``"I"`` indicates that
+the word is inside a phrase, and ``"O"`` indicates that the word does
+not belong to any noun phrase.
+
+If the input argument ``return_type="strings"`` is passed to the method,
+the method returns only results of the chunking as a list of phrase
+strings:
+
+.. code:: python
+
+    from estnltk import Text
+    from estnltk.np_chunker import NounPhraseChunker
+    
+    # initialise the chunker
+    chunker = NounPhraseChunker()
+    
+    text = Text('Autojuhi lapitekk pälvis linna koduleheküljel paljude kodanike tähelepanu.')
+    # chunk the input text
+    phrase_strings = chunker.analyze_text( text, return_type="strings" )
+
+The above example produces following output:
+
+.. code:: python
+
+    print( phrase_strings )
+
+
+.. parsed-literal::
+
+    ['Autojuhi lapitekk', 'linna koduleheküljel', 'paljude kodanike tähelepanu']
+
+
+If ``return_type="tokens"`` is set, the chunker returns a list of lists
+of tokens, where each token is given as a dictonary containing analyses
+of the word:
+
+.. code:: python
+
+    from estnltk import Text
+    from estnltk.np_chunker import NounPhraseChunker
+    from estnltk.names import TEXT, ANALYSIS, LEMMA
+    
+    # initialise the chunker
+    chunker = NounPhraseChunker()
+    
+    text = Text('Autojuhi lapitekk pälvis linna koduleheküljel paljude kodanike tähelepanu.')
+    # chunk the input text
+    phrases = chunker.analyze_text( text, return_type="tokens" )
+    # output phrases word by word
+    for phrase in phrases:
+        print()
+        for token in phrase:
+            # output text and first lemma
+            print( token[TEXT], token[ANALYSIS][0][LEMMA] )
+
+
+.. parsed-literal::
+
+    
+    Autojuhi autojuht
+    lapitekk lapitekk
+    
+    linna linn
+    koduleheküljel kodulehekülg
+    
+    paljude palju
+    kodanike kodanik
+    tähelepanu tähelepanu
+
+
+Note that, regardless the ``return_type``, the layer ``NOUN_CHUNKS``
+will always be added to the input Text.
+
+Cutting phrases
+---------------
+
+By default, the chunker does not allow tagging phrases longer than 3
+words, as the quality of tagging longer phrases is likely suboptimal,
+and the coverage of these phrases is also likely low `[1] <#ref>`__ .
+So, phrases longer than 3 words will be cut into one word phrases. This
+default setting can be turned off by specifying ``cutPhrases=False`` as
+an input argument for the method **analyze\_text()**:
+
+.. code:: python
+
+    from estnltk import Text
+    from estnltk.np_chunker import NounPhraseChunker
+    
+    # initialise the chunker
+    chunker = NounPhraseChunker()
+    
+    text = Text('Kõige väiksemate tassidega serviis toodi kusagilt vanast tolmusest kapist välja.')
+    
+    # chunk the input text while allowing phrases longer than 3 words
+    phrase_strings = chunker.analyze_text( text, cutPhrases=False, return_type="strings" )
+
+The output is following:
+
+.. code:: python
+
+    print( phrase_strings )
+
+
+.. parsed-literal::
+
+    ['Kõige väiksemate tassidega serviis', 'vanast tolmusest kapist']
+
+
+Using a custom syntactic parser
+-------------------------------
+
+By default, the MaltParser is used for obtaining the syntactic
+annotation, which is used as a basis in the chunking. Using the keyword
+argument ``parser`` in the initialization of the **NounPhraseChunker**,
+you can specify a custom parser to be used during the preprocessing:
+
+.. code:: python
+
+    # TODO: check if works on devel
+    
+    from estnltk import Text
+    from estnltk.np_chunker import NounPhraseChunker
+    from estnltk.syntax.parsers import VISLCG3Parser
+    
+    # initialise the chunker using VISLCG3Parser instead of MaltParser
+    chunker = NounPhraseChunker( parser = VISLCG3Parser() )
+    
+    text = Text('Maril oli väike tall.')
+    # chunk the input text
+    text = chunker.analyze_text( text )
+    
+    # output the results (found phrases)
+    pprint( text[NOUN_CHUNKS] )
+    
+    [{'end': 5, 'start': 0, 'text': 'Maril'},
+     {'end': 20, 'start': 10, 'text': 'väike tall'}]
+
+
+::
+
+
+    ---------------------------------------------------------------------------
+
+    ImportError                               Traceback (most recent call last)
+
+    <ipython-input-8-3a518af08afb> in <module>()
+          3 from estnltk import Text
+          4 from estnltk.np_chunker import NounPhraseChunker
+    ----> 5 from estnltk.syntax.parsers import VISLCG3Parser
+          6 
+          7 # initialise the chunker using VISLCG3Parser instead of MaltParser
+
+
+    ImportError: No module named 'estnltk.syntax.parsers'
+
+
+ **References**
+
+::
+
+    that only 3% of all NP chunks are longer than 3 words.

@@ -1,0 +1,334 @@
+
+AdjectivePhraseTagger
+=====================
+
+A class that tags simple adjective phrases in the **Text** object.
+
+Usage
+-----
+
+.. code:: python
+
+    from adjective_phrase_tagger.adj_phrase_tagger import AdjectivePhraseTagger
+    from estnltk import Text
+
+Create **Text** object, **AdjectivePhraseTagger** object and tag
+adjective phrases as a new layer of the **Text** object.
+
+.. code:: python
+
+    tagger = AdjectivePhraseTagger(return_layer=True) # return_layer=True returns only the adjective phrase layer
+    sent = Text("Peaaegu 8-aastane koer oli väga energiline ja mänguhimuline.")
+    tagger.tag(sent)
+
+
+
+
+.. parsed-literal::
+
+    [{'adverb_class': 'doubt',
+      'adverb_weight': 0.7,
+      'end': 17,
+      'intersects_with_verb': False,
+      'lemmas': ['peaaegu', '8aastane'],
+      'measurement_adj': True,
+      'start': 0,
+      'text': 'Peaaegu 8-aastane',
+      'type': 'adjective'},
+     {'adverb_class': 'strong_intensifier',
+      'adverb_weight': 2,
+      'end': 59,
+      'intersects_with_verb': False,
+      'lemmas': ['väga', 'energiline', 'ja', 'mänguhimuline'],
+      'measurement_adj': False,
+      'start': 27,
+      'text': 'väga energiline ja mänguhimuline',
+      'type': 'adjective'}]
+
+
+
+Attributes that are given with the adjective phrases:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**type** is the type of the phrase: \* **adjective**: adjective is in
+its 'normal' (aka positive) form \* **comparative**: contains a
+comparative adjective \* **participle**: contains an adjective derived
+from a verb
+
+**measurement\_adj** means that the adjective in the phrase either
+contains a number or some other type of measurement
+
+**intersects\_with\_verb** signifies whether the found adjective phrase
+intersects with a verb phrase in the text; this happens mostly in the
+case of participles as in the following sentence:
+
+.. code:: python
+
+    tagger.tag(Text("Ta oli väga üllatunud."))
+
+
+
+
+.. parsed-literal::
+
+    [{'adverb_class': 'strong_intensifier',
+      'adverb_weight': 2,
+      'end': 21,
+      'intersects_with_verb': True,
+      'lemmas': ['väga', 'üllatunud'],
+      'measurement_adj': False,
+      'start': 7,
+      'text': 'väga üllatunud',
+      'type': 'participle'}]
+
+
+
+**adverb\_class** marks the intensity of the adverb in the phrase. Each
+class has also been assigned a weight (**adverb\_weight**) noting its
+intensity. Currently there are 6 classes with their corresponding
+weights: \* diminisher: 0.5 \* doubt: 0.7 \* affirmation: 1.5 \*
+strong\_intensifier: 2 \* surprise: 3 \* excess: 3
+
+All the adverbs are not divided into classes, therefore some do have
+*unknow* as **adverb\_class** and **adverb\_weight**.
+
+Example
+~~~~~~~
+
+Adjective phrases can be used for sentiment analysis - determining the
+polarity of the text. While this is often done using only adjectives,
+the phrases consisting of an adverb and an adjective can give more
+precise results because adverbs in these kinds of phrases are usually
+some sort of intensifiers. For this purpose, the most frequent adverbs
+are already divided into classes and assigned weights based on their
+intensifying properties (see above).
+
+To illustrate this, let's build a very simple system for sentiment
+analysis. For this, we can use hinnavaatlus.csv dataset that contains
+user reviews and their ratings (positive, negative and neutral).
+
+First, let's extract adjectives from the user reviews and create
+separate frequency lists of adjectives appearing in positive and
+negative reviews.
+
+.. code:: python
+
+    import csv
+    from collections import defaultdict
+    
+    pos = {}
+    neg = {}
+    
+    adjectives = defaultdict(lambda : defaultdict(int))
+    
+    with open('data/hinnavaatlus.csv', newline='') as csvfile:
+        reader = csv.reader(csvfile, delimiter=',', quotechar='"')
+        
+        for idx, row in enumerate(reader):
+            tagged = tagger.tag(Text(row[1]))
+            label = row[2]
+            for tag in tagged:
+                if len(tag) > 0:  
+                    adj = tag['lemmas'][-1]
+                    adjectives[label][adj] += 1
+
+Of course, we can imagine that not all the adjectives used in positive
+reviews are positive and the same with negative reviews. To overcome
+this problem, we can use the
+`**volcanoplot** <https://github.com/estnltk/volcanoplot>`__ (tutorial
+`**here** <https://github.com/estnltk/volcanoplot/blob/master/docs/postimees_tutorial.ipynb>`__)
+tool which visualises the two lists and helps us find over-represented
+words from both. For this, we need to save both lexicons into csv files.
+
+.. code:: python
+
+    with open("neg.csv", "w") as fout:
+        writer = csv.writer(fout, dialect = 'excel')
+        for row in adjectives['Negatiivne']:
+            writer.writerow([row, adjectives['Negatiivne'][row]])
+
+.. code:: python
+
+    with open("pos.csv", "w") as fout:
+        writer = csv.writer(fout, dialect = 'excel')
+        for row in adjectives['Positiivne']:
+            writer.writerow([row, adjectives['Positiivne'][row]])
+
+From **volcanoplot** we save two lexicons - one for positive
+(data/positive.txt) and one for negative (data/negative.txt) words. Now
+let's decide that an adjective appearing in the positive lexicon has a
+score of 1 and an adjective in negative lexicon has a score of -1.
+Adjectives not present in either of the lexicons have a score 0.
+
+.. code:: python
+
+    negative = []
+    with open("data/negative.txt", "r") as fin:
+        words = fin.readlines()
+        negative = set([word.strip() for word in words])
+    
+    positive = []
+    with open("data/positive.txt", "r") as fin:
+        words = fin.readlines()
+        positive = ([word.strip() for word in words])    
+
+Now we can assign a score to each adjective and compute weights to
+phrases containing of an adverb and an adjective by multiplying the
+score of an adjective by the weight of the preceding adverb. By summing
+the scores of all the phrases in a review, we can calculate the polarity
+of the review.
+
+.. code:: python
+
+    with open('data/hinnavaatlus.csv', newline='') as csvfile:
+        reader = csv.reader(csvfile, delimiter=',', quotechar='"')
+        review_scores = {}
+        
+        for idx, row in enumerate(reader):
+            tagged = tagger.tag(Text(row[1]))
+            total_score = []
+            
+            if idx < 10:
+                print(row[1])
+            
+            for i in tagged:
+                if i['lemmas'][-1] in positive:
+                    if 'adverb_weight' in i:
+                        score = 1*i['adverb_weight']
+                    else:
+                        score = 1
+                        
+                elif i['lemmas'][-1] in negative:
+                    if 'adverb_weight' in i:
+                        score = -1*i['adverb_weight']
+                    else:
+                        score = -1    
+                        
+                else:
+                    score = 0
+                if idx < 10:
+                    print(i['lemmas'], ' ', score)
+                total_score.append(score)
+                
+            if idx < 10:
+                print("Total score: ", str(sum(total_score)))
+                print("-----------------------------")
+    
+            review_scores[row[1]] = sum(total_score)
+
+
+.. parsed-literal::
+
+    Kommentaar
+    Total score:  0
+    -----------------------------
+    Väike, aga tubli firma!
+    ['väike']   0
+    ['tubli']   0
+    Total score:  0
+    -----------------------------
+    väga hea firma
+    ['väga', 'hea']   2
+    Total score:  2
+    -----------------------------
+    Viimasel ajal pole midagi halba öelda, aga samas ei konkureeri nad kuidagi Genneti, Ordiga ei hindadelt ega teeninduselt. Toorikute ja tindi ostmiseks samas hea koht ja kuna müüjaid on rohkem valima hakatud, siis võiks 2 ikka ära panna - tuleks 3 kui hinadele ei pandaks kirvest ja toodete saadavus oleks parem.
+    ['viimane']   0
+    ['halb']   0
+    ['hea']   1
+    ['hakatud']   -1
+    ['parem']   0
+    Total score:  0
+    -----------------------------
+    Fotode kvaliteet väga pro ja "jjk" seal töötamise ajal leiti ikka paljudele asjadele väga meeldivad lahendused. Samas hilisem läpaka ost sujus ka väga meeldivalt - sain esialgse rahas ostusoovi vormistada ümber järelmaksule...äärmiselt asjalik teenindus.
+    ['hilisem']   1
+    ['esialgne']   1
+    ['äärmiselt', 'asjalik']   2
+    ['väga', 'meeldiv']   2
+    Total score:  6
+    -----------------------------
+    Ainult positiivsed kogemused
+    ['positiivne']   1
+    Total score:  1
+    -----------------------------
+    Viimane kord, kui käisin suutis leti taga askeldav ~60 aastane mees tegutseda nii aeglaselt, et minu seal veedetud 10min jooksul pani juba vähemalt 6-7 klienti putku. Garantiiga ka kurvad kogemused, neid poleks, saaks isegi kahe vast. Vihaseks ajab lihtsalt vahest nende teenindus!
+    ['viimane']   0
+    ['askeldav']   -1
+    ['aastane']   -1
+    ['veedetud']   -1
+    ['kurb']   -1
+    ['vihane']   -1
+    Total score:  -5
+    -----------------------------
+    Väga head hinnad!!!
+    ['väga', 'hea']   2
+    Total score:  2
+    -----------------------------
+    Väga head hinnad!!!
+    ['väga', 'hea']   2
+    Total score:  2
+    -----------------------------
+    Olen ostnud sealt toorikuid, hea hind - abivalmis teenindus. Sai sealt ka üks Razeri hiir ostetud. Kogemus on hea.
+    ['ostnud']   1
+    ['hea']   1
+    ['abivalmis']   1
+    ['ostetud']   1
+    ['hea']   1
+    Total score:  5
+    -----------------------------
+
+
+As we saved the reviews and their scores to the dict **review\_scores**,
+we can sort it and find reviews that have the highest and lowest scores.
+
+.. code:: python
+
+    from collections import OrderedDict
+    sorted_scores = OrderedDict(sorted(review_scores.items(), key=lambda t: t[1], reverse = True))
+
+Let's print 5 most positive reviews:
+
+.. code:: python
+
+    for idx, i in enumerate(sorted_scores):
+        if idx < 5:
+            print(i, sorted_scores[i])
+            print()
+
+
+.. parsed-literal::
+
+    Väga viisakas koht, helitasin tellisin Creative Elite Pro sealt. Saadeti korralik arve sealt, järgmine päev oli postis ja siis järgmine päev juba kohal. Väga korralik.Pakk oli korralik, paks ja hea. Helikaart oli värske mitte kribitud ja kole. Minul on hea kogemus, väha head hinnad ja kiire asjaajamine. 11
+    
+    Lisaks vahelduseks ka ühe veidi positiivsema kommentaari. Ostsin sealt läpaka. Alguses oli küll veidi segadust, sest esimeses kohas oli soovitud mudel olemas, kuid pakendi kleeps oli lõhutud ning taaskleebitud. Igaks juhuks nõudsin sisu näidata ja kohe oli aru saada, et asi varem lahti käinud. Läpaka must läikiv pind oli paksult käejälgi täis ja ühest nurgast avastasin korraliku kukkumisjälje. Seepeale küsisin, et kas neil on mõnes salongis täiesti avamata pakendit. Helistati ja saadeti järgmisse kohta, kus küll oli antud mark olemas aga vale mudel. Kolmandas kohas lõpuks leiti see õige mudel ja tehti isegi 500.- alet. Kokkuvõttes jäin rahule, ringisõidetud aja ja bensukulu tasuti. Noh, lõpp hea kõik hea 4p :) 9
+    
+    Sain väga viisaka teeninduse osaliseks. Hiljuti sai veebi kaudu ostetud digikaamera Pentax Optio H90. Kättesaamisel panin aku laadima vastavalt kasutusjuhendile, kuid selgus, et see ei toimi ja aku jääb peale laadimist tühjaks. Järgmisel päeval pöördusin müügisalongi palvega vahetada kaup uue vastu või vähemalt asendada ajutisega. Tegemist oli oodatud sünnipäevakingitusega. Müüja naeratas vastutulelikult ja oli igati positiivne tütarlaps, aga vahetusest ja asendamisest keeldus. Selle asemel lubas ta saata katkise laadija koos kaameraga neljaks nädalaks ekspertiisi (teenindusesse). Ta selgitas lahkelt, et selline on kord, et ka värskelt müüdud kuid vigased tooted vaadatakse spetsialistide poolt kõigepealt üle ja siis otsustatakse kas parandada või vahetada.  8.5
+    
+    Suhtun loomupärase umbusuga netikaupmeestesse, 1A on senistest kogemustest üks parimaid. Kaup saabub alati täpselt, telefonitsi kauba saabumisest  informeerimine toimib laitmatult. Viimasel korral sattus mulle väikese tehnilise defektiga seade, lühike mõttevahetus meili teel, ja järgmisel päeval oli minu soovitud vahetusseade mind juba ootamas. Väga täpne, asjalik ja meeldiva teenindusega firma, soovitan! 8
+    
+    Tundub täiesti korralik veebipood, ostule eelnenud meiliga saadetud küsimustele vastati 10 minuti jooksul ja kauba sai kätte järgmisel päeval. Hinnad on oma 10% soodsamad kui suurtel kettidel, mis 800-1000-eurose kauba puhul on juba päris tuntav hinnavahe. Maksimumhinnet siiski ei paneks, kuna veebipoelt ootaks natuke põhjalikumaid tootekirjeldusi, samuti polnud olemasolev info 100% korrektne (infos oli, et külmkapp on A+ energiatarbega, tegelikult oli A++). Samuti oleks oodanud pärast maksmist mingisugust tagasisidet, nt et raha on laekunud ja kauba saab orienteeruvalt x ajal kätte (minu kogemuses oli järgmine kontakt juba kullerilt). Kokkuvõttes julgeks siiski soovitada. 8.0
+    
+
+
+And 5 most negative reviews:
+
+.. code:: python
+
+    for idx, i in enumerate(OrderedDict(reversed(list(sorted_scores.items())))):
+        if idx < 5:
+            print(i, sorted_scores[i])
+            print()
+
+
+.. parsed-literal::
+
+    Minu esimene tellimus sellest firmast jäi kohe ka viimaseks. Lugu oli selline (eile, s.o. 11. jaan. 2013. Tellisin 6. jaan. kolm asja, millest üks oli videokaart. Tolle viimase tarneajaks anti 2-7 tööpäeva. Okei, läks viis, sain kullerilt kauba kätte. Paki avamisel ilmnes, et tellitud videokaardi asemel oli pakki pandud hoopis teise firma ja märksa nõrgema hinnaklassi toode. Loomulikult reedese päeva õhtupoolikul, mil reageerimiseks juba ülinapilt aega. Saatelehel ilutses täiesti tuimalt tellitud, mitte muudetud toote nimi. Polnud midagi parata, tuli ise Õismäele kohale sõita, et asja uurida. Õnneks veel jõudsin vaatamata ummikutele. Kaks umbkeelset teenindajat maigutasid ainult suud. Küsisin, kuidas saab nii räigelt eksida - vale oli mitte ainult detaili mudel, vaid ka firmanimi. Vastuseks kuulsin mingit pobinat, et jah tuli neid õigeid siia vaid üks ja kellegi teise tellimus olnud justkui vaja kiiremini täita. Mida häma! Pakuti, et 6 päeva pärast saaksin õige kätte. Kui see pole petuskeem, siis mis see on? Mitte keegi ei võtnud minuga ühendust, et pärida, kas olen üldse taolise asendustootega nõus. See lihtsalt sokutati mulle vaikimisi. E- ja I-ajastul olnuks kõik võimalused kliendilt järele pärida, kas too soovib kauba puudumisel asendustoodet või loobub tellimusest. Midagi niisugust aga ei tehtud, üritati lihtsalt pähe määrida mingit odavamat, ilmselt seismajäänud rämpsu. Nõudsin raha tagasi. Õnneks ei tulnud mul ka palju vaielda, kuna käitusin resoluutselt. Vormistati tellimusraha tagasikande akt. Isiklikult ei soovita sellise firmaga tegemist teha. Kahtlusi tekitas juba tellimuse 'trackingu' (tellimuse täitmise jälgimine veebis) puudumine, mis on üldreeglina hämavate firmade tunnuseks. Kuna töötan ise õiguskaitseorganites, tegin kogu protsessist igaks juhuks nii dokumentaalsed väljavõtted kui ka fotod, et vajadusel oma õigust nõuda. Firma esindajad isegi ei vabandanud. Igaüks võib teha omad järeldused. -9
+    
+    Väga negatiivsed emotsioonid - kui ostjalt raha käes, siis on sõprus läbi. Ise loll - ostsin eile õhtul Järve poest Trusti UPS-i. Minu arvuti toiteblokk sellega tööle ei hakanud. Mõtlesin juba, et toiteblokk läks läbi. UPS näitas, et kõik OK, ei ülekoormust ega midagi. Püüdsin täna tagasi viia (maksin sularahas), mille peale mind saadeti pikalt, et miks ma ostes oma arvuti konfiguratsiooni ei esitanud jne. Samas et teadnud seal keegi internetti süvenemata isegi seda, mitu W karbil lubatud 800VA välja annab. Vahest ei ole mul otsest õigust toimimatu riista eest raha tagasi saada, aga niimioodi kliendiga ei käituta! Seega: "Hoidke eemale!"  Ei mingit koolitust müüjatel, põrgulik garantii, ainult head müügikohad. -6
+    
+    Täiesti mõttetu firma, peaks mainima. Millegipärast annab alati siin Hinnavaatluses odavaima hinna, kuid kui helistades sinna, siis tuleb välja, et kunagi seda õiget asja ei ole ja pakutakse tunduvalt kallimat ja teise firma toodet. Jätab täpselt sellise mulje, et muudmoodi kliente enam sinna urkasse ei meelita, kui valetades hinnad odavamaks kui muidu on. Parkimisvõimalused on praktiliselt olematud ja üldse jätab sellise umbkeelse ja kohe kohe pankrotti mineva firma mulje. Seega, kui näete siin mingit toodet, mis on neil "soodsaima" hinnaga, siis helistage igaks juhuks üle, sest kohaleminnes võib teid oodata üllatus, et õiget kaupa polegi. Samas olete aga raisanud oma aega ja närve. -5.5
+    
+    95% külastustest on suhtumine olnud üleolev ja samas asjatundmatu. Komplekteeritud arvuti pidi saama nädalaga kätte.. nädal hiljem kohale minnes sõimati , et kui valmis, siis helistatakse. Helistatigi ja öeldi, et soovitud mälu neil tegelikult ei pakuta ja variant on panna uus (256 asemel 512mb) ja see võtab aega 2 nädalat- ei vabandamist, ei hinnasoodustust. Kättesaades oli 192mb RAM'i.. nüüdseks see arvuti enam ei ela, sest koostekvaliteet oli nii kehv, et põles maha.. Tõsiselt kehv koht! -5
+    
+    Lasin komplekteerida arvuti, kätte saades ja igaks juhuks lahti kruvides, selgus, et kaane lahtikeeramine oli ülimalt vajalik. Arvuti korpuse sees oli kaks pisikest kruvi, mis olid jäänud DVD-lugejale külge keeramata ja olid emaplaadile mingite kondekate vahele kinni jäänud. Ei kujutagi ette mis oleks arvuti vooluvõrku ühendamisel juhtunud, arvatavasti oleks emaplaat läbi põlenud, kui lahtisi kruvikesi poleks enne arvuti vooluvõrku ühendamist leidnud -5
+    
+

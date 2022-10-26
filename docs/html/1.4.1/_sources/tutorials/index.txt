@@ -1,0 +1,24 @@
+=================
+Estnltk tutorials
+=================
+
+
+.. toctree::
+   :maxdepth: 1
+
+   Installation <installation>
+   Basic Text class operations <text>
+   Wikipedia tools <wikipedia>
+   Elasticsearch <elasticsearch>
+   Disambiguation <disambiguation>
+   Grammars <grammar>
+   Noun-phrase chunker <np_chunker>
+   Adjective phrase tagger <adj_phrase_tagger_doc>
+   Dependency_syntax <dependency_syntax>
+   Name-Entity Recognition <ner>
+   Prettyprinter <prettyprinter>
+   Terminal prettyprinter <terminalprettyprinter>
+   Working with Koondkorpus <tei>
+   Morphological annotation tables <morphology_tables>
+   Developer readme <devel>
+    

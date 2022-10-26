@@ -1,0 +1,335 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>estnltk.ner module &mdash; estnltk 1.4.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="estnltk 1.4.1 documentation" href="../index.html"/>
+        <link rel="up" title="API documentation" href="index.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> estnltk
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.4.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/index.html">Estnltk tutorials</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../external/index.html">Other tools</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">API documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="textcleaner.html">estnltk.textcleaner module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vabamorf.html">estnltk.vabamorf.morf module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="match.html">estnltk.grammar.match module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="prettyprinter.html">estnltk.prettyprinter.prettyprinter module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wn.html">estnltk.wordnet.wn module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="grammar.html">estnltk.grammar.grammar module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">estnltk.ner module</a><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="timex.html">estnltk.timex module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="clausesegmenter.html">estnltk.clausesegmenter module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core.html">estnltk.core module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="teicorpus.html">estnltk.teicorpus module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="database.html">estnltk.database.database module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wordnet_tagger.html">estnltk.wordnet_tagger module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="text.html">estnltk.text module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../authors.html">Authors</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">estnltk</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="index.html">API documentation</a> &raquo;</li>
+      
+    <li>estnltk.ner module</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/api/ner.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-estnltk.ner">
+<span id="estnltk-ner-module"></span><h1>estnltk.ner module<a class="headerlink" href="#module-estnltk.ner" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="estnltk.ner.NerTagger">
+<em class="property">class </em><code class="descclassname">estnltk.ner.</code><code class="descname">NerTagger</code><span class="sig-paren">(</span><em>model_dir='/home/uku/anaconda3/lib/python3.5/site-packages/estnltk/estner/models/py3_default'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/ner.html#NerTagger"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.ner.NerTagger" title="Permalink to this definition">¶</a></dt>
+<dd><p>The class for tagging named entities.</p>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">tag_document</span></code>(document)</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">tag_documents</span></code>(documents)</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="estnltk.ner.NerTrainer">
+<em class="property">class </em><code class="descclassname">estnltk.ner.</code><code class="descname">NerTrainer</code><span class="sig-paren">(</span><em>nersettings</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/ner.html#NerTrainer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.ner.NerTrainer" title="Permalink to this definition">¶</a></dt>
+<dd><p>The class for training NER models. Uses crfsuite implementation.</p>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#estnltk.ner.NerTrainer.train" title="estnltk.ner.NerTrainer.train"><code class="xref py py-obj docutils literal"><span class="pre">train</span></code></a>(jsondocs,&nbsp;model_dir)</td>
+<td>Train a NER model using given documents.</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="estnltk.ner.NerTrainer.train">
+<code class="descname">train</code><span class="sig-paren">(</span><em>jsondocs</em>, <em>model_dir</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/ner.html#NerTrainer.train"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.ner.NerTrainer.train" title="Permalink to this definition">¶</a></dt>
+<dd><p>Train a NER model using given documents.</p>
+<p>Each word in the documents must have a &#8220;label&#8221; attribute, which
+denote the named entities in the documents.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>jsondocs: list of JSON-style documents.</strong></p>
+<blockquote>
+<div><p>The documents used for training the CRF model.</p>
+</div></blockquote>
+<p><strong>model_dir: str</strong></p>
+<blockquote class="last">
+<div><p>A directory where the model will be saved.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="estnltk.ner.json_document_to_estner_document">
+<code class="descclassname">estnltk.ner.</code><code class="descname">json_document_to_estner_document</code><span class="sig-paren">(</span><em>jsondoc</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/ner.html#json_document_to_estner_document"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.ner.json_document_to_estner_document" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert an estnltk document to an estner document.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>jsondoc: dict</strong></p>
+<blockquote>
+<div><p>Estnltk JSON-style document.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">estnltk.estner.ner.Document</p>
+<blockquote class="last">
+<div><p>A ner document.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="estnltk.ner.json_token_to_estner_token">
+<code class="descclassname">estnltk.ner.</code><code class="descname">json_token_to_estner_token</code><span class="sig-paren">(</span><em>json_token</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/ner.html#json_token_to_estner_token"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.ner.json_token_to_estner_token" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a JSON-style word token to an estner token.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>vabamorf_token: dict</strong></p>
+<blockquote>
+<div><p>Vabamorf token representing a single word.</p>
+</div></blockquote>
+<p><strong>label: str</strong></p>
+<blockquote>
+<div><p>The label string.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">estnltk.estner.ner.Token</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, University of Tartu unless specified otherwise in the file headers.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.4.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

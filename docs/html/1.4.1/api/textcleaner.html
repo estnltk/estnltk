@@ -1,0 +1,370 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>estnltk.textcleaner module &mdash; estnltk 1.4.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="estnltk 1.4.1 documentation" href="../index.html"/>
+        <link rel="up" title="API documentation" href="index.html"/>
+        <link rel="prev" title="API documentation" href="index.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> estnltk
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.4.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/index.html">Estnltk tutorials</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../external/index.html">Other tools</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">API documentation</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">estnltk.textcleaner module</a><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="vabamorf.html">estnltk.vabamorf.morf module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="match.html">estnltk.grammar.match module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="prettyprinter.html">estnltk.prettyprinter.prettyprinter module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wn.html">estnltk.wordnet.wn module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="grammar.html">estnltk.grammar.grammar module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ner.html">estnltk.ner module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="timex.html">estnltk.timex module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="clausesegmenter.html">estnltk.clausesegmenter module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core.html">estnltk.core module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="teicorpus.html">estnltk.teicorpus module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="database.html">estnltk.database.database module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wordnet_tagger.html">estnltk.wordnet_tagger module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="text.html">estnltk.text module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../authors.html">Authors</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">estnltk</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="index.html">API documentation</a> &raquo;</li>
+      
+    <li>estnltk.textcleaner module</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/api/textcleaner.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-estnltk.textcleaner">
+<span id="estnltk-textcleaner-module"></span><h1>estnltk.textcleaner module<a class="headerlink" href="#module-estnltk.textcleaner" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="estnltk.textcleaner.TextCleaner">
+<em class="property">class </em><code class="descclassname">estnltk.textcleaner.</code><code class="descname">TextCleaner</code><span class="sig-paren">(</span><em>alphabet='abcdefghijklmnoprsšzžtuvwõäöüxyzABCDEFGHIJKLMNOPRSŠZŽTUVWÕÄÖÜXYZ0123456789 tnrx0bx0c!&quot;#$%&amp;'()*+</em>, <em>-./:;&lt;=&gt;?&#64;[\]^_`{|}~–'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/textcleaner.html#TextCleaner"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.textcleaner.TextCleaner" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class for comparing texts against a predefined alphabet
+and filtering out unwanted characters.</p>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#estnltk.textcleaner.TextCleaner.clean" title="estnltk.textcleaner.TextCleaner.clean"><code class="xref py py-obj docutils literal"><span class="pre">clean</span></code></a>(text)</td>
+<td>Remove all unwanted characters from text.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#estnltk.textcleaner.TextCleaner.compute_report" title="estnltk.textcleaner.TextCleaner.compute_report"><code class="xref py py-obj docutils literal"><span class="pre">compute_report</span></code></a>(texts[,&nbsp;context_size])</td>
+<td>Compute statistics of invalid characters on given texts.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#estnltk.textcleaner.TextCleaner.find_invalid_chars" title="estnltk.textcleaner.TextCleaner.find_invalid_chars"><code class="xref py py-obj docutils literal"><span class="pre">find_invalid_chars</span></code></a>(text[,&nbsp;context_size])</td>
+<td>Find invalid characters in text and store information about the findings.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#estnltk.textcleaner.TextCleaner.invalid_characters" title="estnltk.textcleaner.TextCleaner.invalid_characters"><code class="xref py py-obj docutils literal"><span class="pre">invalid_characters</span></code></a>(text)</td>
+<td>Give simple list of invalid characters present in text.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#estnltk.textcleaner.TextCleaner.is_valid" title="estnltk.textcleaner.TextCleaner.is_valid"><code class="xref py py-obj docutils literal"><span class="pre">is_valid</span></code></a>(text)</td>
+<td>Check if the text is valid and contains no unwanted characters.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#estnltk.textcleaner.TextCleaner.report" title="estnltk.textcleaner.TextCleaner.report"><code class="xref py py-obj docutils literal"><span class="pre">report</span></code></a>(texts[,&nbsp;n_examples,&nbsp;context_size,&nbsp;f])</td>
+<td>Compute statistics of invalid characters and print them.</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="estnltk.textcleaner.TextCleaner.clean">
+<code class="descname">clean</code><span class="sig-paren">(</span><em>text</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/textcleaner.html#TextCleaner.clean"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.textcleaner.TextCleaner.clean" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove all unwanted characters from text.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.textcleaner.TextCleaner.compute_report">
+<code class="descname">compute_report</code><span class="sig-paren">(</span><em>texts</em>, <em>context_size=10</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/textcleaner.html#TextCleaner.compute_report"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.textcleaner.TextCleaner.compute_report" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute statistics of invalid characters on given texts.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>texts: list of str</strong></p>
+<blockquote>
+<div><p>The texts to search for invalid characters.</p>
+</div></blockquote>
+<p><strong>context_size: int</strong></p>
+<blockquote>
+<div><p>How many characters to return as the context.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">dict of (char -&gt; list of tuple (index, context))</p>
+<blockquote class="last">
+<div><p>Returns a dictionary, where keys are invalid characters.
+Values are lists containign tuples with character indices
+and context strings.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.textcleaner.TextCleaner.find_invalid_chars">
+<code class="descname">find_invalid_chars</code><span class="sig-paren">(</span><em>text</em>, <em>context_size=20</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/textcleaner.html#TextCleaner.find_invalid_chars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.textcleaner.TextCleaner.find_invalid_chars" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find invalid characters in text and store information about
+the findings.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>context_size: int</strong></p>
+<blockquote class="last">
+<div><p>How many characters to return as the context.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.textcleaner.TextCleaner.invalid_characters">
+<code class="descname">invalid_characters</code><span class="sig-paren">(</span><em>text</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/textcleaner.html#TextCleaner.invalid_characters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.textcleaner.TextCleaner.invalid_characters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Give simple list of invalid characters present in text.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.textcleaner.TextCleaner.is_valid">
+<code class="descname">is_valid</code><span class="sig-paren">(</span><em>text</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/textcleaner.html#TextCleaner.is_valid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.textcleaner.TextCleaner.is_valid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if the text is valid and contains no unwanted characters.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">True, if text has no unwanted characters.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.textcleaner.TextCleaner.report">
+<code class="descname">report</code><span class="sig-paren">(</span><em>texts</em>, <em>n_examples=10</em>, <em>context_size=10</em>, <em>f=&lt;_io.TextIOWrapper name='&lt;stdout&gt;' mode='w' encoding='UTF-8'&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/estnltk/textcleaner.html#TextCleaner.report"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.textcleaner.TextCleaner.report" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute statistics of invalid characters and print them.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>texts: list of str</strong></p>
+<blockquote>
+<div><p>The texts to search for invalid characters.</p>
+</div></blockquote>
+<p><strong>n_examples: int</strong></p>
+<blockquote>
+<div><p>How many examples to display per invalid character.</p>
+</div></blockquote>
+<p><strong>context_size: int</strong></p>
+<blockquote>
+<div><p>How many characters to return as the context.</p>
+</div></blockquote>
+<p><strong>f: file</strong></p>
+<blockquote class="last">
+<div><p>The file to print the report (default is sys.stdout)</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="index.html" class="btn btn-neutral" title="API documentation" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, University of Tartu unless specified otherwise in the file headers.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.4.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

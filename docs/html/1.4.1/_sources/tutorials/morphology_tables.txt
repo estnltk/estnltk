@@ -1,0 +1,488 @@
+
+Tables
+======
+
+Table: POS tag descriptions
+---------------------------
+
++---------+------------------------------------------------------+--------------+
+| POS tag | Description                                          | Example      |
++=========+======================================================+==============+
+| A       | omadussõna - algvõrre (adjektiiv - positiiv), nii    | kallis või   |
+|         | käänduvad kui käändumatud                            | eht          |
++---------+------------------------------------------------------+--------------+
+| C       | omadussõna - keskvõrre (adjektiiv - komparatiiv)     | laiem        |
++---------+------------------------------------------------------+--------------+
+| D       | määrsõna (adverb)                                    | kõrvuti      |
++---------+------------------------------------------------------+--------------+
+| G       | genitiivatribuut (käändumatu omadussõna)             | balti        |
++---------+------------------------------------------------------+--------------+
+| H       | pärisnimi                                            | Edgar        |
++---------+------------------------------------------------------+--------------+
+| I       | hüüdsõna (interjektsioon)                            | tere         |
++---------+------------------------------------------------------+--------------+
+| J       | sidesõna (konjunktsioon)                             | ja           |
++---------+------------------------------------------------------+--------------+
+| K       | kaassõna (pre/postpositsioon)                        | kaudu        |
++---------+------------------------------------------------------+--------------+
+| N       | põhiarvsõna (kardinaalnumeraal)                      | kaks         |
++---------+------------------------------------------------------+--------------+
+| O       | järgarvsõna (ordinaalnumeraal)                       | teine        |
++---------+------------------------------------------------------+--------------+
+| P       | asesõna (pronoomen)                                  | see          |
++---------+------------------------------------------------------+--------------+
+| S       | nimisõna (substantiiv)                               | asi          |
++---------+------------------------------------------------------+--------------+
+| U       | omadussõna - ülivõrre (adjektiiv - superlatiiv)      | pikim        |
++---------+------------------------------------------------------+--------------+
+| V       | tegusõna (verb)                                      | lugema       |
++---------+------------------------------------------------------+--------------+
+| X       | verbi juurde kuuluv sõna, millel eraldi sõnaliigi    | plehku       |
+|         | tähistus puudub                                      |              |
++---------+------------------------------------------------------+--------------+
+| Y       | lühend                                               | USA          |
++---------+------------------------------------------------------+--------------+
+| Z       | lausemärk                                            | -, /, ...    |
++---------+------------------------------------------------------+--------------+
+
+Table: Noun form descriptions (Vabamorf)
+----------------------------------------
+
++--------+----------------------------------------------------+
+| Form   | Description                                        |
++========+====================================================+
+| ab     | abessiiv (ilmaütlev)                               |
++--------+----------------------------------------------------+
+| abl    | ablatiiv (alaltütlev)                              |
++--------+----------------------------------------------------+
+| ad     | adessiiv (alalütlev)                               |
++--------+----------------------------------------------------+
+| adt    | aditiiv suunduv (lühike sisseütlev), nt. "majja"   |
++--------+----------------------------------------------------+
+| all    | allatiiv (alaleütlev)                              |
++--------+----------------------------------------------------+
+| el     | elatiiv (seestütlev)                               |
++--------+----------------------------------------------------+
+| es     | essiiv (olev)                                      |
++--------+----------------------------------------------------+
+| g      | genitiiv (omastav)                                 |
++--------+----------------------------------------------------+
+| ill    | illatiiv (sisseütlev)                              |
++--------+----------------------------------------------------+
+| in     | inessiiv (seesütlev)                               |
++--------+----------------------------------------------------+
+| kom    | komitatiiv (kaasaütlev)                            |
++--------+----------------------------------------------------+
+| n      | nominatiiv (nimetav)                               |
++--------+----------------------------------------------------+
+| p      | partitiiv (osastav)                                |
++--------+----------------------------------------------------+
+| pl     | pluural (mitmus)                                   |
++--------+----------------------------------------------------+
+| sg     | ainsus (ainsus)                                    |
++--------+----------------------------------------------------+
+| ter    | terminatiiv (rajav)                                |
++--------+----------------------------------------------------+
+| tr     | translatiiv (saav)                                 |
++--------+----------------------------------------------------+
+
+Table: Verb form descriptions (Vabamorf)
+----------------------------------------
+
++----------+---------------------------------------------------+----------------+
+| Form     | Description                                       | Example        |
++==========+===================================================+================+
+| b        | kindel kõneviis olevik 3. isik ainsus aktiiv      | loeb           |
+|          | jaatav kõne                                       |                |
++----------+---------------------------------------------------+----------------+
+| d        | kindel kõneviis olevik 2. isik ainsus aktiiv      | loed           |
+|          | jaatav kõne                                       |                |
++----------+---------------------------------------------------+----------------+
+| da       | infinitiiv jaatav kõne                            | lugeda         |
++----------+---------------------------------------------------+----------------+
+| des      | gerundium jaatav kõne                             | lugedes        |
++----------+---------------------------------------------------+----------------+
+| ge       | käskiv kõneviis olevik 2. isik mitmus aktiiv      | lugege         |
+|          | jaatav kõne                                       |                |
++----------+---------------------------------------------------+----------------+
+| gem      | käskiv kõneviis olevik 1. isik mitmus aktiiv      | lugegem        |
+|          | jaatav kõne                                       |                |
++----------+---------------------------------------------------+----------------+
+| gu       | käskiv kõneviis olevik 3. isik mitmus aktiiv      | (nad) lugegu   |
+|          | jaatav kõne                                       |                |
++----------+---------------------------------------------------+----------------+
+| gu       | käskiv kõneviis olevik 3. isik ainsus aktiiv      | (ta) lugegu    |
+|          | jaatav kõne                                       |                |
++----------+---------------------------------------------------+----------------+
+| ks       | tingiv kõneviis olevik 1. isik mitmus aktiiv      | (me) loeks     |
+|          | jaatav kõne                                       |                |
++----------+---------------------------------------------------+----------------+
+| ks       | tingiv kõneviis olevik 1. isik ainsus aktiiv      | (ma) loeks     |
+|          | jaatav kõne                                       |                |
++----------+---------------------------------------------------+----------------+
+| ks       | tingiv kõneviis olevik 2. isik mitmus aktiiv      | (te) loeks     |
+|          | jaatav kõne                                       |                |
++----------+---------------------------------------------------+----------------+
+| ks       | tingiv kõneviis olevik 2. isik ainsus aktiiv      | (sa) loeks     |
+|          | jaatav kõne                                       |                |
++----------+---------------------------------------------------+----------------+
+| ks       | tingiv kõneviis olevik 3. isik mitmus aktiiv      | (nad) loeks    |
+|          | jaatav kõne                                       |                |
++----------+---------------------------------------------------+----------------+
+| ks       | tingiv kõneviis olevik 3. isik ainsus aktiiv      | (ta) loeks     |
+|          | jaatav kõne                                       |                |
++----------+---------------------------------------------------+----------------+
+| ksid     | tingiv kõneviis olevik 2. isik ainsus aktiiv      | (sa) loeksid   |
+|          | jaatav kõne                                       |                |
++----------+---------------------------------------------------+----------------+
+| ksid     | tingiv kõneviis olevik 3. isik mitmus aktiiv      | (nad) loeksid  |
+|          | jaatav kõne                                       |                |
++----------+---------------------------------------------------+----------------+
+| ksime    | tingiv kõneviis olevik 1. isik mitmus aktiiv      | (me) loeksime  |
+|          | jaatav kõne                                       |                |
++----------+---------------------------------------------------+----------------+
+| ksin     | tingiv kõneviis olevik 1. isik ainsus aktiiv      | (ma) loeksin   |
+|          | jaatav kõne                                       |                |
++----------+---------------------------------------------------+----------------+
+| ksite    | tingiv kõneviis olevik 2. isik mitmus aktiiv      | (te) loeksite  |
+|          | jaatav kõne                                       |                |
++----------+---------------------------------------------------+----------------+
+| ma       | supiin aktiiv jaatav kõne sisseütlev              | lugema         |
++----------+---------------------------------------------------+----------------+
+| maks     | supiin aktiiv jaatav kõne saav                    | lugemaks       |
++----------+---------------------------------------------------+----------------+
+| mas      | supiin aktiiv jaatav kõne seesütlev               | lugemas        |
++----------+---------------------------------------------------+----------------+
+| mast     | supiin aktiiv jaatav kõne seestütlev              | lugemast       |
++----------+---------------------------------------------------+----------------+
+| mata     | supiin aktiiv jaatav kõne ilmaütlev               | lugemata       |
++----------+---------------------------------------------------+----------------+
+| me       | kindel kõneviis olevik 1. isik mitmus aktiiv      | loeme          |
+|          | jaatav kõne                                       |                |
++----------+---------------------------------------------------+----------------+
+| n        | kindel kõneviis olevik 1. isik ainsus aktiiv      | loen           |
+|          | jaatav kõne                                       |                |
++----------+---------------------------------------------------+----------------+
+| neg      | eitav kõne                                        | ei             |
++----------+---------------------------------------------------+----------------+
+| neg ge   | käskiv kõneviis olevik 2. isik mitmus aktiiv      | ärge           |
+|          | eitav kõne                                        |                |
++----------+---------------------------------------------------+----------------+
+| neg gem  | käskiv kõneviis olevik 1. isik mitmus aktiiv      | ärgem          |
+|          | eitav kõne                                        |                |
++----------+---------------------------------------------------+----------------+
+| neg gu   | käskiv kõneviis olevik 3. isik mitmus aktiiv      | (nad) ärgu     |
+|          | eitav kõne                                        |                |
++----------+---------------------------------------------------+----------------+
+| neg gu   | käskiv kõneviis olevik 3. isik ainsus aktiiv      | (ta) ärgu      |
+|          | eitav kõne                                        |                |
++----------+---------------------------------------------------+----------------+
+| neg gu   | käskiv kõneviis olevik passiiv eitav kõne         | ärgu           |
++----------+---------------------------------------------------+----------------+
+| neg ks   | tingiv kõneviis olevik 1. isik mitmus aktiiv      | (me) poleks    |
+|          | eitav kõne                                        |                |
++----------+---------------------------------------------------+----------------+
+| neg ks   | tingiv kõneviis olevik 1. isik ainsus aktiiv      | (ma) poleks    |
+|          | eitav kõne                                        |                |
++----------+---------------------------------------------------+----------------+
+| neg ks   | tingiv kõneviis olevik 2. isik mitmus aktiiv      | (te) poleks    |
+|          | eitav kõne                                        |                |
++----------+---------------------------------------------------+----------------+
+| neg ks   | tingiv kõneviis olevik 2. isik ainsus aktiiv      | (sa) poleks    |
+|          | eitav kõne                                        |                |
++----------+---------------------------------------------------+----------------+
+| neg ks   | tingiv kõneviis olevik 3. isik mitmus aktiiv      | (nad) poleks   |
+|          | eitav kõne                                        |                |
++----------+---------------------------------------------------+----------------+
+| neg ks   | tingiv kõneviis olevik 3. isik ainsus aktiiv      | (ta) poleks    |
+|          | eitav kõne                                        |                |
++----------+---------------------------------------------------+----------------+
+| neg me   | käskiv kõneviis olevik 1. isik mitmus aktiiv      | ärme           |
+|          | eitav kõne                                        |                |
++----------+---------------------------------------------------+----------------+
+| neg nud  | kindel kõneviis lihtminevik 1. isik mitmus aktiiv | (me) polnud    |
+|          | eitav kõne                                        |                |
++----------+---------------------------------------------------+----------------+
+| neg nud  | kindel kõneviis lihtminevik 1. isik ainsus aktiiv | (ma) polnud    |
+|          | eitav kõne                                        |                |
++----------+---------------------------------------------------+----------------+
+| neg nud  | kindel kõneviis lihtminevik 2. isik mitmus aktiiv | (te) polnud    |
+|          | eitav kõne                                        |                |
++----------+---------------------------------------------------+----------------+
+| neg nud  | kindel kõneviis lihtminevik 2. isik ainsus aktiiv | (sa) polnud    |
+|          | eitav kõne                                        |                |
++----------+---------------------------------------------------+----------------+
+| neg nud  | kindel kõneviis lihtminevik 3. isik mitmus aktiiv | (nad) polnud   |
+|          | eitav kõne                                        |                |
++----------+---------------------------------------------------+----------------+
+| neg nud  | kindel kõneviis lihtminevik 3. isik ainsus aktiiv | (ta) polnud    |
+|          | eitav kõne                                        |                |
++----------+---------------------------------------------------+----------------+
+| neg nuks | tingiv kõneviis minevik 1. isik mitmus aktiiv     | (me) polnuks   |
+|          | eitav kõne                                        |                |
++----------+---------------------------------------------------+----------------+
+| neg nuks | tingiv kõneviis minevik 1. isik ainsus aktiiv     | (ma) polnuks   |
+|          | eitav kõne                                        |                |
++----------+---------------------------------------------------+----------------+
+| neg nuks | tingiv kõneviis minevik 2. isik mitmus aktiiv     | (te) polnuks   |
+|          | eitav kõne                                        |                |
++----------+---------------------------------------------------+----------------+
+| neg nuks | tingiv kõneviis minevik 2. isik ainsus aktiiv     | (sa) polnuks   |
+|          | eitav kõne                                        |                |
++----------+---------------------------------------------------+----------------+
+| neg nuks | tingiv kõneviis minevik 3. isik mitmus aktiiv     | (nad) polnuks  |
+|          | eitav kõne                                        |                |
++----------+---------------------------------------------------+----------------+
+| neg nuks | tingiv kõneviis minevik 3. isik ainsus aktiiv     | (ta) polnuks   |
+|          | eitav kõne                                        |                |
++----------+---------------------------------------------------+----------------+
+| neg o    | käskiv kõneviis olevik 2. isik ainsus aktiiv      | ära            |
+|          | eitav kõne                                        |                |
++----------+---------------------------------------------------+----------------+
+| neg o    | kindel kõneviis olevik 1. isik mitmus aktiiv      | (me) pole      |
+|          | eitav kõne                                        |                |
++----------+---------------------------------------------------+----------------+
+| neg o    | kindel kõneviis olevik 1. isik ainsus aktiiv      | (ma) pole      |
+|          | eitav kõne                                        |                |
++----------+---------------------------------------------------+----------------+
+| neg o    | kindel kõneviis olevik 2. isik mitmus aktiiv      | (te) pole      |
+|          | eitav kõne                                        |                |
++----------+---------------------------------------------------+----------------+
+| neg o    | kindel kõneviis olevik 2. isik ainsus aktiiv      | (sa) pole      |
+|          | eitav kõne                                        |                |
++----------+---------------------------------------------------+----------------+
+| neg o    | kindel kõneviis olevik 3. isik mitmus aktiiv      | (nad) pole     |
+|          | eitav kõne                                        |                |
++----------+---------------------------------------------------+----------------+
+| neg o    | kindel kõneviis olevik 3. isik ainsus aktiiv      | (ta) pole      |
+|          | eitav kõne                                        |                |
++----------+---------------------------------------------------+----------------+
+| neg vat  | kaudne kõneviis olevik 1. isik mitmus aktiiv      | (me) polevat   |
+|          | eitav kõne                                        |                |
++----------+---------------------------------------------------+----------------+
+| neg vat  | kaudne kõneviis olevik 1. isik ainsus aktiiv      | (ma) polevat   |
+|          | eitav kõne                                        |                |
++----------+---------------------------------------------------+----------------+
+| neg tud  | kesksõna minevik passiiv eitav kõne               | poldud         |
++----------+---------------------------------------------------+----------------+
+| neg vat  | kaudne kõneviis olevik 2. isik mitmus aktiiv      | (te) polevat   |
+|          | eitav kõne                                        |                |
++----------+---------------------------------------------------+----------------+
+| neg vat  | kaudne kõneviis olevik 2. isik ainsus aktiiv      | (sa) polevat   |
+|          | eitav kõne                                        |                |
++----------+---------------------------------------------------+----------------+
+| neg vat  | kaudne kõneviis olevik 3. isik mitmus aktiiv      | (nad) polevat  |
+|          | eitav kõne                                        |                |
++----------+---------------------------------------------------+----------------+
+| neg vat  | kaudne kõneviis olevik 3. isik ainsus aktiiv      | (ta) polevat   |
+|          | eitav kõne                                        |                |
++----------+---------------------------------------------------+----------------+
+| nud      | kesksõna minevik aktiiv jaatav kõne               | lugenud        |
++----------+---------------------------------------------------+----------------+
+| nuks     | tingiv kõneviis minevik 1. isik mitmus aktiiv     | (me) lugenuks  |
+|          | jaatav kõne                                       |                |
++----------+---------------------------------------------------+----------------+
+| nuks     | tingiv kõneviis minevik 1. isik ainsus aktiiv     | (ma) lugenuks  |
+|          | jaatav kõne                                       |                |
++----------+---------------------------------------------------+----------------+
+| nuks     | tingiv kõneviis minevik 2. isik mitmus aktiiv     | (te) lugenuks  |
+|          | jaatav kõne                                       |                |
++----------+---------------------------------------------------+----------------+
+| nuks     | tingiv kõneviis minevik 2. isik ainsus aktiiv     | (sa) lugenuks  |
+|          | jaatav kõne                                       |                |
++----------+---------------------------------------------------+----------------+
+| nuks     | tingiv kõneviis minevik 3. isik mitmus aktiiv     | (nad) lugenuks |
+|          | jaatav kõne                                       |                |
++----------+---------------------------------------------------+----------------+
+| nuks     | tingiv kõneviis minevik 3. isik ainsus aktiiv     | (ta) lugenuks  |
+|          | jaatav kõne                                       |                |
++----------+---------------------------------------------------+----------------+
+| nuksid   | tingiv kõneviis minevik 2. isik ainsus aktiiv     | (sa)           |
+|          | jaatav kõne                                       | lugenuksid     |
++----------+---------------------------------------------------+----------------+
+| nuksid   | tingiv kõneviis minevik 3. isik mitmus aktiiv     | (nad)          |
+|          | jaatav kõne                                       | lugenuksid     |
++----------+---------------------------------------------------+----------------+
+| nuksime  | tingiv kõneviis minevik 1. isik mitmus aktiiv     | lugenuksime    |
+|          | jaatav kõne                                       |                |
++----------+---------------------------------------------------+----------------+
+| nuksin   | tingiv kõneviis minevik 1. isik ainsus aktiiv     | lugenuksin     |
+|          | jaatav kõne                                       |                |
++----------+---------------------------------------------------+----------------+
+| nuksite  | tingiv kõneviis minevik 2. isik mitmus aktiiv     | lugenuksite    |
+|          | jaatav kõne                                       |                |
++----------+---------------------------------------------------+----------------+
+| nuvat    | kaudne kõneviis minevik 1. isik mitmus aktiiv     | (me) lugenuvat |
+|          | jaatav kõne                                       |                |
++----------+---------------------------------------------------+----------------+
+| nuvat    | kaudne kõneviis minevik 1. isik ainsus aktiiv     | (ma) lugenuvat |
+|          | jaatav kõne                                       |                |
++----------+---------------------------------------------------+----------------+
+| nuvat    | kaudne kõneviis minevik 2. isik mitmus aktiiv     | (te) lugenuvat |
+|          | jaatav kõne                                       |                |
++----------+---------------------------------------------------+----------------+
+| nuvat    | kaudne kõneviis minevik 2. isik ainsus aktiiv     | (sa) lugenuvat |
+|          | jaatav kõne                                       |                |
++----------+---------------------------------------------------+----------------+
+| nuvat    | kaudne kõneviis minevik 3. isik mitmus aktiiv     | (nad)          |
+|          | jaatav kõne                                       | lugenuvat      |
++----------+---------------------------------------------------+----------------+
+| nuvat    | kaudne kõneviis minevik 3. isik ainsus aktiiv     | (ta) lugenuvat |
+|          | jaatav kõne                                       |                |
++----------+---------------------------------------------------+----------------+
+| o        | käskiv kõneviis olevik 2. isik ainsus aktiiv      | loe            |
+|          | jaatav kõne                                       |                |
++----------+---------------------------------------------------+----------------+
+| s        | kindel kõneviis lihtminevik 3. isik ainsus aktiiv | luges          |
+|          | jaatav kõne                                       |                |
++----------+---------------------------------------------------+----------------+
+| sid      | kindel kõneviis lihtminevik 2. isik ainsus aktiiv | (sa) lugesid   |
+|          | jaatav kõne                                       |                |
++----------+---------------------------------------------------+----------------+
+| sid      | kindel kõneviis lihtminevik 3. isik mitmus aktiiv | (nad) lugesid  |
+|          | jaatav kõne                                       |                |
++----------+---------------------------------------------------+----------------+
+| sime     | kindel kõneviis lihtminevik 1. isik mitmus aktiiv | lugesime       |
+|          | jaatav kõne                                       |                |
++----------+---------------------------------------------------+----------------+
+| sin      | kindel kõneviis lihtminevik 1. isik ainsus aktiiv | lugesin        |
+|          | jaatav kõne                                       |                |
++----------+---------------------------------------------------+----------------+
+| site     | kindel kõneviis lihtminevik 2. isik mitmus aktiiv | lugesite       |
+|          | jaatav kõne                                       |                |
++----------+---------------------------------------------------+----------------+
+| ta       | kindel kõneviis olevik passiiv eitav kõne         | loeta          |
++----------+---------------------------------------------------+----------------+
+| tagu     | käskiv kõneviis olevik passiiv jaatav kõne        | loetagu        |
++----------+---------------------------------------------------+----------------+
+| taks     | tingiv kõneviis olevik passiiv jaatav kõne        | loetaks        |
++----------+---------------------------------------------------+----------------+
+| takse    | kindel kõneviis olevik passiiv jaatav kõne        | loetakse       |
++----------+---------------------------------------------------+----------------+
+| tama     | supiin passiiv jaatav kõne                        | loetama        |
++----------+---------------------------------------------------+----------------+
+| tav      | kesksõna olevik passiiv jaatav kõne               | loetav         |
++----------+---------------------------------------------------+----------------+
+| tavat    | kaudne kõneviis olevik passiiv jaatav kõne        | loetavat       |
++----------+---------------------------------------------------+----------------+
+| te       | kindel kõneviis olevik 2. isik mitmus aktiiv      | loete          |
+|          | jaatav kõne                                       |                |
++----------+---------------------------------------------------+----------------+
+| ti       | kindel kõneviis lihtminevik passiiv jaatav kõne   | loeti          |
++----------+---------------------------------------------------+----------------+
+| tud      | kesksõna minevik passiiv jaatav kõne              | loetud         |
++----------+---------------------------------------------------+----------------+
+| tuks     | tingiv kõneviis minevik passiiv jaatav kõne       | loetuks        |
++----------+---------------------------------------------------+----------------+
+| tuvat    | kaudne kõneviis minevik passiiv jaatav kõne       | loetuvat       |
++----------+---------------------------------------------------+----------------+
+| v        | kesksõna olevik aktiiv jaatav kõne                | lugev          |
++----------+---------------------------------------------------+----------------+
+| vad      | kindel kõneviis olevik 3. isik mitmus aktiiv      | loevad         |
+|          | jaatav kõne                                       |                |
++----------+---------------------------------------------------+----------------+
+| vat      | kaudne kõneviis olevik 1. isik mitmus aktiiv      | (me) lugevat   |
+|          | jaatav kõne                                       |                |
++----------+---------------------------------------------------+----------------+
+| vat      | kaudne kõneviis olevik 1. isik ainsus aktiiv      | (ma) lugevat   |
+|          | jaatav kõne                                       |                |
++----------+---------------------------------------------------+----------------+
+| vat      | kaudne kõneviis olevik 2. isik mitmus aktiiv      | (te) lugevat   |
+|          | jaatav kõne                                       |                |
++----------+---------------------------------------------------+----------------+
+| vat      | kaudne kõneviis olevik 2. isik ainsus aktiiv      | (sa) lugevat   |
+|          | jaatav kõne                                       |                |
++----------+---------------------------------------------------+----------------+
+| vat      | kaudne kõneviis olevik 3. isik mitmus aktiiv      | (nad) lugevat  |
+|          | jaatav kõne                                       |                |
++----------+---------------------------------------------------+----------------+
+| vat      | kaudne kõneviis olevik 3. isik ainsus aktiiv      | (ta) lugevat   |
+|          | jaatav kõne                                       |                |
++----------+---------------------------------------------------+----------------+
+
+Table: Noun form descriptions (GT)
+----------------------------------
+
+Form \|Description
+------------------\|--------------------------------------------------
+**number (arv)** \| Sg \|singular (ainsus) Pl \|plural (mitmus) **case
+(kääne)** \| Nom \|nominative (nimetav) Gen \|genitive (omastav) Par
+\|partitive (osastav) Ill \|illative (sisseütlev, sh ka lühike) Ine
+\|inessive (seesütlev) Ela \|elative (seestütlev) All \|allative
+(alaleütlev) Ade \|adessive (alalütlev) Abl \|ablative (alaltütlev) Tra
+\|translative (saav) Trm \|terminative (rajav) Ess \|essive (olev) Abe
+\|abessive (ilmaütlev) Com \|comitative (kaasaütlev)
+
+Table: Verb form descriptions (GT)
+----------------------------------
+
+| Form \|Description
+| --------------------------\|---------------------------------- **voice
+  (tegumood)** \|
+| Impers \| impersonal (umbisikuline) Pers \| personal (isikuline)
+  **tense (aeg)** \| Prs \| present (olevik) Prt \| past, i.e. not
+  present (minevik) \*\* mood (kõneviis)\*\* \| Ind \| indicative
+  (kindel) Cond \| conditional (tingiv) Imprt \| imperative / jussive
+  (käskiv / kasutatav ka möönvas tähenduses) Quot \| quotative (kaudne)
+  \*\* arv (number)\*\* \| Sg \| singular (ainusus) Pl \| plural
+  (mitmus) \*\* isik (person)\*\* \| 1 \| 1st person (1. isik) 2 \| 2nd
+  person (2. isik) 3 \| 3rd person (3. isik) \*\* kõneliik
+  (negation)\*\* \| Aff \| affirmative (jaatav kõne) Neg \| negative
+  (eitav kõne) \*\* infinite forms (infiniitsed/käänduvad
+  verbivormid)\*\* \| Sup \| supine / ma-infinitive (ma-tegevusnimi) Inf
+  \| infinitive / da-infinitive (da-tegevusnimi) Ger \| gerund
+  (des-vorm) Prc \| participle (kesksõna)
+
+Table: Pronoun type descriptions (CG)
+-------------------------------------
+
++-------------+---------------------------------------------------------+--------------+
+| Tag         | Description                                             | Example      |
++=============+=========================================================+==============+
+| pers ps1    | personaalpronoomen (isikuline asesõna) 1. isik          | mina         |
++-------------+---------------------------------------------------------+--------------+
+| pers ps2    | personaalpronoomen (isikuline asesõna) 2. isik          | sina         |
++-------------+---------------------------------------------------------+--------------+
+| pers ps2    | personaalpronoomen (isikuline asesõna) 3. isik          | tema         |
++-------------+---------------------------------------------------------+--------------+
+| rec         | retsiprookpronoomen (vastastikune asesõna)              | teineteise   |
++-------------+---------------------------------------------------------+--------------+
+| refl        | refleksiivpronoomen (enesekohane asesõna)               | enda         |
++-------------+---------------------------------------------------------+--------------+
+| pos         | possessiivpronoomen (omastav asesõna)                   | oma          |
++-------------+---------------------------------------------------------+--------------+
+| dem         | demonstratiivpronoomen (näitav asesõna)                 | see          |
++-------------+---------------------------------------------------------+--------------+
+| inter rel   | interrogatiiv-relatiivpronoomen (küsiv-siduv asesõna)   | kes          |
++-------------+---------------------------------------------------------+--------------+
+| det         | determinatiivpronoomen (määratlev asesõna)              | mõlemad      |
++-------------+---------------------------------------------------------+--------------+
+| indef       | indefiniitpronoomen (umbmäärane asesõna)                | mingi        |
++-------------+---------------------------------------------------------+--------------+
+
+Table: Phonetic markers
+-----------------------
+
++---+------------------------------------------------------------------------+
+| M | Description                                                            |
+| a |                                                                        |
+| r |                                                                        |
+| k |                                                                        |
+| e |                                                                        |
+| r |                                                                        |
++===+========================================================================+
+| < | silp on kolmandas vältes; asetseb vahetult silbi tuuma moodustava      |
+|   | täishääliku ees                                                        |
++---+------------------------------------------------------------------------+
+| ? | silp on rõhuline; asetseb vahetult silbi tuuma moodustava täishääliku  |
+|   | ees (silbi rõhulisust märgitakse ainult sellisel juhul, kui rõhuline   |
+|   | silp on midagi muud kui võiks ennustada, ja ennustamine käib           |
+|   | järgmiselt: kui sõnas on kolmandas vältes silp, siis rõhk on sellel;   |
+|   | muidu, kui sõnas on pika täishääliku või täishäälikuühendiga silp,     |
+|   | siis rõhk on sellel; muidu on rõhk esimesel silbil)                    |
++---+------------------------------------------------------------------------+
+| ] | eelmine häälik on palataliseeritud                                     |
++---+------------------------------------------------------------------------+
+| ~ | n ja k ühendis hääldatakse n ja k selgelt eraldi, mitte ei sulandu     |
+|   | kokku; kasutuses ainult sõnades soonkond ja tosinkond                  |
++---+------------------------------------------------------------------------+

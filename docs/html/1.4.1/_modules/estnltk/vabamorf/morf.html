@@ -1,0 +1,758 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>estnltk.vabamorf.morf &mdash; estnltk 1.4.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../../genindex.html"/>
+        <link rel="search" title="Search" href="../../../search.html"/>
+    <link rel="top" title="estnltk 1.4.1 documentation" href="../../../index.html"/>
+        <link rel="up" title="Module code" href="../../index.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> estnltk
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.4.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/index.html">Estnltk tutorials</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../external/index.html">Other tools</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/index.html">API documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../authors.html">Authors</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../../index.html">estnltk</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      
+    <li>estnltk.vabamorf.morf</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for estnltk.vabamorf.morf</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Morphoanalysis/synthesis functionality of estnltk vabamorf package.</span>
+
+<span class="sd">Attributes</span>
+<span class="sd">----------</span>
+
+<span class="sd">PACKAGE_PATH: str</span>
+<span class="sd">    The path where the vabamorf package is located.</span>
+<span class="sd">DICT_PATH: str</span>
+<span class="sd">    The path of the default vabamorf dictionary embedded with vabamorf.</span>
+<span class="sd">DEFAULT_ET_PATH: str</span>
+<span class="sd">    The path to the default morphoanalyzer lexicon that comes with the vabamorf library.</span>
+<span class="sd">DEFAULT_ET3_PATH: str</span>
+<span class="sd">    The path to the default disambiguator lexicon that comes with the vabamorf library.</span>
+<span class="sd">phonetic_markers: str</span>
+<span class="sd">    List of characters that make up phonetic markup.</span>
+<span class="sd">compound_markers: str</span>
+<span class="sd">    List of characters that make up compound markup.</span>
+<span class="sd">phonetic_regex: regex</span>
+<span class="sd">    Regular expression matching any phonetic marker.</span>
+<span class="sd">compound_regex: regex</span>
+<span class="sd">    Regular expression matching any compound marker.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">unicode_literals</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">absolute_import</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">vabamorf</span> <span class="k">as</span> <span class="n">vm</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">six</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">operator</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="k">import</span> <span class="n">reduce</span>
+
+<span class="c1"># path listings</span>
+<span class="n">PACKAGE_PATH</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">__file__</span><span class="p">)</span>
+<span class="n">DICT_PATH</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">PACKAGE_PATH</span><span class="p">,</span> <span class="s1">&#39;dct&#39;</span><span class="p">)</span>
+<span class="n">DEFAULT_ET_PATH</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DICT_PATH</span><span class="p">,</span> <span class="s1">&#39;et.dct&#39;</span><span class="p">)</span>
+<span class="n">DEFAULT_ET3_PATH</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DICT_PATH</span><span class="p">,</span> <span class="s1">&#39;et3.dct&#39;</span><span class="p">)</span>
+
+<span class="c1"># various markers</span>
+<span class="n">phonetic_markers</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span><span class="s1">&#39;~?]&lt;&#39;</span><span class="p">)</span>
+<span class="n">compound_markers</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span><span class="s1">&#39;_+=&#39;</span><span class="p">)</span>
+<span class="n">all_markers</span> <span class="o">=</span> <span class="n">phonetic_markers</span> <span class="o">|</span> <span class="n">compound_markers</span>
+
+<div class="viewcode-block" id="regex_from_markers"><a class="viewcode-back" href="../../../api/vabamorf.html#estnltk.vabamorf.morf.regex_from_markers">[docs]</a><span class="k">def</span> <span class="nf">regex_from_markers</span><span class="p">(</span><span class="n">markers</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Given a string of characters, construct a regex that matches them.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    markers: str</span>
+<span class="sd">        The list of string containing the markers</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    regex</span>
+<span class="sd">        The regular expression matching the given markers.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">re</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">markers</span><span class="p">]))</span></div>
+
+<span class="n">phonetic_regex</span> <span class="o">=</span> <span class="n">regex_from_markers</span><span class="p">(</span><span class="n">phonetic_markers</span><span class="p">)</span>
+<span class="n">compound_regex</span> <span class="o">=</span> <span class="n">regex_from_markers</span><span class="p">(</span><span class="n">compound_markers</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="convert"><a class="viewcode-back" href="../../../api/vabamorf.html#estnltk.vabamorf.morf.convert">[docs]</a><span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="n">word</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;This method converts given `word` to UTF-8 encoding and `bytes` type for the</span>
+<span class="sd">       SWIG wrapper.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">six</span><span class="o">.</span><span class="n">PY2</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">word</span><span class="p">,</span> <span class="n">unicode</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">word</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">word</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span> <span class="c1"># make sure it is real utf8, otherwise complain</span>
+    <span class="k">else</span><span class="p">:</span> <span class="c1"># ==&gt; Py3</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">word</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">word</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span> <span class="c1"># bytes must be in utf8</span>
+        <span class="k">return</span> <span class="n">word</span></div>
+
+
+<div class="viewcode-block" id="deconvert"><a class="viewcode-back" href="../../../api/vabamorf.html#estnltk.vabamorf.morf.deconvert">[docs]</a><span class="k">def</span> <span class="nf">deconvert</span><span class="p">(</span><span class="n">word</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;This method converts back the output from wrapper.</span>
+<span class="sd">       Result should be `unicode` for Python2 and `str` for Python3&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">six</span><span class="o">.</span><span class="n">PY2</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">word</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">word</span></div>
+
+
+<div class="viewcode-block" id="Vabamorf"><a class="viewcode-back" href="../../../api/vabamorf.html#estnltk.vabamorf.morf.Vabamorf">[docs]</a><span class="k">class</span> <span class="nc">Vabamorf</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Class for performing main tasks of morphological analysis.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    pid: int</span>
+<span class="sd">        Current process id.</span>
+<span class="sd">    morf: Vabamorf</span>
+<span class="sd">        instance of the Vabamorf class. There should be only one instance per</span>
+<span class="sd">        process as vabamorf has a global state that might get corrputed by using</span>
+<span class="sd">        multiple instances in a single process.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="Vabamorf.instance"><a class="viewcode-back" href="../../../api/vabamorf.html#estnltk.vabamorf.morf.Vabamorf.instance">[docs]</a>    <span class="k">def</span> <span class="nf">instance</span><span class="p">():</span>
+        <span class="sd">&quot;&quot;&quot;Return an PyVabamorf instance.</span>
+
+<span class="sd">        It returns the previously initialized instance or creates a new</span>
+<span class="sd">        one if nothing exists. Also creates new instance in case the</span>
+<span class="sd">        process has been forked.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">Vabamorf</span><span class="p">,</span> <span class="s1">&#39;pid&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">Vabamorf</span><span class="o">.</span><span class="n">pid</span> <span class="o">!=</span> <span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">():</span>
+            <span class="n">Vabamorf</span><span class="o">.</span><span class="n">pid</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">()</span>
+            <span class="n">Vabamorf</span><span class="o">.</span><span class="n">morf</span> <span class="o">=</span> <span class="n">Vabamorf</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">Vabamorf</span><span class="o">.</span><span class="n">morf</span></div>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lex_path</span><span class="o">=</span><span class="n">DEFAULT_ET_PATH</span><span class="p">,</span> <span class="n">disamb_lex_path</span><span class="o">=</span><span class="n">DEFAULT_ET3_PATH</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize Vabamorf class.</span>
+
+<span class="sd">        NB! Do not use this class directly. Instead use Vabamorf.instance() to obtain access to one.</span>
+<span class="sd">        Use this only when you want to define custom paths to dictionaries.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        lex_path: str</span>
+<span class="sd">            The path to morphoanalyzer lexicon (default path points to the default dictionary).</span>
+<span class="sd">        ambig_lex_path: str</span>
+<span class="sd">            The path to disambiguator lexicon (default path points to the default dictionary).</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_morf</span> <span class="o">=</span> <span class="n">vm</span><span class="o">.</span><span class="n">Vabamorf</span><span class="p">(</span><span class="n">convert</span><span class="p">(</span><span class="n">lex_path</span><span class="p">),</span> <span class="n">convert</span><span class="p">(</span><span class="n">disamb_lex_path</span><span class="p">))</span>
+
+<div class="viewcode-block" id="Vabamorf.analyze"><a class="viewcode-back" href="../../../api/vabamorf.html#estnltk.vabamorf.morf.Vabamorf.analyze">[docs]</a>    <span class="k">def</span> <span class="nf">analyze</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">words</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Perform morphological analysis and disambiguation of given text.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        words: list of str or str</span>
+<span class="sd">            Either a list of pretokenized words or a string. In case of a string, it will be splitted using</span>
+<span class="sd">            default behaviour of string.split() function.</span>
+<span class="sd">        disambiguate: boolean (default: True)</span>
+<span class="sd">            Disambiguate the output and remove incosistent analysis.</span>
+<span class="sd">        guess: boolean (default: True)</span>
+<span class="sd">            Use guessing in case of unknown words</span>
+<span class="sd">        propername: boolean (default: True)</span>
+<span class="sd">            Perform additional analysis of proper names.</span>
+<span class="sd">        compound: boolean (default: True)</span>
+<span class="sd">            Add compound word markers to root forms.</span>
+<span class="sd">        phonetic: boolean (default: False)</span>
+<span class="sd">            Add phonetic information to root forms.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list of (list of dict)</span>
+<span class="sd">            List of analysis for each word in input.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># if input is a string, then tokenize it</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">words</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">):</span>
+            <span class="n">words</span> <span class="o">=</span> <span class="n">words</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+
+        <span class="c1"># convert words to native strings</span>
+        <span class="n">words</span> <span class="o">=</span> <span class="p">[</span><span class="n">convert</span><span class="p">(</span><span class="n">w</span><span class="p">)</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">words</span><span class="p">]</span>
+
+        <span class="n">morfresults</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_morf</span><span class="o">.</span><span class="n">analyze</span><span class="p">(</span>
+            <span class="n">vm</span><span class="o">.</span><span class="n">StringVector</span><span class="p">(</span><span class="n">words</span><span class="p">),</span>
+            <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;disambiguate&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+            <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;guess&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+            <span class="kc">True</span><span class="p">,</span> <span class="c1"># phonetic and compound information</span>
+            <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;propername&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">))</span>
+        <span class="n">trim_phonetic</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;phonetic&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="n">trim_compound</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;compound&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">[</span><span class="n">postprocess_result</span><span class="p">(</span><span class="n">mr</span><span class="p">,</span> <span class="n">trim_phonetic</span><span class="p">,</span> <span class="n">trim_compound</span><span class="p">)</span> <span class="k">for</span> <span class="n">mr</span> <span class="ow">in</span> <span class="n">morfresults</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Vabamorf.disambiguate"><a class="viewcode-back" href="../../../api/vabamorf.html#estnltk.vabamorf.morf.Vabamorf.disambiguate">[docs]</a>    <span class="k">def</span> <span class="nf">disambiguate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">words</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Disambiguate previously analyzed words.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        words: list of dict</span>
+<span class="sd">            A sentence of words.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list of dict</span>
+<span class="sd">            Sentence of disambiguated words.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">words</span> <span class="o">=</span> <span class="n">vm</span><span class="o">.</span><span class="n">SentenceAnalysis</span><span class="p">([</span><span class="n">as_wordanalysis</span><span class="p">(</span><span class="n">w</span><span class="p">)</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">words</span><span class="p">])</span>
+        <span class="n">disambiguated</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_morf</span><span class="o">.</span><span class="n">disambiguate</span><span class="p">(</span><span class="n">words</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">postprocess_result</span><span class="p">(</span><span class="n">mr</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span> <span class="k">for</span> <span class="n">mr</span> <span class="ow">in</span> <span class="n">disambiguated</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Vabamorf.spellcheck"><a class="viewcode-back" href="../../../api/vabamorf.html#estnltk.vabamorf.morf.Vabamorf.spellcheck">[docs]</a>    <span class="k">def</span> <span class="nf">spellcheck</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">words</span><span class="p">,</span> <span class="n">suggestions</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Spellcheck given sentence.</span>
+
+<span class="sd">        Note that spellchecker does not respect pre-tokenized words and concatenates</span>
+<span class="sd">        token sequences such as &quot;New York&quot;.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        words: list of str or str</span>
+<span class="sd">            Either a list of pretokenized words or a string. In case of a string, it will be splitted using</span>
+<span class="sd">            default behaviour of string.split() function.</span>
+<span class="sd">        suggestions: boolean (default: True)</span>
+<span class="sd">            Add spell suggestions to result.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list of dict</span>
+<span class="sd">            Each dictionary contains following values:</span>
+<span class="sd">                &#39;word&#39;: the original word</span>
+<span class="sd">                &#39;spelling&#39;: True, if the word was spelled correctly</span>
+<span class="sd">                &#39;suggestions&#39;: list of suggested strings in case of incorrect spelling</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">words</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">):</span>
+            <span class="n">words</span> <span class="o">=</span> <span class="n">words</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+
+        <span class="c1"># convert words to native strings</span>
+        <span class="n">words</span> <span class="o">=</span> <span class="p">[</span><span class="n">convert</span><span class="p">(</span><span class="n">w</span><span class="p">)</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">words</span><span class="p">]</span>
+
+        <span class="n">spellresults</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_morf</span><span class="o">.</span><span class="n">spellcheck</span><span class="p">(</span><span class="n">words</span><span class="p">,</span> <span class="n">suggestions</span><span class="p">)</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">spellresult</span> <span class="ow">in</span> <span class="n">spellresults</span><span class="p">:</span>
+            <span class="n">suggestions</span> <span class="o">=</span> <span class="p">[</span><span class="n">deconvert</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">spellresult</span><span class="o">.</span><span class="n">suggestions</span><span class="p">]</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="n">deconvert</span><span class="p">(</span><span class="n">spellresult</span><span class="o">.</span><span class="n">word</span><span class="p">),</span>
+                <span class="s1">&#39;spelling&#39;</span><span class="p">:</span> <span class="n">spellresult</span><span class="o">.</span><span class="n">spelling</span><span class="p">,</span>
+                <span class="s1">&#39;suggestions&#39;</span><span class="p">:</span> <span class="n">suggestions</span>
+            <span class="p">}</span>
+            <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">results</span></div>
+
+<div class="viewcode-block" id="Vabamorf.fix_spelling"><a class="viewcode-back" href="../../../api/vabamorf.html#estnltk.vabamorf.morf.Vabamorf.fix_spelling">[docs]</a>    <span class="k">def</span> <span class="nf">fix_spelling</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">words</span><span class="p">,</span> <span class="n">join</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">joinstring</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Simple function for quickly correcting misspelled words.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        words: list of str or str</span>
+<span class="sd">            Either a list of pretokenized words or a string. In case of a string, it will be splitted using</span>
+<span class="sd">            default behaviour of string.split() function.</span>
+<span class="sd">        join: boolean (default: True)</span>
+<span class="sd">            Should we join the list of words into a single string.</span>
+<span class="sd">        joinstring: str (default: &#39; &#39;)</span>
+<span class="sd">            The string that will be used to join together the fixed words.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            In case join is True</span>
+<span class="sd">        list of str</span>
+<span class="sd">            In case join is False.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">fixed_words</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">spellcheck</span><span class="p">(</span><span class="n">words</span><span class="p">,</span> <span class="n">suggestions</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">word</span><span class="p">[</span><span class="s1">&#39;spelling&#39;</span><span class="p">]:</span>
+                <span class="n">fixed_words</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">word</span><span class="p">[</span><span class="s1">&#39;text&#39;</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">suggestions</span> <span class="o">=</span> <span class="n">word</span><span class="p">[</span><span class="s1">&#39;suggestions&#39;</span><span class="p">]</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">suggestions</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">fixed_words</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">suggestions</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">fixed_words</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">word</span><span class="p">[</span><span class="s1">&#39;text&#39;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">join</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">joinstring</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fixed_words</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">fixed_words</span></div>
+
+
+<div class="viewcode-block" id="Vabamorf.synthesize"><a class="viewcode-back" href="../../../api/vabamorf.html#estnltk.vabamorf.morf.Vabamorf.synthesize">[docs]</a>    <span class="k">def</span> <span class="nf">synthesize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lemma</span><span class="p">,</span> <span class="n">form</span><span class="p">,</span> <span class="n">partofspeech</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">hint</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">guess</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">phonetic</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Synthesize a single word based on given morphological attributes.</span>
+
+<span class="sd">        Note that spellchecker does not respect pre-tokenized words and concatenates</span>
+<span class="sd">        token sequences such as &quot;New York&quot;.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        lemma: str</span>
+<span class="sd">            The lemma of the word(s) to be synthesized.</span>
+<span class="sd">        form: str</span>
+<span class="sd">            The form of the word(s) to be synthesized.</span>
+<span class="sd">        partofspeech: str</span>
+<span class="sd">            Part-of-speech.</span>
+<span class="sd">        hint: str</span>
+<span class="sd">            Hint.</span>
+<span class="sd">        guess: boolean (default: True)</span>
+<span class="sd">            Use heuristics when synthesizing unknown words.</span>
+<span class="sd">        phonetic: boolean (default: False)</span>
+<span class="sd">            Add phonetic markup to synthesized words.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list</span>
+<span class="sd">            List of synthesized words.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">words</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_morf</span><span class="o">.</span><span class="n">synthesize</span><span class="p">(</span>
+            <span class="n">convert</span><span class="p">(</span><span class="n">lemma</span><span class="o">.</span><span class="n">strip</span><span class="p">()),</span>
+            <span class="n">convert</span><span class="p">(</span><span class="n">form</span><span class="o">.</span><span class="n">strip</span><span class="p">()),</span>
+            <span class="n">convert</span><span class="p">(</span><span class="n">partofspeech</span><span class="o">.</span><span class="n">strip</span><span class="p">()),</span>
+            <span class="n">convert</span><span class="p">(</span><span class="n">hint</span><span class="o">.</span><span class="n">strip</span><span class="p">()),</span>
+            <span class="n">guess</span><span class="p">,</span>
+            <span class="n">phonetic</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">deconvert</span><span class="p">(</span><span class="n">w</span><span class="p">)</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">words</span><span class="p">]</span></div></div>
+
+
+<div class="viewcode-block" id="postprocess_result"><a class="viewcode-back" href="../../../api/vabamorf.html#estnltk.vabamorf.morf.postprocess_result">[docs]</a><span class="k">def</span> <span class="nf">postprocess_result</span><span class="p">(</span><span class="n">morphresult</span><span class="p">,</span> <span class="n">trim_phonetic</span><span class="p">,</span> <span class="n">trim_compound</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Postprocess vabamorf wrapper output.&quot;&quot;&quot;</span>
+    <span class="n">word</span><span class="p">,</span> <span class="n">analysis</span> <span class="o">=</span> <span class="n">morphresult</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="n">deconvert</span><span class="p">(</span><span class="n">word</span><span class="p">),</span>
+        <span class="s1">&#39;analysis&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">postprocess_analysis</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">trim_phonetic</span><span class="p">,</span> <span class="n">trim_compound</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">analysis</span><span class="p">]</span>
+    <span class="p">}</span></div>
+
+
+<span class="k">def</span> <span class="nf">postprocess_analysis</span><span class="p">(</span><span class="n">analysis</span><span class="p">,</span> <span class="n">trim_phonetic</span><span class="p">,</span> <span class="n">trim_compound</span><span class="p">):</span>
+    <span class="n">root</span> <span class="o">=</span> <span class="n">deconvert</span><span class="p">(</span><span class="n">analysis</span><span class="o">.</span><span class="n">root</span><span class="p">)</span>
+
+    <span class="c1"># extract tokens and construct lemma</span>
+    <span class="n">grouptoks</span> <span class="o">=</span> <span class="n">get_group_tokens</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
+    <span class="n">toks</span> <span class="o">=</span> <span class="n">reduce</span><span class="p">(</span><span class="n">operator</span><span class="o">.</span><span class="n">add</span><span class="p">,</span> <span class="n">grouptoks</span><span class="p">)</span>
+    <span class="n">lemma</span> <span class="o">=</span> <span class="n">get_lemma</span><span class="p">(</span><span class="n">grouptoks</span><span class="p">,</span> <span class="n">analysis</span><span class="o">.</span><span class="n">partofspeech</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s1">&#39;root&#39;</span><span class="p">:</span> <span class="n">get_root</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">trim_phonetic</span><span class="p">,</span> <span class="n">trim_compound</span><span class="p">),</span>
+        <span class="s1">&#39;root_tokens&#39;</span><span class="p">:</span> <span class="n">toks</span><span class="p">,</span>
+        <span class="s1">&#39;ending&#39;</span><span class="p">:</span> <span class="n">deconvert</span><span class="p">(</span><span class="n">analysis</span><span class="o">.</span><span class="n">ending</span><span class="p">),</span>
+        <span class="s1">&#39;clitic&#39;</span><span class="p">:</span> <span class="n">deconvert</span><span class="p">(</span><span class="n">analysis</span><span class="o">.</span><span class="n">clitic</span><span class="p">),</span>
+        <span class="s1">&#39;partofspeech&#39;</span><span class="p">:</span> <span class="n">deconvert</span><span class="p">(</span><span class="n">analysis</span><span class="o">.</span><span class="n">partofspeech</span><span class="p">),</span>
+        <span class="s1">&#39;form&#39;</span><span class="p">:</span> <span class="n">deconvert</span><span class="p">(</span><span class="n">analysis</span><span class="o">.</span><span class="n">form</span><span class="p">),</span>
+        <span class="s1">&#39;lemma&#39;</span><span class="p">:</span> <span class="n">lemma</span>
+        <span class="p">}</span>
+
+
+<div class="viewcode-block" id="trim_phonetics"><a class="viewcode-back" href="../../../api/vabamorf.html#estnltk.vabamorf.morf.trim_phonetics">[docs]</a><span class="k">def</span> <span class="nf">trim_phonetics</span><span class="p">(</span><span class="n">root</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Function that trims phonetic markup from the root.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    root: str</span>
+<span class="sd">        The string to remove the phonetic markup.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        The string with phonetic markup removed.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">phonetic_markers</span>
+    <span class="k">global</span> <span class="n">phonetic_regex</span>
+    <span class="k">if</span> <span class="n">root</span> <span class="ow">in</span> <span class="n">phonetic_markers</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">root</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">phonetic_regex</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">root</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="trim_compounds"><a class="viewcode-back" href="../../../api/vabamorf.html#estnltk.vabamorf.morf.trim_compounds">[docs]</a><span class="k">def</span> <span class="nf">trim_compounds</span><span class="p">(</span><span class="n">root</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Function that trims compound markup from the root.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    root: str</span>
+<span class="sd">        The string to remove the compound markup.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        The string with compound markup removed.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">root</span> <span class="ow">in</span> <span class="n">compound_markers</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">root</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">compound_regex</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">root</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_root"><a class="viewcode-back" href="../../../api/vabamorf.html#estnltk.vabamorf.morf.get_root">[docs]</a><span class="k">def</span> <span class="nf">get_root</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">phonetic</span><span class="p">,</span> <span class="n">compound</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Get the root form without markers.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    root: str</span>
+<span class="sd">        The word root form.</span>
+<span class="sd">    phonetic: boolean</span>
+<span class="sd">        If True, add phonetic information to the root forms.</span>
+<span class="sd">    compound: boolean</span>
+<span class="sd">        if True, add compound word markers to root forms.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">compound_regex</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">phonetic</span><span class="p">:</span>
+        <span class="n">root</span> <span class="o">=</span> <span class="n">trim_phonetics</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">compound</span><span class="p">:</span>
+        <span class="n">root</span> <span class="o">=</span> <span class="n">trim_compounds</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">root</span></div>
+
+
+<div class="viewcode-block" id="get_group_tokens"><a class="viewcode-back" href="../../../api/vabamorf.html#estnltk.vabamorf.morf.get_group_tokens">[docs]</a><span class="k">def</span> <span class="nf">get_group_tokens</span><span class="p">(</span><span class="n">root</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Function to extract tokens in hyphenated groups (saunameheks-tallimeheks).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    root: str</span>
+<span class="sd">        The root form.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list of (list of str)</span>
+<span class="sd">        List of grouped root tokens.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">all_markers</span>
+    <span class="k">if</span> <span class="n">root</span> <span class="ow">in</span> <span class="n">all_markers</span> <span class="ow">or</span> <span class="n">root</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39;_&#39;</span><span class="p">]:</span> <span class="c1"># special case</span>
+        <span class="k">return</span> <span class="p">[[</span><span class="n">root</span><span class="p">]]</span>
+    <span class="n">groups</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">root</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">):</span>
+        <span class="n">toks</span> <span class="o">=</span> <span class="p">[</span><span class="n">trim_phonetics</span><span class="p">(</span><span class="n">trim_compounds</span><span class="p">(</span><span class="n">tok</span><span class="p">))</span> <span class="k">for</span> <span class="n">tok</span> <span class="ow">in</span> <span class="n">group</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)]</span>
+        <span class="n">groups</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">toks</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">groups</span></div>
+
+
+<span class="k">def</span> <span class="nf">get_lemma</span><span class="p">(</span><span class="n">grouptoks</span><span class="p">,</span> <span class="n">partofspeech</span><span class="p">):</span>
+    <span class="n">lemma</span> <span class="o">=</span> <span class="s1">&#39;-&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">gr</span><span class="p">)</span> <span class="k">for</span> <span class="n">gr</span> <span class="ow">in</span> <span class="n">grouptoks</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">partofspeech</span> <span class="o">==</span> <span class="s1">&#39;V&#39;</span> <span class="ow">and</span> <span class="n">lemma</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;ei&#39;</span><span class="p">,</span> <span class="s1">&#39;ära&#39;</span><span class="p">]:</span>
+        <span class="n">lemma</span> <span class="o">+=</span> <span class="s1">&#39;ma&#39;</span>
+    <span class="k">return</span> <span class="n">lemma</span>
+
+
+<span class="k">def</span> <span class="nf">as_analysis</span><span class="p">(</span><span class="n">analysis</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">vm</span><span class="o">.</span><span class="n">Analysis</span><span class="p">(</span>
+        <span class="n">convert</span><span class="p">(</span><span class="n">analysis</span><span class="p">[</span><span class="s1">&#39;root&#39;</span><span class="p">]),</span>
+        <span class="n">convert</span><span class="p">(</span><span class="n">analysis</span><span class="p">[</span><span class="s1">&#39;ending&#39;</span><span class="p">]),</span>
+        <span class="n">convert</span><span class="p">(</span><span class="n">analysis</span><span class="p">[</span><span class="s1">&#39;clitic&#39;</span><span class="p">]),</span>
+        <span class="n">convert</span><span class="p">(</span><span class="n">analysis</span><span class="p">[</span><span class="s1">&#39;partofspeech&#39;</span><span class="p">]),</span>
+        <span class="n">convert</span><span class="p">(</span><span class="n">analysis</span><span class="p">[</span><span class="s1">&#39;form&#39;</span><span class="p">])</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">as_wordanalysis</span><span class="p">(</span><span class="n">word</span><span class="p">):</span>
+    <span class="n">analysis</span> <span class="o">=</span> <span class="n">vm</span><span class="o">.</span><span class="n">AnalysisVector</span><span class="p">([</span><span class="n">as_analysis</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">word</span><span class="p">[</span><span class="s1">&#39;analysis&#39;</span><span class="p">]])</span>
+    <span class="k">return</span> <span class="n">vm</span><span class="o">.</span><span class="n">WordAnalysis</span><span class="p">(</span><span class="n">convert</span><span class="p">(</span><span class="n">word</span><span class="p">[</span><span class="s1">&#39;text&#39;</span><span class="p">]),</span> <span class="n">analysis</span><span class="p">)</span>
+
+
+<span class="c1">######################################################</span>
+<span class="c1"># SHORTCUT FUNCTIONS</span>
+<span class="c1">######################################################</span>
+
+
+<div class="viewcode-block" id="analyze"><a class="viewcode-back" href="../../../api/vabamorf.html#estnltk.vabamorf.morf.analyze">[docs]</a><span class="k">def</span> <span class="nf">analyze</span><span class="p">(</span><span class="n">words</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Perform morphological analysis and disambiguation of given text.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    words: list of str or str</span>
+<span class="sd">        Either a list of pretokenized words or a string. In case of a string, it will be splitted using</span>
+<span class="sd">        default behaviour of string.split() function.</span>
+<span class="sd">    disambiguate: boolean (default: True)</span>
+<span class="sd">        Disambiguate the output and remove incosistent analysis.</span>
+<span class="sd">    guess: boolean (default: True)</span>
+<span class="sd">        Use guessing in case of unknown words</span>
+<span class="sd">    propername: boolean (default: True)</span>
+<span class="sd">        Perform additional analysis of proper names.</span>
+<span class="sd">    compound: boolean (default: True)</span>
+<span class="sd">        Add compound word markers to root forms.</span>
+<span class="sd">    phonetic: boolean (default: False)</span>
+<span class="sd">        Add phonetic information to root forms.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list of (list of dict)</span>
+<span class="sd">        List of analysis for each word in input.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">Vabamorf</span><span class="o">.</span><span class="n">instance</span><span class="p">()</span><span class="o">.</span><span class="n">analyze</span><span class="p">(</span><span class="n">words</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="disambiguate"><a class="viewcode-back" href="../../../api/vabamorf.html#estnltk.vabamorf.morf.disambiguate">[docs]</a><span class="k">def</span> <span class="nf">disambiguate</span><span class="p">(</span><span class="n">words</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Disambiguate previously analyzed words.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    words: list of dict</span>
+<span class="sd">        A sentence of words.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list of dict</span>
+<span class="sd">        Sentence of disambiguated words.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">Vabamorf</span><span class="o">.</span><span class="n">instance</span><span class="p">()</span><span class="o">.</span><span class="n">disambiguate</span><span class="p">(</span><span class="n">words</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="spellcheck"><a class="viewcode-back" href="../../../api/vabamorf.html#estnltk.vabamorf.morf.spellcheck">[docs]</a><span class="k">def</span> <span class="nf">spellcheck</span><span class="p">(</span><span class="n">words</span><span class="p">,</span> <span class="n">suggestions</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Spellcheck given sentence.</span>
+
+<span class="sd">    Note that spellchecker does not respect pre-tokenized words and concatenates</span>
+<span class="sd">    token sequences such as &quot;New York&quot;.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    words: list of str or str</span>
+<span class="sd">        Either a list of pretokenized words or a string. In case of a string, it will be splitted using</span>
+<span class="sd">        default behaviour of string.split() function.</span>
+<span class="sd">    suggestions: boolean (default: True)</span>
+<span class="sd">        Add spell suggestions to result.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list of dict</span>
+<span class="sd">        Each dictionary contains following values:</span>
+<span class="sd">            &#39;word&#39;: the original word</span>
+<span class="sd">            &#39;spelling&#39;: True, if the word was spelled correctly</span>
+<span class="sd">            &#39;suggestions&#39;: list of suggested strings in case of incorrect spelling</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">Vabamorf</span><span class="o">.</span><span class="n">instance</span><span class="p">()</span><span class="o">.</span><span class="n">spellcheck</span><span class="p">(</span><span class="n">words</span><span class="p">,</span> <span class="n">suggestions</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="fix_spelling"><a class="viewcode-back" href="../../../api/vabamorf.html#estnltk.vabamorf.morf.fix_spelling">[docs]</a><span class="k">def</span> <span class="nf">fix_spelling</span><span class="p">(</span><span class="n">words</span><span class="p">,</span> <span class="n">join</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">joinstring</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Simple function for quickly correcting misspelled words.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    words: list of str or str</span>
+<span class="sd">        Either a list of pretokenized words or a string. In case of a string, it will be splitted using</span>
+<span class="sd">        default behaviour of string.split() function.</span>
+<span class="sd">    join: boolean (default: True)</span>
+<span class="sd">        Should we join the list of words into a single string.</span>
+<span class="sd">    joinstring: str (default: &#39; &#39;)</span>
+<span class="sd">        The string that will be used to join together the fixed words.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        In case join is True</span>
+<span class="sd">    list of str</span>
+<span class="sd">        In case join is False.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">Vabamorf</span><span class="o">.</span><span class="n">instance</span><span class="p">()</span><span class="o">.</span><span class="n">fix_spelling</span><span class="p">(</span><span class="n">words</span><span class="p">,</span> <span class="n">join</span><span class="p">,</span> <span class="n">joinstring</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="synthesize"><a class="viewcode-back" href="../../../api/vabamorf.html#estnltk.vabamorf.morf.synthesize">[docs]</a><span class="k">def</span> <span class="nf">synthesize</span><span class="p">(</span><span class="n">lemma</span><span class="p">,</span> <span class="n">form</span><span class="p">,</span> <span class="n">partofspeech</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">hint</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">guess</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">phonetic</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Synthesize a single word based on given morphological attributes.</span>
+
+<span class="sd">    Note that spellchecker does not respect pre-tokenized words and concatenates</span>
+<span class="sd">    token sequences such as &quot;New York&quot;.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    lemma: str</span>
+<span class="sd">        The lemma of the word(s) to be synthesized.</span>
+<span class="sd">    form: str</span>
+<span class="sd">        The form of the word(s) to be synthesized.</span>
+<span class="sd">    partofspeech: str</span>
+<span class="sd">        Part-of-speech.</span>
+<span class="sd">    hint: str</span>
+<span class="sd">        Hint.</span>
+<span class="sd">    guess: boolean (default: True)</span>
+<span class="sd">        Use heuristics when synthesizing unknown words.</span>
+<span class="sd">    phonetic: boolean (default: False)</span>
+<span class="sd">        Add phonetic markup to synthesized words.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list</span>
+<span class="sd">        List of synthesized words.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">Vabamorf</span><span class="o">.</span><span class="n">instance</span><span class="p">()</span><span class="o">.</span><span class="n">synthesize</span><span class="p">(</span><span class="n">lemma</span><span class="p">,</span> <span class="n">form</span><span class="p">,</span> <span class="n">partofspeech</span><span class="p">,</span> <span class="n">hint</span><span class="p">,</span> <span class="n">guess</span><span class="p">,</span> <span class="n">phonetic</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, University of Tartu unless specified otherwise in the file headers.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'1.4.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
