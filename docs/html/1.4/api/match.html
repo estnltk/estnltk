@@ -1,0 +1,172 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>estnltk.grammar.match module &mdash; estnltk 1.3 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="estnltk 1.3 documentation" href="../index.html" />
+    <link rel="next" title="estnltk.ner module" href="ner.html" />
+    <link rel="prev" title="estnltk.grammar.grammar module" href="grammar.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ner.html" title="estnltk.ner module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="grammar.html" title="estnltk.grammar.grammar module"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">estnltk 1.3 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-estnltk.grammar.match">
+<span id="estnltk-grammar-match-module"></span><h1>estnltk.grammar.match module<a class="headerlink" href="#module-estnltk.grammar.match" title="Permalink to this headline">¶</a></h1>
+<p>This module defines Match objects.</p>
+<dl class="class">
+<dt id="estnltk.grammar.match.Match">
+<em class="property">class </em><tt class="descclassname">estnltk.grammar.match.</tt><tt class="descname">Match</tt><big>(</big><em>start</em>, <em>end</em>, <em>text</em>, <em>name=None</em><big>)</big><a class="reference internal" href="../_modules/estnltk/grammar/match.html#Match"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.grammar.match.Match" title="Permalink to this definition">¶</a></dt>
+<dd><p>Match of a grammar symbol.</p>
+<dl class="method">
+<dt id="estnltk.grammar.match.Match.__init__">
+<tt class="descname">__init__</tt><big>(</big><em>start</em>, <em>end</em>, <em>text</em>, <em>name=None</em><big>)</big><a class="reference internal" href="../_modules/estnltk/grammar/match.html#Match.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.grammar.match.Match.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.grammar.match.Match.dict">
+<tt class="descname">dict</tt><a class="reference internal" href="../_modules/estnltk/grammar/match.html#Match.dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.grammar.match.Match.dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dictionary representing this match and all child symbol matches.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.grammar.match.Match.end">
+<tt class="descname">end</tt><a class="reference internal" href="../_modules/estnltk/grammar/match.html#Match.end"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.grammar.match.Match.end" title="Permalink to this definition">¶</a></dt>
+<dd><p>The end position of the match.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.grammar.match.Match.matches">
+<tt class="descname">matches</tt><a class="reference internal" href="../_modules/estnltk/grammar/match.html#Match.matches"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.grammar.match.Match.matches" title="Permalink to this definition">¶</a></dt>
+<dd><p>Matches of child symbols.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.grammar.match.Match.name">
+<tt class="descname">name</tt><a class="reference internal" href="../_modules/estnltk/grammar/match.html#Match.name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.grammar.match.Match.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>The name of the match.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.grammar.match.Match.start">
+<tt class="descname">start</tt><a class="reference internal" href="../_modules/estnltk/grammar/match.html#Match.start"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.grammar.match.Match.start" title="Permalink to this definition">¶</a></dt>
+<dd><p>The start position of the match.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.grammar.match.Match.text">
+<tt class="descname">text</tt><a class="reference internal" href="../_modules/estnltk/grammar/match.html#Match.text"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.grammar.match.Match.text" title="Permalink to this definition">¶</a></dt>
+<dd><p>Matched text.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="estnltk.grammar.match.concatenate_matches">
+<tt class="descclassname">estnltk.grammar.match.</tt><tt class="descname">concatenate_matches</tt><big>(</big><em>a</em>, <em>b</em>, <em>text</em>, <em>name</em><big>)</big><a class="reference internal" href="../_modules/estnltk/grammar/match.html#concatenate_matches"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.grammar.match.concatenate_matches" title="Permalink to this definition">¶</a></dt>
+<dd><p>Concatenate matches a and b.
+All submatches will be copied to result.</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="grammar.html"
+                        title="previous chapter">estnltk.grammar.grammar module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ner.html"
+                        title="next chapter">estnltk.ner module</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/api/match.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ner.html" title="estnltk.ner module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="grammar.html" title="estnltk.grammar.grammar module"
+             >previous</a> |</li>
+        <li><a href="../index.html">estnltk 1.3 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2015, University of Tartu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>

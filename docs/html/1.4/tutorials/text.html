@@ -1,0 +1,2061 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Working with text &mdash; estnltk 1.3 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="estnltk 1.3 documentation" href="../index.html" />
+    <link rel="next" title="Morphological disambiguation on a collection of documents" href="disambiguation.html" />
+    <link rel="prev" title="Installation" href="installation.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="disambiguation.html" title="Morphological disambiguation on a collection of documents"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="installation.html" title="Installation"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">estnltk 1.3 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="working-with-text">
+<h1>Working with text<a class="headerlink" href="#working-with-text" title="Permalink to this headline">¶</a></h1>
+<p>In this tutorial, we start with Estnltk basics and introduce you to the <tt class="xref py py-class docutils literal"><span class="pre">Text</span></tt> class.
+We will take the class apart to bits and pieces and put it back together to give a good overview, what it can do for you
+and how can you work with it.</p>
+<div class="section" id="getting-started">
+<h2>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h2>
+<p>One of the most important classes in Estnltk is <tt class="xref py py-class docutils literal"><span class="pre">Text</span></tt>, which is essentally the main interface
+for doing everything Estnltk is capable of. It is actually a subclass of standard <tt class="docutils literal"><span class="pre">dict</span></tt> class in Python and stores
+all data relevant to the text in this form:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">Text</span>
+
+<span class="n">text</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s">&#39;Tere maailm!&#39;</span><span class="p">)</span>
+<span class="k">print</span> <span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">text</span><span class="p">))</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span><span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;Tere maailm!&#39;</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>You can use <tt class="xref py py-class docutils literal"><span class="pre">Text</span></tt> instances the same way as you would use a typical <tt class="docutils literal"><span class="pre">dict</span></tt> object in Python:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">print</span> <span class="p">(</span><span class="n">text</span><span class="p">[</span><span class="s">&#39;text&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre>Tere maailm!
+</pre></div>
+</div>
+<p>Naturally, you can initiate a new instance from a dictionary:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">text2</span> <span class="o">=</span> <span class="n">Text</span><span class="p">({</span><span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;Tere maailm!&#39;</span><span class="p">})</span>
+<span class="k">print</span> <span class="p">(</span><span class="n">text</span> <span class="o">==</span> <span class="n">text2</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="bp">True</span>
+</pre></div>
+</div>
+<p>As the <tt class="xref py py-class docutils literal"><span class="pre">Text</span></tt> class is essentially a dictionary, it has a number of <strong>advantages</strong>:</p>
+<ul class="simple">
+<li>via JSON serialization, it is easy to store texts in databases, pass it easily around with HTTP GET/PUT commands,</li>
+<li>simple to inspect and debug,</li>
+<li>simple to extend and add new layers of annotations.</li>
+</ul>
+<p>Main disadvantage is that the dictionary can get quite verbose, so space can be an issue when storing large corpora with many layers of annotations.</p>
+<div class="section" id="layers">
+<h3>Layers<a class="headerlink" href="#layers" title="Permalink to this headline">¶</a></h3>
+<p>A <tt class="xref py py-class docutils literal"><span class="pre">Text</span></tt> instance can have different types of layers that hold annotations or denote
+special regions of the text.
+For instance, <tt class="docutils literal"><span class="pre">words</span></tt> layer defines the word tokens, <tt class="docutils literal"><span class="pre">named_entities</span></tt> layer denotes the positions of named entities etc.</p>
+<p>There are two types of layers:</p>
+<ol class="arabic">
+<li><p class="first"><strong>simple</strong> layer has elements that only span a single region <em>such as words, sentences</em>.</p>
+</li>
+<li><p class="first"><strong>multi</strong> layer has elements that can span several regions. For example, sentence
+<em>&#8220;Kõrred, millel on toitunud viljasääse vastsed, jäävad õhukeseks.&#8221;</em> has two clauses:</p>
+<ol class="loweralpha simple">
+<li><em>&#8220;Korred jäävad õhukeseks&#8221;</em>,</li>
+<li><em>&#8221;, millel on toitunud viljasääse vastsed, &#8220;</em> .</li>
+</ol>
+<p>Clause (a) spans multiple regions in the original text.</p>
+</li>
+</ol>
+<p>Both types of layers require each layer element to define <tt class="docutils literal"><span class="pre">start</span></tt> and <tt class="docutils literal"><span class="pre">end</span></tt> attributes.
+Simple layer elements define <tt class="docutils literal"><span class="pre">start</span></tt> and <tt class="docutils literal"><span class="pre">end</span></tt> as integers of the range containing the element.
+Multi layer elements similarily define <tt class="docutils literal"><span class="pre">start</span></tt> and <tt class="docutils literal"><span class="pre">end</span></tt> attributes, but these are lists of
+respective start and end positions of the element.</p>
+<p>Simple layer:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">Text</span>
+<span class="n">text</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s">&#39;Kõrred, millel on toitunud viljasääse vastsed, jäävad õhukeseks.&#39;</span><span class="p">)</span>
+<span class="n">text</span><span class="o">.</span><span class="n">tokenize_words</span><span class="p">()</span>
+<span class="n">text</span><span class="p">[</span><span class="s">&#39;words&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">[{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;Kõrred&#39;</span><span class="p">},</span>
+ <span class="p">{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span> <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;,&#39;</span><span class="p">},</span>
+ <span class="p">{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">14</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span> <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;millel&#39;</span><span class="p">},</span>
+ <span class="p">{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">17</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span> <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;on&#39;</span><span class="p">},</span>
+ <span class="p">{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">26</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">18</span><span class="p">,</span> <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;toitunud&#39;</span><span class="p">},</span>
+ <span class="p">{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">37</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">27</span><span class="p">,</span> <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;viljasääse&#39;</span><span class="p">},</span>
+ <span class="p">{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">45</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">38</span><span class="p">,</span> <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;vastsed&#39;</span><span class="p">},</span>
+ <span class="p">{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">46</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">45</span><span class="p">,</span> <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;,&#39;</span><span class="p">},</span>
+ <span class="p">{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">53</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">47</span><span class="p">,</span> <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;jäävad&#39;</span><span class="p">},</span>
+ <span class="p">{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">63</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">54</span><span class="p">,</span> <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;õhukeseks&#39;</span><span class="p">},</span>
+ <span class="p">{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">64</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">63</span><span class="p">,</span> <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;.&#39;</span><span class="p">}]</span>
+</pre></div>
+</div>
+<p>Each word has a <tt class="docutils literal"><span class="pre">start</span></tt> and <tt class="docutils literal"><span class="pre">end</span></tt> attribute that tells, where the word is located in the text.
+In case of multi layers, we see slightly different result:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">text</span><span class="o">.</span><span class="n">tag_clauses</span><span class="p">()</span>
+<span class="n">text</span><span class="p">[</span><span class="s">&#39;clauses&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">[{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">64</span><span class="p">],</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">47</span><span class="p">]},</span>
+ <span class="p">{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">46</span><span class="p">],</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">6</span><span class="p">]}]</span>
+</pre></div>
+</div>
+<p>We see that first clause has two spans in the text.
+Although the second clause has only one span, it is also defined as a multi layer element.
+Estnltk uses <em>either</em> <strong>simple</strong> or <strong>multi</strong> type for a single layer.
+However, nothing stops you from mixing these two, if you wish.</p>
+<p>In next sections, we discuss typical NLP operations you can do with Estnltk and also explain, how the results are stored in the dictionary underneath the  <tt class="xref py py-class docutils literal"><span class="pre">Text</span></tt> instances.</p>
+</div>
+</div>
+<div class="section" id="tokenization">
+<h2>Tokenization<a class="headerlink" href="#tokenization" title="Permalink to this headline">¶</a></h2>
+<p>One of the most basic tasks of any NLP pipeline is text and sentence tokenization.
+The <tt class="xref py py-class docutils literal"><span class="pre">Text</span></tt> class has methods
+<tt class="xref py py-func docutils literal"><span class="pre">tokenize_paragraphs()</span></tt>,
+<tt class="xref py py-func docutils literal"><span class="pre">tokenize_sentences()</span></tt> and <tt class="xref py py-func docutils literal"><span class="pre">tokenize_words()</span></tt>,
+which you can call to do this explicitly.
+However, there are also properties <tt class="xref py py-attr docutils literal"><span class="pre">word_texts</span></tt>,
+<tt class="xref py py-attr docutils literal"><span class="pre">sentence_texts</span></tt> and <tt class="xref py py-attr docutils literal"><span class="pre">paragraph_texts</span></tt>
+that do this automatically when you use them and also
+give you the texts of tokenized words or sentences:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">Text</span>
+
+<span class="n">text</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s">&#39;Üle oja mäele, läbi oru jõele. Ämber läks ümber.&#39;</span><span class="p">)</span>
+<span class="k">print</span> <span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">word_texts</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="s">&#39;Üle&#39;</span><span class="p">,</span> <span class="s">&#39;oja&#39;</span><span class="p">,</span> <span class="s">&#39;mäele&#39;</span><span class="p">,</span> <span class="s">&#39;,&#39;</span><span class="p">,</span> <span class="s">&#39;läbi&#39;</span><span class="p">,</span> <span class="s">&#39;oru&#39;</span><span class="p">,</span> <span class="s">&#39;jõele&#39;</span><span class="p">,</span> <span class="s">&#39;.&#39;</span><span class="p">,</span> <span class="s">&#39;Ämber&#39;</span><span class="p">,</span> <span class="s">&#39;läks&#39;</span><span class="p">,</span> <span class="s">&#39;ümber&#39;</span><span class="p">,</span> <span class="s">&#39;.&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>In order for the tokenization to happen, <tt class="xref py py-class docutils literal"><span class="pre">Text</span></tt> instance applies the default tokenizer in
+background and updates the text data:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
+<span class="n">pprint</span> <span class="p">(</span><span class="n">text</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span><span class="s">&#39;paragraphs&#39;</span><span class="p">:</span> <span class="p">[{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">48</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}],</span>
+ <span class="s">&#39;sentences&#39;</span><span class="p">:</span> <span class="p">[{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span> <span class="p">{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">48</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">31</span><span class="p">}],</span>
+ <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;Üle oja mäele, läbi oru jõele. Ämber läks ümber.&#39;</span><span class="p">,</span>
+ <span class="s">&#39;words&#39;</span><span class="p">:</span> <span class="p">[{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;Üle&#39;</span><span class="p">},</span>
+           <span class="p">{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;oja&#39;</span><span class="p">},</span>
+           <span class="p">{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">13</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span> <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;mäele&#39;</span><span class="p">},</span>
+           <span class="p">{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">14</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">13</span><span class="p">,</span> <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;,&#39;</span><span class="p">},</span>
+           <span class="p">{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">19</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span> <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;läbi&#39;</span><span class="p">},</span>
+           <span class="p">{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">23</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span> <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;oru&#39;</span><span class="p">},</span>
+           <span class="p">{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">29</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">24</span><span class="p">,</span> <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;jõele&#39;</span><span class="p">},</span>
+           <span class="p">{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">29</span><span class="p">,</span> <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;.&#39;</span><span class="p">},</span>
+           <span class="p">{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">36</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">31</span><span class="p">,</span> <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;Ämber&#39;</span><span class="p">},</span>
+           <span class="p">{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">41</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">37</span><span class="p">,</span> <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;läks&#39;</span><span class="p">},</span>
+           <span class="p">{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">47</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">42</span><span class="p">,</span> <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;ümber&#39;</span><span class="p">},</span>
+           <span class="p">{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">48</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">47</span><span class="p">,</span> <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;.&#39;</span><span class="p">}]}</span>
+</pre></div>
+</div>
+<p>As you can see, there is now a <tt class="docutils literal"><span class="pre">words</span></tt> element in the dictionary, which is a list of dictionaries denoting <tt class="docutils literal"><span class="pre">start</span></tt>
+and <tt class="docutils literal"><span class="pre">end</span></tt> positions of the respective words. You also see <tt class="docutils literal"><span class="pre">sentences</span></tt> and <tt class="docutils literal"><span class="pre">paragraphs</span></tt> elements,
+because sentence and paragraph tokenization is a prerequisite
+before word tokenization and Estnltk did this automatically on your behalf.</p>
+<p>The <tt class="xref py py-attr docutils literal"><span class="pre">word_texts</span></tt> property does basically the same as the following snippet:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">text</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s">&#39;Üle oja mäele, läbi oru jõele. Ämber läks ümber.&#39;</span><span class="p">)</span>
+<span class="n">text</span><span class="o">.</span><span class="n">tokenize_words</span><span class="p">()</span> <span class="c"># this method applies text tokenization</span>
+<span class="k">print</span> <span class="p">([</span><span class="n">text</span><span class="p">[</span><span class="s">&#39;text&#39;</span><span class="p">][</span><span class="n">word</span><span class="p">[</span><span class="s">&#39;start&#39;</span><span class="p">]:</span><span class="n">word</span><span class="p">[</span><span class="s">&#39;end&#39;</span><span class="p">]]</span> <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">text</span><span class="p">[</span><span class="s">&#39;words&#39;</span><span class="p">]])</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="s">&#39;Üle&#39;</span><span class="p">,</span> <span class="s">&#39;oja&#39;</span><span class="p">,</span> <span class="s">&#39;mäele&#39;</span><span class="p">,</span> <span class="s">&#39;,&#39;</span><span class="p">,</span> <span class="s">&#39;läbi&#39;</span><span class="p">,</span> <span class="s">&#39;oru&#39;</span><span class="p">,</span> <span class="s">&#39;jõele&#39;</span><span class="p">,</span> <span class="s">&#39;.&#39;</span><span class="p">,</span> <span class="s">&#39;Ämber&#39;</span><span class="p">,</span> <span class="s">&#39;läks&#39;</span><span class="p">,</span> <span class="s">&#39;ümber&#39;</span><span class="p">,</span> <span class="s">&#39;.&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Only difference is that by using <tt class="xref py py-attr docutils literal"><span class="pre">word_texts</span></tt> property twice does not perform tokenization twice.
+Second call would use the <tt class="docutils literal"><span class="pre">start</span></tt> and <tt class="docutils literal"><span class="pre">end</span></tt> attributes already stored in the <tt class="xref py py-class docutils literal"><span class="pre">Text</span></tt> instance.</p>
+<p>The default word tokenizer is a modification of <a class="reference external" href="http://www.nltk.org/api/nltk.tokenize.html#nltk.tokenize.regexp.WordPunctTokenizer">WordPunctTokenizer</a></p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">nltk.tokenize.regexp</span> <span class="kn">import</span> <span class="n">WordPunctTokenizer</span>
+<span class="n">tok</span> <span class="o">=</span> <span class="n">WordPunctTokenizer</span><span class="p">()</span>
+<span class="k">print</span> <span class="p">(</span><span class="n">tok</span><span class="o">.</span><span class="n">tokenize</span><span class="p">(</span><span class="s">&#39;Tere maailm!&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="s">&#39;Tere&#39;</span><span class="p">,</span> <span class="s">&#39;maailm&#39;</span><span class="p">,</span> <span class="s">&#39;!&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Also, the default sentence tokenizer comes from NLTK:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">nltk.data</span>
+<span class="n">tok</span> <span class="o">=</span> <span class="n">nltk</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s">&#39;tokenizers/punkt/estonian.pickle&#39;</span><span class="p">)</span>
+<span class="n">tok</span><span class="o">.</span><span class="n">tokenize</span><span class="p">(</span><span class="s">&#39;Esimene lause. Teine lause?&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="s">&#39;Esimene lause.&#39;</span><span class="p">,</span> <span class="s">&#39;Teine lause?&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>In order to plug in custom tokenization functionality, you need to implement interface defined by NLTK
+<a class="reference external" href="http://www.nltk.org/api/nltk.tokenize.html#nltk.tokenize.api.StringTokenizer">StringTokenizer</a> and supply them as keyword arguments when initiating <tt class="xref py py-class docutils literal"><span class="pre">Text</span></tt>
+objects. Of course, all other NLTK tokenizers follow this interface:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">nltk.tokenize.regexp</span> <span class="kn">import</span> <span class="n">WhitespaceTokenizer</span>
+<span class="kn">from</span> <span class="nn">nltk.tokenize.simple</span> <span class="kn">import</span> <span class="n">LineTokenizer</span>
+
+<span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&quot;word_tokenizer&quot;</span><span class="p">:</span> <span class="n">WhitespaceTokenizer</span><span class="p">(),</span>
+    <span class="s">&quot;sentence_tokenizer&quot;</span><span class="p">:</span> <span class="n">LineTokenizer</span><span class="p">()</span>
+<span class="p">}</span>
+
+<span class="n">plain</span> <span class="o">=</span> <span class="s">&#39;&#39;&#39;Hmm, lausemärgid jäävad sõnade külge. Ja laused</span>
+<span class="s">tuvastatakse praegu</span>
+
+<span class="s">reavahetuste järgi&#39;&#39;&#39;</span>
+
+<span class="n">text</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="n">plain</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+<span class="k">print</span> <span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">word_texts</span><span class="p">)</span>
+<span class="k">print</span> <span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">sentence_texts</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># words</span>
+<span class="p">[</span><span class="s">&#39;Hmm,&#39;</span><span class="p">,</span> <span class="s">&#39;lausemärgid&#39;</span><span class="p">,</span> <span class="s">&#39;jäävad&#39;</span><span class="p">,</span> <span class="s">&#39;sõnade&#39;</span><span class="p">,</span> <span class="s">&#39;külge.&#39;</span><span class="p">,</span> <span class="s">&#39;Ja&#39;</span><span class="p">,</span> <span class="s">&#39;laused&#39;</span><span class="p">,</span> <span class="s">&#39;tuvastatakse&#39;</span><span class="p">,</span> <span class="s">&#39;praegu&#39;</span><span class="p">,</span> <span class="s">&#39;reavahetuste&#39;</span><span class="p">,</span> <span class="s">&#39;järgi&#39;</span><span class="p">]</span>
+
+<span class="c"># sentences</span>
+<span class="p">[</span><span class="s">&#39;Hmm, lausemärgid jäävad sõnade külge. Ja laused&#39;</span><span class="p">,</span> <span class="s">&#39;tuvastatakse praegu&#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">,</span> <span class="s">&#39;reavahetuste järgi&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>After both word and sentence tokenization, a <tt class="xref py py-class docutils literal"><span class="pre">Text</span></tt> instance looks like this:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span><span class="s">&#39;sentences&#39;</span><span class="p">:</span> <span class="p">[{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">47</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+               <span class="p">{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">67</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">48</span><span class="p">},</span>
+               <span class="p">{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">68</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">68</span><span class="p">},</span>
+               <span class="p">{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">87</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">69</span><span class="p">}],</span>
+ <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;Hmm, lausemärgid jäävad sõnade külge. Ja laused</span><span class="se">\n</span><span class="s">&#39;</span>
+         <span class="s">&#39;tuvastatakse praegu</span><span class="se">\n</span><span class="s">&#39;</span>
+         <span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span>
+         <span class="s">&#39;reavahetuste järgi&#39;</span><span class="p">,</span>
+ <span class="s">&#39;words&#39;</span><span class="p">:</span> <span class="p">[{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;Hmm,&#39;</span><span class="p">},</span>
+           <span class="p">{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">16</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;lausemärgid&#39;</span><span class="p">},</span>
+           <span class="p">{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">23</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">17</span><span class="p">,</span> <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;jäävad&#39;</span><span class="p">},</span>
+           <span class="p">{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">24</span><span class="p">,</span> <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;sõnade&#39;</span><span class="p">},</span>
+           <span class="p">{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">37</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">31</span><span class="p">,</span> <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;külge.&#39;</span><span class="p">},</span>
+           <span class="p">{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">40</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">38</span><span class="p">,</span> <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;Ja&#39;</span><span class="p">},</span>
+           <span class="p">{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">47</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">41</span><span class="p">,</span> <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;laused&#39;</span><span class="p">},</span>
+           <span class="p">{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">60</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">48</span><span class="p">,</span> <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;tuvastatakse&#39;</span><span class="p">},</span>
+           <span class="p">{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">67</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">61</span><span class="p">,</span> <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;praegu&#39;</span><span class="p">},</span>
+           <span class="p">{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">81</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">69</span><span class="p">,</span> <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;reavahetuste&#39;</span><span class="p">},</span>
+           <span class="p">{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">87</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">82</span><span class="p">,</span> <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;järgi&#39;</span><span class="p">}]}</span>
+</pre></div>
+</div>
+<p>This is the full list of tokenization related properties of <tt class="xref py py-class docutils literal"><span class="pre">Text</span></tt>:</p>
+<ul class="simple">
+<li><tt class="xref py py-attr docutils literal"><span class="pre">text</span></tt> - the text string itself</li>
+<li><tt class="xref py py-attr docutils literal"><span class="pre">words</span></tt> - list of word dictionaries</li>
+<li><tt class="xref py py-attr docutils literal"><span class="pre">word_texts</span></tt> - word texts</li>
+<li><tt class="xref py py-attr docutils literal"><span class="pre">word_starts</span></tt> - word start positions</li>
+<li><tt class="xref py py-attr docutils literal"><span class="pre">word_ends</span></tt> - word end positions</li>
+<li><tt class="xref py py-attr docutils literal"><span class="pre">word_spans</span></tt> - word (start, end) position tuples</li>
+<li><tt class="xref py py-attr docutils literal"><span class="pre">sentence_texts</span></tt> - list of sentence dictionaries</li>
+<li><tt class="xref py py-attr docutils literal"><span class="pre">sentence_texts</span></tt> - list of sentence texts</li>
+<li><tt class="xref py py-attr docutils literal"><span class="pre">sentence_starts</span></tt> - sentence start positions</li>
+<li><tt class="xref py py-attr docutils literal"><span class="pre">sentence_ends</span></tt> - sentence end positions</li>
+<li><tt class="xref py py-attr docutils literal"><span class="pre">sentence_spans</span></tt> - sentence (start, end) position pairs</li>
+<li><tt class="xref py py-attr docutils literal"><span class="pre">paragraph_texts</span></tt> - paragraph texts</li>
+<li><tt class="xref py py-attr docutils literal"><span class="pre">paragraph_starts</span></tt> - paragraph start positions</li>
+<li><tt class="xref py py-attr docutils literal"><span class="pre">paragraph_ends</span></tt> - paragraph end positions</li>
+<li><tt class="xref py py-attr docutils literal"><span class="pre">paragraph_spans</span></tt> - paragraph (start, end) position pairs</li>
+</ul>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">Text</span>
+
+<span class="n">text</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s">&#39;Esimene lause. Teine lause&#39;</span><span class="p">)</span>
+
+<span class="k">print</span> <span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+
+<span class="k">print</span> <span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">words</span><span class="p">)</span>
+<span class="k">print</span> <span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">word_texts</span><span class="p">)</span>
+<span class="k">print</span> <span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">word_starts</span><span class="p">)</span>
+<span class="k">print</span> <span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">word_ends</span><span class="p">)</span>
+<span class="k">print</span> <span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">word_spans</span><span class="p">)</span>
+
+<span class="k">print</span> <span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">sentences</span><span class="p">)</span>
+<span class="k">print</span> <span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">sentence_texts</span><span class="p">)</span>
+<span class="k">print</span> <span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">sentence_starts</span><span class="p">)</span>
+<span class="k">print</span> <span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">sentence_ends</span><span class="p">)</span>
+<span class="k">print</span> <span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">sentence_spans</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="highlight-python"><div class="highlight"><pre># text.text
+Esimene lause. Teine lause
+
+# text.words
+[{&#39;end&#39;: 7, &#39;start&#39;: 0, &#39;text&#39;: &#39;Esimene&#39;}, {&#39;end&#39;: 13, &#39;start&#39;: 8, &#39;text&#39;: &#39;lause&#39;}, {&#39;end&#39;: 14, &#39;start&#39;: 13, &#39;text&#39;: &#39;.&#39;},
+{&#39;end&#39;: 20, &#39;start&#39;: 15, &#39;text&#39;: &#39;Teine&#39;}, {&#39;end&#39;: 26, &#39;start&#39;: 21, &#39;text&#39;: &#39;lause&#39;}]
+# text.word_texts
+[&#39;Esimene&#39;, &#39;lause&#39;, &#39;.&#39;, &#39;Teine&#39;, &#39;lause&#39;]
+# text.word_starts
+[0, 8, 13, 15, 21]
+# text.word_ends
+[7, 13, 14, 20, 26]
+# text.word_spans
+[(0, 7), (8, 13), (13, 14), (15, 20), (21, 26)]
+
+# text.sentences
+[{&#39;end&#39;: 14, &#39;start&#39;: 0}, {&#39;end&#39;: 26, &#39;start&#39;: 15}]
+# text.sentence_texts
+[&#39;Esimene lause.&#39;, &#39;Teine lause&#39;]
+# text.sentence_starts
+[0, 15]
+# text.sentence_ends
+[14, 26]
+# text.sentence_spans
+[(0, 14), (15, 26)]
+</pre></div>
+</div>
+<p>Note that if a dictionary already has <tt class="docutils literal"><span class="pre">words</span></tt>, <tt class="docutils literal"><span class="pre">sentences</span></tt> or <tt class="docutils literal"><span class="pre">paragraphs</span></tt> elements (or any other element that we introduce later),
+accessing these elements in a newly initialized <tt class="xref py py-class docutils literal"><span class="pre">Text</span></tt> object does not require
+recomputing them:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">text</span> <span class="o">=</span> <span class="n">Text</span><span class="p">({</span><span class="s">&#39;paragraphs&#39;</span><span class="p">:</span> <span class="p">[{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">27</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}],</span>
+             <span class="s">&#39;sentences&#39;</span><span class="p">:</span> <span class="p">[{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">14</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span> <span class="p">{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">27</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">15</span><span class="p">}],</span>
+             <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;Esimene lause. Teine lause.&#39;</span><span class="p">,</span>
+             <span class="s">&#39;words&#39;</span><span class="p">:</span> <span class="p">[{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;Esimene&#39;</span><span class="p">},</span>
+                       <span class="p">{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">13</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span> <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;lause&#39;</span><span class="p">},</span>
+                       <span class="p">{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">14</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">13</span><span class="p">,</span> <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;.&#39;</span><span class="p">},</span>
+                       <span class="p">{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span> <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;Teine&#39;</span><span class="p">},</span>
+                       <span class="p">{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">26</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">21</span><span class="p">,</span> <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;lause&#39;</span><span class="p">},</span>
+                       <span class="p">{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">27</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">26</span><span class="p">,</span> <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;.&#39;</span><span class="p">}]}</span>
+<span class="p">)</span>
+
+<span class="k">print</span> <span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">word_texts</span><span class="p">)</span> <span class="c"># tokenization is already done, just extract words using the positions</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="s">&#39;Esimene&#39;</span><span class="p">,</span> <span class="s">&#39;lause&#39;</span><span class="p">,</span> <span class="s">&#39;.&#39;</span><span class="p">,</span> <span class="s">&#39;Teine&#39;</span><span class="p">,</span> <span class="s">&#39;lause&#39;</span><span class="p">,</span> <span class="s">&#39;.&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>You should also remember this, when you have defined custom tokenizers. In such cases you can force retokenization by
+calling
+<tt class="xref py py-meth docutils literal"><span class="pre">tokenize_words()</span></tt>,
+<tt class="xref py py-meth docutils literal"><span class="pre">tokenize_sentences()</span></tt>
+or <tt class="xref py py-meth docutils literal"><span class="pre">tokenize_words()</span></tt>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>Things to remember!</p>
+<ol class="last arabic simple">
+<li><tt class="docutils literal"><span class="pre">words</span></tt>, <tt class="docutils literal"><span class="pre">sentences</span></tt> and <tt class="docutils literal"><span class="pre">paragraphs</span></tt> are <strong>simple</strong> layers.</li>
+<li>use properties to access the tokenized word/sentence texts and avoid <tt class="xref py py-meth docutils literal"><span class="pre">tokenize_words()</span></tt>, <tt class="xref py py-meth docutils literal"><span class="pre">tokenize_sentences()</span></tt> or <tt class="xref py py-meth docutils literal"><span class="pre">tokenize_paragraphs()</span></tt>, unless you have a meaningful reason to use them (for example, preparing documents for indexing in a database).</li>
+</ol>
+</div>
+</div>
+<div class="section" id="morphological-analysis">
+<h2>Morphological analysis<a class="headerlink" href="#morphological-analysis" title="Permalink to this headline">¶</a></h2>
+<p>In linguistics, morphology is the identification, analysis, and description of the structure of a given language&#8217;s morphemes and other linguistic units,
+such as root words, lemmas, suffixes, parts of speech etc.
+Estnltk wraps <a class="reference external" href="https://github.com/Filosoft/vabamorf">Vabamorf</a> morphological analyzer, which can do both morphological analysis and synthesis.</p>
+<p>Esnltk <tt class="xref py py-class docutils literal"><span class="pre">Text</span></tt> class properties for extracting morphological information:</p>
+<ul class="simple">
+<li><tt class="xref py py-attr docutils literal"><span class="pre">analysis</span></tt> - raw analysis data.</li>
+<li><tt class="xref py py-attr docutils literal"><span class="pre">roots</span></tt> - root forms of words.</li>
+<li><tt class="xref py py-attr docutils literal"><span class="pre">root_tokens</span></tt> - for compound words, all the tokens the root is made of.</li>
+<li><tt class="xref py py-attr docutils literal"><span class="pre">lemmas</span></tt> - dictionary (canonical) word forms.</li>
+<li><tt class="xref py py-attr docutils literal"><span class="pre">forms</span></tt> - word form expressing the case, plurality, voice etc.</li>
+<li><tt class="xref py py-attr docutils literal"><span class="pre">endings</span></tt> - word inflective suffixes.</li>
+<li><tt class="xref py py-attr docutils literal"><span class="pre">postags</span></tt> - part-of-speech (POS) tags (word types).</li>
+<li><tt class="xref py py-attr docutils literal"><span class="pre">postag_descriptions</span></tt> - Estonian descriptions for POS tags.</li>
+<li><tt class="xref py py-attr docutils literal"><span class="pre">descriptions</span></tt> - Estonian descriptions for forms.</li>
+</ul>
+<p>These properties call <tt class="xref py py-func docutils literal"><span class="pre">tag_analysis()</span></tt> method in background, which also
+call <tt class="xref py py-func docutils literal"><span class="pre">tokenize_paragraphs()</span></tt>, <tt class="xref py py-func docutils literal"><span class="pre">tokenize_sentences()</span></tt> and <tt class="xref py py-func docutils literal"><span class="pre">tokenize_words()</span></tt> as
+word tokenization is required in order add morphological analysis.
+Morphological analysis adds extra information to <tt class="docutils literal"><span class="pre">words</span></tt> layer, which we&#8217;ll explain in following sections.</p>
+<p>See <a class="reference internal" href="morf_tables.html#postag-table"><em>Table: POS tag descriptions</em></a>, <a class="reference internal" href="morf_tables.html#nounform-table"><em>Table: Noun form descriptions</em></a> and <a class="reference internal" href="morf_tables.html#verbform-table"><em>Table: Verb form descriptions</em></a> for more detailed information
+about various analysis tags.</p>
+<div class="section" id="property-aggregation">
+<h3>Property aggregation<a class="headerlink" href="#property-aggregation" title="Permalink to this headline">¶</a></h3>
+<p>Before we continue with morphological analysis, we introduce a way to put together various information in
+a simple way.
+Often you want to extract various information, such as words, lemmas, postags and put them together such that
+you could easily access all of them.
+Estnltk has <tt class="xref py py-class docutils literal"><span class="pre">ZipBuilder</span></tt> class, which can compile together properties you need and then
+format them in various ways.
+First, you can initiate the builder on a Text object by calling <tt class="xref py py-attr docutils literal"><span class="pre">get</span></tt> attribute and
+then chain together the attributes you wish to have.
+Last step is telling the format you want the data to appear.</p>
+<p>You can think of this process as building a sentence: <strong>get &lt;item_1&gt; &lt;item_2&gt; ... &lt;item_n&gt; as &lt;format&gt;</strong>.
+Output formats include Pandas <a class="reference external" href="http://pandas.pydata.org/pandas-docs/dev/generated/pandas.DataFrame.html">DataFrame</a>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">Text</span>
+<span class="n">text</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s">&#39;Usjas kaslane ründas künklikul maastikul tünjat Tallinnfilmi režissööri&#39;</span><span class="p">)</span>
+<span class="n">text</span><span class="o">.</span><span class="n">get</span><span class="o">.</span><span class="n">word_texts</span><span class="o">.</span><span class="n">postags</span><span class="o">.</span><span class="n">postag_descriptions</span><span class="o">.</span><span class="n">as_dataframe</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre>         word_texts postags  postag_descriptions
+0         Usjas       A  omadussõna algvõrre
+1       kaslane       S             nimisõna
+2        ründas       V             tegusõna
+3     künklikul       A  omadussõna algvõrre
+4     maastikul       S             nimisõna
+5        tünjat       A  omadussõna algvõrre
+6  Tallinnfilmi       H            pärisnimi
+7    režissööri       S             nimisõna
+</pre></div>
+</div>
+<p>A list of tuples:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">text</span><span class="o">.</span><span class="n">get</span><span class="o">.</span><span class="n">word_texts</span><span class="o">.</span><span class="n">postags</span><span class="o">.</span><span class="n">postag_descriptions</span><span class="o">.</span><span class="n">as_zip</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">[(</span><span class="s">&#39;Usjas&#39;</span><span class="p">,</span> <span class="s">&#39;A&#39;</span><span class="p">,</span> <span class="s">&#39;omadussõna algvõrre&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;kaslane&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="s">&#39;nimisõna&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;ründas&#39;</span><span class="p">,</span> <span class="s">&#39;V&#39;</span><span class="p">,</span> <span class="s">&#39;tegusõna&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;künklikul&#39;</span><span class="p">,</span> <span class="s">&#39;A&#39;</span><span class="p">,</span> <span class="s">&#39;omadussõna algvõrre&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;maastikul&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="s">&#39;nimisõna&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;tünjat&#39;</span><span class="p">,</span> <span class="s">&#39;A&#39;</span><span class="p">,</span> <span class="s">&#39;omadussõna algvõrre&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;Tallinnfilmi&#39;</span><span class="p">,</span> <span class="s">&#39;H&#39;</span><span class="p">,</span> <span class="s">&#39;pärisnimi&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;režissööri&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="s">&#39;nimisõna&#39;</span><span class="p">)]</span>
+</pre></div>
+</div>
+<p>A list of lists:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">text</span><span class="o">.</span><span class="n">get</span><span class="o">.</span><span class="n">word_texts</span><span class="o">.</span><span class="n">postags</span><span class="o">.</span><span class="n">postag_descriptions</span><span class="o">.</span><span class="n">as_list</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">[[</span><span class="s">&#39;Usjas&#39;</span><span class="p">,</span>
+  <span class="s">&#39;kaslane&#39;</span><span class="p">,</span>
+  <span class="s">&#39;ründas&#39;</span><span class="p">,</span>
+  <span class="s">&#39;künklikul&#39;</span><span class="p">,</span>
+  <span class="s">&#39;maastikul&#39;</span><span class="p">,</span>
+  <span class="s">&#39;tünjat&#39;</span><span class="p">,</span>
+  <span class="s">&#39;Tallinnfilmi&#39;</span><span class="p">,</span>
+  <span class="s">&#39;režissööri&#39;</span><span class="p">],</span>
+ <span class="p">[</span><span class="s">&#39;A&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="s">&#39;V&#39;</span><span class="p">,</span> <span class="s">&#39;A&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="s">&#39;A&#39;</span><span class="p">,</span> <span class="s">&#39;H&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">],</span>
+ <span class="p">[</span><span class="s">&#39;omadussõna algvõrre&#39;</span><span class="p">,</span>
+  <span class="s">&#39;nimisõna&#39;</span><span class="p">,</span>
+  <span class="s">&#39;tegusõna&#39;</span><span class="p">,</span>
+  <span class="s">&#39;omadussõna algvõrre&#39;</span><span class="p">,</span>
+  <span class="s">&#39;nimisõna&#39;</span><span class="p">,</span>
+  <span class="s">&#39;omadussõna algvõrre&#39;</span><span class="p">,</span>
+  <span class="s">&#39;pärisnimi&#39;</span><span class="p">,</span>
+  <span class="s">&#39;nimisõna&#39;</span><span class="p">]]</span>
+</pre></div>
+</div>
+<p>A dictionary:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">text</span><span class="o">.</span><span class="n">get</span><span class="o">.</span><span class="n">word_texts</span><span class="o">.</span><span class="n">postags</span><span class="o">.</span><span class="n">postag_descriptions</span><span class="o">.</span><span class="n">as_dict</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span><span class="s">&#39;postag_descriptions&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;omadussõna algvõrre&#39;</span><span class="p">,</span>
+                         <span class="s">&#39;nimisõna&#39;</span><span class="p">,</span>
+                         <span class="s">&#39;tegusõna&#39;</span><span class="p">,</span>
+                         <span class="s">&#39;omadussõna algvõrre&#39;</span><span class="p">,</span>
+                         <span class="s">&#39;nimisõna&#39;</span><span class="p">,</span>
+                         <span class="s">&#39;omadussõna algvõrre&#39;</span><span class="p">,</span>
+                         <span class="s">&#39;pärisnimi&#39;</span><span class="p">,</span>
+                         <span class="s">&#39;nimisõna&#39;</span><span class="p">],</span>
+ <span class="s">&#39;postags&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;A&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="s">&#39;V&#39;</span><span class="p">,</span> <span class="s">&#39;A&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="s">&#39;A&#39;</span><span class="p">,</span> <span class="s">&#39;H&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">],</span>
+ <span class="s">&#39;word_texts&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;Usjas&#39;</span><span class="p">,</span>
+                <span class="s">&#39;kaslane&#39;</span><span class="p">,</span>
+                <span class="s">&#39;ründas&#39;</span><span class="p">,</span>
+                <span class="s">&#39;künklikul&#39;</span><span class="p">,</span>
+                <span class="s">&#39;maastikul&#39;</span><span class="p">,</span>
+                <span class="s">&#39;tünjat&#39;</span><span class="p">,</span>
+                <span class="s">&#39;Tallinnfilmi&#39;</span><span class="p">,</span>
+                <span class="s">&#39;režissööri&#39;</span><span class="p">]}</span>
+</pre></div>
+</div>
+<p>All the properties can be given also as a list, which can be convinient in some situations:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">text</span><span class="o">.</span><span class="n">get</span><span class="p">([</span><span class="s">&#39;word_texts&#39;</span><span class="p">,</span> <span class="s">&#39;postags&#39;</span><span class="p">,</span> <span class="s">&#39;postag_descriptions&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">as_dataframe</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre>     word_texts postags  postag_descriptions
+0         Usjas       A  omadussõna algvõrre
+1       kaslane       S             nimisõna
+2        ründas       V             tegusõna
+3     künklikul       A  omadussõna algvõrre
+4     maastikul       S             nimisõna
+5        tünjat       A  omadussõna algvõrre
+6  Tallinnfilmi       H            pärisnimi
+7    režissööri       S             nimisõna
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>Estnltk does not stop the programmer doing wrong things</p>
+<p class="last">You can chain together any <tt class="xref py py-class docutils literal"><span class="pre">Text</span></tt> property, but only thing you must take care of is that
+all the properties act on same layer/unit data. So, when you mix sentence and word properties, you get either an error
+or malformed output.</p>
+</div>
+</div>
+<div class="section" id="word-analysis">
+<h3>Word analysis<a class="headerlink" href="#word-analysis" title="Permalink to this headline">¶</a></h3>
+<p>Morphological analysis is performed with method <tt class="xref py py-func docutils literal"><span class="pre">tag_analysis()</span></tt>
+and is invoked by accessing any property requiring this.
+In such case, also methods <tt class="xref py py-func docutils literal"><span class="pre">tokenize_paragraphs()</span></tt>, <tt class="xref py py-func docutils literal"><span class="pre">tokenize_sentences()</span></tt> and <tt class="xref py py-func docutils literal"><span class="pre">tokenize_words()</span></tt> are called as word and sentence tokenization is required in order add morphological analysis.
+Morphological analysis adds extra information to <tt class="docutils literal"><span class="pre">words</span></tt> layer, which we&#8217;ll explain below.</p>
+<p>After doing morphological analysis, ideally only one unambiguous dictionary containing all the raw data is generated.
+However, sometimes the disambiguator cannot really eliminate all ambiguity and you get multiple analysis variants:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">Text</span>
+<span class="n">text</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s">&#39;mõeldud&#39;</span><span class="p">)</span>
+<span class="n">text</span><span class="o">.</span><span class="n">tag_analysis</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span><span class="s">&#39;sentences&#39;</span><span class="p">:</span> <span class="p">[{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}],</span>
+ <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;mõeldud&#39;</span><span class="p">,</span>
+ <span class="s">&#39;words&#39;</span><span class="p">:</span> <span class="p">[{</span><span class="s">&#39;analysis&#39;</span><span class="p">:</span> <span class="p">[{</span><span class="s">&#39;clitic&#39;</span><span class="p">:</span> <span class="s">&#39;&#39;</span><span class="p">,</span>
+                          <span class="s">&#39;ending&#39;</span><span class="p">:</span> <span class="s">&#39;0&#39;</span><span class="p">,</span>
+                          <span class="s">&#39;form&#39;</span><span class="p">:</span> <span class="s">&#39;&#39;</span><span class="p">,</span>
+                          <span class="s">&#39;lemma&#39;</span><span class="p">:</span> <span class="s">&#39;mõeldud&#39;</span><span class="p">,</span>
+                          <span class="s">&#39;partofspeech&#39;</span><span class="p">:</span> <span class="s">&#39;A&#39;</span><span class="p">,</span>
+                          <span class="s">&#39;root&#39;</span><span class="p">:</span> <span class="s">&#39;mõel=dud&#39;</span><span class="p">,</span>
+                          <span class="s">&#39;root_tokens&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;mõeldud&#39;</span><span class="p">]},</span>
+                         <span class="p">{</span><span class="s">&#39;clitic&#39;</span><span class="p">:</span> <span class="s">&#39;&#39;</span><span class="p">,</span>
+                          <span class="s">&#39;ending&#39;</span><span class="p">:</span> <span class="s">&#39;0&#39;</span><span class="p">,</span>
+                          <span class="s">&#39;form&#39;</span><span class="p">:</span> <span class="s">&#39;sg n&#39;</span><span class="p">,</span>
+                          <span class="s">&#39;lemma&#39;</span><span class="p">:</span> <span class="s">&#39;mõeldud&#39;</span><span class="p">,</span>
+                          <span class="s">&#39;partofspeech&#39;</span><span class="p">:</span> <span class="s">&#39;A&#39;</span><span class="p">,</span>
+                          <span class="s">&#39;root&#39;</span><span class="p">:</span> <span class="s">&#39;mõel=dud&#39;</span><span class="p">,</span>
+                          <span class="s">&#39;root_tokens&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;mõeldud&#39;</span><span class="p">]},</span>
+                         <span class="p">{</span><span class="s">&#39;clitic&#39;</span><span class="p">:</span> <span class="s">&#39;&#39;</span><span class="p">,</span>
+                          <span class="s">&#39;ending&#39;</span><span class="p">:</span> <span class="s">&#39;d&#39;</span><span class="p">,</span>
+                          <span class="s">&#39;form&#39;</span><span class="p">:</span> <span class="s">&#39;pl n&#39;</span><span class="p">,</span>
+                          <span class="s">&#39;lemma&#39;</span><span class="p">:</span> <span class="s">&#39;mõeldud&#39;</span><span class="p">,</span>
+                          <span class="s">&#39;partofspeech&#39;</span><span class="p">:</span> <span class="s">&#39;A&#39;</span><span class="p">,</span>
+                          <span class="s">&#39;root&#39;</span><span class="p">:</span> <span class="s">&#39;mõel=dud&#39;</span><span class="p">,</span>
+                          <span class="s">&#39;root_tokens&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;mõeldud&#39;</span><span class="p">]},</span>
+                         <span class="p">{</span><span class="s">&#39;clitic&#39;</span><span class="p">:</span> <span class="s">&#39;&#39;</span><span class="p">,</span>
+                          <span class="s">&#39;ending&#39;</span><span class="p">:</span> <span class="s">&#39;dud&#39;</span><span class="p">,</span>
+                          <span class="s">&#39;form&#39;</span><span class="p">:</span> <span class="s">&#39;tud&#39;</span><span class="p">,</span>
+                          <span class="s">&#39;lemma&#39;</span><span class="p">:</span> <span class="s">&#39;mõtlema&#39;</span><span class="p">,</span>
+                          <span class="s">&#39;partofspeech&#39;</span><span class="p">:</span> <span class="s">&#39;V&#39;</span><span class="p">,</span>
+                          <span class="s">&#39;root&#39;</span><span class="p">:</span> <span class="s">&#39;mõtle&#39;</span><span class="p">,</span>
+                          <span class="s">&#39;root_tokens&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;mõtle&#39;</span><span class="p">]}],</span>
+            <span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span>
+            <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;mõeldud&#39;</span><span class="p">}]}</span>
+</pre></div>
+</div>
+<p>The word <em>mõeldud</em> has quite a lot ambiguity as it can be interpreted either as a <em>verb</em> or <em>adjective</em>. Adjective
+version itself can be though of as singular or plural and with different suffixes.</p>
+<p>This ambiguity also affects how properties work.
+In this case, there are two lemmas and when accessing <tt class="xref py py-attr docutils literal"><span class="pre">lemmas</span></tt> property, estnltk
+displays both unique cases, sorted alphabetically and separated by a pipe:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">print</span> <span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">lemmas</span><span class="p">)</span>
+<span class="k">print</span> <span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">postags</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="s">&#39;mõeldud|mõtlema&#39;</span><span class="p">]</span>
+<span class="p">[</span><span class="s">&#39;A|V&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Now, we have already seen that morphological data is added to word level dictionary under element <tt class="docutils literal"><span class="pre">analysis</span></tt>. Let&#8217;s also
+look at a single analysis dictionary element for word &#8220;raudteejaamadelgi&#8221;:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">Text</span><span class="p">(</span><span class="s">&#39;raudteejaamadelgi&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">analysis</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span><span class="s">&#39;clitic&#39;</span><span class="p">:</span> <span class="s">&#39;gi&#39;</span><span class="p">,</span>                         <span class="c"># In Estonian, -gi and -ki suffixes</span>
+ <span class="s">&#39;ending&#39;</span><span class="p">:</span> <span class="s">&#39;del&#39;</span><span class="p">,</span>                        <span class="c"># word suffix without clitic</span>
+ <span class="s">&#39;form&#39;</span><span class="p">:</span> <span class="s">&#39;pl ad&#39;</span><span class="p">,</span>                        <span class="c"># word form, in this case plural and adessive (alalütlev) case</span>
+ <span class="s">&#39;lemma&#39;</span><span class="p">:</span> <span class="s">&#39;raudteejaam&#39;</span><span class="p">,</span>                 <span class="c"># the dictionary form of the word</span>
+ <span class="s">&#39;partofspeech&#39;</span><span class="p">:</span> <span class="s">&#39;S&#39;</span><span class="p">,</span>                    <span class="c"># POS tag, in this case substantive</span>
+ <span class="s">&#39;root&#39;</span><span class="p">:</span> <span class="s">&#39;raud_tee_jaam&#39;</span><span class="p">,</span>                <span class="c"># root form (same as lemma, but verbs do not have -ma suffix)</span>
+                                         <span class="c"># also has compound word markers and optional phonetic markers</span>
+ <span class="s">&#39;root_tokens&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;raud&#39;</span><span class="p">,</span> <span class="s">&#39;tee&#39;</span><span class="p">,</span> <span class="s">&#39;jaam&#39;</span><span class="p">]}</span> <span class="c"># for compund word roots, a list of simple roots the compound is made of</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="human-readable-descriptions">
+<h3>Human-readable descriptions<a class="headerlink" href="#human-readable-descriptions" title="Permalink to this headline">¶</a></h3>
+<p><tt class="xref py py-class docutils literal"><span class="pre">Text</span></tt> class has properties <tt class="xref py py-attr docutils literal"><span class="pre">postag_descriptions</span></tt> and
+<tt class="xref py py-attr docutils literal"><span class="pre">descriptions</span></tt>, which give Estonian descriptions respectively to POS tags and word forms:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">Text</span>
+<span class="n">text</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s">&#39;Usjas kaslane ründas künklikul maastikul tünjat Tallinnfilmi režissööri&#39;</span><span class="p">)</span>
+
+<span class="n">text</span><span class="o">.</span><span class="n">get</span><span class="o">.</span><span class="n">word_texts</span><span class="o">.</span><span class="n">postags</span><span class="o">.</span><span class="n">postag_descriptions</span><span class="o">.</span><span class="n">as_dataframe</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre>text.get.word_texts.postags.postag_descriptions.as_dataframe
+     word_texts postags  postag_descriptions
+0         Usjas       A  omadussõna algvõrre
+1       kaslane       S             nimisõna
+2        ründas       V             tegusõna
+3     künklikul       A  omadussõna algvõrre
+4     maastikul       S             nimisõna
+5        tünjat       A  omadussõna algvõrre
+6  Tallinnfilmi       H            pärisnimi
+7    režissööri       S             nimisõna
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">text</span><span class="o">.</span><span class="n">get</span><span class="o">.</span><span class="n">word_texts</span><span class="o">.</span><span class="n">forms</span><span class="o">.</span><span class="n">descriptions</span><span class="o">.</span><span class="n">as_dataframe</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre>     word_texts  forms                                       descriptions
+0         Usjas   sg n                        ainsus nimetav (nominatiiv)
+1       kaslane   sg n                        ainsus nimetav (nominatiiv)
+2        ründas      s  kindel kõneviis lihtminevik 3. isik ainsus akt...
+3     künklikul  sg ad                        ainsus alalütlev (adessiiv)
+4     maastikul  sg ad                        ainsus alalütlev (adessiiv)
+5        tünjat   sg p                         ainsus osastav (partitiiv)
+6  Tallinnfilmi   sg g                          ainsus omastav (genitiiv)
+7    režissööri   sg p                         ainsus osastav (partitiiv)
+</pre></div>
+</div>
+<p>Also, see <a class="reference internal" href="morf_tables.html#nounform-table"><em>Table: Noun form descriptions</em></a>, <a class="reference internal" href="morf_tables.html#verbform-table"><em>Table: Verb form descriptions</em></a> and <a class="reference internal" href="morf_tables.html#postag-table"><em>Table: POS tag descriptions</em></a> that contains detailed information
+with examples about the morphological attributes.</p>
+</div>
+<div class="section" id="analysis-options-phonetic-information">
+<h3>Analysis options &amp; phonetic information<a class="headerlink" href="#analysis-options-phonetic-information" title="Permalink to this headline">¶</a></h3>
+<p>By default, estnltk does not add phonetic information to analyzed word roots, but this functionality can be changed.
+Here are all the options that can be given to the <tt class="xref py py-class docutils literal"><span class="pre">Text</span></tt> class that will affect the
+analysis results:</p>
+<ul>
+<li><dl class="first docutils">
+<dt>disambiguate: boolean (default: True)</dt>
+<dd><p class="first last">Disambiguate the output and remove incosistent analysis.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>guess: boolean (default: True)</dt>
+<dd><p class="first last">Use guessing in case of unknown words</p>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>propername: boolean (default: True)</dt>
+<dd><p class="first last">Perform additional analysis of proper names.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>compound: boolean (default: True)</dt>
+<dd><p class="first last">Add compound word markers to root forms.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>phonetic: boolean (default: False)</dt>
+<dd><p class="first last">Add phonetic information to root forms.</p>
+</dd>
+</dl>
+</li>
+</ul>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">Text</span>
+<span class="k">print</span> <span class="p">(</span><span class="n">Text</span><span class="p">(</span><span class="s">&#39;tosinkond palki sai oma palga&#39;</span><span class="p">,</span> <span class="n">phonetic</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">compound</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span><span class="o">.</span><span class="n">roots</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="s">&#39;t?os]in~k&lt;ond&#39;</span><span class="p">,</span> <span class="s">&#39;p&lt;al]k&#39;</span><span class="p">,</span> <span class="s">&#39;s&lt;aa&#39;</span><span class="p">,</span> <span class="s">&#39;oma&#39;</span><span class="p">,</span> <span class="s">&#39;p&lt;alk&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>See <a class="reference internal" href="morf_tables.html#phonetic-markers"><em>Table: Phonetic markers</em></a> for more information.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>Things to remember about morphological analysis!</p>
+<ol class="last arabic simple">
+<li>Morphological analysis is stored in <tt class="docutils literal"><span class="pre">analysis</span></tt> attribute of each word.</li>
+<li>Morphological analysis is in <tt class="docutils literal"><span class="pre">words</span></tt> layer.</li>
+<li>Use <tt class="xref py py-class docutils literal"><span class="pre">ZipBuilder</span></tt> class simplify data retrieval.</li>
+<li>If you write something that needs better performance, access the <tt class="xref py py-class docutils literal"><span class="pre">Text</span></tt> directly as a dictionary,
+because when using properties, one loop per property is executed.</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="section" id="morphological-synthesis">
+<h2>Morphological synthesis<a class="headerlink" href="#morphological-synthesis" title="Permalink to this headline">¶</a></h2>
+<p>The reverse operation of morphological analysis is synthesis. That is, given the dictionary form of the word
+and some options, generating all possible inflections that match given criteria.</p>
+<p>Estnltk has function <tt class="xref py py-func docutils literal"><span class="pre">synthesize()</span></tt>, which accepts these parameters:</p>
+<ol class="arabic simple">
+<li>word dictionary form (lemma).</li>
+<li>word form (see <a class="reference internal" href="morf_tables.html#nounform-table"><em>Table: Noun form descriptions</em></a> and <a class="reference internal" href="morf_tables.html#verbform-table"><em>Table: Verb form descriptions</em></a>).</li>
+<li><em>(optional)</em> POS tag (see <a class="reference internal" href="morf_tables.html#postag-table"><em>Table: POS tag descriptions</em></a>).</li>
+<li><em>(optional)</em> hint, essentially a prefix filter.</li>
+</ol>
+<p>Let&#8217;s generate plural genitive forms for lemma &#8220;palk&#8221; (in English a <em>paycheck</em> and a <em>log</em>):</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">synthesize</span>
+<span class="n">synthesize</span><span class="p">(</span><span class="s">&#39;palk&#39;</span><span class="p">,</span> <span class="s">&#39;pl g&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="s">&#39;palkade&#39;</span><span class="p">,</span> <span class="s">&#39;palkide&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>We can hint the synthesizer so that it outputs only inflections that match prefix <em>palka</em>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">synthesize</span><span class="p">(</span><span class="s">&#39;palk&#39;</span><span class="p">,</span> <span class="s">&#39;pl g&#39;</span><span class="p">,</span> <span class="n">hint</span><span class="o">=</span><span class="s">&#39;palka&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="s">&#39;palkade&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>For fun, here is some demo code for synthesizing all forms of any given noun (See <a class="reference internal" href="morf_tables.html#nounform-table"><em>Table: Noun form descriptions</em></a>):</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">synthesize</span>
+<span class="kn">import</span> <span class="nn">pandas</span>
+
+<span class="n">cases</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">(</span><span class="s">&#39;n&#39;</span><span class="p">,</span> <span class="s">&#39;nimetav&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">&#39;g&#39;</span><span class="p">,</span> <span class="s">&#39;omastav&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">&#39;p&#39;</span><span class="p">,</span> <span class="s">&#39;osastav&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">&#39;ill&#39;</span><span class="p">,</span> <span class="s">&#39;sisseütlev&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">&#39;in&#39;</span><span class="p">,</span> <span class="s">&#39;seesütlev&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">&#39;el&#39;</span><span class="p">,</span> <span class="s">&#39;seestütlev&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">&#39;all&#39;</span><span class="p">,</span> <span class="s">&#39;alaleütlev&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">&#39;ad&#39;</span><span class="p">,</span> <span class="s">&#39;alalütlev&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">&#39;abl&#39;</span><span class="p">,</span> <span class="s">&#39;alaltütlev&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">&#39;tr&#39;</span><span class="p">,</span> <span class="s">&#39;saav&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">&#39;ter&#39;</span><span class="p">,</span> <span class="s">&#39;rajav&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">&#39;es&#39;</span><span class="p">,</span> <span class="s">&#39;olev&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">&#39;ab&#39;</span><span class="p">,</span> <span class="s">&#39;ilmaütlev&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">&#39;kom&#39;</span><span class="p">,</span> <span class="s">&#39;kaasaütlev&#39;</span><span class="p">)]</span>
+
+<span class="k">def</span> <span class="nf">synthesize_all</span><span class="p">(</span><span class="n">word</span><span class="p">):</span>
+    <span class="n">case_rows</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">sing_rows</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">plur_rows</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">case</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">cases</span><span class="p">:</span>
+        <span class="n">case_rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">sing_rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">synthesize</span><span class="p">(</span><span class="n">word</span><span class="p">,</span> <span class="s">&#39;sg &#39;</span> <span class="o">+</span> <span class="n">case</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">)))</span>
+        <span class="n">plur_rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">synthesize</span><span class="p">(</span><span class="n">word</span><span class="p">,</span> <span class="s">&#39;pl &#39;</span> <span class="o">+</span> <span class="n">case</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">)))</span>
+    <span class="k">return</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s">&#39;case&#39;</span><span class="p">:</span> <span class="n">case_rows</span><span class="p">,</span> <span class="s">&#39;singular&#39;</span><span class="p">:</span> <span class="n">sing_rows</span><span class="p">,</span> <span class="s">&#39;plural&#39;</span><span class="p">:</span> <span class="n">plur_rows</span><span class="p">},</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;case&#39;</span><span class="p">,</span> <span class="s">&#39;singular&#39;</span><span class="p">,</span> <span class="s">&#39;plural&#39;</span><span class="p">])</span>
+
+<span class="n">synthesize_all</span><span class="p">(</span><span class="s">&#39;kuusk&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre>          case  singular             plural
+0      nimetav     kuusk             kuused
+1      omastav     kuuse           kuuskede
+2      osastav    kuuske  kuuski, kuuskesid
+3   sisseütlev  kuusesse        kuuskedesse
+4    seesütlev    kuuses          kuuskedes
+5   seestütlev   kuusest         kuuskedest
+6   alaleütlev   kuusele         kuuskedele
+7    alalütlev    kuusel          kuuskedel
+8   alaltütlev   kuuselt         kuuskedelt
+9         saav   kuuseks         kuuskedeks
+10       rajav   kuuseni         kuuskedeni
+11        olev   kuusena         kuuskedena
+12   ilmaütlev   kuuseta         kuuskedeta
+13  kaasaütlev   kuusega         kuuskedega
+</pre></div>
+</div>
+<p>Let&#8217;s try something funny as well:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">synthesize_all</span><span class="p">(</span><span class="s">&#39;luuslang-lendur&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>^_^:</p>
+<div class="highlight-python"><div class="highlight"><pre>          case             singular                                       plural
+0      nimetav      luuslang-lendur                            luuslang-lendurid
+1      omastav     luuslang-lenduri                           luuslang-lendurite
+2      osastav    luuslang-lendurit                           luuslang-lendureid
+3   sisseütlev  luuslang-lendurisse  luuslang-lendureisse, luuslang-lenduritesse
+4    seesütlev    luuslang-lenduris      luuslang-lendureis, luuslang-lendurites
+5   seestütlev   luuslang-lendurist    luuslang-lendureist, luuslang-lenduritest
+6   alaleütlev   luuslang-lendurile    luuslang-lendureile, luuslang-lenduritele
+7    alalütlev    luuslang-lenduril      luuslang-lendureil, luuslang-lenduritel
+8   alaltütlev   luuslang-lendurilt    luuslang-lendureilt, luuslang-lenduritelt
+9         saav   luuslang-lenduriks    luuslang-lendureiks, luuslang-lenduriteks
+10       rajav   luuslang-lendurini    luuslang-lendureini, luuslang-lenduriteni
+11        olev   luuslang-lendurina    luuslang-lendureina, luuslang-lenduritena
+12   ilmaütlev   luuslang-lendurita                         luuslang-lenduriteta
+13  kaasaütlev   luuslang-lenduriga                         luuslang-lenduritega
+</pre></div>
+</div>
+</div>
+<div class="section" id="correcting-spelling">
+<h2>Correcting spelling<a class="headerlink" href="#correcting-spelling" title="Permalink to this headline">¶</a></h2>
+<p>Many applications can benefit from spellcheck functionality, which flags incorrect words and also
+provides suggestions.
+Estnltk Text class has properties <tt class="xref py py-attr docutils literal"><span class="pre">spelling</span></tt>, that tells which words are correctly spelled
+and <tt class="xref py py-attr docutils literal"><span class="pre">spelling_suggestions</span></tt>, which lists suggestions for incorrect words:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">Text</span>
+<span class="n">text</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s">&#39;Vikastes lausetes on trügivigasid!&#39;</span><span class="p">)</span>
+
+<span class="n">text</span><span class="o">.</span><span class="n">get</span><span class="o">.</span><span class="n">word_texts</span><span class="o">.</span><span class="n">spelling</span><span class="o">.</span><span class="n">spelling_suggestions</span><span class="o">.</span><span class="n">as_dataframe</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre>     word_texts spelling  spelling_suggestions
+0      Vikastes    False  [Vigastes, Vihastes]
+1      lausetes     True                    []
+2            on     True                    []
+3  trügivigasid    False        [trükivigasid]
+4             !     True                    []
+</pre></div>
+</div>
+<p>There is also property <tt class="xref py py-attr docutils literal"><span class="pre">spellcheck_results</span></tt>, that gives both spelling and suggestions
+together.
+This is more efficient than calling <tt class="xref py py-attr docutils literal"><span class="pre">spelling</span></tt> and <tt class="xref py py-attr docutils literal"><span class="pre">spelling_suggestions</span></tt> separately:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">text</span><span class="o">.</span><span class="n">spellcheck_results</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">[{</span><span class="s">&#39;spelling&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span>
+  <span class="s">&#39;suggestions&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;Vigastes&#39;</span><span class="p">,</span> <span class="s">&#39;Vihastes&#39;</span><span class="p">],</span>
+  <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;Vikastes&#39;</span><span class="p">},</span>
+ <span class="p">{</span><span class="s">&#39;spelling&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span> <span class="s">&#39;suggestions&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;lausetes&#39;</span><span class="p">},</span>
+ <span class="p">{</span><span class="s">&#39;spelling&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span> <span class="s">&#39;suggestions&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;on&#39;</span><span class="p">},</span>
+ <span class="p">{</span><span class="s">&#39;spelling&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span> <span class="s">&#39;suggestions&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;trükivigasid&#39;</span><span class="p">],</span> <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;trügivigasid&#39;</span><span class="p">},</span>
+ <span class="p">{</span><span class="s">&#39;spelling&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span> <span class="s">&#39;suggestions&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;!&#39;</span><span class="p">}]</span>
+</pre></div>
+</div>
+<p>Last, there is function <tt class="xref py py-meth docutils literal"><span class="pre">fix_spelling()</span></tt>, that replaces incorrect words with first
+suggestion in the list. It is very naive, but it may be handy:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">print</span><span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">fix_spelling</span><span class="p">())</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre>Vigastes lausetes on trükivigasid!
+</pre></div>
+</div>
+</div>
+<div class="section" id="detecting-invalid-characters">
+<h2>Detecting invalid characters<a class="headerlink" href="#detecting-invalid-characters" title="Permalink to this headline">¶</a></h2>
+<p>Often, during preprocessing of text files, we wish to check if the files satisfy certain assumptions.
+One such possible requirement is check if the files contain characters that can be handled by our application.
+For example, an application assuming Estonian input might not work with Cyrillic characters.
+In such cases, it is necessary to detect invalid input.</p>
+<div class="section" id="predefined-alphabets">
+<h3>Predefined alphabets<a class="headerlink" href="#predefined-alphabets" title="Permalink to this headline">¶</a></h3>
+<p>Estnltk has predefined alphabets for Estonian and Russian, that can be combined with various punctuation and whitespace:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">EST_ALPHA</span><span class="p">,</span> <span class="n">RUS_ALPHA</span><span class="p">,</span> <span class="n">DIGITS</span><span class="p">,</span> <span class="n">WHITESPACE</span><span class="p">,</span> <span class="n">PUNCTUATION</span><span class="p">,</span> <span class="n">ESTONIAN</span><span class="p">,</span> <span class="n">RUSSIAN</span>
+</pre></div>
+</div>
+<p>Estonian alphabet (EST_ALPHA):</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">abcdefghijklmnoprsšzžtuvwõäöüxyzABCDEFGHIJKLMNOPRSŠZŽTUVWÕÄÖÜXYZ</span>
+</pre></div>
+</div>
+<p>Russian alphabet (RUS_ALPHA):</p>
+<div class="highlight-python"><div class="highlight"><pre>абвгдеёжзийклмнопрстуфхцчшщъыьэюяАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ
+</pre></div>
+</div>
+<p>Standard punctuation (PUNCTUATION):</p>
+<div class="highlight-python"><div class="highlight"><pre>!&quot;#$%&amp;&#39;()*+,-./:;&lt;=&gt;?@[\]^_`{|}~–
+</pre></div>
+</div>
+<p>Digits:</p>
+<div class="highlight-python"><div class="highlight"><pre>0123456789
+</pre></div>
+</div>
+<p>Whitespace:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="s">&#39; </span><span class="se">\t\n\r\x0b\x0c</span><span class="s">&#39;</span>
+</pre></div>
+</div>
+<p>Estonian combined with punctuation and whitespace:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="s">&#39;abcdefghijklmnoprsšzžtuvwõäöüxyzABCDEFGHIJKLMNOPRSŠZŽTUVWÕÄÖÜXYZ0123456789 </span><span class="se">\t\n\r\x0b\x0c</span><span class="s">!&quot;#$%&amp;</span><span class="se">\&#39;</span><span class="s">()*+,-./:;&lt;=&gt;?@[</span><span class="se">\\</span><span class="s">]^_`{|}~–&#39;</span>
+</pre></div>
+</div>
+<p>Russian combined with punctuation and whitespace:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="s">&#39;абвгдеёжзийклмнопрстуфхцчшщъыьэюяАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ0123456789 </span><span class="se">\t\n\r\x0b\x0c</span><span class="s">!&quot;#$%&amp;</span><span class="se">\&#39;</span><span class="s">()*+,-./:;&lt;=&gt;?@[</span><span class="se">\\</span><span class="s">]^_`{|}~–&#39;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="detecting-characters">
+<h3>Detecting characters<a class="headerlink" href="#detecting-characters" title="Permalink to this headline">¶</a></h3>
+<p>By default, Estnltk assumes Estonian alphabet with whitespace and punctuation, but you can supply <tt class="xref py py-class docutils literal"><span class="pre">TextCleaner</span></tt>
+instances with other dictionaries to a Text instance:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">Text</span><span class="p">,</span> <span class="n">TextCleaner</span><span class="p">,</span> <span class="n">RUSSIAN</span>
+<span class="n">td_ru</span> <span class="o">=</span> <span class="n">TextCleaner</span><span class="p">(</span><span class="n">RUSSIAN</span><span class="p">)</span>
+
+<span class="n">et_plain</span> <span class="o">=</span> <span class="s">&#39;Segan suhkrut malbelt tassis, kus nii armsalt aurab tee.&#39;</span>
+<span class="n">ru_plain</span> <span class="o">=</span> <span class="s">&#39;Дождь, звонкой пеленой наполнил небо майский дождь.&#39;</span>
+
+<span class="n">et_correct</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="n">et_plain</span><span class="p">)</span>
+<span class="n">et_invalid</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="n">ru_plain</span><span class="p">)</span>
+<span class="n">ru_correct</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="n">ru_plain</span><span class="p">,</span> <span class="n">text_cleaner</span><span class="o">=</span><span class="n">td_ru</span><span class="p">)</span>
+<span class="n">ru_invalid</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="n">et_plain</span><span class="p">,</span> <span class="n">text_cleaner</span><span class="o">=</span><span class="n">td_ru</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Now you can use <tt class="xref py py-meth docutils literal"><span class="pre">is_valid()</span></tt> method to check if the text contains only characters defined in the alphabet:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">et_correct</span><span class="o">.</span><span class="n">is_valid</span><span class="p">()</span>
+<span class="n">et_invalid</span><span class="o">.</span><span class="n">is_valid</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="bp">True</span>
+<span class="bp">False</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">ru_correct</span><span class="o">.</span><span class="n">is_valid</span><span class="p">()</span>
+<span class="n">ru_invalid</span><span class="o">.</span><span class="n">is_valid</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="bp">True</span>
+<span class="bp">False</span>
+</pre></div>
+</div>
+<p>In addition to checking just for correctness, we might want to get the list of invalid characters:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">Text</span>
+
+<span class="n">text</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s">&#39;Esmaspäeval (27.04) liikus madalrōhkkond Pōhjalahelt Soome kohale.¶&#39;</span><span class="p">)</span>
+<span class="k">print</span> <span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">invalid_characters</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre>¶ō
+</pre></div>
+</div>
+<p>Surprisingly, in addition to <tt class="docutils literal"><span class="pre">¶</span></tt> we also see character <tt class="docutils literal"><span class="pre">ō</span></tt> as invalid.
+Well, the reason is that is not the correct <tt class="docutils literal"><span class="pre">õ</span></tt>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>Different Unicode characters</p>
+<ul class="last simple">
+<li>ō latin small letter o with macron (U+014D)</li>
+<li>õ latin small letter o with tilde (U+00F5)</li>
+</ul>
+</div>
+<p>It is really hard to distinguish the difference visually, but in case we are indexing the text, we fail to find it
+via search later if we assume it used correct character <tt class="docutils literal"><span class="pre">õ</span></tt>.</p>
+<p>So, let&#8217;s replace the wrong <tt class="docutils literal"><span class="pre">ō</span></tt> and remove other invalid characters using method <tt class="xref py py-meth docutils literal"><span class="pre">clean()</span></tt>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">text</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;ō&#39;</span><span class="p">,</span> <span class="s">&#39;õ&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">clean</span><span class="p">()</span>
+<span class="k">print</span> <span class="p">(</span><span class="n">text</span><span class="p">)</span>
+<span class="k">print</span> <span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">is_valid</span><span class="p">())</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre>Esmaspäeval (27.04) liikus madalrõhkkond Põhjalahelt Soome kohale.
+True
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="searching-replacing-and-splitting">
+<h2>Searching, replacing and splitting<a class="headerlink" href="#searching-replacing-and-splitting" title="Permalink to this headline">¶</a></h2>
+<p>Estnltk <tt class="xref py py-class docutils literal"><span class="pre">Text</span></tt> class mimics the behaviour of some string functions for convenience:
+<tt class="xref py py-meth docutils literal"><span class="pre">capitalize()</span></tt>,
+<tt class="xref py py-meth docutils literal"><span class="pre">count()</span></tt>,
+<tt class="xref py py-meth docutils literal"><span class="pre">endswith()</span></tt>,
+<tt class="xref py py-meth docutils literal"><span class="pre">find()</span></tt>,
+<tt class="xref py py-meth docutils literal"><span class="pre">index()</span></tt>,
+<tt class="xref py py-meth docutils literal"><span class="pre">isalnum()</span></tt>,
+<tt class="xref py py-meth docutils literal"><span class="pre">isalpha()</span></tt>,
+<tt class="xref py py-meth docutils literal"><span class="pre">isdigit()</span></tt>,
+<tt class="xref py py-meth docutils literal"><span class="pre">islower()</span></tt>,
+<tt class="xref py py-meth docutils literal"><span class="pre">isspace()</span></tt>,
+<tt class="xref py py-meth docutils literal"><span class="pre">istitle()</span></tt>,
+<tt class="xref py py-meth docutils literal"><span class="pre">isupper()</span></tt>,
+<tt class="xref py py-meth docutils literal"><span class="pre">lower()</span></tt>,
+<tt class="xref py py-meth docutils literal"><span class="pre">lstrip()</span></tt>,
+<tt class="xref py py-meth docutils literal"><span class="pre">replace()</span></tt>,
+<tt class="xref py py-meth docutils literal"><span class="pre">rfind()</span></tt>,
+<tt class="xref py py-meth docutils literal"><span class="pre">rindex()</span></tt>,
+<tt class="xref py py-meth docutils literal"><span class="pre">rstrip()</span></tt>,
+<tt class="xref py py-meth docutils literal"><span class="pre">startswith()</span></tt>,
+<tt class="xref py py-meth docutils literal"><span class="pre">strip()</span></tt>.</p>
+<p>However, if the method modifies the string, such as <tt class="xref py py-meth docutils literal"><span class="pre">strip()</span></tt>, the method returns a new <tt class="xref py py-class docutils literal"><span class="pre">Text</span></tt>
+instance, invalidating all computed attributes such as the start and end positions as a result of tokenization. These
+attributes won&#8217;t be copied to the resulting string. However, all the original keyword arguments are passed to the new copy.
+It is recommended to use these methods in case the text does not have any layers.</p>
+<p>Here is an example showing few of these methods at work:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">Text</span>
+
+<span class="n">text</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s">&#39;        TERE MAAILM  &#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;maailm&#39;</span><span class="p">,</span> <span class="s">&#39;estnltk!&#39;</span><span class="p">)</span>
+<span class="k">print</span> <span class="p">(</span><span class="n">text</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre>Tere estnltk!
+</pre></div>
+</div>
+<div class="section" id="splitting-by-layers">
+<h3>Splitting by layers<a class="headerlink" href="#splitting-by-layers" title="Permalink to this headline">¶</a></h3>
+<p>A more important concept is splitting text into smaller pieces in order to work with them independently.
+For example, we might want to process the text one sentence at a time.
+Estnltk has <tt class="xref py py-meth docutils literal"><span class="pre">split_by()</span></tt> method, that takes one parameter: the layer defining the splits:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">Text</span>
+<span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
+<span class="n">text</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s">&#39;Esimene lause. Teine lause. Kolmas lause.&#39;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">sentence</span> <span class="ow">in</span> <span class="n">text</span><span class="o">.</span><span class="n">split_by</span><span class="p">(</span><span class="s">&#39;sentences&#39;</span><span class="p">):</span>
+    <span class="n">pprint</span><span class="p">(</span><span class="n">sentence</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span><span class="s">&#39;paragraphs&#39;</span><span class="p">:</span> <span class="p">[],</span>
+ <span class="s">&#39;sentences&#39;</span><span class="p">:</span> <span class="p">[{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">14</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}],</span>
+ <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;Esimene lause.&#39;</span><span class="p">}</span>
+<span class="p">{</span><span class="s">&#39;paragraphs&#39;</span><span class="p">:</span> <span class="p">[],</span>
+ <span class="s">&#39;sentences&#39;</span><span class="p">:</span> <span class="p">[{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}],</span>
+ <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;Teine lause.&#39;</span><span class="p">}</span>
+<span class="p">{</span><span class="s">&#39;paragraphs&#39;</span><span class="p">:</span> <span class="p">[],</span>
+ <span class="s">&#39;sentences&#39;</span><span class="p">:</span> <span class="p">[{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">13</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}],</span>
+ <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;Kolmas lause.&#39;</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>An example with <strong>multi</strong> layer:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">Text</span>
+
+<span class="n">text</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s">&#39;Kõrred, millel on toitunud viljasääse vastsed, jäävad õhukeseks.&#39;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">clause</span> <span class="ow">in</span> <span class="n">text</span><span class="o">.</span><span class="n">split_by</span><span class="p">(</span><span class="s">&#39;clauses&#39;</span><span class="p">):</span>
+    <span class="k">print</span> <span class="p">(</span><span class="n">clause</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre>Kõrred jäävad õhukeseks.
+, millel on toitunud viljasääse vastsed,
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>Things to remember!</p>
+<ol class="last arabic simple">
+<li>The resulting sentences are also <tt class="xref py py-class docutils literal"><span class="pre">Text</span></tt> instances.</li>
+<li><strong>Simple</strong> layer elements that do not belong entirely to a single split, <strong>are discarded</strong>!</li>
+<li><strong>Multi</strong> layer element regions that do not belong entirely to a single split, <strong>are discarded</strong>!</li>
+<li><strong>Multi</strong> layer elements will end up in several splits, if spans of the element are distributed in several splits.</li>
+<li>Start and end positions defining the layer element locations are modified so they align with the split they are moved into.</li>
+<li>Splitting only deals with <tt class="docutils literal"><span class="pre">start</span></tt> and <tt class="docutils literal"><span class="pre">end</span></tt> attributes of layer elements.
+Other attributes are not modified and are copied as they are.</li>
+<li><strong>Multi</strong> layer split texts are by default separated with a space character &#8216; &#8216;.</li>
+</ol>
+</div>
+</div>
+<div class="section" id="splitting-with-regular-expressions">
+<h3>Splitting with regular expressions<a class="headerlink" href="#splitting-with-regular-expressions" title="Permalink to this headline">¶</a></h3>
+<p>Sometimes it can be useful to split the text using regular expressions:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">Text</span>
+<span class="n">text</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s">&#39;Pidage meeles, et &lt;red font&gt;teete kodused tööd kõik ära&lt;/red font&gt;, muidu tuleb pahandus!&#39;</span><span class="p">)</span>
+<span class="n">text</span><span class="o">.</span><span class="n">split_by_regex</span><span class="p">(</span><span class="s">&#39;&lt;red font&gt;.*?&lt;/red font&gt;&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">[{</span><span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;Pidage meeles, et &#39;</span><span class="p">},</span> <span class="p">{</span><span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;, muidu tuleb pahandus!&#39;</span><span class="p">}]</span>
+</pre></div>
+</div>
+<p>By default, the matched regions are discarded and used as separators.
+This can be changed by using <tt class="docutils literal"><span class="pre">gaps=False</span></tt> argument that reverses the behaviour:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">text</span><span class="o">.</span><span class="n">split_by_regex</span><span class="p">(</span><span class="s">&#39;&lt;red font&gt;.*?&lt;/red font&gt;&#39;</span><span class="p">,</span> <span class="n">gaps</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">[{</span><span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;&lt;red font&gt;teete kodused tööd kõik ära&lt;/red font&gt;&#39;</span><span class="p">}]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="dividing-elements-by-layers">
+<h3>Dividing elements by layers<a class="headerlink" href="#dividing-elements-by-layers" title="Permalink to this headline">¶</a></h3>
+<p>In addition to splitting, we use a term <em>dividing</em> if we actually do not want <tt class="xref py py-class docutils literal"><span class="pre">Text</span></tt> instances as the result.
+Instead, we may just want to access the words, one sentence at a time, having the reference to the original instance.
+Estnltk has <tt class="xref py py-meth docutils literal"><span class="pre">divide()</span></tt> method, that takes two parameters: the element to divide into bins, the element that defines the bins:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">Text</span>
+
+<span class="n">text</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s">&#39;Esimene lause. Teine lause.&#39;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">sentence</span> <span class="ow">in</span> <span class="n">text</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="s">&#39;words&#39;</span><span class="p">,</span> <span class="s">&#39;sentences&#39;</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">sentence</span><span class="p">:</span>
+        <span class="n">word</span><span class="p">[</span><span class="s">&#39;new_attribute&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;Estnltk greets the word &#39;</span> <span class="o">+</span> <span class="n">word</span><span class="p">[</span><span class="s">&#39;text&#39;</span><span class="p">]</span>
+<span class="k">print</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span><span class="s">&#39;paragraphs&#39;</span><span class="p">:</span> <span class="p">[{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">27</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}],</span>
+ <span class="s">&#39;sentences&#39;</span><span class="p">:</span> <span class="p">[{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">14</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span> <span class="p">{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">27</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">15</span><span class="p">}],</span>
+ <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;Esimene lause. Teine lause.&#39;</span><span class="p">,</span>
+ <span class="s">&#39;words&#39;</span><span class="p">:</span> <span class="p">[{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span>
+            <span class="s">&#39;new_attribute&#39;</span><span class="p">:</span> <span class="s">&#39;Estnltk greets the word Esimene&#39;</span><span class="p">,</span>
+            <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;Esimene&#39;</span><span class="p">},</span>
+           <span class="p">{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">13</span><span class="p">,</span>
+            <span class="s">&#39;new_attribute&#39;</span><span class="p">:</span> <span class="s">&#39;Estnltk greets the word lause&#39;</span><span class="p">,</span>
+            <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+            <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;lause&#39;</span><span class="p">},</span>
+           <span class="p">{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">14</span><span class="p">,</span>
+            <span class="s">&#39;new_attribute&#39;</span><span class="p">:</span> <span class="s">&#39;Estnltk greets the word .&#39;</span><span class="p">,</span>
+            <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">13</span><span class="p">,</span>
+            <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;.&#39;</span><span class="p">},</span>
+           <span class="p">{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span>
+            <span class="s">&#39;new_attribute&#39;</span><span class="p">:</span> <span class="s">&#39;Estnltk greets the word Teine&#39;</span><span class="p">,</span>
+            <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span>
+            <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;Teine&#39;</span><span class="p">},</span>
+           <span class="p">{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">26</span><span class="p">,</span>
+            <span class="s">&#39;new_attribute&#39;</span><span class="p">:</span> <span class="s">&#39;Estnltk greets the word lause&#39;</span><span class="p">,</span>
+            <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">21</span><span class="p">,</span>
+            <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;lause&#39;</span><span class="p">},</span>
+           <span class="p">{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">27</span><span class="p">,</span>
+            <span class="s">&#39;new_attribute&#39;</span><span class="p">:</span> <span class="s">&#39;Estnltk greets the word .&#39;</span><span class="p">,</span>
+            <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">26</span><span class="p">,</span>
+            <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;.&#39;</span><span class="p">}]}</span>
+</pre></div>
+</div>
+<p>The <tt class="xref py py-meth docutils literal"><span class="pre">divide()</span></tt> method is useful for</p>
+<ol class="arabic simple">
+<li>adding new attributes to existing elements/layers in the text</li>
+<li>keeping the original <cite>start</cite> and <cite>end</cite> positions when</li>
+</ol>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>Nota bene!</p>
+<p class="last">The original references are lost in elements having <tt class="docutils literal"><span class="pre">start</span></tt> and <tt class="docutils literal"><span class="pre">end</span></tt> positions in <strong>multi layer format</strong>.
+The reason is that multi layer elements can span regions that end up in different splits/divisions, thus invalidating the <tt class="docutils literal"><span class="pre">start</span></tt> and <tt class="docutils literal"><span class="pre">end</span></tt> attributes.
+Updating the invalidated attributes requires modifying them, which we cannot do as this would also modify the original element.
+Thus, instead a copy is made of the element, the attributes are updated, and the element is returned.</p>
+</div>
+</div>
+</div>
+<div class="section" id="temporal-expression-timex-tagging">
+<h2>Temporal expression (TIMEX) tagging<a class="headerlink" href="#temporal-expression-timex-tagging" title="Permalink to this headline">¶</a></h2>
+<p>Temporal expressions tagger identifies temporal expressions (timexes) in text and normalizes these expressions, providing corresponding calendrical dates and times.
+The current version of the temporal expressions tagger is tuned for processing news texts (so the quality of the analysis may be suboptimal in other domains).
+The program outputs an annotation in a format similar to TimeML&#8217;s TIMEX3 (more detailed description can be found in <a class="reference external" href="https://github.com/soras/Ajavt/blob/master/doc/margendusformaat_et.pdf?raw=true">annotation guidelines</a>, which are currently only in Estonian).</p>
+<p>The <tt class="xref py py-class docutils literal"><span class="pre">Text</span></tt> class has property <tt class="xref py py-attr docutils literal"><span class="pre">timexes</span></tt>, which returns a list of time expressions found in the text:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">Text</span>
+<span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
+
+<span class="n">text</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s">&#39;Järgmisel kolmapäeval, kõige hiljemalt kell 18.00 algab viiepäevane koosolek, mida korraldatakse igal aastal&#39;</span><span class="p">)</span>
+<span class="n">pprint</span><span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">timexes</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The output is a list of four dictionaries, each representing an timex found in text:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">[{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">21</span><span class="p">,</span>
+  <span class="s">&#39;id&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+  <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+  <span class="s">&#39;temporal_function&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+  <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;Järgmisel kolmapäeval&#39;</span><span class="p">,</span>
+  <span class="s">&#39;tid&#39;</span><span class="p">:</span> <span class="s">&#39;t1&#39;</span><span class="p">,</span>
+  <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;DATE&#39;</span><span class="p">,</span>
+  <span class="s">&#39;value&#39;</span><span class="p">:</span> <span class="s">&#39;2015-06-17&#39;</span><span class="p">},</span>
+ <span class="p">{</span><span class="s">&#39;anchor_id&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+  <span class="s">&#39;anchor_tid&#39;</span><span class="p">:</span> <span class="s">&#39;t1&#39;</span><span class="p">,</span>
+  <span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">49</span><span class="p">,</span>
+  <span class="s">&#39;id&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+  <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">39</span><span class="p">,</span>
+  <span class="s">&#39;temporal_function&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+  <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;kell 18 . 00&#39;</span><span class="p">,</span>
+  <span class="s">&#39;tid&#39;</span><span class="p">:</span> <span class="s">&#39;t2&#39;</span><span class="p">,</span>
+  <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;TIME&#39;</span><span class="p">,</span>
+  <span class="s">&#39;value&#39;</span><span class="p">:</span> <span class="s">&#39;2015-06-17T18:00&#39;</span><span class="p">},</span>
+ <span class="p">{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">67</span><span class="p">,</span>
+  <span class="s">&#39;id&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+  <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">56</span><span class="p">,</span>
+  <span class="s">&#39;temporal_function&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span>
+  <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;viiepäevane&#39;</span><span class="p">,</span>
+  <span class="s">&#39;tid&#39;</span><span class="p">:</span> <span class="s">&#39;t3&#39;</span><span class="p">,</span>
+  <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;DURATION&#39;</span><span class="p">,</span>
+  <span class="s">&#39;value&#39;</span><span class="p">:</span> <span class="s">&#39;P5D&#39;</span><span class="p">},</span>
+ <span class="p">{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">108</span><span class="p">,</span>
+  <span class="s">&#39;id&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+  <span class="s">&#39;quant&#39;</span><span class="p">:</span> <span class="s">&#39;EVERY&#39;</span><span class="p">,</span>
+  <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">97</span><span class="p">,</span>
+  <span class="s">&#39;temporal_function&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+  <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;igal aastal&#39;</span><span class="p">,</span>
+  <span class="s">&#39;tid&#39;</span><span class="p">:</span> <span class="s">&#39;t4&#39;</span><span class="p">,</span>
+  <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;SET&#39;</span><span class="p">,</span>
+  <span class="s">&#39;value&#39;</span><span class="p">:</span> <span class="s">&#39;P1Y&#39;</span><span class="p">}]</span>
+</pre></div>
+</div>
+<p>There are a number of mandatory attributes present in the dictionaries:</p>
+<ul>
+<li><p class="first"><strong>start, end</strong> - the expression start and end positions in the text.</p>
+</li>
+<li><p class="first"><strong>tid</strong> - TimeML format <em>id</em> of the expression.</p>
+</li>
+<li><p class="first"><strong>id</strong> - the zero-based <em>id</em> of the expressions, matches the position of the respective dictionary in the resulting list.</p>
+</li>
+<li><dl class="first docutils">
+<dt><strong>type</strong> - following the TimeML specification, four types of temporal expressions are distinguished:</dt>
+<dd><ul class="first last simple">
+<li><em>DATE expressions</em>, e.g. <em>järgmisel kolmapäeval</em> (<em>on next Wednesday</em>)</li>
+<li><em>TIME expressions</em>, e.g. <em>kell 18.00</em> (<em>at 18 o’clock</em>)</li>
+<li><em>DURATIONs</em>, e.g. <em>viis päeva</em> (<em>five days</em>)</li>
+<li><em>SETs of times</em>, e.g. <em>igal aastal</em> (<em>on every year</em>)</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt><strong>temporal_function</strong> - boolean value indicating whether the semantics of the expression are relative to the context.</dt>
+<dd><ul class="first last">
+<li><dl class="first docutils">
+<dt>For DATE and TIME expressions:</dt>
+<dd><ul class="first last simple">
+<li><em>True</em> indicates that the expression is relative and semantics have been computed by heuristics;</li>
+<li><em>False</em> indicates that the expression is absolute and semantics haven&#8217;t been computed by heuristics;</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p class="first">For DURATION expressions, <em>temporal_function</em> is mostly <em>False</em>, except for vague durations;</p>
+</li>
+<li><p class="first">For SET expressions, <em>temporal_function</em> is always <em>True</em>;</p>
+</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+<p>The <strong>value</strong> is a mandatory attribute containing the semantics and has four possible formats:</p>
+<ol class="arabic">
+<li><dl class="first docutils">
+<dt>Date and time <strong>yyyy-mm-ddThh:mm</strong></dt>
+<dd><ul class="first last simple">
+<li><em>yyyy</em> - year (4 digits)</li>
+<li><em>mm</em> - month (01-12)</li>
+<li><em>dd</em> - day (01-31)</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Week-based <strong>yyyy-Wnn-wdThh:mm</strong></dt>
+<dd><ul class="first last simple">
+<li><em>nn</em> - the week of the year (01-53)</li>
+<li><em>wd</em> - day of the week (1-7, where 1 denotes Monday).</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p class="first">Time based <strong>Thh:mm</strong></p>
+</li>
+<li><dl class="first docutils">
+<dt>Time span <strong>Pn1Yn2Mn3Wn4DTn5Hn6M</strong></dt>
+<dd><p class="first last">ni denotes a value and Y (year), M (month), W (week), D (day), H (hours), M (minutes) denotes respective time granularity.</p>
+</dd>
+</dl>
+</li>
+</ol>
+<p>Formats (1) and (2) are used with DATE, TIME and SET types.
+Format (1) is always preferred if both (1) and (2) can be used.
+Format (3) is used in cases it is impossible to extract the date.
+Format (4) is used is used in time span expressions.</p>
+<p>In addition, there are dedicated markers for special time notions:</p>
+<ol class="arabic">
+<li><dl class="first docutils">
+<dt>Different times of the day</dt>
+<dd><ul class="first last simple">
+<li><em>MO</em> - morning - hommik</li>
+<li><em>AF</em> - afternoon - pärastlõuna</li>
+<li><em>EV</em> - evening - õhtu</li>
+<li><em>NI</em> - night - öö</li>
+<li><em>DT</em> - daytime - päevane aeg</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Weekends/workdays</dt>
+<dd><ul class="first last simple">
+<li><em>WD</em> - workday - tööpäev</li>
+<li><em>WE</em> - weekend - nädalalõpp</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Seasons</dt>
+<dd><ul class="first last simple">
+<li><em>SP</em> - spring - kevad</li>
+<li><em>SU</em> - summer - suvi</li>
+<li><em>FA</em> - fall - sügis</li>
+<li><em>WI</em> - winter - talv</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Quarters</dt>
+<dd><ul class="first last simple">
+<li><em>Q1, Q2, Q3, Q4</em></li>
+<li><em>QX</em> - unknown/unspecified quarter</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ol>
+<div class="section" id="document-creation-date">
+<h3>Document creation date<a class="headerlink" href="#document-creation-date" title="Permalink to this headline">¶</a></h3>
+<p>Relative temporal expressions often depend on document creation date, which can be supplied as <tt class="docutils literal"><span class="pre">creation_date</span></tt> parameter.
+If no <tt class="docutils literal"><span class="pre">creation_date</span></tt> argument is passed, it is set as the date the code is run (June 8, 2015 in the example):</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">Text</span>
+<span class="n">Text</span><span class="p">(</span><span class="s">&#39;Täna on ilus ilm&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">timexes</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">[{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+  <span class="s">&#39;id&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+  <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+  <span class="s">&#39;temporal_function&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+  <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;Täna&#39;</span><span class="p">,</span>
+  <span class="s">&#39;tid&#39;</span><span class="p">:</span> <span class="s">&#39;t1&#39;</span><span class="p">,</span>
+  <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;DATE&#39;</span><span class="p">,</span>
+  <span class="s">&#39;value&#39;</span><span class="p">:</span> <span class="s">&#39;2015-06-08&#39;</span><span class="p">}]</span>
+</pre></div>
+</div>
+<p>However, when passing <tt class="docutils literal"><span class="pre">creation_date=datetime.datetime(1986,</span> <span class="pre">12,</span> <span class="pre">21)</span></tt>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">datetime</span>
+<span class="n">Text</span><span class="p">(</span><span class="s">&#39;Täna on ilus ilm&#39;</span><span class="p">,</span> <span class="n">creation_date</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="mi">1986</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">21</span><span class="p">))</span><span class="o">.</span><span class="n">timexes</span>
+</pre></div>
+</div>
+<p>We see that word &#8220;today&#8221; (<em>täna</em>) refers to to December 21, 1986:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">[{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+  <span class="s">&#39;id&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+  <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+  <span class="s">&#39;temporal_function&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+  <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;Täna&#39;</span><span class="p">,</span>
+  <span class="s">&#39;tid&#39;</span><span class="p">:</span> <span class="s">&#39;t1&#39;</span><span class="p">,</span>
+  <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;DATE&#39;</span><span class="p">,</span>
+  <span class="s">&#39;value&#39;</span><span class="p">:</span> <span class="s">&#39;1986-12-21&#39;</span><span class="p">}]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="timex-examples">
+<h3>TIMEX examples<a class="headerlink" href="#timex-examples" title="Permalink to this headline">¶</a></h3>
+<p>Here are some examples of temporal expressions and fields that the tagger can extract.
+The document creation date is fixed to Dec 21, 1986 in the examples below.
+See <a class="reference external" href="https://github.com/soras/Ajavt/blob/master/doc/margendusformaat_et.pdf?raw=true">annotation guidelines</a> for more detailed explanations.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="53%" />
+<col width="21%" />
+<col width="6%" />
+<col width="12%" />
+<col width="7%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Example</th>
+<th class="head">Temporal expression</th>
+<th class="head">Type</th>
+<th class="head">Value</th>
+<th class="head">Modifier</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Järgmisel reedel</td>
+<td>Järgmisel reedel</td>
+<td>DATE</td>
+<td>1986-12-26</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="2004">
+<li>aastal</li>
+</ol>
+</td>
+<td><ol class="first last arabic simple" start="2004">
+<li>aastal</li>
+</ol>
+</td>
+<td>DATE</td>
+<td>2004</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>esmaspäeva hommikul</td>
+<td>esmaspäeva hommikul</td>
+<td>TIME</td>
+<td>1986-12-15TMO</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>järgmisel reedel kell 14.00</td>
+<td>järgmisel reedel kell 14. 00</td>
+<td>TIME</td>
+<td>1986-12-26T14:00</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>neljapäeviti</td>
+<td>neljapäeviti</td>
+<td>SET</td>
+<td>XXXX-WXX-XX</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>hommikuti</td>
+<td>hommikuti</td>
+<td>SET</td>
+<td>XXXX-XX-XXTMO</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>selle kuu alguses</td>
+<td>selle kuu alguses</td>
+<td>DATE</td>
+<td>1986-12</td>
+<td>START</td>
+</tr>
+<tr class="row-odd"><td>1990ndate lõpus</td>
+<td>1990ndate lõpus</td>
+<td>DATE</td>
+<td>199</td>
+<td>END</td>
+</tr>
+<tr class="row-even"><td>VI sajandist e.m.a</td>
+<td>VI sajandist e.m.a</td>
+<td>DATE</td>
+<td>BC05</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>kolm tundi</td>
+<td>kolm tundi</td>
+<td>DURATION</td>
+<td>PT3H</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>viis kuud</td>
+<td>viis kuud</td>
+<td>DURATION</td>
+<td>P5M</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>kaks minutit</td>
+<td>kaks minutit</td>
+<td>DURATION</td>
+<td>PT2M</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>teisipäeviti</td>
+<td>teisipäeviti</td>
+<td>SET</td>
+<td>XXXX-WXX-XX</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>kolm päeva igas kuus</td>
+<td>kolm päeva</td>
+<td>DURATION</td>
+<td>P3D</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>kolm päeva igas kuus</td>
+<td>igas kuus</td>
+<td>SET</td>
+<td>P1M</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>hiljuti</td>
+<td>hiljuti</td>
+<td>DATE</td>
+<td>PAST_REF</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>tulevikus</td>
+<td>tulevikus</td>
+<td>DATE</td>
+<td>FUTURE_REF</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="2009">
+<li>aasta alguses</li>
+</ol>
+</td>
+<td><ol class="first last arabic simple" start="2009">
+<li>aasta alguses</li>
+</ol>
+</td>
+<td>DATE</td>
+<td>2009</td>
+<td>START</td>
+</tr>
+<tr class="row-even"><td>juuni alguseks 2007. aastal</td>
+<td>juuni alguseks</td>
+<td>DATE</td>
+<td>1986-06</td>
+<td>START</td>
+</tr>
+<tr class="row-odd"><td>juuni alguseks 2007. aastal</td>
+<td><ol class="first last arabic simple" start="2007">
+<li>aastal</li>
+</ol>
+</td>
+<td>DATE</td>
+<td>2007</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="2009">
+<li>aasta esimesel poolel</li>
+</ol>
+</td>
+<td><ol class="first last arabic simple" start="2009">
+<li>aasta esimesel poolel</li>
+</ol>
+</td>
+<td>DATE</td>
+<td>2009</td>
+<td>FIRST_HALF</td>
+</tr>
+<tr class="row-odd"><td>umbes 4 aastat</td>
+<td>umbes 4 aastat</td>
+<td>DURATION</td>
+<td>P4Y</td>
+<td>APPROX</td>
+</tr>
+<tr class="row-even"><td>peaaegu 4 aastat</td>
+<td>peaaegu 4 aastat</td>
+<td>DURATION</td>
+<td>P4Y</td>
+<td>LESS_THAN</td>
+</tr>
+<tr class="row-odd"><td>12-15 märts 2009</td>
+<td>12-</td>
+<td>DATE</td>
+<td>2009-03-12</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>12-15 märts 2009</td>
+<td>15 märts 2009</td>
+<td>DATE</td>
+<td>2009-03-15</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>12-15 märts 2009</td>
+<td>&nbsp;</td>
+<td>DURATION</td>
+<td>PXXD</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>eelmise kuu lõpus</td>
+<td>eelmise kuu lõpus</td>
+<td>DATE</td>
+<td>1986-11</td>
+<td>END</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="2004">
+<li>aasta suvel</li>
+</ol>
+</td>
+<td><ol class="first last arabic simple" start="2004">
+<li>aasta suvel</li>
+</ol>
+</td>
+<td>DATE</td>
+<td>2004-SU</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>Detsembris oli keskmine temperatuur kaks korda madalam kui kuu aega varem</td>
+<td>Detsembris</td>
+<td>DATE</td>
+<td>1986-12</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>Detsembris oli keskmine temperatuur kaks korda madalam kui kuu aega varem</td>
+<td>kuu aega varem</td>
+<td>DATE</td>
+<td>1986-11</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>neljapäeval, 17. juunil</td>
+<td>neljapäeval , 17. juunil</td>
+<td>DATE</td>
+<td>1986-06-17</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>täna, 100 aastat tagasi</td>
+<td>täna</td>
+<td>DATE</td>
+<td>1986-12-21</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>täna, 100 aastat tagasi</td>
+<td>100 aastat tagasi</td>
+<td>DATE</td>
+<td>1886</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>neljapäeva öösel vastu reedet</td>
+<td>neljapäeva öösel vastu reedet</td>
+<td>TIME</td>
+<td>1986-12-19TNI</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>viimase aasta jooksul</td>
+<td>viimase aasta jooksul</td>
+<td>DURATION</td>
+<td>P1Y</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>viimase aasta jooksul</td>
+<td>&nbsp;</td>
+<td>DATE</td>
+<td>1985</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>viimase kolme aasta jooksul</td>
+<td>viimase kolme aasta jooksul</td>
+<td>DURATION</td>
+<td>P3Y</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>viimase kolme aasta jooksul</td>
+<td>&nbsp;</td>
+<td>DATE</td>
+<td>1983</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>aastaid tagasi</td>
+<td>aastaid tagasi</td>
+<td>DATE</td>
+<td>PAST_REF</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>aastate pärast</td>
+<td>aastate pärast</td>
+<td>DATE</td>
+<td>FUTURE_REF</td>
+<td>&nbsp;</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section" id="tagging-clauses">
+<h2>Tagging clauses<a class="headerlink" href="#tagging-clauses" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="basic-usage">
+<h3>Basic usage<a class="headerlink" href="#basic-usage" title="Permalink to this headline">¶</a></h3>
+<p>A simple sentence, also called an independent clause, typically contains a finite verb, and expresses a complete thought.
+However, natural language sentences can also be long and complex, consisting of two or more clauses joined together.
+The clause structure can be made even more complex due to embedded clauses, which divide their parent clauses into two halves:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">Text</span>
+<span class="n">text</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s">&#39;Mees, keda seal kohtasime, oli tuttav ja teretas meid.&#39;</span><span class="p">)</span>
+<span class="n">text</span><span class="o">.</span><span class="n">get</span><span class="o">.</span><span class="n">word_texts</span><span class="o">.</span><span class="n">clause_indices</span><span class="o">.</span><span class="n">clause_annotations</span><span class="o">.</span><span class="n">as_dataframe</span>
+</pre></div>
+</div>
+<p>The clause annotations define embedded clauses and clause boundaries.
+Additionally, each word in a sentence is associated with a clause index:</p>
+<div class="highlight-python"><div class="highlight"><pre>   word_texts  clause_indices     clause_annotations
+0        Mees               0                   None
+1           ,               1  embedded_clause_start
+2        keda               1                   None
+3        seal               1                   None
+4   kohtasime               1                   None
+5           ,               1    embedded_clause_end
+6         oli               0                   None
+7      tuttav               0                   None
+8          ja               0        clause_boundary
+9     teretas               2                   None
+10       meid               2                   None
+11          .               2                   None
+</pre></div>
+</div>
+<p>Clause annotation information is stored in <tt class="docutils literal"><span class="pre">words</span></tt> layer as <tt class="docutils literal"><span class="pre">clause_index</span></tt> and <tt class="docutils literal"><span class="pre">clause_annotation</span></tt> attributes:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span><span class="s">&#39;analysis&#39;</span><span class="p">:</span> <span class="p">[{</span><span class="s">&#39;clitic&#39;</span><span class="p">:</span> <span class="s">&#39;&#39;</span><span class="p">,</span>
+               <span class="s">&#39;ending&#39;</span><span class="p">:</span> <span class="s">&#39;0&#39;</span><span class="p">,</span>
+               <span class="s">&#39;form&#39;</span><span class="p">:</span> <span class="s">&#39;sg n&#39;</span><span class="p">,</span>
+               <span class="s">&#39;lemma&#39;</span><span class="p">:</span> <span class="s">&#39;mees&#39;</span><span class="p">,</span>
+               <span class="s">&#39;partofspeech&#39;</span><span class="p">:</span> <span class="s">&#39;S&#39;</span><span class="p">,</span>
+               <span class="s">&#39;root&#39;</span><span class="p">:</span> <span class="s">&#39;mees&#39;</span><span class="p">,</span>
+               <span class="s">&#39;root_tokens&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;mees&#39;</span><span class="p">]}],</span>
+ <span class="s">&#39;clause_index&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+ <span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+ <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+ <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;Mees&#39;</span><span class="p">}</span>
+
+<span class="p">{</span><span class="s">&#39;analysis&#39;</span><span class="p">:</span> <span class="p">[{</span><span class="s">&#39;clitic&#39;</span><span class="p">:</span> <span class="s">&#39;&#39;</span><span class="p">,</span>
+               <span class="s">&#39;ending&#39;</span><span class="p">:</span> <span class="s">&#39;&#39;</span><span class="p">,</span>
+               <span class="s">&#39;form&#39;</span><span class="p">:</span> <span class="s">&#39;&#39;</span><span class="p">,</span>
+               <span class="s">&#39;lemma&#39;</span><span class="p">:</span> <span class="s">&#39;,&#39;</span><span class="p">,</span>
+               <span class="s">&#39;partofspeech&#39;</span><span class="p">:</span> <span class="s">&#39;Z&#39;</span><span class="p">,</span>
+               <span class="s">&#39;root&#39;</span><span class="p">:</span> <span class="s">&#39;,&#39;</span><span class="p">,</span>
+               <span class="s">&#39;root_tokens&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;,&#39;</span><span class="p">]}],</span>
+ <span class="s">&#39;clause_annotation&#39;</span><span class="p">:</span> <span class="s">&#39;embedded_clause_start&#39;</span><span class="p">,</span>
+ <span class="s">&#39;clause_index&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+ <span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+ <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+ <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;,&#39;</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Clause indices and annotations can be explicitly tagged with method <tt class="xref py py-meth docutils literal"><span class="pre">tag_clause_annotations()</span></tt>.</p>
+<p>Property <tt class="xref py py-attr docutils literal"><span class="pre">clause_texts</span></tt> can be used to see the full clauses themselves:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">text</span><span class="o">.</span><span class="n">clause_texts</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="s">&#39;Mees oli tuttav ja&#39;</span><span class="p">,</span> <span class="s">&#39;, keda seal kohtasime,&#39;</span><span class="p">,</span> <span class="s">&#39;teretas meid.&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Method <tt class="xref py py-meth docutils literal"><span class="pre">tag_clauses()</span></tt> can be used create a special <tt class="docutils literal"><span class="pre">clauses</span></tt> multilayer,
+that lists character-level indices of start and end positions of clause regions:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">text</span><span class="o">.</span><span class="n">tag_clauses</span><span class="p">()</span>
+<span class="n">text</span><span class="p">[</span><span class="s">&#39;clauses&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">[{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">40</span><span class="p">],</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">27</span><span class="p">]},</span>
+ <span class="p">{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">26</span><span class="p">],</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">4</span><span class="p">]},</span>
+ <span class="p">{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">54</span><span class="p">],</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">41</span><span class="p">]}]</span>
+</pre></div>
+</div>
+<p>It might be useful to process each clause of the sentence independently:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">for</span> <span class="n">clause</span> <span class="ow">in</span> <span class="n">text</span><span class="o">.</span><span class="n">split_by</span><span class="p">(</span><span class="s">&#39;clauses&#39;</span><span class="p">):</span>
+    <span class="k">print</span> <span class="p">(</span><span class="n">clause</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre>Mees oli tuttav ja
+, keda seal kohtasime,
+teretas meid.
+</pre></div>
+</div>
+</div>
+<div class="section" id="the-ignore-missing-commas-mode">
+<h3>The &#8216;ignore_missing_commas&#8217; mode<a class="headerlink" href="#the-ignore-missing-commas-mode" title="Permalink to this headline">¶</a></h3>
+<p>Because commas are important clause delimiters in Estonian, the quality of the clause segmentation may suffer due to accidentially missing commas in the input text. To address this issue, the clause segmenter can be initialized in a mode in which the program tries to be less sensitive to missing commas while detecting clause boundaries.</p>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">ClauseSegmenter</span>
+<span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">Text</span>
+
+<span class="n">segmenter</span> <span class="o">=</span> <span class="n">ClauseSegmenter</span><span class="p">(</span> <span class="n">ignore_missing_commas</span><span class="o">=</span><span class="bp">True</span> <span class="p">)</span>
+<span class="n">text</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s">&#39;Keegi teine ka siin ju kirjutas et ütles et saab ise asjadele järgi minna aga vastust seepeale ei tulnudki.&#39;</span><span class="p">,</span> <span class="n">clause_segmenter</span> <span class="o">=</span> <span class="n">segmenter</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">clause</span> <span class="ow">in</span> <span class="n">text</span><span class="o">.</span><span class="n">split_by</span><span class="p">(</span><span class="s">&#39;clauses&#39;</span><span class="p">):</span>
+    <span class="k">print</span> <span class="p">(</span><span class="n">clause</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>will produce following output:</p>
+<div class="highlight-python"><div class="highlight"><pre>Keegi teine ka siin ju kirjutas
+et ütles
+et saab ise asjadele järgi minna
+aga vastust seepeale ei tulnudki.
+</pre></div>
+</div>
+<p>Note that this mode is experimental and compared to the basic mode, it may introduce additional incorrect clause boundaries, although it also improves clause boundary detection in texts with (a lot of) missing commas.</p>
+</div>
+</div>
+<div class="section" id="verb-chain-tagging">
+<h2>Verb chain tagging<a class="headerlink" href="#verb-chain-tagging" title="Permalink to this headline">¶</a></h2>
+<p>Verb chain tagger identifies main verbs (predicates) in clauses.
+The current version of the program aims to detect following verb chain constructions:</p>
+<ul class="simple">
+<li>basic main verbs:<ul>
+<li>(affirmative) single non-<em>olema</em> main verbs (example: Pidevalt <strong>uurivad</strong> asjade seisu ka hollandlased);</li>
+<li>(affirmative) single <em>olema</em> main verbs (e.g. Raha <strong>on</strong> alati vähe) and two word <em>olema</em> verb chains (<strong>Oleme</strong> sellist kino ennegi <strong>näinud</strong>);</li>
+<li>negated main verbs: <em>ei/ära/pole/ega</em> + verb (e.g. Helistasin korraks Carmenile, kuid ta <strong>ei vastanud.</strong>);</li>
+</ul>
+</li>
+<li>verb chain extensions:<ul>
+<li>verb + verb : the chain is extended with an infinite verb if the last verb of the chain subcategorizes for it, e.g. the verb <em>kutsuma</em> is extended with <em>ma</em>-verb arguments (for example: Kevadpäike <strong>kutsub</strong> mind <strong>suusatama</strong>) and the verb <em>püüdma</em> is extended with <em>da</em>-verb arguments (Aita <strong>ei püüdnudki</strong> Leenat <strong>mõista</strong>);</li>
+<li>verb + nom/adv + verb : the last verb of the chain is extended with nominal/adverb arguments which subcategorize for an infinite verb, e.g. the verb <em>otsima</em> forms a multiword unit with the nominal <em>võimalust</em> which, in turn, takes infinite <em>da</em>-verb as an argument (for example: Seepärast <strong>otsisimegi võimalust</strong> kusagilt mõned ilvesed <strong>hankida</strong>);</li>
+</ul>
+</li>
+</ul>
+<p>Verb chains are stored as a simple layer named <tt class="docutils literal"><span class="pre">verb_chains</span></tt>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">Text</span>
+<span class="n">text</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s">&#39;Ta oleks pidanud sinna minema, aga ei läinud.&#39;</span><span class="p">)</span>
+<span class="n">text</span><span class="o">.</span><span class="n">verb_chains</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">[{</span><span class="s">&#39;analysis_ids&#39;</span><span class="p">:</span> <span class="p">[[</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">]],</span>
+  <span class="s">&#39;clause_index&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+  <span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">8</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">29</span><span class="p">],</span>
+  <span class="s">&#39;mood&#39;</span><span class="p">:</span> <span class="s">&#39;condit&#39;</span><span class="p">,</span>
+  <span class="s">&#39;morph&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;V_ks&#39;</span><span class="p">,</span> <span class="s">&#39;V_nud&#39;</span><span class="p">,</span> <span class="s">&#39;V_ma&#39;</span><span class="p">],</span>
+  <span class="s">&#39;other_verbs&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span>
+  <span class="s">&#39;pattern&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;ole&#39;</span><span class="p">,</span> <span class="s">&#39;verb&#39;</span><span class="p">,</span> <span class="s">&#39;verb&#39;</span><span class="p">],</span>
+  <span class="s">&#39;phrase&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span>
+  <span class="s">&#39;pol&#39;</span><span class="p">:</span> <span class="s">&#39;POS&#39;</span><span class="p">,</span>
+  <span class="s">&#39;roots&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;ole&#39;</span><span class="p">,</span> <span class="s">&#39;pida&#39;</span><span class="p">,</span> <span class="s">&#39;mine&#39;</span><span class="p">],</span>
+  <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">23</span><span class="p">],</span>
+  <span class="s">&#39;tense&#39;</span><span class="p">:</span> <span class="s">&#39;past&#39;</span><span class="p">,</span>
+  <span class="s">&#39;voice&#39;</span><span class="p">:</span> <span class="s">&#39;personal&#39;</span><span class="p">},</span>
+ <span class="p">{</span><span class="s">&#39;analysis_ids&#39;</span><span class="p">:</span> <span class="p">[[</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">]],</span>
+  <span class="s">&#39;clause_index&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+  <span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">37</span><span class="p">,</span> <span class="mi">44</span><span class="p">],</span>
+  <span class="s">&#39;mood&#39;</span><span class="p">:</span> <span class="s">&#39;indic&#39;</span><span class="p">,</span>
+  <span class="s">&#39;morph&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;V_neg&#39;</span><span class="p">,</span> <span class="s">&#39;V_nud&#39;</span><span class="p">],</span>
+  <span class="s">&#39;other_verbs&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span>
+  <span class="s">&#39;pattern&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;ei&#39;</span><span class="p">,</span> <span class="s">&#39;verb&#39;</span><span class="p">],</span>
+  <span class="s">&#39;phrase&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span>
+  <span class="s">&#39;pol&#39;</span><span class="p">:</span> <span class="s">&#39;NEG&#39;</span><span class="p">,</span>
+  <span class="s">&#39;roots&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;ei&#39;</span><span class="p">,</span> <span class="s">&#39;mine&#39;</span><span class="p">],</span>
+  <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">35</span><span class="p">,</span> <span class="mi">38</span><span class="p">],</span>
+  <span class="s">&#39;tense&#39;</span><span class="p">:</span> <span class="s">&#39;imperfect&#39;</span><span class="p">,</span>
+  <span class="s">&#39;voice&#39;</span><span class="p">:</span> <span class="s">&#39;personal&#39;</span><span class="p">}]</span>
+</pre></div>
+</div>
+<p>Following is a brief description of the attributes:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">analysis_ids</span></tt> - the indices of analysis ids of the words in the phrase of this chain.</li>
+<li><tt class="docutils literal"><span class="pre">clause_index</span></tt> - the clause id this chain was tagged in.</li>
+<li><tt class="docutils literal"><span class="pre">mood</span></tt>  - mood of the finite verb. Possible values: <em>&#8216;indic&#8217;</em> (indicative), <em>&#8216;imper&#8217;</em> (imperative), <em>&#8216;condit&#8217;</em> (conditional), <em>&#8216;quotat&#8217;</em> (quotative) or <em>&#8216;??&#8217;</em> (undetermined);</li>
+<li><tt class="docutils literal"><span class="pre">morph</span></tt> - for each word in the chain, lists its morphological features: part of speech tag and form (in one string, separated by &#8216;_&#8217;, and multiple variants of the pos/form are separated by &#8216;/&#8217;);</li>
+<li><tt class="docutils literal"><span class="pre">other_verbs</span></tt> - boolean, marks whether there are other verbs in the context, which can be potentially added to the verb chain; if <tt class="docutils literal"><span class="pre">True</span></tt>,then it is uncertain whether the chain is complete or not;</li>
+<li><tt class="docutils literal"><span class="pre">pattern</span></tt> - the general pattern of the chain: for each word in the chain, lists whether it is <em>&#8216;ega&#8217;</em>, <em>&#8216;ei&#8217;</em>, <em>&#8216;ära&#8217;</em>, <em>&#8216;pole&#8217;</em>, <em>&#8216;ole&#8217;</em>, <em>&#8216;&amp;&#8217;</em> (conjunction: ja/ning/ega/või), <em>&#8216;verb&#8217;</em> (verb different than <em>&#8216;ole&#8217;</em>) or <em>&#8216;nom/adv&#8217;</em> (nominal/adverb);</li>
+<li><tt class="docutils literal"><span class="pre">phrase</span></tt> - the word indices of the sentence that make up the verb chain phrase.</li>
+<li><tt class="docutils literal"><span class="pre">pol</span></tt> - grammatical polarity of the finite verb. Possible values: <em>&#8216;POS&#8217;</em>, <em>&#8216;NEG&#8217;</em> or <em>&#8216;??&#8217;</em>. <em>&#8216;NEG&#8217;</em> means that the chain begins with a negation word <em>ei/pole/ega/ära</em>; <em>&#8216;??&#8217;</em> is reserved for cases where it is uncertain whether <em>ära</em> forms a negated verb chain or not;</li>
+<li><tt class="docutils literal"><span class="pre">roots</span></tt> - for each word in the chain, lists its corresponding &#8216;root&#8217; value from the morphological analysis;</li>
+<li><tt class="docutils literal"><span class="pre">tense</span></tt> - tense of the finite verb. Possible values depend on the mood value. Tenses of indicative: <em>&#8216;present&#8217;</em>, <em>&#8216;imperfect&#8217;</em>, <em>&#8216;perfect&#8217;</em>, <em>&#8216;pluperfect&#8217;</em>; tense of imperative: <em>&#8216;present&#8217;</em>; tenses of conditional and quotative: <em>&#8216;present&#8217;</em> and <em>&#8216;past&#8217;</em>. Additionally, the tense may remain undetermined (<em>&#8216;??&#8217;</em>).</li>
+<li><tt class="docutils literal"><span class="pre">voice</span></tt> - voice of the finite verb. Possible values: <em>&#8216;personal&#8217;</em>, <em>&#8216;impersonal&#8217;</em>, <em>&#8216;??&#8217;</em> (undetermined).</li>
+</ul>
+<p>Note that the words in the verb chain (in <tt class="docutils literal"><span class="pre">phrase</span></tt>, <tt class="docutils literal"><span class="pre">pattern</span></tt>, <tt class="docutils literal"><span class="pre">morph</span></tt> and <tt class="docutils literal"><span class="pre">roots</span></tt>) are ordered by the order of the grammatical relations - the order which may not coincide with the word order in text.
+The first word is the finite verb (main verb) of the clause (except in case of the negation constructions, where the first word is typically a negation word), and each following word is governed by the previous word in the chain.
+An exception: the chain may end with a conjunction of two infinite verbs (general pattern <em>verb &amp; verb</em>), in this case, both infinite verbs can be considered as being governed by the preceding word in the chain.</p>
+<p>Attributes <tt class="docutils literal"><span class="pre">start</span></tt> and <tt class="docutils literal"><span class="pre">end</span></tt> contain start and end positions for each token in the phrase, and these token positions are listed in the ascending order, regardless the order of the grammatical relations.</p>
+</div>
+<div class="section" id="estonian-wordnet">
+<h2>Estonian wordnet<a class="headerlink" href="#estonian-wordnet" title="Permalink to this headline">¶</a></h2>
+<p>Estonian WordNet API provides means to query Estonian WordNet.
+WordNet is a network of synsets, in which synsets are collections of synonymous words and are connected to other synsets via relations.
+For example, the synset which contains the word &#8220;koer&#8221; (&#8220;dog&#8221;) has a generalisation via hypernymy relation in the form of synset which contains the word &#8220;koerlane&#8221; (&#8220;canine&#8221;).</p>
+<p>Estonian WordNet contains synsets with different types of part-of-speech: <em>adverbs, adjectives, verbs</em> and <em>nouns</em>.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Part of speech</th>
+<th class="head">API equivalent</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Adverb</td>
+<td>wn.ADV</td>
+</tr>
+<tr class="row-odd"><td>Adjective</td>
+<td>wn.ADJ</td>
+</tr>
+<tr class="row-even"><td>Noun</td>
+<td>wn.NOUN</td>
+</tr>
+<tr class="row-odd"><td>Verb</td>
+<td>wn.VERB</td>
+</tr>
+</tbody>
+</table>
+<p>Given API is on most parts in conformance with NLTK WordNet&#8217;s API (<a class="reference external" href="http://www.nltk.org/howto/wordnet.html">http://www.nltk.org/howto/wordnet.html</a>).
+However, there are some differences due to different structure of the WordNets.</p>
+<ul class="simple">
+<li>Lemma classes&#8217; relations return empty sets. Reason: In Estonian WordNet relations are only between synsets.</li>
+<li>No verb frames. Reason: No information on verb frames.</li>
+<li>Only path, Leacock-Chodorow and Wu-Palmer similarities. No information on Information Content.</li>
+</ul>
+<p>Existing relations:</p>
+<p><em>antonym, be_in_state, belongs_to_class, causes, fuzzynym, has_holo_location, has_holo_madeof, has_holo_member,
+has_holo_part, has_holo_portion, has_holonym, has_hyperonym, has_hyponym, has_instance, has_mero_location,
+has_mero_madeof, has_mero_member, has_mero_part, has_mero_portion, has_meronym, has_subevent, has_xpos_hyperonym,
+has_xpos_hyponym, involved, involved_agent, involved_instrument, involved_location, involved_patient, involved_target_direction,
+is_caused_by, is_subevent_of, near_antonym, near_synonym, role, role_agent, role_instrument, role_location, role_patient,
+role_target_direction, state_of, xpos_fuzzynym, xpos_near_antonym, xpos_near_synonym .</em></p>
+<div class="section" id="wordnet-api">
+<h3>Wordnet API<a class="headerlink" href="#wordnet-api" title="Permalink to this headline">¶</a></h3>
+<p>Before anything else, let&#8217;s import the module:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">estnltk.wordnet</span> <span class="kn">import</span> <span class="n">wn</span>
+</pre></div>
+</div>
+<p>The most common use for the API is to query synsets.
+Synsets can be queried in several ways.
+The easiest way is to query all the synsets which match some conditions.
+For that we can either use:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">wn</span><span class="o">.</span><span class="n">all_synsets</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>which returns all the synsets there are or:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">wn</span><span class="o">.</span><span class="n">all_synsets</span><span class="p">(</span><span class="n">pos</span><span class="o">=</span><span class="n">wn</span><span class="o">.</span><span class="n">ADV</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>which returns all the synset of which part of speech is &#8220;adverb&#8221;.
+We can also query synsets by providing a lemma and a part of speech using:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">wn</span><span class="o">.</span><span class="n">synsets</span><span class="p">(</span><span class="s">&quot;koer&quot;</span><span class="p">,</span><span class="n">pos</span><span class="o">=</span><span class="n">wn</span><span class="o">.</span><span class="n">VERB</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">[]</span>
+</pre></div>
+</div>
+<p>By neglecting &#8220;pos&#8221;, it matches once again all the synsets with &#8220;koer&#8221; as lemma:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">wn</span><span class="o">.</span><span class="n">synsets</span><span class="p">(</span><span class="s">&quot;koer&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="n">Synset</span><span class="p">(</span><span class="s">&#39;koer.n.01&#39;</span><span class="p">),</span> <span class="n">Synset</span><span class="p">(</span><span class="s">&#39;kaak.n.01&#39;</span><span class="p">)]</span>
+</pre></div>
+</div>
+<p>The API allows to query synset&#8217;s details. For example, we can retrieve name and pos:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">synset</span> <span class="o">=</span> <span class="n">wn</span><span class="o">.</span><span class="n">synset</span><span class="p">(</span><span class="s">&quot;king.n.01&quot;</span><span class="p">)</span>
+<span class="n">synset</span><span class="o">.</span><span class="n">name</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="s">&#39;king.n.01&#39;</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">synset</span><span class="o">.</span><span class="n">pos</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="s">&#39;n&#39;</span>
+</pre></div>
+</div>
+<p>We can also query definition and examples:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">synset</span><span class="o">.</span><span class="n">definition</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="s">&#39;jalalaba kattev kontsaga jalats, mis ei ulatu pahkluust kõrgemale&#39;</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">synset</span><span class="o">.</span><span class="n">examples</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="s">u&#39;Jalad hakkasid katkistes kingades k</span><span class="se">\xfc</span><span class="s">lmetama.&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="relations">
+<h3>Relations<a class="headerlink" href="#relations" title="Permalink to this headline">¶</a></h3>
+<p>We can also query related synsets.
+There are relations, for which there are specific methods:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">synset</span><span class="o">.</span><span class="n">hypernyms</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="n">Synset</span><span class="p">(</span><span class="s">&#39;jalats.n.01&#39;</span><span class="p">)]</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">synset</span><span class="o">.</span><span class="n">hyponyms</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="n">Synset</span><span class="p">(</span><span class="s">&#39;peoking.n.01&#39;</span><span class="p">),</span> <span class="n">Synset</span><span class="p">(</span><span class="s">&#39;rihmking.n.01&#39;</span><span class="p">),</span> <span class="n">Synset</span><span class="p">(</span><span class="s">&#39;lapseking.n.01&#39;</span><span class="p">)]</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">synset</span><span class="o">.</span><span class="n">meronyms</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">[]</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">synset</span><span class="o">.</span><span class="n">holonyms</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">[]</span>
+</pre></div>
+</div>
+<p>More specific relations can be queried with a universal method:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">synset</span> <span class="o">=</span> <span class="n">wn</span><span class="o">.</span><span class="n">synset</span><span class="p">(</span><span class="s">&#39;jäätis.n.01&#39;</span><span class="p">)</span>
+<span class="n">synset</span><span class="o">.</span><span class="n">get_related_synsets</span><span class="p">(</span><span class="s">&#39;fuzzynym&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="n">Synset</span><span class="p">(</span><span class="s">&#39;jäätisemüüja.n.01&#39;</span><span class="p">),</span> <span class="n">Synset</span><span class="p">(</span><span class="s">&#39;jäätisekauplus.n.01&#39;</span><span class="p">),</span> <span class="n">Synset</span><span class="p">(</span><span class="s">&#39;jäätisekampaania.n.01&#39;</span><span class="p">),</span> <span class="n">Synset</span><span class="p">(</span><span class="s">&#39;jäätisekohvik.n.01&#39;</span><span class="p">)]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="similarities">
+<h3>Similarities<a class="headerlink" href="#similarities" title="Permalink to this headline">¶</a></h3>
+<p>We can measure distance or similarity between two synsets in several ways.
+For calculating similarity, we provide path, Leacock-Chodorow and Wu-Palmer similarities:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">synset</span> <span class="o">=</span> <span class="n">wn</span><span class="o">.</span><span class="n">synset</span><span class="p">(</span><span class="s">&#39;jalats.n.01&#39;</span><span class="p">)</span>
+<span class="n">target_synset</span> <span class="o">=</span> <span class="n">wn</span><span class="o">.</span><span class="n">synset</span><span class="p">(</span><span class="s">&#39;kinnas.n.01&#39;</span><span class="p">)</span>
+<span class="n">synset</span><span class="o">.</span><span class="n">path_similarity</span><span class="p">(</span><span class="n">target_synset</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="mf">0.33</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">synset</span><span class="o">.</span><span class="n">lch_similarity</span><span class="p">(</span><span class="n">target_synset</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="mf">2.159484249353372</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">synset</span><span class="o">.</span><span class="n">wup_similarity</span><span class="p">(</span><span class="n">target_synset</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="mf">0.8571428571428571</span>
+</pre></div>
+</div>
+<p>In addition, we can also find the closest common ancestor via hypernyms:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">synset</span><span class="o">.</span><span class="n">lowest_common_hypernyms</span><span class="p">(</span><span class="n">target_synset</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="n">Synset</span><span class="p">(</span><span class="s">&#39;kehakate.n.01&#39;</span><span class="p">)]</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Working with text</a><ul>
+<li><a class="reference internal" href="#getting-started">Getting started</a><ul>
+<li><a class="reference internal" href="#layers">Layers</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#tokenization">Tokenization</a></li>
+<li><a class="reference internal" href="#morphological-analysis">Morphological analysis</a><ul>
+<li><a class="reference internal" href="#property-aggregation">Property aggregation</a></li>
+<li><a class="reference internal" href="#word-analysis">Word analysis</a></li>
+<li><a class="reference internal" href="#human-readable-descriptions">Human-readable descriptions</a></li>
+<li><a class="reference internal" href="#analysis-options-phonetic-information">Analysis options &amp; phonetic information</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#morphological-synthesis">Morphological synthesis</a></li>
+<li><a class="reference internal" href="#correcting-spelling">Correcting spelling</a></li>
+<li><a class="reference internal" href="#detecting-invalid-characters">Detecting invalid characters</a><ul>
+<li><a class="reference internal" href="#predefined-alphabets">Predefined alphabets</a></li>
+<li><a class="reference internal" href="#detecting-characters">Detecting characters</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#searching-replacing-and-splitting">Searching, replacing and splitting</a><ul>
+<li><a class="reference internal" href="#splitting-by-layers">Splitting by layers</a></li>
+<li><a class="reference internal" href="#splitting-with-regular-expressions">Splitting with regular expressions</a></li>
+<li><a class="reference internal" href="#dividing-elements-by-layers">Dividing elements by layers</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#temporal-expression-timex-tagging">Temporal expression (TIMEX) tagging</a><ul>
+<li><a class="reference internal" href="#document-creation-date">Document creation date</a></li>
+<li><a class="reference internal" href="#timex-examples">TIMEX examples</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#tagging-clauses">Tagging clauses</a><ul>
+<li><a class="reference internal" href="#basic-usage">Basic usage</a></li>
+<li><a class="reference internal" href="#the-ignore-missing-commas-mode">The &#8216;ignore_missing_commas&#8217; mode</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#verb-chain-tagging">Verb chain tagging</a></li>
+<li><a class="reference internal" href="#estonian-wordnet">Estonian wordnet</a><ul>
+<li><a class="reference internal" href="#wordnet-api">Wordnet API</a></li>
+<li><a class="reference internal" href="#relations">Relations</a></li>
+<li><a class="reference internal" href="#similarities">Similarities</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="installation.html"
+                        title="previous chapter">Installation</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="disambiguation.html"
+                        title="next chapter">Morphological disambiguation on a collection of documents</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/tutorials/text.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="disambiguation.html" title="Morphological disambiguation on a collection of documents"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="installation.html" title="Installation"
+             >previous</a> |</li>
+        <li><a href="../index.html">estnltk 1.3 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2015, University of Tartu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>

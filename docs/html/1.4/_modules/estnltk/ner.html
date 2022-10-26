@@ -1,0 +1,316 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>estnltk.ner &mdash; estnltk 1.3 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '1.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="estnltk 1.3 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">estnltk 1.3 documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for estnltk.ner</h1><div class="highlight"><pre>
+<span class="c"># -*- coding: utf-8 -*-</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">unicode_literals</span><span class="p">,</span> <span class="n">print_function</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Module containing functionality for training and using NER models.</span>
+
+<span class="sd">Attributes</span>
+<span class="sd">----------</span>
+<span class="sd">tagger: NerTagger</span>
+<span class="sd">    Ner tagger with default model and parameters.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">errno</span>
+<span class="kn">import</span> <span class="nn">inspect</span>
+
+<span class="kn">import</span> <span class="nn">six</span>
+
+<span class="kn">from</span> <span class="nn">.core</span> <span class="kn">import</span> <span class="n">DEFAULT_PY2_NER_MODEL_DIR</span><span class="p">,</span> <span class="n">DEFAULT_PY3_NER_MODEL_DIR</span>
+<span class="kn">from</span> <span class="nn">.names</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">.estner</span> <span class="kn">import</span> <span class="n">Document</span><span class="p">,</span> <span class="n">Sentence</span><span class="p">,</span> <span class="n">Token</span>
+<span class="kn">from</span> <span class="nn">.estner</span> <span class="kn">import</span> <span class="n">CrfsuiteTrainer</span><span class="p">,</span> <span class="n">CrfsuiteTagger</span>
+
+<span class="kn">from</span> <span class="nn">.estner.featureextraction</span> <span class="kn">import</span> <span class="n">FeatureExtractor</span>
+
+<span class="c"># Use different NER models depending on Python version</span>
+<span class="n">DEFAULT_NER_MODEL_DIR</span> <span class="o">=</span> <span class="n">DEFAULT_PY3_NER_MODEL_DIR</span> <span class="k">if</span> <span class="n">six</span><span class="o">.</span><span class="n">PY3</span> <span class="k">else</span> <span class="n">DEFAULT_PY2_NER_MODEL_DIR</span>
+
+
+<span class="k">class</span> <span class="nc">ModelStorageUtil</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_dir</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_dir</span> <span class="o">=</span> <span class="n">model_dir</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">model_dir</span><span class="p">,</span> <span class="s">&#39;model.bin&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">settings_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">model_dir</span><span class="p">,</span> <span class="s">&#39;settings.py&#39;</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">makedir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Create model_dir directory &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_dir</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">exception</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">exception</span><span class="o">.</span><span class="n">errno</span> <span class="o">!=</span> <span class="n">errno</span><span class="o">.</span><span class="n">EEXIST</span><span class="p">:</span>
+                <span class="k">raise</span>
+
+
+    <span class="k">def</span> <span class="nf">copy_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">settings_module</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Copy settings module to the model_dir directory &quot;&quot;&quot;</span>
+        <span class="n">source</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getsourcefile</span><span class="p">(</span><span class="n">settings_module</span><span class="p">)</span>
+        <span class="n">dest</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_dir</span><span class="p">,</span> <span class="s">&#39;settings.py&#39;</span><span class="p">)</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">copyfile</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">dest</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">load_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Load settings module from the model_dir directory.&quot;&quot;&quot;</span>
+        <span class="n">mname</span> <span class="o">=</span> <span class="s">&#39;loaded_module&#39;</span>
+        <span class="k">if</span> <span class="n">six</span><span class="o">.</span><span class="n">PY2</span><span class="p">:</span>
+            <span class="kn">import</span> <span class="nn">imp</span>
+            <span class="k">return</span> <span class="n">imp</span><span class="o">.</span><span class="n">load_source</span><span class="p">(</span><span class="n">mname</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">settings_filename</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="kn">import</span> <span class="nn">importlib.machinery</span>
+            <span class="n">loader</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">machinery</span><span class="o">.</span><span class="n">SourceFileLoader</span><span class="p">(</span><span class="n">mname</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">settings_filename</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">loader</span><span class="o">.</span><span class="n">load_module</span><span class="p">(</span><span class="n">mname</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="json_document_to_estner_document"><a class="viewcode-back" href="../../api/ner.html#estnltk.ner.json_document_to_estner_document">[docs]</a><span class="k">def</span> <span class="nf">json_document_to_estner_document</span><span class="p">(</span><span class="n">jsondoc</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Convert an estnltk document to an estner document.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    jsondoc: dict</span>
+<span class="sd">        Estnltk JSON-style document.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    estnltk.estner.ner.Document</span>
+<span class="sd">        A ner document.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">estnerdoc</span> <span class="o">=</span> <span class="n">Document</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">json_sent</span> <span class="ow">in</span> <span class="n">jsondoc</span><span class="o">.</span><span class="n">split_by_sentences</span><span class="p">():</span>
+        <span class="n">snt</span> <span class="o">=</span> <span class="n">Sentence</span><span class="p">()</span>
+        <span class="n">zipped</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span>
+            <span class="n">json_sent</span><span class="o">.</span><span class="n">word_texts</span><span class="p">,</span>
+            <span class="n">json_sent</span><span class="o">.</span><span class="n">lemmas</span><span class="p">,</span>
+            <span class="n">json_sent</span><span class="o">.</span><span class="n">root_tokens</span><span class="p">,</span>
+            <span class="n">json_sent</span><span class="o">.</span><span class="n">forms</span><span class="p">,</span>
+            <span class="n">json_sent</span><span class="o">.</span><span class="n">endings</span><span class="p">,</span>
+            <span class="n">json_sent</span><span class="o">.</span><span class="n">postags</span><span class="p">))</span>
+        <span class="n">json_toks</span> <span class="o">=</span> <span class="p">[{</span><span class="n">TEXT</span><span class="p">:</span> <span class="n">text</span><span class="p">,</span> <span class="n">LEMMA</span><span class="p">:</span> <span class="n">lemma</span><span class="p">,</span> <span class="n">ROOT_TOKENS</span><span class="p">:</span> <span class="n">root_tokens</span><span class="p">,</span> <span class="n">FORM</span><span class="p">:</span> <span class="n">form</span><span class="p">,</span> <span class="n">ENDING</span><span class="p">:</span> <span class="n">ending</span><span class="p">,</span> <span class="n">POSTAG</span><span class="p">:</span> <span class="n">postag</span><span class="p">}</span>
+                     <span class="k">for</span> <span class="n">text</span><span class="p">,</span> <span class="n">lemma</span><span class="p">,</span> <span class="n">root_tokens</span><span class="p">,</span> <span class="n">form</span><span class="p">,</span> <span class="n">ending</span><span class="p">,</span> <span class="n">postag</span> <span class="ow">in</span> <span class="n">zipped</span><span class="p">]</span>
+        <span class="c"># add labels, if they are present</span>
+        <span class="k">for</span> <span class="n">tok</span><span class="p">,</span> <span class="n">word</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">json_toks</span><span class="p">,</span> <span class="n">json_sent</span><span class="o">.</span><span class="n">words</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">LABEL</span> <span class="ow">in</span> <span class="n">word</span><span class="p">:</span>
+                <span class="n">tok</span><span class="p">[</span><span class="n">LABEL</span><span class="p">]</span> <span class="o">=</span> <span class="n">word</span><span class="p">[</span><span class="n">LABEL</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">json_tok</span> <span class="ow">in</span> <span class="n">json_toks</span><span class="p">:</span>
+            <span class="n">token</span> <span class="o">=</span> <span class="n">json_token_to_estner_token</span><span class="p">(</span><span class="n">json_tok</span><span class="p">)</span>
+            <span class="n">snt</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+            <span class="n">estnerdoc</span><span class="o">.</span><span class="n">tokens</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">snt</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">snt</span><span class="p">)):</span>
+                <span class="n">snt</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">next</span> <span class="o">=</span> <span class="n">snt</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="n">snt</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">prew</span> <span class="o">=</span> <span class="n">snt</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">estnerdoc</span><span class="o">.</span><span class="n">snts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">snt</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">estnerdoc</span>
+
+</div>
+<div class="viewcode-block" id="json_token_to_estner_token"><a class="viewcode-back" href="../../api/ner.html#estnltk.ner.json_token_to_estner_token">[docs]</a><span class="k">def</span> <span class="nf">json_token_to_estner_token</span><span class="p">(</span><span class="n">json_token</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Convert a JSON-style word token to an estner token.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    vabamorf_token: dict</span>
+<span class="sd">        Vabamorf token representing a single word.</span>
+<span class="sd">    label: str</span>
+<span class="sd">        The label string.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    estnltk.estner.ner.Token</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">token</span> <span class="o">=</span> <span class="n">Token</span><span class="p">()</span>
+    <span class="n">word</span> <span class="o">=</span> <span class="n">json_token</span><span class="p">[</span><span class="n">TEXT</span><span class="p">]</span>
+    <span class="n">lemma</span> <span class="o">=</span> <span class="n">word</span>
+    <span class="n">morph</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="s">&#39;O&#39;</span>
+    <span class="n">ending</span> <span class="o">=</span> <span class="n">json_token</span><span class="p">[</span><span class="n">ENDING</span><span class="p">]</span>
+    <span class="n">root_toks</span> <span class="o">=</span> <span class="n">json_token</span><span class="p">[</span><span class="n">ROOT_TOKENS</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">root_toks</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="n">root_toks</span> <span class="o">=</span> <span class="n">root_toks</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">lemma</span> <span class="o">=</span> <span class="s">&#39;_&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root_toks</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="s">&#39;+&#39;</span> <span class="o">+</span> <span class="n">ending</span> <span class="k">if</span> <span class="n">ending</span> <span class="k">else</span> <span class="s">&#39;&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">lemma</span><span class="p">:</span>
+        <span class="n">lemma</span> <span class="o">=</span> <span class="n">word</span>
+    <span class="n">morph</span> <span class="o">=</span> <span class="s">&#39;_</span><span class="si">%s</span><span class="s">_&#39;</span> <span class="o">%</span> <span class="n">json_token</span><span class="p">[</span><span class="n">POSTAG</span><span class="p">]</span>
+    <span class="n">morph</span> <span class="o">+=</span> <span class="s">&#39; &#39;</span> <span class="o">+</span> <span class="n">json_token</span><span class="p">[</span><span class="n">FORM</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">LABEL</span> <span class="ow">in</span> <span class="n">json_token</span><span class="p">:</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="n">json_token</span><span class="p">[</span><span class="n">LABEL</span><span class="p">]</span>
+    <span class="n">token</span><span class="o">.</span><span class="n">word</span> <span class="o">=</span> <span class="n">word</span>
+    <span class="n">token</span><span class="o">.</span><span class="n">lemma</span> <span class="o">=</span> <span class="n">lemma</span>
+    <span class="n">token</span><span class="o">.</span><span class="n">morph</span> <span class="o">=</span> <span class="n">morph</span>
+    <span class="n">token</span><span class="o">.</span><span class="n">label</span> <span class="o">=</span> <span class="n">label</span>
+    <span class="k">return</span> <span class="n">token</span>
+
+</div>
+<div class="viewcode-block" id="NerTrainer"><a class="viewcode-back" href="../../api/ner.html#estnltk.ner.NerTrainer">[docs]</a><span class="k">class</span> <span class="nc">NerTrainer</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;The class for training NER models. Uses crfsuite implementation.&quot;&quot;&quot;</span>
+
+
+<div class="viewcode-block" id="NerTrainer.__init__"><a class="viewcode-back" href="../../api/ner.html#estnltk.ner.NerTrainer.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nersettings</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize a new NerTrainer.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        nersettings: module</span>
+<span class="sd">            NER settings module.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">settings</span> <span class="o">=</span> <span class="n">nersettings</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fex</span> <span class="o">=</span> <span class="n">FeatureExtractor</span><span class="p">(</span><span class="n">nersettings</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trainer</span> <span class="o">=</span> <span class="n">CrfsuiteTrainer</span><span class="p">(</span><span class="n">algorithm</span><span class="o">=</span><span class="n">nersettings</span><span class="o">.</span><span class="n">CRFSUITE_ALGORITHM</span><span class="p">,</span>
+                                       <span class="n">c2</span><span class="o">=</span><span class="n">nersettings</span><span class="o">.</span><span class="n">CRFSUITE_C2</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="NerTrainer.train"><a class="viewcode-back" href="../../api/ner.html#estnltk.ner.NerTrainer.train">[docs]</a>    <span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">jsondocs</span><span class="p">,</span> <span class="n">model_dir</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Train a NER model using given documents.</span>
+<span class="sd">        </span>
+<span class="sd">        Each word in the documents must have a &quot;label&quot; attribute, which</span>
+<span class="sd">        denote the named entities in the documents.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        jsondocs: list of JSON-style documents.</span>
+<span class="sd">            The documents used for training the CRF model.</span>
+<span class="sd">        model_dir: str</span>
+<span class="sd">            A directory where the model will be saved.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">modelUtil</span> <span class="o">=</span> <span class="n">ModelStorageUtil</span><span class="p">(</span><span class="n">model_dir</span><span class="p">)</span>
+        <span class="n">modelUtil</span><span class="o">.</span><span class="n">makedir</span><span class="p">()</span>
+        <span class="n">modelUtil</span><span class="o">.</span><span class="n">copy_settings</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="p">)</span>
+
+        <span class="c"># Convert json documents to ner documents</span>
+        <span class="n">nerdocs</span> <span class="o">=</span> <span class="p">[</span><span class="n">json_document_to_estner_document</span><span class="p">(</span><span class="n">jsondoc</span><span class="p">)</span> 
+                   <span class="k">for</span> <span class="n">jsondoc</span> <span class="ow">in</span> <span class="n">jsondocs</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">fex</span><span class="o">.</span><span class="n">prepare</span><span class="p">(</span><span class="n">nerdocs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fex</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">nerdocs</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">trainer</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">nerdocs</span><span class="p">,</span> <span class="n">modelUtil</span><span class="o">.</span><span class="n">model_filename</span><span class="p">)</span>
+
+</div></div>
+<div class="viewcode-block" id="NerTagger"><a class="viewcode-back" href="../../api/ner.html#estnltk.ner.NerTagger">[docs]</a><span class="k">class</span> <span class="nc">NerTagger</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;The class for tagging named entities.&quot;&quot;&quot;</span>
+
+
+<div class="viewcode-block" id="NerTagger.__init__"><a class="viewcode-back" href="../../api/ner.html#estnltk.ner.NerTagger.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_dir</span><span class="o">=</span><span class="n">DEFAULT_NER_MODEL_DIR</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize a new NerTagger instance.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        model_dir: st</span>
+<span class="sd">            A directory containing a trained ner model and a settings file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">modelUtil</span> <span class="o">=</span> <span class="n">ModelStorageUtil</span><span class="p">(</span><span class="n">model_dir</span><span class="p">)</span>
+        <span class="n">nersettings</span> <span class="o">=</span> <span class="n">modelUtil</span><span class="o">.</span><span class="n">load_settings</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">fex</span> <span class="o">=</span> <span class="n">FeatureExtractor</span><span class="p">(</span><span class="n">nersettings</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tagger</span> <span class="o">=</span> <span class="n">CrfsuiteTagger</span><span class="p">(</span><span class="n">settings</span><span class="o">=</span><span class="n">nersettings</span><span class="p">,</span>
+                                     <span class="n">model_filename</span><span class="o">=</span><span class="n">modelUtil</span><span class="o">.</span><span class="n">model_filename</span><span class="p">)</span>
+</div>
+    <span class="k">def</span> <span class="nf">tag_documents</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">documents</span><span class="p">):</span>
+        <span class="n">nerdocs</span> <span class="o">=</span> <span class="p">[</span><span class="n">json_document_to_estner_document</span><span class="p">(</span><span class="n">jsondoc</span><span class="p">)</span> <span class="k">for</span> <span class="n">jsondoc</span> <span class="ow">in</span> <span class="n">documents</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fex</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">nerdocs</span><span class="p">)</span>
+        <span class="c"># add the labels</span>
+        <span class="k">for</span> <span class="n">nerdoc</span><span class="p">,</span> <span class="n">jsondoc</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">nerdocs</span><span class="p">,</span> <span class="n">documents</span><span class="p">):</span>
+            <span class="n">snt_labels</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tagger</span><span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="n">nerdoc</span><span class="p">)</span>
+            <span class="n">doc_labels</span> <span class="o">=</span> <span class="p">[</span><span class="n">label</span> <span class="k">for</span> <span class="n">labels</span> <span class="ow">in</span> <span class="n">snt_labels</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">labels</span><span class="p">]</span>
+            <span class="n">words</span> <span class="o">=</span> <span class="n">jsondoc</span><span class="o">.</span><span class="n">words</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">words</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">doc_labels</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">word</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">words</span><span class="p">,</span> <span class="n">doc_labels</span><span class="p">):</span>
+                <span class="n">word</span><span class="p">[</span><span class="n">LABEL</span><span class="p">]</span> <span class="o">=</span> <span class="n">label</span>
+        <span class="k">return</span> <span class="n">documents</span>
+
+    <span class="k">def</span> <span class="nf">tag_document</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">document</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">tag_documents</span><span class="p">([</span><span class="n">document</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">estnltk 1.3 documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2015, University of Tartu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>

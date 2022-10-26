@@ -1,0 +1,254 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>estnltk.prettyprinter.prettyprinter module &mdash; estnltk 1.3 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="estnltk 1.3 documentation" href="../index.html" />
+    <link rel="next" title="estnltk.teicorpus module" href="teicorpus.html" />
+    <link rel="prev" title="estnltk.ner module" href="ner.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="teicorpus.html" title="estnltk.teicorpus module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ner.html" title="estnltk.ner module"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">estnltk 1.3 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-estnltk.prettyprinter.prettyprinter">
+<span id="estnltk-prettyprinter-prettyprinter-module"></span><h1>estnltk.prettyprinter.prettyprinter module<a class="headerlink" href="#module-estnltk.prettyprinter.prettyprinter" title="Permalink to this headline">¶</a></h1>
+<p>Estnltk prettyprinter module.
+Deals with rendering Text instances as HTML.</p>
+<dl class="class">
+<dt id="estnltk.prettyprinter.prettyprinter.PrettyPrinter">
+<em class="property">class </em><tt class="descclassname">estnltk.prettyprinter.prettyprinter.</tt><tt class="descname">PrettyPrinter</tt><big>(</big><em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/estnltk/prettyprinter/prettyprinter.html#PrettyPrinter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.prettyprinter.prettyprinter.PrettyPrinter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class for formatting Text instances as HTML &amp; CSS.</p>
+<dl class="method">
+<dt id="estnltk.prettyprinter.prettyprinter.PrettyPrinter.__init__">
+<tt class="descname">__init__</tt><big>(</big><em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/estnltk/prettyprinter/prettyprinter.html#PrettyPrinter.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.prettyprinter.prettyprinter.PrettyPrinter.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize a new PrettyPrinter class.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>color: str or callable</strong></p>
+<blockquote>
+<div><p>Layer that corresponds to color aesthetic.</p>
+</div></blockquote>
+<p><strong>background: str or callable</strong></p>
+<blockquote>
+<div><p>Layer that corresponds to background.</p>
+</div></blockquote>
+<p><strong>...</strong></p>
+<p><strong>color_value: str or list</strong></p>
+<blockquote>
+<div><p>The alternative value for the color.</p>
+</div></blockquote>
+<p><strong>background_value: str or list</strong></p>
+<blockquote class="last">
+<div><p>The background value for the color.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.prettyprinter.prettyprinter.PrettyPrinter.aesthetics">
+<tt class="descname">aesthetics</tt><a class="reference internal" href="../_modules/estnltk/prettyprinter/prettyprinter.html#PrettyPrinter.aesthetics"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.prettyprinter.prettyprinter.PrettyPrinter.aesthetics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Mapping of aesthetics mapped to layers.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.prettyprinter.prettyprinter.PrettyPrinter.css">
+<tt class="descname">css</tt><a class="reference internal" href="../_modules/estnltk/prettyprinter/prettyprinter.html#PrettyPrinter.css"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.prettyprinter.prettyprinter.PrettyPrinter.css" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">str</p>
+<blockquote class="last">
+<div><p>The CSS.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.prettyprinter.prettyprinter.PrettyPrinter.render">
+<tt class="descname">render</tt><big>(</big><em>text</em>, <em>add_header=False</em><big>)</big><a class="reference internal" href="../_modules/estnltk/prettyprinter/prettyprinter.html#PrettyPrinter.render"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.prettyprinter.prettyprinter.PrettyPrinter.render" title="Permalink to this definition">¶</a></dt>
+<dd><p>Render the HTML.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>add_header: boolean (default: False)</strong></p>
+<blockquote>
+<div><p>If True, add HTML5 header and footer.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">str</p>
+<blockquote class="last">
+<div><p>The rendered HTML.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.prettyprinter.prettyprinter.PrettyPrinter.values">
+<tt class="descname">values</tt><a class="reference internal" href="../_modules/estnltk/prettyprinter/prettyprinter.html#PrettyPrinter.values"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.prettyprinter.prettyprinter.PrettyPrinter.values" title="Permalink to this definition">¶</a></dt>
+<dd><p>Mapping of aesthetic values.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="estnltk.prettyprinter.prettyprinter.assert_legal_arguments">
+<tt class="descclassname">estnltk.prettyprinter.prettyprinter.</tt><tt class="descname">assert_legal_arguments</tt><big>(</big><em>kwargs</em><big>)</big><a class="reference internal" href="../_modules/estnltk/prettyprinter/prettyprinter.html#assert_legal_arguments"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.prettyprinter.prettyprinter.assert_legal_arguments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assert that PrettyPrinter arguments are correct.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><strong>ValueError</strong></p>
+<blockquote class="last">
+<div><p>In case there are unknown arguments or a single layer is mapped to more than one aesthetic.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="estnltk.prettyprinter.prettyprinter.parse_arguments">
+<tt class="descclassname">estnltk.prettyprinter.prettyprinter.</tt><tt class="descname">parse_arguments</tt><big>(</big><em>kwargs</em><big>)</big><a class="reference internal" href="../_modules/estnltk/prettyprinter/prettyprinter.html#parse_arguments"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.prettyprinter.prettyprinter.parse_arguments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function that parses PrettyPrinter arguments.
+Detects which aesthetics are mapped to which layers
+and collects user-provided values.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>kwargs: dict</strong></p>
+<blockquote>
+<div><p>The keyword arguments to PrettyPrinter.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">dict, dict</p>
+<blockquote class="last">
+<div><p>First dictionary is aesthetic to layer mapping.
+Second dictionary is aesthetic to user value mapping.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ner.html"
+                        title="previous chapter">estnltk.ner module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="teicorpus.html"
+                        title="next chapter">estnltk.teicorpus module</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/api/prettyprinter.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="teicorpus.html" title="estnltk.teicorpus module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ner.html" title="estnltk.ner module"
+             >previous</a> |</li>
+        <li><a href="../index.html">estnltk 1.3 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2015, University of Tartu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>

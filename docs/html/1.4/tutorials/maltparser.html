@@ -1,0 +1,194 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>MaltParser support &mdash; estnltk 1.3 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="estnltk 1.3 documentation" href="../index.html" />
+    <link rel="next" title="Experimental NP chunking" href="np_chunker.html" />
+    <link rel="prev" title="Syntax and dependency parser" href="dependency.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="np_chunker.html" title="Experimental NP chunking"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="dependency.html" title="Syntax and dependency parser"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">estnltk 1.3 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="maltparser-support">
+<h1>MaltParser support<a class="headerlink" href="#maltparser-support" title="Permalink to this headline">¶</a></h1>
+<p>Estnltk provides a wrapper for MaltParser <a class="reference external" href="http://www.maltparser.org/">maltparser link</a>, which has been trained <a class="footnote-reference" href="#id2" id="id1">[1]</a> for annotating syntactic dependency relations.</p>
+<div class="section" id="basic-usage">
+<h2>Basic usage<a class="headerlink" href="#basic-usage" title="Permalink to this headline">¶</a></h2>
+<p>The class <tt class="xref py py-class docutils literal"><span class="pre">MaltParser</span></tt> provides method <tt class="xref py py-meth docutils literal"><span class="pre">parse_text()</span></tt>, which takes a <tt class="xref py py-class docutils literal"><span class="pre">Text</span></tt> object as an input, parses the text with MaltParser, and assigns dependency links to all the words in the text:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">Text</span>
+<span class="kn">from</span> <span class="nn">estnltk.maltparser_support</span> <span class="kn">import</span> <span class="n">MaltParser</span>
+<span class="kn">from</span> <span class="nn">estnltk.names</span> <span class="kn">import</span> <span class="n">SYNTAX_LABEL</span><span class="p">,</span> <span class="n">SYNTAX_HEAD</span><span class="p">,</span> <span class="n">TEXT</span>
+
+<span class="c"># initialise Maltparser</span>
+<span class="n">parser</span> <span class="o">=</span> <span class="n">MaltParser</span><span class="p">()</span>
+
+<span class="c"># parse text</span>
+<span class="n">text</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s">&#39;Saksamaal Bonnis leidis aset kummaline juhtum murdvargaga, kes kutsus endale ise politsei.&#39;</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">parse_text</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+
+<span class="c"># output dependency relations for each word</span>
+<span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">text</span><span class="o">.</span><span class="n">words</span><span class="p">:</span>
+    <span class="k">print</span><span class="p">(</span> <span class="n">word</span><span class="p">[</span><span class="n">TEXT</span><span class="p">]</span><span class="o">+</span><span class="s">&#39;  &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">word</span><span class="p">[</span><span class="n">SYNTAX_LABEL</span><span class="p">])</span><span class="o">+</span><span class="s">&#39; -&gt; &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">word</span><span class="p">[</span><span class="n">SYNTAX_HEAD</span><span class="p">])</span> <span class="p">)</span>
+</pre></div>
+</div>
+<p>As the result of parsing, attributes <tt class="docutils literal"><span class="pre">SYNTAX_LABEL</span></tt> and <tt class="docutils literal"><span class="pre">SYNTAX_HEAD</span></tt> are added to every word in the text: the attribute <tt class="docutils literal"><span class="pre">SYNTAX_LABEL</span></tt> indicates the index of the word in the syntactic tree, and the attribute <tt class="docutils literal"><span class="pre">SYNTAX_HEAD</span></tt> indicates the index of word&#8217;s governor in the syntactic tree. Running the above example produces following output:</p>
+<div class="highlight-python"><div class="highlight"><pre>Saksamaal  1 -&gt; 2
+Bonnis  2 -&gt; 3
+leidis  3 -&gt; 0
+aset  4 -&gt; 3
+kummaline  5 -&gt; 6
+juhtum  6 -&gt; 7
+murdvargaga  7 -&gt; 3
+,  8 -&gt; 7
+kes  9 -&gt; 10
+kutsus  10 -&gt; 3
+endale  11 -&gt; 10
+ise  12 -&gt; 10
+politsei  13 -&gt; 10
+.  14 -&gt; 13
+</pre></div>
+</div>
+</div>
+<div class="section" id="dependency-graphs">
+<h2>Dependency graphs<a class="headerlink" href="#dependency-graphs" title="Permalink to this headline">¶</a></h2>
+<p>By default, the method <tt class="xref py py-meth docutils literal"><span class="pre">parse_text()</span></tt> returns the input text.
+If the input argument <tt class="docutils literal"><span class="pre">return_type=&quot;dep_graphs&quot;</span></tt> is passed to the method, the method returns parsing results as a list of NLTK&#8217;s <tt class="xref py py-class docutils literal"><span class="pre">DependencyGraph</span></tt> objects:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">Text</span>
+<span class="kn">from</span> <span class="nn">estnltk.maltparser_support</span> <span class="kn">import</span> <span class="n">MaltParser</span>
+
+<span class="c"># initialise Maltparser</span>
+<span class="n">parser</span> <span class="o">=</span> <span class="n">MaltParser</span><span class="p">()</span>
+
+<span class="c"># parse text</span>
+<span class="n">text</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s">&#39;Saksamaal Bonnis leidis aset kummaline juhtum murdvargaga, kes kutsus endale ise politsei.&#39;</span><span class="p">)</span>
+<span class="n">dep_graphs</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_text</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">return_type</span><span class="o">=</span><span class="s">&quot;dep_graphs&quot;</span><span class="p">)</span>
+
+<span class="c"># output dependency graphs as NLTK&#39;s trees</span>
+<span class="k">for</span> <span class="n">dep_graph</span> <span class="ow">in</span> <span class="n">dep_graphs</span><span class="p">:</span>
+    <span class="k">print</span> <span class="p">(</span> <span class="n">dep_graph</span><span class="o">.</span><span class="n">tree</span><span class="p">()</span> <span class="p">)</span>
+</pre></div>
+</div>
+<p>The above example will output a parenthesized representation of the dependency tree:</p>
+<div class="highlight-python"><div class="highlight"><pre>(leidis
+  (Bonnis Saksamaal)
+  aset
+  (murdvargaga (juhtum kummaline) ,)
+  (kutsus kes endale ise (politsei .)))
+</pre></div>
+</div>
+<p>Regardless the <tt class="docutils literal"><span class="pre">return_type</span></tt>, words in the input text will always be annotated for dependency links (attributes <tt class="docutils literal"><span class="pre">SYNTAX_LABEL</span></tt> and <tt class="docutils literal"><span class="pre">SYNTAX_HEAD</span></tt>).</p>
+<p class="rubric">Notes</p>
+<table class="docutils footnote" frame="void" id="id2" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td>Currently, a non-optimized version of the system is provided, which achieves accuracy (UAS) of 78%. It is likely that the parser needs to be optimized for more specialized goals, see <a class="reference external" href="http://lepo.it.da.ut.ee/~kaili/Syntax/maltparser.html">http://lepo.it.da.ut.ee/~kaili/Syntax/maltparser.html</a> for details about training and optimizing the parser on Estonian data.</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">MaltParser support</a><ul>
+<li><a class="reference internal" href="#basic-usage">Basic usage</a></li>
+<li><a class="reference internal" href="#dependency-graphs">Dependency graphs</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="dependency.html"
+                        title="previous chapter">Syntax and dependency parser</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="np_chunker.html"
+                        title="next chapter">Experimental NP chunking</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/tutorials/maltparser.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="np_chunker.html" title="Experimental NP chunking"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="dependency.html" title="Syntax and dependency parser"
+             >previous</a> |</li>
+        <li><a href="../index.html">estnltk 1.3 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2015, University of Tartu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,341 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>HTML Prettyprinter &mdash; estnltk 1.3 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="estnltk 1.3 documentation" href="../index.html" />
+    <link rel="next" title="Simple grammars for information extraction" href="grammar.html" />
+    <link rel="prev" title="Experimental NP chunking" href="np_chunker.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="grammar.html" title="Simple grammars for information extraction"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="np_chunker.html" title="Experimental NP chunking"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">estnltk 1.3 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="html-prettyprinter">
+<h1>HTML Prettyprinter<a class="headerlink" href="#html-prettyprinter" title="Permalink to this headline">¶</a></h1>
+<p>Visualizing information is one of the most crucial steps in text processing software and arises in many uses cases.
+Estnltk comes with HTML PrettyPrinter that can help building Web applications and custom tools that deal with
+text processing.</p>
+<p>PrettyPrinter is capable of very different types of visualization. From  visualization of simple given word to multiple
+and overlapping word types and even parts of whole sentences. Here is a list of properties that can be modified with the
+help of PrettyPrinter and the matching name of the value that the module is expecting:</p>
+<div class="highlight-python"><div class="highlight"><pre>Change font color - &#39;color&#39;
+Change background color - &#39;background&#39;
+Change font style - &#39;font&#39;
+Change font weight - &#39;weight&#39;
+Change font style - &#39;italics&#39;
+Add underline - &#39;underline&#39;
+Change font size - &#39;size&#39;
+Change letter spacing - &#39;tracking&#39;
+</pre></div>
+</div>
+<p><strong>Example #1</strong> Formating specific word in all of text with different visual format.:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">Text</span>
+<span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">PrettyPrinter</span>
+
+<span class="n">text</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s">&#39;This must be formatted here and here&#39;</span><span class="p">)</span>
+<span class="n">text</span><span class="o">.</span><span class="n">tag_with_regex</span><span class="p">(</span><span class="s">&#39;annotations&#39;</span><span class="p">,</span> <span class="s">&#39;here&#39;</span><span class="p">)</span>
+
+<span class="n">pp</span> <span class="o">=</span> <span class="n">PrettyPrinter</span><span class="p">(</span><span class="n">background</span><span class="o">=</span><span class="s">&#39;annotations&#39;</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="bp">True</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>The result of this short program will be:</p>
+<blockquote>
+<div><style>
+    mark.background{
+        background-color: rgb(102, 204, 255);
+    }
+</style>
+
+    This must be formated <mark class="background">here</mark> and <mark class="background">here</mark></div></blockquote>
+<p>Class <tt class="xref py py-class docutils literal"><span class="pre">Text</span></tt> is what does all the analysis. If we are looking to mark a specific word as in this case is the word
+&#8216;here&#8217; then we must bind the annotation to the word &#8216;here&#8217; with the help of a function of <tt class="xref py py-class docutils literal"><span class="pre">Text</span></tt> called
+<tt class="docutils literal"><span class="pre">tags_with_regex('annotations',</span> <span class="pre">'here')</span></tt> that tags the value of &#8216;annotations&#8217; to the word &#8216;here&#8217;. This will later be used
+to find the exact index where to start and end the selected formating.</p>
+<p>When we create a new class PrettyPrinter variable by <tt class="docutils literal"><span class="pre">pp</span> <span class="pre">=</span> <span class="pre">PrettyPrinter(background='annotations')</span></tt>, we add arguments
+describing what property will be added to which tag, in our case, everything that is tagged as &#8216;annotations&#8217; will get a
+different background color. The <tt class="docutils literal"><span class="pre">rgb(102,</span> <span class="pre">204,</span> <span class="pre">255)</span></tt> is a stock value that is added as background color if no other color
+is specified during initiation of the PrettyPrinter class object.</p>
+<p>Keep in mind that if we activate PrettyPrinter function with the argument <tt class="docutils literal"><span class="pre">False</span></tt> instead of <tt class="docutils literal"><span class="pre">True</span></tt>, then the result
+will not be the full HTML text, but only the formatted text inside the HTML body paragraph.</p>
+<p><strong>Example #2</strong> Formating the same property with different visual format depending on the specific word:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">text</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s">&#39;Nimisõnad värvitakse&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">tag_analysis</span><span class="p">()</span>
+<span class="n">rules</span> <span class="o">=</span><span class="p">[</span>
+            <span class="p">(</span><span class="s">&#39;Nimisõnad&#39;</span><span class="p">,</span> <span class="s">&#39;green&#39;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s">&#39;värvitakse&#39;</span><span class="p">,</span> <span class="s">&#39;blue&#39;</span><span class="p">)</span>
+        <span class="p">]</span>
+<span class="n">pp</span> <span class="o">=</span> <span class="n">PrettyPrinter</span><span class="p">(</span><span class="n">background</span><span class="o">=</span><span class="s">&#39;words&#39;</span><span class="p">,</span> <span class="n">background_value</span><span class="o">=</span><span class="n">rules</span><span class="p">)</span>
+<span class="n">html</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="docutils">
+<dt>The result of this program will be:</dt>
+<dd><div class="first last"><mark class="background_0">Nimisõnad</mark> <mark class="background_1">värvitakse</mark></div></dd>
+</dl>
+<p>This time we gave the PrettyPrinter class object two arguments: <tt class="docutils literal"><span class="pre">background='words',</span> <span class="pre">background_value=rules</span></tt>. The background
+value &#8216;words&#8217; means that we will not be adding any specific tags as in the previous case, but instead use the original
+tag that is used in case of every word. PrettyPrinter will check itself what words match the rules specified in the list
+&#8216;rules&#8217;. Now the second argument background_value=rules shows PrettyPrinter what values will be given to what tag values.
+Basically what our &#8216;rules&#8217; say to the PrettyPrinter is that each word &#8216;Nimisõnad&#8217; will be given a green background
+color and the word &#8216;värvitakse&#8217; will be given a blue background color. Because different words can have different visual
+properties of the same type(eg. background color, font color, font size etc.) the css marks are numbered based on the
+number of overlapping values.</p>
+<p><strong>Example #3</strong> Using word type tags as rule parameters:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">text</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s">&#39;Suured kollased kõrvad ja&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">tag_analysis</span><span class="p">()</span>
+<span class="n">rules</span> <span class="o">=</span><span class="p">[</span>
+            <span class="p">(</span><span class="s">&#39;A&#39;</span><span class="p">,</span> <span class="s">&#39;blue&#39;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="s">&#39;green&#39;</span><span class="p">)</span>
+        <span class="p">]</span>
+<span class="n">pp</span> <span class="o">=</span> <span class="n">PrettyPrinter</span><span class="p">(</span><span class="n">background</span><span class="o">=</span><span class="s">&#39;words&#39;</span><span class="p">,</span> <span class="n">background_value</span><span class="o">=</span><span class="n">rules</span><span class="p">)</span>
+<span class="n">html</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This time the defining parameters are &#8216;A&#8217; and &#8216;S&#8217; which stand for different word types. The list of different tags can
+be found below:</p>
+<div class="highlight-python"><div class="highlight"><pre>A - adjective
+C - comparing adjective
+D - adverb
+G - non declinable adjective
+H - real name
+I - interjection
+J - conjunction
+K - co-expression
+N - cardinal numeral
+O - ordinal numeral
+P - pronoun
+S - noun
+U - superlative adjective
+V - verb
+X -
+Y - abbreviation
+Z - sign
+</pre></div>
+</div>
+<dl class="docutils">
+<dt>PrettyPrinter will sort everything else out by itself. The result of this will be:</dt>
+<dd><div class="first last"><style>
+    mark.background_0 {
+        background-color: blue;
+    }
+    mark.background_1 {
+        background-color: green;
+    }
+</style>
+
+    <mark class="background_0">Suured</mark> <mark class="background_0">kollased</mark> <mark class="background_1">kõrvad</mark> ja</div></dd>
+</dl>
+<p>As we can see from the results, all adjectives have been marked with a css background mark tag for color blue and the
+noun in the sentence has been marked with a css background mark tag for color green. In this way it is possible to
+visually separate all words that are of a specific type simply and effectively.</p>
+<p><strong>Example #4</strong> Using different category visual representation dor different parts of text:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">text</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s">&#39;Esimene ja teine märgend&#39;</span><span class="p">)</span>
+<span class="n">text</span><span class="o">.</span><span class="n">tag_with_regex</span><span class="p">(</span><span class="s">&#39;A&#39;</span><span class="p">,</span> <span class="s">&#39;Esimene ja&#39;</span><span class="p">)</span>
+<span class="n">text</span><span class="o">.</span><span class="n">tag_with_regex</span><span class="p">(</span><span class="s">&#39;B&#39;</span><span class="p">,</span> <span class="s">&#39;ja teine&#39;</span><span class="p">)</span>
+
+<span class="n">pp</span> <span class="o">=</span> <span class="n">PrettyPrinter</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s">&#39;A&#39;</span><span class="p">,</span> <span class="n">background</span><span class="o">=</span><span class="s">&#39;B&#39;</span><span class="p">)</span>
+<span class="n">html</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This time we want to highlight two different word types with different properties, font color and background color. To
+do this, we have to add both layers as PrettyPrinter class parameters and tie those to a certain value. With
+<tt class="docutils literal"><span class="pre">text.tag_with_regex('A',</span> <span class="pre">'Esimene</span> <span class="pre">ja')</span></tt> we bind the formating option in PerttyPrinter parameters <tt class="docutils literal"><span class="pre">color='A'</span></tt> applies to
+&#8216;Esimene ja&#8217; part of the text. What happens is that we will have two different css formats, each changing different
+things. Here we can also see that the formatting works with overlapping layers, because the word &#8216;ja&#8217; is in both &#8216;A&#8217; and
+&#8216;B&#8217;. The output with &#8216;False&#8217; as the second parameter in render, will be the following:</p>
+<blockquote>
+<div><mark class="color">Esimene </mark><mark class="background color">ja</mark><mark class="background"> teine</mark> märgend</div></blockquote>
+<p>Here we can see, that the word &#8216;ja&#8217; has two class tags, &#8216;background&#8217; and &#8216;color&#8217;.</p>
+<div class="section" id="generating-just-the-css">
+<h2>Generating just the css<a class="headerlink" href="#generating-just-the-css" title="Permalink to this headline">¶</a></h2>
+<p>It is possible, to use PrettyPrinter to generate just the css formatting without the HTML or the actual word content. In
+this case we just supply the PrettyPrinter class object with the necessary parameters and additional rules(if needed)
+and the class will generate the required css mark tags.</p>
+<p><strong>Example #5</strong> generating one layer css:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">pp</span> <span class="o">=</span> <span class="n">PrettyPrinter</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s">&#39;layer&#39;</span><span class="p">)</span>
+<span class="n">css_format</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">css</span>
+</pre></div>
+</div>
+<p>This is the simplest form and the result will be:</p>
+<div class="highlight-python"><div class="highlight"><pre>mark.color {
+    color: rgb(0, 0, 102);
+}
+</pre></div>
+</div>
+<p><strong>Example #6</strong> generating css with user defined color value:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">pp</span> <span class="o">=</span> <span class="n">PrettyPrinter</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s">&#39;layer&#39;</span><span class="p">,</span> <span class="n">color_value</span><span class="o">=</span><span class="s">&#39;color_you_have_never_seen&#39;</span><span class="p">)</span>
+<span class="n">css_format</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">css</span>
+</pre></div>
+</div>
+<p>Similar to last one, the result will be simple color marking, but with the user define value.</p>
+<div class="highlight-python"><div class="highlight"><pre>mark.color {
+    color: color_you_have_never_seen;
+}
+</pre></div>
+</div>
+<p><strong>Example #7</strong> generating css with rules:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">rules</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">(</span><span class="s">&#39;Nimisõnad&#39;</span><span class="p">,</span> <span class="s">&#39;green&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">&#39;värvitakse&#39;</span><span class="p">,</span> <span class="s">&#39;blue&#39;</span><span class="p">)</span>
+<span class="p">]</span>
+<span class="n">pp</span> <span class="o">=</span> <span class="n">PrettyPrinter</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s">&#39;layer&#39;</span><span class="p">,</span> <span class="n">color_value</span><span class="o">=</span><span class="n">rules</span><span class="p">)</span>
+<span class="n">css_format</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">css</span>
+</pre></div>
+</div>
+<p>This simple program generates two mark color classes that define two sets of font color.</p>
+<div class="highlight-python"><div class="highlight"><pre>mark.color_0 {
+    color: green;
+
+}
+mark.color_1 {
+    color: blue;
+}
+</pre></div>
+</div>
+<p><strong>Example #8</strong> generating full css without rules</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">AESTHETICS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&#39;color&#39;</span><span class="p">:</span> <span class="s">&#39;layer1&#39;</span><span class="p">,</span>
+    <span class="s">&#39;background&#39;</span><span class="p">:</span> <span class="s">&#39;layer2&#39;</span><span class="p">,</span>
+    <span class="s">&#39;font&#39;</span><span class="p">:</span> <span class="s">&#39;layer3&#39;</span><span class="p">,</span>
+    <span class="s">&#39;weight&#39;</span><span class="p">:</span> <span class="s">&#39;layer4&#39;</span><span class="p">,</span>
+    <span class="s">&#39;italics&#39;</span><span class="p">:</span> <span class="s">&#39;layer5&#39;</span><span class="p">,</span>
+    <span class="s">&#39;underline&#39;</span><span class="p">:</span> <span class="s">&#39;layer6&#39;</span><span class="p">,</span>
+    <span class="s">&#39;size&#39;</span><span class="p">:</span> <span class="s">&#39;layer7&#39;</span><span class="p">,</span>
+    <span class="s">&#39;tracking&#39;</span><span class="p">:</span> <span class="s">&#39;layer8&#39;</span>
+<span class="p">}</span>
+<span class="n">pp</span> <span class="o">=</span> <span class="n">PrettyPrinter</span><span class="p">(</span><span class="o">**</span><span class="n">AESTHETICS</span><span class="p">)</span>
+<span class="n">css_format</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">css</span>
+</pre></div>
+</div>
+<p>This program returns the css default formatting for all the properties in AESTHETICS.</p>
+<div class="highlight-python"><div class="highlight"><pre>mark.background {
+    background-color: rgb(102, 204, 255);
+}
+mark.size {
+    font-size: 120%;
+}
+mark.color {
+    color: rgb(0, 0, 102);
+}
+mark.tracking {
+    letter-spacing: 0.03em;
+}
+mark.weight {
+    font-weight: bold;
+}
+mark.underline {
+    font-decoration: underline;
+}
+mark.font {
+    font-family: sans-serif;
+}
+mark.italics {
+    font-style: italic;
+}
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">HTML Prettyprinter</a><ul>
+<li><a class="reference internal" href="#generating-just-the-css">Generating just the css</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="np_chunker.html"
+                        title="previous chapter">Experimental NP chunking</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="grammar.html"
+                        title="next chapter">Simple grammars for information extraction</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/tutorials/prettyprinter.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="grammar.html" title="Simple grammars for information extraction"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="np_chunker.html" title="Experimental NP chunking"
+             >previous</a> |</li>
+        <li><a href="../index.html">estnltk 1.3 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2015, University of Tartu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>

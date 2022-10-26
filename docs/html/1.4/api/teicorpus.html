@@ -1,0 +1,190 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>estnltk.teicorpus module &mdash; estnltk 1.3 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="estnltk 1.3 documentation" href="../index.html" />
+    <link rel="next" title="estnltk.text module" href="text.html" />
+    <link rel="prev" title="estnltk.prettyprinter.prettyprinter module" href="prettyprinter.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="text.html" title="estnltk.text module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="prettyprinter.html" title="estnltk.prettyprinter.prettyprinter module"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">estnltk 1.3 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-estnltk.teicorpus">
+<span id="estnltk-teicorpus-module"></span><h1>estnltk.teicorpus module<a class="headerlink" href="#module-estnltk.teicorpus" title="Permalink to this headline">¶</a></h1>
+<p>Module for reading koondcorpus files. See <a class="reference external" href="http://www.cl.ut.ee/korpused/segakorpus/index.php?lang=et">http://www.cl.ut.ee/korpused/segakorpus/index.php?lang=et</a></p>
+<p>The corpus contains variety of documents from different domains and can be used freely for non-commercial purposes.
+Estnltk is capable of reading XML formatted files of the corpus and parse the
+documents, paragraphs, sentences and words with some additional metadata found in XML files.</p>
+<p>The implementation is currently quite simplistic, though. But it should
+be sufficient for simpler use cases.
+The resulting documents have paragraphs separated by two newlines and sentences by single newline.
+The original plain text is not known for XML TEI files.
+Note that all punctuation has been separated from words in the TEI files.</p>
+<p>TODO: Make this module faster, it is dead slow, probably due to BeautifulSoup4.</p>
+<dl class="function">
+<dt id="estnltk.teicorpus.parse_tei_corpus">
+<tt class="descclassname">estnltk.teicorpus.</tt><tt class="descname">parse_tei_corpus</tt><big>(</big><em>path, target=['artikkel']</em><big>)</big><a class="reference internal" href="../_modules/estnltk/teicorpus.html#parse_tei_corpus"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.teicorpus.parse_tei_corpus" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse documents from a TEI style XML file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>path: str</strong></p>
+<blockquote>
+<div><p>The path of the XML file.</p>
+</div></blockquote>
+<p><strong>target: list of str</strong></p>
+<blockquote>
+<div><p>List of &lt;div&gt; types, that are considered documents in the XML files (default: [&#8220;artikkel&#8221;]).</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">list of esnltk.text.Text</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="estnltk.teicorpus.parse_tei_corpora">
+<tt class="descclassname">estnltk.teicorpus.</tt><tt class="descname">parse_tei_corpora</tt><big>(</big><em>root, prefix='', suffix='.xml', target=['artikkel']</em><big>)</big><a class="reference internal" href="../_modules/estnltk/teicorpus.html#parse_tei_corpora"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.teicorpus.parse_tei_corpora" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse documents from TEI style XML files.</p>
+<p>Gives each document FILE attribute that denotes the original filename.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>root: str</strong></p>
+<blockquote>
+<div><p>The directory path containing the TEI corpora XMl files.</p>
+</div></blockquote>
+<p><strong>prefix: str</strong></p>
+<blockquote>
+<div><p>The prefix of filenames to include (default: &#8216;&#8217;)</p>
+</div></blockquote>
+<p><strong>suffix: str</strong></p>
+<blockquote>
+<div><p>The suffix of filenames to include (default: &#8216;.xml&#8217;)</p>
+</div></blockquote>
+<p><strong>target: list of str</strong></p>
+<blockquote>
+<div><p>List of &lt;div&gt; types, that are considered documents in the XML files (default: [&#8220;artikkel&#8221;]).</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list of estnltk.text.Text</p>
+<blockquote class="last">
+<div><p>Corpus containing parsed documents from all files. The file path
+is stored in FILE attribute of the documents.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="prettyprinter.html"
+                        title="previous chapter">estnltk.prettyprinter.prettyprinter module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="text.html"
+                        title="next chapter">estnltk.text module</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/api/teicorpus.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="text.html" title="estnltk.text module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="prettyprinter.html" title="estnltk.prettyprinter.prettyprinter module"
+             >previous</a> |</li>
+        <li><a href="../index.html">estnltk 1.3 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2015, University of Tartu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>

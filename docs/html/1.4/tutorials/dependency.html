@@ -1,0 +1,140 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Syntax and dependency parser &mdash; estnltk 1.3 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="estnltk 1.3 documentation" href="../index.html" />
+    <link rel="next" title="MaltParser support" href="maltparser.html" />
+    <link rel="prev" title="Named entity recognition" href="ner.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="maltparser.html" title="MaltParser support"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ner.html" title="Named entity recognition"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">estnltk 1.3 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="syntax-and-dependency-parser">
+<h1>Syntax and dependency parser<a class="headerlink" href="#syntax-and-dependency-parser" title="Permalink to this headline">¶</a></h1>
+<p>Estnltk has a wrapper for Estonian <a class="reference external" href="https://korpused.keeleressursid.ee/syntaks/index.php?keel=ee">dependency parser</a>, which tags syntactic and dependency markers every word.
+Make sure to check out the <a class="reference external" href="http://kodu.ut.ee/~kaili/Korpus/pindmine/labels.pdf">documentation</a>.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">Text</span>
+<span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
+
+<span class="n">text</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s">&#39;Ilus suur karvane kass nurrus punasel diivanil&#39;</span><span class="p">)</span>
+<span class="n">text</span><span class="o">.</span><span class="n">tag_syntax</span><span class="p">()</span>
+
+<span class="n">pprint</span><span class="p">(</span><span class="n">text</span><span class="p">[</span><span class="s">&#39;words&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>The above example adds new attribute <tt class="docutils literal"><span class="pre">syntax</span></tt> to every word, which is a list.
+The list usually contains only one element, but in case if ambiguity, there can be more.
+Ever list element has four attributes:</p>
+<ul class="simple">
+<li>form - the form of the analyzed words,</li>
+<li>syntax - the syntax tags,</li>
+<li>intermediate - list of some extra tags,</li>
+<li>link - dependency links.</li>
+</ul>
+<p>This is the output for the word <tt class="docutils literal"><span class="pre">ilus</span></tt> in above example:</p>
+<div class="highlight-python"><div class="highlight"><pre>&#39;syntax&#39;: [{&#39;form&#39;: &#39;A pos sg nom cap&#39;,
+            &#39;intermediate&#39;: [],
+            &#39;link&#39;: &#39;#1-&gt;4&#39;,
+            &#39;syntax&#39;: [&#39;@AN&gt;&#39;]}],
+</pre></div>
+</div>
+<p>The dependency graph is a better way to illustrate relations between every word:</p>
+<img alt="Purring cat example" src="../_images/nurruvkass.png" />
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ner.html"
+                        title="previous chapter">Named entity recognition</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="maltparser.html"
+                        title="next chapter">MaltParser support</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/tutorials/dependency.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="maltparser.html" title="MaltParser support"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ner.html" title="Named entity recognition"
+             >previous</a> |</li>
+        <li><a href="../index.html">estnltk 1.3 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2015, University of Tartu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>

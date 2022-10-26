@@ -1,0 +1,199 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Handling large text collections with Elastic database &mdash; estnltk 1.3 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="estnltk 1.3 documentation" href="../index.html" />
+    <link rel="next" title="Estnltk developer guide" href="devel.html" />
+    <link rel="prev" title="Working with Estonian Koondkorpus" href="tei.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="devel.html" title="Estnltk developer guide"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="tei.html" title="Working with Estonian Koondkorpus"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">estnltk 1.3 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="handling-large-text-collections-with-elastic-database">
+<span id="database-tutorial"></span><h1>Handling large text collections with Elastic database<a class="headerlink" href="#handling-large-text-collections-with-elastic-database" title="Permalink to this headline">¶</a></h1>
+<p>Estnltk has database module that simplifies working with large corpora.
+Check out <a class="reference internal" href="wikipedia.html#wikipedia-tutorial"><em>Working with Estonian and Võru wikipedia</em></a>, <a class="reference internal" href="tei.html#tei-tutorial"><em>Working with Estonian Koondkorpus</em></a> for more information
+about getting started with larger text document collections.</p>
+<p>Estnltk database integrates with <a class="reference external" href="https://www.elastic.co/downloads/elasticsearch">Elastic</a>, which is a distributed RESTful schema-free
+JSON database, based on <a class="reference external" href="https://lucene.apache.org/">Apache Lucene</a>.
+See this <a class="reference external" href="https://www.elastic.co/guide/en/elasticsearch/reference/current/_installation.html">guide</a> for installation.</p>
+<p>When the installation is complete you can run Elastic (from Elastic folder) with the command:</p>
+<div class="highlight-python"><div class="highlight"><pre>./bin/elasticsearch
+</pre></div>
+</div>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">C:\Users\distorti\estnltk_install\estnltk\docs\tutorials\elasticsearch.rst</tt>, line 23)</p>
+<p>Content block expected for the &#8220;hint&#8221; directive; none found.</p>
+<div class="highlight-python"><div class="highlight"><pre>.. hint::
+</pre></div>
+</div>
+</div>
+<div class="system-message">
+<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">C:\Users\distorti\estnltk_install\estnltk\docs\tutorials\elasticsearch.rst</tt>, line 24)</p>
+Explicit markup ends without a blank line; unexpected unindent.</div>
+<dl class="docutils">
+<dt>If you have trouble running Elastic, please refer to <a class="reference external" href="https://www.elastic.co/guide/index.html">Elastic guide</a>.</dt>
+<dd>Do your research before asking us. Estnltk has only a very thin wrapper around the <a class="reference external" href="https://elasticsearch-py.readthedocs.org/en/master/">Elastic Python API</a> .</dd>
+</dl>
+<div class="section" id="estnltk-elastic-wrapper">
+<h2>Estnltk Elastic wrapper<a class="headerlink" href="#estnltk-elastic-wrapper" title="Permalink to this headline">¶</a></h2>
+<p>To access estnltk elasticsearch wrappers:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">estnlkt.database.elastic</span> <span class="kn">import</span> <span class="o">*</span>
+</pre></div>
+</div>
+<p>To create an index:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">index</span> <span class="o">=</span> <span class="n">create_index</span><span class="p">(</span><span class="s">&#39;demo_index&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Or to connect to an existing index:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">index</span> <span class="o">=</span> <span class="n">connect</span><span class="p">(</span><span class="s">&#39;demo_index&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>To specify non-default arguments to elasticsearch connection, you can either pass the parameters to either method or create and Index instance manually, passing the Elastic python API client object as the first parameter.</p>
+<p>These methods return an index object that has two important methods: save and sentences:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">t</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s">&#39;See on demolause. Sellele järgneb veel üks.&#39;</span><span class="p">)</span>
+<span class="n">index</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">sentence</span> <span class="ow">in</span> <span class="n">index</span><span class="o">.</span><span class="n">sentences</span><span class="p">():</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">lemmas</span><span class="p">)</span> <span class="c">#note that the sentences generator returns estnltk Text objects by default.</span>
+</pre></div>
+</div>
+<p>To see the mapping and data structure in the elasticsearch index, refer to the mappings.py file.</p>
+</div>
+<div class="section" id="iterating-over-corpora">
+<h2>Iterating over corpora<a class="headerlink" href="#iterating-over-corpora" title="Permalink to this headline">¶</a></h2>
+<p>To iterate over the entire corpus use the Index.sentences generator. In the general case it is enough to do:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">index</span> <span class="o">=</span> <span class="n">connect</span><span class="p">(</span><span class="s">&#39;demo_index&#39;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">sentence</span> <span class="ow">in</span> <span class="n">index</span><span class="o">.</span><span class="n">sentences</span><span class="p">():</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="iterating-over-query-results">
+<h2>Iterating over query results<a class="headerlink" href="#iterating-over-query-results" title="Permalink to this headline">¶</a></h2>
+<p>To iterate over query results, pass the elasticsearch query to the sentences generator as the &#8220;query&#8221; parameter. The query should be a dictionary as expected by elasticsearch python API. It will be transformed into json before being transmitted.</p>
+<p>To simplify writing some queries, see the query_helper module. It defines the Word class that maps well to estnltk morphological analysis results.
+The general workflow is:</p>
+<ol class="arabic simple">
+<li>Define words to match with the Word class.</li>
+<li>Combine them with boolean operators &#8220;&amp;&#8221; and &#8220;|&#8221;</li>
+<li>Wrap them in a Grammar object</li>
+<li>Get the query via the Grammar.query() method.</li>
+<li>Annotate the results with the Grammar.annotate() method that creates a layer that marks the matching words.</li>
+</ol>
+<p>For example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">grammar</span> <span class="o">=</span> <span class="n">Grammar</span><span class="p">(</span><span class="n">Word</span><span class="p">(</span><span class="n">lemma</span><span class="o">=</span><span class="s">&#39;karu&#39;</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">Word</span><span class="p">(</span><span class="n">lemma</span><span class="o">=</span><span class="s">&#39;jahimees&#39;</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">Word</span><span class="p">(</span><span class="n">partofspeech</span><span class="o">=</span><span class="s">&#39;V&#39;</span><span class="p">))</span>
+<span class="k">for</span> <span class="n">sentence</span> <span class="ow">in</span> <span class="n">index</span><span class="o">.</span><span class="n">sentences</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">grammar</span><span class="o">.</span><span class="n">query</span><span class="p">()):</span>
+    <span class="n">grammar</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">sentence</span><span class="p">,</span> <span class="s">&#39;result&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The results can be visualised with the PrettyPrinter class or worked on using any other standard tools that work on estnltk layers.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Handling large text collections with Elastic database</a><ul>
+<li><a class="reference internal" href="#estnltk-elastic-wrapper">Estnltk Elastic wrapper</a></li>
+<li><a class="reference internal" href="#iterating-over-corpora">Iterating over corpora</a></li>
+<li><a class="reference internal" href="#iterating-over-query-results">Iterating over query results</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="tei.html"
+                        title="previous chapter">Working with Estonian Koondkorpus</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="devel.html"
+                        title="next chapter">Estnltk developer guide</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/tutorials/elasticsearch.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="devel.html" title="Estnltk developer guide"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="tei.html" title="Working with Estonian Koondkorpus"
+             >previous</a> |</li>
+        <li><a href="../index.html">estnltk 1.3 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2015, University of Tartu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>

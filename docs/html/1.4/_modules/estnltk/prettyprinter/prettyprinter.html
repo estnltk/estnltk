@@ -1,0 +1,233 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>estnltk.prettyprinter.prettyprinter &mdash; estnltk 1.3 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '1.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="estnltk 1.3 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">estnltk 1.3 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for estnltk.prettyprinter.prettyprinter</h1><div class="highlight"><pre>
+<span class="c"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Estnltk prettyprinter module.</span>
+<span class="sd">Deals with rendering Text instances as HTML.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">unicode_literals</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">absolute_import</span>
+
+<span class="kn">from</span> <span class="nn">.values</span> <span class="kn">import</span> <span class="n">AESTHETICS</span><span class="p">,</span> <span class="n">VALUES</span><span class="p">,</span> <span class="n">AES_VALUE_MAP</span><span class="p">,</span> <span class="n">DEFAULT_VALUE_MAP</span><span class="p">,</span> <span class="n">LEGAL_ARGUMENTS</span>
+<span class="kn">from</span> <span class="nn">.templates</span> <span class="kn">import</span> <span class="n">get_mark_css</span><span class="p">,</span> <span class="n">HEADER</span><span class="p">,</span> <span class="n">MIDDLE</span><span class="p">,</span> <span class="n">FOOTER</span><span class="p">,</span> <span class="n">DEFAULT_MARK_CSS</span>
+<span class="kn">from</span> <span class="nn">.marker</span> <span class="kn">import</span> <span class="n">mark_text</span>
+<span class="kn">from</span> <span class="nn">.rules</span> <span class="kn">import</span> <span class="n">create_rules</span>
+
+<span class="kn">from</span> <span class="nn">cached_property</span> <span class="kn">import</span> <span class="n">cached_property</span>
+<span class="kn">import</span> <span class="nn">six</span>
+
+
+<div class="viewcode-block" id="assert_legal_arguments"><a class="viewcode-back" href="../../../api/prettyprinter.html#estnltk.prettyprinter.prettyprinter.assert_legal_arguments">[docs]</a><span class="k">def</span> <span class="nf">assert_legal_arguments</span><span class="p">(</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Assert that PrettyPrinter arguments are correct.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        In case there are unknown arguments or a single layer is mapped to more than one aesthetic.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">seen_layers</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">LEGAL_ARGUMENTS</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;Illegal argument &lt;{0}&gt;!&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">AESTHETICS</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">seen_layers</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;Layer &lt;{0}&gt; mapped for more than a single aesthetic!&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">v</span><span class="p">))</span>
+            <span class="n">seen_layers</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">VALUES</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;Value &lt;{0}&gt; must be either string or list&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="p">))</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;Rules cannot be empty list&#39;</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">rule_matcher</span><span class="p">,</span> <span class="n">rule_value</span> <span class="ow">in</span> <span class="n">v</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">rule_matcher</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">rule_value</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">):</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;Rule tuple elements must be strings&#39;</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="parse_arguments"><a class="viewcode-back" href="../../../api/prettyprinter.html#estnltk.prettyprinter.prettyprinter.parse_arguments">[docs]</a><span class="k">def</span> <span class="nf">parse_arguments</span><span class="p">(</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Function that parses PrettyPrinter arguments.</span>
+<span class="sd">    Detects which aesthetics are mapped to which layers</span>
+<span class="sd">    and collects user-provided values.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    kwargs: dict</span>
+<span class="sd">        The keyword arguments to PrettyPrinter.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict, dict</span>
+<span class="sd">        First dictionary is aesthetic to layer mapping.</span>
+<span class="sd">        Second dictionary is aesthetic to user value mapping.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">aesthetics</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">values</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">aes</span> <span class="ow">in</span> <span class="n">AESTHETICS</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">aes</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">aesthetics</span><span class="p">[</span><span class="n">aes</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="n">aes</span><span class="p">]</span>
+            <span class="n">val_name</span> <span class="o">=</span> <span class="n">AES_VALUE_MAP</span><span class="p">[</span><span class="n">aes</span><span class="p">]</span>
+            <span class="c"># map the user-provided CSS value or use the default</span>
+            <span class="n">values</span><span class="p">[</span><span class="n">aes</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">val_name</span><span class="p">,</span> <span class="n">DEFAULT_VALUE_MAP</span><span class="p">[</span><span class="n">aes</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">aesthetics</span><span class="p">,</span> <span class="n">values</span>
+
+</div>
+<div class="viewcode-block" id="PrettyPrinter"><a class="viewcode-back" href="../../../api/prettyprinter.html#estnltk.prettyprinter.prettyprinter.PrettyPrinter">[docs]</a><span class="k">class</span> <span class="nc">PrettyPrinter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Class for formatting Text instances as HTML &amp; CSS.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="PrettyPrinter.__init__"><a class="viewcode-back" href="../../../api/prettyprinter.html#estnltk.prettyprinter.prettyprinter.PrettyPrinter.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize a new PrettyPrinter class.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        color: str or callable</span>
+<span class="sd">            Layer that corresponds to color aesthetic.</span>
+<span class="sd">        background: str or callable</span>
+<span class="sd">            Layer that corresponds to background.</span>
+<span class="sd">        ...</span>
+
+<span class="sd">        color_value: str or list</span>
+<span class="sd">            The alternative value for the color.</span>
+<span class="sd">        background_value: str or list</span>
+<span class="sd">            The background value for the color.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">assert_legal_arguments</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__aesthetics</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__values</span> <span class="o">=</span> <span class="n">parse_arguments</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__rules</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">aes</span><span class="p">,</span> <span class="n">create_rules</span><span class="p">(</span><span class="n">aes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">aes</span><span class="p">]))</span> <span class="k">for</span> <span class="n">aes</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">aesthetics</span><span class="p">)</span>
+</div>
+    <span class="nd">@cached_property</span>
+<div class="viewcode-block" id="PrettyPrinter.aesthetics"><a class="viewcode-back" href="../../../api/prettyprinter.html#estnltk.prettyprinter.prettyprinter.PrettyPrinter.aesthetics">[docs]</a>    <span class="k">def</span> <span class="nf">aesthetics</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Mapping of aesthetics mapped to layers.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__aesthetics</span>
+</div>
+    <span class="nd">@cached_property</span>
+<div class="viewcode-block" id="PrettyPrinter.values"><a class="viewcode-back" href="../../../api/prettyprinter.html#estnltk.prettyprinter.prettyprinter.PrettyPrinter.values">[docs]</a>    <span class="k">def</span> <span class="nf">values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Mapping of aesthetic values.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__values</span>
+</div>
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">rules</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__rules</span>
+
+    <span class="nd">@cached_property</span>
+<div class="viewcode-block" id="PrettyPrinter.css"><a class="viewcode-back" href="../../../api/prettyprinter.html#estnltk.prettyprinter.prettyprinter.PrettyPrinter.css">[docs]</a>    <span class="k">def</span> <span class="nf">css</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            The CSS.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">css_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">DEFAULT_MARK_CSS</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">aes</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">aesthetics</span><span class="p">:</span>
+            <span class="n">css_list</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">get_mark_css</span><span class="p">(</span><span class="n">aes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">aes</span><span class="p">]))</span>
+        <span class="c">#print(&#39;\n&#39;.join(css_list))</span>
+        <span class="k">return</span> <span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">css_list</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="PrettyPrinter.render"><a class="viewcode-back" href="../../../api/prettyprinter.html#estnltk.prettyprinter.prettyprinter.PrettyPrinter.render">[docs]</a>    <span class="k">def</span> <span class="nf">render</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">add_header</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Render the HTML.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        add_header: boolean (default: False)</span>
+<span class="sd">            If True, add HTML5 header and footer.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            The rendered HTML.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">html</span> <span class="o">=</span> <span class="n">mark_text</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">aesthetics</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rules</span><span class="p">)</span>
+        <span class="n">html</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">,</span> <span class="s">&#39;&lt;br/&gt;&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">add_header</span><span class="p">:</span>
+            <span class="n">html</span> <span class="o">=</span> <span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">HEADER</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">css</span><span class="p">,</span> <span class="n">MIDDLE</span><span class="p">,</span> <span class="n">html</span><span class="p">,</span> <span class="n">FOOTER</span><span class="p">])</span>
+        <span class="c">#print(&#39;\n&#39;.join((HEADER, self.css, MIDDLE, html, FOOTER)))</span>
+        <span class="k">return</span> <span class="n">html</span>
+</pre></div></div></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">estnltk 1.3 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2015, University of Tartu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>

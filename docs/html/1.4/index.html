@@ -1,0 +1,429 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Estnltk — Open source tools for Estonian natural language processing &mdash; estnltk 1.3 documentation</title>
+    
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="estnltk 1.3 documentation" href="#" />
+    <link rel="next" title="Installation" href="tutorials/installation.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="tutorials/installation.html" title="Installation"
+             accesskey="N">next</a> |</li>
+        <li><a href="#">estnltk 1.3 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="estnltk-open-source-tools-for-estonian-natural-language-processing">
+<h1>Estnltk &#8212; Open source tools for Estonian natural language processing<a class="headerlink" href="#estnltk-open-source-tools-for-estonian-natural-language-processing" title="Permalink to this headline">¶</a></h1>
+<p>Estnltk is a Python 2.7/Python 3.4 library for performing common language processing tasks in Estonian, funded by <a class="reference external" href="https://www.keeletehnoloogia.ee/">Eesti Keeletehnoloogia Riiklik Programm</a> under the project <a class="reference external" href="https://www.keeletehnoloogia.ee/et/ekt-projektid/estnltk-pythoni-teegid-eestikeelsete-vabatektside-lihtsamaks-tootlemiseks">EKT57</a>.
+Estnltk is licensed under <a class="reference external" href="http://www.gnu.org/licenses/gpl-2.0.html">GNU GPL version 2</a>.</p>
+<p>To get started right now, see <a class="reference internal" href="tutorials/installation.html#installation-tutorial"><em>Installation</em></a>.</p>
+<p>University of Tartu has a course that covers many aspects of the library: <a class="reference external" href="https://courses.cs.ut.ee/2015/pynlp/fall">https://courses.cs.ut.ee/2015/pynlp/fall</a> .</p>
+<div class="section" id="quick-example">
+<h2>Quick example<a class="headerlink" href="#quick-example" title="Permalink to this headline">¶</a></h2>
+<p>The best way to learn Estnltk is to start using it right away, so without further ado,
+let&#8217;s begin with an example on how to extract some morphological information from text and
+display it as a nicely formatted <a class="reference external" href="http://pandas.pydata.org/pandas-docs/dev/generated/pandas.DataFrame.html">DataFrame</a> object:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">Text</span>
+<span class="n">text</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s">&#39;Mine vanast raudteeülesõidukohast edasi ja pööra paremale, siis leiad Krokodilli!&#39;</span><span class="p">)</span>
+<span class="n">text</span><span class="o">.</span><span class="n">get</span><span class="o">.</span><span class="n">word_texts</span><span class="o">.</span><span class="n">lemmas</span><span class="o">.</span><span class="n">postags</span><span class="o">.</span><span class="n">postag_descriptions</span><span class="o">.</span><span class="n">as_dataframe</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre>                   word_texts               lemmas postags  postag_descriptions
+0                    Mine               minema       V             tegusõna
+1                  vanast                 vana       A  omadussõna algvõrre
+2   raudteeülesõidukohast  raudteeülesõidukoht       S             nimisõna
+3                   edasi                edasi       D             määrsõna
+4                      ja                   ja       J             sidesõna
+5                   pööra              pöörama       V             tegusõna
+6                paremale             paremale       D             määrsõna
+7                       ,                    ,       Z            lausemärk
+8                    siis                 siis       J             sidesõna
+9                   leiad               leidma       V             tegusõna
+10             Krokodilli            Krokodill       H            pärisnimi
+11                      !                    !       Z            lausemärk
+</pre></div>
+</div>
+<p>Here is the same data as a dictionary:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">text</span><span class="o">.</span><span class="n">get</span><span class="o">.</span><span class="n">word_texts</span><span class="o">.</span><span class="n">lemmas</span><span class="o">.</span><span class="n">postags</span><span class="o">.</span><span class="n">postag_descriptions</span><span class="o">.</span><span class="n">as_dict</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span><span class="s">&#39;lemmas&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;minema&#39;</span><span class="p">,</span>
+            <span class="s">&#39;vana&#39;</span><span class="p">,</span>
+            <span class="s">&#39;raudteeülesõidukoht&#39;</span><span class="p">,</span>
+            <span class="s">&#39;edasi&#39;</span><span class="p">,</span>
+            <span class="s">&#39;ja&#39;</span><span class="p">,</span>
+            <span class="s">&#39;pöörama&#39;</span><span class="p">,</span>
+            <span class="s">&#39;paremale&#39;</span><span class="p">,</span>
+            <span class="s">&#39;,&#39;</span><span class="p">,</span>
+            <span class="s">&#39;siis&#39;</span><span class="p">,</span>
+            <span class="s">&#39;leidma&#39;</span><span class="p">,</span>
+            <span class="s">&#39;Krokodill&#39;</span><span class="p">,</span>
+            <span class="s">&#39;!&#39;</span><span class="p">],</span>
+ <span class="s">&#39;postag_descriptions&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;tegusõna&#39;</span><span class="p">,</span>
+                         <span class="s">&#39;omadussõna algvõrre&#39;</span><span class="p">,</span>
+                         <span class="s">&#39;nimisõna&#39;</span><span class="p">,</span>
+                         <span class="s">&#39;määrsõna&#39;</span><span class="p">,</span>
+                         <span class="s">&#39;sidesõna&#39;</span><span class="p">,</span>
+                         <span class="s">&#39;tegusõna&#39;</span><span class="p">,</span>
+                         <span class="s">&#39;määrsõna&#39;</span><span class="p">,</span>
+                         <span class="s">&#39;lausemärk&#39;</span><span class="p">,</span>
+                         <span class="s">&#39;sidesõna&#39;</span><span class="p">,</span>
+                         <span class="s">&#39;tegusõna&#39;</span><span class="p">,</span>
+                         <span class="s">&#39;pärisnimi&#39;</span><span class="p">,</span>
+                         <span class="s">&#39;lausemärk&#39;</span><span class="p">],</span>
+ <span class="s">&#39;postags&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;V&#39;</span><span class="p">,</span> <span class="s">&#39;A&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="s">&#39;D&#39;</span><span class="p">,</span> <span class="s">&#39;J&#39;</span><span class="p">,</span> <span class="s">&#39;V&#39;</span><span class="p">,</span> <span class="s">&#39;D&#39;</span><span class="p">,</span> <span class="s">&#39;Z&#39;</span><span class="p">,</span> <span class="s">&#39;J&#39;</span><span class="p">,</span> <span class="s">&#39;V&#39;</span><span class="p">,</span> <span class="s">&#39;H&#39;</span><span class="p">,</span> <span class="s">&#39;Z&#39;</span><span class="p">],</span>
+ <span class="s">&#39;word_texts&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;Mine&#39;</span><span class="p">,</span>
+                <span class="s">&#39;vanast&#39;</span><span class="p">,</span>
+                <span class="s">&#39;raudteeülesõidukohast&#39;</span><span class="p">,</span>
+                <span class="s">&#39;edasi&#39;</span><span class="p">,</span>
+                <span class="s">&#39;ja&#39;</span><span class="p">,</span>
+                <span class="s">&#39;pööra&#39;</span><span class="p">,</span>
+                <span class="s">&#39;paremale&#39;</span><span class="p">,</span>
+                <span class="s">&#39;,&#39;</span><span class="p">,</span>
+                <span class="s">&#39;siis&#39;</span><span class="p">,</span>
+                <span class="s">&#39;leiad&#39;</span><span class="p">,</span>
+                <span class="s">&#39;Krokodilli&#39;</span><span class="p">,</span>
+                <span class="s">&#39;!&#39;</span><span class="p">]}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="about">
+<h2>About<a class="headerlink" href="#about" title="Permalink to this headline">¶</a></h2>
+<p>In recent years, several major NLP components for Estonian have become available under free open source licenses, which is an important milestone in Estonian NLP domain.</p>
+<p>The goal of Estnltk is to become the main platform for Estonian NLP and glue together existing free components to make them easily usable.
+Current situation requires the researchers to write their own interfaces to the tools, which can be very time-consuming
+Also, a simple platform is a great resource for students who are interested in NLP domain.</p>
+<p>The most important component is <strong>vabamorf</strong>, which is a C++ library for morphological analysis, disambiguation and synthesis <a class="reference internal" href="#ka97" id="id1">[KA97]</a>.
+For named entity recognition, <strong>Estner library</strong> provides necessary code and also a valuable training dataset, which is required for training the default models that come with the software <a class="reference internal" href="#tk13" id="id2">[TK13]</a>.
+Estnltk also includes <strong>temporal time expression</strong> (TIMEX) library <a class="reference internal" href="#or12" id="id3">[OR12]</a>.
+The de facto library for NLP in English, the <strong>NLTK toolkit</strong> is also a dependency <a class="reference internal" href="#bi06" id="id4">[BI06]</a>.</p>
+<p>In addition to providing an API that is simple to use for software developers, Estnltk also aims to be useful for language researches and linguists in general.
+The library is used to create tools for sentiment analysis, text classification and information extraction, which requires no programming knowledge once they are set up.
+Including useful tools is a major goal in the future of Estnltk. See <a class="reference external" href="https://github.com/estnltk/">https://github.com/estnltk/</a> for a list of tools available.</p>
+<table class="docutils citation" frame="void" id="ka97" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[KA97]</a></td><td>Kaalep, Heiki-Jaan. <em>&#8220;An Estonian morphological analyser and the impact of a corpus on its development.&#8221;</em> Computers and the Humanities 31, no. 2 (1997): 115-133.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="tk13" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id2">[TK13]</a></td><td>Tkachenko, Alexander; Petmanson, Timo; Laur, Sven. <em>&#8220;Named Entity Recognition in Estonian.&#8221;</em> ACL 2013 (2013): 78.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="or12" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id3">[OR12]</a></td><td>Orasmaa, Siim. <em>&#8220;Automaatne ajaväljendite tuvastamine eestikeelsetes tekstides.&#8221;</em> Eesti Rakenduslingvistika Ühingu aastaraamat 8 (2012): 153-169.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="bi06" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id4">[BI06]</a></td><td>Bird, Steven. <em>&#8220;NLTK: the natural language toolkit.&#8221;</em> In Proceedings of the COLING/ACL on Interactive presentation sessions, pp. 69-72. Association for Computational Linguistics, 2006.</td></tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="tutorials">
+<h2>Tutorials<a class="headerlink" href="#tutorials" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/installation.html#installation-on-linux-mint-17-2">Installation on Linux Mint 17.2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/installation.html#installation-on-windows">Installation on Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/installation.html#full-list-of-dependencies">Full list of dependencies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/installation.html#building-from-source">Building from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/installation.html#post-installation-steps">Post-installation steps</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/text.html">Working with text</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/text.html#getting-started">Getting started</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/text.html#layers">Layers</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/text.html#tokenization">Tokenization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/text.html#morphological-analysis">Morphological analysis</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/text.html#property-aggregation">Property aggregation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/text.html#word-analysis">Word analysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/text.html#human-readable-descriptions">Human-readable descriptions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/text.html#analysis-options-phonetic-information">Analysis options &amp; phonetic information</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/text.html#morphological-synthesis">Morphological synthesis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/text.html#correcting-spelling">Correcting spelling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/text.html#detecting-invalid-characters">Detecting invalid characters</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/text.html#predefined-alphabets">Predefined alphabets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/text.html#detecting-characters">Detecting characters</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/text.html#searching-replacing-and-splitting">Searching, replacing and splitting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/text.html#splitting-by-layers">Splitting by layers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/text.html#splitting-with-regular-expressions">Splitting with regular expressions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/text.html#dividing-elements-by-layers">Dividing elements by layers</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/text.html#temporal-expression-timex-tagging">Temporal expression (TIMEX) tagging</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/text.html#document-creation-date">Document creation date</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/text.html#timex-examples">TIMEX examples</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/text.html#tagging-clauses">Tagging clauses</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/text.html#basic-usage">Basic usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/text.html#the-ignore-missing-commas-mode">The &#8216;ignore_missing_commas&#8217; mode</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/text.html#verb-chain-tagging">Verb chain tagging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/text.html#estonian-wordnet">Estonian wordnet</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/text.html#wordnet-api">Wordnet API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/text.html#relations">Relations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/text.html#similarities">Similarities</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/disambiguation.html">Morphological disambiguation on a collection of documents</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/disambiguation.html#basic-usage">Basic usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/disambiguation.html#pre-disambiguation-and-post-disambiguation">Pre-disambiguation and post-disambiguation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/ner.html">Named entity recognition</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/ner.html#getting-started-with-ner">Getting started with NER</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/ner.html#advanced-ner">Advanced NER</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/ner.html#training-custom-models">Training custom models</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/ner.html#training-dataset">Training dataset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/ner.html#ner-settings">Ner settings</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/dependency.html">Syntax and dependency parser</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/maltparser.html">MaltParser support</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/maltparser.html#basic-usage">Basic usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/maltparser.html#dependency-graphs">Dependency graphs</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/np_chunker.html">Experimental NP chunking</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/np_chunker.html#basic-usage">Basic usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/np_chunker.html#cutting-phrases">Cutting phrases</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/prettyprinter.html">HTML Prettyprinter</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/prettyprinter.html#generating-just-the-css">Generating just the css</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/grammar.html">Simple grammars for information extraction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/wikipedia.html">Working with Estonian and Võru wikipedia</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/wikipedia.html#downloading-the-wikipedia-dumps">Downloading the Wikipedia dumps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/wikipedia.html#extracting-articles-from-xml-files">Extracting articles from XML files</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/wikipedia.html#json-structure">Json structure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/wikipedia.html#sections">Sections</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/wikipedia.html#other">Other</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/wikipedia.html#references">References</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/wikipedia.html#internal-links">Internal Links</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/wikipedia.html#text-formatting">Text formatting</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/wikipedia.html#tables">Tables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/wikipedia.html#images">Images</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/wikipedia.html#converting-articles-to-estnltk-json">Converting articles to Estnltk JSON</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/wikipedia.html#structure">Structure</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/wikipedia.html#downloading-the-processed-dumps">Downloading the processed dumps</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/tei.html">Working with Estonian Koondkorpus</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/elasticsearch.html">Handling large text collections with Elastic database</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/elasticsearch.html#estnltk-elastic-wrapper">Estnltk Elastic wrapper</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/elasticsearch.html#iterating-over-corpora">Iterating over corpora</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/elasticsearch.html#iterating-over-query-results">Iterating over query results</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/devel.html">Estnltk developer guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/devel.html#compiling-estnltk">Compiling estnltk</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/devel.html#version-control-and-branches">Version control and branches</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/devel.html#checking-out-devel-branch">Checking out devel branch</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/devel.html#writing-documentation">Writing documentation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/devel.html#setting-up-sphinx">Setting up Sphinx</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/devel.html#distributing-the-documentation-to-github-pages">Distributing the documentation to Github pages</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/devel.html#creating-releases">Creating releases</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/devel.html#linux">Linux</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/devel.html#windows">Windows</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/morf_tables.html">Tables</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/morf_tables.html#table-pos-tag-descriptions">Table: POS tag descriptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/morf_tables.html#table-noun-form-descriptions">Table: Noun form descriptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/morf_tables.html#table-verb-form-descriptions">Table: Verb form descriptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/morf_tables.html#table-phonetic-markers">Table: Phonetic markers</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="tools-for-linguists">
+<h3>Tools for linguists<a class="headerlink" href="#tools-for-linguists" title="Permalink to this headline">¶</a></h3>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/textclassifier.html">Text classification tool</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/textclassifier.html#usage">Usage</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/textclassifier.html#step-1-defining-the-classification-task">Step 1. Defining the classification task</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/textclassifier.html#step-2-building-the-classification-model">Step 2. Building the classification model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/textclassifier.html#step-3-using-the-model-to-categorize-data">Step 3. Using the model to categorize data</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/textclassifier.html#debugging-the-classifier">Debugging the classifier</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/textclassifier.html#classification-report">Classification report</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/textclassifier.html#confidence-cutoff-vs-f1-curve">Confidence cutoff vs F1 curve</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/textclassifier.html#coverage-vs-f1-curve">Coverage vs F1 curve</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/textclassifier.html#significant-features-by-labels">Significant features by labels</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/textclassifier.html#misclassified-examples">Misclassified examples</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="section" id="api-reference">
+<h2>API reference<a class="headerlink" href="#api-reference" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api/clausesegmenter.html">estnltk.clausesegmenter module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/core.html">estnltk.core module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/database.html">estnltk.database.database module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/grammar.html">estnltk.grammar.grammar module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/match.html">estnltk.grammar.match module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/ner.html">estnltk.ner module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/prettyprinter.html">estnltk.prettyprinter.prettyprinter module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/teicorpus.html">estnltk.teicorpus module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/text.html">estnltk.text module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/textcleaner.html">estnltk.textcleaner module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/timex.html">estnltk.timex module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/vabamorf.html">estnltk.vabamorf.morf module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/wordnet_tagger.html">estnltk.wordnet_tagger module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/wn.html">estnltk.wordnet.wn module</a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="authors">
+<h2>Authors<a class="headerlink" href="#authors" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="authors.html">Authors</a></li>
+</ul>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="#">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Estnltk &#8212; Open source tools for Estonian natural language processing</a><ul>
+<li><a class="reference internal" href="#quick-example">Quick example</a></li>
+<li><a class="reference internal" href="#about">About</a></li>
+<li><a class="reference internal" href="#tutorials">Tutorials</a><ul>
+<li><a class="reference internal" href="#tools-for-linguists">Tools for linguists</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#api-reference">API reference</a></li>
+<li><a class="reference internal" href="#authors">Authors</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Next topic</h4>
+  <p class="topless"><a href="tutorials/installation.html"
+                        title="next chapter">Installation</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/index.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="tutorials/installation.html" title="Installation"
+             >next</a> |</li>
+        <li><a href="#">estnltk 1.3 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2015, University of Tartu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>

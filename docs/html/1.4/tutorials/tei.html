@@ -1,0 +1,241 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Working with Estonian Koondkorpus &mdash; estnltk 1.3 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="estnltk 1.3 documentation" href="../index.html" />
+    <link rel="next" title="Handling large text collections with Elastic database" href="elasticsearch.html" />
+    <link rel="prev" title="Working with Estonian and Võru wikipedia" href="wikipedia.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="elasticsearch.html" title="Handling large text collections with Elastic database"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="wikipedia.html" title="Working with Estonian and Võru wikipedia"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">estnltk 1.3 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="working-with-estonian-koondkorpus">
+<span id="tei-tutorial"></span><h1>Working with Estonian Koondkorpus<a class="headerlink" href="#working-with-estonian-koondkorpus" title="Permalink to this headline">¶</a></h1>
+<p>This tutorial describes how to work with <a class="reference external" href="http://www.cl.ut.ee/korpused/segakorpus/">Eesti Koondkorpus</a> and import the files in TEI format
+to JSON format used by Estnltk.
+After this conversion, you can check (<a class="reference internal" href="elasticsearch.html#database-tutorial"><em>Handling large text collections with Elastic database</em></a>) to see how you could import all these documents
+to a fast searchable text database.
+First, dowload all the XML TEI format files to your computer, into a folder <tt class="docutils literal"><span class="pre">corpora/koond</span></tt>.
+Check the subcategories of the site to find the download links.</p>
+<p>On my computer, I have the following list of files:</p>
+<div class="highlight-python"><div class="highlight"><pre>ls -1 corpora/koond/
+
+Agraarteadus.zip
+Arvutitehnika.zip
+Doktoritood.zip
+EestiArst.zip
+Ekspress.zip
+foorum_uudisgrupp_kommentaar.zip
+Horisont.zip
+Ilukirjandus.zip
+Kroonika.zip
+LaaneElu.zip
+Luup.zip
+Maaleht.zip
+Paevaleht.zip
+Postimees.zip
+Riigikogu.zip
+Seadused.zip
+SLOleht.tar.gz
+Teadusartiklid.zip
+Valgamaalane.zip
+</pre></div>
+</div>
+<p>Next, we go into this directory and unzip all the files.:</p>
+<div class="highlight-python"><div class="highlight"><pre>cd corpora/koond/
+unzip &quot;*.zip&quot;
+</pre></div>
+</div>
+<p>As a result, we have a bunch of folders with structure similar below:</p>
+<div class="highlight-python"><div class="highlight"><pre>├── Kroonika
+│   ├── bin
+│   │   ├── koondkorpus_main_header.xml
+│   │   └── tei_corpus.rng
+│   └── Kroon
+│       ├── bin
+│       │   └── header_aja_kroonika.xml
+│       └── kroonika
+│           ├── kroonika_2000
+│           │   ├── aja_kr_2000_12_08.xml
+│           │   ├── aja_kr_2000_12_15.xml
+│           │   ├── aja_kr_2000_12_22.xml
+│           │   └── aja_kr_2000_12_29.xml
+│           ├── kroonika_2001
+│           │   ├── aja_kr_2001_01_05.xml
+│           │   ├── aja_kr_2001_01_12.xml
+│           │   ├── aja_kr_2001_01_19.xml
+│           │   ├── aja_kr_2001_01_22.xml
+</pre></div>
+</div>
+<p>Folders <tt class="docutils literal"><span class="pre">bin</span></tt> contain headers and corpus descriptions and can go hiearchially down the way.
+If we are only interested in the actual articles themselves, we should ignore all files that contain <tt class="docutils literal"><span class="pre">bin</span></tt> in their
+path and only use files that end with <tt class="docutils literal"><span class="pre">.xml</span></tt>.</p>
+<p>Anyway, here is a script that tries its best at doing some basic conversion:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># -*- coding: utf-8 -*-</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">unicode_literals</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">absolute_import</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">os.path</span>
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">from</span> <span class="nn">estnltk.teicorpus</span> <span class="kn">import</span> <span class="n">parse_tei_corpus</span>
+<span class="kn">from</span> <span class="nn">estnltk.corpus</span> <span class="kn">import</span> <span class="n">write_document</span>
+
+<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s">&#39;koondkonverter&#39;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">get_target</span><span class="p">(</span><span class="n">fnm</span><span class="p">):</span>
+    <span class="k">if</span> <span class="s">&#39;drtood&#39;</span> <span class="ow">in</span> <span class="n">fnm</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s">&#39;dissertatsioon&#39;</span>
+    <span class="k">if</span> <span class="s">&#39;ilukirjandus&#39;</span> <span class="ow">in</span> <span class="n">fnm</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s">&#39;tervikteos&#39;</span>
+    <span class="k">if</span> <span class="s">&#39;seadused&#39;</span> <span class="ow">in</span> <span class="n">fnm</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s">&#39;seadus&#39;</span>
+    <span class="k">if</span> <span class="s">&#39;EestiArst&#39;</span> <span class="ow">in</span> <span class="n">fnm</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s">&#39;ajakirjanumber&#39;</span>
+    <span class="k">if</span> <span class="s">&#39;foorum&#39;</span> <span class="ow">in</span> <span class="n">fnm</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s">&#39;teema&#39;</span>
+    <span class="k">if</span> <span class="s">&#39;kommentaarid&#39;</span> <span class="ow">in</span> <span class="n">fnm</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s">&#39;kommentaarid&#39;</span>
+    <span class="k">if</span> <span class="s">&#39;uudisgrupid&#39;</span> <span class="ow">in</span> <span class="n">fnm</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s">&#39;uudisgrupi_salvestus&#39;</span>
+    <span class="k">if</span> <span class="s">&#39;jututoad&#39;</span> <span class="ow">in</span> <span class="n">fnm</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s">&#39;jututoavestlus&#39;</span>
+    <span class="k">if</span> <span class="s">&#39;stenogrammid&#39;</span> <span class="ow">in</span> <span class="n">fnm</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s">&#39;stenogramm&#39;</span>
+    <span class="k">return</span> <span class="s">&#39;artikkel&#39;</span>
+
+
+<span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="n">start_dir</span><span class="p">,</span> <span class="n">out_dir</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">dirpath</span><span class="p">,</span> <span class="n">dirnames</span><span class="p">,</span> <span class="n">filenames</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">start_dir</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">dirnames</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">filenames</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="s">&#39;bin&#39;</span> <span class="ow">in</span> <span class="n">dirpath</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">for</span> <span class="n">fnm</span> <span class="ow">in</span> <span class="n">filenames</span><span class="p">:</span>
+            <span class="n">full_fnm</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dirpath</span><span class="p">,</span> <span class="n">fnm</span><span class="p">)</span>
+            <span class="n">out_prefix</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out_dir</span><span class="p">,</span> <span class="n">fnm</span><span class="p">)</span>
+            <span class="n">target</span> <span class="o">=</span> <span class="n">get_target</span><span class="p">(</span><span class="n">full_fnm</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">out_prefix</span> <span class="o">+</span> <span class="s">&#39;_0.txt&#39;</span><span class="p">):</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;Skipping file {0}, because it seems to be already processed&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">full_fnm</span><span class="p">))</span>
+                <span class="k">continue</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;Processing file {0} with target {1}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">full_fnm</span><span class="p">,</span> <span class="n">target</span><span class="p">))</span>
+            <span class="n">docs</span> <span class="o">=</span> <span class="n">parse_tei_corpus</span><span class="p">(</span><span class="n">full_fnm</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">doc_id</span><span class="p">,</span> <span class="n">doc</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">docs</span><span class="p">):</span>
+                <span class="n">out_fnm</span> <span class="o">=</span> <span class="s">&#39;{0}_{1}.txt&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">out_prefix</span><span class="p">,</span> <span class="n">doc_id</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;Writing document {0}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">out_fnm</span><span class="p">))</span>
+                <span class="n">write_document</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">out_fnm</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s">&quot;Convert a bunch of TEI XML files to Estnltk JSON files&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;startdir&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&#39;The path of the downloaded and extracted koondkorpus files&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;outdir&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&#39;The directory to store output results&#39;</span><span class="p">)</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+
+    <span class="n">process</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">startdir</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">outdir</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Create an output directory <tt class="docutils literal"><span class="pre">corpora/converted</span></tt> for the results and run the scripts with appropriate parameters:</p>
+<div class="highlight-python"><div class="highlight"><pre>python3 -m estnltk.examples.convert_koondkorpus corpora/koond corpora/converted
+</pre></div>
+</div>
+<p>The results can be downloaded from here: <a class="reference external" href="http://ats.cs.ut.ee/keeletehnoloogia/estnltk/koond.zip">http://ats.cs.ut.ee/keeletehnoloogia/estnltk/koond.zip</a> .</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="wikipedia.html"
+                        title="previous chapter">Working with Estonian and Võru wikipedia</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="elasticsearch.html"
+                        title="next chapter">Handling large text collections with Elastic database</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/tutorials/tei.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="elasticsearch.html" title="Handling large text collections with Elastic database"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="wikipedia.html" title="Working with Estonian and Võru wikipedia"
+             >previous</a> |</li>
+        <li><a href="../index.html">estnltk 1.3 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2015, University of Tartu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>

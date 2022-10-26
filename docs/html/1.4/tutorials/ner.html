@@ -1,0 +1,370 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Named entity recognition &mdash; estnltk 1.3 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="estnltk 1.3 documentation" href="../index.html" />
+    <link rel="next" title="Syntax and dependency parser" href="dependency.html" />
+    <link rel="prev" title="Morphological disambiguation on a collection of documents" href="disambiguation.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="dependency.html" title="Syntax and dependency parser"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="disambiguation.html" title="Morphological disambiguation on a collection of documents"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">estnltk 1.3 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="named-entity-recognition">
+<h1>Named entity recognition<a class="headerlink" href="#named-entity-recognition" title="Permalink to this headline">¶</a></h1>
+<p>Named-entity recognition (NER) (also known as entity identification, entity chunking and entity extraction) is a subtask of information extraction that seeks to locate and classify elements in text into pre-defined categories such as the names of persons, organizations, locations.</p>
+<p>In this tutorial you will learn how to use <cite>estnltk</cite>&#8216;s out of the box NER utilities and how to build your own ner-models from scratch.</p>
+<div class="section" id="getting-started-with-ner">
+<h2>Getting started with NER<a class="headerlink" href="#getting-started-with-ner" title="Permalink to this headline">¶</a></h2>
+<p>The <cite>estnltk</cite> package comes with the pre-trained NER-models for Python 2.7/Python 3.4. The models distinguish 3 types of entities: person names, organizations and locations.</p>
+<p>A quick example below demonstrates how to extract named entities from the raw text:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">Text</span>
+
+<span class="n">text</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s">&#39;&#39;&#39;Eesti Vabariik on riik Põhja-Euroopas.</span>
+<span class="s">    Eesti piirneb põhjas üle Soome lahe Soome Vabariigiga.</span>
+<span class="s">    Riigikogu on Eesti Vabariigi parlament. Riigikogule kuulub Eestis seadusandlik võim.</span>
+<span class="s">    2005. aastal sai peaministriks Andrus Ansip, kes püsis sellel kohal 2014. aastani.</span>
+<span class="s">    2006. aastal valiti presidendiks Toomas Hendrik Ilves.</span>
+<span class="s">    &#39;&#39;&#39;</span><span class="p">)</span>
+
+<span class="c"># Extract named entities</span>
+<span class="n">pprint</span><span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">named_entities</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="s">&#39;Eesti vabariik&#39;</span><span class="p">,</span>
+ <span class="s">&#39;põhi&#39;</span><span class="p">,</span>
+ <span class="s">&#39;Euroopa&#39;</span><span class="p">,</span>
+ <span class="s">&#39;Eesti&#39;</span><span class="p">,</span>
+ <span class="s">&#39;Soome laht&#39;</span><span class="p">,</span>
+ <span class="s">&#39;Soome Vabariik&#39;</span><span class="p">,</span>
+ <span class="s">&#39;Riigikogu&#39;</span><span class="p">,</span>
+ <span class="s">&#39;Eesti vabariik&#39;</span><span class="p">,</span>
+ <span class="s">&#39;riigikogu&#39;</span><span class="p">,</span>
+ <span class="s">&#39;Eesti&#39;</span><span class="p">,</span>
+ <span class="s">&#39;Andrus Ansip&#39;</span><span class="p">,</span>
+ <span class="s">&#39;Toomas Hendrik Ilves&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>When accessing the property <tt class="xref py py-attr docutils literal"><span class="pre">named_entities</span></tt> of the <tt class="xref py py-class docutils literal"><span class="pre">Text</span></tt> instance, <cite>estnltk</cite> executes on the background the whole text processing pipeline, including tokenization, morphological analysis and named entity extraction.</p>
+<p>The class <tt class="xref py py-class docutils literal"><span class="pre">Text</span></tt> additionally provides a number of useful methods to get more information on the extracted entities:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">pprint</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">named_entities</span><span class="p">,</span> <span class="n">text</span><span class="o">.</span><span class="n">named_entity_labels</span><span class="p">,</span> <span class="n">text</span><span class="o">.</span><span class="n">named_entity_spans</span><span class="p">)))</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">[(</span><span class="s">&#39;Eesti vabariik&#39;</span><span class="p">,</span> <span class="s">&#39;LOC&#39;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">14</span><span class="p">)),</span>
+ <span class="p">(</span><span class="s">&#39;Põhi Euroopa&#39;</span><span class="p">,</span> <span class="s">&#39;LOC&#39;</span><span class="p">,</span> <span class="p">(</span><span class="mi">25</span><span class="p">,</span> <span class="mi">37</span><span class="p">)),</span>
+ <span class="p">(</span><span class="s">&#39;Eesti&#39;</span><span class="p">,</span> <span class="s">&#39;LOC&#39;</span><span class="p">,</span> <span class="p">(</span><span class="mi">46</span><span class="p">,</span> <span class="mi">51</span><span class="p">)),</span>
+ <span class="p">(</span><span class="s">&#39;Soome laht&#39;</span><span class="p">,</span> <span class="s">&#39;LOC&#39;</span><span class="p">,</span> <span class="p">(</span><span class="mi">71</span><span class="p">,</span> <span class="mi">81</span><span class="p">)),</span>
+ <span class="p">(</span><span class="s">&#39;Soome Vabariik&#39;</span><span class="p">,</span> <span class="s">&#39;LOC&#39;</span><span class="p">,</span> <span class="p">(</span><span class="mi">82</span><span class="p">,</span> <span class="mi">99</span><span class="p">)),</span>
+ <span class="p">(</span><span class="s">&#39;Riigikogu&#39;</span><span class="p">,</span> <span class="s">&#39;ORG&#39;</span><span class="p">,</span> <span class="p">(</span><span class="mi">107</span><span class="p">,</span> <span class="mi">116</span><span class="p">)),</span>
+ <span class="p">(</span><span class="s">&#39;Eesti vabariik&#39;</span><span class="p">,</span> <span class="s">&#39;LOC&#39;</span><span class="p">,</span> <span class="p">(</span><span class="mi">120</span><span class="p">,</span> <span class="mi">135</span><span class="p">)),</span>
+ <span class="p">(</span><span class="s">&#39;riigikogu&#39;</span><span class="p">,</span> <span class="s">&#39;ORG&#39;</span><span class="p">,</span> <span class="p">(</span><span class="mi">147</span><span class="p">,</span> <span class="mi">158</span><span class="p">)),</span>
+ <span class="p">(</span><span class="s">&#39;Eesti&#39;</span><span class="p">,</span> <span class="s">&#39;LOC&#39;</span><span class="p">,</span> <span class="p">(</span><span class="mi">166</span><span class="p">,</span> <span class="mi">172</span><span class="p">)),</span>
+ <span class="p">(</span><span class="s">&#39;Andrus Ansip&#39;</span><span class="p">,</span> <span class="s">&#39;PER&#39;</span><span class="p">,</span> <span class="p">(</span><span class="mi">229</span><span class="p">,</span> <span class="mi">241</span><span class="p">)),</span>
+ <span class="p">(</span><span class="s">&#39;Toomas Hendrik Ilves&#39;</span><span class="p">,</span> <span class="s">&#39;PER&#39;</span><span class="p">,</span> <span class="p">(</span><span class="mi">320</span><span class="p">,</span> <span class="mi">340</span><span class="p">))]</span>
+</pre></div>
+</div>
+<p>The default models use tags PER, ORG and LOC to denote person names, organizations and locations respectively. Entity tags are encoded using a BIO annotation scheme, where each entity label is prefixed with either B or I letter. B- denotes the beginning and I- inside of an entity. The prefixes are used to detect multiword entities, as shown in the example example above. All other words, which don&#8217;t refer to entities of interest, are labelled with the O tag.</p>
+<p>The raw labels are accessible via the property <tt class="xref py py-attr docutils literal"><span class="pre">labels</span></tt> of the <tt class="xref py py-attr docutils literal"><span class="pre">Text</span></tt> instance:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">pprint</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">word_texts</span><span class="p">,</span> <span class="n">text</span><span class="o">.</span><span class="n">labels</span><span class="p">)))</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">[(</span><span class="s">&#39;Eesti&#39;</span><span class="p">,</span> <span class="s">&#39;B-LOC&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;Vabariik&#39;</span><span class="p">,</span> <span class="s">&#39;I-LOC&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;on&#39;</span><span class="p">,</span> <span class="s">&#39;O&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;riik&#39;</span><span class="p">,</span> <span class="s">&#39;O&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;Põhja&#39;</span><span class="p">,</span> <span class="s">&#39;B-ORG&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;-&#39;</span><span class="p">,</span> <span class="s">&#39;O&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;Euroopas&#39;</span><span class="p">,</span> <span class="s">&#39;B-LOC&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">,</span> <span class="s">&#39;O&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;Eesti&#39;</span><span class="p">,</span> <span class="s">&#39;B-LOC&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;piirneb&#39;</span><span class="p">,</span> <span class="s">&#39;O&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;põhjas&#39;</span><span class="p">,</span> <span class="s">&#39;O&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;üle&#39;</span><span class="p">,</span> <span class="s">&#39;O&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;Soome&#39;</span><span class="p">,</span> <span class="s">&#39;B-LOC&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;lahe&#39;</span><span class="p">,</span> <span class="s">&#39;I-LOC&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;Soome&#39;</span><span class="p">,</span> <span class="s">&#39;B-LOC&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;Vabariigiga&#39;</span><span class="p">,</span> <span class="s">&#39;I-LOC&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">,</span> <span class="s">&#39;O&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;Riigikogu&#39;</span><span class="p">,</span> <span class="s">&#39;B-ORG&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;on&#39;</span><span class="p">,</span> <span class="s">&#39;O&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;Eesti&#39;</span><span class="p">,</span> <span class="s">&#39;B-LOC&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;Vabariigi&#39;</span><span class="p">,</span> <span class="s">&#39;I-LOC&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;parlament&#39;</span><span class="p">,</span> <span class="s">&#39;O&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">,</span> <span class="s">&#39;O&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;Riigikogule&#39;</span><span class="p">,</span> <span class="s">&#39;B-ORG&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;kuulub&#39;</span><span class="p">,</span> <span class="s">&#39;O&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;Eestis&#39;</span><span class="p">,</span> <span class="s">&#39;B-LOC&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;seadusandlik&#39;</span><span class="p">,</span> <span class="s">&#39;O&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;võim&#39;</span><span class="p">,</span> <span class="s">&#39;O&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">,</span> <span class="s">&#39;O&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;2005&#39;</span><span class="p">,</span> <span class="s">&#39;O&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">,</span> <span class="s">&#39;O&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;aastal&#39;</span><span class="p">,</span> <span class="s">&#39;O&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;sai&#39;</span><span class="p">,</span> <span class="s">&#39;O&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;peaministriks&#39;</span><span class="p">,</span> <span class="s">&#39;O&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;Andrus&#39;</span><span class="p">,</span> <span class="s">&#39;B-PER&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;Ansip&#39;</span><span class="p">,</span> <span class="s">&#39;I-PER&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;,&#39;</span><span class="p">,</span> <span class="s">&#39;O&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;kes&#39;</span><span class="p">,</span> <span class="s">&#39;O&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;püsis&#39;</span><span class="p">,</span> <span class="s">&#39;O&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;sellel&#39;</span><span class="p">,</span> <span class="s">&#39;O&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;kohal&#39;</span><span class="p">,</span> <span class="s">&#39;O&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;2014&#39;</span><span class="p">,</span> <span class="s">&#39;O&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">,</span> <span class="s">&#39;O&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;aastani&#39;</span><span class="p">,</span> <span class="s">&#39;O&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">,</span> <span class="s">&#39;O&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;2006&#39;</span><span class="p">,</span> <span class="s">&#39;O&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">,</span> <span class="s">&#39;O&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;aastal&#39;</span><span class="p">,</span> <span class="s">&#39;O&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;valiti&#39;</span><span class="p">,</span> <span class="s">&#39;O&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;presidendiks&#39;</span><span class="p">,</span> <span class="s">&#39;O&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;Toomas&#39;</span><span class="p">,</span> <span class="s">&#39;B-PER&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;Hendrik&#39;</span><span class="p">,</span> <span class="s">&#39;I-PER&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;Ilves&#39;</span><span class="p">,</span> <span class="s">&#39;I-PER&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">,</span> <span class="s">&#39;O&#39;</span><span class="p">)]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="advanced-ner">
+<h2>Advanced NER<a class="headerlink" href="#advanced-ner" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="training-custom-models">
+<h3>Training custom models<a class="headerlink" href="#training-custom-models" title="Permalink to this headline">¶</a></h3>
+<p>Default models that come with <cite>estnltk</cite> are good enough for basic tasks. However, for some specific tasks, a custom NER model might be needed. To train your own model, you need to provide a training corpus and custom configuration settings.  The following example demonstrates how to train a ner-model using the default training dataset and settings:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">estnltk.corpus</span> <span class="kn">import</span> <span class="n">read_json_corpus</span>
+<span class="kn">from</span> <span class="nn">estnltk.ner</span> <span class="kn">import</span> <span class="n">NerTrainer</span>
+
+<span class="c"># Read the default training corpus</span>
+<span class="n">corpus</span> <span class="o">=</span> <span class="n">read_json_corpus</span><span class="p">(</span><span class="s">&#39;/home/projects/estnltk/estnltk/corpora/estner.json&#39;</span><span class="p">)</span>
+
+<span class="c"># Read the default settings</span>
+<span class="n">ner_settings</span> <span class="o">=</span> <span class="n">estnltk</span><span class="o">.</span><span class="n">estner</span><span class="o">.</span><span class="n">settings</span>
+
+<span class="c"># Directory to save the model</span>
+<span class="n">model_dir</span> <span class="o">=</span> <span class="s">&#39;&lt;output model directory&gt;&#39;</span>
+
+<span class="c"># Train and save the model</span>
+<span class="n">trainer</span> <span class="o">=</span> <span class="n">NerTrainer</span><span class="p">(</span><span class="n">ner_settings</span><span class="p">)</span>
+<span class="n">trainer</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">corpus</span><span class="p">,</span> <span class="n">model_dir</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The specified output directory will contain a resulting model file <cite>model.bin</cite> and a copy of a settings module used for training. Now we can load the model and tag some text using <tt class="xref py py-class docutils literal"><span class="pre">NerTagger</span></tt>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">estnltk.ner</span> <span class="kn">import</span> <span class="n">NerTagger</span>
+
+<span class="n">document</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s">u&#39;Eesti koeraspordiliidu ( EKL ) presidendi Piret Laanetu intervjuu Eesti Päevalehele.&#39;</span><span class="p">)</span>
+
+<span class="c"># Load the model and settings</span>
+<span class="n">tagger</span> <span class="o">=</span> <span class="n">NerTagger</span><span class="p">(</span><span class="n">model_dir</span><span class="p">)</span>
+
+<span class="c"># ne-tag the document</span>
+<span class="n">tagger</span><span class="o">.</span><span class="n">tag_document</span><span class="p">(</span><span class="n">document</span><span class="p">)</span>
+
+<span class="n">pprint</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">document</span><span class="o">.</span><span class="n">word_texts</span><span class="p">,</span> <span class="n">document</span><span class="o">.</span><span class="n">labels</span><span class="p">)))</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">[(</span><span class="s">&#39;Eesti&#39;</span><span class="p">,</span> <span class="s">&#39;B-ORG&#39;</span><span class="p">),</span>
+   <span class="p">(</span><span class="s">&#39;koeraspordiliidu&#39;</span><span class="p">,</span> <span class="s">&#39;I-ORG&#39;</span><span class="p">),</span>
+   <span class="p">(</span><span class="s">&#39;(&#39;</span><span class="p">,</span> <span class="s">&#39;O&#39;</span><span class="p">),</span>
+   <span class="p">(</span><span class="s">&#39;EKL&#39;</span><span class="p">,</span> <span class="s">&#39;B-ORG&#39;</span><span class="p">),</span>
+   <span class="p">(</span><span class="s">&#39;)&#39;</span><span class="p">,</span> <span class="s">&#39;O&#39;</span><span class="p">),</span>
+   <span class="p">(</span><span class="s">&#39;presidendi&#39;</span><span class="p">,</span> <span class="s">&#39;O&#39;</span><span class="p">),</span>
+   <span class="p">(</span><span class="s">&#39;Piret&#39;</span><span class="p">,</span> <span class="s">&#39;B-PER&#39;</span><span class="p">),</span>
+   <span class="p">(</span><span class="s">&#39;Laanetu&#39;</span><span class="p">,</span> <span class="s">&#39;I-PER&#39;</span><span class="p">),</span>
+   <span class="p">(</span><span class="s">&#39;intervjuu&#39;</span><span class="p">,</span> <span class="s">&#39;O&#39;</span><span class="p">),</span>
+   <span class="p">(</span><span class="s">&#39;Eesti&#39;</span><span class="p">,</span> <span class="s">&#39;B-ORG&#39;</span><span class="p">),</span>
+   <span class="p">(</span><span class="s">&#39;Päevalehele&#39;</span><span class="p">,</span> <span class="s">&#39;I-ORG&#39;</span><span class="p">),</span>
+   <span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">,</span> <span class="s">&#39;O&#39;</span><span class="p">)]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="training-dataset">
+<h3>Training dataset<a class="headerlink" href="#training-dataset" title="Permalink to this headline">¶</a></h3>
+<p>To train a model with <cite>estnltk</cite>, you need to provide your training data in a certain format (see the default dataset <cite>estnltk/estnltk/corpora/estner.json</cite> for example). The training file contains one document per line along with ne-labels. Let&#8217;s create a simple document:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">text</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s">&#39;&#39;&#39;Eesti Vabariik on riik Põhja-Euroopas.&#39;&#39;&#39;</span><span class="p">)</span>
+<span class="n">text</span><span class="o">.</span><span class="n">tokenize_words</span><span class="p">()</span>
+<span class="n">pprint</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span><span class="s">&#39;paragraphs&#39;</span><span class="p">:</span> <span class="p">[{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">38</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}],</span>
+<span class="s">&#39;sentences&#39;</span><span class="p">:</span> <span class="p">[{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">38</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}],</span>
+<span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;Eesti Vabariik on riik Põhja-Euroopas.&#39;</span><span class="p">,</span>
+<span class="s">&#39;words&#39;</span><span class="p">:</span> <span class="p">[{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>  <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;Eesti&#39;</span><span class="p">},</span>
+         <span class="p">{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">14</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span>  <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;Vabariik&#39;</span><span class="p">},</span>
+         <span class="p">{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">17</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span> <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;on&#39;</span><span class="p">},</span>
+         <span class="p">{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">22</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">18</span><span class="p">,</span> <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;riik&#39;</span><span class="p">},</span>
+         <span class="p">{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">28</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">23</span><span class="p">,</span> <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;Põhja&#39;</span><span class="p">},</span>
+         <span class="p">{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">29</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">28</span><span class="p">,</span> <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;-&#39;</span><span class="p">},</span>
+         <span class="p">{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">37</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">29</span><span class="p">,</span> <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;Euroopas&#39;</span><span class="p">},</span>
+         <span class="p">{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">38</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">37</span><span class="p">,</span> <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;.&#39;</span><span class="p">}]}</span>
+</pre></div>
+</div>
+<p>Next, let&#8217;s add named entity tags to each word in the document:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">words</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">words</span>
+
+<span class="c"># label each word as &quot;other&quot;:</span>
+<span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">words</span><span class="p">:</span>
+  <span class="n">word</span><span class="p">[</span><span class="s">&#39;label&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;O&#39;</span>
+
+<span class="c"># label words &quot;Eesti Vabariik&quot; as a location</span>
+<span class="n">words</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s">&#39;label&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;B-LOC&#39;</span>
+<span class="n">words</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s">&#39;label&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;I-LOC&#39;</span>
+
+<span class="c"># label words &quot;Põhja-Euroopas&quot; as a location</span>
+<span class="n">words</span><span class="p">[</span><span class="mi">4</span><span class="p">][</span><span class="s">&#39;label&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;B-LOC&#39;</span>
+<span class="n">words</span><span class="p">[</span><span class="mi">5</span><span class="p">][</span><span class="s">&#39;label&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;I-LOC&#39;</span>
+<span class="n">words</span><span class="p">[</span><span class="mi">6</span><span class="p">][</span><span class="s">&#39;label&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;I-LOC&#39;</span>
+
+<span class="n">pprint</span><span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">words</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">[{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="s">&#39;label&#39;</span><span class="p">:</span> <span class="s">&#39;B-LOC&#39;</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;Eesti&#39;</span><span class="p">},</span>
+ <span class="p">{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">14</span><span class="p">,</span> <span class="s">&#39;label&#39;</span><span class="p">:</span> <span class="s">&#39;I-LOC&#39;</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span> <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;Vabariik&#39;</span><span class="p">},</span>
+ <span class="p">{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">17</span><span class="p">,</span> <span class="s">&#39;label&#39;</span><span class="p">:</span> <span class="s">&#39;O&#39;</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span> <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;on&#39;</span><span class="p">},</span>
+ <span class="p">{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">22</span><span class="p">,</span> <span class="s">&#39;label&#39;</span><span class="p">:</span> <span class="s">&#39;O&#39;</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">18</span><span class="p">,</span> <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;riik&#39;</span><span class="p">},</span>
+ <span class="p">{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">28</span><span class="p">,</span> <span class="s">&#39;label&#39;</span><span class="p">:</span> <span class="s">&#39;B-LOC&#39;</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">23</span><span class="p">,</span> <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;Põhja&#39;</span><span class="p">},</span>
+ <span class="p">{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">29</span><span class="p">,</span> <span class="s">&#39;label&#39;</span><span class="p">:</span> <span class="s">&#39;I-LOc&#39;</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">28</span><span class="p">,</span> <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;-&#39;</span><span class="p">},</span>
+ <span class="p">{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">37</span><span class="p">,</span> <span class="s">&#39;label&#39;</span><span class="p">:</span> <span class="s">&#39;I-LOc&#39;</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">29</span><span class="p">,</span> <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;Euroopas&#39;</span><span class="p">},</span>
+ <span class="p">{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">38</span><span class="p">,</span> <span class="s">&#39;label&#39;</span><span class="p">:</span> <span class="s">&#39;O&#39;</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">37</span><span class="p">,</span> <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;.&#39;</span><span class="p">}]</span>
+</pre></div>
+</div>
+<p>Once we have a collection of labelled documents, we can save it to disc using the function <tt class="xref py py-func docutils literal"><span class="pre">estnltk.corpus.write_json_corpus()</span></tt>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">estnltk.corpus</span> <span class="kn">import</span> <span class="n">write_json_corpus</span>
+
+<span class="n">documents</span> <span class="o">=</span> <span class="p">[</span><span class="n">text</span><span class="p">]</span>
+<span class="n">write_json_corpus</span><span class="p">(</span><span class="n">documents</span><span class="p">,</span> <span class="s">&#39;&lt;output file name&gt;&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This serializes each document object into a json string and saves to the specified file line by line. The resulting training file can be used with the <tt class="xref py py-class docutils literal"><span class="pre">NerTrainer</span></tt> as shown above.</p>
+</div>
+<div class="section" id="ner-settings">
+<h3>Ner settings<a class="headerlink" href="#ner-settings" title="Permalink to this headline">¶</a></h3>
+<p>By default, <cite>estnltk</cite> uses configuration module <tt class="xref py py-mod docutils literal"><span class="pre">estnltk.estner.settings</span></tt>. A settings module defines training algorithm parameters, entity categories, feature extractors and feature templates. The simplest way to create a custom configuration is to make a new settings module, e.g. <cite>custom_settings.py</cite>, import the default settings and override necessary parts. For example, a custom minimalistic configuration module could look like this:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">estnltk.estner.settings</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="c"># Override feature templates</span>
+<span class="n">TEMPLATES</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">((</span><span class="s">&#39;lem&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),),</span>
+<span class="p">]</span>
+
+<span class="c"># Override feature extractors</span>
+<span class="n">FEATURE_EXTRACTORS</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s">&quot;estnltk.estner.featureextraction.MorphFeatureExtractor&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Now, the <tt class="xref py py-class docutils literal"><span class="pre">estnltk.ner.NerTrainer</span></tt> instance can be initialized using the <cite>custom_settings</cite> module (make sure <cite>custom_settings.py</cite> is on your python path):</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">trainer</span> <span class="o">=</span> <span class="n">NerTrainer</span><span class="p">(</span><span class="n">custom_settings</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Named entity recognition</a><ul>
+<li><a class="reference internal" href="#getting-started-with-ner">Getting started with NER</a></li>
+<li><a class="reference internal" href="#advanced-ner">Advanced NER</a><ul>
+<li><a class="reference internal" href="#training-custom-models">Training custom models</a></li>
+<li><a class="reference internal" href="#training-dataset">Training dataset</a></li>
+<li><a class="reference internal" href="#ner-settings">Ner settings</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="disambiguation.html"
+                        title="previous chapter">Morphological disambiguation on a collection of documents</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="dependency.html"
+                        title="next chapter">Syntax and dependency parser</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/tutorials/ner.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="dependency.html" title="Syntax and dependency parser"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="disambiguation.html" title="Morphological disambiguation on a collection of documents"
+             >previous</a> |</li>
+        <li><a href="../index.html">estnltk 1.3 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2015, University of Tartu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>

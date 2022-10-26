@@ -1,0 +1,208 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Simple grammars for information extraction &mdash; estnltk 1.3 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="estnltk 1.3 documentation" href="../index.html" />
+    <link rel="next" title="Working with Estonian and Võru wikipedia" href="wikipedia.html" />
+    <link rel="prev" title="HTML Prettyprinter" href="prettyprinter.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="wikipedia.html" title="Working with Estonian and Võru wikipedia"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="prettyprinter.html" title="HTML Prettyprinter"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">estnltk 1.3 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="simple-grammars-for-information-extraction">
+<h1>Simple grammars for information extraction<a class="headerlink" href="#simple-grammars-for-information-extraction" title="Permalink to this headline">¶</a></h1>
+<p>Estnltk comes with simple grammar constructs that are useful for basic information extraction.
+Consider that you have a recipe for making panncakes:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">recipe</span> <span class="o">=</span> <span class="s">&#39;&#39;&#39;</span>
+<span class="s">2,5 dl piima</span>
+<span class="s">1,5 dl jahu</span>
+<span class="s">1 muna</span>
+<span class="s">1 tl suhkrut</span>
+<span class="s">1 tl vaniljeekstrakti</span>
+<span class="s">0,5 tl soola</span>
+<span class="s">&#39;&#39;&#39;</span>
+</pre></div>
+</div>
+<p>Suppose you want to create a robot that can cook various meals.
+In order to program that robot, you need a software module, which can parse recipes.
+This is where Estnltk&#8217;s <tt class="docutils literal"><span class="pre">estnltk.grammar.grammar</span></tt> module can help you.</p>
+<p>In the above example, we need to parse the numbers, unit and the name of the ingredient
+into more managenable form than free-text:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">Regex</span><span class="p">,</span> <span class="n">Lemmas</span>
+
+<span class="n">number</span> <span class="o">=</span> <span class="n">Regex</span><span class="p">(</span><span class="s">&#39;\d+([,.]\d+)?&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s">&#39;amount&#39;</span><span class="p">)</span>
+<span class="n">unit</span> <span class="o">=</span> <span class="n">Lemmas</span><span class="p">(</span><span class="s">&#39;dl&#39;</span><span class="p">,</span> <span class="s">&#39;tl&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s">&#39;unit&#39;</span><span class="p">)</span>
+<span class="n">ingredient</span> <span class="o">=</span> <span class="n">Lemmas</span><span class="p">(</span><span class="s">&#39;piim&#39;</span><span class="p">,</span> <span class="s">&#39;jahu&#39;</span><span class="p">,</span> <span class="s">&#39;muna&#39;</span><span class="p">,</span> <span class="s">&#39;suhkur&#39;</span><span class="p">,</span> <span class="s">&#39;vaniljeekstrakt&#39;</span><span class="p">,</span> <span class="s">&#39;sool&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s">&#39;ingredient&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Now, there are two types of instructions:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">Concatenation</span>
+
+<span class="n">space</span> <span class="o">=</span> <span class="n">Regex</span><span class="p">(</span><span class="s">&#39;\s*&#39;</span><span class="p">)</span>
+<span class="n">full_instruction</span> <span class="o">=</span> <span class="n">Concatenation</span><span class="p">(</span><span class="n">number</span><span class="p">,</span> <span class="n">unit</span><span class="p">,</span> <span class="n">ingredient</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="n">space</span><span class="p">)</span>
+<span class="n">short_instruction</span> <span class="o">=</span> <span class="n">Concatenation</span><span class="p">(</span><span class="n">number</span><span class="p">,</span> <span class="n">ingredient</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="n">space</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>And we want to capture them both:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">Union</span>
+
+<span class="n">instruction</span> <span class="o">=</span> <span class="n">Union</span><span class="p">(</span><span class="n">full_instruction</span><span class="p">,</span> <span class="n">short_instruction</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s">&#39;instruction&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Basically, a grammar contains a number of symbols that can be chained together in various ways
+and rigged for information extraction.
+Above grammar just extracts numbers defined by a regular expression, and units and ingredients
+based on user given lists.</p>
+<p>Now, going back to our robot example, we can extract the data from text using <tt class="docutils literal"><span class="pre">get_matches</span></tt> method:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">Text</span>
+<span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
+
+<span class="n">text</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="n">recipe</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">instruction</span><span class="o">.</span><span class="n">get_matches</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+    <span class="n">pprint</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">dict</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The <tt class="docutils literal"><span class="pre">dict</span></tt> attribute of each <tt class="xref py py-class docutils literal"><span class="pre">Match</span></tt> instance can be used
+to access the symbol&#8217;s name, matched text, start and end positions and also all submatches:</p>
+<div class="highlight-python"><div class="highlight"><pre>{&#39;amount&#39;: {&#39;end&#39;: 4, &#39;start&#39;: 1, &#39;text&#39;: &#39;2,5&#39;},
+ &#39;ingredient&#39;: {&#39;end&#39;: 13, &#39;start&#39;: 8, &#39;text&#39;: &#39;piima&#39;},
+ &#39;instruction&#39;: {&#39;end&#39;: 13, &#39;start&#39;: 1, &#39;text&#39;: &#39;2,5 dl piima&#39;},
+ &#39;unit&#39;: {&#39;end&#39;: 7, &#39;start&#39;: 5, &#39;text&#39;: &#39;dl&#39;}}
+...
+ &#39;ingredient&#39;: {&#39;end&#39;: 80, &#39;start&#39;: 75, &#39;text&#39;: &#39;soola&#39;},
+ &#39;instruction&#39;: {&#39;end&#39;: 80, &#39;start&#39;: 68, &#39;text&#39;: &#39;0,5 tl soola&#39;},
+ &#39;unit&#39;: {&#39;end&#39;: 74, &#39;start&#39;: 72, &#39;text&#39;: &#39;tl&#39;}}
+</pre></div>
+</div>
+<p>You can also use the symbols to tag layers directly in <tt class="xref py py-class docutils literal"><span class="pre">Text</span></tt> instances:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">instruction</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Let&#8217;s use prettyprinter to visualize this as HTML:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">PrettyPrinter</span>
+<span class="n">pp</span> <span class="o">=</span> <span class="n">PrettyPrinter</span><span class="p">(</span><span class="n">background</span><span class="o">=</span><span class="s">&#39;instruction&#39;</span><span class="p">,</span> <span class="n">underline</span><span class="o">=</span><span class="s">&#39;ingredient&#39;</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="s">&#39;unit&#39;</span><span class="p">)</span>
+<span class="n">pp</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">add_header</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<style>
+    mark.background {
+        background-color: rgb(102, 204, 255);
+    }
+    mark.weight {
+        font-weight: bold;
+    }
+    mark.underline {
+        text-decoration: underline;
+    }
+</style>
+<mark class="background">2,5 </mark><mark class="background weight">dl</mark><mark class="background"> </mark><mark class="background underline">piima</mark><br/><mark class="background">1,5 </mark><mark class="background weight">dl</mark><mark class="background"> </mark><mark class="background underline">jahu</mark><br/><mark class="background">1 </mark><mark class="background underline">muna</mark><br/><mark class="background">1 </mark><mark class="background weight">tl</mark><mark class="background"> </mark><mark class="background underline">suhkrut</mark><br/><mark class="background">1 </mark><mark class="background weight">tl</mark><mark class="background"> </mark><mark class="background underline">vaniljeekstrakti</mark><br/><mark class="background">0,5 </mark><mark class="background weight">tl</mark><mark class="background"> </mark><mark class="background underline">soola</mark><br/><p>You can access the annotated layers as you would access typical layers:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">print</span><span class="p">(</span><span class="n">text</span><span class="p">[</span><span class="s">&#39;ingredient&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">[{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">13</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span> <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;piima&#39;</span><span class="p">},</span>
+ <span class="p">{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">25</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">21</span><span class="p">,</span> <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;jahu&#39;</span><span class="p">},</span>
+ <span class="p">{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">32</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">28</span><span class="p">,</span> <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;muna&#39;</span><span class="p">},</span>
+ <span class="p">{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">45</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">38</span><span class="p">,</span> <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;suhkrut&#39;</span><span class="p">},</span>
+ <span class="p">{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">67</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">51</span><span class="p">,</span> <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;vaniljeekstrakti&#39;</span><span class="p">},</span>
+ <span class="p">{</span><span class="s">&#39;end&#39;</span><span class="p">:</span> <span class="mi">80</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">:</span> <span class="mi">75</span><span class="p">,</span> <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;soola&#39;</span><span class="p">}]</span>
+</pre></div>
+</div>
+<p>See package <tt class="docutils literal"><span class="pre">estnltk.grammar.examples</span></tt> for more examples.</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="prettyprinter.html"
+                        title="previous chapter">HTML Prettyprinter</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="wikipedia.html"
+                        title="next chapter">Working with Estonian and Võru wikipedia</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/tutorials/grammar.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="wikipedia.html" title="Working with Estonian and Võru wikipedia"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="prettyprinter.html" title="HTML Prettyprinter"
+             >previous</a> |</li>
+        <li><a href="../index.html">estnltk 1.3 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2015, University of Tartu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>

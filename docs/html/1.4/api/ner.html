@@ -1,0 +1,238 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>estnltk.ner module &mdash; estnltk 1.3 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="estnltk 1.3 documentation" href="../index.html" />
+    <link rel="next" title="estnltk.prettyprinter.prettyprinter module" href="prettyprinter.html" />
+    <link rel="prev" title="estnltk.grammar.match module" href="match.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="prettyprinter.html" title="estnltk.prettyprinter.prettyprinter module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="match.html" title="estnltk.grammar.match module"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">estnltk 1.3 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-estnltk.ner">
+<span id="estnltk-ner-module"></span><h1>estnltk.ner module<a class="headerlink" href="#module-estnltk.ner" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="estnltk.ner.NerTagger">
+<em class="property">class </em><tt class="descclassname">estnltk.ner.</tt><tt class="descname">NerTagger</tt><big>(</big><em>model_dir='C:\Users\distorti\Anaconda\envs\py34\lib\site-packages\estnltk\estner\models\py3_default'</em><big>)</big><a class="reference internal" href="../_modules/estnltk/ner.html#NerTagger"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.ner.NerTagger" title="Permalink to this definition">¶</a></dt>
+<dd><p>The class for tagging named entities.</p>
+<dl class="method">
+<dt id="estnltk.ner.NerTagger.__init__">
+<tt class="descname">__init__</tt><big>(</big><em>model_dir='C:\\Users\\distorti\\Anaconda\\envs\\py34\\lib\\site-packages\\estnltk\\estner\\models\\py3_default'</em><big>)</big><a class="reference internal" href="../_modules/estnltk/ner.html#NerTagger.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.ner.NerTagger.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize a new NerTagger instance.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>model_dir: st</strong></p>
+<blockquote class="last">
+<div><p>A directory containing a trained ner model and a settings file.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="estnltk.ner.NerTrainer">
+<em class="property">class </em><tt class="descclassname">estnltk.ner.</tt><tt class="descname">NerTrainer</tt><big>(</big><em>nersettings</em><big>)</big><a class="reference internal" href="../_modules/estnltk/ner.html#NerTrainer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.ner.NerTrainer" title="Permalink to this definition">¶</a></dt>
+<dd><p>The class for training NER models. Uses crfsuite implementation.</p>
+<dl class="method">
+<dt id="estnltk.ner.NerTrainer.__init__">
+<tt class="descname">__init__</tt><big>(</big><em>nersettings</em><big>)</big><a class="reference internal" href="../_modules/estnltk/ner.html#NerTrainer.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.ner.NerTrainer.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize a new NerTrainer.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>nersettings: module</strong></p>
+<blockquote class="last">
+<div><p>NER settings module.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.ner.NerTrainer.train">
+<tt class="descname">train</tt><big>(</big><em>jsondocs</em>, <em>model_dir</em><big>)</big><a class="reference internal" href="../_modules/estnltk/ner.html#NerTrainer.train"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.ner.NerTrainer.train" title="Permalink to this definition">¶</a></dt>
+<dd><p>Train a NER model using given documents.</p>
+<p>Each word in the documents must have a &#8220;label&#8221; attribute, which
+denote the named entities in the documents.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>jsondocs: list of JSON-style documents.</strong></p>
+<blockquote>
+<div><p>The documents used for training the CRF model.</p>
+</div></blockquote>
+<p><strong>model_dir: str</strong></p>
+<blockquote class="last">
+<div><p>A directory where the model will be saved.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="estnltk.ner.json_document_to_estner_document">
+<tt class="descclassname">estnltk.ner.</tt><tt class="descname">json_document_to_estner_document</tt><big>(</big><em>jsondoc</em><big>)</big><a class="reference internal" href="../_modules/estnltk/ner.html#json_document_to_estner_document"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.ner.json_document_to_estner_document" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert an estnltk document to an estner document.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>jsondoc: dict</strong></p>
+<blockquote>
+<div><p>Estnltk JSON-style document.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">estnltk.estner.ner.Document</p>
+<blockquote class="last">
+<div><p>A ner document.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="estnltk.ner.json_token_to_estner_token">
+<tt class="descclassname">estnltk.ner.</tt><tt class="descname">json_token_to_estner_token</tt><big>(</big><em>json_token</em><big>)</big><a class="reference internal" href="../_modules/estnltk/ner.html#json_token_to_estner_token"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.ner.json_token_to_estner_token" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a JSON-style word token to an estner token.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>vabamorf_token: dict</strong></p>
+<blockquote>
+<div><p>Vabamorf token representing a single word.</p>
+</div></blockquote>
+<p><strong>label: str</strong></p>
+<blockquote>
+<div><p>The label string.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">estnltk.estner.ner.Token</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="match.html"
+                        title="previous chapter">estnltk.grammar.match module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="prettyprinter.html"
+                        title="next chapter">estnltk.prettyprinter.prettyprinter module</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/api/ner.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="prettyprinter.html" title="estnltk.prettyprinter.prettyprinter module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="match.html" title="estnltk.grammar.match module"
+             >previous</a> |</li>
+        <li><a href="../index.html">estnltk 1.3 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2015, University of Tartu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>

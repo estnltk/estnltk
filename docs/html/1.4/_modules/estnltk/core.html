@@ -1,0 +1,312 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>estnltk.core &mdash; estnltk 1.3 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '1.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="estnltk 1.3 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">estnltk 1.3 documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for estnltk.core</h1><div class="highlight"><pre>
+<span class="c"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;Core module of the Estnltk library, that sets up some common paths and has functions to convert between</span>
+<span class="sd">binary and unicode data.</span>
+
+<span class="sd">Python 2.x and Python 3.x versions are different in the way the handle unicode data.</span>
+
+<span class="sd">* Python 2 uses ``str`` for binary data and ``unicode`` for textual data.</span>
+<span class="sd">* Python 3 uses ``str`` for unicode data and ``bytes`` for binary data.</span>
+
+<span class="sd">As it is impossible to write code that is compatible with both Python versions due to using different types,</span>
+<span class="sd">we use :py:func:`~estnltk.core.as_unicode` and  :py:func:`~estnltk.core.as_binary` to abstact the conversion away.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">unicode_literals</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">absolute_import</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">six</span>
+
+
+<span class="c"># setup some paths</span>
+<span class="n">PACKAGE_PATH</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">__file__</span><span class="p">)</span>
+
+<span class="c"># corpora</span>
+<span class="n">CORPORA_PATH</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">PACKAGE_PATH</span><span class="p">,</span> <span class="s">&#39;corpora&#39;</span><span class="p">)</span>
+<span class="n">AA_PATH</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">CORPORA_PATH</span><span class="p">,</span> <span class="s">&#39;arvutustehnika_ja_andmetootlus&#39;</span><span class="p">)</span>
+<span class="n">DEFAULT_NER_DATASET</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">CORPORA_PATH</span><span class="p">,</span> <span class="s">&#39;estner.json&#39;</span><span class="p">)</span>
+
+<span class="c"># default NER model path</span>
+<span class="n">DEFAULT_PY2_NER_MODEL_DIR</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">PACKAGE_PATH</span><span class="p">,</span> <span class="s">&#39;estner&#39;</span><span class="p">,</span> <span class="s">&#39;models&#39;</span><span class="p">,</span> <span class="s">&#39;py2_default&#39;</span><span class="p">)</span>
+<span class="n">DEFAULT_PY3_NER_MODEL_DIR</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">PACKAGE_PATH</span><span class="p">,</span> <span class="s">&#39;estner&#39;</span><span class="p">,</span> <span class="s">&#39;models&#39;</span><span class="p">,</span> <span class="s">&#39;py3_default&#39;</span><span class="p">)</span>
+
+<span class="c"># verb chain detection resources</span>
+<span class="n">VERB_CHAIN_RES_PATH</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">PACKAGE_PATH</span><span class="p">,</span> <span class="s">&#39;mw_verbs&#39;</span><span class="p">,</span> <span class="s">&#39;res&#39;</span><span class="p">)</span>
+
+
+<span class="n">POSTAG_DESCRIPTIONS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&#39;A&#39;</span><span class="p">:</span> <span class="s">&#39;omadussõna algvõrre&#39;</span><span class="p">,</span>
+    <span class="s">&#39;C&#39;</span><span class="p">:</span> <span class="s">&#39;omadussõna keskvõrre&#39;</span><span class="p">,</span>
+    <span class="s">&#39;U&#39;</span><span class="p">:</span> <span class="s">&#39;omadussõna ülivõrre&#39;</span><span class="p">,</span>
+    <span class="s">&#39;D&#39;</span><span class="p">:</span> <span class="s">&#39;määrsõna&#39;</span><span class="p">,</span>
+    <span class="s">&#39;G&#39;</span><span class="p">:</span> <span class="s">&#39;käändumatu omadussõna&#39;</span><span class="p">,</span>
+    <span class="s">&#39;H&#39;</span><span class="p">:</span> <span class="s">&#39;pärisnimi&#39;</span><span class="p">,</span>
+    <span class="s">&#39;I&#39;</span><span class="p">:</span> <span class="s">&#39;hüüdsõna&#39;</span><span class="p">,</span>
+    <span class="s">&#39;J&#39;</span><span class="p">:</span> <span class="s">&#39;sidesõna&#39;</span><span class="p">,</span>
+    <span class="s">&#39;K&#39;</span><span class="p">:</span> <span class="s">&#39;kaassõna&#39;</span><span class="p">,</span>
+    <span class="s">&#39;N&#39;</span><span class="p">:</span> <span class="s">&#39;põhiarvsõna&#39;</span><span class="p">,</span>
+    <span class="s">&#39;O&#39;</span><span class="p">:</span> <span class="s">&#39;järgarvsõna&#39;</span><span class="p">,</span>
+    <span class="s">&#39;P&#39;</span><span class="p">:</span> <span class="s">&#39;asesõna&#39;</span><span class="p">,</span>
+    <span class="s">&#39;S&#39;</span><span class="p">:</span> <span class="s">&#39;nimisõna&#39;</span><span class="p">,</span>
+    <span class="s">&#39;V&#39;</span><span class="p">:</span> <span class="s">&#39;tegusõna&#39;</span><span class="p">,</span>
+    <span class="s">&#39;X&#39;</span><span class="p">:</span> <span class="s">&#39;verbi juurde kuuluv sõna&#39;</span><span class="p">,</span>
+    <span class="s">&#39;Y&#39;</span><span class="p">:</span> <span class="s">&#39;lühend&#39;</span><span class="p">,</span>
+    <span class="s">&#39;Z&#39;</span><span class="p">:</span> <span class="s">&#39;lausemärk&#39;</span>
+<span class="p">}</span>
+
+<span class="n">CASES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&#39;ab&#39;</span><span class="p">:</span> <span class="s">&#39;ilmaütlev (abessiiv)&#39;</span><span class="p">,</span>
+    <span class="s">&#39;abl&#39;</span><span class="p">:</span> <span class="s">&#39;alaltütlev (ablatiiv)&#39;</span><span class="p">,</span>
+    <span class="s">&#39;ad&#39;</span><span class="p">:</span> <span class="s">&#39;alalütlev (adessiiv)&#39;</span><span class="p">,</span>
+    <span class="s">&#39;adt&#39;</span><span class="p">:</span> <span class="s">&#39;lühike sisseütlev (aditiiv)&#39;</span><span class="p">,</span>
+    <span class="s">&#39;all&#39;</span><span class="p">:</span> <span class="s">&#39;alaleütlev (allatiiv)&#39;</span><span class="p">,</span>
+    <span class="s">&#39;el&#39;</span><span class="p">:</span> <span class="s">&#39;seestütlev (elatiiv)&#39;</span><span class="p">,</span>
+    <span class="s">&#39;es&#39;</span><span class="p">:</span> <span class="s">&#39;olev (essiiv)&#39;</span><span class="p">,</span>
+    <span class="s">&#39;g&#39;</span><span class="p">:</span> <span class="s">&#39;omastav (genitiiv)&#39;</span><span class="p">,</span>
+    <span class="s">&#39;ill&#39;</span><span class="p">:</span> <span class="s">&#39;sisseütlev (illatiiv)&#39;</span><span class="p">,</span>
+    <span class="s">&#39;in&#39;</span><span class="p">:</span> <span class="s">&#39;seesütlev (inessiiv)&#39;</span><span class="p">,</span>
+    <span class="s">&#39;kom&#39;</span><span class="p">:</span> <span class="s">&#39;kaasaütlev (komitatiiv)&#39;</span><span class="p">,</span>
+    <span class="s">&#39;n&#39;</span><span class="p">:</span> <span class="s">&#39;nimetav (nominatiiv)&#39;</span><span class="p">,</span>
+    <span class="s">&#39;p&#39;</span><span class="p">:</span> <span class="s">&#39;osastav (partitiiv)&#39;</span><span class="p">,</span>
+    <span class="s">&#39;tm&#39;</span><span class="p">:</span> <span class="s">&#39;rajav (terminatiiv)&#39;</span><span class="p">,</span>
+    <span class="s">&#39;tr&#39;</span><span class="p">:</span> <span class="s">&#39;saav (translatiiv)&#39;</span>
+<span class="p">}</span>
+
+<span class="n">PLURALITY</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&#39;sg&#39;</span><span class="p">:</span> <span class="s">&#39;ainsus&#39;</span><span class="p">,</span>
+    <span class="s">&#39;pl&#39;</span><span class="p">:</span> <span class="s">&#39;mitmus&#39;</span>
+<span class="p">}</span>
+
+<span class="n">VERB_TYPES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&#39;b&#39;</span><span class="p">:</span> <span class="s">&#39;kindel kõneviis olevik 3. isik ainsus aktiiv jaatav kõne&#39;</span><span class="p">,</span>
+    <span class="s">&#39;d&#39;</span><span class="p">:</span> <span class="s">&#39;kindel kõneviis olevik 2. isik ainsus aktiiv jaatav kõne&#39;</span><span class="p">,</span>
+    <span class="s">&#39;da&#39;</span><span class="p">:</span> <span class="s">&#39;infinitiiv jaatav kõne&#39;</span><span class="p">,</span>
+    <span class="s">&#39;des&#39;</span><span class="p">:</span> <span class="s">&#39;gerundium jaatav kõne&#39;</span><span class="p">,</span>
+    <span class="s">&#39;ge&#39;</span><span class="p">:</span> <span class="s">&#39;käskiv kõneviis olevik 2. isik mitmus aktiiv jaatav kõne&#39;</span><span class="p">,</span>
+    <span class="s">&#39;gem&#39;</span><span class="p">:</span> <span class="s">&#39;käskiv kõneviis olevik 1. isik mitmus aktiiv jaatav kõne&#39;</span><span class="p">,</span>
+    <span class="s">&#39;gu&#39;</span><span class="p">:</span> <span class="s">&#39;käskiv kõneviis olevik 3. isik aktiiv jaatav kõne&#39;</span><span class="p">,</span>
+    <span class="s">&#39;ks&#39;</span><span class="p">:</span> <span class="s">&#39;tingiv kõneviis olevik aktiiv jaatav kõne&#39;</span><span class="p">,</span>
+    <span class="s">&#39;ksid&#39;</span><span class="p">:</span> <span class="s">&#39;tingiv kõneviis olevik aktiiv jaatav kõne&#39;</span><span class="p">,</span>
+    <span class="s">&#39;ksime&#39;</span><span class="p">:</span> <span class="s">&#39;tingiv kõneviis olevik 1. isik mitmus aktiiv jaatav kõne&#39;</span><span class="p">,</span>
+    <span class="s">&#39;ksin&#39;</span><span class="p">:</span> <span class="s">&#39;ingiv kõneviis olevik 1. isik ainsus aktiiv jaatav kõne&#39;</span><span class="p">,</span>
+    <span class="s">&#39;ksite&#39;</span><span class="p">:</span> <span class="s">&#39;tingiv kõneviis olevik 2. isik mitmus aktiiv jaatav kõne&#39;</span><span class="p">,</span>
+    <span class="s">&#39;ma&#39;</span><span class="p">:</span> <span class="s">&#39;supiin aktiiv jaatav kõne sisseütlev&#39;</span><span class="p">,</span>
+    <span class="s">&#39;maks&#39;</span><span class="p">:</span> <span class="s">&#39;supiin aktiiv jaatav kõne saav&#39;</span><span class="p">,</span>
+    <span class="s">&#39;mas&#39;</span><span class="p">:</span> <span class="s">&#39;supiin aktiiv jaatav kõne seesütlev&#39;</span><span class="p">,</span>
+    <span class="s">&#39;mast&#39;</span><span class="p">:</span> <span class="s">&#39;supiin aktiiv jaatav kõne seestütlev&#39;</span><span class="p">,</span>
+    <span class="s">&#39;mata&#39;</span><span class="p">:</span> <span class="s">&#39;supiin aktiiv jaatav kõne ilmaütlev&#39;</span><span class="p">,</span>
+    <span class="s">&#39;me&#39;</span><span class="p">:</span> <span class="s">&#39;kindel kõneviis olevik 1. isik mitmus aktiiv jaatav kõne&#39;</span><span class="p">,</span>
+    <span class="s">&#39;n&#39;</span><span class="p">:</span> <span class="s">&#39;kindel kõneviis olevik 1. isik ainsus aktiiv jaatav kõne&#39;</span><span class="p">,</span>
+    <span class="s">&#39;neg&#39;</span><span class="p">:</span> <span class="s">&#39;eitav kõne&#39;</span><span class="p">,</span>
+    <span class="s">&#39;neg ge&#39;</span><span class="p">:</span> <span class="s">&#39;käskiv kõneviis olevik 2. isik mitmus aktiiv eitav kõne&#39;</span><span class="p">,</span>
+    <span class="s">&#39;neg gem&#39;</span><span class="p">:</span> <span class="s">&#39;käskiv kõneviis olevik 1. isik mitmus aktiiv eitav kõne&#39;</span><span class="p">,</span>
+    <span class="s">&#39;neg gu&#39;</span><span class="p">:</span> <span class="s">&#39;käskiv kõneviis olevik eitav kõne&#39;</span><span class="p">,</span>
+    <span class="s">&#39;neg ks&#39;</span><span class="p">:</span> <span class="s">&#39;tingiv kõneviis olevik aktiiv eitav kõne&#39;</span><span class="p">,</span>
+    <span class="s">&#39;neg me&#39;</span><span class="p">:</span> <span class="s">&#39;käskiv kõneviis olevik 1. isik mitmus aktiiv eitav kõne&#39;</span><span class="p">,</span>
+    <span class="s">&#39;neg nud&#39;</span><span class="p">:</span> <span class="s">&#39;kindel kõneviis lihtminevik aktiiv eitav kõne&#39;</span><span class="p">,</span>
+    <span class="s">&#39;neg nuks&#39;</span><span class="p">:</span> <span class="s">&#39;tingiv kõneviis minevik aktiiv eitav kõne&#39;</span><span class="p">,</span>
+    <span class="s">&#39;neg o&#39;</span><span class="p">:</span> <span class="s">&#39;käskiv kõneviis olevik aktiiv eitav kõne&#39;</span><span class="p">,</span>
+    <span class="s">&#39;neg vat&#39;</span><span class="p">:</span> <span class="s">&#39;kaudne kõneviis olevik aktiiv eitav kõne&#39;</span><span class="p">,</span>
+    <span class="s">&#39;neg tud&#39;</span><span class="p">:</span> <span class="s">&#39;kesksõna minevik passiiv eitav kõne&#39;</span><span class="p">,</span>
+    <span class="s">&#39;nud&#39;</span><span class="p">:</span> <span class="s">&#39;kesksõna minevik aktiiv jaatav kõne&#39;</span><span class="p">,</span>
+    <span class="s">&#39;nuks&#39;</span><span class="p">:</span> <span class="s">&#39;tingiv kõneviis minevik aktiiv jaatav kõne&#39;</span><span class="p">,</span>
+    <span class="s">&#39;nuksid&#39;</span><span class="p">:</span> <span class="s">&#39;tingiv kõneviis minevik aktiiv jaatav kõne&#39;</span><span class="p">,</span>
+    <span class="s">&#39;nuksime&#39;</span><span class="p">:</span> <span class="s">&#39;tingiv kõneviis minevik 1. isik mitmus aktiiv jaatav kõne&#39;</span><span class="p">,</span>
+    <span class="s">&#39;nuksin&#39;</span><span class="p">:</span> <span class="s">&#39;tingiv kõneviis minevik 1. isik ainsus aktiiv jaatav kõne&#39;</span><span class="p">,</span>
+    <span class="s">&#39;nuksite&#39;</span><span class="p">:</span> <span class="s">&#39;tingiv kõneviis minevik 2. isik mitmus aktiiv jaatav kõne&#39;</span><span class="p">,</span>
+    <span class="s">&#39;nuvat&#39;</span><span class="p">:</span> <span class="s">&#39;kaudne kõneviis minevik aktiiv jaatav kõne&#39;</span><span class="p">,</span>
+    <span class="s">&#39;o&#39;</span><span class="p">:</span> <span class="s">&#39;käskiv kõneviis olevik 2. isik ainsus aktiiv jaatav kõne&#39;</span><span class="p">,</span>
+    <span class="s">&#39;s&#39;</span><span class="p">:</span> <span class="s">&#39;kindel kõneviis lihtminevik 3. isik ainsus aktiiv jaatav kõne&#39;</span><span class="p">,</span>
+    <span class="s">&#39;sid&#39;</span><span class="p">:</span> <span class="s">&#39;kindel kõneviis lihtminevik aktiiv jaatav kõne&#39;</span><span class="p">,</span>
+    <span class="s">&#39;sime&#39;</span><span class="p">:</span> <span class="s">&#39;kindel kõneviis lihtminevik 1. isik mitmus aktiiv jaatav kõne&#39;</span><span class="p">,</span>
+    <span class="s">&#39;sin&#39;</span><span class="p">:</span> <span class="s">&#39;kindel kõneviis lihtminevik 1. isik ainsus aktiiv jaatav kõne&#39;</span><span class="p">,</span>
+    <span class="s">&#39;site&#39;</span><span class="p">:</span> <span class="s">&#39;kindel kõneviis lihtminevik 2. isik mitmus aktiiv jaatav kõne&#39;</span><span class="p">,</span>
+    <span class="s">&#39;ta&#39;</span><span class="p">:</span> <span class="s">&#39;kindel kõneviis olevik passiiv eitav kõne&#39;</span><span class="p">,</span>
+    <span class="s">&#39;tagu&#39;</span><span class="p">:</span> <span class="s">&#39;käskiv kõneviis olevik passiiv jaatav kõne&#39;</span><span class="p">,</span>
+    <span class="s">&#39;taks&#39;</span><span class="p">:</span> <span class="s">&#39;tingiv kõneviis olevik passiiv jaatav kõne&#39;</span><span class="p">,</span>
+    <span class="s">&#39;takse&#39;</span><span class="p">:</span> <span class="s">&#39;kindel kõneviis olevik passiiv jaatav kõne&#39;</span><span class="p">,</span>
+    <span class="s">&#39;tama&#39;</span><span class="p">:</span> <span class="s">&#39;supiin passiiv jaatav kõne&#39;</span><span class="p">,</span>
+    <span class="s">&#39;tav&#39;</span><span class="p">:</span> <span class="s">&#39;kesksõna olevik passiiv jaatav kõne&#39;</span><span class="p">,</span>
+    <span class="s">&#39;tavat&#39;</span><span class="p">:</span> <span class="s">&#39;kaudne kõneviis olevik passiiv jaatav kõne&#39;</span><span class="p">,</span>
+    <span class="s">&#39;te&#39;</span><span class="p">:</span> <span class="s">&#39;kindel kõneviis olevik 2. isik mitmus aktiiv jaatav kõne&#39;</span><span class="p">,</span>
+    <span class="s">&#39;ti&#39;</span><span class="p">:</span> <span class="s">&#39;kindel kõneviis lihtminevik passiiv jaatav kõne&#39;</span><span class="p">,</span>
+    <span class="s">&#39;tud&#39;</span><span class="p">:</span> <span class="s">&#39;kesksõna minevik passiiv jaatav kõne&#39;</span><span class="p">,</span>
+    <span class="s">&#39;tuks&#39;</span><span class="p">:</span> <span class="s">&#39;tingiv kõneviis minevik passiiv jaatav kõne&#39;</span><span class="p">,</span>
+    <span class="s">&#39;tuvat&#39;</span><span class="p">:</span> <span class="s">&#39;kaudne kõneviis minevik passiiv jaatav kõne&#39;</span><span class="p">,</span>
+    <span class="s">&#39;v&#39;</span><span class="p">:</span> <span class="s">&#39;kesksõna olevik aktiiv jaatav kõne&#39;</span><span class="p">,</span>
+    <span class="s">&#39;vad&#39;</span><span class="p">:</span> <span class="s">&#39;kindel kõneviis olevik 3. isik mitmus aktiiv jaatav kõne&#39;</span><span class="p">,</span>
+    <span class="s">&#39;vat&#39;</span><span class="p">:</span> <span class="s">&#39;kaudne kõneviis olevik aktiiv jaatav kõne&#39;</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="as_unicode"><a class="viewcode-back" href="../../api/core.html#estnltk.core.as_unicode">[docs]</a><span class="k">def</span> <span class="nf">as_unicode</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s">&#39;utf-8&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Force conversion of given string to unicode type.</span>
+<span class="sd">    Unicode is ``str`` type for Python 3.x and ``unicode`` for Python 2.x .</span>
+
+<span class="sd">    If the string is already in unicode, then no conversion is done and the same string is returned.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    s: str or bytes (Python3), str or unicode (Python2)</span>
+<span class="sd">        The string to convert to unicode.</span>
+<span class="sd">    encoding: str</span>
+<span class="sd">        The encoding of the input string (default: utf-8)</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        In case an input of invalid type was passed to the function.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ``str`` for Python3 or ``unicode`` for Python 2.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">text_type</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">s</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">binary_type</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">s</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">encoding</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;Can only convert types {0} and {1}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">six</span><span class="o">.</span><span class="n">text_type</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">binary_type</span><span class="p">))</span>
+
+</div>
+<div class="viewcode-block" id="as_binary"><a class="viewcode-back" href="../../api/core.html#estnltk.core.as_binary">[docs]</a><span class="k">def</span> <span class="nf">as_binary</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s">&#39;utf-8&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Force conversion of given string to binary type.</span>
+<span class="sd">    Binary is ``bytes`` type for Python 3.x and ``str`` for Python 2.x .</span>
+
+<span class="sd">    If the string is already in binary, then no conversion is done and the same string is returned</span>
+<span class="sd">    and ``encoding`` argument is ignored.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    s: str or bytes (Python3), str or unicode (Python2)</span>
+<span class="sd">        The string to convert to binary.</span>
+<span class="sd">    encoding: str</span>
+<span class="sd">        The encoding of the resulting binary string (default: utf-8)</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        In case an input of invalid type was passed to the function.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ``bytes`` for Python3 or ``str`` for Python 2.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">text_type</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">s</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">encoding</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">binary_type</span><span class="p">):</span>
+        <span class="c"># make sure the binary is in required encoding</span>
+        <span class="k">return</span> <span class="n">s</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">encoding</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">encoding</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;Can only convert types {0} and {1}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">six</span><span class="o">.</span><span class="n">text_type</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">binary_type</span><span class="p">))</span>
+
+</div>
+<span class="k">def</span> <span class="nf">get_filenames</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s">u&#39;&#39;</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s">u&#39;&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Function for listing filenames with given prefix and suffix in the root directory.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    </span>
+<span class="sd">    prefix: str</span>
+<span class="sd">        The prefix of the required files.</span>
+<span class="sd">    suffix: str</span>
+<span class="sd">        The suffix of the required files</span>
+<span class="sd">        </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list of str</span>
+<span class="sd">        List of filenames matching the prefix and suffix criteria.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">fnm</span> <span class="k">for</span> <span class="n">fnm</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">root</span><span class="p">)</span> <span class="k">if</span> <span class="n">fnm</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span> <span class="ow">and</span> <span class="n">fnm</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">suffix</span><span class="p">)]</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">estnltk 1.3 documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2015, University of Tartu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>

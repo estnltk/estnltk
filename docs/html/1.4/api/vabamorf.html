@@ -1,0 +1,964 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>estnltk.vabamorf.morf module &mdash; estnltk 1.3 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="estnltk 1.3 documentation" href="../index.html" />
+    <link rel="next" title="estnltk.wordnet_tagger module" href="wordnet_tagger.html" />
+    <link rel="prev" title="estnltk.timex module" href="timex.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="wordnet_tagger.html" title="estnltk.wordnet_tagger module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="timex.html" title="estnltk.timex module"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">estnltk 1.3 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-estnltk.vabamorf.morf">
+<span id="estnltk-vabamorf-morf-module"></span><h1>estnltk.vabamorf.morf module<a class="headerlink" href="#module-estnltk.vabamorf.morf" title="Permalink to this headline">¶</a></h1>
+<p>Morphoanalysis/synthesis functionality of estnltk vabamorf package.</p>
+<div class="section" id="attributes">
+<h2>Attributes<a class="headerlink" href="#attributes" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt>PACKAGE_PATH: str</dt>
+<dd>The path where the vabamorf package is located.</dd>
+<dt>DICT_PATH: str</dt>
+<dd>The path of the default vabamorf dictionary embedded with vabamorf.</dd>
+<dt>DEFAULT_ET_PATH: str</dt>
+<dd>The path to the default morphoanalyzer lexicon that comes with the vabamorf library.</dd>
+<dt>DEFAULT_ET3_PATH: str</dt>
+<dd>The path to the default disambiguator lexicon that comes with the vabamorf library.</dd>
+<dt>phonetic_markers: str</dt>
+<dd>List of characters that make up phonetic markup.</dd>
+<dt>compound_markers: str</dt>
+<dd>List of characters that make up compound markup.</dd>
+<dt>phonetic_regex: regex</dt>
+<dd>Regular expression matching any phonetic marker.</dd>
+<dt>compound_regex: regex</dt>
+<dd>Regular expression matching any compound marker.</dd>
+</dl>
+<dl class="class">
+<dt id="estnltk.vabamorf.morf.Vabamorf">
+<em class="property">class </em><tt class="descclassname">estnltk.vabamorf.morf.</tt><tt class="descname">Vabamorf</tt><big>(</big><em>lex_path='C:\Users\distorti\Anaconda\envs\py34\lib\site-packages\estnltk\vabamorf\dct\et.dct'</em>, <em>disamb_lex_path='C:\Users\distorti\Anaconda\envs\py34\lib\site-packages\estnltk\vabamorf\dct\et3.dct'</em><big>)</big><a class="reference internal" href="../_modules/estnltk/vabamorf/morf.html#Vabamorf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.vabamorf.morf.Vabamorf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class for performing main tasks of morphological analysis.</p>
+<p class="rubric">Attributes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="7%" />
+<col width="93%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>pid: int</td>
+<td>Current process id.</td>
+</tr>
+<tr class="row-even"><td>morf: Vabamorf</td>
+<td>instance of the Vabamorf class. There should be only one instance per process as vabamorf has a global state that might get corrputed by using multiple instances in a single process.</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="estnltk.vabamorf.morf.Vabamorf.__init__">
+<tt class="descname">__init__</tt><big>(</big><em>lex_path='C:\\Users\\distorti\\Anaconda\\envs\\py34\\lib\\site-packages\\estnltk\\vabamorf\\dct\\et.dct'</em>, <em>disamb_lex_path='C:\\Users\\distorti\\Anaconda\\envs\\py34\\lib\\site-packages\\estnltk\\vabamorf\\dct\\et3.dct'</em><big>)</big><a class="reference internal" href="../_modules/estnltk/vabamorf/morf.html#Vabamorf.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.vabamorf.morf.Vabamorf.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize Vabamorf class.</p>
+<p>NB! Do not use this class directly. Instead use Vabamorf.instance() to obtain access to one.
+Use this only when you want to define custom paths to dictionaries.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>lex_path: str</strong></p>
+<blockquote>
+<div><p>The path to morphoanalyzer lexicon (default path points to the default dictionary).</p>
+</div></blockquote>
+<p><strong>ambig_lex_path: str</strong></p>
+<blockquote class="last">
+<div><p>The path to disambiguator lexicon (default path points to the default dictionary).</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.vabamorf.morf.Vabamorf.analyze">
+<tt class="descname">analyze</tt><big>(</big><em>words</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/estnltk/vabamorf/morf.html#Vabamorf.analyze"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.vabamorf.morf.Vabamorf.analyze" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform morphological analysis and disambiguation of given text.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>words: list of str or str</strong></p>
+<blockquote>
+<div><p>Either a list of pretokenized words or a string. In case of a string, it will be splitted using
+default behaviour of string.split() function.</p>
+</div></blockquote>
+<p><strong>disambiguate: boolean (default: True)</strong></p>
+<blockquote>
+<div><p>Disambiguate the output and remove incosistent analysis.</p>
+</div></blockquote>
+<p><strong>guess: boolean (default: True)</strong></p>
+<blockquote>
+<div><p>Use guessing in case of unknown words</p>
+</div></blockquote>
+<p><strong>propername: boolean (default: True)</strong></p>
+<blockquote>
+<div><p>Perform additional analysis of proper names.</p>
+</div></blockquote>
+<p><strong>compound: boolean (default: True)</strong></p>
+<blockquote>
+<div><p>Add compound word markers to root forms.</p>
+</div></blockquote>
+<p><strong>phonetic: boolean (default: False)</strong></p>
+<blockquote>
+<div><p>Add phonetic information to root forms.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list of (list of dict)</p>
+<blockquote class="last">
+<div><p>List of analysis for each word in input.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.vabamorf.morf.Vabamorf.disambiguate">
+<tt class="descname">disambiguate</tt><big>(</big><em>words</em><big>)</big><a class="reference internal" href="../_modules/estnltk/vabamorf/morf.html#Vabamorf.disambiguate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.vabamorf.morf.Vabamorf.disambiguate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Disambiguate previously analyzed words.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>words: list of dict</strong></p>
+<blockquote>
+<div><p>A sentence of words.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list of dict</p>
+<blockquote class="last">
+<div><p>Sentence of disambiguated words.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.vabamorf.morf.Vabamorf.fix_spelling">
+<tt class="descname">fix_spelling</tt><big>(</big><em>words</em>, <em>join=True</em>, <em>joinstring=' '</em><big>)</big><a class="reference internal" href="../_modules/estnltk/vabamorf/morf.html#Vabamorf.fix_spelling"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.vabamorf.morf.Vabamorf.fix_spelling" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simple function for quickly correcting misspelled words.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>words: list of str or str</strong></p>
+<blockquote>
+<div><p>Either a list of pretokenized words or a string. In case of a string, it will be splitted using
+default behaviour of string.split() function.</p>
+</div></blockquote>
+<p><strong>join: boolean (default: True)</strong></p>
+<blockquote>
+<div><p>Should we join the list of words into a single string.</p>
+</div></blockquote>
+<p><strong>joinstring: str (default: &#8216; &#8216;)</strong></p>
+<blockquote>
+<div><p>The string that will be used to join together the fixed words.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">str</p>
+<blockquote>
+<div><p>In case join is True</p>
+</div></blockquote>
+<p>list of str</p>
+<blockquote class="last">
+<div><p>In case join is False.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="estnltk.vabamorf.morf.Vabamorf.instance">
+<em class="property">static </em><tt class="descname">instance</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/estnltk/vabamorf/morf.html#Vabamorf.instance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.vabamorf.morf.Vabamorf.instance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return an PyVabamorf instance.</p>
+<p>It returns the previously initialized instance or creates a new
+one if nothing exists. Also creates new instance in case the
+process has been forked.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.vabamorf.morf.Vabamorf.spellcheck">
+<tt class="descname">spellcheck</tt><big>(</big><em>words</em>, <em>suggestions=True</em><big>)</big><a class="reference internal" href="../_modules/estnltk/vabamorf/morf.html#Vabamorf.spellcheck"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.vabamorf.morf.Vabamorf.spellcheck" title="Permalink to this definition">¶</a></dt>
+<dd><p>Spellcheck given sentence.</p>
+<p>Note that spellchecker does not respect pre-tokenized words and concatenates
+token sequences such as &#8220;New York&#8221;.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>words: list of str or str</strong></p>
+<blockquote>
+<div><p>Either a list of pretokenized words or a string. In case of a string, it will be splitted using
+default behaviour of string.split() function.</p>
+</div></blockquote>
+<p><strong>suggestions: boolean (default: True)</strong></p>
+<blockquote>
+<div><p>Add spell suggestions to result.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list of dict</p>
+<blockquote class="last">
+<div><dl class="docutils">
+<dt>Each dictionary contains following values:</dt>
+<dd><p class="first last">&#8216;word&#8217;: the original word
+&#8216;spelling&#8217;: True, if the word was spelled correctly
+&#8216;suggestions&#8217;: list of suggested strings in case of incorrect spelling</p>
+</dd>
+</dl>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.vabamorf.morf.Vabamorf.synthesize">
+<tt class="descname">synthesize</tt><big>(</big><em>lemma</em>, <em>form</em>, <em>partofspeech=''</em>, <em>hint=''</em>, <em>guess=True</em>, <em>phonetic=False</em><big>)</big><a class="reference internal" href="../_modules/estnltk/vabamorf/morf.html#Vabamorf.synthesize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.vabamorf.morf.Vabamorf.synthesize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Synthesize a single word based on given morphological attributes.</p>
+<p>Note that spellchecker does not respect pre-tokenized words and concatenates
+token sequences such as &#8220;New York&#8221;.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>lemma: str</strong></p>
+<blockquote>
+<div><p>The lemma of the word(s) to be synthesized.</p>
+</div></blockquote>
+<p><strong>form: str</strong></p>
+<blockquote>
+<div><p>The form of the word(s) to be synthesized.</p>
+</div></blockquote>
+<p><strong>partofspeech: str</strong></p>
+<blockquote>
+<div><p>Part-of-speech.</p>
+</div></blockquote>
+<p><strong>hint: str</strong></p>
+<blockquote>
+<div><p>Hint.</p>
+</div></blockquote>
+<p><strong>guess: boolean (default: True)</strong></p>
+<blockquote>
+<div><p>Use heuristics when synthesizing unknown words.</p>
+</div></blockquote>
+<p><strong>phonetic: boolean (default: False)</strong></p>
+<blockquote>
+<div><p>Add phonetic markup to synthesized words.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list</p>
+<blockquote class="last">
+<div><p>List of synthesized words.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="estnltk.vabamorf.morf.analyze">
+<tt class="descclassname">estnltk.vabamorf.morf.</tt><tt class="descname">analyze</tt><big>(</big><em>words</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/estnltk/vabamorf/morf.html#analyze"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.vabamorf.morf.analyze" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform morphological analysis and disambiguation of given text.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>words: list of str or str</strong></p>
+<blockquote>
+<div><p>Either a list of pretokenized words or a string. In case of a string, it will be splitted using
+default behaviour of string.split() function.</p>
+</div></blockquote>
+<p><strong>disambiguate: boolean (default: True)</strong></p>
+<blockquote>
+<div><p>Disambiguate the output and remove incosistent analysis.</p>
+</div></blockquote>
+<p><strong>guess: boolean (default: True)</strong></p>
+<blockquote>
+<div><p>Use guessing in case of unknown words</p>
+</div></blockquote>
+<p><strong>propername: boolean (default: True)</strong></p>
+<blockquote>
+<div><p>Perform additional analysis of proper names.</p>
+</div></blockquote>
+<p><strong>compound: boolean (default: True)</strong></p>
+<blockquote>
+<div><p>Add compound word markers to root forms.</p>
+</div></blockquote>
+<p><strong>phonetic: boolean (default: False)</strong></p>
+<blockquote>
+<div><p>Add phonetic information to root forms.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list of (list of dict)</p>
+<blockquote class="last">
+<div><p>List of analysis for each word in input.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="estnltk.vabamorf.morf.convert">
+<tt class="descclassname">estnltk.vabamorf.morf.</tt><tt class="descname">convert</tt><big>(</big><em>word</em><big>)</big><a class="reference internal" href="../_modules/estnltk/vabamorf/morf.html#convert"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.vabamorf.morf.convert" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method converts given <cite>word</cite> to UTF-8 encoding and <cite>bytes</cite> type for the
+SWIG wrapper.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="estnltk.vabamorf.morf.deconvert">
+<tt class="descclassname">estnltk.vabamorf.morf.</tt><tt class="descname">deconvert</tt><big>(</big><em>word</em><big>)</big><a class="reference internal" href="../_modules/estnltk/vabamorf/morf.html#deconvert"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.vabamorf.morf.deconvert" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method converts back the output from wrapper.
+Result should be <cite>unicode</cite> for Python2 and <cite>str</cite> for Python3</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="estnltk.vabamorf.morf.disambiguate">
+<tt class="descclassname">estnltk.vabamorf.morf.</tt><tt class="descname">disambiguate</tt><big>(</big><em>words</em><big>)</big><a class="reference internal" href="../_modules/estnltk/vabamorf/morf.html#disambiguate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.vabamorf.morf.disambiguate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Disambiguate previously analyzed words.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>words: list of dict</strong></p>
+<blockquote>
+<div><p>A sentence of words.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list of dict</p>
+<blockquote class="last">
+<div><p>Sentence of disambiguated words.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="estnltk.vabamorf.morf.fix_spelling">
+<tt class="descclassname">estnltk.vabamorf.morf.</tt><tt class="descname">fix_spelling</tt><big>(</big><em>words</em>, <em>join=True</em>, <em>joinstring=' '</em><big>)</big><a class="reference internal" href="../_modules/estnltk/vabamorf/morf.html#fix_spelling"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.vabamorf.morf.fix_spelling" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simple function for quickly correcting misspelled words.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>words: list of str or str</strong></p>
+<blockquote>
+<div><p>Either a list of pretokenized words or a string. In case of a string, it will be splitted using
+default behaviour of string.split() function.</p>
+</div></blockquote>
+<p><strong>join: boolean (default: True)</strong></p>
+<blockquote>
+<div><p>Should we join the list of words into a single string.</p>
+</div></blockquote>
+<p><strong>joinstring: str (default: &#8216; &#8216;)</strong></p>
+<blockquote>
+<div><p>The string that will be used to join together the fixed words.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">str</p>
+<blockquote>
+<div><p>In case join is True</p>
+</div></blockquote>
+<p>list of str</p>
+<blockquote class="last">
+<div><p>In case join is False.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="estnltk.vabamorf.morf.get_group_tokens">
+<tt class="descclassname">estnltk.vabamorf.morf.</tt><tt class="descname">get_group_tokens</tt><big>(</big><em>root</em><big>)</big><a class="reference internal" href="../_modules/estnltk/vabamorf/morf.html#get_group_tokens"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.vabamorf.morf.get_group_tokens" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to extract tokens in hyphenated groups (saunameheks-tallimeheks).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>root: str</strong></p>
+<blockquote>
+<div><p>The root form.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list of (list of str)</p>
+<blockquote class="last">
+<div><p>List of grouped root tokens.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="estnltk.vabamorf.morf.get_root">
+<tt class="descclassname">estnltk.vabamorf.morf.</tt><tt class="descname">get_root</tt><big>(</big><em>root</em>, <em>phonetic</em>, <em>compound</em><big>)</big><a class="reference internal" href="../_modules/estnltk/vabamorf/morf.html#get_root"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.vabamorf.morf.get_root" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the root form without markers.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>root: str</strong></p>
+<blockquote>
+<div><p>The word root form.</p>
+</div></blockquote>
+<p><strong>phonetic: boolean</strong></p>
+<blockquote>
+<div><p>If True, add phonetic information to the root forms.</p>
+</div></blockquote>
+<p><strong>compound: boolean</strong></p>
+<blockquote class="last">
+<div><p>if True, add compound word markers to root forms.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="estnltk.vabamorf.morf.postprocess_result">
+<tt class="descclassname">estnltk.vabamorf.morf.</tt><tt class="descname">postprocess_result</tt><big>(</big><em>morphresult</em>, <em>trim_phonetic</em>, <em>trim_compound</em><big>)</big><a class="reference internal" href="../_modules/estnltk/vabamorf/morf.html#postprocess_result"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.vabamorf.morf.postprocess_result" title="Permalink to this definition">¶</a></dt>
+<dd><p>Postprocess vabamorf wrapper output.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="estnltk.vabamorf.morf.regex_from_markers">
+<tt class="descclassname">estnltk.vabamorf.morf.</tt><tt class="descname">regex_from_markers</tt><big>(</big><em>markers</em><big>)</big><a class="reference internal" href="../_modules/estnltk/vabamorf/morf.html#regex_from_markers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.vabamorf.morf.regex_from_markers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a string of characters, construct a regex that matches them.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>markers: str</strong></p>
+<blockquote>
+<div><p>The list of string containing the markers</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">regex</p>
+<blockquote class="last">
+<div><p>The regular expression matching the given markers.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="estnltk.vabamorf.morf.spellcheck">
+<tt class="descclassname">estnltk.vabamorf.morf.</tt><tt class="descname">spellcheck</tt><big>(</big><em>words</em>, <em>suggestions=True</em><big>)</big><a class="reference internal" href="../_modules/estnltk/vabamorf/morf.html#spellcheck"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.vabamorf.morf.spellcheck" title="Permalink to this definition">¶</a></dt>
+<dd><p>Spellcheck given sentence.</p>
+<p>Note that spellchecker does not respect pre-tokenized words and concatenates
+token sequences such as &#8220;New York&#8221;.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>words: list of str or str</strong></p>
+<blockquote>
+<div><p>Either a list of pretokenized words or a string. In case of a string, it will be splitted using
+default behaviour of string.split() function.</p>
+</div></blockquote>
+<p><strong>suggestions: boolean (default: True)</strong></p>
+<blockquote>
+<div><p>Add spell suggestions to result.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list of dict</p>
+<blockquote class="last">
+<div><dl class="docutils">
+<dt>Each dictionary contains following values:</dt>
+<dd><p class="first last">&#8216;word&#8217;: the original word
+&#8216;spelling&#8217;: True, if the word was spelled correctly
+&#8216;suggestions&#8217;: list of suggested strings in case of incorrect spelling</p>
+</dd>
+</dl>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="estnltk.vabamorf.morf.synthesize">
+<tt class="descclassname">estnltk.vabamorf.morf.</tt><tt class="descname">synthesize</tt><big>(</big><em>lemma</em>, <em>form</em>, <em>partofspeech=''</em>, <em>hint=''</em>, <em>guess=True</em>, <em>phonetic=False</em><big>)</big><a class="reference internal" href="../_modules/estnltk/vabamorf/morf.html#synthesize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.vabamorf.morf.synthesize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Synthesize a single word based on given morphological attributes.</p>
+<p>Note that spellchecker does not respect pre-tokenized words and concatenates
+token sequences such as &#8220;New York&#8221;.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>lemma: str</strong></p>
+<blockquote>
+<div><p>The lemma of the word(s) to be synthesized.</p>
+</div></blockquote>
+<p><strong>form: str</strong></p>
+<blockquote>
+<div><p>The form of the word(s) to be synthesized.</p>
+</div></blockquote>
+<p><strong>partofspeech: str</strong></p>
+<blockquote>
+<div><p>Part-of-speech.</p>
+</div></blockquote>
+<p><strong>hint: str</strong></p>
+<blockquote>
+<div><p>Hint.</p>
+</div></blockquote>
+<p><strong>guess: boolean (default: True)</strong></p>
+<blockquote>
+<div><p>Use heuristics when synthesizing unknown words.</p>
+</div></blockquote>
+<p><strong>phonetic: boolean (default: False)</strong></p>
+<blockquote>
+<div><p>Add phonetic markup to synthesized words.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list</p>
+<blockquote class="last">
+<div><p>List of synthesized words.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="estnltk.vabamorf.morf.trim_compounds">
+<tt class="descclassname">estnltk.vabamorf.morf.</tt><tt class="descname">trim_compounds</tt><big>(</big><em>root</em><big>)</big><a class="reference internal" href="../_modules/estnltk/vabamorf/morf.html#trim_compounds"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.vabamorf.morf.trim_compounds" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function that trims compound markup from the root.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>root: str</strong></p>
+<blockquote>
+<div><p>The string to remove the compound markup.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">str</p>
+<blockquote class="last">
+<div><p>The string with compound markup removed.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="estnltk.vabamorf.morf.trim_phonetics">
+<tt class="descclassname">estnltk.vabamorf.morf.</tt><tt class="descname">trim_phonetics</tt><big>(</big><em>root</em><big>)</big><a class="reference internal" href="../_modules/estnltk/vabamorf/morf.html#trim_phonetics"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.vabamorf.morf.trim_phonetics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function that trims phonetic markup from the root.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>root: str</strong></p>
+<blockquote>
+<div><p>The string to remove the phonetic markup.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">str</p>
+<blockquote class="last">
+<div><p>The string with phonetic markup removed.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<dl class="class">
+<dt>
+<em class="property">class </em><tt class="descclassname">estnltk.vabamorf.morf.</tt><tt class="descname">Vabamorf</tt><big>(</big><em>lex_path='C:\Users\distorti\Anaconda\envs\py34\lib\site-packages\estnltk\vabamorf\dct\et.dct'</em>, <em>disamb_lex_path='C:\Users\distorti\Anaconda\envs\py34\lib\site-packages\estnltk\vabamorf\dct\et3.dct'</em><big>)</big><a class="reference internal" href="../_modules/estnltk/vabamorf/morf.html#Vabamorf"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Class for performing main tasks of morphological analysis.</p>
+<p class="rubric">Attributes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="7%" />
+<col width="93%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>pid: int</td>
+<td>Current process id.</td>
+</tr>
+<tr class="row-even"><td>morf: Vabamorf</td>
+<td>instance of the Vabamorf class. There should be only one instance per process as vabamorf has a global state that might get corrputed by using multiple instances in a single process.</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt>
+<tt class="descname">__init__</tt><big>(</big><em>lex_path='C:\\Users\\distorti\\Anaconda\\envs\\py34\\lib\\site-packages\\estnltk\\vabamorf\\dct\\et.dct'</em>, <em>disamb_lex_path='C:\\Users\\distorti\\Anaconda\\envs\\py34\\lib\\site-packages\\estnltk\\vabamorf\\dct\\et3.dct'</em><big>)</big><a class="reference internal" href="../_modules/estnltk/vabamorf/morf.html#Vabamorf.__init__"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Initialize Vabamorf class.</p>
+<p>NB! Do not use this class directly. Instead use Vabamorf.instance() to obtain access to one.
+Use this only when you want to define custom paths to dictionaries.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>lex_path: str</strong></p>
+<blockquote>
+<div><p>The path to morphoanalyzer lexicon (default path points to the default dictionary).</p>
+</div></blockquote>
+<p><strong>ambig_lex_path: str</strong></p>
+<blockquote class="last">
+<div><p>The path to disambiguator lexicon (default path points to the default dictionary).</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<tt class="descname">analyze</tt><big>(</big><em>words</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/estnltk/vabamorf/morf.html#Vabamorf.analyze"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Perform morphological analysis and disambiguation of given text.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>words: list of str or str</strong></p>
+<blockquote>
+<div><p>Either a list of pretokenized words or a string. In case of a string, it will be splitted using
+default behaviour of string.split() function.</p>
+</div></blockquote>
+<p><strong>disambiguate: boolean (default: True)</strong></p>
+<blockquote>
+<div><p>Disambiguate the output and remove incosistent analysis.</p>
+</div></blockquote>
+<p><strong>guess: boolean (default: True)</strong></p>
+<blockquote>
+<div><p>Use guessing in case of unknown words</p>
+</div></blockquote>
+<p><strong>propername: boolean (default: True)</strong></p>
+<blockquote>
+<div><p>Perform additional analysis of proper names.</p>
+</div></blockquote>
+<p><strong>compound: boolean (default: True)</strong></p>
+<blockquote>
+<div><p>Add compound word markers to root forms.</p>
+</div></blockquote>
+<p><strong>phonetic: boolean (default: False)</strong></p>
+<blockquote>
+<div><p>Add phonetic information to root forms.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list of (list of dict)</p>
+<blockquote class="last">
+<div><p>List of analysis for each word in input.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<tt class="descname">disambiguate</tt><big>(</big><em>words</em><big>)</big><a class="reference internal" href="../_modules/estnltk/vabamorf/morf.html#Vabamorf.disambiguate"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Disambiguate previously analyzed words.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>words: list of dict</strong></p>
+<blockquote>
+<div><p>A sentence of words.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list of dict</p>
+<blockquote class="last">
+<div><p>Sentence of disambiguated words.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<tt class="descname">fix_spelling</tt><big>(</big><em>words</em>, <em>join=True</em>, <em>joinstring=' '</em><big>)</big><a class="reference internal" href="../_modules/estnltk/vabamorf/morf.html#Vabamorf.fix_spelling"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Simple function for quickly correcting misspelled words.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>words: list of str or str</strong></p>
+<blockquote>
+<div><p>Either a list of pretokenized words or a string. In case of a string, it will be splitted using
+default behaviour of string.split() function.</p>
+</div></blockquote>
+<p><strong>join: boolean (default: True)</strong></p>
+<blockquote>
+<div><p>Should we join the list of words into a single string.</p>
+</div></blockquote>
+<p><strong>joinstring: str (default: &#8216; &#8216;)</strong></p>
+<blockquote>
+<div><p>The string that will be used to join together the fixed words.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">str</p>
+<blockquote>
+<div><p>In case join is True</p>
+</div></blockquote>
+<p>list of str</p>
+<blockquote class="last">
+<div><p>In case join is False.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt>
+<em class="property">static </em><tt class="descname">instance</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/estnltk/vabamorf/morf.html#Vabamorf.instance"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Return an PyVabamorf instance.</p>
+<p>It returns the previously initialized instance or creates a new
+one if nothing exists. Also creates new instance in case the
+process has been forked.</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<tt class="descname">spellcheck</tt><big>(</big><em>words</em>, <em>suggestions=True</em><big>)</big><a class="reference internal" href="../_modules/estnltk/vabamorf/morf.html#Vabamorf.spellcheck"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Spellcheck given sentence.</p>
+<p>Note that spellchecker does not respect pre-tokenized words and concatenates
+token sequences such as &#8220;New York&#8221;.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>words: list of str or str</strong></p>
+<blockquote>
+<div><p>Either a list of pretokenized words or a string. In case of a string, it will be splitted using
+default behaviour of string.split() function.</p>
+</div></blockquote>
+<p><strong>suggestions: boolean (default: True)</strong></p>
+<blockquote>
+<div><p>Add spell suggestions to result.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list of dict</p>
+<blockquote class="last">
+<div><dl class="docutils">
+<dt>Each dictionary contains following values:</dt>
+<dd><p class="first last">&#8216;word&#8217;: the original word
+&#8216;spelling&#8217;: True, if the word was spelled correctly
+&#8216;suggestions&#8217;: list of suggested strings in case of incorrect spelling</p>
+</dd>
+</dl>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<tt class="descname">synthesize</tt><big>(</big><em>lemma</em>, <em>form</em>, <em>partofspeech=''</em>, <em>hint=''</em>, <em>guess=True</em>, <em>phonetic=False</em><big>)</big><a class="reference internal" href="../_modules/estnltk/vabamorf/morf.html#Vabamorf.synthesize"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Synthesize a single word based on given morphological attributes.</p>
+<p>Note that spellchecker does not respect pre-tokenized words and concatenates
+token sequences such as &#8220;New York&#8221;.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>lemma: str</strong></p>
+<blockquote>
+<div><p>The lemma of the word(s) to be synthesized.</p>
+</div></blockquote>
+<p><strong>form: str</strong></p>
+<blockquote>
+<div><p>The form of the word(s) to be synthesized.</p>
+</div></blockquote>
+<p><strong>partofspeech: str</strong></p>
+<blockquote>
+<div><p>Part-of-speech.</p>
+</div></blockquote>
+<p><strong>hint: str</strong></p>
+<blockquote>
+<div><p>Hint.</p>
+</div></blockquote>
+<p><strong>guess: boolean (default: True)</strong></p>
+<blockquote>
+<div><p>Use heuristics when synthesizing unknown words.</p>
+</div></blockquote>
+<p><strong>phonetic: boolean (default: False)</strong></p>
+<blockquote>
+<div><p>Add phonetic markup to synthesized words.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list</p>
+<blockquote class="last">
+<div><p>List of synthesized words.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">estnltk.vabamorf.morf module</a><ul>
+<li><a class="reference internal" href="#attributes">Attributes</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="timex.html"
+                        title="previous chapter">estnltk.timex module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="wordnet_tagger.html"
+                        title="next chapter">estnltk.wordnet_tagger module</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/api/vabamorf.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="wordnet_tagger.html" title="estnltk.wordnet_tagger module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="timex.html" title="estnltk.timex module"
+             >previous</a> |</li>
+        <li><a href="../index.html">estnltk 1.3 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2015, University of Tartu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>

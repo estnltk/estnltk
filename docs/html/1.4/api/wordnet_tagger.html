@@ -1,0 +1,181 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>estnltk.wordnet_tagger module &mdash; estnltk 1.3 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="estnltk 1.3 documentation" href="../index.html" />
+    <link rel="next" title="estnltk.wordnet.wn module" href="wn.html" />
+    <link rel="prev" title="estnltk.vabamorf.morf module" href="vabamorf.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="wn.html" title="estnltk.wordnet.wn module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="vabamorf.html" title="estnltk.vabamorf.morf module"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">estnltk 1.3 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-estnltk.wordnet_tagger">
+<span id="estnltk-wordnet-tagger-module"></span><h1>estnltk.wordnet_tagger module<a class="headerlink" href="#module-estnltk.wordnet_tagger" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="estnltk.wordnet_tagger.WordnetTagger">
+<em class="property">class </em><tt class="descclassname">estnltk.wordnet_tagger.</tt><tt class="descname">WordnetTagger</tt><a class="reference internal" href="../_modules/estnltk/wordnet_tagger.html#WordnetTagger"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.wordnet_tagger.WordnetTagger" title="Permalink to this definition">¶</a></dt>
+<dd><p>Annotates <cite>analysis</cite> entries in corpus with queried Estonian WordNet data.</p>
+<dl class="method">
+<dt id="estnltk.wordnet_tagger.WordnetTagger.tag_text">
+<tt class="descname">tag_text</tt><big>(</big><em>text</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/estnltk/wordnet_tagger.html#WordnetTagger.tag_text"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.wordnet_tagger.WordnetTagger.tag_text" title="Permalink to this definition">¶</a></dt>
+<dd><p>Annotates <cite>analysis</cite> entries in <cite>corpus</cite> with a list of lemmas` synsets and queried WordNet data in a &#8216;wordnet&#8217; entry.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>text: estnltk.text.Text</strong></p>
+<blockquote>
+<div><p>Representation of a corpus in a disassembled form for automatic text analysis with word-level <cite>analysis</cite> entry.
+E.g. corpus disassembled into paragraphs, sentences, words ({&#8216;paragraphs&#8217;:[{&#8216;sentences&#8217;:[{&#8216;words&#8217;:[{&#8216;analysis&#8217;:{...}},..]},..]},..]}).</p>
+</div></blockquote>
+<p><strong>pos</strong> : boolean, optional</p>
+<blockquote>
+<div><p>If True, annotates each synset with a correspnding <cite>pos</cite> (part-of-speech) tag.</p>
+</div></blockquote>
+<p><strong>variants</strong> : boolean, optional</p>
+<blockquote>
+<div><p>If True, annotates each synset with a list of all its variants&#8217; (lemmas&#8217;) literals.</p>
+</div></blockquote>
+<p><strong>var_sense</strong> : boolean, optional</p>
+<blockquote>
+<div><p>If True and <cite>variants</cite> is True, annotates each variant/lemma with its sense number.</p>
+</div></blockquote>
+<p><strong>var_definition</strong> : boolean, optional</p>
+<blockquote>
+<div><p>If True and <cite>variants</cite> is True, annotates each variant/lemma with its definition. Definitions often missing in WordNet.</p>
+</div></blockquote>
+<p><strong>var_examples</strong> : boolean, optional</p>
+<blockquote>
+<div><p>If True and <cite>variants</cite> is True, annotates each variant/lemma with a list of its examples. Examples often missing in WordNet.</p>
+</div></blockquote>
+<p><strong>relations</strong> : list of str, optional</p>
+<blockquote>
+<div><p>Holds interested relations. Legal relations are as follows:</p>
+</div></blockquote>
+<p><strong>`antonym`, `be_in_state`, `belongs_to_class`, `causes`, `fuzzynym`, `has_holo_location`, `has_holo_madeof`, `has_holo_member`,</strong></p>
+<p><strong>`has_holo_part`, `has_holo_portion`, `has_holonym`, `has_hyperonym`, `has_hyponym`, `has_instance`, `has_mero_location`,</strong></p>
+<p><strong>`has_mero_madeof`, `has_mero_member`, `has_mero_part`, `has_mero_portion`, `has_meronym`, `has_subevent`, `has_xpos_hyperonym`,</strong></p>
+<p><strong>`has_xpos_hyponym`, `involved`, `involved_agent`, `involved_instrument`, `involved_location`, `involved_patient`,</strong></p>
+<p><strong>`involved_target_direction`, `is_caused_by`, `is_subevent_of`, `near_antonym`, `near_synonym`, `role`, `role_agent`, `role_instrument`,</strong></p>
+<p><strong>`role_location`, `role_patient`, `role_target_direction`, `state_of`, `xpos_fuzzynym`, `xpos_near_antonym`, `xpos_near_synonym`.</strong></p>
+<blockquote>
+<div><p>Annotates each synset with related synsets&#8217; indices with respect to queried relations.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">estnltk.text.Text</p>
+<blockquote class="last">
+<div><p>In-place annotated <cite>text</cite>.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="vabamorf.html"
+                        title="previous chapter">estnltk.vabamorf.morf module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="wn.html"
+                        title="next chapter">estnltk.wordnet.wn module</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/api/wordnet_tagger.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="wn.html" title="estnltk.wordnet.wn module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="vabamorf.html" title="estnltk.vabamorf.morf module"
+             >previous</a> |</li>
+        <li><a href="../index.html">estnltk 1.3 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2015, University of Tartu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>

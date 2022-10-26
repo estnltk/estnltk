@@ -1,0 +1,314 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Estnltk developer guide &mdash; estnltk 1.3 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="estnltk 1.3 documentation" href="../index.html" />
+    <link rel="next" title="Tables" href="morf_tables.html" />
+    <link rel="prev" title="Handling large text collections with Elastic database" href="elasticsearch.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="morf_tables.html" title="Tables"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="elasticsearch.html" title="Handling large text collections with Elastic database"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">estnltk 1.3 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="estnltk-developer-guide">
+<span id="developer-guide"></span><h1>Estnltk developer guide<a class="headerlink" href="#estnltk-developer-guide" title="Permalink to this headline">¶</a></h1>
+<p>This document is for everyone who is working on Estnltk project (or wishes to work), but do not know how to get started.</p>
+<div class="section" id="compiling-estnltk">
+<h2>Compiling estnltk<a class="headerlink" href="#compiling-estnltk" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python"><div class="highlight"><pre>python setup.py build
+python3 setup.py build
+</pre></div>
+</div>
+</div>
+<div class="section" id="version-control-and-branches">
+<h2>Version control and branches<a class="headerlink" href="#version-control-and-branches" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt>We have three repositories where we store Estnltk code: you should push/pull every time from all of them</dt>
+<dd>to make them synced.</dd>
+</dl>
+<p>First, modify your <tt class="docutils literal"><span class="pre">.git/setup</span></tt> configuration to look like following:</p>
+<div class="highlight-python"><div class="highlight"><pre>[core]
+    repositoryformatversion = 0
+    filemode = true
+    bare = false
+    logallrefupdates = true
+[remote &quot;github&quot;]
+    url = git@github.com:estnltk/estnltk.git
+    fetch = +refs/heads/*:refs/remotes/github/*
+[remote &quot;ut&quot;]
+    url = git@estnltk.cs.ut.ee:timo/estnltk.git
+    fetch = +refs/heads/*:refs/remotes/ut/*
+[remote &quot;keeleressursid&quot;]
+    url = git@gitlab.keeleressursid.ee:timo-petmanson/estnltk.git
+    fetch = +refs/heads/*:refs/remotes/keeleressursid/*
+[remote &quot;origin&quot;]
+    url = git@github.com:estnltk/estnltk.git
+    url = git@estnltk.cs.ut.ee:timo/estnltk.git
+    url = git@gitlab.keeleressursid.ee:timo-petmanson/estnltk.git
+[branch &quot;master&quot;]
+    remote = origin
+    merge = refs/heads/master
+[branch &quot;devel&quot;]
+    remote = origin
+    merge = refs/heads/devel
+</pre></div>
+</div>
+<p>Second, use commands:</p>
+<div class="highlight-python"><div class="highlight"><pre>git push origin master
+git pull origin master
+</pre></div>
+</div>
+<p>to perform pulls and pushes to both repositories without no extra hassel.</p>
+<p>Third, your&#8217;re done! ;)</p>
+<div class="section" id="checking-out-devel-branch">
+<h3>Checking out devel branch<a class="headerlink" href="#checking-out-devel-branch" title="Permalink to this headline">¶</a></h3>
+<p>Try this:</p>
+<div class="highlight-python"><div class="highlight"><pre>git branch -a
+git checkout -t devel origin/devel
+git pull
+git checkout devel
+git branch -a
+</pre></div>
+</div>
+<p>You should see something similar as output:</p>
+<div class="highlight-python"><div class="highlight"><pre>* devel
+  master
+  timo_dev
+  remotes/github/devel
+  remotes/github/gh-pages
+  remotes/github/master
+  remotes/github/timo_dev
+  remotes/keeleressursid/devel
+  remotes/keeleressursid/master
+  remotes/origin/master
+  remotes/ut/devel
+  remotes/ut/master
+</pre></div>
+</div>
+<p>Important thing is that you see <tt class="docutils literal"><span class="pre">&quot;*</span> <span class="pre">devel&quot;</span></tt> .</p>
+</div>
+</div>
+<div class="section" id="writing-documentation">
+<h2>Writing documentation<a class="headerlink" href="#writing-documentation" title="Permalink to this headline">¶</a></h2>
+<p>Documentation resides under <cite>docs</cite> folder of estnltk and is generated using <a class="reference external" href="http://sphinx-doc.org/">Sphinx</a> document generator.</p>
+<div class="section" id="setting-up-sphinx">
+<h3>Setting up Sphinx<a class="headerlink" href="#setting-up-sphinx" title="Permalink to this headline">¶</a></h3>
+<p>To install Sphinx on your system, issue following commands:</p>
+<div class="highlight-python"><div class="highlight"><pre>sudo pip3 install Sphinx
+sudo pip3 install numpydoc
+</pre></div>
+</div>
+<p>Next, open file <tt class="docutils literal"><span class="pre">docs/conf.py</span></tt> and find the line:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s">&#39;/home/timo/projects/estnltk&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Add a second line there, which tells where estnltk is installed on your system.
+For example, if your user name is <tt class="docutils literal"><span class="pre">estnltkdeveloper</span></tt> and estnltk is in your home folder, add:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s">&#39;/home/estnltkdeveloper/estnltk&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>After that, move to the docs folder and run:</p>
+<div class="highlight-python"><div class="highlight"><pre>make html
+</pre></div>
+</div>
+<p>Now Sphinx builds the documentation and stores it in <tt class="docutils literal"><span class="pre">docs/build/html</span></tt> subfolder.</p>
+</div>
+<div class="section" id="distributing-the-documentation-to-github-pages">
+<h3>Distributing the documentation to Github pages<a class="headerlink" href="#distributing-the-documentation-to-github-pages" title="Permalink to this headline">¶</a></h3>
+<p>If you type <tt class="docutils literal"><span class="pre">git</span> <span class="pre">branch</span> <span class="pre">-a</span></tt>, you should see a remote branch <tt class="docutils literal"><span class="pre">remotes/github/gh-pages</span></tt>
+containing content that is served at <a class="reference external" href="http://estnltk.github.io/estnltk/">http://estnltk.github.io/estnltk/</a> .
+This branch does not contain any code, so check it out into another directory in order to work with it.
+Then, create a subfolder with the appropriate estnltk version and copy the new documentation there.</p>
+</div>
+</div>
+<div class="section" id="creating-releases">
+<h2>Creating releases<a class="headerlink" href="#creating-releases" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="linux">
+<h3>Linux<a class="headerlink" href="#linux" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python"><div class="highlight"><pre>./clean.sh
+python setup.py build
+python setup.py build # yes, two times for now!
+python setup.py bdist_wheel
+python setup.py sdist
+python setup.py upload
+</pre></div>
+</div>
+</div>
+<div class="section" id="windows">
+<h3>Windows<a class="headerlink" href="#windows" title="Permalink to this headline">¶</a></h3>
+<p>To be able to build on Windows, you will need to install a compatible Microsoft Visual C++ compiler for each version of Python. For more details please refer to <a class="reference external" href="https://wiki.python.org/moin/WindowsCompilers">https://wiki.python.org/moin/WindowsCompilers</a>.</p>
+<p><strong>Compiling with Python 2.7</strong></p>
+<p>Install Microsoft Visual C++ Compiler for Python 2.7 from <a class="reference external" href="https://www.microsoft.com/en-us/download/details.aspx?id=44266">https://www.microsoft.com/en-us/download/details.aspx?id=44266</a></p>
+<p>32-bit:</p>
+<div class="highlight-python"><div class="highlight"><pre>call &quot;C:\Users\distorti\AppData\Local\Programs\Common\Microsoft\Visual C++ for Python\9.0\vcvarsall.bat&quot; x86
+</pre></div>
+</div>
+<p>64-bit:</p>
+<div class="highlight-python"><div class="highlight"><pre>call &quot;C:\Users\distorti\AppData\Local\Programs\Common\Microsoft\Visual C++ for Python\9.0\vcvarsall.bat x64
+</pre></div>
+</div>
+<p>Then build as usual:</p>
+<div class="highlight-python"><div class="highlight"><pre>python setup.py build
+python setup.py build
+python setup.py bdist_wheel
+</pre></div>
+</div>
+<p><strong>Compiling with Python 3.4</strong></p>
+<p>Install Microsoft Visual C++ 10.0 compiler as described at <a class="reference external" href="https://wiki.python.org/moin/WindowsCompilers">https://wiki.python.org/moin/WindowsCompilers</a></p>
+<p>32-bits:</p>
+<div class="highlight-python"><div class="highlight"><pre>call &quot;C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.cmd&quot; /x86
+</pre></div>
+</div>
+<p>64-bits:</p>
+<div class="highlight-python"><div class="highlight"><pre>call &quot;C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.cmd&quot; /x64
+</pre></div>
+</div>
+<p>If you stumble across an error like</p>
+<blockquote>
+<div>... c:Program Files (x86)Microsoft Visual Studio 10.0VCINCLUDEintrin.h(26) : fatal error C1083: Cannot open include file: &#8216;ammintrin.h&#8217;: No such file or ...</div></blockquote>
+<p>you are missing a file &#8220;ammintrin.h&#8221; in &#8220;c:Program Files (x86)Microsoft Visual Studio 10.0VCINCLUDE&#8221;.
+As a quick fix, download it from http://se.mathworks.com/matlabcentral/answers/90383-fix-problem-when-mex-cpp-file.</p>
+<p>Then build as usual:</p>
+<div class="highlight-python"><div class="highlight"><pre>python setup.py build
+python setup.py build
+python setup.py bdist_wheel
+</pre></div>
+</div>
+<p><strong>Compiling with Python 3.5</strong></p>
+<p>Install Microsoft Visual C++ 14.0 compiler as described at <a class="reference external" href="https://wiki.python.org/moin/WindowsCompilers">https://wiki.python.org/moin/WindowsCompilers</a></p>
+<p>32-bit:</p>
+<div class="highlight-python"><div class="highlight"><pre>call &quot;C:\Program Files (x86)\Microsoft Visual C++ Build Tools\vcbuildtools.bat&quot; x86
+</pre></div>
+</div>
+<p>64-bit:</p>
+<div class="highlight-python"><div class="highlight"><pre>call &quot;C:\Program Files (x86)\Microsoft Visual C++ Build Tools\vcbuildtools.bat&quot; x64
+</pre></div>
+</div>
+<p>TODO: Currently this fails for some reason</p>
+<p>Then build as usual:</p>
+<div class="highlight-python"><div class="highlight"><pre>python setup.py build
+python setup.py build
+python setup.py bdist_wheel
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Estnltk developer guide</a><ul>
+<li><a class="reference internal" href="#compiling-estnltk">Compiling estnltk</a></li>
+<li><a class="reference internal" href="#version-control-and-branches">Version control and branches</a><ul>
+<li><a class="reference internal" href="#checking-out-devel-branch">Checking out devel branch</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#writing-documentation">Writing documentation</a><ul>
+<li><a class="reference internal" href="#setting-up-sphinx">Setting up Sphinx</a></li>
+<li><a class="reference internal" href="#distributing-the-documentation-to-github-pages">Distributing the documentation to Github pages</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#creating-releases">Creating releases</a><ul>
+<li><a class="reference internal" href="#linux">Linux</a></li>
+<li><a class="reference internal" href="#windows">Windows</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="elasticsearch.html"
+                        title="previous chapter">Handling large text collections with Elastic database</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="morf_tables.html"
+                        title="next chapter">Tables</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/tutorials/devel.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="morf_tables.html" title="Tables"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="elasticsearch.html" title="Handling large text collections with Elastic database"
+             >previous</a> |</li>
+        <li><a href="../index.html">estnltk 1.3 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2015, University of Tartu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>

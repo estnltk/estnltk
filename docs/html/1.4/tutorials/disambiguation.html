@@ -1,0 +1,240 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Morphological disambiguation on a collection of documents &mdash; estnltk 1.3 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="estnltk 1.3 documentation" href="../index.html" />
+    <link rel="next" title="Named entity recognition" href="ner.html" />
+    <link rel="prev" title="Working with text" href="text.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="ner.html" title="Named entity recognition"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="text.html" title="Working with text"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">estnltk 1.3 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="morphological-disambiguation-on-a-collection-of-documents">
+<h1>Morphological disambiguation on a collection of documents<a class="headerlink" href="#morphological-disambiguation-on-a-collection-of-documents" title="Permalink to this headline">¶</a></h1>
+<p>Estnltk does basic morphological disambiguation by using a probabilistic disambiguator which relies on the local (sentence) context. <a class="reference internal" href="#ka01" id="id1">[KA01]</a>
+This works well enough for any type of texts: news articles, comments, mixed content etc.</p>
+<p>However, the quality of the disambiguation can be further improved if a broader context (e.g. the whole text, or a collection of texts) is considered in the process. If morphologically ambiguous words (for example: proper names) reoccur in other parts of the text or in other related texts, one can use the assumption &#8220;one lemma per discourse&#8221; (inspired by the observation &#8220;one sense per discourse&#8221; from Word Sense Disambiguation) and choose the right analysis based on the most frequently occurring lemma candidate. <a class="reference internal" href="#ka12" id="id2">[KA12]</a></p>
+<table class="docutils citation" frame="void" id="ka01" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[KA01]</a></td><td>Kaalep, Heiki-Jaan, and Vaino, Tarmo. &#8220;Complete morphological analysis in the linguist&#8217;s toolbox.&#8221; Congressus Nonus Internationalis Fenno-Ugristarum Pars V (2001): 9-16.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="ka12" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id2">[KA12]</a></td><td>Kaalep, Heiki Jaan, Riin Kirt, and Kadri Muischnek. &#8220;A trivial method for choosing the right lemma.&#8221; Baltic HLT. 2012.</td></tr>
+</tbody>
+</table>
+<p>Consider the following example of a text collection:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">corpus</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;Esimesele kohale tuleb Jänes, kuigi tema punktide summa pole kõrgeim.&#39;</span><span class="p">,</span>\
+          <span class="s">&#39;Lõpparvestuses läks Konnale esimene koht. Teise koha sai seekord Jänes. Uus võistlus toimub 2. mail.&#39;</span><span class="p">,</span> \
+          <span class="s">&#39;Konn paistis silma suurima punktide summaga. Uue võistluse toimumisajaks on 2. mai.&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>After applying the default (local context) morphological disambiguation, some of the words will still be ambiguous, as can be revealed by executing the following scipt:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">Text</span>
+<span class="kn">from</span> <span class="nn">estnltk.names</span> <span class="kn">import</span> <span class="n">TEXT</span><span class="p">,</span> <span class="n">ANALYSIS</span><span class="p">,</span> <span class="n">ROOT</span><span class="p">,</span> <span class="n">POSTAG</span><span class="p">,</span> <span class="n">FORM</span>
+
+<span class="k">for</span> <span class="n">text_str</span> <span class="ow">in</span> <span class="n">corpus</span><span class="p">:</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="n">text_str</span><span class="p">)</span>
+    <span class="c"># Perform morphological analysis with default disambiguation</span>
+    <span class="n">text</span><span class="o">.</span><span class="n">tag_analysis</span><span class="p">()</span>
+    <span class="c"># Print out all words with ambiguous analyses</span>
+    <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">text</span><span class="o">.</span><span class="n">words</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">word</span><span class="p">[</span><span class="n">ANALYSIS</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span> <span class="n">word</span><span class="p">[</span><span class="n">TEXT</span><span class="p">],[(</span><span class="n">a</span><span class="p">[</span><span class="n">ROOT</span><span class="p">],</span><span class="n">a</span><span class="p">[</span><span class="n">POSTAG</span><span class="p">],</span><span class="n">a</span><span class="p">[</span><span class="n">FORM</span><span class="p">])</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">word</span><span class="p">[</span><span class="n">ANALYSIS</span><span class="p">]]</span> <span class="p">)</span>
+</pre></div>
+</div>
+<p>which has the following output:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">kohale</span> <span class="p">[(</span><span class="s">&#39;koht&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="s">&#39;sg all&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s">&#39;koha&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="s">&#39;sg all&#39;</span><span class="p">)]</span>
+<span class="n">kuigi</span> <span class="p">[(</span><span class="s">&#39;kuigi&#39;</span><span class="p">,</span> <span class="s">&#39;D&#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s">&#39;kuigi&#39;</span><span class="p">,</span> <span class="s">&#39;J&#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">)]</span>
+<span class="n">Teise</span> <span class="p">[(</span><span class="s">&#39;teine&#39;</span><span class="p">,</span> <span class="s">&#39;O&#39;</span><span class="p">,</span> <span class="s">&#39;sg g&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s">&#39;teine&#39;</span><span class="p">,</span> <span class="s">&#39;P&#39;</span><span class="p">,</span> <span class="s">&#39;sg g&#39;</span><span class="p">)]</span>
+<span class="n">koha</span> <span class="p">[(</span><span class="s">&#39;koht&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="s">&#39;sg g&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s">&#39;koha&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="s">&#39;sg g&#39;</span><span class="p">)]</span>
+<span class="n">mail</span> <span class="p">[(</span><span class="s">&#39;maa&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="s">&#39;pl ad&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s">&#39;mai&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="s">&#39;sg ad&#39;</span><span class="p">)]</span>
+<span class="n">summaga</span> <span class="p">[(</span><span class="s">&#39;summ&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="s">&#39;sg kom&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s">&#39;summa&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="s">&#39;sg kom&#39;</span><span class="p">)]</span>
+<span class="n">on</span> <span class="p">[(</span><span class="s">&#39;ole&#39;</span><span class="p">,</span> <span class="s">&#39;V&#39;</span><span class="p">,</span> <span class="s">&#39;b&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s">&#39;ole&#39;</span><span class="p">,</span> <span class="s">&#39;V&#39;</span><span class="p">,</span> <span class="s">&#39;vad&#39;</span><span class="p">)]</span>
+</pre></div>
+</div>
+<div class="section" id="basic-usage">
+<h2>Basic usage<a class="headerlink" href="#basic-usage" title="Permalink to this headline">¶</a></h2>
+<p>Estnltk&#8217;s class <tt class="xref py py-class docutils literal"><span class="pre">Disambiguator</span></tt> provides method <tt class="xref py py-meth docutils literal"><span class="pre">disambiguate()</span></tt>, which takes a collection of texts (can be a list of strings or a list of <tt class="xref py py-class docutils literal"><span class="pre">Text</span></tt> objects) as an input, and performs both local context morphological disambiguation and &#8220;one lemma per discourse&#8221; disambiguation on the collection:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">Disambiguator</span>
+
+<span class="n">corpus</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;Esimesele kohale tuleb Jänes, kuigi tema punktide summa pole kõrgeim.&#39;</span><span class="p">,</span>\
+          <span class="s">&#39;Lõpparvestuses läks Konnale esimene koht. Teise koha sai seekord Jänes. Uus võistlus toimub 2. mail.&#39;</span><span class="p">,</span> \
+          <span class="s">&#39;Konn paistis silma suurima punktide summaga. Uue võistluse toimumisajaks on 2. mai.&#39;</span><span class="p">]</span>
+
+<span class="n">disamb</span> <span class="o">=</span> <span class="n">Disambiguator</span><span class="p">()</span>
+<span class="n">texts</span> <span class="o">=</span> <span class="n">disamb</span><span class="o">.</span><span class="n">disambiguate</span><span class="p">(</span><span class="n">corpus</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The method returns a list of <tt class="xref py py-class docutils literal"><span class="pre">Text</span></tt> objects. We can use the following script to check for morphological ambiguities in this list:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">estnltk.names</span> <span class="kn">import</span> <span class="n">TEXT</span><span class="p">,</span> <span class="n">ANALYSIS</span><span class="p">,</span> <span class="n">ROOT</span><span class="p">,</span> <span class="n">POSTAG</span><span class="p">,</span> <span class="n">FORM</span>
+
+<span class="k">for</span> <span class="n">text</span> <span class="ow">in</span> <span class="n">texts</span><span class="p">:</span>
+    <span class="c"># Print out all words with ambiguous analyses</span>
+    <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">text</span><span class="o">.</span><span class="n">words</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">word</span><span class="p">[</span><span class="n">ANALYSIS</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="n">word</span><span class="p">[</span><span class="n">TEXT</span><span class="p">],[(</span><span class="n">a</span><span class="p">[</span><span class="n">ROOT</span><span class="p">],</span><span class="n">a</span><span class="p">[</span><span class="n">POSTAG</span><span class="p">],</span><span class="n">a</span><span class="p">[</span><span class="n">FORM</span><span class="p">])</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">word</span><span class="p">[</span><span class="n">ANALYSIS</span><span class="p">]])</span>
+</pre></div>
+</div>
+<p>The output shows that the ambiguities in the content words (nouns <em>kohale</em>, <em>koha</em>, <em>mail</em>, <em>summaga</em>) have been removed:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">kuigi</span> <span class="p">[(</span><span class="s">&#39;kuigi&#39;</span><span class="p">,</span> <span class="s">&#39;D&#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s">&#39;kuigi&#39;</span><span class="p">,</span> <span class="s">&#39;J&#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">)]</span>
+<span class="n">Teise</span> <span class="p">[(</span><span class="s">&#39;teine&#39;</span><span class="p">,</span> <span class="s">&#39;O&#39;</span><span class="p">,</span> <span class="s">&#39;sg g&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s">&#39;teine&#39;</span><span class="p">,</span> <span class="s">&#39;P&#39;</span><span class="p">,</span> <span class="s">&#39;sg g&#39;</span><span class="p">)]</span>
+<span class="n">on</span> <span class="p">[(</span><span class="s">&#39;ole&#39;</span><span class="p">,</span> <span class="s">&#39;V&#39;</span><span class="p">,</span> <span class="s">&#39;b&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s">&#39;ole&#39;</span><span class="p">,</span> <span class="s">&#39;V&#39;</span><span class="p">,</span> <span class="s">&#39;vad&#39;</span><span class="p">)]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="pre-disambiguation-and-post-disambiguation">
+<h2>Pre-disambiguation and post-disambiguation<a class="headerlink" href="#pre-disambiguation-and-post-disambiguation" title="Permalink to this headline">¶</a></h2>
+<p>Under the hood, the disambiguation process implemented in <tt class="xref py py-class docutils literal"><span class="pre">Disambiguator</span></tt> can be broken down into three steps:</p>
+<ol class="arabic simple">
+<li><strong>pre-disambiguation</strong> during which the collection level disambiguation is applied for resolving proper noun vs common noun ambiguities;</li>
+<li><strong>local context disambiguation</strong> during which the sentence level disambiguation is performed;</li>
+<li><strong>post-disambiguation</strong> during which the collection level disambiguation is applied for resolving remaining ambiguities in content words;</li>
+</ol>
+<p>By default, all three steps are performed on the input corpus. However, if needed, pre-disambiguation and post-disambiguation can also be disabled, passing <tt class="docutils literal"><span class="pre">pre_disambiguate=False</span></tt> and <tt class="docutils literal"><span class="pre">post_disambiguate=False</span></tt> as input arguments for the method <tt class="xref py py-meth docutils literal"><span class="pre">disambiguate()</span></tt>.</p>
+<p>In following example, disambiguation is applied both with pre-disambiguation enabled and   disabled, and the difference in results is printed out:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">corpus</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;Jänes oli parajasti põllu peal. Hunti nähes ta ehmus ja pani jooksu.&#39;</span><span class="p">,</span>\
+          <span class="s">&#39;Talupidaja Jänes kommenteeris, et hunte on viimasel ajal liiga palju siginenud. Tema naaber, talunik Lammas, nõustus sellega.&#39;</span><span class="p">,</span> \
+          <span class="s">&#39;Jänesele ja Lambale oli selge, et midagi tuleb ette võtta. Eile algatasid nad huntidevastase kampaania.&#39;</span><span class="p">]</span>
+
+<span class="kn">from</span> <span class="nn">estnltk.names</span> <span class="kn">import</span> <span class="n">TEXT</span><span class="p">,</span> <span class="n">ANALYSIS</span><span class="p">,</span> <span class="n">ROOT</span><span class="p">,</span> <span class="n">POSTAG</span><span class="p">,</span> <span class="n">FORM</span>
+<span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">Disambiguator</span>
+
+<span class="n">disamb</span> <span class="o">=</span> <span class="n">Disambiguator</span><span class="p">()</span>
+<span class="n">texts_with_predisamb</span>    <span class="o">=</span> <span class="n">disamb</span><span class="o">.</span><span class="n">disambiguate</span><span class="p">(</span><span class="n">corpus</span><span class="p">)</span>
+<span class="n">texts_without_predisamb</span> <span class="o">=</span> <span class="n">disamb</span><span class="o">.</span><span class="n">disambiguate</span><span class="p">(</span><span class="n">corpus</span><span class="p">,</span> <span class="n">pre_disambiguate</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">texts_with_predisamb</span><span class="p">)):</span>
+    <span class="n">with_predisamb</span>    <span class="o">=</span> <span class="n">texts_with_predisamb</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+    <span class="n">without_predisamb</span> <span class="o">=</span> <span class="n">texts_without_predisamb</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">with_predisamb</span><span class="o">.</span><span class="n">words</span><span class="p">)):</span>
+        <span class="n">word1</span> <span class="o">=</span> <span class="n">with_predisamb</span><span class="o">.</span><span class="n">words</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+        <span class="n">word2</span> <span class="o">=</span> <span class="n">without_predisamb</span><span class="o">.</span><span class="n">words</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">word1</span> <span class="o">!=</span> <span class="n">word2</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="n">word1</span><span class="p">[</span><span class="n">TEXT</span><span class="p">],</span> \
+                  <span class="p">[(</span><span class="n">a</span><span class="p">[</span><span class="n">ROOT</span><span class="p">],</span><span class="n">a</span><span class="p">[</span><span class="n">POSTAG</span><span class="p">],</span><span class="n">a</span><span class="p">[</span><span class="n">FORM</span><span class="p">])</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">word1</span><span class="p">[</span><span class="n">ANALYSIS</span><span class="p">]],</span> \
+                  <span class="s">&#39; vs &#39;</span><span class="p">,</span> \
+                  <span class="p">[(</span><span class="n">a</span><span class="p">[</span><span class="n">ROOT</span><span class="p">],</span><span class="n">a</span><span class="p">[</span><span class="n">POSTAG</span><span class="p">],</span><span class="n">a</span><span class="p">[</span><span class="n">FORM</span><span class="p">])</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">word2</span><span class="p">[</span><span class="n">ANALYSIS</span><span class="p">]]</span> <span class="p">)</span>
+</pre></div>
+</div>
+<p>The output of the script:</p>
+<div class="highlight-python"><div class="highlight"><pre>Jänes [(&#39;Jänes&#39;, &#39;H&#39;, &#39;sg n&#39;)]  vs  [(&#39;jänes&#39;, &#39;S&#39;, &#39;sg n&#39;)]
+Hunti [(&#39;hunt&#39;, &#39;S&#39;, &#39;sg p&#39;)]  vs  [(&#39;Hunt&#39;, &#39;H&#39;, &#39;sg g&#39;), (&#39;Hunti&#39;, &#39;H&#39;, &#39;sg g&#39;)]
+Talupidaja [(&#39;talu_pidaja&#39;, &#39;S&#39;, &#39;sg n&#39;)]  vs  [(&#39;talu_pidaja&#39;, &#39;S&#39;, &#39;sg g&#39;)]
+Jänes [(&#39;Jänes&#39;, &#39;H&#39;, &#39;sg n&#39;)]  vs  [(&#39;jänes&#39;, &#39;S&#39;, &#39;sg n&#39;)]
+Lammas [(&#39;Lammas&#39;, &#39;H&#39;, &#39;sg n&#39;)]  vs  [(&#39;lammas&#39;, &#39;S&#39;, &#39;sg n&#39;)]
+Jänesele [(&#39;Jänes&#39;, &#39;H&#39;, &#39;sg all&#39;)]  vs  [(&#39;jänes&#39;, &#39;S&#39;, &#39;sg all&#39;)]
+Lambale [(&#39;Lammas&#39;, &#39;H&#39;, &#39;sg all&#39;)]  vs  [(&#39;lammas&#39;, &#39;S&#39;, &#39;sg all&#39;)]
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Morphological disambiguation on a collection of documents</a><ul>
+<li><a class="reference internal" href="#basic-usage">Basic usage</a></li>
+<li><a class="reference internal" href="#pre-disambiguation-and-post-disambiguation">Pre-disambiguation and post-disambiguation</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="text.html"
+                        title="previous chapter">Working with text</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ner.html"
+                        title="next chapter">Named entity recognition</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/tutorials/disambiguation.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="ner.html" title="Named entity recognition"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="text.html" title="Working with text"
+             >previous</a> |</li>
+        <li><a href="../index.html">estnltk 1.3 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2015, University of Tartu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>

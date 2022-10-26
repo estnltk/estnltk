@@ -1,0 +1,199 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>estnltk.clausesegmenter &mdash; estnltk 1.3 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '1.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="estnltk 1.3 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">estnltk 1.3 documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for estnltk.clausesegmenter</h1><div class="highlight"><pre>
+<span class="c"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Wrapper class around Java-based clause segmenter (Osalausestaja). </span>
+<span class="sd">Allows to process results sentence by sentence. </span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">unicode_literals</span><span class="p">,</span> <span class="n">print_function</span>
+
+<span class="kn">from</span> <span class="nn">estnltk.names</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">estnltk.javaprocess</span> <span class="kn">import</span> <span class="n">JavaProcess</span>
+
+<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
+<span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
+
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">os.path</span>
+<span class="kn">import</span> <span class="nn">re</span>
+
+<span class="n">CLAUSE_ANNOT</span> <span class="o">=</span> <span class="s">&#39;clauseAnnotation&#39;</span>
+
+<div class="viewcode-block" id="ClauseSegmenter"><a class="viewcode-back" href="../../api/clausesegmenter.html#estnltk.clausesegmenter.ClauseSegmenter">[docs]</a><span class="k">class</span> <span class="nc">ClauseSegmenter</span><span class="p">(</span><span class="n">JavaProcess</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Wrapper class around Java-based clause segmenter (Osalausestaja). </span>
+<span class="sd">        Allows to process results sentence by sentence. </span>
+<span class="sd">        &quot;&quot;&quot;</span> 
+    
+<div class="viewcode-block" id="ClauseSegmenter.__init__"><a class="viewcode-back" href="../../api/clausesegmenter.html#estnltk.clausesegmenter.ClauseSegmenter.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;-pyvabamorf&#39;</span><span class="p">]</span>
+        <span class="n">ignore_missing_commas</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;ignore_missing_commas&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ignore_missing_commas</span><span class="p">:</span>
+            <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;-ins_comma_mis&#39;</span><span class="p">)</span>
+        <span class="n">JavaProcess</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;Osalau.jar&#39;</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+</div>
+    <span class="k">def</span> <span class="nf">tag</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="n">sentences</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">divide</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">sentence</span> <span class="ow">in</span> <span class="n">sentences</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mark_annotations</span><span class="p">(</span><span class="n">sentence</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">text</span>
+    
+    <span class="k">def</span> <span class="nf">detect_annotations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sentence</span><span class="p">):</span>
+        <span class="n">prep_sentence</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prepare_sentence</span><span class="p">(</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">sentence</span><span class="p">))</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">process_line</span><span class="p">(</span><span class="n">prep_sentence</span><span class="p">))</span>
+        <span class="n">words</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">annotate_indices</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="n">WORDS</span><span class="p">])</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">rename_annotations</span><span class="p">(</span><span class="n">words</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">mark_annotations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sentence</span><span class="p">):</span>
+        <span class="n">annotations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">detect_annotations</span><span class="p">(</span><span class="n">sentence</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">sentence</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">annotations</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">w</span><span class="p">,</span> <span class="n">a</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">sentence</span><span class="p">,</span> <span class="n">annotations</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">a</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">w</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+        <span class="k">return</span> <span class="n">sentence</span>
+    
+<div class="viewcode-block" id="ClauseSegmenter.prepare_sentence"><a class="viewcode-back" href="../../api/clausesegmenter.html#estnltk.clausesegmenter.ClauseSegmenter.prepare_sentence">[docs]</a>    <span class="k">def</span> <span class="nf">prepare_sentence</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sentence</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Prepare the sentence for segment detection.&quot;&quot;&quot;</span>
+        <span class="c"># depending on how the morphological analysis was added, there may be</span>
+        <span class="c"># phonetic markup. Remove it, if it exists.</span>
+        <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">sentence</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">analysis</span> <span class="ow">in</span> <span class="n">word</span><span class="p">[</span><span class="n">ANALYSIS</span><span class="p">]:</span>
+                <span class="n">analysis</span><span class="p">[</span><span class="n">ROOT</span><span class="p">]</span> <span class="o">=</span> <span class="n">analysis</span><span class="p">[</span><span class="n">ROOT</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;~&#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">)</span>
+                <span class="n">analysis</span><span class="p">[</span><span class="n">ROOT</span><span class="p">]</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">&#39;[?&lt;\]]([aioueöäõü])&#39;</span><span class="p">,</span> <span class="s">&#39;</span><span class="se">\\</span><span class="s">1&#39;</span><span class="p">,</span> <span class="n">analysis</span><span class="p">[</span><span class="n">ROOT</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="n">WORDS</span><span class="p">:</span> <span class="n">sentence</span><span class="p">})</span>
+    
+        </div>
+<div class="viewcode-block" id="ClauseSegmenter.annotate_indices"><a class="viewcode-back" href="../../api/clausesegmenter.html#estnltk.clausesegmenter.ClauseSegmenter.annotate_indices">[docs]</a>    <span class="k">def</span> <span class="nf">annotate_indices</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sentence</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add clause indexes to already annotated sentence.&quot;&quot;&quot;</span>
+        <span class="n">max_index</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">max_depth</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">stack_of_indexes</span> <span class="o">=</span> <span class="p">[</span> <span class="n">max_index</span> <span class="p">]</span>
+        <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">sentence</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">CLAUSE_ANNOT</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">token</span><span class="p">:</span>
+                <span class="n">token</span><span class="p">[</span><span class="n">CLAUSE_IDX</span><span class="p">]</span> <span class="o">=</span> <span class="n">stack_of_indexes</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c"># Alustavad märgendused</span>
+                <span class="k">for</span> <span class="n">annotation</span> <span class="ow">in</span> <span class="n">token</span><span class="p">[</span><span class="n">CLAUSE_ANNOT</span><span class="p">]:</span>
+                    <span class="k">if</span> <span class="n">annotation</span> <span class="o">==</span> <span class="s">&quot;KIILU_ALGUS&quot;</span><span class="p">:</span>
+                        <span class="c"># Liigume sügavamale, alustame järgmist kiilu</span>
+                        <span class="n">max_index</span> <span class="o">+=</span> <span class="mi">1</span>
+                        <span class="n">stack_of_indexes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">max_index</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">stack_of_indexes</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">max_depth</span><span class="p">):</span>
+                            <span class="n">max_depth</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">stack_of_indexes</span><span class="p">)</span>
+                <span class="n">token</span><span class="p">[</span><span class="n">CLAUSE_IDX</span><span class="p">]</span> <span class="o">=</span> <span class="n">stack_of_indexes</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="c"># Lõpetavad märgendused</span>
+                <span class="k">for</span> <span class="n">annotation</span> <span class="ow">in</span> <span class="n">token</span><span class="p">[</span><span class="n">CLAUSE_ANNOT</span><span class="p">]:</span>
+                    <span class="k">if</span> <span class="n">annotation</span> <span class="o">==</span> <span class="s">&quot;KINDEL_PIIR&quot;</span><span class="p">:</span>
+                        <span class="c"># Liigume edasi samal tasandil, alustame järgmist osalauset</span>
+                        <span class="n">max_index</span> <span class="o">+=</span> <span class="mi">1</span>
+                        <span class="n">stack_of_indexes</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">max_index</span>
+                    <span class="k">elif</span> <span class="n">annotation</span> <span class="o">==</span> <span class="s">&quot;KIILU_LOPP&quot;</span><span class="p">:</span>
+                        <span class="c"># Taandume sügavusest, sulgeme ühe kiilu</span>
+                        <span class="n">stack_of_indexes</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">sentence</span>
+        </div>
+<div class="viewcode-block" id="ClauseSegmenter.rename_annotations"><a class="viewcode-back" href="../../api/clausesegmenter.html#estnltk.clausesegmenter.ClauseSegmenter.rename_annotations">[docs]</a>    <span class="k">def</span> <span class="nf">rename_annotations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sentence</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Function that renames and restructures clause information.&quot;&quot;&quot;</span>
+        <span class="n">annotations</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">sentence</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="n">CLAUSE_IDX</span><span class="p">:</span> <span class="n">token</span><span class="p">[</span><span class="n">CLAUSE_IDX</span><span class="p">]}</span>
+            <span class="k">if</span> <span class="n">CLAUSE_ANNOT</span> <span class="ow">in</span> <span class="n">token</span><span class="p">:</span>
+                <span class="k">if</span> <span class="s">&#39;KINDEL_PIIR&#39;</span> <span class="ow">in</span> <span class="n">token</span><span class="p">[</span><span class="n">CLAUSE_ANNOT</span><span class="p">]:</span>
+                    <span class="n">data</span><span class="p">[</span><span class="n">CLAUSE_ANNOTATION</span><span class="p">]</span> <span class="o">=</span> <span class="n">CLAUSE_BOUNDARY</span>
+                <span class="k">elif</span> <span class="s">&#39;KIILU_ALGUS&#39;</span> <span class="ow">in</span> <span class="n">token</span><span class="p">[</span><span class="n">CLAUSE_ANNOT</span><span class="p">]:</span>
+                    <span class="n">data</span><span class="p">[</span><span class="n">CLAUSE_ANNOTATION</span><span class="p">]</span> <span class="o">=</span> <span class="n">EMBEDDED_CLAUSE_START</span>
+                <span class="k">elif</span> <span class="s">&#39;KIILU_LOPP&#39;</span> <span class="ow">in</span> <span class="n">token</span><span class="p">[</span><span class="n">CLAUSE_ANNOT</span><span class="p">]:</span>
+                    <span class="n">data</span><span class="p">[</span><span class="n">CLAUSE_ANNOTATION</span><span class="p">]</span> <span class="o">=</span> <span class="n">EMBEDDED_CLAUSE_END</span>
+            <span class="n">annotations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">annotations</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">estnltk 1.3 documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2015, University of Tartu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>

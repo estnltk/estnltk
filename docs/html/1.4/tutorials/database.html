@@ -1,0 +1,190 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Estnltk Elastic wrapper &mdash; estnltk 1.3 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="estnltk 1.3 documentation" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li><a href="../index.html">estnltk 1.3 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <p id="database-tutorial">Note! The interface described here should be considered deprecated. See the code and documentation for estnltk.database.elastic.</p>
+<div class="section" id="estnltk-elastic-wrapper">
+<h1>Estnltk Elastic wrapper<a class="headerlink" href="#estnltk-elastic-wrapper" title="Permalink to this headline">¶</a></h1>
+<p>Estnlt has <tt class="xref py py-class docutils literal"><span class="pre">Database</span></tt> class that represents a single index of Elastic.
+The most important thing to know is the constructor signature:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">doc_type</span><span class="o">=</span><span class="s">&#39;document&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    index: str</span>
+<span class="sd">        The name of the Elastic index.</span>
+<span class="sd">    doc_type:</span>
+<span class="sd">        The document type to use (default: &#39;document&#39;)</span>
+<span class="sd">    keyword_argument:</span>
+<span class="sd">        All keyword arguments will be passed to Python Elasticsearch constructor.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+</pre></div>
+</div>
+<p>So, for instance, if you instead of default <a class="reference external" href="http://127.0.0.1:9200">http://127.0.0.1:9200</a> want to connect to
+<a class="reference external" href="http://myserver.com:12345">http://myserver.com:12345</a>, you need to use:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">Database</span>
+
+<span class="n">hosts</span> <span class="o">=</span> <span class="p">[{</span>
+    <span class="s">&#39;host&#39;</span><span class="p">:</span> <span class="s">&#39;http://myserver.com&#39;</span><span class="p">,</span>
+    <span class="s">&#39;port&#39;</span><span class="p">:</span> <span class="mi">443</span>
+<span class="p">}]</span>
+<span class="n">db</span> <span class="o">=</span> <span class="n">Database</span><span class="p">(</span><span class="s">&#39;test&#39;</span><span class="p">,</span> <span class="n">hosts</span><span class="o">=</span><span class="n">hosts</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Check the <a class="reference external" href="https://elasticsearch-py.readthedocs.org/en/master/api.html#elasticsearch.Elasticsearch">Elastic Python docs</a> for more details.
+If Elastic server runs in a certain machine you can access over SSH, you might also want to read about
+<a class="reference external" href="http://blog.trackets.com/2014/05/17/ssh-tunnel-local-and-remote-port-forwarding-explained-with-examples.html">SSH tunneling</a> .
+Another important property is the actual ElasticSearch instance that Estnltk wraps,
+which can be retrieved via <tt class="xref py py-meth docutils literal"><span class="pre">es()</span></tt> property.
+Use this for <strong>complete control over the connection</strong>.</p>
+</div>
+<div class="section" id="inserting-text-objects-to-database">
+<h1>Inserting Text objects to database<a class="headerlink" href="#inserting-text-objects-to-database" title="Permalink to this headline">¶</a></h1>
+<p>Estnltk has a python function for inserting Text objects to Elastic database for further analysis.
+It is important that you create a database before inserting.
+In the example there is a database created named &#8216;test&#8217;.
+After that the Text object is created with a sentence.
+Then the <tt class="xref py py-meth docutils literal"><span class="pre">insert()</span></tt> method is being called.</p>
+<p>Example for using the text insert:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">..database</span> <span class="kn">import</span> <span class="n">Database</span>
+<span class="kn">from</span> <span class="nn">...text</span> <span class="kn">import</span> <span class="n">Text</span>
+
+<span class="n">db</span> <span class="o">=</span> <span class="n">Database</span><span class="p">(</span><span class="s">&#39;test&#39;</span><span class="p">)</span>
+
+<span class="n">text</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s">&#39;Mees, keda seal kohtasime, oli tuttav ja ta teretas meid.&#39;</span><span class="p">)</span>
+
+<span class="n">db</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="bulk-importing-data">
+<h1>Bulk importing data<a class="headerlink" href="#bulk-importing-data" title="Permalink to this headline">¶</a></h1>
+<p>Estnltk comes with an importer script that can be used to store a folder of JSON files to database:</p>
+<div class="highlight-python"><div class="highlight"><pre>python3 -m estnltk.database.importer -h
+usage: importer.py [-h] index directory
+
+Import documents to elasticsearch database
+
+positional arguments:
+  index       The name of the index
+  directory   The directory containing JSON files that need to be imported
+
+optional arguments:
+  -h, --help  show this help message and exit
+</pre></div>
+</div>
+<p>For example, if you have folders <tt class="docutils literal"><span class="pre">corpora/eesti</span></tt> and <tt class="docutils literal"><span class="pre">corpora/koond</span></tt> containing the Estonian Wikipedia and
+Eesti Koondkorpus, you can insert them using commands:</p>
+<div class="highlight-python"><div class="highlight"><pre>python3 -m estnltk.database.importer koond corpora/koond
+python3 -m estnltk.database.importer eesti corpora/eesti
+</pre></div>
+</div>
+<p>Check out <a class="reference internal" href="wikipedia.html#wikipedia-tutorial"><em>Working with Estonian and Võru wikipedia</em></a>, <a class="reference internal" href="tei.html#tei-tutorial"><em>Working with Estonian Koondkorpus</em></a> for more information
+if you want to download some large and useful datasets to work with.</p>
+</div>
+<div class="section" id="searching-the-database-for-keywords">
+<h1>Searching the database for keywords<a class="headerlink" href="#searching-the-database-for-keywords" title="Permalink to this headline">¶</a></h1>
+<p>To search from the Elastic database you need to specify the name of the database and the keywords that you need
+to start the search for. The function to do the search with is query_documents().</p>
+<p>The example search is from the &#8216;test&#8217; database and the search word is &#8216;aegna&#8217;:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">..database</span> <span class="kn">import</span> <span class="n">Database</span>
+
+<span class="n">db</span> <span class="o">=</span> <span class="n">Database</span><span class="p">(</span><span class="s">&#39;test&#39;</span><span class="p">)</span>
+
+<span class="n">search</span> <span class="o">=</span> <span class="n">Database</span><span class="o">.</span><span class="n">query_documents</span><span class="p">(</span><span class="n">db</span><span class="p">,</span> <span class="s">&quot;aegna&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The search will return a json format query with the full text of the successful search result.</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Estnltk Elastic wrapper</a></li>
+<li><a class="reference internal" href="#inserting-text-objects-to-database">Inserting Text objects to database</a></li>
+<li><a class="reference internal" href="#bulk-importing-data">Bulk importing data</a></li>
+<li><a class="reference internal" href="#searching-the-database-for-keywords">Searching the database for keywords</a></li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/tutorials/database.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li><a href="../index.html">estnltk 1.3 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2015, University of Tartu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>
