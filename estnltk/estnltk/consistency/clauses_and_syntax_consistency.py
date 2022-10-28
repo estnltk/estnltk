@@ -242,6 +242,30 @@ def get_phrase_conjunctions( cl_syntax_words, remove_overlaps=True ):
             conjunctions.remove(p)
     return conjunctions
 
+def _get_parent_features_in_clause(cl_syntax_words, features):
+    '''Returns a list of dictionaries of parent features of words. 
+       Only features of parents that are inside the clause will 
+       be extracted; however, each dictionary will always contain 
+       full set of keys, but words with missing parents have their 
+       feature values set to None.'''
+    assert isinstance(features, (set, list))
+    cl_ids = [ w.annotations[0]['id'] for w in cl_syntax_words ]
+    cl_id_map = {ind:i for i, ind in enumerate(cl_ids)}
+    parent_features = []
+    for i, word in enumerate(cl_syntax_words):
+        ind = word.annotations[0]['id']
+        head = word.annotations[0]['head']
+        if head in cl_id_map.keys():
+            head_word = cl_syntax_words[cl_id_map[head]]
+            head_annotations = word.annotations[0]
+            collected_features = {}
+            for feat in features:
+                collected_features[feat]=head_annotations[feat]
+            parent_features.append(collected_features)
+        else:
+            collected_features = {feat : None for feat in features}
+            parent_features.append(collected_features)
+    return parent_features
 
 # =========================================================================
 #   Detection of clause errors
@@ -302,12 +326,12 @@ def detect_clause_errors( text, output_layer='clause_errors',
             first_verb_idx = _first_index('V', clause_postags)
             last_comma_idx = _last_index(',',  clause_lemmas)
             last_root_idx  = _last_index('root', clause_deprels)
-            #
-            # Detect errors related to attributive clauses starting with mis/kes/millal/kus/kust/kuhu/kuna/kuidas/kas 
-            # 
             if clause_lemmas[0] in attributive_clause_start_lemmas and \
                last_root_idx > -1 and last_comma_idx > -1 and last_comma_idx < last_root_idx and \
                first_verb_idx < last_comma_idx and first_verb_idx > -1:
+                # ==========================================
+                # Detect errors related to attributive clauses starting with mis/kes/millal/kus/kust/kuhu/kuna/kuidas/kas 
+                # ==========================================
                 exceptions_passed = True
                 #
                 # Pattern: [...] [ mis/kes ... verb ... , ... root ] --> [... [ mis/kes ... verb ...  , ] ... root ]
@@ -482,6 +506,144 @@ def detect_clause_errors( text, output_layer='clause_errors',
                             output_str.append( '\n' )
                         output_str.append( '' )
                         output_str.append( '\n' )
+            elif first_verb_idx == -1 and clause_lemmas[-1] == ',' and 'root' not in clause_deprels:
+                # ==========================================
+                # Detect errors related to disconnected root clauses 
+                # (an embedding should be cut out in order to connect clauses)
+                # ==========================================
+                #
+                # Pattern: [ A ... no_verb/no_root/headed_by_root     , ] [ B ... , ] [ C root ... ] --> 
+                #          [ A ... no_verb/no_root/headed_by_root [ B , ... , ]           root ... ]
+                #          ( create an embedded clause )
+                #
+                # Example: [Juulis,] [kui karupojad ise toitu otsima hakkavad,] [tuuakse nad tagasi.] --> 
+                #          [Juulis   [,kui karupojad ise toitu otsima hakkavad,] tuuakse nad tagasi.]
+                #
+                # Example: [Varakevadel,] [kui talvevarudest napib,] [käime Naissaarel hülgeid küttimas.] --> 
+                #          [Varakevadel   [,kui talvevarudest napib,] käime Naissaarel hülgeid küttimas.]
+                #
+                # Example: [Sest selleks,] [et saada relvaluba,] [on vaja täita palju formaalsusi.] --> 
+                #          [Sest selleks [, et saada relvaluba ,] on vaja täita palju formaalsusi.]
+                #
+                # Example: [Mõnikord,] [kui eriti vaja pole,] [tuleb BIOS upgradesid ette igasuguseid.] --> 
+                #          [Mõnikord   [,kui eriti vaja pole,] tuleb BIOS upgradesid ette igasuguseid.]
+                #
+                w_ids = [ w.annotations[0]['id'] for w in cl_syntax_words ]
+                w_heads = [ w.annotations[0]['head'] for w in cl_syntax_words ]
+                # Find depenency relations pointing out of the clause
+                out_of_clause_heads = []
+                for w_id, w_head, w_lemma in zip(w_ids, w_heads, clause_lemmas):
+                    if w_head not in w_ids and w_lemma != ',':
+                        out_of_clause_heads.append( w_head )
+                root_clause = None
+                clauses_in_between = []
+                if out_of_clause_heads:
+                    # Find if any out_of_clause_heads leads to a (verbal) root 
+                    # in other/following clauses
+                    following_clause = 0
+                    for clause2, cl_syntax_words2 in zip(sent_clauses, sent_cl_syntax_words):
+                        last_clause = clause if not clauses_in_between else clauses_in_between[-1]
+                        if last_clause != clause2 and clause2.start-2 <= last_clause.end:
+                            # This is a regular clause following the initial clause 
+                            # or one of its followers
+                            if clause2.annotations[0]['clause_type'] == 'regular':
+                                clauses_in_between.append(clause2)
+                        if len(clauses_in_between) == 2:
+                            # Look only 2nd following clause
+                            clauses_in_between.pop(-1)
+                            clause2_deprels = [w.annotations[0]['deprel'] for w in cl_syntax_words2]
+                            if 'root' in clause2_deprels:
+                                parent_feats = \
+                                    _get_parent_features_in_clause(cl_syntax_words2, {'xpostag', 'deprel'})
+                                for wid, w in enumerate( cl_syntax_words2 ):
+                                    # Verbal root or its parent should be at beginning of the clause
+                                    if wid == 0 and \
+                                       w.annotations[0]['id'] in out_of_clause_heads and \
+                                       w.annotations[0]['xpostag'] == 'V':
+                                        if w.annotations[0]['deprel'] == 'root' or \
+                                           (parent_feats[wid]['deprel'] == 'root' and \
+                                            parent_feats[wid]['xpostag'] == 'V'):
+                                            root_clause = clause2
+                                            break
+                        if root_clause is not None:
+                            break
+                #
+                # (!) Skip problematic cases:
+                #
+                #  Exception: [Tõsi,] [et mitte jääda narriks,] [esitab fond Moskvale jätkuvalt nõudmisi.]
+                #              --> DON'T CHANGE
+                #             (tricky case)
+                #
+                #  Exception: [Alati,] [kui hakkan viina võtma,] [otsin ma taskust Mart Laari pildi.] 
+                #              --> DON'T CHANGE
+                #             (embedding changes the meaning of the main clause)
+                #
+                #  Exception: [Ent ükskõik,] [mis summa hüvitatakse,] [kasutatakse seekord /---/ omavastutust.]
+                #              --> DON'T CHANGE
+                #             (tricky case)
+                #
+                #  Exception: [Juhul,] [kui komisjon peab vajalikuks,] [tuleb eelarves teha muudatusi.]
+                #              --> DON'T CHANGE
+                #             (tricky case)
+                #
+                #  Exception: [Lugupeetud kolleegid,] [nagu komisjon ütles,] [vajab eelnõu /---/]
+                #              --> DON'T CHANGE
+                #             (tricky case)
+                #
+                problematic = any( [lemma in ['lugupeetud', 'austatud', 'tõepoolest', 'tõsi', \
+                                              'muide', 'muuseas', 'võimalik', 'alati', 'ükskõik', \
+                                                                'niipea', 'iseasi', 'iseküsimus'] \
+                                                                  for lemma in clause_lemmas] )
+                clause_word_texts = [ w.text.lower() for w in cl_syntax_words ]
+                problematic = problematic or any( [word in ['kallid', 'juhul', 'juhtudel'] \
+                                                            for word in clause_word_texts] )
+                #
+                #  Exception: If the clause in between ends with quotes, then 
+                #             it is likely a part of the direct speech --> DON'T CHANGE
+                #
+                problematic = problematic or \
+                              (len(clauses_in_between) > 0 and 
+                               clauses_in_between[-1][-1].text in ['"', "'", '»', '“', '”'])
+                if root_clause is not None and not problematic:
+                    pat_name = 'disconnected_root_clause'
+                    # Add error marker to the output layer
+                    if pat_name not in errors_layer.meta:
+                        errors_layer.meta[pat_name] = 0
+                    errors_layer.meta[pat_name] += 1
+                    status[pat_name] += 1
+                    embed_positions  = f'{cl_syntax_words[-1].start}:{last_clause.end}'
+                    parent_positions = f'{clause.start}:{root_clause.end}'
+                    correction_desc = f'Embed the adjusted clause {embed_positions} '+\
+                                      f'into clause {parent_positions}.'
+                    errors_layer.add_annotation( root_clause[0].base_span, 
+                                                 err_type=pat_name, 
+                                                 sent_id=sent_id, 
+                                                 correction_description=correction_desc )
+                    # Construct debug output
+                    if debug_output:
+                        output_str.append( '\n' )
+                        output_str.append( '='*50 )
+                        output_str.append( '\n' )
+                        output_str.append( f'{pat_name}::{status[pat_name]}' )
+                        output_str.append( '\n' )
+                        output_str.append( '\n' )
+                        for clause2, cl_syntax_words2 in zip(sent_clauses, sent_cl_syntax_words):
+                            cl_word_idx = 0
+                            cl_type = clause2.annotations[0]['clause_type']
+                            if cl_type == 'embedded':
+                                output_str.append( '<EMBEDDED_CLAUSE>' )
+                                output_str.append( '\n' )
+                            for w in cl_syntax_words2:
+                                marking = ''
+                                if w.base_span == root_clause[0].base_span:
+                                    marking = '<--- NEW EMBEDDING FROM PREV CLAUSE'
+                                output_str.append( f"{w.text} {w.annotations[0]['id']} {w.annotations[0]['head']} {w.annotations[0]['deprel']} {marking}" )
+                                output_str.append( '\n' )
+                            output_str.append( '' )
+                            output_str.append( '\n' )
+                        output_str.append( '' )
+                        output_str.append( '\n' )
+                
     return errors_layer if not debug_output else (errors_layer, ''.join(output_str))
 
 
@@ -548,6 +710,8 @@ _pattern_simple_split = \
     re.compile(r'Split clause after position (\d+)\.')
 _pattern_split_and_embed = \
     re.compile(r'Split clause after position (\d+) and then embed the clause (\d+):(\d+) into clause (\d+):(\d+)\.')
+_pattern_embed = \
+    re.compile(r'Embed the adjusted clause (\d+):(\d+) into clause (\d+):(\d+)\.')
 
 def fix_clause_errors_with_syntax( text, clauses_layer='clauses', syntax_layer='syntax', 
                                          sentences_layer='sentences', output_layer='clauses' ):
@@ -613,6 +777,7 @@ def fix_clause_errors_with_syntax( text, clauses_layer='clauses', syntax_layer='
                     continue
                 m1 = _pattern_simple_split.match(correction_description)
                 m2 = _pattern_split_and_embed.match(correction_description)
+                m3 = _pattern_embed.match(correction_description)
                 if m1:
                     # Instruction:  Split clause after position (\d+).
                     split_after = int(m1.group(1))
@@ -714,7 +879,82 @@ def fix_clause_errors_with_syntax( text, clauses_layer='clauses', syntax_layer='
                                 # Simply copy the old clause
                                 annotation = {attr: clause.annotations[0][attr] for attr in fixed_layer.attributes}
                                 fixed_layer.add_annotation( clause.base_span, annotation )
-
+                    else:
+                        raise Exception( ('(!) Unable to find clauses meeting '+\
+                                          'correction_description {!r}.').format(correction_description) )
+                elif m3:
+                    # Instruction: Embed the adjusted clause (\d+):(\d+) into clause (\d+):(\d+)
+                    embed_start  = int(m2.group(1))
+                    embed_end    = int(m2.group(2))
+                    parent_start = int(m2.group(3))
+                    parent_end   = int(m2.group(4))
+                    old_clause = None
+                    old_clause_id = None
+                    old_parent_clause_start = None
+                    old_parent_clause_start_id = None
+                    old_parent_clause_end = None
+                    old_parent_clause_end_id = None
+                    conj_span = None
+                    embedded_clause = []
+                    parent_clause_start = []
+                    parent_clause_end = []
+                    for cid, clause in enumerate(sent_clauses):
+                        split_clause_at_word = -1
+                        for wid, word in enumerate(clause):
+                            if word.start == parent_start:
+                                # First half of the parent clause
+                                assert wid == 0
+                                old_parent_clause_start = clause
+                                old_parent_clause_start_id = cid
+                                parent_clause_start = []
+                                while wid < len(clause):
+                                    word = clause[wid]
+                                    if word.start < embed_start:
+                                        parent_clause_start.append(word.base_span)
+                                    elif word.start == embed_start:
+                                        conj_span = word.base_span
+                                        break
+                                    else:
+                                        break
+                                    wid += 1
+                                break
+                            if word.end == embed_end:
+                                # Embedded clause
+                                old_clause = clause
+                                old_clause_id = cid
+                                embedded_clause = \
+                                    [clause[i].base_span for i in range(0, wid+1)]
+                                assert embedded_clause[-1].end == embed_end
+                                break
+                            if word.end == parent_end:
+                                # End of the parent clause
+                                old_parent_clause_end = clause
+                                old_parent_clause_end_id = cid
+                                parent_clause_end = \
+                                    [clause[i].base_span for i in range(0, wid+1)]
+                                assert parent_clause_end[-1].end == parent_end
+                        if embedded_clause and parent_clause_start and parent_clause_end:
+                            break
+                    if embedded_clause and parent_clause_start and parent_clause_end and conj_span:
+                        # Apply fixes
+                        # TODO: make it work in a way that multiple fixes can also be applied on a sentence
+                        for cid, clause in enumerate(sent_clauses):
+                            if cid == old_parent_clause_start_id:
+                                # Make a parent clause
+                                annotation = {attr: old_parent_clause_start.annotations[0][attr] for attr in fixed_layer.attributes}
+                                fixed_layer.add_annotation( parent_clause_start + parent_clause_end, annotation )
+                            elif cid == old_parent_clause_end_id:
+                                # Leave out old parent clause ending
+                                pass
+                            elif cid == old_clause_id:
+                                # Make an embedded clause
+                                annotation = {attr: old_parent_clause.annotations[0][attr] for attr in fixed_layer.attributes}
+                                annotation['clause_type'] = 'embedded'
+                                fixed_layer.add_annotation( [conj_span]+embedded_clause, annotation )
+                            else:
+                                # Simply copy the old clause
+                                annotation = {attr: clause.annotations[0][attr] for attr in fixed_layer.attributes}
+                                fixed_layer.add_annotation( clause.base_span, annotation )
                     else:
                         raise Exception( ('(!) Unable to find clauses meeting '+\
                                           'correction_description {!r}.').format(correction_description) )
