@@ -246,8 +246,8 @@ def _get_parent_features_in_clause(cl_syntax_words, features):
     '''Returns a list of dictionaries of parent features of words. 
        Only features of parents that are inside the clause will 
        be extracted; however, each dictionary will always contain 
-       full set of keys, but words with missing parents have their 
-       feature values set to None.'''
+       full set of keys, but words with missing parents have all 
+       of their feature values set to None.'''
     assert isinstance(features, (set, list))
     cl_ids = [ w.annotations[0]['id'] for w in cl_syntax_words ]
     cl_id_map = {ind:i for i, ind in enumerate(cl_ids)}
@@ -509,7 +509,7 @@ def detect_clause_errors( text, output_layer='clause_errors',
             elif first_verb_idx == -1 and clause_lemmas[-1] == ',' and 'root' not in clause_deprels:
                 # ==========================================
                 # Detect errors related to disconnected root clauses 
-                # (an embedding should be cut out in order to connect clauses)
+                # (an embedding should be cut out in order to connect the root clause)
                 # ==========================================
                 #
                 # Pattern: [ A ... no_verb/no_root/headed_by_root     , ] [ B ... , ] [ C root ... ] --> 
@@ -542,6 +542,9 @@ def detect_clause_errors( text, output_layer='clause_errors',
                     # in other/following clauses
                     following_clause = 0
                     for clause2, cl_syntax_words2 in zip(sent_clauses, sent_cl_syntax_words):
+                        if clause2.end < clause.start:
+                            # Skip preceding clauses
+                            continue
                         last_clause = clause if not clauses_in_between else clauses_in_between[-1]
                         if last_clause != clause2 and clause2.start-2 <= last_clause.end:
                             # This is a regular clause following the initial clause 
@@ -872,7 +875,7 @@ def fix_clause_errors_with_syntax( text, clauses_layer='clauses', syntax_layer='
                                 fixed_layer.add_annotation( parent_clause_start + parent_clause_end, annotation )
                             elif cid == old_clause_id:
                                 # Make an embedded clause
-                                annotation = {attr: old_parent_clause.annotations[0][attr] for attr in fixed_layer.attributes}
+                                annotation = {attr: old_clause.annotations[0][attr] for attr in fixed_layer.attributes}
                                 annotation['clause_type'] = 'embedded'
                                 fixed_layer.add_annotation( [conj_span]+embedded_clause, annotation )
                             else:
@@ -884,10 +887,10 @@ def fix_clause_errors_with_syntax( text, clauses_layer='clauses', syntax_layer='
                                           'correction_description {!r}.').format(correction_description) )
                 elif m3:
                     # Instruction: Embed the adjusted clause (\d+):(\d+) into clause (\d+):(\d+)
-                    embed_start  = int(m2.group(1))
-                    embed_end    = int(m2.group(2))
-                    parent_start = int(m2.group(3))
-                    parent_end   = int(m2.group(4))
+                    embed_start  = int(m3.group(1))
+                    embed_end    = int(m3.group(2))
+                    parent_start = int(m3.group(3))
+                    parent_end   = int(m3.group(4))
                     old_clause = None
                     old_clause_id = None
                     old_parent_clause_start = None
@@ -937,7 +940,6 @@ def fix_clause_errors_with_syntax( text, clauses_layer='clauses', syntax_layer='
                             break
                     if embedded_clause and parent_clause_start and parent_clause_end and conj_span:
                         # Apply fixes
-                        # TODO: make it work in a way that multiple fixes can also be applied on a sentence
                         for cid, clause in enumerate(sent_clauses):
                             if cid == old_parent_clause_start_id:
                                 # Make a parent clause
@@ -948,7 +950,7 @@ def fix_clause_errors_with_syntax( text, clauses_layer='clauses', syntax_layer='
                                 pass
                             elif cid == old_clause_id:
                                 # Make an embedded clause
-                                annotation = {attr: old_parent_clause.annotations[0][attr] for attr in fixed_layer.attributes}
+                                annotation = {attr: old_clause.annotations[0][attr] for attr in fixed_layer.attributes}
                                 annotation['clause_type'] = 'embedded'
                                 fixed_layer.add_annotation( [conj_span]+embedded_clause, annotation )
                             else:
