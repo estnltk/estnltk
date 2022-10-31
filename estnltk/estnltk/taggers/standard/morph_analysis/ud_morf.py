@@ -16,7 +16,7 @@ from estnltk.taggers import Tagger
 
 from estnltk.taggers.standard.morph_analysis.morf_common import _is_empty_annotation
 
-# Mapping cases from Vabamorf to UD
+# Mapping noun cases from Vabamorf to UD
 vm_to_ud_case_mapping = {
     'n':'Nom', 
     'g':'Gen',
@@ -36,8 +36,18 @@ vm_to_ud_case_mapping = {
     'adt':'Add'
 }
 
+# Mapping verb forms from Vabamorf to UD
 # Based on:  https://cl.ut.ee/ressursid/morfo-systeemid/
-_verb_conversion_rules = [ \
+# For ambiguous form categories, there are multiple entries per category
+_verb_form_conversion_rules = [ \
+  ('da',   OrderedDict([('VerbForm','Inf')]) ),
+  ('des',  OrderedDict([('VerbForm','Conv')]) ),
+  ('ma',   OrderedDict([('Voice','Act'), ('VerbForm','Sup'), ('Case','Ill')]) ),
+  ('mas',  OrderedDict([('Voice','Act'), ('VerbForm','Sup'), ('Case','Ine')]) ),
+  ('mast', OrderedDict([('Voice','Act'), ('VerbForm','Sup'), ('Case','Ela')]) ),
+  ('maks', OrderedDict([('Voice','Act'), ('VerbForm','Sup'), ('Case','Tra')]) ),
+  ('mata', OrderedDict([('Voice','Act'), ('VerbForm','Sup'), ('Case','Abe')]) ),
+
   ('n', OrderedDict([('Voice','Act'), ('Tense','Pres'), ('Mood','Ind'), ('VerbForm','Fin'), ('Number','Sing'), ('Person','1')]) ),
   ('d', OrderedDict([('Voice','Act'), ('Tense','Pres'), ('Mood','Ind'), ('VerbForm','Fin'), ('Number','Sing'), ('Person','2')]) ),
   ('b', OrderedDict([('Voice','Act'), ('Tense','Pres'), ('Mood','Ind'), ('VerbForm','Fin'), ('Number','Sing'), ('Person','3')]) ),
@@ -45,19 +55,81 @@ _verb_conversion_rules = [ \
   ('te',  OrderedDict([('Voice','Act'), ('Tense','Pres'), ('Mood','Ind'), ('VerbForm','Fin'), ('Number','Plur'), ('Person','2')]) ),
   ('vad', OrderedDict([('Voice','Act'), ('Tense','Pres'), ('Mood','Ind'), ('VerbForm','Fin'), ('Number','Plur'), ('Person','3')]) ),
   
+  ('o', OrderedDict([('Voice','Act'), ('Tense','Pres'), ('Mood','Ind'), ('VerbForm','Fin'), ('Connegative','Yes')]) ),   # ambiguous
+  
   ('ksin', OrderedDict([('Voice','Act'), ('Tense','Pres'), ('Mood','Cnd'), ('VerbForm','Fin'), ('Number','Sing'), ('Person','1')]) ),
-  ('ksid', OrderedDict([('Voice','Act'), ('Tense','Pres'), ('Mood','Cnd'), ('VerbForm','Fin'), ('Number','Sing'), ('Person','2')]) ),  # TODO: ambiguous
+  ('ksid', OrderedDict([('Voice','Act'), ('Tense','Pres'), ('Mood','Cnd'), ('VerbForm','Fin'), ('Number','Sing'), ('Person','2')]) ),  # ambiguous
   ('ks',   OrderedDict([('Voice','Act'), ('Tense','Pres'), ('Mood','Cnd'), ('VerbForm','Fin'), ('Number','Sing') ]) ),
   ('ksime', OrderedDict([('Voice','Act'), ('Tense','Pres'), ('Mood','Cnd'), ('VerbForm','Fin'), ('Number','Plur'), ('Person','1')]) ),
   ('ksite', OrderedDict([('Voice','Act'), ('Tense','Pres'), ('Mood','Cnd'), ('VerbForm','Fin'), ('Number','Plur'), ('Person','2')]) ),
-  ('ksid',  OrderedDict([('Voice','Act'), ('Tense','Pres'), ('Mood','Cnd'), ('VerbForm','Fin'), ('Number','Plur'), ('Person','3')]) ), # TODO: ambiguous
+  ('ksid',  OrderedDict([('Voice','Act'), ('Tense','Pres'), ('Mood','Cnd'), ('VerbForm','Fin'), ('Number','Plur'), ('Person','3')]) ), # ambiguous
+  
+  ('o',   OrderedDict([('Voice','Act'), ('Tense','Pres'), ('Mood','Imp'), ('VerbForm','Fin'), ('Number','Sing'), ('Person','2') ]) ),                         # ambiguous
+  ('o',   OrderedDict([('Voice','Act'), ('Tense','Pres'), ('Mood','Imp'), ('VerbForm','Fin'), ('Number','Sing'), ('Person','2'), ('Connegative','Yes')]) ),   # ambiguous
+  ('gu',  OrderedDict([('Voice','Act'), ('Tense','Pres'), ('Mood','Imp'), ('VerbForm','Fin') ]) ),                                                                # ambiguous
+  ('gu',  OrderedDict([('Voice','Act'), ('Tense','Pres'), ('Mood','Imp'), ('VerbForm','Fin'), ('Connegative','Yes') ]) ),                                         # ambiguous
+  ('gu',  OrderedDict([('Voice','Act'), ('Tense','Pres'), ('Mood','Imp'), ('VerbForm','Fin'), ('Number','Sing,Plur'), ('Person','3') ]) ),                        # ambiguous
+  ('gu',  OrderedDict([('Voice','Act'), ('Tense','Pres'), ('Mood','Imp'), ('VerbForm','Fin'), ('Number','Sing,Plur'), ('Person','3'), ('Connegative','Yes') ]) ), # ambiguous
+  ('gem', OrderedDict([('Voice','Act'), ('Tense','Pres'), ('Mood','Imp'), ('VerbForm','Fin'), ('Number','Plur'), ('Person','1') ]) ),  
+  ('gem', OrderedDict([('Voice','Act'), ('Tense','Pres'), ('Mood','Imp'), ('VerbForm','Fin'), ('Number','Plur'), ('Person','1'), ('Connegative','Yes') ]) ),
+  ('ge',  OrderedDict([('Voice','Act'), ('Tense','Pres'), ('Mood','Imp'), ('VerbForm','Fin'), ('Number','Plur'), ('Person','2') ]) ),  
+  ('ge',  OrderedDict([('Voice','Act'), ('Tense','Pres'), ('Mood','Imp'), ('VerbForm','Fin'), ('Number','Plur'), ('Person','2'), ('Connegative','Yes') ]) ),
+  
+  ('vat',  OrderedDict([('Voice','Act'), ('Tense','Pres'), ('Mood','Qot'), ('VerbForm','Fin') ]) ),  
+  ('vat',  OrderedDict([('Voice','Act'), ('Tense','Pres'), ('Mood','Qot'), ('VerbForm','Fin'), ('Connegative','Yes') ]) ),
+
+  ('v',    OrderedDict([('Voice','Act'), ('Tense','Pres'), ('VerbForm','Part')]) ),
   
   ('sin',  OrderedDict([('Voice','Act'), ('Tense','Past'), ('Mood','Ind'), ('VerbForm','Fin'), ('Number','Sing'), ('Person','1')]) ),
-  ('sid',  OrderedDict([('Voice','Act'), ('Tense','Past'), ('Mood','Ind'), ('VerbForm','Fin'), ('Number','Sing'), ('Person','2')]) ), # TODO: ambiguous
+  ('sid',  OrderedDict([('Voice','Act'), ('Tense','Past'), ('Mood','Ind'), ('VerbForm','Fin'), ('Number','Sing'), ('Person','2')]) ), # ambiguous
   ('s',    OrderedDict([('Voice','Act'), ('Tense','Past'), ('Mood','Ind'), ('VerbForm','Fin'), ('Number','Sing'), ('Person','3')]) ),
   ('sime', OrderedDict([('Voice','Act'), ('Tense','Past'), ('Mood','Ind'), ('VerbForm','Fin'), ('Number','Plur'), ('Person','1')]) ),
   ('site', OrderedDict([('Voice','Act'), ('Tense','Past'), ('Mood','Ind'), ('VerbForm','Fin'), ('Number','Plur'), ('Person','2')]) ),
-  ('sid',  OrderedDict([('Voice','Act'), ('Tense','Past'), ('Mood','Ind'), ('VerbForm','Fin'), ('Number','Plur'), ('Person','3')]) ), # TODO: ambiguous
+  ('sid',  OrderedDict([('Voice','Act'), ('Tense','Past'), ('Mood','Ind'), ('VerbForm','Fin'), ('Number','Plur'), ('Person','3')]) ), # ambiguous
+  ('nud',  OrderedDict([('Voice','Act'), ('Tense','Past'), ('Mood','Ind'), ('VerbForm','Fin'), ('Connegative','Yes') ]) ), # ambiguous
+  
+  ('nuksin',  OrderedDict([('Voice','Act'), ('Tense','Past'), ('Mood','Cnd'), ('VerbForm','Fin'), ('Number','Sing'), ('Person','1')]) ),
+  ('nuksid',  OrderedDict([('Voice','Act'), ('Tense','Past'), ('Mood','Cnd'), ('VerbForm','Fin'), ('Number','Sing'), ('Person','2')]) ),  # ambiguous
+  ('nuks',    OrderedDict([('Voice','Act'), ('Tense','Past'), ('Mood','Cnd'), ('VerbForm','Fin'), ('Number','Sing') ]) ),
+  ('nuks',    OrderedDict([('Voice','Act'), ('Tense','Past'), ('Mood','Cnd'), ('VerbForm','Fin'), ('Number','Sing'), ('Connegative','Yes') ]) ),
+  ('nuksime', OrderedDict([('Voice','Act'), ('Tense','Past'), ('Mood','Cnd'), ('VerbForm','Fin'), ('Number','Plur'), ('Person','1')]) ),
+  ('nuksite', OrderedDict([('Voice','Act'), ('Tense','Past'), ('Mood','Cnd'), ('VerbForm','Fin'), ('Number','Plur'), ('Person','2')]) ),
+  ('nuksid',  OrderedDict([('Voice','Act'), ('Tense','Past'), ('Mood','Cnd'), ('VerbForm','Fin'), ('Number','Plur'), ('Person','3')]) ),  # ambiguous
+  
+  ('nuvat',  OrderedDict([('Voice','Act'), ('Tense','Past'), ('Mood','Qot'), ('VerbForm','Fin') ]) ),  
+  ('nuvat',  OrderedDict([('Voice','Act'), ('Tense','Past'), ('Mood','Qot'), ('VerbForm','Fin'), ('Connegative','Yes') ]) ),
+  ('nud',    OrderedDict([('Voice','Act'), ('Tense','Past'), ('VerbForm','Part') ]) ), # ambiguous
+
+  ('tama',   OrderedDict([('Voice','Pass'), ('VerbForm','Sup') ]) ),  
+  ('takse',  OrderedDict([('Voice','Pass'), ('Tense','Pres'), ('Mood','Ind'), ('VerbForm','Fin') ]) ),  
+  ('ta',     OrderedDict([('Voice','Pass'), ('Tense','Pres'), ('Mood','Ind'), ('VerbForm','Fin'), ('Connegative','Yes') ]) ),
+  ('taks',   OrderedDict([('Voice','Pass'), ('Tense','Pres'), ('Mood','Cnd'), ('VerbForm','Fin') ]) ),
+  ('taks',   OrderedDict([('Voice','Pass'), ('Tense','Pres'), ('Mood','Cnd'), ('VerbForm','Fin'), ('Connegative','Yes') ]) ),
+  ('tagu',   OrderedDict([('Voice','Pass'), ('Tense','Pres'), ('Mood','Imp'), ('VerbForm','Fin') ]) ),
+  ('tagu',   OrderedDict([('Voice','Pass'), ('Tense','Pres'), ('Mood','Imp'), ('VerbForm','Fin'), ('Connegative','Yes') ]) ),
+  ('tavat',  OrderedDict([('Voice','Pass'), ('Tense','Pres'), ('Mood','Qot'), ('VerbForm','Fin') ]) ),
+  ('tavat',  OrderedDict([('Voice','Pass'), ('Tense','Pres'), ('Mood','Qot'), ('VerbForm','Fin'), ('Connegative','Yes') ]) ),
+
+  ('tav',    OrderedDict([('Voice','Pass'), ('Tense','Pres'), ('VerbForm','Part')]) ),
+
+  ('ti',    OrderedDict([('Voice','Pass'), ('Tense','Past'), ('Mood','Ind'), ('VerbForm','Fin') ]) ),  
+  ('tud',   OrderedDict([('Voice','Pass'), ('Tense','Past'), ('Mood','Ind'), ('VerbForm','Fin'), ('Connegative','Yes') ]) ),  # ambiguous 
+  ('tuks',  OrderedDict([('Voice','Pass'), ('Tense','Past'), ('Mood','Cnd'), ('VerbForm','Fin') ]) ),  
+  ('tuks',  OrderedDict([('Voice','Pass'), ('Tense','Past'), ('Mood','Cnd'), ('VerbForm','Fin'), ('Connegative','Yes') ]) ),  
+  ('tud',   OrderedDict([('Voice','Pass'), ('Tense','Past'), ('VerbForm','Part') ]) ),  # ambiguous 
+  
+  ('neg o',    OrderedDict([('Voice','Act'), ('Tense','Pres'), ('Mood','Ind'), ('VerbForm','Fin'), ('Polarity','Neg') ]) ),  # ambiguous 
+  ('neg ks',   OrderedDict([('Voice','Act'), ('Tense','Pres'), ('Mood','Cnd'), ('VerbForm','Fin'), ('Polarity','Neg') ]) ),
+  ('neg o',    OrderedDict([('Voice','Act'), ('Tense','Pres'), ('Mood','Imp'), ('VerbForm','Fin'), ('Number','Sing'), ('Person','2'), ('Polarity','Neg') ]) ),  # ambiguous 
+  ('neg gu',   OrderedDict([('Voice','Act'), ('Tense','Pres'), ('Mood','Imp'), ('VerbForm','Fin'), ('Number','Sing,Plur'), ('Person','3'), ('Polarity','Neg') ]) ),
+  ('neg gem',  OrderedDict([('Voice','Act'), ('Tense','Pres'), ('Mood','Imp'), ('VerbForm','Fin'), ('Number','Plur'), ('Person','1'), ('Polarity','Neg') ]) ),
+  ('neg me',   OrderedDict([('Voice','Act'), ('Tense','Pres'), ('Mood','Imp'), ('VerbForm','Fin'), ('Polarity','Neg') ]) ),
+  ('neg ge',   OrderedDict([('Voice','Act'), ('Tense','Pres'), ('Mood','Imp'), ('VerbForm','Fin'), ('Number','Plur'), ('Person','2'), ('Polarity','Neg') ]) ),
+  ('neg vat',  OrderedDict([('Voice','Act'), ('Tense','Pres'), ('Mood','Qot'), ('VerbForm','Fin'), ('Polarity','Neg') ]) ),  
+  ('neg nud',  OrderedDict([('Voice','Act'), ('Tense','Past'), ('Mood','Ind'), ('VerbForm','Fin'), ('Polarity','Neg') ]) ),  
+  ('neg nuks', OrderedDict([('Voice','Act'), ('Tense','Pres'), ('Mood','Cnd'), ('VerbForm','Fin'), ('Polarity','Neg') ]) ),
+  ('neg da',   OrderedDict([('Voice','Pass'), ('Tense','Pres'), ('Mood','Ind'), ('VerbForm','Fin'), ('Polarity','Neg') ]) ),
+  ('neg tud',  OrderedDict([('Voice','Pass'), ('Tense','Past'), ('Mood','Ind'), ('VerbForm','Part'), ('Polarity','Neg') ]) ), 
 ]
 
 def _has_postag(upostag, upostag_variants):
@@ -192,6 +264,7 @@ class UDMorphConverter( Tagger ):
             if isinstance(value, str):
                 if ',' in value:
                     values = value.split(',')
+                    values = [v.strip() for v in values]
                     ambiguous[attr] = values
                 else:
                     non_ambiguous[attr] = value
@@ -200,6 +273,7 @@ class UDMorphConverter( Tagger ):
                     key = attr+':::'+attr2
                     if ',' in value2:
                         values2 = value2.split(',')
+                        values2 = [v.strip() for v in values2]
                         ambiguous[key] = values2
                     else:
                         non_ambiguous[key] = value2
@@ -249,6 +323,7 @@ class UDMorphConverter( Tagger ):
         base_ud_annotation['lemma']   = vm_lemma
         has_ambiguity = False
         
+        ud_annotations = []
         # 0) TODO: Use dictionary-based conversions as the first step
         #
         
@@ -343,44 +418,18 @@ class UDMorphConverter( Tagger ):
             base_ud_annotation['feats']['Number'] = 'Sing'
             base_ud_annotation['feats']['Case']   = 'Gen'
 
-        # 2) Convert morphological features: 
+        # 2) Convert morphological features of nouns and declinable words: 
         
         # Number:
         # https://github.com/EstSyntax/EstUD/blob/master/cgmorf2conllu/cgmorf2conllu.py#L545-L551
-        if 'sg' in vm_form and base_ud_annotation['upostag'] in ['NOUN', 'PROPN', 'ADJ', 'DET', 'PRON', 'NUM']:
+        if 'sg' in vm_form and _has_postag(base_ud_annotation['upostag'], ['NOUN', 'PROPN', 'ADJ', 'DET', 'PRON', 'NUM']):
             base_ud_annotation['feats']['Number'] = 'Sing'
-        elif 'pl' in vm_form and base_ud_annotation['upostag'] in ['NOUN', 'PROPN', 'ADJ', 'DET', 'PRON', 'NUM']:
+        elif 'pl' in vm_form and _has_postag(base_ud_annotation['upostag'], ['NOUN', 'PROPN', 'ADJ', 'DET', 'PRON', 'NUM']):
             base_ud_annotation['feats']['Number'] = 'Plur'
-        # TODO: Number for VERB and AUX
 
-        # VerbForm:
-        # https://github.com/EstSyntax/EstUD/blob/master/cgmorf2conllu/cgmorf2conllu.py#L552-L563
-        # https://cl.ut.ee/ressursid/morfo-systeemid/
-        if vm_form == 'da':
-            base_ud_annotation['feats']['VerbForm'] = 'Inf'
-        elif vm_form == 'des':
-            base_ud_annotation['feats']['VerbForm'] = 'Conv'
-        elif vm_form in ['ma', 'mas', 'mast', 'maks', 'mata'] and \
-             _has_postag(base_ud_annotation['upostag'], ['VERB', 'AUX']):
-            base_ud_annotation['feats']['VerbForm'] = 'Sup'
-            # Add case information
-            if vm_form == 'ma':
-                base_ud_annotation['feats']['Case'] = 'Ill'
-            elif vm_form == 'mas':
-                base_ud_annotation['feats']['Case'] = 'Ine'
-            elif vm_form == 'mast':
-                base_ud_annotation['feats']['Case'] = 'Ela'
-            elif vm_form == 'maks':
-                base_ud_annotation['feats']['Case'] = 'Tra'
-            elif vm_form == 'mata':
-                base_ud_annotation['feats']['Case'] = 'Abe'
-        elif vm_form in ['v', 'nud', 'tud', 'tav'] and \
-             _has_postag(base_ud_annotation['upostag'], ['VERB', 'AUX']):
-            base_ud_annotation['feats']['VerbForm'] = 'Part'
-        
         # Case:
         # https://github.com/EstSyntax/EstUD/blob/master/cgmorf2conllu/cgmorf2conllu.py#L566-L620
-        if base_ud_annotation['upostag'] in ['NOUN', 'PROPN', 'ADJ', 'DET', 'PRON', 'NUM']:
+        if _has_postag(base_ud_annotation['upostag'], ['NOUN', 'PROPN', 'ADJ', 'DET', 'PRON', 'NUM']):
             case = ''
             if len(vm_form.split()) > 1:
                 case = vm_to_ud_case_mapping.get(vm_form.split()[1], '')
@@ -401,21 +450,44 @@ class UDMorphConverter( Tagger ):
                 base_ud_annotation['feats']['NumForm'] = 'Word'
             # TODO: add regex for detecting roman numerals or something
 
+        # 3) Convert morphological features of verbs: 
+
+        # Some exceptional verb forms
+        if _has_postag(base_ud_annotation['upostag'], ['VERB', 'AUX']):
+            if vm_lemma == 'ei':
+                base_ud_annotation['upostag'] = 'AUX' # disambiguate postag
+                base_ud_annotation['feats']['Polarity'] = 'Neg'
+            elif vm_lemma in ['kuulukse', 'tunnukse', 'näikse']:
+                base_ud_annotation['feats']['Tense'] = 'Pres'
+                base_ud_annotation['feats']['Mood'] = 'Ind'
+                base_ud_annotation['feats']['VerbForm']  = 'Fin'
+
         # Person, Polarity, Voice, Tense, Mood, VerbForm
+        # https://github.com/EstSyntax/EstUD/blob/master/cgmorf2conllu/cgmorf2conllu.py#L552-L563
         # https://github.com/EstSyntax/EstUD/blob/master/cgmorf2conllu/cgmorf2conllu.py#L647-L758
         # https://cl.ut.ee/ressursid/morfo-systeemid/
         if _has_postag(base_ud_annotation['upostag'], ['VERB', 'AUX']):
             # Use rule-based conversion for most of the verbs
-            for (form, features) in _verb_conversion_rules:
+            # Note that this can produce ambiguous annotations
+            all_form_annotations = []
+            for (form, features) in _verb_form_conversion_rules:
                 if vm_form == form:
+                    # Copy base annotation
+                    new_annotation = {k:base_ud_annotation[k] for k in base_ud_annotation.keys()}
+                    new_annotation['feats'] = base_ud_annotation['feats'].copy()
+                    # Add new features
                     for attr, key in features.items():
-                        base_ud_annotation['feats'][attr] = key
-            
+                        new_annotation['feats'][attr] = key
+                    all_form_annotations.append(new_annotation)
+            ud_annotations.extend( all_form_annotations )
+        
+        if len(ud_annotations) == 0:
+            ud_annotations = [base_ud_annotation]
 
-        ud_annotations = []
         if has_ambiguity:
             # if there were ambiguities, then generate all combinations
-            ud_annotations = self._generate_ambiguous_analyses(base_ud_annotation)
-        else:
-            ud_annotations.append( base_ud_annotation )
+            new_ud_annotations = []
+            for base_ud_annotation in ud_annotations:
+                new_ud_annotations.extend( self._generate_ambiguous_analyses(base_ud_annotation) )
+            ud_annotations = new_ud_annotations
         return ud_annotations
