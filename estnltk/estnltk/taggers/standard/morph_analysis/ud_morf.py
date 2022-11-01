@@ -7,6 +7,7 @@
 
 import re
 import itertools
+import os, os.path
 
 from collections import OrderedDict
 
@@ -14,7 +15,12 @@ from estnltk import Layer, Text
 
 from estnltk.taggers import Tagger
 
+from estnltk.taggers.standard.morph_analysis.morf_common import VABAMORF_POSTAGS
 from estnltk.taggers.standard.morph_analysis.morf_common import _is_empty_annotation
+
+# Default rules for converting (vm_pos, vm_lemma) to (ud_pos, ud_feats)
+DEFAULT_VM_CONV_RULES_DIR = \
+    os.path.join( os.path.dirname(__file__), 'ud_conv_rules' )
 
 # Mapping noun cases from Vabamorf to UD
 vm_to_ud_case_mapping = {
@@ -154,6 +160,8 @@ class UDMorphConverter( Tagger ):
                    '_input_words_layer', \
                    '_input_sentences_layer', \
                    '_input_morph_analysis_layer', \
+                   # Rules: vm_pos, vm_lemma to upostag & feats
+                   '_pos_lemma_conv_rules'
                  ]
 
     def __init__(self, \
@@ -161,7 +169,8 @@ class UDMorphConverter( Tagger ):
                  input_words_layer:str='words', \
                  input_sentences_layer:str='sentences', \
                  input_morph_analysis_layer:str='morph_analysis', \
-                 input_clauses_layer:str='clauses',
+                 input_clauses_layer:str='clauses', \
+                 conversion_rules_dir:str=None, \
                  add_deprel_attribs:bool=False ):
         ''' Initializes this UDMorphConverter.
             
@@ -178,6 +187,15 @@ class UDMorphConverter( Tagger ):
             
             input_morph_analysis_layer: str (default: 'morph_analysis')
                 Name of the input morph_analysis layer;
+            
+            conversion_rules_dir: str (default: None)
+                Directory containing *.tab files with dictionary-based conversions, 
+                each mapping a lemma to appropriate upostags and feats. 
+                If provided, then conversion rules will be loaded from the directory 
+                and applied as first the conversion step, before applying the default 
+                rules.
+                For examples about conversion files, see: 
+                https://github.com/EstSyntax/EstUD/tree/master/cgmorf2conllu/POS_LEMMA_RULES
             
             add_deprel_attribs: bool (default: False)
                 If set, then the output layer will have full set of UD fields,
@@ -196,6 +214,69 @@ class UDMorphConverter( Tagger ):
             self.output_attributes = ('id', 'lemma', 'upostag', 'xpostag', 'feats', 'head', 'deprel', 'deps', 'misc')
         else:
             self.output_attributes = ('id', 'lemma', 'upostag', 'xpostag', 'feats', 'misc')
+        self._pos_lemma_conv_rules = {}
+        if conversion_rules_dir is not None:
+            # Load conversion rules
+            assert os.path.exists(conversion_rules_dir), \
+                '(!) Non-existent conversion rules directory: {!r} '.format(conversion_rules_dir)
+            assert os.path.isdir(conversion_rules_dir), \
+                '(!) {!r} should be a directory.'.format(conversion_rules_dir)
+            for fname in os.listdir(conversion_rules_dir):
+                if fname.endswith('.tab'):
+                    fpath=os.path.join(conversion_rules_dir, fname)
+                    self._load_pos_lemma_conv_rules_from_file( fpath )
+
+    def _load_pos_lemma_conv_rules_from_file( self, fpath ):
+        '''
+        Loads tabbed conversion rules from the given file.
+        
+        Rules file name should start with an abbreviation of Vabamorf's 
+        postag, e.g. file "P_PRON.tab" contains rules for converting lemmas 
+        with Vabamorf's postag "P". 
+        
+        Expected file format: one rule per line with tab-separated values:
+        <Vabamorf's lemma> \t <UD postag> \t <UD features (optional)>
+        For example files, see:
+        https://github.com/EstSyntax/EstUD/tree/master/cgmorf2conllu/POS_LEMMA_RULES
+        
+        Returns None. All loaded rules will be saved under the instance variable 
+        `self._pos_lemma_conv_rules`.
+        '''
+        _, fname = os.path.split(fpath)
+        if fname[0] not in VABAMORF_POSTAGS:
+            raise ValueError(('(!) Unexpected conversion rules file name: {!r}. '+\
+                             "The name should start with a Vabamorf's postag.").format(fname))
+        vm_pos = fname[0]
+        with open( fpath, 'r', encoding='utf-8' ) as in_f:
+            for line in in_f:
+                line = line.strip()
+                if len(line) > 0:
+                    line_parts = line.split('\t')
+                    if len(line_parts) not in [2,3]:
+                        raise ValueError(('(!) Unexpected conversion rule {!r} in file {!r}.'+\
+                                          ''.format(line, fpath)))
+                    vm_lemma = line_parts[0]
+                    ud_pos = line_parts[1]
+                    ud_feats = None
+                    if len(line_parts) == 3:
+                        ud_feats = line_parts[2]
+                        # parse features
+                        ud_feats_parts = ud_feats.split()
+                        ud_feats_dict = OrderedDict()
+                        for part in ud_feats_parts:
+                            assert '=' in part
+                            key, value = part.split('=')
+                            ud_feats_dict[key] = value
+                        ud_feats = ud_feats_dict
+                    # add to dictonary
+                    if vm_pos not in self._pos_lemma_conv_rules:
+                        self._pos_lemma_conv_rules[vm_pos] = {}
+                    # note: if there are multiple rules per VM lemma & postag
+                    # overwrite previous rules
+                    self._pos_lemma_conv_rules[vm_pos][vm_lemma] = {}
+                    self._pos_lemma_conv_rules[vm_pos][vm_lemma]['upostag'] = ud_pos
+                    if ud_feats is not None:
+                        self._pos_lemma_conv_rules[vm_pos][vm_lemma]['feats'] = ud_feats
 
 
     def _make_layer_template(self):
@@ -324,99 +405,108 @@ class UDMorphConverter( Tagger ):
         has_ambiguity = False
         
         ud_annotations = []
-        # 0) TODO: Use dictionary-based conversions as the first step
-        #
+        # 0) Use dictionary-based conversions as the first step
+        # https://github.com/EstSyntax/EstUD/blob/master/cgmorf2conllu/cgmorf2conllu.py#L425-L432
+        if vm_pos in self._pos_lemma_conv_rules:
+            if vm_lemma in self._pos_lemma_conv_rules[vm_pos]:
+                dict_rules = self._pos_lemma_conv_rules[vm_pos][vm_lemma]
+                if 'upostag' in dict_rules:
+                    base_ud_annotation['upostag'] = dict_rules['upostag']
+                if 'feats' in dict_rules:
+                    for k, v in dict_rules['feats'].items():
+                        base_ud_annotation['feats'][k] = v
         
-        # 1) Convert part-of-speech, following: 
-        # https://github.com/EstSyntax/EstUD/blob/master/cgmorf2conllu/cgmorf2conllu.py#L435-L538
-        # S
-        if vm_pos == 'S':
-            base_ud_annotation['upostag'] = 'NOUN'
-        elif vm_pos == 'H':
-            base_ud_annotation['upostag'] = 'PROPN'
+        if base_ud_annotation['upostag'] == '':
+            # 1) Convert part-of-speech, following: 
+            # https://github.com/EstSyntax/EstUD/blob/master/cgmorf2conllu/cgmorf2conllu.py#L435-L538
+            # S
+            if vm_pos == 'S':
+                base_ud_annotation['upostag'] = 'NOUN'
+            elif vm_pos == 'H':
+                base_ud_annotation['upostag'] = 'PROPN'
 
-        ## A
-        elif vm_pos == 'A':
-            base_ud_annotation['upostag'] = 'ADJ'
-            base_ud_annotation['feats']['Degree'] = 'Pos'
-        elif vm_pos == 'C':
-            base_ud_annotation['upostag'] = 'ADJ'
-            base_ud_annotation['feats']['Degree'] = 'Cmp'
-        elif vm_pos == 'U':
-            base_ud_annotation['upostag'] = 'ADJ'
-            base_ud_annotation['feats']['Degree'] = 'Sup'
+            ## A
+            elif vm_pos == 'A':
+                base_ud_annotation['upostag'] = 'ADJ'
+                base_ud_annotation['feats']['Degree'] = 'Pos'
+            elif vm_pos == 'C':
+                base_ud_annotation['upostag'] = 'ADJ'
+                base_ud_annotation['feats']['Degree'] = 'Cmp'
+            elif vm_pos == 'U':
+                base_ud_annotation['upostag'] = 'ADJ'
+                base_ud_annotation['feats']['Degree'] = 'Sup'
 
-        ## P
-        elif vm_pos == 'P':
-            base_ud_annotation['upostag'] = 'PRON'
-            base_ud_annotation['feats']['PronType'] = 'Dem,Int,Ind,Prs,Rcp,Rel,Tot'
-            has_ambiguity = True
+            ## P
+            elif vm_pos == 'P':
+                base_ud_annotation['upostag'] = 'PRON'
+                base_ud_annotation['feats']['PronType'] = 'Dem,Int,Ind,Prs,Rcp,Rel,Tot'
+                has_ambiguity = True
 
-        ## N
-        elif vm_pos == 'N':
-            base_ud_annotation['upostag'] = 'NUM'
-            base_ud_annotation['feats']['NumType'] = 'Card'
-        elif vm_pos == 'O':
-            base_ud_annotation['upostag'] = 'NUM'
-            base_ud_annotation['feats']['NumType'] = 'Ord'
+            ## N
+            elif vm_pos == 'N':
+                base_ud_annotation['upostag'] = 'NUM'
+                base_ud_annotation['feats']['NumType'] = 'Card'
+            elif vm_pos == 'O':
+                base_ud_annotation['upostag'] = 'NUM'
+                base_ud_annotation['feats']['NumType'] = 'Ord'
 
-        ## K
-        elif vm_pos == 'K':
-            base_ud_annotation['upostag'] = 'ADP'
-            base_ud_annotation['feats']['AdpType'] = 'Prep,Post'
-            has_ambiguity = True
+            ## K
+            elif vm_pos == 'K':
+                base_ud_annotation['upostag'] = 'ADP'
+                base_ud_annotation['feats']['AdpType'] = 'Prep,Post'
+                has_ambiguity = True
 
-        ## D
-        elif vm_pos == 'D':
-            base_ud_annotation['upostag'] = 'ADV'
+            ## D
+            elif vm_pos == 'D':
+                base_ud_annotation['upostag'] = 'ADV'
 
-        ## V
-        elif vm_pos == 'V':
-            base_ud_annotation['upostag'] = 'VERB,AUX'  # main, aux, mod
-            has_ambiguity = True
+            ## V
+            elif vm_pos == 'V':
+                base_ud_annotation['upostag'] = 'VERB,AUX'  # main, aux, mod
+                has_ambiguity = True
 
-        ## J
-        elif vm_pos == 'J':
-            base_ud_annotation['upostag'] = 'CCONJ,SCONJ'  # crd, sub
-            has_ambiguity = True
+            ## J
+            elif vm_pos == 'J':
+                base_ud_annotation['upostag'] = 'CCONJ,SCONJ'  # crd, sub
+                has_ambiguity = True
 
-        ## Y
-        elif vm_pos == 'Y' and re.search('[A-ZÜÕÖÜ]', vm_lemma):
-            base_ud_annotation['upostag'] = 'PROPN'
-            base_ud_annotation['feats']['Abbr'] = 'Yes'
-        elif vm_pos == 'Y':
-            base_ud_annotation['upostag'] = 'SYM'
-            base_ud_annotation['feats']['Abbr'] = 'Yes'
+            ## Y
+            elif vm_pos == 'Y' and re.search('[A-ZÜÕÖÜ]', vm_lemma):
+                base_ud_annotation['upostag'] = 'PROPN'
+                base_ud_annotation['feats']['Abbr'] = 'Yes'
+            elif vm_pos == 'Y':
+                base_ud_annotation['upostag'] = 'SYM'
+                base_ud_annotation['feats']['Abbr'] = 'Yes'
 
-        ## X
-        elif vm_pos == 'X':
-            base_ud_annotation['upostag'] = 'ADV'
+            ## X
+            elif vm_pos == 'X':
+                base_ud_annotation['upostag'] = 'ADV'
 
-        ## Z
-        elif vm_pos == 'Z':
-            base_ud_annotation['upostag'] = 'PUNCT'
+            ## Z
+            elif vm_pos == 'Z':
+                base_ud_annotation['upostag'] = 'PUNCT'
 
-        ## T
-        elif vm_pos == 'T':
-            base_ud_annotation['upostag'] = 'X'
+            ## T
+            elif vm_pos == 'T':
+                base_ud_annotation['upostag'] = 'X'
 
-        ## I
-        elif vm_pos == 'I':
-            base_ud_annotation['upostag'] = 'INTJ'
+            ## I
+            elif vm_pos == 'I':
+                base_ud_annotation['upostag'] = 'INTJ'
 
-        ## B
-        elif vm_pos == 'B':
-            base_ud_annotation['upostag'] = 'PART'
+            ## B
+            elif vm_pos == 'B':
+                base_ud_annotation['upostag'] = 'PART'
 
-        ## E
-        elif vm_pos == 'E':
-            base_ud_annotation['upostag'] = 'SYM'
+            ## E
+            elif vm_pos == 'E':
+                base_ud_annotation['upostag'] = 'SYM'
 
-        ## G
-        elif vm_pos == 'G':
-            base_ud_annotation['upostag'] = 'NOUN'
-            base_ud_annotation['feats']['Number'] = 'Sing'
-            base_ud_annotation['feats']['Case']   = 'Gen'
+            ## G
+            elif vm_pos == 'G':
+                base_ud_annotation['upostag'] = 'NOUN'
+                base_ud_annotation['feats']['Number'] = 'Sing'
+                base_ud_annotation['feats']['Case']   = 'Gen'
 
         # 2) Convert morphological features of nouns and declinable words: 
         
@@ -436,8 +526,15 @@ class UDMorphConverter( Tagger ):
             if case:
                 base_ud_annotation['feats']['Case'] = case
 
-        # Degree: (this has already been converted previously)
+        # Degree:
         # https://github.com/EstSyntax/EstUD/blob/master/cgmorf2conllu/cgmorf2conllu.py#L622-L628
+        if _has_postag(base_ud_annotation['upostag'], ['ADJ']):
+            if vm_pos == 'A':
+                base_ud_annotation['feats']['Degree'] = 'Pos'
+            elif vm_pos == 'C':
+                base_ud_annotation['feats']['Degree'] = 'Cmp'
+            elif vm_pos == 'U':
+                base_ud_annotation['feats']['Degree'] = 'Sup'
         
         # NumForm:
         # https://github.com/EstSyntax/EstUD/blob/master/cgmorf2conllu/cgmorf2conllu.py#L630-L636
