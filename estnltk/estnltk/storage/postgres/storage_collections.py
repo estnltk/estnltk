@@ -63,11 +63,13 @@ class StorageCollections:
         self._storage.conn.commit()
         self._storage.conn.autocommit = False
         with self._storage.conn.cursor() as c:
-            # SHARE ROW EXCLUSIVE locking -- this mode protects a table against 
-            # concurrent data changes, and is self-exclusive so that only one 
-            # session can hold it at a time. 
+            # EXCLUSIVE locking -- this mode allows only reads from the table 
+            # can proceed in parallel with a transaction holding this lock mode.
+            # Prohibit all other modification operations such as delete, insert, 
+            # update, create index.
             # (https://www.postgresql.org/docs/9.4/explicit-locking.html)
-            c.execute(SQL('LOCK TABLE {} IN SHARE ROW EXCLUSIVE MODE').format(self._table_identifier))
+            # TODO: add lock in earlier phase, before row existence query
+            c.execute(SQL('LOCK TABLE ONLY {} IN EXCLUSIVE MODE').format(self._table_identifier))
             c.execute(SQL(
                     "INSERT INTO {} (collection, version) "
                     "VALUES ({}, {});").format(
@@ -85,11 +87,13 @@ class StorageCollections:
         self._storage.conn.commit()
         self._storage.conn.autocommit = False
         with self._storage.conn.cursor() as c:
-            # SHARE ROW EXCLUSIVE locking -- this mode protects a table against 
-            # concurrent data changes, and is self-exclusive so that only one 
-            # session can hold it at a time. 
+            # EXCLUSIVE locking -- this mode allows only reads from the table 
+            # can proceed in parallel with a transaction holding this lock mode.
+            # Prohibit all other modification operations such as delete, insert, 
+            # update, create index.
             # (https://www.postgresql.org/docs/9.4/explicit-locking.html)
-            c.execute(SQL('LOCK TABLE {} IN SHARE ROW EXCLUSIVE MODE').format(self._table_identifier))
+            # TODO: add lock in earlier phase, before row existence query
+            c.execute(SQL('LOCK TABLE ONLY {} IN EXCLUSIVE MODE').format(self._table_identifier))
             c.execute(SQL("DELETE FROM {} WHERE collection={};").format(
                 self._table_identifier,
                 Literal(collection_name)
