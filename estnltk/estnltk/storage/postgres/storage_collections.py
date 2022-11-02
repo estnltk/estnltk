@@ -41,7 +41,8 @@ class StorageCollections:
         assert collection.name == collection_name
         self.load()
         if collection_name in self._collections and self._collections[collection_name]['collection_object'] is not None:
-            raise NotImplementedError('re-adding a collection not implemented: ' + collection_name)
+            raise NotImplementedError("a collection {!r} cannot be added twice to the storage.".format(collection_name))
+
         self._collections[collection_name] = {'version': collection.version,
                                               'collection_object': collection}
 
