@@ -326,11 +326,19 @@ class UDMorphConverter( Tagger ):
                 word_id += 1
             for wid, word_span in enumerate(sentence_morph_words):
                 base_span = word_span.base_span
+                # Convert Vabamorf's annotations (without context)
+                conv_annotations = []
                 for old_ann in word_span.annotations:
-                    conv_anns = self._convert_annotation(dict(old_ann))
-                    for ann in conv_anns:
-                        ann['id'] = wid+1
-                        ud_morph.add_annotation( base_span, ann )
+                    annotations = self._convert_annotation(dict(old_ann))
+                    if annotations:
+                        conv_annotations.extend( annotations )
+                # Make post-corrections on participles
+                conv_annotations = \
+                    self._postcorrect_participles(conv_annotations)
+                # Add annotations to the layer
+                for ann in conv_annotations:
+                    ann['id'] = wid+1
+                    ud_morph.add_annotation( base_span, ann )
         return ud_morph
 
 
@@ -363,6 +371,9 @@ class UDMorphConverter( Tagger ):
                         ambiguous[key] = values2
                     else:
                         non_ambiguous[key] = value2
+                if len(value.items()) == 0:
+                    # empty features
+                    non_ambiguous[attr] = value
             else:
                 non_ambiguous[attr] = value
         if len(ambiguous.keys()) == 0:
@@ -601,4 +612,47 @@ class UDMorphConverter( Tagger ):
             for base_ud_annotation in ud_annotations:
                 new_ud_annotations.extend( self._generate_ambiguous_analyses(base_ud_annotation) )
             ud_annotations = new_ud_annotations
+
+        return ud_annotations
+
+
+    def _postcorrect_participles(self, ud_annotations):
+        '''
+        Makes postcorrections to ambiguous participles. 
+        
+        Basically, if annotations contain verb participle features 
+        (VerbForm=Part, Voice=Act,Pass, Tense=Past,Pres), and there 
+        are also adjective annotations, then carry over verb 
+        participle features to adjective annotations (so, adjectives
+        will obtain features VerbForm, Voice, Tense).
+        
+        Returns input ud_annotations with post-corrections (if any).
+        
+        TODO: a number of adjectives in UD corpus do not have 
+        verb participle features, e.g. "huvitav", "loov", "tugev", 
+        "sügav".
+        Add some lexicon-based exclusion ?!
+        '''
+        voice = None
+        tense = None
+        verbForm = None
+        # Find participle verb features
+        for ud_annotation in ud_annotations:
+            if 'VerbForm' in ud_annotation['feats'] and \
+               ud_annotation['feats']['VerbForm'] == 'Part':
+                verbForm = ud_annotation['feats']['VerbForm']
+                if 'Voice' in ud_annotation['feats']:
+                    voice = ud_annotation['feats']['Voice']
+                if 'Tense' in ud_annotation['feats']:
+                    tense = ud_annotation['feats']['Tense']
+        # Carry over verb participle features (if any) to adj
+        if verbForm or voice or tense:
+            for ud_annotation in ud_annotations:
+                if _has_postag(ud_annotation['upostag'], ['ADJ']):
+                    if voice:
+                        ud_annotation['feats']['Voice'] = voice
+                    if verbForm:
+                        ud_annotation['feats']['VerbForm'] = verbForm
+                    if tense:
+                        ud_annotation['feats']['Tense'] = tense
         return ud_annotations
