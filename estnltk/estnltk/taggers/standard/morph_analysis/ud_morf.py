@@ -161,7 +161,9 @@ class UDMorphConverter( Tagger ):
                    '_input_sentences_layer', \
                    '_input_morph_analysis_layer', \
                    # Rules: vm_pos, vm_lemma to upostag & feats
-                   '_pos_lemma_conv_rules'
+                   '_pos_lemma_conv_rules', \
+                   # Constants: aux verb lemmas
+                   '_aux_verb_lemmas'
                  ]
 
     def __init__(self, \
@@ -225,6 +227,9 @@ class UDMorphConverter( Tagger ):
                 if fname.endswith('.tab'):
                     fpath=os.path.join(conversion_rules_dir, fname)
                     self._load_pos_lemma_conv_rules_from_file( fpath )
+        # Constants
+        self._aux_verb_lemmas = set(['olema', 'saama', 'pidama', 'võima', 'tunduma', \
+                                     'tohtima', 'paistma', 'näima'])
 
     def _load_pos_lemma_conv_rules_from_file( self, fpath ):
         '''
@@ -462,7 +467,13 @@ class UDMorphConverter( Tagger ):
 
             ## V
             elif vm_pos == 'V':
-                base_ud_annotation['upostag'] = 'VERB,AUX'  # main, aux, mod
+                # aux, mod, main
+                if vm_lemma == 'ära':
+                    base_ud_annotation['upostag'] = 'AUX'
+                elif vm_lemma in self._aux_verb_lemmas:
+                    base_ud_annotation['upostag'] = 'VERB,AUX'
+                else:
+                    base_ud_annotation['upostag'] = 'VERB'
                 has_ambiguity = True
 
             ## J
@@ -549,21 +560,24 @@ class UDMorphConverter( Tagger ):
 
         # 3) Convert morphological features of verbs: 
 
-        # Some exceptional verb forms
         if _has_postag(base_ud_annotation['upostag'], ['VERB', 'AUX']):
+            # Some exceptional verb forms
             if vm_lemma == 'ei':
-                base_ud_annotation['upostag'] = 'AUX' # disambiguate postag
+                # Add AUX annotation (primary interpretation)
+                base_ud_annotation['upostag'] = 'AUX'
                 base_ud_annotation['feats']['Polarity'] = 'Neg'
+                ud_annotations.append( base_ud_annotation )
             elif vm_lemma in ['kuulukse', 'tunnukse', 'näikse']:
                 base_ud_annotation['feats']['Tense'] = 'Pres'
                 base_ud_annotation['feats']['Mood'] = 'Ind'
                 base_ud_annotation['feats']['VerbForm']  = 'Fin'
+                ud_annotations.append( base_ud_annotation )
 
-        # Person, Polarity, Voice, Tense, Mood, VerbForm
-        # https://github.com/EstSyntax/EstUD/blob/master/cgmorf2conllu/cgmorf2conllu.py#L552-L563
-        # https://github.com/EstSyntax/EstUD/blob/master/cgmorf2conllu/cgmorf2conllu.py#L647-L758
-        # https://cl.ut.ee/ressursid/morfo-systeemid/
-        if _has_postag(base_ud_annotation['upostag'], ['VERB', 'AUX']):
+            # Person, Polarity, Voice, Tense, Mood, VerbForm
+            # https://github.com/EstSyntax/EstUD/blob/master/cgmorf2conllu/cgmorf2conllu.py#L552-L563
+            # https://github.com/EstSyntax/EstUD/blob/master/cgmorf2conllu/cgmorf2conllu.py#L647-L758
+            # https://cl.ut.ee/ressursid/morfo-systeemid/
+
             # Use rule-based conversion for most of the verbs
             # Note that this can produce ambiguous annotations
             all_form_annotations = []
