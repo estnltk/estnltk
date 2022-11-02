@@ -329,16 +329,27 @@ class UDMorphConverter( Tagger ):
                 # Convert Vabamorf's annotations (without context)
                 conv_annotations = []
                 for old_ann in word_span.annotations:
+                    if _is_empty_annotation( old_ann ):
+                        # discard an empty annotation
+                        continue
                     annotations = self._convert_annotation(dict(old_ann))
                     if annotations:
                         conv_annotations.extend( annotations )
                 # Make post-corrections on participles
                 conv_annotations = \
                     self._postcorrect_participles(conv_annotations)
-                # Add annotations to the layer
-                for ann in conv_annotations:
-                    ann['id'] = wid+1
-                    ud_morph.add_annotation( base_span, ann )
+                if conv_annotations:
+                    # Add (non-empty) annotations to the layer
+                    for ann in conv_annotations:
+                        ann['id'] = wid+1
+                        ud_morph.add_annotation( base_span, ann )
+                else:
+                    # Add an empty annotation
+                    empty_ud_annotation = \
+                        {attr:None for attr in self.output_attributes}
+                    empty_ud_annotation['id'] = wid+1
+                    ud_morph.add_annotation( base_span, \
+                                             empty_ud_annotation )
         return ud_morph
 
 
