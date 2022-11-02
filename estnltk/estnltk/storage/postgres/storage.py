@@ -26,6 +26,8 @@ class PostgresStorage:
     exposes interface to conveniently search/save json data.
     """
 
+    TABLED_LAYER_TYPES = {'detached', 'fragmented'}
+
     def __init__(self, dbname=None, user=None, password=None, host=None, port=None,
                  pgpass_file=None, schema="public", role=None, temporary=False, 
                  create_schema_if_missing=False, **kwargs):
@@ -222,7 +224,7 @@ class PostgresStorage:
             raise KeyError('collection not found: {!r}'.format(collection_name))
         try:
             for layer, v in self[collection_name].structure.structure.items():
-                if v['layer_type'] in {'detached', 'fragmented'}:
+                if v['layer_type'] in PostgresStorage.TABLED_LAYER_TYPES:
                     drop_layer_table(self, collection_name, layer, cascade=cascade)
                     # TODO: delete layer from structure immediately
             pg.drop_collection_table(self, collection_name, cascade=cascade)

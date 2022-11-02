@@ -33,7 +33,7 @@ class CollectionStructure(pg.CollectionStructureBase):
             raise ValueError('(!) Sparse layers not supported in collectionstructure version {}'.format(__version__))
         self._modified = True
 
-        detached = layer_type in {'detached', 'fragmented'}
+        detached = layer_type in pg.PostgresStorage.TABLED_LAYER_TYPES
         meta = list(meta or [])
 
         with self.collection.storage.conn.cursor() as c:

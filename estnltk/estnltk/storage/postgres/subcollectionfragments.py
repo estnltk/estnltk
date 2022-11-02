@@ -53,7 +53,7 @@ class PgSubCollectionFragments:
 
         structure = collection._structure
         assert fragmented_layer in structure
-        assert structure[fragmented_layer]['layer_type'] in {'fragmented', 'detached'}, \
+        assert structure[fragmented_layer]['layer_type'] in pg.PostgresStorage.TABLED_LAYER_TYPES, \
             structure[fragmented_layer]['layer_type']
         if collection.is_sparse( fragmented_layer ):
             raise NotImplementedError('PgSubCollectionFragments not implemented for sparse layers')
