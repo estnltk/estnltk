@@ -18,6 +18,7 @@ pytype2dbtype = {
 
 def create_schema(storage):
     storage.conn.commit()
+    storage.conn.autocommit = False
     with storage.conn.cursor() as c:
         c.execute(SQL("CREATE SCHEMA {};").format(Identifier(storage.schema)))
     storage.conn.commit()
@@ -31,6 +32,7 @@ def schema_exists(storage):
 
 def delete_schema(storage):
     storage.conn.commit()
+    storage.conn.autocommit = False
     with storage.conn.cursor() as c:
         c.execute(SQL("DROP SCHEMA {} CASCADE;").format(Identifier(storage.schema)))
     storage.conn.commit()
@@ -85,6 +87,8 @@ def get_all_tables(storage):
 
 
 def drop_table(storage, table_name: str, cascade: bool = False):
+    storage.conn.commit()
+    storage.conn.autocommit = False
     if cascade:
         sql = SQL('DROP TABLE {} CASCADE;')
     else:
