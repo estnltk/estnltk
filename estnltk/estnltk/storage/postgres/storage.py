@@ -81,6 +81,24 @@ class PostgresStorage:
                 raise PgStorageException(schema_error_msg)
         
         self._collections = pg.StorageCollections(self)
+        # Create storage_collections table (if missing)
+        if not pg.table_exists(self, '__collections'):
+            collections_table = self._collections.table_identifier
+            try:
+                temporary = SQL('TEMPORARY') if temporary else SQL('')
+                with self.conn.cursor() as c:
+                    c.execute(SQL('CREATE {temporary} TABLE {table} ('
+                                  'collection text primary key, '
+                                  'version text);').format(temporary=temporary,
+                                                           table=collections_table))
+                    logger.debug(c.query.decode())
+            except Exception as table_creation_error:
+                table_creation_error_msg = ('Failed to create storage_collections '+\
+                    'table due to an error: {}. Please make sure you have enough '+\
+                    'privileges for creating the table.').format(table_creation_error)
+                logger.error(table_creation_error_msg)
+                raise PgStorageException(table_creation_error_msg) from table_creation_error
+            self.conn.commit()
         
         logger.info('schema: {!r}, temporary: {!r}, role: {!r}'.format(self.schema, self.temporary, role))
 

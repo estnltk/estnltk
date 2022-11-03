@@ -17,14 +17,13 @@ class StorageCollections:
     `PgCollection` objects, but does not create `PgCollection` objects.
     A lazy loading is used for `PgCollection` objects, meaning that objects
     are created by `PostgresStorage` only on user demand.
-    `PostgresStorage` also handles insertion and deletion of entries in the 
-    table of collections.
+    `PostgresStorage` also handles creation of the table of collections, 
+    insertion to the table and deletion from the table.
     '''
     def __init__(self, storage):
         self._storage = storage
         self._table_identifier = pg.table_identifier(self._storage, '__collections')
         self._collections = {}
-        self.load()
 
     @property
     def collections(self):
@@ -33,16 +32,6 @@ class StorageCollections:
     @property
     def table_identifier(self):
         return self._table_identifier
-
-    def create_table(self):
-        temporary = SQL('TEMPORARY') if self._storage.temporary else SQL('')
-        with self._storage.conn.cursor() as c:
-            c.execute(SQL('CREATE {temporary} TABLE {table} ('
-                          'collection text primary key, '
-                          'version text);').format(temporary=temporary,
-                                                            table=self._table_identifier))
-            logger.debug(c.query.decode())
-        self._storage.conn.commit()
 
     def __setitem__(self, collection_name: str, collection: pg.PgCollection):
         assert collection.name == collection_name
@@ -72,23 +61,18 @@ class StorageCollections:
 
     def load(self):
         collections = {}
-        if pg.table_exists(self._storage, '__collections'):
-            with self._storage.conn.cursor() as c:
-                c.execute(SQL("SELECT collection, version FROM {};").
-                          format(self._table_identifier))
-                for collection, version in c.fetchall():
-                    if collection in self._collections:
-                        # Collection has been loaded already, check the version.
-                        assert self._collections[collection]['version'] == version
-                        collections[collection] = self._collections[collection]
-                    else:
-                        # Initialize an unloaded collection. It will be loaded
-                        # if user calls storage[collection]
-                        collections[collection] = {'version': version,
-                                                   'collection_object': None}
-        else:
-            self.create_table()
+        assert pg.table_exists(self._storage, '__collections')
+        with self._storage.conn.cursor() as c:
+            c.execute(SQL("SELECT collection, version FROM {};").
+                      format(self._table_identifier))
+            for collection, version in c.fetchall():
+                if collection in self._collections:
+                    # Collection has been loaded already, check the version.
+                    assert self._collections[collection]['version'] == version
+                    collections[collection] = self._collections[collection]
+                else:
+                    # Initialize an unloaded collection. It will be loaded
+                    # if user calls storage[collection]
+                    collections[collection] = {'version': version,
+                                               'collection_object': None}
         self._collections = collections
-
-    def drop_table(self):
-        pg.drop_table(self._storage, '__collections')
