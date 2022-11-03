@@ -153,14 +153,27 @@ class TestPgCollection(unittest.TestCase):
         # And not existing in 2
         self.assertFalse(storage_2[collection_name].exists())
 
+        # Assert that collection cannot be deleted twice
+        with self.assertRaises(KeyError):
+            storage_2.delete_collection(collection_from_2.name)
+        
+        # Test that storage_1 can proceed with insertion
+        # (lock has been released)
+        yet_another_collection_name = get_random_collection_name()
+        assert collection_name != yet_another_collection_name
+        assert another_collection_name != yet_another_collection_name
+        yet_another_collection = \
+            storage_1.add_collection(yet_another_collection_name)
+
         # Check the remaining collection
         self.assertTrue(another_collection_name in storage_2.collections)
         storage_1.refresh()
         another_collection = storage_1[another_collection_name]
         self.assertTrue(another_collection.exists())
 
-        # Remove last collection
+        # Remove last collections
         another_collection.delete()
+        yet_another_collection.delete()
 
         storage_2.close()
 

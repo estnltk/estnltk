@@ -9,15 +9,16 @@ from estnltk.storage import postgres as pg
 class StorageCollections:
     '''
     `StorageCollections` wraps the table of collections of the storage.
-    It allows creating the table, inserting new entries to the table, 
-    removing entries from the table and deleting the table.
+    It provides read-only view to the entries of the table. 
     Index operator can be used to set and retrieve `PgCollection` objects
-    by collection names.
+    by collection names. 
 
     Note: This class maintains collection names, versions and corresponding
     `PgCollection` objects, but does not create `PgCollection` objects.
     A lazy loading is used for `PgCollection` objects, meaning that objects
     are created by `PostgresStorage` only on user demand.
+    `PostgresStorage` also handles insertion and deletion of entries in the 
+    table of collections.
     '''
     def __init__(self, storage):
         self._storage = storage
@@ -28,6 +29,10 @@ class StorageCollections:
     @property
     def collections(self):
         return self._collections
+
+    @property
+    def table_identifier(self):
+        return self._table_identifier
 
     def create_table(self):
         temporary = SQL('TEMPORARY') if self._storage.temporary else SQL('')
@@ -61,50 +66,8 @@ class StorageCollections:
     def __iter__(self):
         yield from self._collections
 
-    def insert(self, collection: pg.PgCollection):
-        # This is required to avoid psycopg2.errors.NoActiveSqlTransaction
-        self._storage.conn.commit()
-        self._storage.conn.autocommit = False
-        with self._storage.conn.cursor() as c:
-            # EXCLUSIVE locking -- this mode allows only reads from the table 
-            # can proceed in parallel with a transaction holding this lock mode.
-            # Prohibit all other modification operations such as delete, insert, 
-            # update, create index.
-            # (https://www.postgresql.org/docs/9.4/explicit-locking.html)
-            # TODO: add lock in earlier phase, before row existence query
-            c.execute(SQL('LOCK TABLE ONLY {} IN EXCLUSIVE MODE').format(self._table_identifier))
-            c.execute(SQL(
-                    "INSERT INTO {} (collection, version) "
-                    "VALUES ({}, {});").format(
-                    self._table_identifier,
-                    Literal(collection.name),
-                    Literal(collection.version)
-            )
-            )
-        self._storage.conn.commit()
-        # Update _collections entry
-        self[collection.name] = collection
-
     def __delitem__(self, collection_name: str):
-        # This is required to avoid psycopg2.errors.NoActiveSqlTransaction
-        self._storage.conn.commit()
-        self._storage.conn.autocommit = False
-        with self._storage.conn.cursor() as c:
-            # EXCLUSIVE locking -- this mode allows only reads from the table 
-            # can proceed in parallel with a transaction holding this lock mode.
-            # Prohibit all other modification operations such as delete, insert, 
-            # update, create index.
-            # (https://www.postgresql.org/docs/9.4/explicit-locking.html)
-            # TODO: add lock in earlier phase, before row existence query
-            c.execute(SQL('LOCK TABLE ONLY {} IN EXCLUSIVE MODE').format(self._table_identifier))
-            c.execute(SQL("DELETE FROM {} WHERE collection={};").format(
-                self._table_identifier,
-                Literal(collection_name)
-            )
-            )
-            logger.debug(c.query.decode())
-        self._storage.conn.commit()
-
+        '''Deletes entry from the view, but does not remove the physical entry from the database.'''
         del self._collections[collection_name]
 
     def load(self):

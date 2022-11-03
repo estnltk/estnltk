@@ -5,7 +5,7 @@ import warnings
 import pandas
 
 import psycopg2
-from psycopg2.sql import SQL, Identifier
+from psycopg2.sql import SQL, Identifier, Literal
 
 from estnltk import logger
 from estnltk.storage.postgres import PgCollection
@@ -117,7 +117,7 @@ class PostgresStorage:
     def add_collection(self, name: str, description: str = None, meta: dict = None):
         """
         Adds a new collection to this storage. 
-        Records entry about the collection to the table of collections 
+        Inserts entry about the collection to the table of collections 
         and creates corresponding structure and collection tables.
         Raises PgStorageException if a collection with the given name 
         already exists.
@@ -144,34 +144,54 @@ class PostgresStorage:
         PgCollection
             an instance of the created collection
         """
-        self.refresh()
-        if name not in self._collections:
-            collection = PgCollection(name, self, version='3.0')
-            try:
+        # This is required to avoid psycopg2.errors.NoActiveSqlTransaction
+        self.conn.commit()
+        self.conn.autocommit = False
+        collection = None
+        with self.conn.cursor() as c:
+            # EXCLUSIVE locking -- this mode allows only reads from the table 
+            # can proceed in parallel with a transaction holding this lock mode.
+            # Prohibit all other modification operations such as delete, insert, 
+            # update, create index.
+            # (https://www.postgresql.org/docs/9.4/explicit-locking.html)
+            collections_table = self._collections.table_identifier
+            c.execute(SQL('LOCK TABLE ONLY {} IN EXCLUSIVE MODE').format(collections_table))
+            # Check if collection has been recorded in collection's table
+            self.refresh()
+            if name not in self._collections:
+                collection = PgCollection(name, self, version='3.0')
                 # Add storage.collections entry (collection name + version)
-                self._collections.insert(collection)
-                if description is None:
-                    description = 'created by {} on {}'.format(self.user, time.asctime())
-                # Create structure table (contains information about collection's layers)
-                collection.structure.create_table()
-                # Create collection table (stores Text objects with attached layers and metadata columns)
-                pg.create_collection_table(self,
-                                           collection_name=name,
-                                           meta_columns=meta,
-                                           description=description)
-            except Exception as adding_error:
-                # Someone might have inserted the collection after we made
-                # the connection to the database and loaded the collections.
-                # Re-load collections table so that after the error message 
-                # it contains up to date information
-                self._collections.load()
-                raise PgStorageException(('(!) Cannot add new collection {!r} '+\
-                                          'due to an exception: {}').format( \
-                                                name, adding_error)) from adding_error
+                c.execute(SQL(
+                        "INSERT INTO {} (collection, version) "
+                        "VALUES ({}, {});").format(
+                        collections_table,
+                        Literal(collection.name),
+                        Literal(collection.version)
+                ))
+            else:
+                raise PgStorageException(('(!) Cannot add new collection {!r}, '+\
+                                          'this collection already exists.').format(name))
+        self.conn.commit()
+        # At this point, either PgCollection object was successfully created and 
+        # inserted into the collections table, or exception was encountered because 
+        # the table already contains the collection. 
+        # Update the storage_collections view
+        self._collections[collection.name] = collection
+        try:
+            # Create structure table (contains information about collection's layers)
+            collection.structure.create_table()
+            if description is None:
+                description = 'created by {} on {}'.format(self.user, time.asctime())
+            # Create collection table (stores Text objects with attached layers and metadata columns)
+            pg.create_collection_table(self,
+                                       collection_name=name,
+                                       meta_columns=meta,
+                                       description=description)
             logger.info('new empty collection {!r} created'.format(name))
-        else:
-            raise PgStorageException( ('(!) Cannot add new collection {!r}, '+\
-                                       'this collection already exists.').format(name) )
+        except Exception as adding_error:
+            raise PgStorageException(('(!) Cannot add new collection {!r} '+\
+                                      'due to an exception: {}').format( \
+                                            name, adding_error)) from adding_error
         return collection
 
     @property
@@ -219,21 +239,43 @@ class PostgresStorage:
         If cascade=True is set, then removes layer and collection 
         tables along with the tables dependent on these (if any).
         '''
-        self.refresh()
-        if collection_name not in self.collections:
-            raise KeyError('collection not found: {!r}'.format(collection_name))
-        try:
-            for layer, v in self[collection_name].structure.structure.items():
-                if v['layer_type'] in PostgresStorage.TABLED_LAYER_TYPES:
-                    drop_layer_table(self, collection_name, layer, cascade=cascade)
-                    # TODO: delete layer from structure immediately
-            pg.drop_collection_table(self, collection_name, cascade=cascade)
-            pg.drop_structure_table(self, collection_name)
+        # This is required to avoid psycopg2.errors.NoActiveSqlTransaction
+        self.conn.commit()
+        self.conn.autocommit = False
+        with self.conn.cursor() as c:
+            # EXCLUSIVE locking -- this mode allows only reads from the table 
+            # can proceed in parallel with a transaction holding this lock mode.
+            # Prohibit all other modification operations such as delete, insert, 
+            # update, create index.
+            # (https://www.postgresql.org/docs/9.4/explicit-locking.html)
+            collections_table = self._collections.table_identifier
+            c.execute(SQL('LOCK TABLE ONLY {} IN EXCLUSIVE MODE').format(collections_table))
+            # Check if collection hasn't already been deleted from collections_table
+            self.refresh()
+            if collection_name not in self.collections:
+                raise KeyError('collection not found: {!r}'.format(collection_name))
+            try:
+                # Delete collection from collections_table
+                c.execute(SQL("DELETE FROM {} WHERE collection={};").format(
+                    collections_table,
+                    Literal(collection_name)
+                ))
+                logger.debug(c.query.decode())
+                # Remove collection table, layer tables, structure table
+                for layer, v in self[collection_name].structure.structure.items():
+                    if v['layer_type'] in PostgresStorage.TABLED_LAYER_TYPES:
+                        drop_layer_table(self, collection_name, layer, cascade=cascade)
+                pg.drop_collection_table(self, collection_name, cascade=cascade)
+                pg.drop_structure_table(self, collection_name)
+            except Exception as deletion_err:
+                raise PgStorageException(('(!) Failed to delete collection {!r} '+\
+                                          'due to an exception: {}.').format( \
+                                                deletion_err, collection_name)) from deletion_err
+            # Remove entry from collections view
             del self._collections[collection_name]
-        except Exception as deletion_err:
-            raise PgStorageException(('(!) Failed to delete collection {!r} '+\
-                                      'due to an exception: {}.').format( \
-                                            deletion_err, collection_name)) from deletion_err
+        self.conn.commit()
+        self.refresh()
+
 
     def __setitem__(self, name: str, collection: pg.PgCollection):
         error_msg = '(!) Cannot assign collection via index operator. '+\
