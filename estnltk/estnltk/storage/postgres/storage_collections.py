@@ -1,3 +1,5 @@
+import warnings
+
 from psycopg2.sql import SQL, Literal
 
 from estnltk import logger
@@ -41,8 +43,7 @@ class StorageCollections:
         assert collection.name == collection_name
         self.load()
         if collection_name in self._collections and self._collections[collection_name]['collection_object'] is not None:
-            raise NotImplementedError("a collection {!r} cannot be added twice to the storage.".format(collection_name))
-
+            raise NotImplementedError("a collection {!r} cannot be added twice to the storage".format(collection_name))
         self._collections[collection_name] = {'version': collection.version,
                                               'collection_object': collection}
 
@@ -50,8 +51,9 @@ class StorageCollections:
         return self._collections[collection_name]['collection_object']
 
     def get(self, collection_name):
-        if collection_name in self._collections:
-            return self._collections[collection_name]['collection_object']
+        error_msg = '(!) Method storage_collections.get(...) is deprecated. '+\
+                    'Please use storage_collections[collection_name] instead.'
+        raise Exception( error_msg )
 
     def __contains__(self, item: str):
         return item in self.collections
