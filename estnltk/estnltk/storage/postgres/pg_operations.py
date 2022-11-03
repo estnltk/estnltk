@@ -222,3 +222,10 @@ def drop_fragment_table(storage, collection_name, fragment_name):
     if not table_exists(storage, table_name):
         raise Exception("Fragment table '%s' does not exist." % table_name)
     drop_table(storage, table_name)
+
+
+def drop_all(storage):
+    # Delete the whole storage, including dependent tables
+    for collection in storage.collections[:]:
+        storage.delete_collection(collection, cascade=True)
+    drop_table(storage, '__collections')
