@@ -22,22 +22,18 @@ class StorageCollections:
     '''
     def __init__(self, storage):
         self._storage = storage
-        self._collections = {}
-
-    @property
-    def collections(self):
-        return self._collections
+        self.collections = {}
 
     def __setitem__(self, collection_name: str, collection: pg.PgCollection):
         assert collection.name == collection_name
         self.load()
-        if collection_name in self._collections and self._collections[collection_name]['collection_object'] is not None:
+        if collection_name in self.collections and self.collections[collection_name]['collection_object'] is not None:
             raise NotImplementedError("a collection {!r} cannot be added twice to the storage".format(collection_name))
-        self._collections[collection_name] = {'version': collection.version,
-                                              'collection_object': collection}
+        self.collections[collection_name] = {'version': collection.version,
+                                             'collection_object': collection}
 
     def __getitem__(self, collection_name: str):
-        return self._collections[collection_name]['collection_object']
+        return self.collections[collection_name]['collection_object']
 
     def get(self, collection_name):
         error_msg = '(!) Method storage_collections.get(...) is deprecated. '+\
@@ -48,10 +44,10 @@ class StorageCollections:
         return item in self.collections
 
     def __iter__(self):
-        yield from self._collections
+        yield from self.collections
 
     def load(self):
-        collections = {}
+        new_collections = {}
         assert pg.table_exists(self._storage, '__collections')
         table_identifier = \
                pg.table_identifier(self._storage, '__collections')
@@ -59,13 +55,13 @@ class StorageCollections:
             c.execute(SQL("SELECT collection, version FROM {};").
                       format(table_identifier))
             for collection, version in c.fetchall():
-                if collection in self._collections:
+                if collection in self.collections:
                     # Collection has been loaded already, check the version.
-                    assert self._collections[collection]['version'] == version
-                    collections[collection] = self._collections[collection]
+                    assert self.collections[collection]['version'] == version
+                    new_collections[collection] = self.collections[collection]
                 else:
                     # Initialize an unloaded collection. It will be loaded
                     # if user calls storage[collection]
-                    collections[collection] = {'version': version,
-                                               'collection_object': None}
-        self._collections = collections
+                    new_collections[collection] = {'version': version,
+                                                   'collection_object': None}
+        self.collections = new_collections
