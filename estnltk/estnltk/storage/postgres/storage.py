@@ -81,16 +81,16 @@ class PostgresStorage:
                 raise PgStorageException(schema_error_msg)
         
         self._collections = pg.StorageCollections(self)
+        self.collections_table = pg.table_identifier( self, '__collections' )
         # Create storage_collections table (if missing)
-        if not pg.table_exists(self, '__collections'):
-            collections_table = self._collections.table_identifier
+        if not pg.table_exists( self, '__collections' ):
             try:
                 temporary = SQL('TEMPORARY') if temporary else SQL('')
                 with self.conn.cursor() as c:
                     c.execute(SQL('CREATE {temporary} TABLE {table} ('
                                   'collection text primary key, '
                                   'version text);').format(temporary=temporary,
-                                                           table=collections_table))
+                                                           table=self.collections_table))
                     logger.debug(c.query.decode())
             except Exception as table_creation_error:
                 table_creation_error_msg = ('Failed to create storage_collections '+\
@@ -172,8 +172,8 @@ class PostgresStorage:
             # Prohibit all other modification operations such as delete, insert, 
             # update, create index.
             # (https://www.postgresql.org/docs/9.4/explicit-locking.html)
-            collections_table = self._collections.table_identifier
-            c.execute(SQL('LOCK TABLE ONLY {} IN EXCLUSIVE MODE').format(collections_table))
+            c.execute(SQL('LOCK TABLE ONLY {} IN EXCLUSIVE MODE').format( \
+                                self.collections_table ) )
             # Check if collection has been recorded in collection's table
             self.refresh()
             if name not in self._collections:
@@ -182,7 +182,7 @@ class PostgresStorage:
                 c.execute(SQL(
                         "INSERT INTO {} (collection, version) "
                         "VALUES ({}, {});").format(
-                        collections_table,
+                        self.collections_table,
                         Literal(collection.name),
                         Literal(collection.version)
                 ))
@@ -266,8 +266,8 @@ class PostgresStorage:
             # Prohibit all other modification operations such as delete, insert, 
             # update, create index.
             # (https://www.postgresql.org/docs/9.4/explicit-locking.html)
-            collections_table = self._collections.table_identifier
-            c.execute(SQL('LOCK TABLE ONLY {} IN EXCLUSIVE MODE').format(collections_table))
+            c.execute(SQL('LOCK TABLE ONLY {} IN EXCLUSIVE MODE').format( \
+                self.collections_table ))
             # Check if collection hasn't already been deleted from collections_table
             self.refresh()
             if collection_name not in self.collections:
@@ -275,7 +275,7 @@ class PostgresStorage:
             try:
                 # Delete collection from collections_table
                 c.execute(SQL("DELETE FROM {} WHERE collection={};").format(
-                    collections_table,
+                    self.collections_table,
                     Literal(collection_name)
                 ))
                 logger.debug(c.query.decode())

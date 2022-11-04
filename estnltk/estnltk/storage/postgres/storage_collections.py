@@ -22,16 +22,11 @@ class StorageCollections:
     '''
     def __init__(self, storage):
         self._storage = storage
-        self._table_identifier = pg.table_identifier(self._storage, '__collections')
         self._collections = {}
 
     @property
     def collections(self):
         return self._collections
-
-    @property
-    def table_identifier(self):
-        return self._table_identifier
 
     def __setitem__(self, collection_name: str, collection: pg.PgCollection):
         assert collection.name == collection_name
@@ -58,9 +53,11 @@ class StorageCollections:
     def load(self):
         collections = {}
         assert pg.table_exists(self._storage, '__collections')
+        table_identifier = \
+               pg.table_identifier(self._storage, '__collections')
         with self._storage.conn.cursor() as c:
             c.execute(SQL("SELECT collection, version FROM {};").
-                      format(self._table_identifier))
+                      format(table_identifier))
             for collection, version in c.fetchall():
                 if collection in self._collections:
                     # Collection has been loaded already, check the version.
