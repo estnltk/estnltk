@@ -224,7 +224,7 @@ def drop_fragment_table(storage, collection_name, fragment_name):
     drop_table(storage, table_name)
 
 
-def drop_all(storage):
+def drop_all_storage_tables(storage):
     # Delete the whole storage, including dependent tables
     for collection in storage.collections[:]:
         storage.delete_collection(collection, cascade=True)
