@@ -55,10 +55,6 @@ class StorageCollections:
     def __iter__(self):
         yield from self._collections
 
-    def __delitem__(self, collection_name: str):
-        '''Deletes entry from the view, but does not remove the physical entry from the database.'''
-        del self._collections[collection_name]
-
     def load(self):
         collections = {}
         assert pg.table_exists(self._storage, '__collections')

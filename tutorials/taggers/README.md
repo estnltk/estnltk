@@ -5,7 +5,7 @@ Tagger is a generic class that creates a layer and attaches it to the text objec
 
 🛠️ [Basics of the Tagger interface](base_tagger.ipynb)
 
-🛠️ [How to create your own taggers and retagger](base_tagger.ipynb)
+🛠️ [How to create your own taggers and retaggers](base_tagger.ipynb)
 
 🛠️ System taggers:
 
