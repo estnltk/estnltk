@@ -276,12 +276,15 @@ class UDMorphConverter( Tagger ):
                     # add to dictonary
                     if vm_pos not in self._pos_lemma_conv_rules:
                         self._pos_lemma_conv_rules[vm_pos] = {}
-                    # note: if there are multiple rules per VM lemma & postag
-                    # overwrite previous rules
-                    self._pos_lemma_conv_rules[vm_pos][vm_lemma] = {}
-                    self._pos_lemma_conv_rules[vm_pos][vm_lemma]['upostag'] = ud_pos
+                    # note: there can be multiple rules per single VM lemma & postag;
+                    # so, we use a list of dicts to for storing rules
+                    if vm_lemma not in self._pos_lemma_conv_rules[vm_pos]:
+                        self._pos_lemma_conv_rules[vm_pos][vm_lemma] = [{}]
+                    else:
+                        self._pos_lemma_conv_rules[vm_pos][vm_lemma].append({})
+                    self._pos_lemma_conv_rules[vm_pos][vm_lemma][-1]['upostag'] = ud_pos
                     if ud_feats is not None:
-                        self._pos_lemma_conv_rules[vm_pos][vm_lemma]['feats'] = ud_feats
+                        self._pos_lemma_conv_rules[vm_pos][vm_lemma][-1]['feats'] = ud_feats
 
 
     def _make_layer_template(self):
@@ -422,203 +425,222 @@ class UDMorphConverter( Tagger ):
         adding ambiguous analyses where necessary. 
         Returns list of UD annotation dictionaries.
         """
-        base_ud_annotation = { attr:'' for attr in self.output_attributes}
+        first_base_ud_annotation = { attr:'' for attr in self.output_attributes}
         vm_pos   = vm_annotation['partofspeech']
         vm_form  = vm_annotation['form']
         vm_lemma = vm_annotation['lemma']
-        base_ud_annotation['feats']   = OrderedDict()
-        base_ud_annotation['xpostag'] = vm_pos
-        base_ud_annotation['lemma']   = vm_lemma
+        first_base_ud_annotation['feats']   = OrderedDict()
+        first_base_ud_annotation['xpostag'] = vm_pos
+        first_base_ud_annotation['lemma']   = vm_lemma
         has_ambiguity = False
+
+        # 0) Use dictionary-based conversions loaded from files as the first step
+        # https://github.com/EstSyntax/EstUD/blob/master/cgmorf2conllu/cgmorf2conllu.py#L425-L432 
+        ud_annotations = [first_base_ud_annotation]
+        new_ud_annotations = []
+        for base_ud_annotation in ud_annotations:
+            annotations_added = False
+            if vm_pos in self._pos_lemma_conv_rules:
+                if vm_lemma in self._pos_lemma_conv_rules[vm_pos]:
+                    # There can be multiple UD annotations corresponding to given 
+                    # combination of vm_pos & vm_lemma. Add them all:
+                    for dict_rules in self._pos_lemma_conv_rules[vm_pos][vm_lemma]:
+                        # Copy base annotation
+                        new_annotation = \
+                            {k:base_ud_annotation[k] for k in base_ud_annotation.keys()}
+                        new_annotation['feats'] = base_ud_annotation['feats'].copy()
+                        if 'upostag' in dict_rules:
+                            new_annotation['upostag'] = dict_rules['upostag']
+                        if 'feats' in dict_rules:
+                            for k, v in dict_rules['feats'].items():
+                                new_annotation['feats'][k] = v
+                        new_ud_annotations.append( new_annotation )
+                        annotations_added = True
+            if not annotations_added:
+                new_ud_annotations.append( base_ud_annotation )
         
-        ud_annotations = []
-        # 0) Use dictionary-based conversions as the first step
-        # https://github.com/EstSyntax/EstUD/blob/master/cgmorf2conllu/cgmorf2conllu.py#L425-L432
-        if vm_pos in self._pos_lemma_conv_rules:
-            if vm_lemma in self._pos_lemma_conv_rules[vm_pos]:
-                dict_rules = self._pos_lemma_conv_rules[vm_pos][vm_lemma]
-                if 'upostag' in dict_rules:
-                    base_ud_annotation['upostag'] = dict_rules['upostag']
-                if 'feats' in dict_rules:
-                    for k, v in dict_rules['feats'].items():
-                        base_ud_annotation['feats'][k] = v
-        
-        if base_ud_annotation['upostag'] == '':
+        # Use static conversion rules
+        ud_annotations = new_ud_annotations
+        new_ud_annotations = []
+        for base_ud_annotation in ud_annotations:
             # 1) Convert part-of-speech, following: 
             # https://github.com/EstSyntax/EstUD/blob/master/cgmorf2conllu/cgmorf2conllu.py#L435-L538
-            # S
-            if vm_pos == 'S':
-                base_ud_annotation['upostag'] = 'NOUN'
-            elif vm_pos == 'H':
-                base_ud_annotation['upostag'] = 'PROPN'
+            if base_ud_annotation['upostag'] == '':
+                # S
+                if vm_pos == 'S':
+                    base_ud_annotation['upostag'] = 'NOUN'
+                elif vm_pos == 'H':
+                    base_ud_annotation['upostag'] = 'PROPN'
 
-            ## A
-            elif vm_pos == 'A':
-                base_ud_annotation['upostag'] = 'ADJ'
-                base_ud_annotation['feats']['Degree'] = 'Pos'
-            elif vm_pos == 'C':
-                base_ud_annotation['upostag'] = 'ADJ'
-                base_ud_annotation['feats']['Degree'] = 'Cmp'
-            elif vm_pos == 'U':
-                base_ud_annotation['upostag'] = 'ADJ'
-                base_ud_annotation['feats']['Degree'] = 'Sup'
+                ## A
+                elif vm_pos == 'A':
+                    base_ud_annotation['upostag'] = 'ADJ'
+                    base_ud_annotation['feats']['Degree'] = 'Pos'
+                elif vm_pos == 'C':
+                    base_ud_annotation['upostag'] = 'ADJ'
+                    base_ud_annotation['feats']['Degree'] = 'Cmp'
+                elif vm_pos == 'U':
+                    base_ud_annotation['upostag'] = 'ADJ'
+                    base_ud_annotation['feats']['Degree'] = 'Sup'
 
-            ## P
-            elif vm_pos == 'P':
-                base_ud_annotation['upostag'] = 'PRON'
-                base_ud_annotation['feats']['PronType'] = 'Dem,Int,Ind,Prs,Rcp,Rel,Tot'
-                has_ambiguity = True
+                ## P
+                elif vm_pos == 'P':
+                    base_ud_annotation['upostag'] = 'PRON'
+                    base_ud_annotation['feats']['PronType'] = 'Dem,Int,Ind,Prs,Rcp,Rel,Tot'
+                    has_ambiguity = True
 
-            ## N
-            elif vm_pos == 'N':
-                base_ud_annotation['upostag'] = 'NUM'
-                base_ud_annotation['feats']['NumType'] = 'Card'
-            elif vm_pos == 'O':
-                base_ud_annotation['upostag'] = 'NUM'
-                base_ud_annotation['feats']['NumType'] = 'Ord'
+                ## N
+                elif vm_pos == 'N':
+                    base_ud_annotation['upostag'] = 'NUM'
+                    base_ud_annotation['feats']['NumType'] = 'Card'
+                elif vm_pos == 'O':
+                    base_ud_annotation['upostag'] = 'NUM'
+                    base_ud_annotation['feats']['NumType'] = 'Ord'
 
-            ## K
-            elif vm_pos == 'K':
-                base_ud_annotation['upostag'] = 'ADP'
-                base_ud_annotation['feats']['AdpType'] = 'Prep,Post'
-                has_ambiguity = True
+                ## K
+                elif vm_pos == 'K':
+                    base_ud_annotation['upostag'] = 'ADP'
+                    base_ud_annotation['feats']['AdpType'] = 'Prep,Post'
+                    has_ambiguity = True
 
-            ## D
-            elif vm_pos == 'D':
-                base_ud_annotation['upostag'] = 'ADV'
+                ## D
+                elif vm_pos == 'D':
+                    base_ud_annotation['upostag'] = 'ADV'
 
-            ## V
-            elif vm_pos == 'V':
-                # aux, mod, main
-                if vm_lemma == 'ära':
-                    base_ud_annotation['upostag'] = 'AUX'
-                elif vm_lemma in self._aux_verb_lemmas:
-                    base_ud_annotation['upostag'] = 'VERB,AUX'
-                else:
-                    base_ud_annotation['upostag'] = 'VERB'
-                has_ambiguity = True
+                ## V
+                elif vm_pos == 'V':
+                    # aux, mod, main
+                    if vm_lemma == 'ära':
+                        base_ud_annotation['upostag'] = 'AUX'
+                    elif vm_lemma in self._aux_verb_lemmas:
+                        base_ud_annotation['upostag'] = 'VERB,AUX'
+                    else:
+                        base_ud_annotation['upostag'] = 'VERB'
+                    has_ambiguity = True
 
-            ## J
-            elif vm_pos == 'J':
-                base_ud_annotation['upostag'] = 'CCONJ,SCONJ'  # crd, sub
-                has_ambiguity = True
+                ## J
+                elif vm_pos == 'J':
+                    base_ud_annotation['upostag'] = 'CCONJ,SCONJ'  # crd, sub
+                    has_ambiguity = True
 
-            ## Y
-            elif vm_pos == 'Y' and re.search('[A-ZÜÕÖÜ]', vm_lemma):
-                base_ud_annotation['upostag'] = 'PROPN'
-                base_ud_annotation['feats']['Abbr'] = 'Yes'
-            elif vm_pos == 'Y':
-                base_ud_annotation['upostag'] = 'SYM'
-                base_ud_annotation['feats']['Abbr'] = 'Yes'
+                ## Y
+                elif vm_pos == 'Y' and re.search('[A-ZÜÕÖÜ]', vm_lemma):
+                    base_ud_annotation['upostag'] = 'PROPN'
+                    base_ud_annotation['feats']['Abbr'] = 'Yes'
+                elif vm_pos == 'Y':
+                    base_ud_annotation['upostag'] = 'SYM'
+                    base_ud_annotation['feats']['Abbr'] = 'Yes'
 
-            ## X
-            elif vm_pos == 'X':
-                base_ud_annotation['upostag'] = 'ADV'
+                ## X
+                elif vm_pos == 'X':
+                    base_ud_annotation['upostag'] = 'ADV'
 
-            ## Z
-            elif vm_pos == 'Z':
-                base_ud_annotation['upostag'] = 'PUNCT'
+                ## Z
+                elif vm_pos == 'Z':
+                    base_ud_annotation['upostag'] = 'PUNCT'
 
-            ## T
-            elif vm_pos == 'T':
-                base_ud_annotation['upostag'] = 'X'
+                ## T
+                elif vm_pos == 'T':
+                    base_ud_annotation['upostag'] = 'X'
 
-            ## I
-            elif vm_pos == 'I':
-                base_ud_annotation['upostag'] = 'INTJ'
+                ## I
+                elif vm_pos == 'I':
+                    base_ud_annotation['upostag'] = 'INTJ'
 
-            ## B
-            elif vm_pos == 'B':
-                base_ud_annotation['upostag'] = 'PART'
+                ## B
+                elif vm_pos == 'B':
+                    base_ud_annotation['upostag'] = 'PART'
 
-            ## E
-            elif vm_pos == 'E':
-                base_ud_annotation['upostag'] = 'SYM'
+                ## E
+                elif vm_pos == 'E':
+                    base_ud_annotation['upostag'] = 'SYM'
 
-            ## G
-            elif vm_pos == 'G':
-                base_ud_annotation['upostag'] = 'NOUN'
+                ## G
+                elif vm_pos == 'G':
+                    base_ud_annotation['upostag'] = 'NOUN'
+                    base_ud_annotation['feats']['Number'] = 'Sing'
+                    base_ud_annotation['feats']['Case']   = 'Gen'
+
+            # 2) Convert morphological features of nouns and declinable words: 
+            
+            # Number:
+            # https://github.com/EstSyntax/EstUD/blob/master/cgmorf2conllu/cgmorf2conllu.py#L545-L551
+            if 'sg' in vm_form and _has_postag(base_ud_annotation['upostag'], ['NOUN', 'PROPN', 'ADJ', 'DET', 'PRON', 'NUM']):
                 base_ud_annotation['feats']['Number'] = 'Sing'
-                base_ud_annotation['feats']['Case']   = 'Gen'
+            elif 'pl' in vm_form and _has_postag(base_ud_annotation['upostag'], ['NOUN', 'PROPN', 'ADJ', 'DET', 'PRON', 'NUM']):
+                base_ud_annotation['feats']['Number'] = 'Plur'
 
-        # 2) Convert morphological features of nouns and declinable words: 
-        
-        # Number:
-        # https://github.com/EstSyntax/EstUD/blob/master/cgmorf2conllu/cgmorf2conllu.py#L545-L551
-        if 'sg' in vm_form and _has_postag(base_ud_annotation['upostag'], ['NOUN', 'PROPN', 'ADJ', 'DET', 'PRON', 'NUM']):
-            base_ud_annotation['feats']['Number'] = 'Sing'
-        elif 'pl' in vm_form and _has_postag(base_ud_annotation['upostag'], ['NOUN', 'PROPN', 'ADJ', 'DET', 'PRON', 'NUM']):
-            base_ud_annotation['feats']['Number'] = 'Plur'
+            # Case:
+            # https://github.com/EstSyntax/EstUD/blob/master/cgmorf2conllu/cgmorf2conllu.py#L566-L620
+            if _has_postag(base_ud_annotation['upostag'], ['NOUN', 'PROPN', 'ADJ', 'DET', 'PRON', 'NUM']):
+                case = ''
+                if len(vm_form.split()) > 1:
+                    case = vm_to_ud_case_mapping.get(vm_form.split()[1], '')
+                if case:
+                    base_ud_annotation['feats']['Case'] = case
 
-        # Case:
-        # https://github.com/EstSyntax/EstUD/blob/master/cgmorf2conllu/cgmorf2conllu.py#L566-L620
-        if _has_postag(base_ud_annotation['upostag'], ['NOUN', 'PROPN', 'ADJ', 'DET', 'PRON', 'NUM']):
-            case = ''
-            if len(vm_form.split()) > 1:
-                case = vm_to_ud_case_mapping.get(vm_form.split()[1], '')
-            if case:
-                base_ud_annotation['feats']['Case'] = case
+            # Degree:
+            # https://github.com/EstSyntax/EstUD/blob/master/cgmorf2conllu/cgmorf2conllu.py#L622-L628
+            if _has_postag(base_ud_annotation['upostag'], ['ADJ']):
+                if vm_pos == 'A':
+                    base_ud_annotation['feats']['Degree'] = 'Pos'
+                elif vm_pos == 'C':
+                    base_ud_annotation['feats']['Degree'] = 'Cmp'
+                elif vm_pos == 'U':
+                    base_ud_annotation['feats']['Degree'] = 'Sup'
+            
+            # NumForm:
+            # https://github.com/EstSyntax/EstUD/blob/master/cgmorf2conllu/cgmorf2conllu.py#L630-L636
+            if base_ud_annotation['upostag'] == 'NUM' or \
+               (base_ud_annotation['upostag'] == 'ADJ' and base_ud_annotation['feats'].get('NumType', None) == 'Ord'):
+                if vm_lemma.isdigit() or (len(vm_lemma) > 1 and vm_lemma[0].isdigit()):
+                    # Is digit or starts with digit
+                    base_ud_annotation['feats']['NumForm'] = 'Digit'
+                else:
+                    base_ud_annotation['feats']['NumForm'] = 'Word'
+                # TODO: add regex for detecting roman numerals or something
 
-        # Degree:
-        # https://github.com/EstSyntax/EstUD/blob/master/cgmorf2conllu/cgmorf2conllu.py#L622-L628
-        if _has_postag(base_ud_annotation['upostag'], ['ADJ']):
-            if vm_pos == 'A':
-                base_ud_annotation['feats']['Degree'] = 'Pos'
-            elif vm_pos == 'C':
-                base_ud_annotation['feats']['Degree'] = 'Cmp'
-            elif vm_pos == 'U':
-                base_ud_annotation['feats']['Degree'] = 'Sup'
-        
-        # NumForm:
-        # https://github.com/EstSyntax/EstUD/blob/master/cgmorf2conllu/cgmorf2conllu.py#L630-L636
-        if base_ud_annotation['upostag'] == 'NUM' or \
-           (base_ud_annotation['upostag'] == 'ADJ' and base_ud_annotation['feats'].get('NumType', None) == 'Ord'):
-            if vm_lemma.isdigit() or (len(vm_lemma) > 1 and vm_lemma[0].isdigit()):
-                # Is digit or starts with digit
-                base_ud_annotation['feats']['NumForm'] = 'Digit'
+            # 3) Convert morphological features of verbs: 
+            if _has_postag(base_ud_annotation['upostag'], ['VERB', 'AUX']):
+                # Some exceptional verb forms
+                if vm_lemma == 'ei':
+                    # Add AUX annotation (primary interpretation)
+                    base_ud_annotation['upostag'] = 'AUX'
+                    base_ud_annotation['feats']['Polarity'] = 'Neg'
+                    new_ud_annotations.append( base_ud_annotation )
+                elif vm_lemma in ['kuulukse', 'tunnukse', 'näikse']:
+                    base_ud_annotation['feats']['Tense'] = 'Pres'
+                    base_ud_annotation['feats']['Mood'] = 'Ind'
+                    base_ud_annotation['feats']['VerbForm']  = 'Fin'
+                    new_ud_annotations.append( base_ud_annotation )
+                else:
+                    # Person, Polarity, Voice, Tense, Mood, VerbForm
+                    # https://github.com/EstSyntax/EstUD/blob/master/cgmorf2conllu/cgmorf2conllu.py#L552-L563
+                    # https://github.com/EstSyntax/EstUD/blob/master/cgmorf2conllu/cgmorf2conllu.py#L647-L758
+                    # https://cl.ut.ee/ressursid/morfo-systeemid/
+
+                    # Use rule-based conversion for most of the verbs
+                    # Note that this can produce ambiguous annotations
+                    all_form_annotations = []
+                    for (form, features) in _verb_form_conversion_rules:
+                        if vm_form == form:
+                            # Copy base annotation
+                            new_annotation = {k:base_ud_annotation[k] for k in base_ud_annotation.keys()}
+                            new_annotation['feats'] = base_ud_annotation['feats'].copy()
+                            # Add new features
+                            for attr, key in features.items():
+                                new_annotation['feats'][attr] = key
+                            all_form_annotations.append(new_annotation)
+                    if all_form_annotations:
+                        new_ud_annotations.extend( all_form_annotations )
+                    else:
+                        new_ud_annotations.append( base_ud_annotation )
             else:
-                base_ud_annotation['feats']['NumForm'] = 'Word'
-            # TODO: add regex for detecting roman numerals or something
-
-        # 3) Convert morphological features of verbs: 
-
-        if _has_postag(base_ud_annotation['upostag'], ['VERB', 'AUX']):
-            # Some exceptional verb forms
-            if vm_lemma == 'ei':
-                # Add AUX annotation (primary interpretation)
-                base_ud_annotation['upostag'] = 'AUX'
-                base_ud_annotation['feats']['Polarity'] = 'Neg'
-                ud_annotations.append( base_ud_annotation )
-            elif vm_lemma in ['kuulukse', 'tunnukse', 'näikse']:
-                base_ud_annotation['feats']['Tense'] = 'Pres'
-                base_ud_annotation['feats']['Mood'] = 'Ind'
-                base_ud_annotation['feats']['VerbForm']  = 'Fin'
-                ud_annotations.append( base_ud_annotation )
-
-            # Person, Polarity, Voice, Tense, Mood, VerbForm
-            # https://github.com/EstSyntax/EstUD/blob/master/cgmorf2conllu/cgmorf2conllu.py#L552-L563
-            # https://github.com/EstSyntax/EstUD/blob/master/cgmorf2conllu/cgmorf2conllu.py#L647-L758
-            # https://cl.ut.ee/ressursid/morfo-systeemid/
-
-            # Use rule-based conversion for most of the verbs
-            # Note that this can produce ambiguous annotations
-            all_form_annotations = []
-            for (form, features) in _verb_form_conversion_rules:
-                if vm_form == form:
-                    # Copy base annotation
-                    new_annotation = {k:base_ud_annotation[k] for k in base_ud_annotation.keys()}
-                    new_annotation['feats'] = base_ud_annotation['feats'].copy()
-                    # Add new features
-                    for attr, key in features.items():
-                        new_annotation['feats'][attr] = key
-                    all_form_annotations.append(new_annotation)
-            ud_annotations.extend( all_form_annotations )
+                new_ud_annotations.append( base_ud_annotation )
         
-        if len(ud_annotations) == 0:
-            ud_annotations = [base_ud_annotation]
-
+        ud_annotations = new_ud_annotations
         if has_ambiguity:
-            # if there were ambiguities, then generate all combinations
+            # if there were ambiguities (comma-separated variants), then generate all combinations
             new_ud_annotations = []
             for base_ud_annotation in ud_annotations:
                 new_ud_annotations.extend( self._generate_ambiguous_analyses(base_ud_annotation) )
@@ -657,7 +679,7 @@ class UDMorphConverter( Tagger ):
                 if 'Tense' in ud_annotation['feats']:
                     tense = ud_annotation['feats']['Tense']
         # Carry over verb participle features (if any) to adj
-        if verbForm or voice or tense:
+        if verbForm:
             for ud_annotation in ud_annotations:
                 if _has_postag(ud_annotation['upostag'], ['ADJ']):
                     if voice:
