@@ -289,8 +289,6 @@ class PostgresStorage:
                 raise PgStorageException(('(!) Failed to delete collection {!r} '+\
                                           'due to an exception: {}.').format( \
                                                 deletion_err, collection_name)) from deletion_err
-            # Remove entry from collections view
-            del self._collections[collection_name]
         self.conn.commit()
         self.refresh()
 

@@ -147,6 +147,9 @@ class TestPgCollection(unittest.TestCase):
         self.assertFalse(collection_from_1.exists())
         self.assertFalse(collection_from_2.exists())
         
+        # Assert collection is not listed in storage.collections
+        self.assertFalse(collection_name in storage_1.collections)
+        
         # Assert that collection is again "missing" from 1
         with self.assertRaises(KeyError):
             storage_1[collection_name]
