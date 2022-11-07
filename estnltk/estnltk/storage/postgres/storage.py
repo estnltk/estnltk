@@ -43,7 +43,7 @@ class PostgresStorage:
         """
         self.schema = schema
         self.temporary = temporary
-
+        self.collections_table = pg.table_identifier(self, '__collections')
         conn_param = parse_pgpass(pgpass_file, host, port, dbname, user, password)
 
         if role is None:
@@ -79,9 +79,8 @@ class PostgresStorage:
                                     'the schema if you have enough privileges.').format(schema)
                 logger.error(schema_error_msg)
                 raise PgStorageException(schema_error_msg)
-        
+
         self._collections = pg.StorageCollections(self)
-        self.collections_table = pg.table_identifier( self, '__collections' )
         # Create storage_collections table (if missing)
         if not pg.table_exists( self, '__collections' ):
             try:

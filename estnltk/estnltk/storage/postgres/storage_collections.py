@@ -19,6 +19,9 @@ class StorageCollections:
     are created by `PostgresStorage` only on user demand.
     `PostgresStorage` also handles creation of the table of collections, 
     insertion to the table and deletion from the table.
+    
+    TODO: logic of this class can be moved into `PostgresStorage`.
+    this class is subject to removal in the next version
     '''
     def __init__(self, storage):
         self._storage = storage
@@ -49,11 +52,9 @@ class StorageCollections:
     def load(self):
         new_collections = {}
         assert pg.table_exists(self._storage, '__collections')
-        table_identifier = \
-               pg.table_identifier(self._storage, '__collections')
         with self._storage.conn.cursor() as c:
             c.execute(SQL("SELECT collection, version FROM {};").
-                      format(table_identifier))
+                      format(self._storage.collections_table))
             for collection, version in c.fetchall():
                 if collection in self.collections:
                     # Collection has been loaded already, check the version.
