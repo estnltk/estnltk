@@ -4,6 +4,7 @@ import re
 import time
 from contextlib import contextmanager
 from typing import Sequence, Dict
+import warnings
 
 import pandas
 import psycopg2
@@ -251,7 +252,7 @@ class PgCollection:
         self.name = name
         self.storage = storage
         self._temporary = temporary
-
+        self._structure = None
         if version == '0.0':
             self._structure = pg.v00.CollectionStructure(self)
         elif version == '1.0':
@@ -310,7 +311,7 @@ class PgCollection:
         if self._selected_layes is None:
             if not self.exists():
                 raise PgCollectionException('collection {!r} does not exist'.format(self.name))
-            if self._is_empty is None:
+            if self._is_empty:
                 return []
             self._selected_layes = [layer for layer, properties in self._structure.structure.items()
                                     if properties['layer_type'] == 'attached']
@@ -326,10 +327,8 @@ class PgCollection:
     def dependent_layers(self, selected_layers):
         """Returns all layers that depend on selected layers including selected layers.
 
-           Returned layers are ordered ...
-           The latter provides a correct order for loading and re-attaching detached layers
-
-           TODO: Complete description
+           Returned layers are topologically ordered according to dependencies.
+           The latter provides a correct order for loading and re-attaching detached layers.
         """
         if not self.exists():
             raise PgCollectionException('collection {!r} does not exist'.format(self.name))
@@ -392,8 +391,17 @@ class PgCollection:
                     schema=Identifier(self.storage.schema),
                     index=Identifier('idx_%s_data' % self.name)))
 
-    # TODO: make it work
+    
     def extend(self, other: 'PgCollection'):
+        """
+        Extends this collection with texts from the other collection. 
+        Inserts texts of other collection along with metadata, attached and 
+        detached layers into this collection.
+        Assumes that two collections have the same metadata columns and 
+        layer structure (same attached and detached layers).
+        # TODO: this is an untested functionality
+        # TODO: make it work ?
+        """
         if not self.exists():
             raise PgCollectionException('collection {!r} does not exist'.format(self.name))
         if not other.exists():
@@ -488,7 +496,10 @@ class PgCollection:
         """Returns True if collection tables exist"""
         collection_table = table_exists(self.storage, self.name)
         structure_table = structure_table_exists(self.storage, self.name)
-        assert collection_table is structure_table, (collection_table, structure_table)
+        assert collection_table is structure_table, \
+            ('Collection {!r} has inconsistent table structure: '+\
+             'collection_table_exists: {}, '+\
+             'collection_structure_table_exists: {}').format(self.name, collection_table, structure_table)
         return collection_table
 
     def select_fragment_raw(self, fragment_name, parent_layer_name, query=None, ngram_query=None):
@@ -511,6 +522,11 @@ class PgCollection:
         """
         if not self.exists():
             raise PgCollectionException('collection {!r} does not exist'.format(self.name))
+        
+        warnings.simplefilter("always", DeprecationWarning)
+        warnings.warn('Method collection.select_fragment_raw(...) is deprecated. ', 
+                       DeprecationWarning)
+        warnings.simplefilter("ignore", DeprecationWarning)
         
         # 1. Build query
         q = SQL("""
@@ -743,6 +759,11 @@ class PgCollection:
                     conn.commit()
 
     def continue_creating_layer(self, tagger, progressbar=None, query_length_limit=5000000):
+        warnings.simplefilter("always", DeprecationWarning)
+        warnings.warn('Method collection.continue_creating_layer(...) is deprecated. '+\
+                      'Please use collection.create_layer(..., mode="append") instead. ', 
+                       DeprecationWarning)
+        warnings.simplefilter("ignore", DeprecationWarning)
         self.create_layer(tagger=tagger, progressbar=progressbar, query_length_limit=query_length_limit,
                           mode='append')
 
