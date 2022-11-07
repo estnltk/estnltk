@@ -35,7 +35,6 @@ mis	PRON	PronType=Int,Rel
 kumb	PRON	PronType=Int,Rel
 mis_sugune	PRON	PronType=Int,Rel
 milline	PRON	PronType=Int,Rel
-mitu	PRON	PronType=Int,Rel
 mitmes	PRON	PronType=Int,Rel
 
 keegi	PRON	PronType=Ind

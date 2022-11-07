@@ -261,6 +261,7 @@ class UDMorphConverter( Tagger ):
                         raise ValueError(('(!) Unexpected conversion rule {!r} in file {!r}.'+\
                                           ''.format(line, fpath)))
                     vm_lemma = line_parts[0]
+                    vm_lemma = (vm_lemma.replace('_', '')).replace('=', '')
                     ud_pos = line_parts[1]
                     ud_feats = None
                     if len(line_parts) == 3:
@@ -429,6 +430,7 @@ class UDMorphConverter( Tagger ):
         vm_pos   = vm_annotation['partofspeech']
         vm_form  = vm_annotation['form']
         vm_lemma = vm_annotation['lemma']
+        vm_lemma_clean = (vm_annotation['lemma'].replace('_', '')).replace('=', '')
         first_base_ud_annotation['feats']   = OrderedDict()
         first_base_ud_annotation['xpostag'] = vm_pos
         first_base_ud_annotation['lemma']   = vm_lemma
@@ -441,10 +443,10 @@ class UDMorphConverter( Tagger ):
         for base_ud_annotation in ud_annotations:
             annotations_added = False
             if vm_pos in self._pos_lemma_conv_rules:
-                if vm_lemma in self._pos_lemma_conv_rules[vm_pos]:
+                if vm_lemma_clean in self._pos_lemma_conv_rules[vm_pos]:
                     # There can be multiple UD annotations corresponding to given 
                     # combination of vm_pos & vm_lemma. Add them all:
-                    for dict_rules in self._pos_lemma_conv_rules[vm_pos][vm_lemma]:
+                    for dict_rules in self._pos_lemma_conv_rules[vm_pos][vm_lemma_clean]:
                         # Copy base annotation
                         new_annotation = \
                             {k:base_ud_annotation[k] for k in base_ud_annotation.keys()}
