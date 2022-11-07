@@ -160,8 +160,9 @@ class UDMorphConverter( Tagger ):
                    '_input_words_layer', \
                    '_input_sentences_layer', \
                    '_input_morph_analysis_layer', \
-                   # Rules: vm_pos, vm_lemma to upostag & feats
+                   # Conversion rules imported from files
                    '_pos_lemma_conv_rules', \
+                   '_lemma_conv_rules', \
                    # Constants: aux verb lemmas
                    '_aux_verb_lemmas'
                  ]
@@ -192,12 +193,13 @@ class UDMorphConverter( Tagger ):
             
             conversion_rules_dir: str (default: None)
                 Directory containing *.tab files with dictionary-based conversions, 
-                each mapping a lemma to appropriate upostags and feats. 
+                each mapping Vabamorf's a lemma (and optionally part of speech) to 
+                appropriate upostags and feats. 
+                Each rules file should have .tab extension, files with other extensions 
+                will be ignored.
                 If provided, then conversion rules will be loaded from the directory 
                 and applied as first the conversion step, before applying the default 
                 rules.
-                For examples about conversion files, see: 
-                https://github.com/EstSyntax/EstUD/tree/master/cgmorf2conllu/POS_LEMMA_RULES
             
             add_deprel_attribs: bool (default: False)
                 If set, then the output layer will have full set of UD fields,
@@ -217,6 +219,7 @@ class UDMorphConverter( Tagger ):
         else:
             self.output_attributes = ('id', 'lemma', 'upostag', 'xpostag', 'feats', 'misc')
         self._pos_lemma_conv_rules = {}
+        self._lemma_conv_rules = {}
         if conversion_rules_dir is not None:
             # Load conversion rules
             assert os.path.exists(conversion_rules_dir), \
@@ -235,57 +238,69 @@ class UDMorphConverter( Tagger ):
         '''
         Loads tabbed conversion rules from the given file.
         
-        Rules file name should start with an abbreviation of Vabamorf's 
-        postag, e.g. file "P_PRON.tab" contains rules for converting lemmas 
-        with Vabamorf's postag "P". 
-        
         Expected file format: one rule per line with tab-separated values:
-        <Vabamorf's lemma> \t <UD postag> \t <UD features (optional)>
-        For example files, see:
-        https://github.com/EstSyntax/EstUD/tree/master/cgmorf2conllu/POS_LEMMA_RULES
+        <Vabamorf's lemma> \t <Vabamorf's postag (optional)> \t <UD postag> \t <UD features (optional)>
+        Vabamorf's postag can be an empty value, in that case, postags are ignored and 
+        only lemma match is checked.
+        UD features can also be left empy, in that case, no features will be added and only UD 
+        postag will be converted.
         
-        Returns None. All loaded rules will be saved under the instance variable 
-        `self._pos_lemma_conv_rules`.
+        Returns None. All loaded rules will be saved under the instance variables 
+        `self._pos_lemma_conv_rules` and `self._lemma_conv_rules`.
         '''
-        _, fname = os.path.split(fpath)
-        if fname[0] not in VABAMORF_POSTAGS:
-            raise ValueError(('(!) Unexpected conversion rules file name: {!r}. '+\
-                             "The name should start with a Vabamorf's postag.").format(fname))
-        vm_pos = fname[0]
         with open( fpath, 'r', encoding='utf-8' ) as in_f:
             for line in in_f:
                 line = line.strip()
                 if len(line) > 0:
                     line_parts = line.split('\t')
-                    if len(line_parts) not in [2,3]:
+                    if len(line_parts) not in [3, 4]:
                         raise ValueError(('(!) Unexpected conversion rule {!r} in file {!r}.'+\
                                           ''.format(line, fpath)))
                     vm_lemma = line_parts[0]
                     vm_lemma = (vm_lemma.replace('_', '')).replace('=', '')
-                    ud_pos = line_parts[1]
+                    vm_pos = line_parts[1]
+                    if len(vm_pos) != 0:
+                        if vm_pos not in VABAMORF_POSTAGS:
+                            raise ValueError(("(!) Unexpected Vabamorf's postag {!r} in rule: {!r}. "+\
+                                              "").format(vm_pos, line))
+                    ud_pos = line_parts[2]
                     ud_feats = None
-                    if len(line_parts) == 3:
-                        ud_feats = line_parts[2]
-                        # parse features
-                        ud_feats_parts = ud_feats.split()
-                        ud_feats_dict = OrderedDict()
-                        for part in ud_feats_parts:
-                            assert '=' in part
-                            key, value = part.split('=')
-                            ud_feats_dict[key] = value
-                        ud_feats = ud_feats_dict
+                    if len(line_parts) == 4:
+                        ud_feats_raw = line_parts[3]
+                        if len(ud_feats_raw) > 0:
+                            # parse features
+                            ud_feats_parts = ud_feats_raw.split()
+                            ud_feats_dict = OrderedDict()
+                            for part in ud_feats_parts:
+                                assert '=' in part
+                                key, value = part.split('=')
+                                ud_feats_dict[key] = value
+                            ud_feats = ud_feats_dict
                     # add to dictonary
-                    if vm_pos not in self._pos_lemma_conv_rules:
-                        self._pos_lemma_conv_rules[vm_pos] = {}
-                    # note: there can be multiple rules per single VM lemma & postag;
-                    # so, we use a list of dicts to for storing rules
-                    if vm_lemma not in self._pos_lemma_conv_rules[vm_pos]:
-                        self._pos_lemma_conv_rules[vm_pos][vm_lemma] = [{}]
+                    if len(vm_pos) != 0:
+                        # vm pos is specified
+                        if vm_pos not in self._pos_lemma_conv_rules:
+                            self._pos_lemma_conv_rules[vm_pos] = {}
+                        # note: there can be multiple rules per single VM lemma & postag;
+                        # so, we use a list of dicts for storing rules
+                        if vm_lemma not in self._pos_lemma_conv_rules[vm_pos]:
+                            self._pos_lemma_conv_rules[vm_pos][vm_lemma] = [{}]
+                        else:
+                            self._pos_lemma_conv_rules[vm_pos][vm_lemma].append({})
+                        self._pos_lemma_conv_rules[vm_pos][vm_lemma][-1]['upostag'] = ud_pos
+                        if ud_feats is not None:
+                            self._pos_lemma_conv_rules[vm_pos][vm_lemma][-1]['feats'] = ud_feats
                     else:
-                        self._pos_lemma_conv_rules[vm_pos][vm_lemma].append({})
-                    self._pos_lemma_conv_rules[vm_pos][vm_lemma][-1]['upostag'] = ud_pos
-                    if ud_feats is not None:
-                        self._pos_lemma_conv_rules[vm_pos][vm_lemma][-1]['feats'] = ud_feats
+                        # vm pos is unspecified
+                        # note: there can be multiple rules per single VM lemma & postag;
+                        # so, we use a list of dicts for storing rules
+                        if vm_lemma not in self._lemma_conv_rules:
+                            self._lemma_conv_rules[vm_lemma] = [{}]
+                        else:
+                            self._lemma_conv_rules[vm_lemma].append({})
+                        self._lemma_conv_rules[vm_lemma][-1]['upostag'] = ud_pos
+                        if ud_feats is not None:
+                            self._lemma_conv_rules[vm_lemma][-1]['feats'] = ud_feats
 
 
     def _make_layer_template(self):
@@ -444,9 +459,26 @@ class UDMorphConverter( Tagger ):
             annotations_added = False
             if vm_pos in self._pos_lemma_conv_rules:
                 if vm_lemma_clean in self._pos_lemma_conv_rules[vm_pos]:
-                    # There can be multiple UD annotations corresponding to given 
-                    # combination of vm_pos & vm_lemma. Add them all:
+                    # Conversion rules based on vm_pos & vm_lemma.
+                    # Note: there can be multiple UD annotations corresponding 
+                    # to given VM annotation. Add them all:
                     for dict_rules in self._pos_lemma_conv_rules[vm_pos][vm_lemma_clean]:
+                        # Copy base annotation
+                        new_annotation = \
+                            {k:base_ud_annotation[k] for k in base_ud_annotation.keys()}
+                        new_annotation['feats'] = base_ud_annotation['feats'].copy()
+                        if 'upostag' in dict_rules:
+                            new_annotation['upostag'] = dict_rules['upostag']
+                        if 'feats' in dict_rules:
+                            for k, v in dict_rules['feats'].items():
+                                new_annotation['feats'][k] = v
+                        new_ud_annotations.append( new_annotation )
+                        annotations_added = True
+                if vm_lemma_clean in self._lemma_conv_rules:
+                    # Conversion rules based on vm_lemma.
+                    # Note: there can be multiple UD annotations corresponding 
+                    # to given VM annotation. Add them all:
+                    for dict_rules in self._lemma_conv_rules[vm_lemma_clean]:
                         # Copy base annotation
                         new_annotation = \
                             {k:base_ud_annotation[k] for k in base_ud_annotation.keys()}
