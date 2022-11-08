@@ -7,7 +7,6 @@ REQUIRED_ATTRIBUTES = frozenset(('start', 'end', 'text'))
 
 def export_texts(
         fname: str, texts: Union[List[str], str], layers: Union[List[Layer], Layer],
-        label_attribute: str = 'label',
         other_attributes: List[str] = (),
         text_name: str = 'text', labelset_name: str = 'label'):
     """
@@ -49,13 +48,12 @@ def export_texts(
 
     exported_attributes = sorted(REQUIRED_ATTRIBUTES.union(other_attributes))
     json.dump([
-        text_to_dict(text, layer, label_attribute, exported_attributes, text_name, labelset_name)
+        text_to_dict(text, layer, exported_attributes, text_name, labelset_name)
         for text, layer in zip(texts, layers)], output, indent=2)
 
 
 def text_to_dict(
         text: str, layer: Layer,
-        label_attribute: str = 'label',
         exported_attributes: List[str] = ('start', 'end', 'text'),
         text_name: str = 'text',
         labelset_name: str = 'label') -> dict:
@@ -66,13 +64,8 @@ def text_to_dict(
     predictions = []
     for span in layer:
 
-        # Ignore spans without labels
-        label = span.get(label_attribute, None)
-        if label is None:
-            continue
-
-        annotation = {key: span[key] for key in exported_attributes if key in span.keys()}
-        annotation['labels'] = [str(label)]
+        annotation = {key: span[key] for key in exported_attributes if key in span.legal_attribute_names}
+        annotation['labels'] = [str(layer)]
 
         predictions.append({
             'value': annotation,
@@ -83,5 +76,5 @@ def text_to_dict(
     return {
         'annotations': [],
         'predictions': [{'result': predictions}],
-        'data': {'text': text}
+        'data': {'text': text.text}
     }
