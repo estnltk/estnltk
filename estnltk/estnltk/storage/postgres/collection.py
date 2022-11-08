@@ -702,62 +702,6 @@ class PgCollection:
             counter.update(t[layer].count_values(attr))
         return counter
 
-    def create_fragment(self, fragment_name, data_iterator, row_mapper,
-                        create_index=False, ngram_index=None):
-        """Creates and fills a fragment table.
-
-        Args:
-            fragment_name: str
-            data_iterator: iterator
-                Produces tuples (text_id, text, parent_layer_id, *payload),
-                where *payload is a variable number of values to be passed to the `row_mapper`
-                See method `PgCollection.select_raw`
-            row_mapper: callable
-                It takes as input a full row produced by `data_iterator`
-                and returns a list of Layer objects.
-            create_index:
-            ngram_index:
-
-        """
-        if not self.exists():
-            raise PgCollectionException("collection {!r} does not exist".format(self.name))
-        
-        conn = self.storage.conn
-        with conn.cursor() as c:
-            try:
-                conn.autocommit = False
-                fragment_table = fragment_table_name(self.name, fragment_name)
-                self._create_layer_table(cursor=c,
-                                         layer_name=fragment_name,
-                                         is_fragment=True,
-                                         create_index=create_index,
-                                         ngram_index=ngram_index)
-                # insert data
-                id_ = 0
-                for row in data_iterator:
-                    text_id, text = row[0], row[1]
-                    for record in row_mapper(row):
-                        fragment_dict = layer_to_dict(record['fragment'])
-                        parent_layer_id = record['parent_id']
-                        if ngram_index is not None:
-                            ngram_values = [create_ngram_fingerprint_index(record.layer, attr, n)
-                                            for attr, n in ngram_index.items()]
-                        else:
-                            ngram_values = None
-                        layer_json = json.dumps(fragment_dict, ensure_ascii=False)
-                        ngram_values = ngram_values or []
-                        q = "INSERT INTO {}.{} VALUES (%s);" % ", ".join(['%s'] * (4 + len(ngram_values)))
-                        q = SQL(q).format(Identifier(self.storage.schema), Identifier(fragment_table))
-                        c.execute(q, (id_, parent_layer_id, text_id, layer_json, *ngram_values))
-                        id_ += 1
-            except:
-                conn.rollback()
-                raise
-            finally:
-                if conn.status == STATUS_BEGIN:
-                    # no exception, transaction in progress
-                    conn.commit()
-
     def continue_creating_layer(self, tagger, progressbar=None, query_length_limit=5000000):
         warnings.simplefilter("always", DeprecationWarning)
         warnings.warn('Method collection.continue_creating_layer(...) is deprecated. '+\
@@ -767,16 +711,41 @@ class PgCollection:
         self.create_layer(tagger=tagger, progressbar=progressbar, query_length_limit=query_length_limit,
                           mode='append')
 
-    def create_fragmented_layer(self, tagger, fragmenter: callable, meta: Sequence = None, progressbar: str = None,
+    def create_fragmented_layer(self, tagger=None, fragmenter:callable=None, fragment_name:str=None, \
+                                      data_iterator=None,  row_mapper=None,  create_index:bool=False, \
+                                      ngram_index=None, meta: Sequence = None, progressbar: str = None, \
                                       query_length_limit: int = 5000000):
         """
-        Creates fragmented layer
+        Creates fragmented layer table and fills with data.
+        
+        A fragmented layer is a layer that is composed of (sub)layers of 
+        a parent layer, e.g. created by breaking one layer into multiple 
+        sublayers.
 
         Args:
             tagger: Tagger
-                tagger.make_layer method is called to create new layer
+                tagger.make_layer method is called to create new layer. 
+                Either tagger and fragmenter must be None or layer_name, 
+                data_iterator and row_mapper must be None.
             fragmenter: callable
-                fragmenter is called to brake layer into list of (sub)layers
+                if tagger is provided, then fragmenter is called to brake layer 
+                into list of (sub)layers. (sub)layers should specify 'parent_layer_id' 
+                in their meta;
+            fragment_name: str
+                If tagger and fragmenter are not provided, then this should be 
+                the name of the creatable fragmented layer.
+            data_iterator: iterator
+                If tagger and fragmenter are not provided, then data_iterator should 
+                be an iterable producing tuples (text_id, text, parent_layer_id, *payload), 
+                where *payload is a variable number of values to be passed to the `row_mapper` 
+                See method `PgCollection.select_raw`. 
+                Otherwise (tagger is provided) data_iterator defaults to iterating 
+                over the whole collection. 
+            row_mapper: callable
+                If tagger and fragmenter are not provided, this should be a function 
+                that takes as input a full row produced by `data_iterator` and returns 
+                a list of dictionaries with keys 'fragment' (Layer) and 'parent_id' 
+                (int).
             meta: dict of str -> str
                 Specifies table column names and data types for storing additional
                 meta information. E.g. meta={"sum": "int", "average": "float"}.
@@ -787,12 +756,21 @@ class PgCollection:
                 if 'ascii', use ASCII characters (1-9 #) to fill the progressbar
                 else disable progressbar (default)
             query_length_limit: int
-                soft approximate query length limit in unicode characters, can be exceeded by the length of last buffer
-                insert
+                soft approximate query length limit in unicode characters, can be exceeded 
+                by the length of last buffer insert
+            create_index:
+                Whether to create an index on json column
+            ngram_index:
+                A list of attributes for which to create an ngram index.
+                
         """
-
-        layer_name = tagger.output_layer
-
+        # Check the configuration
+        if not ((fragment_name is None and data_iterator is None and row_mapper is None) is not (tagger is None and fragmenter is None)):
+            raise PgCollectionException( \
+               ('Either tagger ({}) and fragmenter ({}) must be specified, or '+\
+                'fragment_name ({}), data_iterator ({}) and row_mapper ({}) must be specified').format(tagger, fragmenter, \
+                                                                            fragment_name, data_iterator, row_mapper ) )
+        layer_name = fragment_name or tagger.output_layer
         if not self.exists():
             raise PgCollectionException("collection {!r} does not exist, can't create layer {!r}".format(
                                         self.name, layer_name))
@@ -803,10 +781,19 @@ class PgCollection:
             exception = PgCollectionException("can't create layer {!r}, layer already exists".format(layer_name))
             logger.error(exception)
             raise exception
+        if data_iterator is None:
+            data_iterator = self.select(layers=tagger.input_layers, progressbar=progressbar)
 
         meta_columns = ()
         if meta is not None:
             meta_columns = tuple(meta)
+        extra_columns = []
+        if meta_columns:
+            extra_columns.extend(meta_columns)
+        if ngram_index is not None:
+            ngram_index_keys = tuple(ngram_index.keys())
+            extra_columns.extend(ngram_index_keys)
+        columns = ["id", "parent_id", "text_id", "data"] + extra_columns
 
         conn = self.storage.conn
         with conn.cursor() as c:
@@ -816,26 +803,68 @@ class PgCollection:
                 # create table and indices
                 self._create_layer_table(cursor=c,
                                          layer_name=layer_name,
-                                         meta=meta)
-
+                                         meta=meta,
+                                         is_fragment=True,
+                                         create_index=create_index,
+                                         ngram_index=ngram_index)
+                fragment_id = 0
                 structure_written = False
-                with CollectionDetachedLayerInserter( self, layer_name, extra_columns=meta_columns, 
-                                                      query_length_limit=query_length_limit,
-                                                      sparse=False) as buffered_inserter:
-
-                    for row in self.select(layers=tagger.input_layers, progressbar=progressbar):
+                fragment_table_id = fragment_table_identifier(self.storage, self.name, layer_name)
+                with BufferedTableInsert(conn, fragment_table_id, columns=columns, query_length_limit=query_length_limit) \
+                                                                                as buffered_inserter:
+                    for row in data_iterator:
                         text_id, text = row[0], row[1]
+                        if tagger is not None:
+                            for fragment in fragmenter(tagger.make_layer(text, status={})):
+                                layer = fragment.layer
+                                # TODO: how should we get parent_layer_id value here ?
+                                # previous version did not assign parent_layer_id at all. 
+                                # currently, we are trying to get parent_layer_id from layer's 
+                                # meta, and if it is missing from there, we fall back to 
+                                # text_id;
+                                parent_layer_id = \
+                                    layer.meta.get('parent_layer_id', text_id)
+                                extra_data = []
+                                if meta_columns:
+                                    extra_data.extend( fragment.meta[k] for k in meta_columns )
+                                if ngram_index is not None:
+                                    ngram_values = [create_ngram_fingerprint_index(layer, attr, n)
+                                                                         for attr, n in ngram_index.items()]
+                                    extra_data.extend( ngram_values )
+                                assert isinstance(layer, Layer)
+                                layer_json = layer_to_json(layer)
+                                values = [fragment_id, parent_layer_id, text_id, layer_json] + extra_data
+                                buffered_inserter.insert( values )
+                                fragment_id += 1
+                                if not structure_written:
+                                    self._structure.insert(layer=layer, layer_type='fragmented', meta=meta, is_sparse=False)
+                                    structure_written = True
+                        else:
+                            for record in row_mapper(row):
+                                layer = record['fragment']
+                                assert isinstance(layer, Layer)
+                                # TODO: we need to ensure that the name of the output layer is fragment_name,
+                                # and not a name of an existing layer (which would give us an error on writing 
+                                # the structure). The old implementation did not write structure at all.
+                                # Currently, we overwrite the layer name, but probably row_mapper should take 
+                                # care of it
+                                layer.name = fragment_name
+                                layer_json = layer_to_json(layer)
+                                parent_layer_id = record['parent_id']
+                                extra_data = []
+                                if meta_columns:
+                                    extra_data.extend( layer.meta[k] for k in meta_columns )
+                                if ngram_index is not None:
+                                    ngram_values = [create_ngram_fingerprint_index(layer, attr, n)
+                                                    for attr, n in ngram_index.items()]
+                                    extra_data.extend( ngram_values )
+                                values = [fragment_id, parent_layer_id, text_id, layer_json] + extra_data
+                                buffered_inserter.insert( values )
+                                fragment_id += 1
+                                if not structure_written:
+                                    self._structure.insert(layer=layer, layer_type='fragmented', meta=meta, is_sparse=False)
+                                    structure_written = True
 
-                        for fragment in fragmenter(tagger.make_layer(text, status={})):
-                            layer = fragment.layer
-                            extra_data = []
-                            if meta_columns:
-                                extra_data.extend( fragment.meta[k] for k in meta_columns )
-                            buffered_inserter.insert(layer, text_id, key=DEFAULT, extra_data=extra_data)
-                            
-                            if not structure_written:
-                                self._structure.insert(layer=layer, layer_type='fragmented', meta=meta, is_sparse=False)
-                                structure_written = True
             except Exception:
                 conn.rollback()
                 raise
@@ -845,6 +874,8 @@ class PgCollection:
                     conn.commit()
 
         logger.info('fragmented layer created: {!r}'.format(layer_name))
+        logger.debug('inserted {!r} layers into {!r}.'.format(fragment_id, layer_name))
+
 
     def create_layer(self, layer_name=None, data_iterator=None, row_mapper=None, tagger=None,
                      create_index=False, ngram_index=None, overwrite=False, meta=None, progressbar=None,

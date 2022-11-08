@@ -606,7 +606,6 @@ class TestLayerFragment(unittest.TestCase):
         rows = list(collection.select().fragmented_layer(name=layer_fragment_name))
 
         assert len(rows) == 4
-
         text_ids = [row[0] for row in rows]
         self.assertEqual(text_ids[0], text_ids[1])
         self.assertEqual(text_ids[2], text_ids[3])
@@ -618,11 +617,11 @@ class TestLayerFragment(unittest.TestCase):
             assert isinstance(row[1], Layer), row
             assert row[1].text_object is None
 
-        self.assertTrue(layer_table_exists(self.storage, collection.name, layer_fragment_name))
+        self.assertTrue(fragment_table_exists(self.storage, collection.name, layer_fragment_name))
 
         collection.delete()
 
-        self.assertFalse(layer_table_exists(self.storage, collection.name, layer_fragment_name))
+        self.assertFalse(fragment_table_exists(self.storage, collection.name, layer_fragment_name))
 
 
 class TestFragment(unittest.TestCase):
@@ -661,11 +660,12 @@ class TestFragment(unittest.TestCase):
             return [{'fragment': layer, 'parent_id': parent_id},
                     {'fragment': layer, 'parent_id': parent_id}]
 
-        collection.create_fragment(fragment_name,
-                                   data_iterator=collection.select().fragmented_layer(name=layer_fragment_name),
-                                   row_mapper=row_mapper,
-                                   create_index=False,
-                                   ngram_index=None)
+
+        collection.create_fragmented_layer(fragment_name=fragment_name,
+                                           data_iterator=collection.select().fragmented_layer(name=layer_fragment_name),
+                                           row_mapper=row_mapper,
+                                           create_index=False,
+                                           ngram_index=None)
 
         rows = list(collection.select_fragment_raw(fragment_name, layer_fragment_name))
         self.assertEqual(len(rows), 4)
