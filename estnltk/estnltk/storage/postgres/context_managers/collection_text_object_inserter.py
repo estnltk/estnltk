@@ -86,10 +86,12 @@ class CollectionTextObjectInserter(object):
             # ( CollectionStructureBase should return None )
             if self.collection.structure:
                 raise pg.PgCollectionException("collection already has structure {!r}, can't create another".format( self.collection.structure.structure ))
-        # Check for existing detached layers
+        # Check for existing detached/fragmented layers
         if self.collection.structure:
             if any(struct['layer_type'] == 'detached' for struct in self.collection.structure.structure.values()):
                 raise pg.PgCollectionException("this collection has detached layers, can't add new text objects")
+            if any(struct['layer_type'] == 'fragmented' for struct in self.collection.structure.structure.values()):
+                raise pg.PgCollectionException("this collection has fragmented layers, can't add new text objects")
         return self
 
 

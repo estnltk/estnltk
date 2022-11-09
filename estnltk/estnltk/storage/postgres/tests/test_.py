@@ -655,6 +655,11 @@ class TestLayerFragment(unittest.TestCase):
         collection.create_fragmented_layer(tagger=tagger1, fragmenter=fragmenter)
 
         self.assertTrue(collection.has_layer(layer_fragment_name))
+        
+        # Try an illegal insert: insert Text object after a fragmented layer has been added
+        with self.assertRaises(pg.PgCollectionException):
+            with collection.insert() as collection_insert:
+                collection_insert.insert(Text('üks tekst').tag_layer("sentences"))
 
         rows = list(collection.select().fragmented_layer(name=layer_fragment_name))
 

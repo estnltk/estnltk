@@ -666,7 +666,7 @@ class PgCollection:
             else:
                 raise KeyError("Index {!r} is outside of the collection".format(item))
 
-        if isinstance(item, slice):  # TODO
+        if isinstance(item, slice):
             
             if item.step is not None:
                 raise KeyError("Invalid index slice {!r}".format(item))
@@ -681,7 +681,9 @@ class PgCollection:
         yield from self.select(layers=self.selected_layers, return_index=False)
 
     def count_values(self, layer, attr, **kwargs):
-        """Count attribute values in the collection."""
+        """Count attribute values in the collection.
+        Warning: could lead to memory failure on extremely large collections.
+        """
         counter = collections.Counter()
         for i, t in self.select(layers=[layer], **kwargs):
             counter.update(t[layer].count_values(attr))
@@ -706,6 +708,11 @@ class PgCollection:
         A fragmented layer is a layer that is composed of (sub)layers of 
         a parent layer, e.g. created by breaking one layer into multiple 
         sublayers.
+
+        *Important:* You should use this method only after the insertion of 
+        Text objects into the collection has been finished. Once you create 
+        a fragmented layer, new Text objects cannot be inserted into the 
+        collection.
 
         Args:
             tagger: Tagger
