@@ -582,6 +582,49 @@ class TestPgCollection(unittest.TestCase):
         collection.delete()
 
 
+    @unittest.expectedFailure
+    def test_dependent_layers_topological_sort(self):
+        # Test that Text.topological_sort(...) gives same results as collection.dependent_layers(...)
+        # Create input layers
+        tokens = Layer(name='tokens', parent=None, enveloping=None, text_object=None)
+        words = Layer(name='words', parent=None, enveloping=None, text_object=None)
+        sentences = Layer(name='sentences', parent=None, enveloping='words', text_object=None)
+        paragraphs = Layer(name='paragraphs', parent=None, enveloping='sentences', text_object=None)
+        morph_analysis = \
+            Layer(name='morph_analysis', parent='words', enveloping=None, text_object=None)
+        morph_extended = \
+            Layer(name='morph_extended', parent='morph_analysis', enveloping=None, text_object=None)
+        syntax = Layer(name='syntax', parent='morph_extended', enveloping=None, text_object=None)
+        # 1) Text.topological_sort(...)
+        layers_dict = {layer.name: layer for layer in [ morph_extended, paragraphs, morph_analysis, 
+                                                        sentences, syntax, words, tokens ]}
+        text_obj_top_sorted_layers = Text.topological_sort( layers_dict )
+        text_obj_top_sorted_layers = [layer.name for layer in text_obj_top_sorted_layers]
+        self.assertListEqual( text_obj_top_sorted_layers, \
+                              ['tokens', 'words', 'morph_analysis', 'morph_extended', \
+                               'sentences', 'paragraphs', 'syntax'] )
+        # 2) collection.dependent_layers(...)
+        collection_name = get_random_collection_name()
+        collection = self.storage.add_collection(collection_name)
+        # Add some documents to the collection
+        with collection.insert() as collection_insert:
+            collection_insert( Text('Näidislause') )
+        # Add layers to collection in arbitrary order
+        for layer_template in [ morph_extended, paragraphs, morph_analysis, 
+                                          sentences, syntax, words, tokens ]:
+            collection.add_layer( layer_template )
+        collection_top_sorted_layers = \
+            collection.dependent_layers( collection.layers )
+        self.assertListEqual( collection_top_sorted_layers, \
+                             ['words', 'morph_analysis', 'morph_extended', 'sentences', \
+                              'paragraphs', 'syntax', 'tokens'] )
+        collection.delete()
+        # Currently, the two topological orderings are different,
+        # so the following is expected to fail:
+        self.assertListEqual(collection_top_sorted_layers, text_obj_top_sorted_layers)
+        # TODO: two topological orderings need to be synchronized
+
+
 class TestLayerFragment(unittest.TestCase):
     def setUp(self):
         schema = "test_layer_fragment"

@@ -335,21 +335,6 @@ class PgCollection:
         
         layers_extended = []
 
-        # TODO:
-        # Rekursioonita on raske tagada õiget kihtide järjekorda
-        # Vaja topoloogilist järjestust.
-        #
-        # Võimalikud lahendused on
-        # 1. Otsida Algoritmide ja andmestruktuuride raamatust topoloogiline sort
-        # 2. Lisada collection_structure tabelisse igale kihile autoinkrementiga järjekorranumber
-        #    ja järjestada kihid vastavalt id numbrile
-        # 3. Defineerida serialiseerimine nii, et pole vahet mis järjekorras kihid luuakse
-        #    - Selleks peab saama EnvelopingSpani sisu defineerida avaldisega
-        #    - Peab defineerima Layer.evaluate, mis kõik avaldised asendab hetkel tekkivate väärtustega
-        #    See lahendus lubab vaevata ka depencency_layer deserialiseerimist
-        #
-        # Mina eelistaksin lahendust 2 ja tulevikus 3
-
         def include_dep(layer):
             if layer is None:
                 return
