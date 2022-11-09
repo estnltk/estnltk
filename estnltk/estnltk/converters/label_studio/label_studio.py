@@ -64,8 +64,8 @@ def text_to_dict(
     predictions = []
     for span in layer:
 
-        annotation = {key: span[key] for key in exported_attributes if key in span.legal_attribute_names}
-        annotation['labels'] = [str(layer)]
+        annotation = {key: getattr(span,key) for key in exported_attributes}
+        annotation['labels'] = [layer.name]
 
         predictions.append({
             'value': annotation,
