@@ -99,6 +99,9 @@ class PostgresStorage:
                 logger.error(table_creation_error_msg)
                 raise PgStorageException(table_creation_error_msg) from table_creation_error
             self.conn.commit()
+        # Load the collections table to get the latest status
+        # (otherwise user needs to manually call refresh())
+        self._collections.load()
         
         logger.info('schema: {!r}, temporary: {!r}, role: {!r}'.format(self.schema, self.temporary, role))
 

@@ -140,6 +140,16 @@ class TestPgCollection(unittest.TestCase):
         self.assertIs(collection_from_1, storage_1[collection_name])
         self.assertIs(collection_from_2, storage_2[collection_name])
 
+        # Make third connection. It should be able to retrieve
+        # up-to-date status of collections table instantly
+        storage_3 = PostgresStorage(pgpass_file='~/.pgpass', 
+                                    schema=storage_1.schema, 
+                                    dbname='test_db', 
+                                    create_schema_if_missing=False)
+        self.assertTrue(collection_name in storage_3.collections)
+        self.assertTrue(another_collection_name in storage_3.collections)
+        storage_3.close()
+
         # Remove collection
         collection_from_1.delete()
 
