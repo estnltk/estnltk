@@ -1045,6 +1045,7 @@ class PgCollection:
         logger.info('layer created: {!r}'.format(layer_name))
 
     def add_layer(self, layer_template: Layer,
+                        layer_type: str = 'detached',
                         fragmented_layer: bool = False,
                         meta: Dict[str, str] = None,
                         create_index: bool = False,
@@ -1070,8 +1071,13 @@ class PgCollection:
         Args:
             layer_template: Layer
                 A template which is used as a basis on creating the new layer
+            layer_type: str
+                Must be one of the following: {'detached', 'fragmented', 'multi'}.
+                See also: PostgresStorage.TABLED_LAYER_TYPES
             fragmented_layer: bool
                 Whether a fragmented layer will be created (default: False)
+                Warning: this is a deprected argument and will be removed in 
+                future version.
             meta: dict of str -> str
                 Specifies table column names and data types to create for storing additional
                 meta information. E.g. meta={"sum": "int", "average": "float"}.
@@ -1107,14 +1113,25 @@ class PgCollection:
             raise PgCollectionException(
                 "The table {!r} for the layer {!r} already exists.".format(layer_table, layer_template.name))
 
-        layer_type = 'detached' if not fragmented_layer else 'fragmented'
+        if layer_type not in pg.PostgresStorage.TABLED_LAYER_TYPES:
+            raise PgCollectionException("Unexpected layer type {!r}. Supported layer types are: {!r}".format(layer_type, \
+                                                                     pg.PostgresStorage.TABLED_LAYER_TYPES))
+        
+        if fragmented_layer:
+            warnings.simplefilter("always", DeprecationWarning)
+            warnings.warn('Flag collection.add_layer(...fragmented_layer=True) is deprecated. '+\
+                          'Please use collection.add_layer(..., layer_type="fragmented") instead. '+\
+                          'Currently, a detached layer is created.', 
+                          DeprecationWarning)
+            warnings.simplefilter("ignore", DeprecationWarning)
+        
         conn = self.storage.conn
         with conn.cursor() as cur:
             try:
                 self._create_layer_table(
                     cursor=cur,
                     layer_name=layer_template.name,
-                    is_fragment=fragmented_layer,
+                    is_fragment=(layer_type == 'fragmented'),
                     create_index=create_index,
                     ngram_index=ngram_index,
                     overwrite=False,

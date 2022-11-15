@@ -27,7 +27,7 @@ class PostgresStorage:
     exposes interface to conveniently search/save json data.
     """
 
-    TABLED_LAYER_TYPES = {'detached', 'fragmented'}
+    TABLED_LAYER_TYPES = {'detached', 'fragmented', 'multi'}
 
     def __init__(self, dbname=None, user=None, password=None, host=None, port=None,
                  pgpass_file=None, schema="public", role=None, temporary=False, 
