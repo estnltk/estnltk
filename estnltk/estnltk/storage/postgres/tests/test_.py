@@ -24,7 +24,6 @@ from estnltk.storage.postgres import collection_table_exists
 from estnltk.storage.postgres import create_collection_table
 from estnltk.storage.postgres import delete_schema
 from estnltk.storage.postgres import drop_collection_table
-from estnltk.storage.postgres import fragment_table_exists
 from estnltk.storage.postgres import layer_table_exists
 from estnltk.storage.postgres import table_exists
 from estnltk.storage.postgres import layer_table_name
@@ -675,11 +674,11 @@ class TestLayerFragment(unittest.TestCase):
             assert isinstance(row[1], Layer), row
             assert row[1].text_object is None
 
-        self.assertTrue(fragment_table_exists(self.storage, collection.name, layer_fragment_name))
+        self.assertTrue(layer_table_exists(self.storage, collection.name, layer_fragment_name, layer_type='fragmented'))
 
         collection.delete()
 
-        self.assertFalse(fragment_table_exists(self.storage, collection.name, layer_fragment_name))
+        self.assertFalse(layer_table_exists(self.storage, collection.name, layer_fragment_name, layer_type='fragmented'))
 
 
 class TestFragment(unittest.TestCase):
@@ -737,9 +736,9 @@ class TestFragment(unittest.TestCase):
         self.assertIsInstance(row[4], int)
         self.assertIsInstance(row[5], Layer)
 
-        assert fragment_table_exists(self.storage, collection.name, fragment_name)
+        assert layer_table_exists(self.storage, collection.name, fragment_name, layer_type='fragmented')
         collection.delete_fragment(fragment_name)
-        assert not fragment_table_exists(self.storage, collection.name, fragment_name)
+        assert not layer_table_exists(self.storage, collection.name, fragment_name, layer_type='fragmented')
 
 
 class TestLayer(unittest.TestCase):

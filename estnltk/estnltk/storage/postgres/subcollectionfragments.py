@@ -70,14 +70,11 @@ class PgSubCollectionFragments:
 
         # TODO: Simplify query
 
-        if self.collection._structure[self.fragmented_layer]['layer_type'] == 'fragmented':
-            fragmented_layer_table_id = pg.fragment_table_identifier(self.collection.storage, 
-                                                                     self.collection.name, 
-                                                                     self.fragmented_layer)
-        else:
-            fragmented_layer_table_id = pg.layer_table_identifier(self.collection.storage, 
-                                                                  self.collection.name, 
-                                                                  self.fragmented_layer)
+        layer_type = self.collection._structure[self.fragmented_layer]['layer_type']
+        fragmented_layer_table_id = \
+            pg.layer_table_identifier( self.collection.storage, self.collection.name, 
+                                       self.fragmented_layer, layer_type=layer_type )
+
         selected_columns = [SQL('{}."text_id"').format(fragmented_layer_table_id),
                             SQL('{}."data"').format(fragmented_layer_table_id)]
 
@@ -97,10 +94,9 @@ class PgSubCollectionFragments:
         # Build a join clauses to merge required layers by text_id
         required_layer_tables = []
         for layer in required_layers:
-            if self.collection._structure[layer]['layer_type'] == 'fragmented':
-                required_layer_tables.append(pg.fragment_table_identifier(self.collection.storage, self.collection.name, layer))
-            else:
-                required_layer_tables.append(pg.layer_table_identifier(self.collection.storage, self.collection.name, layer))
+            layer_type = self.collection._structure[layer]['layer_type']
+            required_layer_tables.append( \
+                pg.layer_table_identifier(self.collection.storage, self.collection.name, layer, layer_type=layer_type))
         
         join_condition = SQL(" AND ").join(SQL('{}."id" = {}."text_id"').format(collection_identifier,
                                                                                 layer_table_identifier)

@@ -25,7 +25,6 @@ from estnltk.storage.postgres import CollectionTextObjectInserter
 from estnltk.storage.postgres import count_rows
 from estnltk.storage.postgres import drop_fragment_table
 from estnltk.storage.postgres import drop_layer_table
-from estnltk.storage.postgres import fragment_table_identifier
 from estnltk.storage.postgres import fragment_table_name
 from estnltk.storage.postgres import layer_table_exists
 from estnltk.storage.postgres import layer_table_identifier
@@ -526,7 +525,7 @@ class PgCollection:
         q = q.format(
             text_table=pg.collection_table_identifier(self.storage, self.name),
             parent_table=layer_table_identifier(self.storage, self.name, parent_layer_name),
-            fragment_table=fragment_table_identifier(self.storage, self.name, fragment_name))
+            fragment_table=layer_table_identifier(self.storage, self.name, fragment_name, layer_type='fragmented'))
 
         sql_parts = [q]
 
@@ -801,7 +800,7 @@ class PgCollection:
                                          ngram_index=ngram_index)
                 fragment_id = 0
                 structure_written = False
-                fragment_table_id = fragment_table_identifier(self.storage, self.name, layer_name)
+                fragment_table_id = layer_table_identifier(self.storage, self.name, layer_name, layer_type='fragmented')
                 with BufferedTableInsert(conn, fragment_table_id, columns=columns, query_length_limit=query_length_limit) \
                                                                                 as buffered_inserter:
                     for row in data_iterator:
@@ -1108,15 +1107,14 @@ class PgCollection:
         if sparse and self.version < '3.0':
             raise PgCollectionException("Sparse tables are not supported in collection version {!r}.".format(self.version))
 
-        layer_table = layer_table_name(self.name, layer_template.name)
-        if table_exists(self.storage, layer_table):
-            raise PgCollectionException(
-                "The table {!r} for the layer {!r} already exists.".format(layer_table, layer_template.name))
-
         if layer_type not in pg.PostgresStorage.TABLED_LAYER_TYPES:
             raise PgCollectionException("Unexpected layer type {!r}. Supported layer types are: {!r}".format(layer_type, \
                                                                      pg.PostgresStorage.TABLED_LAYER_TYPES))
-        
+
+        if layer_table_exists(self.storage, self.name, layer_template.name, layer_type=layer_type):
+            raise PgCollectionException(
+                "The table for the {} layer {!r} already exists.".format(layer_type, layer_template.name))
+
         if fragmented_layer:
             warnings.simplefilter("always", DeprecationWarning)
             warnings.warn('Flag collection.add_layer(...fragmented_layer=True) is deprecated. '+\

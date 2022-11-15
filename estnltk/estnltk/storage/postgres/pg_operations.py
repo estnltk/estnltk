@@ -125,14 +125,15 @@ def structure_table_identifier(storage, collection_name):
     return table_identifier(storage, table_name)
 
 
-def layer_table_identifier(storage, collection_name, layer_name):
-    table_name = layer_table_name(collection_name, layer_name)
-    return table_identifier(storage, table_name)
-
-
-def fragment_table_identifier(storage, collection_name, fragment_name):
-    table_name = fragment_table_name(collection_name, fragment_name)
-    return table_identifier(storage, table_name)
+def layer_table_identifier(storage, collection_name, layer_name, layer_type='detached'):
+    if layer_type=='detached':
+        return table_identifier(storage, layer_table_name(collection_name, layer_name))
+    elif layer_type=='fragmented':
+        return table_identifier(storage, fragment_table_name(collection_name, layer_name))
+    else:
+        error_msg = \
+          "(!) layer_table_identifier not implemented for layer type: {!r}".format(layer_type)
+        raise NotImplementedError( error_msg )
 
 
 def create_collection_table(storage, collection_name, meta_columns=None, description=None):
@@ -184,12 +185,15 @@ def create_collection_table(storage, collection_name, meta_columns=None, descrip
                 storage.conn.commit()
 
 
-def fragment_table_exists(storage, collection_name, fragment_name):
-    return table_exists(storage, fragment_table_name(collection_name, fragment_name))
-
-
-def layer_table_exists(storage, collection_name, layer_name):
-    return table_exists(storage, layer_table_name(collection_name, layer_name))
+def layer_table_exists(storage, collection_name, layer_name, layer_type='detached'):
+    if layer_type=='detached':
+        return table_exists(storage, layer_table_name(collection_name, layer_name))
+    elif layer_type=='fragmented':
+        return table_exists(storage, fragment_table_name(collection_name, layer_name))
+    else:
+        error_msg = \
+          "(!) Checking table's existence not implemented for layer type: {!r}".format(layer_type)
+        raise NotImplementedError( error_msg )
 
 
 def collection_table_exists(storage, collection_name):
