@@ -156,7 +156,8 @@ class UDMorphConverter( Tagger ):
        Note that the output will have additional ambiguities as the conversion does not involve 
        disambiguation.
        Stores results of the conversion on a new layer."""
-    conf_param = [ # Names of the specific input layers
+    conf_param = [ 'remove_connegatives', \
+                   # Names of the specific input layers
                    '_input_words_layer', \
                    '_input_sentences_layer', \
                    '_input_morph_analysis_layer', \
@@ -174,7 +175,8 @@ class UDMorphConverter( Tagger ):
                  input_morph_analysis_layer:str='morph_analysis', \
                  input_clauses_layer:str='clauses', \
                  conversion_rules_dir:str=None, \
-                 add_deprel_attribs:bool=False ):
+                 add_deprel_attribs:bool=False,
+                 remove_connegatives:bool=False ):
         ''' Initializes this UDMorphConverter.
             
             Parameters
@@ -184,7 +186,7 @@ class UDMorphConverter( Tagger ):
             
             input_words_layer: str (default: 'words')
                 Name of the input words layer;
-
+            
             input_sentences_layer: str (default: 'sentences')
                 Name of the input sentences layer;
             
@@ -207,6 +209,14 @@ class UDMorphConverter( Tagger ):
                 However, dependency syntax fields will remain unfilled.
                 Otherwise, syntax fields 'head', 'deprel', 'deps' will be 
                 excluded from output attributes.
+            
+            remove_connegatives: bool (default: False)
+                If True, then removes annotations with Connegative=Yes when 
+                they are not preceded by words with Polarity=Neg annotations 
+                in a sentence context. 
+                Note: this is heuristic. If a connegative word is preceded by an 
+                unrecognized negative word (such as a slang word '2ra', '2i' or 
+                'äi'), then the deletion will be erroneous.
         '''
         # Set input/output layer names
         self.output_layer = output_layer
@@ -220,6 +230,7 @@ class UDMorphConverter( Tagger ):
             self.output_attributes = ('id', 'lemma', 'upostag', 'xpostag', 'feats', 'misc')
         self._pos_lemma_conv_rules = {}
         self._lemma_conv_rules = {}
+        self.remove_connegatives = remove_connegatives
         if conversion_rules_dir is not None:
             # Load conversion rules
             assert os.path.exists(conversion_rules_dir), \
@@ -292,7 +303,7 @@ class UDMorphConverter( Tagger ):
                             self._pos_lemma_conv_rules[vm_pos][vm_lemma][-1]['feats'] = ud_feats
                     else:
                         # vm pos is unspecified
-                        # note: there can be multiple rules per single VM lemma & postag;
+                        # note: there can be multiple rules per single VM lemma;
                         # so, we use a list of dicts for storing rules
                         if vm_lemma not in self._lemma_conv_rules:
                             self._lemma_conv_rules[vm_lemma] = [{}]
@@ -343,6 +354,7 @@ class UDMorphConverter( Tagger ):
                     break
                 sentence_morph_words.append(word_span)
                 word_id += 1
+            sent_ud_annotations = []
             for wid, word_span in enumerate(sentence_morph_words):
                 base_span = word_span.base_span
                 # Convert Vabamorf's annotations (without context)
@@ -361,14 +373,21 @@ class UDMorphConverter( Tagger ):
                     # Add (non-empty) annotations to the layer
                     for ann in conv_annotations:
                         ann['id'] = wid+1
-                        ud_morph.add_annotation( base_span, ann )
+                        sent_ud_annotations.append([base_span, ann])
                 else:
                     # Add an empty annotation
                     empty_ud_annotation = \
                         {attr:None for attr in self.output_attributes}
                     empty_ud_annotation['id'] = wid+1
-                    ud_morph.add_annotation( base_span, \
-                                             empty_ud_annotation )
+                    sent_ud_annotations.append([base_span, \
+                                                empty_ud_annotation])
+            # Apply contextual fixes
+            if self.remove_connegatives:
+                sent_ud_annotations = \
+                    self._remove_connegatives_heuristic(sent_ud_annotations)
+            # Finally, add annotations to the layer
+            for [_base_span, _ud_annotation] in sent_ud_annotations:
+                ud_morph.add_annotation(_base_span, _ud_annotation)
         return ud_morph
 
 
@@ -723,3 +742,45 @@ class UDMorphConverter( Tagger ):
                     if tense:
                         ud_annotation['feats']['Tense'] = tense
         return ud_annotations
+
+
+    def _remove_connegatives_heuristic(self, sent_ud_annotations):
+        '''
+        Removes annotations with Connegative=Yes if:
+        * they are not preceded by words with Polarity=Neg annotations;
+        * at least 1 annotation remains to the span with Connegative=Yes;
+        Returns sent_ud_annotations with modifications.
+        
+        Note: this is heuristic. If a connegative word is preceded 
+        by an unrecognized negative word (such as a slang word '2ra', 
+        '2i' or 'äi'), then the deletion will be erroneous.
+        '''
+        _polarity_neg = []
+        _remove_connegatives = []
+        for aid, _ud_annotation in enumerate(sent_ud_annotations):
+            [base_span, ud_annotation] = _ud_annotation
+            if ud_annotation['feats'].get('Polarity', None)=='Neg':
+                _polarity_neg.append(aid)
+            elif ud_annotation['feats'].get('Connegative', None)=='Yes':
+                if len(_polarity_neg) == 0:
+                    # If there is no word with Polarity=Neg before the 
+                    # Connegative=Yes word, then we can remove 
+                    # Connegative=Yes annotation altogether
+                    # 1) Check that there is also an annotation without 
+                    #    Connegative=Yes for the given base span
+                    remaining_span_annotations = \
+                        [u for u in sent_ud_annotations \
+                           if u[0] == base_span and \
+                           'Connegative' not in u[1]['feats']]
+                    if len(remaining_span_annotations) > 0:
+                        # 2) If at least one annotation remains after 
+                        # removing Connegative=Yes annotation, we can 
+                        # remove it safely
+                        _remove_connegatives.append(aid)
+        if _remove_connegatives:
+            new_sent_ud_annotations=[]
+            for aid, _ud_annotation in enumerate(sent_ud_annotations):
+                if aid not in _remove_connegatives:
+                    new_sent_ud_annotations.append(_ud_annotation)
+            sent_ud_annotations=new_sent_ud_annotations
+        return sent_ud_annotations
