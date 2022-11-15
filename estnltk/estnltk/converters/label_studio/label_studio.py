@@ -78,3 +78,22 @@ def text_to_dict(
         'predictions': [{'result': predictions}],
         'data': {'text': text.text}
     }
+
+def conf_gen(classes: List[str]):
+    single_label = '\t<Label value="{label_value}" background="{background_value}"/> \n'
+    conf_string = """
+<View>
+    <Labels name="label" toName="text">\n"""
+    end_block = """
+    </Labels>
+<Text name="text" value="$text"/>
+</View>"""
+
+    for entry in classes:
+        conf_string += single_label.format(
+            label_value=entry,
+            background_value=("#" + "%06x" % random.randint(0, 0xFFFFFF)).upper()
+        )
+    conf_string += end_block
+
+    return conf_string
