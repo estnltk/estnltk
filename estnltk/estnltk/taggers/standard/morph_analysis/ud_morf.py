@@ -618,7 +618,7 @@ class UDMorphConverter( Tagger ):
             
             # Number:
             # https://github.com/EstSyntax/EstUD/blob/master/cgmorf2conllu/cgmorf2conllu.py#L545-L551
-            if 'sg' in vm_form and _has_postag(base_ud_annotation['upostag'], ['NOUN', 'PROPN', 'ADJ', 'DET', 'PRON', 'NUM']):
+            if ('sg' in vm_form or vm_form=='adt') and _has_postag(base_ud_annotation['upostag'], ['NOUN', 'PROPN', 'ADJ', 'DET', 'PRON', 'NUM']):
                 base_ud_annotation['feats']['Number'] = 'Sing'
             elif 'pl' in vm_form and _has_postag(base_ud_annotation['upostag'], ['NOUN', 'PROPN', 'ADJ', 'DET', 'PRON', 'NUM']):
                 base_ud_annotation['feats']['Number'] = 'Plur'
@@ -629,6 +629,8 @@ class UDMorphConverter( Tagger ):
                 case = ''
                 if len(vm_form.split()) > 1:
                     case = vm_to_ud_case_mapping.get(vm_form.split()[1], '')
+                elif vm_form == 'adt':
+                    case = vm_to_ud_case_mapping.get(vm_form)
                 if case:
                     base_ud_annotation['feats']['Case'] = case
 
