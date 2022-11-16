@@ -138,6 +138,27 @@ _verb_form_conversion_rules = [ \
   ('neg tud',  OrderedDict([('Voice','Pass'), ('Tense','Past'), ('Mood','Ind'), ('VerbForm','Part'), ('Polarity','Neg') ]) ), 
 ]
 
+
+# Default verb features for adjectives
+_adj_verb_features = [ \
+  ('nud',    OrderedDict([('Voice','Act'), ('Tense','Past'), ('VerbForm','Part') ]) ), 
+  ('tud',    OrderedDict([('Voice','Pass'), ('Tense','Past'), ('VerbForm','Part') ]) ), 
+  ('dud',    OrderedDict([('Voice','Pass'), ('Tense','Past'), ('VerbForm','Part') ]) ), 
+  ('v',      OrderedDict([('Voice','Act'), ('Tense','Pres'), ('VerbForm','Part')]) ), 
+  ('tav',    OrderedDict([('Voice','Act'), ('Tense','Pres'), ('VerbForm','Part')]) ), 
+  ('tav',    OrderedDict([('Voice','Pass'), ('Tense','Pres'), ('VerbForm','Part')]) ), 
+]
+
+
+# Adjectives which should not obtain any verb features
+_adj_with_no_verb_features = \
+ ['ebalev', 'huvitav', 'ihalev', 'kehtiv', 'kõdunev', 'loov', 'mõistev', 'mõjuv', 
+  'osalev', 'palav', 'pädev', 'saav', 'sügav', 'tugev', 'võluv', 'ustav', 'alatu', 
+  'kirev', 'ülev', 'tuttav', 'terav', 'mugav', 'põnev', 'kuiv', 'kehv', 'kõrvulukustav', 
+  'igav', 'harv', 'pidev', 'kaitsetu', 'kärsitu']
+# TODO: 'odav', 'erinev' have ambiguous participle interpretations in the corpus
+
+
 def _has_postag(upostag, upostag_variants):
     '''Checks if the given upostag (which can be ambiguous) is upostag_variants.
        Returns True in case of any matches.
@@ -145,6 +166,16 @@ def _has_postag(upostag, upostag_variants):
     if isinstance(upostag, str):
         return any([pos in upostag_variants for pos in upostag.split(',')])
     return False
+
+def _participle_ending(lemma):
+    '''Heuristic: returns possible participle ending of given lemma.
+    Possible return values: ('nud', 'tud', 'dud', 'tav', 'v', '')
+    '''
+    if lemma[-3:] in ['nud', 'tud', 'dud', 'tav']:
+        return lemma[-3:]
+    elif lemma[-1] in ['v']:
+        return lemma[-1]
+    return ''
 
 _dash_ending_word = re.compile("^([A-ZÖÄÜÕŽŠa-zöäüõžš]+)-$")
 
@@ -166,7 +197,8 @@ class UDMorphConverter( Tagger ):
                    '_pos_lemma_conv_rules', \
                    '_lemma_conv_rules', \
                    # Constants: aux verb lemmas
-                   '_aux_verb_lemmas'
+                   '_aux_verb_lemmas', \
+                   '_adj_with_no_verb_features'
                  ]
 
     def __init__(self, \
@@ -176,8 +208,9 @@ class UDMorphConverter( Tagger ):
                  input_morph_analysis_layer:str='morph_analysis', \
                  input_clauses_layer:str='clauses', \
                  conversion_rules_dir:str=None, \
-                 add_deprel_attribs:bool=False,
-                 remove_connegatives:bool=False ):
+                 add_deprel_attribs:bool=False, \
+                 remove_connegatives:bool=False, \
+                 adj_with_no_verb_features:list=_adj_with_no_verb_features ):
         ''' Initializes this UDMorphConverter.
             
             Parameters
@@ -218,6 +251,13 @@ class UDMorphConverter( Tagger ):
                 Note: this is heuristic. If a connegative word is preceded by an 
                 unrecognized negative word (such as a slang word '2ra', '2i' or 
                 'äi'), then the deletion will be erroneous.
+
+            adj_with_no_verb_features: list of str (default: _adj_with_no_verb_features)
+                List of adjective lemmas, corresponding to adjectives which should 
+                not obtain verb participle features. 
+                Note that by default, all adjectives ending with 'tud', 'nud', 'v' or 
+                'tav' will receive corresponding verb participle features.
+                Use this list to avoid adding verb features to specific adjectives.
         '''
         # Set input/output layer names
         self.output_layer = output_layer
@@ -242,6 +282,7 @@ class UDMorphConverter( Tagger ):
                 if fname.endswith('.tab'):
                     fpath=os.path.join(conversion_rules_dir, fname)
                     self._load_pos_lemma_conv_rules_from_file( fpath )
+        self._adj_with_no_verb_features = set(adj_with_no_verb_features)
         # Constants
         self._aux_verb_lemmas = set(['olema', 'saama', 'pidama', 'võima', 'tunduma', \
                                      'tohtima', 'paistma', 'näima'])
@@ -720,41 +761,46 @@ class UDMorphConverter( Tagger ):
         '''
         Makes postcorrections to ambiguous participles. 
         
-        Basically, if annotations contain verb participle features 
-        (VerbForm=Part, Voice=Act,Pass, Tense=Past,Pres), and there 
-        are also adjective annotations, then carry over verb 
-        participle features to adjective annotations (so, adjectives
-        will obtain features VerbForm, Voice, Tense).
+        Basically, detects if an adjective lemma has possible 
+        participle ending ('nud', 'tud', 'tav' or 'v'), and if so, 
+        and the adjective is not in self._adj_with_no_verb_features, 
+        then adds features VerbForm, Voice, Tense to the adjective. 
+        
+        Note: this is a heuristic, which may add verb participle 
+        features to incorrect adjectives. Use variable 
+        self._adj_with_no_verb_features to specify, which adjectives 
+        should not receive any verb features.
         
         Returns input ud_annotations with post-corrections (if any).
-        
-        TODO: a number of adjectives in UD corpus do not have 
-        verb participle features, e.g. "huvitav", "loov", "tugev", 
-        "sügav".
-        Add some lexicon-based exclusion ?!
         '''
-        voice = None
-        tense = None
-        verbForm = None
-        # Find participle verb features
+        new_annotations = []
         for ud_annotation in ud_annotations:
-            if 'VerbForm' in ud_annotation['feats'] and \
-               ud_annotation['feats']['VerbForm'] == 'Part':
-                verbForm = ud_annotation['feats']['VerbForm']
-                if 'Voice' in ud_annotation['feats']:
-                    voice = ud_annotation['feats']['Voice']
-                if 'Tense' in ud_annotation['feats']:
-                    tense = ud_annotation['feats']['Tense']
-        # Carry over verb participle features (if any) to adj
-        if verbForm:
-            for ud_annotation in ud_annotations:
-                if _has_postag(ud_annotation['upostag'], ['ADJ']):
-                    if voice:
-                        ud_annotation['feats']['Voice'] = voice
-                    if verbForm:
-                        ud_annotation['feats']['VerbForm'] = verbForm
-                    if tense:
-                        ud_annotation['feats']['Tense'] = tense
+            if _has_postag(ud_annotation['upostag'], ['ADJ']):
+                adj_lemma = ud_annotation['lemma']
+                if adj_lemma in self._adj_with_no_verb_features:
+                    # Skip adjectives that shouldn't 
+                    # receive participle features
+                    continue
+                adj_ending = _participle_ending(adj_lemma)
+                matching_feats = []
+                for ending, feats in _adj_verb_features:
+                    if adj_ending == ending:
+                        matching_feats.append( feats )
+                for fid, feats in enumerate(matching_feats):
+                    if fid == 0:
+                        # Add verb features to this annotation
+                        for attr, key in feats.items():
+                            ud_annotation['feats'][attr] = key
+                    else:
+                        # Create entirely new annotation
+                        new_annotation = \
+                            {k:ud_annotation[k] for k in ud_annotation.keys()}
+                        new_annotation['feats'] = \
+                            ud_annotation['feats'].copy()
+                        for attr, key in feats.items():
+                            new_annotation['feats'][attr] = key
+                        new_annotations.append(new_annotation)
+        ud_annotations.extend(new_annotations)
         return ud_annotations
 
 
