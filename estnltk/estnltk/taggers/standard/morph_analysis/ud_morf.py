@@ -146,6 +146,7 @@ def _has_postag(upostag, upostag_variants):
         return any([pos in upostag_variants for pos in upostag.split(',')])
     return False
 
+_dash_ending_word = re.compile("^([A-ZÖÄÜÕŽŠa-zöäüõžš]+)-$")
 
 # ===================================================================
 #   T h e   m a i n   c l a s s
@@ -363,7 +364,8 @@ class UDMorphConverter( Tagger ):
                     if _is_empty_annotation( old_ann ):
                         # discard an empty annotation
                         continue
-                    annotations = self._convert_annotation(dict(old_ann))
+                    annotations = self._convert_annotation( word_span.text, 
+                                                            dict(old_ann) )
                     if annotations:
                         conv_annotations.extend( annotations )
                 # Make post-corrections on participles
@@ -391,7 +393,7 @@ class UDMorphConverter( Tagger ):
         return ud_morph
 
 
-    def _generate_ambiguous_analyses(self, base_annotation):
+    def _generate_ambiguous_analyses(self, base_annotation:dict):
         '''
         Generates all ambiguous analyses from base_annotation 
         that has ambiguous attribute values.
@@ -454,7 +456,7 @@ class UDMorphConverter( Tagger ):
             ud_annotations.append( new_annotation )
         return ud_annotations
 
-    def _convert_annotation(self, vm_annotation):
+    def _convert_annotation(self, word_str:str, vm_annotation:dict):
         """
         Converts a single Vabamorf annotation to a list of UD annotations, 
         adding ambiguous analyses where necessary. 
@@ -469,6 +471,8 @@ class UDMorphConverter( Tagger ):
         first_base_ud_annotation['xpostag'] = vm_pos
         first_base_ud_annotation['lemma']   = vm_lemma
         has_ambiguity = False
+
+        _add_hyph_feat = (word_str == '--') or _dash_ending_word.match(word_str)
 
         # 0) Use dictionary-based conversions loaded from files as the first step
         # https://github.com/EstSyntax/EstUD/blob/master/cgmorf2conllu/cgmorf2conllu.py#L425-L432 
@@ -658,6 +662,10 @@ class UDMorphConverter( Tagger ):
                 else:
                     base_ud_annotation['feats']['NumForm'] = 'Word'
                 # TODO: add regex for detecting roman numerals or something
+
+            # Hyph=Yes:
+            if _add_hyph_feat:
+                base_ud_annotation['feats']['Hyph'] = 'Yes'
 
             # 3) Convert morphological features of verbs: 
             if _has_postag(base_ud_annotation['upostag'], ['VERB', 'AUX']):
