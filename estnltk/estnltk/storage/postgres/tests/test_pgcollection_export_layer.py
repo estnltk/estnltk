@@ -123,7 +123,7 @@ class TestPgCollectionExportLayer(unittest.TestCase):
              (7, 2, 1, 7, 12, None, 'kolmas yllitis')]
         assert table_entries == expected_entries
         
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
 
     def test_export_layer_invalid_modes(self):
@@ -147,7 +147,7 @@ class TestPgCollectionExportLayer(unittest.TestCase):
         with self.assertRaises(pg.PgCollectionException) as exception:
             collection.export_layer('words', [])
         
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
 
     def test_export_layer_appending(self):
@@ -186,7 +186,7 @@ class TestPgCollectionExportLayer(unittest.TestCase):
              (10, 1, 1, 6, 11, None, 'teine yllitis')]
         assert table_entries == expected_entries
         
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
 
     def test_export_sparse_layer(self):
@@ -232,7 +232,7 @@ class TestPgCollectionExportLayer(unittest.TestCase):
              (2, 2, 0, 0, 4, '2 snippet', 'kolmas yllitis')]
         assert table_entries == expected_entries
         
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
 if __name__ == '__main__':
     unittest.main()

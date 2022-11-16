@@ -240,7 +240,7 @@ class TestPgSubCollectionSampleFromLayer(unittest.TestCase):
         self.assertLessEqual(250, len(sent_locations))
         self.assertGreaterEqual(1750, len(sent_locations))
         
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
 
     def test_pgsubcollection_sample_from_detached_layer_based_on_simple_select(self):
@@ -317,7 +317,7 @@ class TestPgSubCollectionSampleFromLayer(unittest.TestCase):
                 sent_locations_2.append( (doc_id, sent.start, sent.end) )
         self.assertListEqual( sent_locations_1, sent_locations_2 )
 
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
 
 
@@ -365,7 +365,7 @@ class TestPgSubCollectionSampleFromLayer(unittest.TestCase):
                 sent_locations_2.append( (doc_id, sent.start, sent.end) )
         self.assertListEqual( sent_locations_1, sent_locations_2 )
         
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
 
     # This test can only be launched on server versions where SETSEED() / RANDOM() 
@@ -446,6 +446,6 @@ class TestPgSubCollectionSampleFromLayer(unittest.TestCase):
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1] )
 
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
 

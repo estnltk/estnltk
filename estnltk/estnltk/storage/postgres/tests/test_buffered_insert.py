@@ -155,7 +155,7 @@ class TestCollectionTextObjectInserter(unittest.TestCase):
         self.assertEqual(len(collection), 4)
 
         # Clean up
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
 
 if __name__ == '__main__':

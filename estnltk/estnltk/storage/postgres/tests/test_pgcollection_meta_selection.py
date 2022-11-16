@@ -110,7 +110,7 @@ class TestPgCollectionMetaSelection(unittest.TestCase):
                                                   return_index=False))
         assert selected == [{}]
         
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
 
     def test_collection_meta_selection_from_slice(self):
@@ -186,7 +186,7 @@ class TestPgCollectionMetaSelection(unittest.TestCase):
                             {'text_name': '2. tekst.'}, 
                             {'text_name': '3. tekst.'},
                             {'text_name': '4. tekst.'}]
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
 
     def test_collection_meta_selection_from_list_of_indexes(self):
@@ -254,7 +254,7 @@ class TestPgCollectionMetaSelection(unittest.TestCase):
         assert selected == [{'text_name': '3. tekst.', 'text_letter': 'C'},
                             {'text_name': '9. tekst.', 'text_letter': 'I'},
                             {'text_name': '10. tekst.', 'text_letter': 'J'}]
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
 if __name__ == '__main__':
     unittest.main()

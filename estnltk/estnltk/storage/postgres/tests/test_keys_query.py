@@ -56,4 +56,4 @@ class TestKeysQuery(unittest.TestCase):
         res = list(collection.select(pg.IndexQuery(keys=[3, 4, 5, 6])))
         self.assertEqual(len(res), 4)
 
-        collection.delete()
+        self.storage.delete_collection(collection.name)

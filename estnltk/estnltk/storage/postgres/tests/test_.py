@@ -86,7 +86,7 @@ class TestPgCollection(unittest.TestCase):
         self.assertTrue(collection.layers == [])
 
         # 1st way to remove collection
-        collection.delete()
+        self.storage.delete_collection(collection_name)
 
         with self.assertRaises(KeyError):
             collection = self.storage[collection_name]
@@ -150,7 +150,7 @@ class TestPgCollection(unittest.TestCase):
         storage_3.close()
 
         # Remove collection
-        collection_from_1.delete()
+        storage_1.delete_collection(collection_name)
 
         # Assert collection is not existing any more
         self.assertFalse(collection_from_1.exists())
@@ -184,8 +184,8 @@ class TestPgCollection(unittest.TestCase):
         self.assertTrue(another_collection.exists())
 
         # Remove last collections
-        another_collection.delete()
-        yet_another_collection.delete()
+        storage_1.delete_collection(another_collection_name)
+        storage_1.delete_collection(yet_another_collection_name)
 
         storage_2.close()
 
@@ -207,7 +207,7 @@ class TestPgCollection(unittest.TestCase):
 
         assert len(collection) == 3
 
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
     def test_basic_collection_workflow(self):
         # insert texts -> create layers -> select texts
@@ -249,7 +249,7 @@ class TestPgCollection(unittest.TestCase):
             elif text_id == 2:
                 assert text == text_2, text_2.diff(text)
 
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
     def test_collection_getitem_and_iter(self):
         # insert texts -> create layers -> select texts
@@ -352,7 +352,7 @@ class TestPgCollection(unittest.TestCase):
         self.assertEqual( collection.selected_layers, \
             ['words', 'morph_analysis', 'sentences', 'paragraphs'] )
         
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
     def test_create_and_drop_collection_table(self):
         collection_name = get_random_collection_name()
@@ -382,7 +382,7 @@ class TestPgCollection(unittest.TestCase):
         # Create a collection and then remove it
         collection_name = get_random_collection_name()
         not_existing_collection = self.storage.add_collection(collection_name)
-        not_existing_collection.delete()
+        self.storage.delete_collection(not_existing_collection.name)
         # If the collection does not exist, select should rise PgCollectionException
         with self.assertRaises(pg.PgCollectionException):
             not_existing_collection.select()
@@ -419,7 +419,7 @@ class TestPgCollection(unittest.TestCase):
         self.assertEqual(id_, id2)
         self.assertEqual(text, text2)
 
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
         collection = self.storage.add_collection(get_random_collection_name())
 
@@ -498,7 +498,7 @@ class TestPgCollection(unittest.TestCase):
         res = list(collection.select(pg.IndexQuery(keys=[1, 3])))
         self.assertEqual(len(res), 1)
 
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
 
     def test_insert_fails(self):
@@ -508,7 +508,7 @@ class TestPgCollection(unittest.TestCase):
         # Create collection and then remove it
         collection_name = get_random_collection_name()
         collection = self.storage.add_collection(collection_name)
-        collection.delete()
+        self.storage.delete_collection(collection.name)
         # If the collection does not exist, Text insertion should rise PgCollectionException
         with self.assertRaises( pg.PgCollectionException ):
             with collection.insert() as collection_insert:
@@ -517,7 +517,7 @@ class TestPgCollection(unittest.TestCase):
         # Create collection and then remove it
         collection_name = get_random_collection_name()
         collection = self.storage.add_collection(collection_name)
-        collection.delete()
+        self.storage.delete_collection(collection.name)
         # If the collection does not exist, adding a layer template should rise PgCollectionException
         with self.assertRaises( pg.PgCollectionException ):
             collection.add_layer( ParagraphTokenizer().get_layer_template() )
@@ -525,7 +525,7 @@ class TestPgCollection(unittest.TestCase):
         # Create collection and then remove it
         collection_name = get_random_collection_name()
         collection = self.storage.add_collection(collection_name)
-        collection.delete()
+        self.storage.delete_collection(collection.name)
         # If the collection does not exist, creating a layer should rise PgCollectionException
         with self.assertRaises( pg.PgCollectionException ):
             collection.create_layer( tagger=ParagraphTokenizer() )
@@ -578,7 +578,7 @@ class TestPgCollection(unittest.TestCase):
         self.assertEqual( selection[2], \
                           {'author': 'Musumets', 'date': '2009'} )
         
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
 
     @unittest.expectedFailure
@@ -617,7 +617,7 @@ class TestPgCollection(unittest.TestCase):
         self.assertListEqual( collection_top_sorted_layers, \
                              ['words', 'morph_analysis', 'morph_extended', 'sentences', \
                               'paragraphs', 'syntax', 'tokens'] )
-        collection.delete()
+        self.storage.delete_collection(collection.name)
         # Currently, the two topological orderings are different,
         # so the following is expected to fail:
         self.assertListEqual(collection_top_sorted_layers, text_obj_top_sorted_layers)
@@ -676,7 +676,7 @@ class TestLayerFragment(unittest.TestCase):
 
         self.assertTrue(layer_table_exists(self.storage, collection.name, layer_fragment_name, layer_type='fragmented'))
 
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
         self.assertFalse(layer_table_exists(self.storage, collection.name, layer_fragment_name, layer_type='fragmented'))
 
@@ -789,7 +789,7 @@ class TestLayer(unittest.TestCase):
         self.assertEqual(text1_db[layer1].lemma, text1[layer1].lemma)
         self.assertEqual(text1_db[layer2].lemma, text1[layer2].lemma)
 
-        collection.delete()
+        self.storage.delete_collection(collection.name)
         self.assertFalse(layer_table_exists(self.storage, collection.name, layer1))
         self.assertFalse(layer_table_exists(self.storage, collection.name, layer2))
 
@@ -847,7 +847,7 @@ class TestLayer(unittest.TestCase):
         
         collection.create_layer(tagger=sent_tokenizer, mode='overwrite')
         
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
     def test_create_layer_block(self):
         collection_name = get_random_collection_name()
@@ -892,7 +892,7 @@ class TestLayer(unittest.TestCase):
             self.assertTrue("sentences" in text.layers)
             self.assertEqual( len(text['sentences']), 1 )
         
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
     def test_layer_meta(self):
         collection_name = get_random_collection_name()
@@ -931,7 +931,7 @@ class TestLayer(unittest.TestCase):
 
         assert set(collection.structure[layer1]['meta']) == {'sum', 'meta_text_id'}
 
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
     def test_detached_layer_query(self):
         collection_name = get_random_collection_name()

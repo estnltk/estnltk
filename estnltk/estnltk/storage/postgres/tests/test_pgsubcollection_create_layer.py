@@ -152,7 +152,7 @@ class TestPgSubCollectionCreateLayer(unittest.TestCase):
             len(list(collection.select(layers=['odd_numbers'], keep_all_texts=False)))
         self.assertEqual( layer_len_before, layer_len_after2 )
         
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
 
     def test_subcollection_create_layer_block(self):
@@ -279,7 +279,7 @@ class TestPgSubCollectionCreateLayer(unittest.TestCase):
             len(list(collection.select(layers=['odd_numbers'], keep_all_texts=False)))
         self.assertEqual( layer_len_before, layer_len_after2 )
 
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
 
 if __name__ == '__main__':

@@ -59,7 +59,7 @@ class TestPgCollectionMeta(unittest.TestCase):
         # Assert metadata column types can be retrieved
         assert meta.column_types == OrderedDict([('text_id', 'integer'), ('text_name', 'text'),
                                                  ('text_letter', 'text'), ('missing_metadata', 'text')])
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
     def test_collection_meta_columns_empty(self):
         collection_name = get_random_collection_name()
@@ -76,7 +76,7 @@ class TestPgCollectionMeta(unittest.TestCase):
         assert meta.columns == []
         # Assert metadata column types are empty
         assert meta.column_types == OrderedDict([])
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
     def test_collection_meta_select_single_index(self):
         collection_name = get_random_collection_name()
@@ -115,7 +115,7 @@ class TestPgCollectionMeta(unittest.TestCase):
         # Select single item w/o metadata
         assert meta[8, []] == {}
         
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
 
     def test_collection_meta_selection_from_slice(self):
@@ -163,7 +163,7 @@ class TestPgCollectionMeta(unittest.TestCase):
                 [ {'text_name': '1. tekst.'}, {'text_name': '2. tekst.'}, 
                   {'text_name': '3. tekst.'}, {'text_name': '4. tekst.'} ]
 
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
 
     def test_collection_meta_selection_from_list_of_indexes(self):
@@ -213,7 +213,7 @@ class TestPgCollectionMeta(unittest.TestCase):
         assert list(meta[[1,6,9], ['text_letter']]) == \
             [{'text_letter': 'B'}, {'text_letter': 'G'}, {'text_letter': 'J'}]
         
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
 if __name__ == '__main__':
     unittest.main()

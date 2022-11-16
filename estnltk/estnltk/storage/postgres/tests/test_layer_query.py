@@ -53,7 +53,7 @@ class TestAttachedLayerQuery(unittest.TestCase):
         q = LayerQuery('morph_analysis', lemma='jooksma')
         self.assertEqual(len(list(collection.select(query=q))), 0)
 
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
 
 class TestDetachedLayerQuery(unittest.TestCase):
@@ -117,7 +117,7 @@ class TestDetachedLayerQuery(unittest.TestCase):
         self.assertTrue(layer1_name in text.layers)
         self.assertTrue(layer2 in text.layers)
 
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
 
 class TestDetachedSparseLayerQuery(unittest.TestCase):
@@ -188,3 +188,4 @@ class TestDetachedSparseLayerQuery(unittest.TestCase):
             text_ids.append( text_id )
         self.assertEqual(text_ids, [0, 4, 8, 12, 16, 20, 24, 28])
         
+        self.storage.delete_collection(collection.name)

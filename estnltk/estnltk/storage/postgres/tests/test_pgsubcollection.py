@@ -63,7 +63,7 @@ class TestPgSubCollection(unittest.TestCase):
     def test_init(self):
         # Add collection and then remove it
         not_existing_collection = self.storage.add_collection('not_existing')
-        not_existing_collection.delete()
+        self.storage.delete_collection(not_existing_collection.name)
         # Check that PgSubCollection cannot be created for non-existent 
         # collection
         with self.assertRaises(pg.PgCollectionException):
@@ -178,7 +178,7 @@ class TestPgSubCollection(unittest.TestCase):
         new_collection_name = self.collection.name + '_new'
         collection = self.storage.add_collection(new_collection_name)
         subcollection = pg.PgSubCollection(collection)
-        collection.delete()
+        self.storage.delete_collection(new_collection_name)
         with self.assertRaises(pg.PgCollectionException):
             next(iter(subcollection))
 

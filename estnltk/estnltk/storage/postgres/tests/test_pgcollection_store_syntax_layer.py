@@ -113,7 +113,7 @@ class TestPgCollectionStoreSyntaxV0Layer(unittest.TestCase):
                                                                   (), \
                                                                   ( loaded_text['stanza_syntax'][0], \
                                                                     loaded_text['stanza_syntax'][1] ) ]
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
 
 if __name__ == '__main__':

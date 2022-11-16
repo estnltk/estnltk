@@ -148,7 +148,7 @@ class TestSparseLayerCreation(unittest.TestCase):
                            'secondary_attributes': (),
                            'serialisation_module': None,
                            'spans': []} )
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
 
     def test_create_sparse_layer_insertion(self):
@@ -192,7 +192,7 @@ class TestSparseLayerCreation(unittest.TestCase):
                                              only_table_ids=True),
                           [0, 4, 8, 12, 16, 20, 24, 28] )
 
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
 
 class TestSparseLayerSelection(unittest.TestCase):
@@ -355,7 +355,7 @@ class TestSparseLayerSelection(unittest.TestCase):
         self.assertEqual( odd_number_annotations, 15 )
         self.assertEqual( fifth_number_annotations, 6 )
         
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
 
 
@@ -452,7 +452,7 @@ class TestSparseLayerSelection(unittest.TestCase):
         self.assertListEqual( text_ids_with_fourth_sparse_layers, \
                               [0, 4, 8, 12, 16, 20, 24, 28] )
         
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
 
     def test_collection_inner_join_select_on_sparse_layers(self):
@@ -560,7 +560,7 @@ class TestSparseLayerSelection(unittest.TestCase):
         self.assertEqual( all_texts_iterated, 2 )
         self.assertListEqual( collected_text_ids, [18, 24] )
 
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
 
     def test_select_sparse_subcollection_layers(self):
@@ -607,7 +607,7 @@ class TestSparseLayerSelection(unittest.TestCase):
         self.assertListEqual( texts_with_nonempty_layers, \
                               [0, 6, 12, 18, 24] )
 
-        collection.delete()
+        self.storage.delete_collection(collection.name)
         
 
 if __name__ == '__main__':

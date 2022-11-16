@@ -1403,22 +1403,15 @@ class PgCollection:
             raise PgCollectionException("Collection does not have a layer fragment '%s'." % fragment_name)
         drop_fragment_table(self.storage, self.name, fragment_name)
 
-    def delete_layer_fragment(self, layer_fragment_name):
-        if not self.exists():
-            raise PgCollectionException("collection {!r} does not exist".format(self.name))
-        lf_table = self.layer_fragment_name_to_table_name(layer_fragment_name)
-        if layer_fragment_name not in self.get_layer_fragment_names():
-            raise PgCollectionException("Collection does not have a layer fragment '%s'." % layer_fragment_name)
-        if not self.storage.table_exists(lf_table):
-            raise PgCollectionException("Layer fragment table '%s' does not exist." % lf_table)
-        self.storage.drop_table(lf_table)
-
     def delete(self):
-        """Removes collection and all related layers."""
-        if not self.exists():
-            return
-        self.storage.delete_collection(self.name)
-        self._is_empty = True
+        """Removes collection and all related layers.
+          **Important:** this method is deprecated. Please use
+          PostgresStorage.delete_collection(...) to delete a collection.
+        """
+        error_msg = '(!) PgCollection.delete() is deprecated. '+\
+                    'Please use PostgresStorage.delete_collection(...) '+\
+                    'method to remove a collection from database.'
+        raise Exception( error_msg )
 
     def has_layer(self, layer_name):
         if not self.exists():

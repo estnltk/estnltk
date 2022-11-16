@@ -145,7 +145,7 @@ class TestPgSubCollectionSample(unittest.TestCase):
         # and we give it a broad approximate range
         self.assertLessEqual(0, len(res))
         self.assertGreaterEqual(10+30, len(res))
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
 
 
@@ -169,7 +169,7 @@ class TestPgSubCollectionSample(unittest.TestCase):
                                                     65, 70, 78, 81, 86, 91, 94, 95, 100, 102, 117, 118, 139, 
                                                     144, 148, 155, 159, 160, 163, 165, 174, 175, 179, 180, 
                                                     187, 189, 190, 191, 197])
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
 
 
@@ -193,7 +193,7 @@ class TestPgSubCollectionSample(unittest.TestCase):
         with self.assertRaises(Exception) as exception:
             # Reiteration should rise an exception
             res4 = list( cur_selection.sample(5, seed=None, method='BERNOULLI', construction='JOIN') )
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
 
 
@@ -252,7 +252,7 @@ class TestPgSubCollectionSample(unittest.TestCase):
         # and we give it a broad approximate range
         self.assertLessEqual(0, len(res))
         self.assertGreaterEqual(10+30, len(res))
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
 
 
@@ -292,7 +292,7 @@ class TestPgSubCollectionSample(unittest.TestCase):
         self.assertEqual(len(res), 9)
         self.assertEqual(len(res[0]), 2)
         self.assertListEqual([t[1].meta['text_id'] for t in res], [26, 32, 37, 38, 40, 51, 66, 68, 72])
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
 
 
@@ -344,4 +344,4 @@ class TestPgSubCollectionSample(unittest.TestCase):
         self.assertListEqual( [ t[0] for t in res ], [16, 36, 50, 76, 80, 92, 94] )
         self.assertListEqual( [len(t[1]['even_numbers']) for t in res], [1, 1, 1, 1, 1, 1, 1] )
 
-        collection.delete()
+        self.storage.delete_collection(collection.name)

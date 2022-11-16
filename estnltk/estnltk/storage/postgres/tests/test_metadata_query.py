@@ -77,7 +77,7 @@ class TestMetadataQuery(unittest.TestCase):
         res = list(collection.select( MetadataQuery( {'type':['kõnekoosolek', 'kiirkoosolek', 'artikkel']} ) ) )
         self.assertEqual(len(res), 4)
 
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
     def test_metadata_query_int(self):
         collection_name = get_random_collection_name()
@@ -124,7 +124,7 @@ class TestMetadataQuery(unittest.TestCase):
         res = list(collection.select( MetadataQuery( {'jrknr':[1,2,3,4]} ) ) )
         self.assertEqual(len(res), 4)
 
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
 
     def test_metadata_query_on_missing_metadata_columns(self):
@@ -141,7 +141,7 @@ class TestMetadataQuery(unittest.TestCase):
         with self.assertRaises( Exception ):
             res = list( collection.select( query = MetadataQuery( {'tyyp_nr':4, 'jrknr':3} ) ) )
 
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
 
 # Test metadata queries with meta_type = 'TEXT'
@@ -205,6 +205,6 @@ class TestTextLevelMetadataQuery(unittest.TestCase):
                                                      meta_type='TEXT') ) )
         self.assertEqual(len(res), 4)
 
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
 

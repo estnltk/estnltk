@@ -42,4 +42,4 @@ class TestBlockQuery(unittest.TestCase):
         res = list( collection.select( query=BlockQuery(3, 0) ) )
         self.assertEqual( len(res), 34 )
         
-        collection.delete()
+        self.storage.delete_collection(collection.name)

@@ -79,7 +79,7 @@ class TestMissingLayerQuery(unittest.TestCase):
         res = list(collection.select(query=pg.MissingLayerQuery(missing_layer=layer3)))
         self.assertEqual(len(res), 3)
 
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
     def test_missing_layer_query_on_sparse_layer(self):
         # Test that MissingLayerQuery works with sparse layers
@@ -126,4 +126,4 @@ class TestMissingLayerQuery(unittest.TestCase):
             self.assertEqual( len(text['even_numbers']), 0 )
             self.assertEqual( len(text['fourth_numbers']), 0 )
         
-        collection.delete()
+        self.storage.delete_collection(collection.name)

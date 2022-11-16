@@ -129,7 +129,7 @@ class TestPgSubCollectionPermutate(unittest.TestCase):
         for text_id, text_obj in seed_0_5_results_2:
             self.assertTrue( text_obj.meta['mod_2'] == '2' )
         
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
 
 
@@ -187,5 +187,5 @@ class TestPgSubCollectionPermutate(unittest.TestCase):
         text_ids = [text_id for text_id, _ in res]
         self.assertTrue( len(res), len(set(text_ids)) )
         
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 

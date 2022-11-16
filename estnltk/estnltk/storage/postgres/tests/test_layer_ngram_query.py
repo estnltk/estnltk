@@ -109,7 +109,7 @@ class TestLayerNgramQuery(unittest.TestCase):
         })))
         self.assertEqual(len(res), 1)
 
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
 
 
@@ -131,7 +131,7 @@ class TestLayerNgramQuery(unittest.TestCase):
         with self.assertRaises( Exception ):
             res = list( collection.select( query = LayerNgramQuery( {'morph_analysis': {"lemma": [("kass",)]}} ) ) )
         
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
 
 
@@ -198,7 +198,7 @@ class TestLayerNgramQuery(unittest.TestCase):
         self.assertEqual(len(res), 1)
         self.assertEqual(res[0][1].meta['insert_id'], 2)
         
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
 
     @pytest.mark.filterwarnings("ignore:Metadata items were lost during the sparse insertion")
@@ -288,4 +288,4 @@ class TestLayerNgramQuery(unittest.TestCase):
         self.assertEqual( len(res[4][1]['sixth_numbers']), 1 )
         self.assertEqual( len(res[5][1]['sixth_numbers']), 1 )
         
-        collection.delete()
+        self.storage.delete_collection(collection.name)
