@@ -813,9 +813,13 @@ class TestLayer(unittest.TestCase):
         
         # Add layer from the template (creates an empty layer)
         collection.add_layer( layer_template )
-        
+       
         self.assertTrue( layer_table_exists(self.storage, collection.name, layer_template.name) )
         self.assertTrue( layer_template.name in collection.layers )
+        
+        # If the layer already exists, adding a layer template should rise PgCollectionException
+        with self.assertRaises( pg.PgCollectionException ):
+            collection.add_layer( layer_template )
         
         # Add some annotations to the layer
         def row_mapper_x(row):

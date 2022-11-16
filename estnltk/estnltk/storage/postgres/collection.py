@@ -30,6 +30,7 @@ from estnltk.storage.postgres import layer_table_exists
 from estnltk.storage.postgres import layer_table_identifier
 from estnltk.storage.postgres import layer_table_name
 from estnltk.storage.postgres import structure_table_exists
+from estnltk.storage.postgres import structure_table_identifier
 from estnltk.storage.postgres import table_exists
 from estnltk.storage.postgres.queries.missing_layer_query import MissingLayerQuery
 from estnltk.storage.postgres.queries.slice_query import SliceQuery
@@ -1092,17 +1093,13 @@ class PgCollection:
                 The layer search and iteration process is faster on sparse tables.
                 Note that collection version 3.0 is required for sparse tables.
         """
+        # Check existence of the collection
         if not self.exists():
             raise PgCollectionException("collection {!r} does not exist, can't add layer".format(self.name))
 
+        # Check input arguments
         if not isinstance( layer_template, Layer ):
             raise TypeError('(!) layer_template must be an instance of Layer')
-
-        if self.layers is not None and layer_template.name in self.layers:
-            raise PgCollectionException("The {!r} layer already exists.".format(layer_template.name))
-
-        if self._is_empty:
-            raise PgCollectionException("can't add layer {!r}, the collection is empty".format(layer_template.name))
 
         if sparse and self.version < '3.0':
             raise PgCollectionException("Sparse tables are not supported in collection version {!r}.".format(self.version))
@@ -1111,10 +1108,6 @@ class PgCollection:
             raise PgCollectionException("Unexpected layer type {!r}. Supported layer types are: {!r}".format(layer_type, \
                                                                      pg.PostgresStorage.TABLED_LAYER_TYPES))
 
-        if layer_table_exists(self.storage, self.name, layer_template.name, layer_type=layer_type):
-            raise PgCollectionException(
-                "The table for the {} layer {!r} already exists.".format(layer_type, layer_template.name))
-
         if fragmented_layer:
             warnings.simplefilter("always", DeprecationWarning)
             warnings.warn('Flag collection.add_layer(...fragmented_layer=True) is deprecated. '+\
@@ -1122,10 +1115,32 @@ class PgCollection:
                           'Currently, a detached layer is created.', 
                           DeprecationWarning)
             warnings.simplefilter("ignore", DeprecationWarning)
-        
+
+        # Check existence of the layer
+        if self.layers is not None and layer_template.name in self.layers:
+            raise PgCollectionException("The {!r} layer already exists.".format(layer_template.name))
+
         conn = self.storage.conn
+        conn.commit()
+        conn.autocommit = False
         with conn.cursor() as cur:
             try:
+                structure_table_id = structure_table_identifier(self.storage, self.name)
+                # EXCLUSIVE locking -- this mode allows only reads from the table 
+                # can proceed in parallel with a transaction holding this lock mode.
+                # Prohibit all other modification operations such as delete, insert, 
+                # update, create index.
+                # (https://www.postgresql.org/docs/9.4/explicit-locking.html)
+                cur.execute(SQL('LOCK TABLE ONLY {} IN EXCLUSIVE MODE').format(structure_table_id))
+
+                # We may have to wait for the lock and receive it later: validate that conditions are OK
+                if self._is_empty:
+                    raise PgCollectionException("the collection is empty".format(layer_template.name))
+
+                if layer_table_exists(self.storage, self.name, layer_template.name, layer_type=layer_type):
+                    raise PgCollectionException(
+                        "The table for the {} layer {!r} already exists.".format(layer_type, layer_template.name))
+
                 self._create_layer_table(
                     cursor=cur,
                     layer_name=layer_template.name,
@@ -1137,9 +1152,9 @@ class PgCollection:
 
                 self._structure.insert(layer=layer_template, layer_type=layer_type, meta=meta, is_sparse=sparse)
 
-            except Exception:
+            except Exception as layer_creation_error:
                 conn.rollback()
-                raise
+                raise PgCollectionException("can't add layer {!r}".format(layer_template.name)) from layer_creation_error
             finally:
                 if conn.status == STATUS_BEGIN:
                     # no exception, transaction in progress
