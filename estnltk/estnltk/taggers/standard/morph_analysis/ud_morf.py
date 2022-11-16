@@ -610,7 +610,11 @@ class UDMorphConverter( Tagger ):
 
                 ## G
                 elif vm_pos == 'G':
-                    base_ud_annotation['upostag'] = 'NOUN'
+                    # Fix: according to the UD corpus, the most frequent
+                    # partofspeech for 'G' is actually 'ADJ', not 'NOUN';
+                    base_ud_annotation['upostag'] = 'ADJ'
+                    # TODO: should we really add Number/Case feats ?
+                    # (these are not annotated in the corpus)
                     base_ud_annotation['feats']['Number'] = 'Sing'
                     base_ud_annotation['feats']['Case']   = 'Gen'
 
