@@ -542,22 +542,22 @@ class UDMorphConverter( Tagger ):
                                 new_annotation['feats'][k] = v
                         new_ud_annotations.append( new_annotation )
                         annotations_added = True
-                if vm_lemma_clean in self._lemma_conv_rules:
-                    # Conversion rules based on vm_lemma.
-                    # Note: there can be multiple UD annotations corresponding 
-                    # to given VM annotation. Add them all:
-                    for dict_rules in self._lemma_conv_rules[vm_lemma_clean]:
-                        # Copy base annotation
-                        new_annotation = \
-                            {k:base_ud_annotation[k] for k in base_ud_annotation.keys()}
-                        new_annotation['feats'] = base_ud_annotation['feats'].copy()
-                        if 'upostag' in dict_rules:
-                            new_annotation['upostag'] = dict_rules['upostag']
-                        if 'feats' in dict_rules:
-                            for k, v in dict_rules['feats'].items():
-                                new_annotation['feats'][k] = v
-                        new_ud_annotations.append( new_annotation )
-                        annotations_added = True
+            if vm_lemma_clean in self._lemma_conv_rules:
+                # Conversion rules based on vm_lemma.
+                # Note: there can be multiple UD annotations corresponding 
+                # to given VM annotation. Add them all:
+                for dict_rules in self._lemma_conv_rules[vm_lemma_clean]:
+                    # Copy base annotation
+                    new_annotation = \
+                        {k:base_ud_annotation[k] for k in base_ud_annotation.keys()}
+                    new_annotation['feats'] = base_ud_annotation['feats'].copy()
+                    if 'upostag' in dict_rules:
+                        new_annotation['upostag'] = dict_rules['upostag']
+                    if 'feats' in dict_rules:
+                        for k, v in dict_rules['feats'].items():
+                            new_annotation['feats'][k] = v
+                    new_ud_annotations.append( new_annotation )
+                    annotations_added = True
             if not annotations_added:
                 new_ud_annotations.append( base_ud_annotation )
         
