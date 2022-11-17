@@ -65,7 +65,7 @@ _verb_form_conversion_rules = [ \
   
   ('ksin', OrderedDict([('Voice','Act'), ('Tense','Pres'), ('Mood','Cnd'), ('VerbForm','Fin'), ('Number','Sing'), ('Person','1')]) ),
   ('ksid', OrderedDict([('Voice','Act'), ('Tense','Pres'), ('Mood','Cnd'), ('VerbForm','Fin'), ('Number','Sing'), ('Person','2')]) ),  # ambiguous
-  ('ks',   OrderedDict([('Voice','Act'), ('Tense','Pres'), ('Mood','Cnd'), ('VerbForm','Fin'), ('Number','Sing') ]) ),
+  ('ks',   OrderedDict([('Voice','Act'), ('Tense','Pres'), ('Mood','Cnd'), ('VerbForm','Fin') ]) ),
   ('ksime', OrderedDict([('Voice','Act'), ('Tense','Pres'), ('Mood','Cnd'), ('VerbForm','Fin'), ('Number','Plur'), ('Person','1')]) ),
   ('ksite', OrderedDict([('Voice','Act'), ('Tense','Pres'), ('Mood','Cnd'), ('VerbForm','Fin'), ('Number','Plur'), ('Person','2')]) ),
   ('ksid',  OrderedDict([('Voice','Act'), ('Tense','Pres'), ('Mood','Cnd'), ('VerbForm','Fin'), ('Number','Plur'), ('Person','3')]) ), # ambiguous
