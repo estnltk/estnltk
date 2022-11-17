@@ -149,14 +149,9 @@ _adj_verb_features = [ \
   ('tav',    OrderedDict([('Voice','Pass'), ('Tense','Pres'), ('VerbForm','Part')]) ), 
 ]
 
-
-# Adjectives which should not obtain any verb features
-_adj_with_no_verb_features = \
- ['ebalev', 'huvitav', 'ihalev', 'kehtiv', 'kõdunev', 'loov', 'mõistev', 'mõjuv', 
-  'osalev', 'palav', 'pädev', 'saav', 'sügav', 'tugev', 'võluv', 'ustav', 'alatu', 
-  'kirev', 'ülev', 'tuttav', 'terav', 'mugav', 'põnev', 'kuiv', 'kehv', 'kõrvulukustav', 
-  'igav', 'harv', 'pidev', 'kaitsetu', 'kärsitu']
-# TODO: 'odav', 'erinev' have ambiguous participle interpretations in the corpus
+# Path to file listing adjectives which should not obtain any verb features
+ADJ_WITH_NO_VERB_FEATURES_FILE = \
+    os.path.join( DEFAULT_VM_CONV_RULES_DIR, 'adj_without_verb_feats.txt' )
 
 
 def _has_postag(upostag, upostag_variants):
@@ -210,7 +205,7 @@ class UDMorphConverter( Tagger ):
                  conversion_rules_dir:str=None, \
                  add_deprel_attribs:bool=False, \
                  remove_connegatives:bool=False, \
-                 adj_with_no_verb_features:list=_adj_with_no_verb_features ):
+                 adj_with_no_verb_feats_file:str=ADJ_WITH_NO_VERB_FEATURES_FILE ):
         ''' Initializes this UDMorphConverter.
             
             Parameters
@@ -252,12 +247,13 @@ class UDMorphConverter( Tagger ):
                 unrecognized negative word (such as a slang word '2ra', '2i' or 
                 'äi'), then the deletion will be erroneous.
 
-            adj_with_no_verb_features: list of str (default: _adj_with_no_verb_features)
-                List of adjective lemmas, corresponding to adjectives which should 
-                not obtain verb participle features. 
+            adj_with_no_verb_feats_file: str (default: ADJ_WITH_NO_VERB_FEATURES_FILE)
+                Path to a text file containing adjective lemmas (each lemma on new line), 
+                corresponding to adjectives which should not obtain verb participle 
+                features. The file should be in "utf-8" encoding.
                 Note that by default, all adjectives ending with 'tud', 'nud', 'v' or 
                 'tav' will receive corresponding verb participle features.
-                Use this list to avoid adding verb features to specific adjectives.
+                Use this file to avoid adding verb features to specific adjectives.
         '''
         # Set input/output layer names
         self.output_layer = output_layer
@@ -282,7 +278,15 @@ class UDMorphConverter( Tagger ):
                 if fname.endswith('.tab'):
                     fpath=os.path.join(conversion_rules_dir, fname)
                     self._load_pos_lemma_conv_rules_from_file( fpath )
-        self._adj_with_no_verb_features = set(adj_with_no_verb_features)
+        self._adj_with_no_verb_features = set()
+        if adj_with_no_verb_feats_file is not None:
+            assert os.path.exists(adj_with_no_verb_feats_file), \
+                '(!) Non-existent adj_with_no_verb_feats_file: {!r}'.format(adj_with_no_verb_feats_file)
+            with open(adj_with_no_verb_feats_file, 'r', encoding='utf-8') as in_f:
+                for line in in_f:
+                    line = line.strip()
+                    if len(line) > 0:
+                        self._adj_with_no_verb_features.add(line)
         # Constants
         self._aux_verb_lemmas = set(['olema', 'saama', 'pidama', 'võima', 'tunduma', \
                                      'tohtima', 'paistma', 'näima'])
@@ -759,7 +763,7 @@ class UDMorphConverter( Tagger ):
 
     def _postcorrect_participles(self, ud_annotations):
         '''
-        Makes postcorrections to ambiguous participles. 
+        Makes postcorrections to adjective participles. 
         
         Basically, detects if an adjective lemma has possible 
         participle ending ('nud', 'tud', 'tav' or 'v'), and if so, 
