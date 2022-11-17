@@ -266,7 +266,7 @@ class PgCollection:
 
         self._meta = None
         self._column_names = None
-        self._selected_layes = None
+        self._selected_layers = None
         self._is_empty = not self.exists() or len(self) == 0
 
     def create(self, description=None, meta: dict = None, temporary=None):
@@ -307,21 +307,21 @@ class PgCollection:
 
     @property
     def selected_layers(self):
-        if self._selected_layes is None:
+        if self._selected_layers is None:
             if not self.exists():
                 raise PgCollectionException('collection {!r} does not exist'.format(self.name))
             if self._is_empty:
                 return []
-            self._selected_layes = [layer for layer, properties in self._structure.structure.items()
+            self._selected_layers = [layer for layer, properties in self._structure.structure.items()
                                     if properties['layer_type'] == 'attached']
-        return self._selected_layes
+        return self._selected_layers
 
     @selected_layers.setter
     def selected_layers(self, value):
         assert isinstance(value, list)
         assert all(isinstance(v, str) for v in value)
         assert set(value) <= set(self._structure)
-        self._selected_layes = self.dependent_layers(value)
+        self._selected_layers = self.dependent_layers(value)
 
     def dependent_layers(self, selected_layers):
         """Returns all layers that depend on selected layers including selected layers.
