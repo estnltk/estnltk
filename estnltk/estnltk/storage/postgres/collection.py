@@ -1477,7 +1477,7 @@ class PgCollection:
             raise PgCollectionException("Unexpected layer type {!r}. Supported layer types are: {!r}".format(layer_type, \
                                                                      pg.PostgresStorage.ALL_LAYER_TYPES))
         layer_names = []
-        for layer in self._structure.keys():
+        for layer in self._structure:
             cur_layer_type = self._structure[layer]['layer_type']
             if cur_layer_type == layer_type:
                 layer_names.append( layer )
