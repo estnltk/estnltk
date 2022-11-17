@@ -215,9 +215,9 @@ class PgCollection:
 
     Removing collection
     ====================
-    You can remove the whole collection via delete() method:
+    You can remove the whole collection via storage's delete_collection() method:
 
-            collection.delete()
+            storage.delete_collection(collection.name)
 
     More information
     ====================
