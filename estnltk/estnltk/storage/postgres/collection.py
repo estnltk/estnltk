@@ -1413,12 +1413,20 @@ class PgCollection:
                     'method to remove a collection from database.'
         raise Exception( error_msg )
 
-    def has_layer(self, layer_name):
+    def has_layer(self, layer_name, layer_type=None):
         if not self.exists():
             raise PgCollectionException("collection {!r} does not exist".format( self.name ))
-        return layer_name in self._structure
+        if layer_type is None:
+            return layer_name in self._structure
+        else:
+            return layer_name in self.get_layer_names_by_type(layer_type=layer_type)
 
     def has_fragment(self, fragment_name):
+        warnings.simplefilter("always", DeprecationWarning)
+        warnings.warn('collection.has_fragment(...) is deprecated. '+\
+                      'Use collection.has_layer(name, layer_type="fragmented") instead. ', 
+                      DeprecationWarning)
+        warnings.simplefilter("ignore", DeprecationWarning)
         if not self.exists():
             raise PgCollectionException("collection {!r} does not exist".format( self.name ))
         return fragment_name in self.get_fragment_names()
@@ -1431,6 +1439,11 @@ class PgCollection:
         return self._structure[layer_name]['sparse'] if 'sparse' in self._structure[layer_name] else False
 
     def get_fragment_names(self):
+        warnings.simplefilter("always", DeprecationWarning)
+        warnings.warn('collection.get_fragment_tables(...) is deprecated. '+\
+                      'Use collection.get_layer_names_by_type(layer_type="fragmented") instead. ', 
+                      DeprecationWarning)
+        warnings.simplefilter("ignore", DeprecationWarning)
         if not self.exists():
             raise PgCollectionException("collection {!r} does not exist".format( self.name ))
         
@@ -1442,6 +1455,12 @@ class PgCollection:
         return lf_names
 
     def get_fragment_tables(self):
+        warnings.simplefilter("always", DeprecationWarning)
+        warnings.warn('collection.get_fragment_tables(...) is deprecated. '+\
+                      'Use collection.get_layer_names_by_type(layer_type="fragmented") with '+\
+                      'fragment_table_name(...) instead. ', 
+                      DeprecationWarning)
+        warnings.simplefilter("ignore", DeprecationWarning)
         if not self.exists():
             raise PgCollectionException("collection {!r} does not exist".format( self.name ))
         
@@ -1450,6 +1469,19 @@ class PgCollection:
             if tbl.startswith("%s__" % self.name) and tbl.endswith("__fragment"):
                 fragment_tables.append(tbl)
         return fragment_tables
+
+    def get_layer_names_by_type(self, layer_type:str='attached'):
+        if not self.exists():
+            raise PgCollectionException("collection {!r} does not exist".format( self.name ))
+        if layer_type not in pg.PostgresStorage.ALL_LAYER_TYPES:
+            raise PgCollectionException("Unexpected layer type {!r}. Supported layer types are: {!r}".format(layer_type, \
+                                                                     pg.PostgresStorage.ALL_LAYER_TYPES))
+        layer_names = []
+        for layer in self._structure.keys():
+            cur_layer_type = self._structure[layer]['layer_type']
+            if cur_layer_type == layer_type:
+                layer_names.append( layer )
+        return layer_names
 
     def get_layer_meta(self, layer_name):
         if not self.exists():

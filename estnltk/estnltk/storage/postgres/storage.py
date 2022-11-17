@@ -29,6 +29,8 @@ class PostgresStorage:
 
     TABLED_LAYER_TYPES = {'detached', 'fragmented', 'multi'}
 
+    ALL_LAYER_TYPES = ({'attached'}).union(TABLED_LAYER_TYPES)
+
     def __init__(self, dbname=None, user=None, password=None, host=None, port=None,
                  pgpass_file=None, schema="public", role=None, temporary=False, 
                  create_schema_if_missing=False, **kwargs):
