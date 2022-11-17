@@ -23,7 +23,6 @@ from estnltk.storage.postgres import BufferedTableInsert
 from estnltk.storage.postgres import CollectionDetachedLayerInserter
 from estnltk.storage.postgres import CollectionTextObjectInserter
 from estnltk.storage.postgres import count_rows
-from estnltk.storage.postgres import drop_fragment_table
 from estnltk.storage.postgres import drop_layer_table
 from estnltk.storage.postgres import fragment_table_name
 from estnltk.storage.postgres import layer_table_exists
@@ -1392,16 +1391,10 @@ class PgCollection:
                 else:
                     raise PgCollectionException("can't delete layer {!r}; "
                                                 "there is a dependant layer {!r}".format(layer_name, ln))
-        drop_layer_table(self.storage, self.name, layer_name)
+        layer_type=self._structure[layer_name]['layer_type']
+        drop_layer_table(self.storage, self.name, layer_name, layer_type=layer_type)
         self._structure.delete_layer(layer_name)
         logger.info('layer deleted: {!r}'.format(layer_name))
-
-    def delete_fragment(self, fragment_name):
-        if not self.exists():
-            raise PgCollectionException("collection {!r} does not exist".format(self.name))
-        if fragment_name not in self.get_fragment_names():
-            raise PgCollectionException("Collection does not have a layer fragment '%s'." % fragment_name)
-        drop_fragment_table(self.storage, self.name, fragment_name)
 
     def delete(self):
         """Removes collection and all related layers.
@@ -1477,7 +1470,7 @@ class PgCollection:
             raise PgCollectionException("Unexpected layer type {!r}. Supported layer types are: {!r}".format(layer_type, \
                                                                      pg.PostgresStorage.ALL_LAYER_TYPES))
         layer_names = []
-        for layer in self._structure.keys():
+        for layer in self._structure:
             cur_layer_type = self._structure[layer]['layer_type']
             if cur_layer_type == layer_type:
                 layer_names.append( layer )

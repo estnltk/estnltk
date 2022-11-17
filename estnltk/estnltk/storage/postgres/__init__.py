@@ -57,7 +57,6 @@ from .pg_operations import delete_schema
 from .pg_operations import drop_table
 from .pg_operations import drop_collection_table
 from .pg_operations import drop_structure_table
-from .pg_operations import drop_fragment_table
 from .pg_operations import drop_layer_table
 
 from .pg_operations import count_rows

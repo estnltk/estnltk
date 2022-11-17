@@ -13,7 +13,6 @@ from estnltk.storage.postgres import parse_pgpass
 from estnltk.storage.postgres import create_schema
 from estnltk.storage.postgres import schema_exists
 from estnltk.storage.postgres import drop_layer_table
-from estnltk.storage.postgres import drop_fragment_table
 from estnltk.storage import postgres as pg
 
 
@@ -287,10 +286,8 @@ class PostgresStorage:
                 # Remove collection table, layer tables, structure table
                 for layer, v in self[collection_name].structure.structure.items():
                     if v['layer_type'] in PostgresStorage.TABLED_LAYER_TYPES:
-                        if v['layer_type'] == 'fragmented':
-                            drop_fragment_table(self, collection_name, layer)
-                        else:
-                            drop_layer_table(self, collection_name, layer, cascade=cascade)
+                        drop_layer_table(self, collection_name, layer, 
+                                               cascade=cascade, layer_type=v['layer_type'])
                 pg.drop_collection_table(self, collection_name, cascade=cascade)
                 pg.drop_structure_table(self, collection_name)
             except Exception as deletion_err:

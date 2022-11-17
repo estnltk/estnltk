@@ -243,6 +243,14 @@ class TestPgCollection(unittest.TestCase):
         self.assertTrue('paragraphs' in collection.layers)
         self.assertTrue('morph_analysis' in collection.layers)
 
+        # Assert that layers have expected types
+        self.assertTrue(collection.has_layer('tokens', 'attached'))
+        self.assertTrue(collection.has_layer('compound_tokens', 'attached'))
+        self.assertTrue(collection.has_layer('words', 'attached'))
+        self.assertTrue(collection.has_layer('sentences', 'attached'))
+        self.assertTrue(collection.has_layer('paragraphs', 'detached'))
+        self.assertTrue(collection.has_layer('morph_analysis', 'detached'))
+
         for text_id, text in collection.select(layers=['compound_tokens', 'morph_analysis', 'paragraphs']):
             if text_id == 1:
                 assert text == text_1, text_1.diff(text)
@@ -654,6 +662,8 @@ class TestLayerFragment(unittest.TestCase):
         collection.create_fragmented_layer(tagger=tagger1, fragmenter=fragmenter)
 
         self.assertTrue(collection.has_layer(layer_fragment_name))
+        self.assertTrue(collection.has_layer(layer_fragment_name, 'fragmented'))
+        self.assertFalse(collection.has_layer(layer_fragment_name, 'detached'))
         
         # Try an illegal insert: insert Text object after a fragmented layer has been added
         with self.assertRaises(pg.PgCollectionException):
@@ -724,6 +734,9 @@ class TestFragment(unittest.TestCase):
                                            create_index=False,
                                            ngram_index=None)
 
+        self.assertTrue(collection.has_layer(fragment_name, 'fragmented'))
+        self.assertFalse(collection.has_layer(fragment_name, 'detached'))
+
         rows = list(collection.select_fragment_raw(fragment_name, layer_fragment_name))
         self.assertEqual(len(rows), 4)
 
@@ -737,7 +750,7 @@ class TestFragment(unittest.TestCase):
         self.assertIsInstance(row[5], Layer)
 
         assert layer_table_exists(self.storage, collection.name, fragment_name, layer_type='fragmented')
-        collection.delete_fragment(fragment_name)
+        collection.delete_layer(fragment_name)
         assert not layer_table_exists(self.storage, collection.name, fragment_name, layer_type='fragmented')
 
 
@@ -776,6 +789,11 @@ class TestLayer(unittest.TestCase):
 
         tagger2.tag(text1)
         tagger2.tag(text2)
+
+        self.assertTrue(collection.has_layer('words', 'attached'))
+        self.assertTrue(collection.has_layer('sentences', 'attached'))
+        self.assertTrue(collection.has_layer(layer1, 'detached'))
+        self.assertTrue(collection.has_layer(layer2, 'detached'))
 
         for key, text in collection.select(layers=['sentences']):
             self.assertTrue("sentences" in text.layers)

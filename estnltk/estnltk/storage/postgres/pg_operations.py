@@ -216,16 +216,17 @@ def drop_structure_table(storage, collection_name):
     drop_table(storage, table_name)
 
 
-def drop_layer_table(storage, collection_name, layer_name, cascade=False):
-    table_name = layer_table_name(collection_name, layer_name)
-    drop_table(storage, table_name, cascade=cascade)
-
-
-def drop_fragment_table(storage, collection_name, fragment_name):
-    table_name = fragment_table_name(collection_name, fragment_name)
-    if not table_exists(storage, table_name):
-        raise Exception("Fragment table '%s' does not exist." % table_name)
-    drop_table(storage, table_name)
+def drop_layer_table(storage, collection_name, layer_name, cascade=False, layer_type='detached'):
+    if layer_type=='detached':
+        table_name = layer_table_name(collection_name, layer_name)
+        drop_table(storage, table_name, cascade=cascade)
+    elif layer_type=='fragmented':
+        table_name = fragment_table_name(collection_name, layer_name)
+        drop_table(storage, table_name, cascade=cascade)
+    else:
+        error_msg = \
+          "(!) Removing layer table not implemented for layer type: {!r}".format(layer_type)
+        raise NotImplementedError( error_msg )
 
 
 def drop_all_storage_tables(storage):
