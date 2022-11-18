@@ -352,28 +352,43 @@ class PgCollection:
 
     def create_index(self):
         """Create index for the collection table.
-
         """
         if not self.exists():
             raise PgCollectionException('collection {!r} does not exist'.format(self.name))
-        
+        assert self.storage.conn.autocommit == False
         with self.storage.conn.cursor() as c:
-            c.execute(
-                SQL("CREATE INDEX {index} ON {table} USING gin ((data->'layers') jsonb_path_ops)").format(
-                    index=Identifier('idx_%s_data' % self.name),
-                    table=pg.collection_table_identifier(self.storage, self.name)))
+            try:
+                c.execute(
+                    SQL("CREATE INDEX {index} ON {table} USING gin ((data->'layers') jsonb_path_ops)").format(
+                        index=Identifier('idx_%s_data' % self.name),
+                        table=pg.collection_table_identifier(self.storage, self.name)))
+            except Exception:
+                self.storage.conn.rollback()
+                raise
+            finally:
+                if self.storage.conn.status == STATUS_BEGIN:
+                    # no exception, transaction in progress
+                    self.storage.conn.commit()
 
     def drop_index(self):
         """Drop index of the collection table.
         """
         if not self.exists():
             raise PgCollectionException('collection {!r} does not exist'.format(self.name))
-        
+        assert self.storage.conn.autocommit == False
         with self.storage.conn.cursor() as c:
-            c.execute(
-                SQL("DROP INDEX {schema}.{index}").format(
-                    schema=Identifier(self.storage.schema),
-                    index=Identifier('idx_%s_data' % self.name)))
+            try:
+                c.execute(
+                    SQL("DROP INDEX {schema}.{index}").format(
+                        schema=Identifier(self.storage.schema),
+                        index=Identifier('idx_%s_data' % self.name)))
+            except Exception:
+                self.storage.conn.rollback()
+                raise
+            finally:
+                if self.storage.conn.status == STATUS_BEGIN:
+                    # no exception, transaction in progress
+                    self.storage.conn.commit()
 
     
     def extend(self, other: 'PgCollection'):
@@ -390,20 +405,29 @@ class PgCollection:
             raise PgCollectionException('collection {!r} does not exist'.format(self.name))
         if not other.exists():
             raise PgCollectionException('collection {!r} does not exist'.format(other.name))
-        
+
         if self.column_names != other.column_names:
             raise PgCollectionException("can't extend: different collection meta")
         if self._structure != other._structure:
             raise PgCollectionException("can't extend: structures are different")
+        assert self.storage.conn.autocommit == False
         with self.storage.conn.cursor() as cursor:
-            cursor.execute(SQL('INSERT INTO {} SELECT * FROM {}'
-                               ).format(pg.collection_table_identifier(self.storage, self.name),
-                                        pg.collection_table_identifier(other.storage, other.name)))
-            for layer_name, struct in self._structure.structure.items():
-                if struct['layer_type'] == 'detached':
-                    cursor.execute(SQL('INSERT INTO {} SELECT * FROM {}').format(
-                            layer_table_identifier(self.storage, self.name, layer_name),
-                            layer_table_identifier(self.storage, other.name, layer_name)))
+            try:
+                cursor.execute(SQL('INSERT INTO {} SELECT * FROM {}'
+                                   ).format(pg.collection_table_identifier(self.storage, self.name),
+                                            pg.collection_table_identifier(other.storage, other.name)))
+                for layer_name, struct in self._structure.structure.items():
+                    if struct['layer_type'] == 'detached':
+                        cursor.execute(SQL('INSERT INTO {} SELECT * FROM {}').format(
+                                layer_table_identifier(self.storage, self.name, layer_name),
+                                layer_table_identifier(self.storage, other.name, layer_name)))
+            except Exception:
+                self.storage.conn.rollback()
+                raise
+            finally:
+                if self.storage.conn.status == STATUS_BEGIN:
+                    # no exception, transaction in progress
+                    self.storage.conn.commit()
 
     def _collection_table_meta(self):
         if not self.exists():
@@ -790,7 +814,7 @@ class PgCollection:
         with conn.cursor() as c:
             try:
                 conn.commit()
-                conn.autocommit = True
+                conn.autocommit = False
                 # create table and indices
                 self._create_layer_table(cursor=c,
                                          layer_name=layer_name,
@@ -991,7 +1015,7 @@ class PgCollection:
 
         conn = self.storage.conn
         conn.commit()
-        conn.autocommit = True
+        conn.autocommit = False
 
         with conn.cursor() as c:
             try:
@@ -1605,19 +1629,26 @@ class PgCollection:
         if create_table:
             # Create new table
             columns_sql = SQL(",\n").join(SQL("{} {}").format(Identifier(n), SQL(t)) for n, t in columns)
-
+            assert self.storage.conn.autocommit == False
             self.storage.conn.commit()
             with self.storage.conn.cursor() as c:
-                logger.debug(c.query)
-                c.execute(SQL("CREATE TABLE {} ({});").format(table_identifier,
-                                                              columns_sql))
-                logger.debug(c.query)
-                c.execute(SQL("COMMENT ON TABLE {} IS {};").format(table_identifier,
-                                                                   Literal('created by {} on {}'.format(self.storage.user,
-                                                                                                        time.asctime()))))
-                logger.debug(c.query)
-                self.storage.conn.commit()
-
+                try:
+                    logger.debug(c.query)
+                    c.execute(SQL("CREATE TABLE {} ({});").format(table_identifier,
+                                                                  columns_sql))
+                    logger.debug(c.query)
+                    c.execute(SQL("COMMENT ON TABLE {} IS {};").format(table_identifier,
+                                                                       Literal('created by {} on {}'.format(self.storage.user,
+                                                                                                            time.asctime()))))
+                    logger.debug(c.query)
+                except Exception:
+                    self.storage.conn.rollback()
+                    raise
+                finally:
+                    if self.storage.conn.status == STATUS_BEGIN:
+                        # no exception, transaction in progress
+                        self.storage.conn.commit()
+                    
         texts = self.select(layers=[layer], progressbar=progressbar, collection_meta=collection_meta, keep_all_texts=False)
         i = 0
         initial_rows = 0
