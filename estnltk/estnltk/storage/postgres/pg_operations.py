@@ -20,11 +20,17 @@ def create_schema(storage):
     storage.conn.commit()
     storage.conn.autocommit = False
     with storage.conn.cursor() as c:
-        c.execute(SQL("CREATE SCHEMA {};").format(Identifier(storage.schema)))
-    storage.conn.commit()
+        try:
+            c.execute(SQL("CREATE SCHEMA {};").format(Identifier(storage.schema)))
+        except:
+            storage.conn.rollback()
+            raise
+        finally:
+            if storage.conn.status == STATUS_BEGIN:
+                # no exception, transaction in progress
+                storage.conn.commit()
 
 def schema_exists(storage):
-    storage.conn.commit()
     with storage.conn.cursor() as c:
         c.execute(SQL('SELECT EXISTS (SELECT 1 from information_schema.schemata '
                       'WHERE schema_name={}) ').format(Literal(storage.schema)))
@@ -34,9 +40,15 @@ def delete_schema(storage):
     storage.conn.commit()
     storage.conn.autocommit = False
     with storage.conn.cursor() as c:
-        c.execute(SQL("DROP SCHEMA {} CASCADE;").format(Identifier(storage.schema)))
-    storage.conn.commit()
-
+        try:
+            c.execute(SQL("DROP SCHEMA {} CASCADE;").format(Identifier(storage.schema)))
+        except:
+            storage.conn.rollback()
+            raise
+        finally:
+            if storage.conn.status == STATUS_BEGIN:
+                # no exception, transaction in progress
+                storage.conn.commit()
 
 def table_identifier(storage, table_name):
     identifier = Identifier(table_name)
@@ -48,7 +60,10 @@ def table_identifier(storage, table_name):
 def table_exists(storage, table_name):
     if storage.temporary:
         raise NotImplementedError("don't know how to check existence of temporary table: {!r}".format(table_name))
-
+    # TODO: for some unknow reason, the following commit 
+    # is important. If it is removed, then multiple connections 
+    # modifying the database hang on each other 
+    # ( see test_.test_create_collection_multiple_connections )
     storage.conn.commit()
     with storage.conn.cursor() as c:
         c.execute(SQL("SELECT EXISTS (SELECT 1 FROM pg_tables WHERE schemaname = {} AND tablename = {});"
@@ -93,15 +108,17 @@ def drop_table(storage, table_name: str, cascade: bool = False):
         sql = SQL('DROP TABLE {} CASCADE;')
     else:
         sql = SQL('DROP TABLE {};')
-
     with storage.conn.cursor() as c:
         try:
             c.execute(sql.format(table_identifier(storage, table_name)))
         except Exception:
+            storage.conn.rollback()
             raise
         finally:
-            storage.conn.commit()
-            logger.debug(c.query.decode())
+            if storage.conn.status == STATUS_BEGIN:
+                # no exception, transaction in progress
+                storage.conn.commit()
+                logger.debug(c.query.decode())
 
 
 def count_rows(storage, table=None, table_identifier=None):
