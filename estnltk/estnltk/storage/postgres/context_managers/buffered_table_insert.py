@@ -1,5 +1,6 @@
 from psycopg2.sql import SQL, Identifier, Literal, Composed
 from psycopg2.sql import DEFAULT as SQL_DEFAULT
+from psycopg2.extensions import STATUS_BEGIN
 
 from estnltk import logger
 
@@ -101,6 +102,7 @@ class BufferedTableInsert(object):
            will be inserted, has already been created.
         """
         assert self.cursor is not None
+        assert self.conn.autocommit == False
         # Convert values to literals
         converted = []
         for val in values:
@@ -132,12 +134,16 @@ class BufferedTableInsert(object):
                            self.table_identifier,
                            self.column_identifiers,
                            SQL(', ').join(self.buffer)))
-            self.cursor.connection.commit()
         except Exception as ex:
             logger.error('flush insert buffer failed')
             logger.error('number of rows in the buffer: {}'.format(len(self.buffer)))
             logger.error('estimated insert query length: {}'.format(self._buffered_insert_query_length))
+            self.cursor.connection.rollback()
             raise
+        finally:
+            if self.cursor.connection.status == STATUS_BEGIN:
+                # no exception, transaction in progress
+                self.cursor.connection.commit()
         logger.debug('flush buffer: {} rows, {} bytes, {} estimated characters'.format(
                      len(self.buffer), len(self.cursor.query), self._buffered_insert_query_length))
         self.buffer.clear()
