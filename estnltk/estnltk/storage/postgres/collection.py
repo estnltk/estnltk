@@ -324,7 +324,7 @@ class PgCollection:
         self._selected_layers = self.dependent_layers(value)
 
     def dependent_layers(self, selected_layers):
-        """Returns all layers that depend on selected layers including selected layers.
+        """Returns selected layers along with their ancestor layers.
 
            Returned layers are topologically ordered according to dependencies.
            The latter provides a correct order for loading and re-attaching detached layers.
@@ -1406,19 +1406,30 @@ class PgCollection:
         if self._structure[layer_name]['layer_type'] == 'attached':
             raise PgCollectionException("can't delete attached layer {!r}".format(layer_name))
 
-        for ln, struct in self._structure.structure.items():
-            if ln == layer_name:
-                continue
-            if layer_name == struct['enveloping'] or layer_name == struct['parent']:
-                if cascade:
-                    self.delete_layer(ln, cascade=True)
-                else:
-                    raise PgCollectionException("can't delete layer {!r}; "
-                                                "there is a dependant layer {!r}".format(layer_name, ln))
-        layer_type=self._structure[layer_name]['layer_type']
-        drop_layer_table(self.storage, self.name, layer_name, layer_type=layer_type)
-        self._structure.delete_layer(layer_name)
-        logger.info('layer deleted: {!r}'.format(layer_name))
+        # Find out dependent layers of the given layer
+        dependent_layers = []
+        cur_layers = [layer_name]
+        while len(cur_layers) > 0:
+            layer = cur_layers.pop()
+            for layer2, struct in self._structure.structure.items():
+                if layer2 in dependent_layers:
+                    continue
+                if layer == struct['enveloping'] or layer == struct['parent']:
+                    cur_layers.append( layer2 )
+            dependent_layers.insert(0, layer)
+        deletable_layers = dependent_layers
+        if len(deletable_layers) > 1 and not cascade:
+            dependents = [ln for ln in deletable_layers if ln != layer_name]
+            raise PgCollectionException(("can't delete layer {!r}; "+ \
+                                         "there are dependent layers: {!r}; "+ \
+                                         'set cascade=True to remove layer '+ \
+                                         'along with its dependents.').format(layer_name, dependents))
+        # Perform deletion
+        for layer in deletable_layers:
+            layer_type=self._structure[layer]['layer_type']
+            drop_layer_table(self.storage, self.name, layer, layer_type=layer_type)
+            self._structure.delete_layer(layer)
+            logger.info('layer deleted: {!r}'.format(layer))
 
     def delete(self):
         """Removes collection and all related layers.

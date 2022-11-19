@@ -867,6 +867,47 @@ class TestLayer(unittest.TestCase):
         
         self.storage.delete_collection(collection.name)
 
+    def test_delete_detached_layers(self):
+        collection_name = get_random_collection_name()
+        collection = self.storage.add_collection(collection_name)
+        with collection.insert() as collection_insert:
+            collection_insert(Text('see on esimene lause'))
+            collection_insert(Text('see on teine lause'))
+
+        tokens = Layer(name='tokens', parent=None, enveloping=None, text_object=None)
+        words = Layer(name='words', parent=None, enveloping=None, text_object=None)
+        sentences = Layer(name='sentences', parent=None, enveloping='words', text_object=None)
+        paragraphs = Layer(name='paragraphs', parent=None, enveloping='sentences', text_object=None)
+        morph_analysis = \
+            Layer(name='morph_analysis', parent='words', enveloping=None, text_object=None)
+        morph_extended = \
+            Layer(name='morph_extended', parent='morph_analysis', enveloping=None, text_object=None)
+        syntax = Layer(name='syntax', parent='morph_extended', enveloping=None, text_object=None)
+        # Add detached layers to the collection
+        for layer in [tokens, words, sentences, paragraphs, morph_analysis, morph_extended, syntax]:
+            collection.add_layer(layer)
+        # Delete layers that have no (explicit) dependencies
+        self.assertListEqual( collection.layers, \
+            ['tokens', 'words', 'sentences', 'paragraphs', 'morph_analysis', 'morph_extended', 'syntax'])
+        collection.delete_layer('tokens')
+        self.assertListEqual( collection.layers, \
+            ['words', 'sentences', 'paragraphs', 'morph_analysis', 'morph_extended', 'syntax'])
+        collection.delete_layer('paragraphs')
+        self.assertListEqual( collection.layers, \
+            ['words', 'sentences', 'morph_analysis', 'morph_extended', 'syntax'])
+        # Layer that has dependencies can't be deleted by default
+        with self.assertRaises(PgCollectionException):
+            collection.delete_layer('morph_extended')
+        self.assertListEqual( collection.layers, \
+            ['words', 'sentences', 'morph_analysis', 'morph_extended', 'syntax'])
+        # However, it can be deleted with cascade=True
+        collection.delete_layer('morph_extended', cascade=True)
+        self.assertListEqual( collection.layers, ['words', 'sentences', 'morph_analysis'])
+        collection.delete_layer('words', cascade=True)
+        self.assertListEqual( collection.layers, [])
+
+        self.storage.delete_collection(collection.name)
+
     def test_create_layer_block(self):
         collection_name = get_random_collection_name()
         collection = self.storage.add_collection(collection_name)
