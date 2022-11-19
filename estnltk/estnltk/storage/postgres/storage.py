@@ -6,6 +6,7 @@ import pandas
 
 import psycopg2
 from psycopg2.sql import SQL, Identifier, Literal
+from psycopg2.extensions import STATUS_BEGIN
 
 from estnltk import logger
 from estnltk.storage.postgres import PgCollection
@@ -55,7 +56,6 @@ class PostgresStorage:
 
         logger.info('connecting to host: '
                     '{host!r}, port: {port!r}, dbname: {dbname!r}, user: {user!r}'.format(**conn_param))
-
         try:
             self.conn = psycopg2.connect(**conn_param, **kwargs)
         except Exception as connection_error:
@@ -67,6 +67,7 @@ class PostgresStorage:
             logger.error( connection_error_msg )
             raise PgStorageException( connection_error_msg ) from connection_error
 
+        self.conn.autocommit = False
         with self.conn.cursor() as c:
             c.execute(SQL("SET ROLE {};").format(Identifier(role)))
         self.conn.commit()
@@ -191,6 +192,7 @@ class PostgresStorage:
                         Literal(collection.version)
                 ))
             else:
+                self.conn.rollback() # release lock
                 raise PgStorageException(('(!) Cannot add new collection {!r}, '+\
                                           'this collection already exists.').format(name))
         self.conn.commit()
@@ -214,6 +216,7 @@ class PostgresStorage:
             raise PgStorageException(('(!) Cannot add new collection {!r} '+\
                                       'due to an exception: {}').format( \
                                             name, adding_error)) from adding_error
+        self.conn.commit()
         return collection
 
     @property
@@ -275,6 +278,7 @@ class PostgresStorage:
             # Check if collection hasn't already been deleted from collections_table
             self.refresh()
             if collection_name not in self.collections:
+                self.conn.rollback() # release lock
                 raise KeyError('collection not found: {!r}'.format(collection_name))
             try:
                 # Delete collection from collections_table
@@ -291,10 +295,14 @@ class PostgresStorage:
                 pg.drop_collection_table(self, collection_name, cascade=cascade)
                 pg.drop_structure_table(self, collection_name)
             except Exception as deletion_err:
+                self.conn.rollback()
                 raise PgStorageException(('(!) Failed to delete collection {!r} '+\
                                           'due to an exception: {}.').format( \
                                                 deletion_err, collection_name)) from deletion_err
-        self.conn.commit()
+            finally:
+                if self.conn.status == STATUS_BEGIN:
+                    # no exception, transaction in progress
+                    self.conn.commit()
         self.refresh()
 
 
