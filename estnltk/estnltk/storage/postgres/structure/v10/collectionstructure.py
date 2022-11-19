@@ -1,4 +1,5 @@
 from psycopg2.sql import SQL, Literal
+from psycopg2.extensions import STATUS_BEGIN
 
 from estnltk import logger
 from estnltk.storage import postgres as pg
@@ -18,17 +19,25 @@ class CollectionStructure(pg.CollectionStructureBase):
         temporary = SQL('TEMPORARY') if storage.temporary else SQL('')
         storage.conn.commit()
         with storage.conn.cursor() as c:
-            c.execute(SQL('CREATE {temporary} TABLE {table} ('
-                          'layer_name text primary key, '
-                          'layer_type text not null, '
-                          'attributes text[] not null, '
-                          'ambiguous bool not null, '
-                          'parent text, '
-                          'enveloping text, '
-                          '_base text, '
-                          'meta text[]);').format(temporary=temporary,
-                                                  table=table))
-            logger.debug(c.query.decode())
+            try:
+                c.execute(SQL('CREATE {temporary} TABLE {table} ('
+                              'layer_name text primary key, '
+                              'layer_type text not null, '
+                              'attributes text[] not null, '
+                              'ambiguous bool not null, '
+                              'parent text, '
+                              'enveloping text, '
+                              '_base text, '
+                              'meta text[]);').format(temporary=temporary,
+                                                      table=table))
+            except Exception:
+                storage.conn.rollback()
+                raise
+            finally:
+                if storage.conn.status == STATUS_BEGIN:
+                    # no exception, transaction in progress
+                    storage.conn.commit()
+                    logger.debug(c.query.decode())
 
     def insert(self, layer, layer_type: str, meta: dict = None, loader: str = None, is_sparse: bool = False):
         if is_sparse:
@@ -37,21 +46,28 @@ class CollectionStructure(pg.CollectionStructureBase):
 
         meta = list(meta or [])
         with self.collection.storage.conn.cursor() as c:
-            c.execute(SQL("INSERT INTO {} (layer_name, layer_type, attributes, ambiguous, parent, enveloping, _base, meta) "
-                          "VALUES ({}, {}, {}, {}, {}, {}, {}, {});").format(
-                pg.structure_table_identifier(self.collection.storage, self.collection.name),
-                Literal(layer.name),
-                Literal(layer_type),
-                Literal(list(layer.attributes)),
-                Literal(layer.ambiguous),
-                Literal(layer.parent),
-                Literal(layer.enveloping),
-                Literal(None),
-                Literal(meta)
-            )
-            )
-            logger.debug(c.query.decode())
-        self.collection.storage.conn.commit()
+            try:
+                c.execute(SQL("INSERT INTO {} (layer_name, layer_type, attributes, ambiguous, parent, enveloping, _base, meta) "
+                              "VALUES ({}, {}, {}, {}, {}, {}, {}, {});").format(
+                    pg.structure_table_identifier(self.collection.storage, self.collection.name),
+                    Literal(layer.name),
+                    Literal(layer_type),
+                    Literal(list(layer.attributes)),
+                    Literal(layer.ambiguous),
+                    Literal(layer.parent),
+                    Literal(layer.enveloping),
+                    Literal(None),
+                    Literal(meta)
+                )
+                )
+            except Exception:
+                self.collection.storage.conn.rollback()
+                raise
+            finally:
+                if self.collection.storage.conn.status == STATUS_BEGIN:
+                    # no exception, transaction in progress
+                    self.collection.storage.conn.commit()
+                    logger.debug(c.query.decode())
 
     def load(self):
         if not self.collection.exists():

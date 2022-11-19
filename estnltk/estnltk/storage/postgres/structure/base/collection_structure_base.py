@@ -1,4 +1,5 @@
 from psycopg2.sql import SQL, Literal
+from psycopg2.extensions import STATUS_BEGIN
 
 from estnltk import logger
 from estnltk.storage.postgres import structure_table_identifier
@@ -46,13 +47,20 @@ class CollectionStructureBase:
     def delete_layer(self, layer_name: str):
         self._modified = True
         with self.collection.storage.conn.cursor() as c:
-            c.execute(SQL("DELETE FROM {} WHERE layer_name={};").format(
-                structure_table_identifier(self.collection.storage, self.collection.name),
-                Literal(layer_name)
-            )
-            )
-            self.collection.storage.conn.commit()
-            logger.debug(c.query.decode())
+            try:
+                c.execute(SQL("DELETE FROM {} WHERE layer_name={};").format(
+                    structure_table_identifier(self.collection.storage, self.collection.name),
+                    Literal(layer_name)
+                )
+                )
+            except Exception:
+                self.collection.storage.conn.rollback()
+                raise
+            finally:
+                if self.collection.storage.conn.status == STATUS_BEGIN:
+                    # no exception, transaction in progress
+                    self.collection.storage.conn.commit()
+                    logger.debug(c.query.decode())
 
     def load(self) -> dict:
         raise NotImplementedError
