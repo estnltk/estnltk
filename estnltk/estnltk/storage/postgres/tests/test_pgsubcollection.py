@@ -182,6 +182,9 @@ class TestPgSubCollection(unittest.TestCase):
         with self.assertRaises(pg.PgCollectionException):
             next(iter(subcollection))
 
+        # Currently, we have to rollback manually here.
+        # TODO: find a way how to avoid doing this manually
+        self.storage.conn.rollback()
         subcollection = pg.PgSubCollection(self.collection, meta_attributes=['meta_1', 'meta_2'])
         text_id, text, meta = next(iter(subcollection))
         assert text_id == 0
