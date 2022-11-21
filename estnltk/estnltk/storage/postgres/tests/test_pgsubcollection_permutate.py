@@ -144,7 +144,8 @@ class TestPgSubCollectionPermutate(unittest.TestCase):
             layer = vabamorf_tagger.make_layer(text=text, status=status)
             return RowMapperRecord(layer=layer, meta=status)
         data_iterator = collection.select( layers=['words', 'sentences', 'compound_tokens'] )
-        collection.create_layer(layer_name = vabamorf_tagger.output_layer, 
+        layer_template = vabamorf_tagger.get_layer_template()
+        collection.create_layer(layer_template=layer_template, 
                                 data_iterator = data_iterator, 
                                 row_mapper = vabamorf_row_mapper, 
                                 tagger=None, mode='overwrite')

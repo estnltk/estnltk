@@ -721,7 +721,7 @@ class PgCollection:
         self.create_layer(tagger=tagger, progressbar=progressbar, query_length_limit=query_length_limit,
                           mode='append')
 
-    def create_fragmented_layer(self, tagger=None, fragmenter:callable=None, fragment_name:str=None, \
+    def create_fragmented_layer(self, tagger=None, fragmenter:callable=None, layer_template:Layer=None, \
                                       data_iterator=None,  row_mapper=None,  create_index:bool=False, \
                                       ngram_index=None, meta: Sequence = None, progressbar: str = None, \
                                       query_length_limit: int = 5000000):
@@ -739,16 +739,23 @@ class PgCollection:
 
         Args:
             tagger: Tagger
-                tagger.make_layer method is called to create new layer. 
-                Either tagger and fragmenter must be None or layer_name, 
+                tagger.get_layer_template method is called for creating the 
+                template of the new layer. 
+                tagger.make_layer method is called to create fragmented layer 
+                instances during the data iteration. 
+                Either tagger and fragmenter must be None or layer_template, 
                 data_iterator and row_mapper must be None.
             fragmenter: callable
                 if tagger is provided, then fragmenter is called to brake layer 
                 into list of (sub)layers. (sub)layers should specify 'parent_layer_id' 
                 in their meta;
-            fragment_name: str
-                If tagger and fragmenter are not provided, then this should be 
-                the name of the creatable fragmented layer.
+            layer_template: Layer
+                Layer template from which the fragmented layer is added to the 
+                structure of the collection. 
+                Layer template is an empty layer that contains all the proper 
+                attribute initializations. 
+                If tagger and fragmenter are not provided, then this template is
+                used for creating the structure of the fragmented layer. 
             data_iterator: iterator
                 If tagger and fragmenter are not provided, then data_iterator should 
                 be an iterable producing tuples (text_id, text, parent_layer_id, *payload), 
@@ -780,12 +787,12 @@ class PgCollection:
                 
         """
         # Check the configuration
-        if not ((fragment_name is None and data_iterator is None and row_mapper is None) is not (tagger is None and fragmenter is None)):
+        if not ((layer_template is None and data_iterator is None and row_mapper is None) is not (tagger is None and fragmenter is None)):
             raise PgCollectionException( \
                ('Either tagger ({}) and fragmenter ({}) must be specified, or '+\
-                'fragment_name ({}), data_iterator ({}) and row_mapper ({}) must be specified').format(tagger, fragmenter, \
-                                                                            fragment_name, data_iterator, row_mapper ) )
-        layer_name = fragment_name or tagger.output_layer
+                'layer_template ({}), data_iterator ({}) and row_mapper ({}) must be specified').format(tagger, fragmenter, \
+                                                                            layer_template, data_iterator, row_mapper ) )
+        layer_name = layer_template.name if layer_template is not None else tagger.output_layer
         if not self.exists():
             raise PgCollectionException("collection {!r} does not exist, can't create layer {!r}".format(
                                         self.name, layer_name))
@@ -810,20 +817,17 @@ class PgCollection:
             extra_columns.extend(ngram_index_keys)
         columns = ["id", "parent_id", "text_id", "data"] + extra_columns
 
+        # Add layer table and structure
+        layer_template = layer_template if layer_template is not None else tagger.get_layer_template()
+        self.add_layer(layer_template, layer_type='fragmented', meta=meta, create_index=create_index, 
+                       ngram_index=ngram_index, sparse=False)
+
         conn = self.storage.conn
         with conn.cursor() as c:
             try:
                 conn.commit()
                 conn.autocommit = False
-                # create table and indices
-                self._create_layer_table(cursor=c,
-                                         layer_name=layer_name,
-                                         meta=meta,
-                                         is_fragment=True,
-                                         create_index=create_index,
-                                         ngram_index=ngram_index)
                 fragment_id = 0
-                structure_written = False
                 fragment_table_id = layer_table_identifier(self.storage, self.name, layer_name, layer_type='fragmented')
                 with BufferedTableInsert(conn, fragment_table_id, columns=columns, query_length_limit=query_length_limit) \
                                                                                 as buffered_inserter:
@@ -851,19 +855,10 @@ class PgCollection:
                                 values = [fragment_id, parent_layer_id, text_id, layer_json] + extra_data
                                 buffered_inserter.insert( values )
                                 fragment_id += 1
-                                if not structure_written:
-                                    self._structure.insert(layer=layer, layer_type='fragmented', meta=meta, is_sparse=False)
-                                    structure_written = True
                         else:
                             for record in row_mapper(row):
                                 layer = record['fragment']
                                 assert isinstance(layer, Layer)
-                                # TODO: we need to ensure that the name of the output layer is fragment_name,
-                                # and not a name of an existing layer (which would give us an error on writing 
-                                # the structure). The old implementation did not write structure at all.
-                                # Currently, we overwrite the layer name, but probably row_mapper should take 
-                                # care of it
-                                layer.name = fragment_name
                                 layer_json = layer_to_json(layer)
                                 parent_layer_id = record['parent_id']
                                 extra_data = []
@@ -876,10 +871,6 @@ class PgCollection:
                                 values = [fragment_id, parent_layer_id, text_id, layer_json] + extra_data
                                 buffered_inserter.insert( values )
                                 fragment_id += 1
-                                if not structure_written:
-                                    self._structure.insert(layer=layer, layer_type='fragmented', meta=meta, is_sparse=False)
-                                    structure_written = True
-
             except Exception:
                 conn.rollback()
                 raise
@@ -892,7 +883,7 @@ class PgCollection:
         logger.debug('inserted {!r} layers into {!r}.'.format(fragment_id, layer_name))
 
 
-    def create_layer(self, layer_name=None, data_iterator=None, row_mapper=None, tagger=None,
+    def create_layer(self, layer_template=None, data_iterator=None, row_mapper=None, tagger=None,
                      create_index=False, ngram_index=None, overwrite=False, meta=None, progressbar=None,
                      query_length_limit=5000000, mode=None, sparse=False):
         """
@@ -904,10 +895,13 @@ class PgCollection:
 
         Args:
 
-            layer_name: str
-                Name of the layer added to the collection. If not provided, then
-                `tagger` must be provided and the name of the layer will be
-                `tagger.output_layer`.
+            layer_template: Layer
+                Layer template from which the layer is added to the structure 
+                of the collection. 
+                Layer template is an empty layer that contains all the proper 
+                attribute initializations. 
+                If not provided, then `tagger` must be provided and the template 
+                will be created via `tagger.get_layer_template`.
             data_iterator: iterator
                 Iterator over Text collection which generates tuples (`text_id`, `text`).
                 See method `PgCollection.select`.
@@ -915,7 +909,12 @@ class PgCollection:
                 For each record produced by `data_iterator` return a list
                 of `RowMapperRecord` objects.
             tagger: Tagger
-                either tagger must be None or layer_name, data_iterator and row_mapper must be None
+                tagger.get_layer_template method is called for creating the 
+                template of the new layer. 
+                tagger.make_layer method is called to create layer instances 
+                during the data iteration. 
+                Either tagger must be None or layer_template, data_iterator and 
+                row_mapper must be None.
             create_index: bool
                 Whether to create an index on json column
             ngram_index: list
@@ -956,8 +955,8 @@ class PgCollection:
         if sparse and self.version < '3.0':
             raise PgCollectionException("Sparse tables are not supported in collection version {!r}.".format(self.version))
 
-        assert (layer_name is None and data_iterator is None and row_mapper is None) is not (tagger is None),\
-               'either tagger ({}) must be None or layer_name ({}), data_iterator ({}) and row_mapper ({}) must be None'.format(tagger, layer_name, data_iterator, row_mapper)
+        assert (layer_template is None and data_iterator is None and row_mapper is None) is not (tagger is None),\
+               'either tagger ({}) must be None or layer_template ({}), data_iterator ({}) and row_mapper ({}) must be None'.format(tagger, layer_template, data_iterator, row_mapper)
 
         # TODO: remove overwrite parameter
         assert overwrite is False or mode is None, (overwrite, mode)
@@ -971,7 +970,7 @@ class PgCollection:
             layer = tagger.make_layer(text=text, status=status)
             return RowMapperRecord(layer=layer, meta=status)
 
-        layer_name = layer_name or tagger.output_layer
+        layer_name = tagger.output_layer if tagger is not None else layer_template.name
         row_mapper = row_mapper or default_row_mapper
 
         missing_layer = layer_name if mode == 'append' else None
@@ -1013,23 +1012,19 @@ class PgCollection:
             ngram_index_keys = tuple(ngram_index.keys())
             extra_columns.extend(ngram_index_keys)
 
+        # Add layer table and structure
+        if mode in {'new', 'overwrite'}:
+            layer_template = layer_template if layer_template is not None else tagger.get_layer_template()
+            self.add_layer(layer_template, layer_type='detached', meta=meta, create_index=create_index, 
+                           ngram_index=ngram_index, sparse=sparse)
+
         conn = self.storage.conn
         conn.commit()
         conn.autocommit = False
 
         with conn.cursor() as c:
             try:
-                # create table and indices
-                if mode in {'new', 'overwrite'}:
-                    self._create_layer_table(cursor=c,
-                                             layer_name=layer_name,
-                                             is_fragment=False,
-                                             create_index=create_index,
-                                             ngram_index=ngram_index,
-                                             overwrite=overwrite,
-                                             meta=meta)
                 # insert data
-                structure_written = (mode == 'append')
                 logger.info('inserting data into the {!r} layer table'.format(layer_name))
                 
                 with CollectionDetachedLayerInserter( self, layer_name, extra_columns=extra_columns, 
@@ -1053,10 +1048,6 @@ class PgCollection:
                                           for attr in ngram_index_keys)
 
                         buffered_inserter.insert(layer, collection_text_id, key=collection_text_id, extra_data=extra_values)
-
-                        if not structure_written:
-                            self._structure.insert(layer=layer, layer_type='detached', meta=meta, is_sparse=sparse)
-                            structure_written = True
             except Exception:
                 conn.rollback()
                 raise

@@ -207,16 +207,18 @@ class TestPgCollectionExportLayer(unittest.TestCase):
             collection_insert( text_3, meta_data={'text_id':3, 'text_name':'kolmas yllitis'} )
             collection_insert( text_4, meta_data={'text_id':4, 'text_name':'viimne yllitis'} )
 
+        layer_template = Layer('my_sparse_layer', attributes=['attr1'])
         # Create a sparse layer
         def my_row_mapper(row):
             text_id, text = row[0], row[1]
             status = {}
             layer = Layer('my_sparse_layer', attributes=['attr1'])
+            layer.text_object = text
             if text_id % 2 == 0:
                 # Fill in only every second layer
                 layer.add_annotation( (0, 4), attr1='{} snippet'.format(text_id) )
             return RowMapperRecord(layer=layer, meta=status)
-        collection.create_layer( layer_name='my_sparse_layer', 
+        collection.create_layer( layer_template=layer_template, 
                                  data_iterator=collection.select(), 
                                  row_mapper=my_row_mapper, 
                                  sparse=True )

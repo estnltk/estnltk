@@ -1031,6 +1031,10 @@ class PgSubCollection:
 
         :param tagger: Tagger
             Tagger to be used for creating the layer. 
+            tagger.get_layer_template method is called for creating the 
+            template of the new layer. 
+            tagger.make_layer method is called to create layer instances 
+            during the subcollection iteration. 
             Note: tagger's input_layers will be selected automatically, 
             but the collection must have all the input layers. 
         :param create_index: bool
@@ -1096,13 +1100,13 @@ class PgSubCollection:
             data_iterator = data_iterator.select( 
                 selected_layers=data_iterator.selected_layers + add_selected_layers )
         
-        # Use collection's create_layer method        
+        # Use collection's create_layer method 
         def default_row_mapper(row):
             text_id, text = row[0], row[1]
             status = {}
             layer = tagger.make_layer(text=text, status=status)
             return pg.RowMapperRecord(layer=layer, meta=status)
-        self.collection.create_layer(layer_name=tagger.output_layer, data_iterator=data_iterator, 
+        self.collection.create_layer(layer_template=tagger.get_layer_template(), data_iterator=data_iterator, 
                                      row_mapper=default_row_mapper, meta=meta, progressbar=progressbar, 
                                      query_length_limit=query_length_limit, mode=mode, sparse=True)
 

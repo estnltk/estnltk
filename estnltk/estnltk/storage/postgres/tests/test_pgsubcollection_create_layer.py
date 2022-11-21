@@ -9,7 +9,6 @@ from estnltk import logger
 from estnltk import Text
 from estnltk.taggers import VabamorfTagger
 from estnltk.storage.postgres import PostgresStorage
-from estnltk.storage.postgres import RowMapperRecord
 from estnltk.storage.postgres import delete_schema
 
 from estnltk.storage.postgres.queries.slice_query import SliceQuery

@@ -99,7 +99,8 @@ class TestPgSubCollectionSampleFromLayer(unittest.TestCase):
                 layer = sent_tokenizer.make_layer(text=text, status=status)
                 return RowMapperRecord(layer=layer, meta=status)
             data_iterator = collection.select( layers=['words', 'compound_tokens'] )
-            collection.create_layer(layer_name = sent_tokenizer.output_layer, 
+            layer_template = sent_tokenizer.get_layer_template()
+            collection.create_layer(layer_template = layer_template, 
                                     data_iterator = data_iterator, 
                                     row_mapper = sent_tokenizer_row_mapper, 
                                     tagger=None, mode='overwrite')

@@ -719,16 +719,18 @@ class TestFragment(unittest.TestCase):
         self.assertTrue(collection.has_layer(layer_fragment_name))
 
         fragment_name = "fragment_1"
+        fragment_layer_template = tagger.get_layer_template()
+        fragment_layer_template.name = fragment_name
 
         def row_mapper(row):
             parent_id, layer = row
             # TODO: remove next line
             # layer.serialisation_module = 'default_v1'
+            layer.name = fragment_name
             return [{'fragment': layer, 'parent_id': parent_id},
                     {'fragment': layer, 'parent_id': parent_id}]
 
-
-        collection.create_fragmented_layer(fragment_name=fragment_name,
+        collection.create_fragmented_layer(layer_template=fragment_layer_template,
                                            data_iterator=collection.select().fragmented_layer(name=layer_fragment_name),
                                            row_mapper=row_mapper,
                                            create_index=False,
@@ -846,7 +848,7 @@ class TestLayer(unittest.TestCase):
             layer.add_annotation( (0, 3), attr_1='a', attr_2='b' )
             return RowMapperRecord( layer=layer, meta={} )
 
-        collection.create_layer(layer_template.name,
+        collection.create_layer(layer_template=layer_template,
                                 data_iterator=collection.select(),
                                 row_mapper=row_mapper_x,
                                 mode='overwrite')
@@ -965,13 +967,14 @@ class TestLayer(unittest.TestCase):
 
         layer1 = "layer1"
         tagger1 = VabamorfTagger(disambiguate=False, output_layer=layer1)
+        layer_template=tagger1.get_layer_template()
 
         def row_mapper1(row):
             text_id, text = row[0], row[1]
             layer = tagger1.make_layer(text)
             return RowMapperRecord(layer=layer, meta={"meta_text_id": text_id, "sum": 45.5})
 
-        collection.create_layer(layer1,
+        collection.create_layer(layer_template=layer_template,
                                 data_iterator=collection.select(layers=['sentences', 'compound_tokens']),
                                 row_mapper=row_mapper1,
                                 meta={"meta_text_id": "int",
