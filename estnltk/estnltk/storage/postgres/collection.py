@@ -712,6 +712,124 @@ class PgCollection:
             counter.update(t[layer].count_values(attr))
         return counter
 
+    def add_layer(self, layer_template: Layer,
+                        layer_type: str = 'detached',
+                        fragmented_layer: bool = False,
+                        meta: Dict[str, str] = None,
+                        create_index: bool = False,
+                        ngram_index=None,
+                        sparse: bool = False) -> None:
+        """
+        Adds detached or fragmented layer to the collection. You can use this 
+        method to add an empty layer to the collection that will be filled in
+        with data later. Conditions:
+
+        * the collection must already contain some documents before the layer can be added.
+          After adding a layer, new documents can no longer be inserted into the collection;
+        * this method should be called only once, even if the layer creation is spread among
+          multiple processes/threads;
+
+        Layer must be specified by a template layer. The function fails only if 
+        the layer is already present or the database schema is in an inconsistent 
+        state. 
+        One should set create_index only if one plans to search specific elements 
+        from the layer. The ngram index speeds up search of element combinations. 
+        This is useful when one uses phase grammars.
+
+        Args:
+            layer_template: Layer
+                A template which is used as a basis on creating the new layer
+            layer_type: str
+                Must be one of the following: {'detached', 'fragmented', 'multi'}.
+                See also: PostgresStorage.TABLED_LAYER_TYPES
+            fragmented_layer: bool
+                Whether a fragmented layer will be created (default: False)
+                Warning: this is a deprected argument and will be removed in 
+                future version.
+            meta: dict of str -> str
+                Specifies table column names and data types to create for storing additional
+                meta information. E.g. meta={"sum": "int", "average": "float"}.
+                See `pytype2dbtype` in `pg_operations` for supported types.
+            create_index: bool
+                Whether to create an index on json column (default: False)
+            ngram_index: list
+                A list of attributes for which to create an ngram index (default: None)
+                :param sparse:
+            sparse: bool
+                Whether the layer table is created as a sparse tabel which means
+                that empty layers are not stored in the table.
+                The layer search and iteration process is faster on sparse tables.
+                Note that collection version 3.0 is required for sparse tables.
+        """
+        # Check existence of the collection
+        if not self.exists():
+            raise PgCollectionException("collection {!r} does not exist, can't add layer".format(self.name))
+
+        # Check input arguments
+        if not isinstance( layer_template, Layer ):
+            raise TypeError('(!) layer_template must be an instance of Layer')
+
+        if sparse and self.version < '3.0':
+            raise PgCollectionException("Sparse tables are not supported in collection version {!r}.".format(self.version))
+
+        if layer_type not in pg.PostgresStorage.TABLED_LAYER_TYPES:
+            raise PgCollectionException("Unexpected layer type {!r}. Supported layer types are: {!r}".format(layer_type, \
+                                                                     pg.PostgresStorage.TABLED_LAYER_TYPES))
+
+        if fragmented_layer:
+            warnings.simplefilter("always", DeprecationWarning)
+            warnings.warn('Flag collection.add_layer(...fragmented_layer=True) is deprecated. '+\
+                          'Please use collection.add_layer(..., layer_type="fragmented") instead. '+\
+                          'Currently, a detached layer is created.', 
+                          DeprecationWarning)
+            warnings.simplefilter("ignore", DeprecationWarning)
+
+        # Check existence of the layer
+        if self.layers is not None and layer_template.name in self.layers:
+            raise PgCollectionException("The {!r} layer already exists.".format(layer_template.name))
+
+        conn = self.storage.conn
+        conn.commit()
+        conn.autocommit = False
+        with conn.cursor() as cur:
+            try:
+                structure_table_id = structure_table_identifier(self.storage, self.name)
+                # EXCLUSIVE locking -- this mode allows only reads from the table 
+                # can proceed in parallel with a transaction holding this lock mode.
+                # Prohibit all other modification operations such as delete, insert, 
+                # update, create index.
+                # (https://www.postgresql.org/docs/9.4/explicit-locking.html)
+                cur.execute(SQL('LOCK TABLE ONLY {} IN EXCLUSIVE MODE').format(structure_table_id))
+
+                # We may have to wait for the lock and receive it later: validate that conditions are OK
+                if self._is_empty:
+                    raise PgCollectionException("the collection is empty".format(layer_template.name))
+
+                if layer_table_exists(self.storage, self.name, layer_template.name, layer_type=layer_type):
+                    raise PgCollectionException(
+                        "The table for the {} layer {!r} already exists.".format(layer_type, layer_template.name))
+
+                self._structure.insert(layer=layer_template, layer_type=layer_type, meta=meta, is_sparse=sparse)
+
+                self._create_layer_table(
+                    cursor=cur,
+                    layer_name=layer_template.name,
+                    is_fragment=(layer_type == 'fragmented'),
+                    create_index=create_index,
+                    ngram_index=ngram_index,
+                    overwrite=False,
+                    meta=meta)
+
+            except Exception as layer_creation_error:
+                conn.rollback()
+                raise PgCollectionException("can't add layer {!r}".format(layer_template.name)) from layer_creation_error
+            finally:
+                if conn.status == STATUS_BEGIN:
+                    # no exception, transaction in progress
+                    conn.commit()
+
+        logger.info('{} layer {!r} created from template'.format(layer_type, layer_template.name))
+
     def continue_creating_layer(self, tagger, progressbar=None, query_length_limit=5000000):
         warnings.simplefilter("always", DeprecationWarning)
         warnings.warn('Method collection.continue_creating_layer(...) is deprecated. '+\
@@ -1057,124 +1175,6 @@ class PgCollection:
                     conn.commit()
 
         logger.info('layer created: {!r}'.format(layer_name))
-
-    def add_layer(self, layer_template: Layer,
-                        layer_type: str = 'detached',
-                        fragmented_layer: bool = False,
-                        meta: Dict[str, str] = None,
-                        create_index: bool = False,
-                        ngram_index=None,
-                        sparse: bool = False) -> None:
-        """
-        Adds detached or fragmented layer to the collection. You can use this 
-        method to add an empty layer to the collection that will be filled in
-        with data later. Conditions:
-
-        * the collection must already contain some documents before the layer can be added.
-          After adding a layer, new documents can no longer be inserted into the collection;
-        * this method should be called only once, even if the layer creation is spread among
-          multiple processes/threads;
-
-        Layer must be specified by a template layer. The function fails only if 
-        the layer is already present or the database schema is in an inconsistent 
-        state. 
-        One should set create_index only if one plans to search specific elements 
-        from the layer. The ngram index speeds up search of element combinations. 
-        This is useful when one uses phase grammars.
-
-        Args:
-            layer_template: Layer
-                A template which is used as a basis on creating the new layer
-            layer_type: str
-                Must be one of the following: {'detached', 'fragmented', 'multi'}.
-                See also: PostgresStorage.TABLED_LAYER_TYPES
-            fragmented_layer: bool
-                Whether a fragmented layer will be created (default: False)
-                Warning: this is a deprected argument and will be removed in 
-                future version.
-            meta: dict of str -> str
-                Specifies table column names and data types to create for storing additional
-                meta information. E.g. meta={"sum": "int", "average": "float"}.
-                See `pytype2dbtype` in `pg_operations` for supported types.
-            create_index: bool
-                Whether to create an index on json column (default: False)
-            ngram_index: list
-                A list of attributes for which to create an ngram index (default: None)
-                :param sparse:
-            sparse: bool
-                Whether the layer table is created as a sparse tabel which means
-                that empty layers are not stored in the table.
-                The layer search and iteration process is faster on sparse tables.
-                Note that collection version 3.0 is required for sparse tables.
-        """
-        # Check existence of the collection
-        if not self.exists():
-            raise PgCollectionException("collection {!r} does not exist, can't add layer".format(self.name))
-
-        # Check input arguments
-        if not isinstance( layer_template, Layer ):
-            raise TypeError('(!) layer_template must be an instance of Layer')
-
-        if sparse and self.version < '3.0':
-            raise PgCollectionException("Sparse tables are not supported in collection version {!r}.".format(self.version))
-
-        if layer_type not in pg.PostgresStorage.TABLED_LAYER_TYPES:
-            raise PgCollectionException("Unexpected layer type {!r}. Supported layer types are: {!r}".format(layer_type, \
-                                                                     pg.PostgresStorage.TABLED_LAYER_TYPES))
-
-        if fragmented_layer:
-            warnings.simplefilter("always", DeprecationWarning)
-            warnings.warn('Flag collection.add_layer(...fragmented_layer=True) is deprecated. '+\
-                          'Please use collection.add_layer(..., layer_type="fragmented") instead. '+\
-                          'Currently, a detached layer is created.', 
-                          DeprecationWarning)
-            warnings.simplefilter("ignore", DeprecationWarning)
-
-        # Check existence of the layer
-        if self.layers is not None and layer_template.name in self.layers:
-            raise PgCollectionException("The {!r} layer already exists.".format(layer_template.name))
-
-        conn = self.storage.conn
-        conn.commit()
-        conn.autocommit = False
-        with conn.cursor() as cur:
-            try:
-                structure_table_id = structure_table_identifier(self.storage, self.name)
-                # EXCLUSIVE locking -- this mode allows only reads from the table 
-                # can proceed in parallel with a transaction holding this lock mode.
-                # Prohibit all other modification operations such as delete, insert, 
-                # update, create index.
-                # (https://www.postgresql.org/docs/9.4/explicit-locking.html)
-                cur.execute(SQL('LOCK TABLE ONLY {} IN EXCLUSIVE MODE').format(structure_table_id))
-
-                # We may have to wait for the lock and receive it later: validate that conditions are OK
-                if self._is_empty:
-                    raise PgCollectionException("the collection is empty".format(layer_template.name))
-
-                if layer_table_exists(self.storage, self.name, layer_template.name, layer_type=layer_type):
-                    raise PgCollectionException(
-                        "The table for the {} layer {!r} already exists.".format(layer_type, layer_template.name))
-
-                self._create_layer_table(
-                    cursor=cur,
-                    layer_name=layer_template.name,
-                    is_fragment=(layer_type == 'fragmented'),
-                    create_index=create_index,
-                    ngram_index=ngram_index,
-                    overwrite=False,
-                    meta=meta)
-
-                self._structure.insert(layer=layer_template, layer_type=layer_type, meta=meta, is_sparse=sparse)
-
-            except Exception as layer_creation_error:
-                conn.rollback()
-                raise PgCollectionException("can't add layer {!r}".format(layer_template.name)) from layer_creation_error
-            finally:
-                if conn.status == STATUS_BEGIN:
-                    # no exception, transaction in progress
-                    conn.commit()
-
-        logger.info('{} layer {!r} created from template'.format(layer_type, layer_template.name))
 
     def create_layer_block(self, tagger, block, data_iterator=None, meta=None, query_length_limit=5000000, mode=None):
         """Creates a layer block.
