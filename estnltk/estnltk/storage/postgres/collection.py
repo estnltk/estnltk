@@ -793,6 +793,7 @@ class PgCollection:
         conn.autocommit = False
         with conn.cursor() as cur:
             try:
+                # A) insert the layer to the structure table
                 structure_table_id = structure_table_identifier(self.storage, self.name)
                 # EXCLUSIVE locking -- this mode allows only reads from the table 
                 # can proceed in parallel with a transaction holding this lock mode.
@@ -811,18 +812,91 @@ class PgCollection:
 
                 self._structure.insert(layer=layer_template, layer_type=layer_type, meta=meta, is_sparse=sparse)
 
-                self._create_layer_table(
-                    cursor=cur,
-                    layer_name=layer_template.name,
-                    is_fragment=(layer_type == 'fragmented'),
-                    create_index=create_index,
-                    ngram_index=ngram_index,
-                    overwrite=False,
-                    meta=meta)
+                # B) create layer table and required indexes
+                # The following logic is from former self._create_layer_table method
+                if self._temporary:
+                    temporary = SQL('TEMPORARY')
+                else:
+                    temporary = SQL('')
+                
+                if layer_type == 'fragmented':
+                    layer_table = fragment_table_name(self.name, layer_template.name)
+                else:
+                    layer_table = layer_table_name(self.name, layer_template.name)
 
-            except Exception as layer_creation_error:
+                # create layer table and index
+                q = ('CREATE {temporary} TABLE {layer_identifier} ('
+                     'id SERIAL PRIMARY KEY, '
+                     '%(parent_col)s'
+                     'text_id int NOT NULL, '
+                     'data jsonb'
+                     '%(meta_cols)s'
+                     '%(ngram_cols)s);')
+
+                if (layer_type == 'fragmented'):
+                    parent_col = "parent_id int NOT NULL,"
+                else:
+                    parent_col = ""
+
+                if ngram_index is not None:
+                    ngram_cols = ", %s" % ",".join(["%s text[]" % Identifier(column).as_string(self.storage.conn)
+                                                    for column in ngram_index])
+                else:
+                    ngram_cols = ""
+
+                if meta is not None:
+                    cols = [Identifier(col).as_string(self.storage.conn) for col in meta.keys()]
+                    types = [pg.pytype2dbtype[py_type] for py_type in meta.values()]
+                    meta_cols = ", %s" % ",".join(["%s %s" % (c, d) for c, d in zip(cols, types)])
+                else:
+                    meta_cols = ""
+
+                q %= {"parent_col": parent_col, "ngram_cols": ngram_cols, "meta_cols": meta_cols}
+                if layer_type == 'fragmented':
+                    layer_identifier = pg.table_identifier(self.storage, fragment_table_name(self.name, layer_template.name))
+                else:
+                    layer_identifier = pg.table_identifier(self.storage, layer_table_name(self.name, layer_template.name))
+                
+                q = SQL(q).format(temporary=temporary, layer_identifier=layer_identifier)
+                cur.execute(q)
+                logger.debug(cur.query.decode())
+
+                # Add comment to the layer table
+                q = SQL("COMMENT ON TABLE {} IS {};").format(
+                        layer_identifier,
+                        Literal('created by {} on {}'.format(self.storage.user, time.asctime())))
+                cur.execute(q)
+                logger.debug(cur.query.decode())
+
+                # create jsonb index
+                if create_index is True:
+                    cur.execute(SQL(
+                        "CREATE INDEX {index} ON {schema}.{table} USING gin ((data->'layers') jsonb_path_ops);").format(
+                        schema=Identifier(self.storage.schema),
+                        index=Identifier('idx_%s_data' % layer_table),
+                        table=Identifier(layer_table)))
+                    logger.debug(cur.query.decode())
+
+                # create ngram array index
+                if ngram_index is not None:
+                    for column in ngram_index:
+                        cur.execute(SQL(
+                            "CREATE INDEX {index} ON {schema}.{table} USING gin ({column});").format(
+                            schema=Identifier(self.storage.schema),
+                            index=Identifier('idx_%s_%s' % (layer_table, column)),
+                            table=Identifier(layer_table),
+                            column=Identifier(column)))
+                        logger.debug(cur.query.decode())
+
+                cur.execute(SQL(
+                    "CREATE INDEX {index} ON {layer_table} (text_id);").format(
+                    index=Identifier('idx_%s__text_id' % layer_table),
+                    layer_table=layer_identifier))
+                logger.debug(cur.query.decode())
+
+            except Exception as layer_adding_error:
                 conn.rollback()
-                raise PgCollectionException("can't add layer {!r}".format(layer_template.name)) from layer_creation_error
+                raise PgCollectionException("can't add layer {!r}".format(layer_template.name)) from layer_adding_error
             finally:
                 if conn.status == STATUS_BEGIN:
                     # no exception, transaction in progress
@@ -1298,94 +1372,6 @@ class PgCollection:
 
         logger.info('block {} of {!r} layer created'.format(block, layer_name))
 
-    def _create_layer_table(self, cursor, layer_name, is_fragment=False, create_index=True,
-                            ngram_index=None, overwrite=False, meta=None):
-        if is_fragment:
-            layer_table = fragment_table_name(self.name, layer_name)
-        else:
-            layer_table = layer_table_name(self.name, layer_name)
-
-        if overwrite:
-            if is_fragment:
-                raise NotImplementedError
-            else:
-                if layer_table_exists(self.storage, self.name, layer_name):
-                    drop_layer_table(self.storage, self.name, layer_name)
-        elif table_exists(self.storage, layer_table):
-            raise PgCollectionException("The table {!r} of the {!r} layer already exists.".format(layer_table, layer_name))
-
-        if self._temporary:
-            temporary = SQL('TEMPORARY')
-        else:
-            temporary = SQL('')
-
-        # create layer table and index
-        q = ('CREATE {temporary} TABLE {layer_identifier} ('
-             'id SERIAL PRIMARY KEY, '
-             '%(parent_col)s'
-             'text_id int NOT NULL, '
-             'data jsonb'
-             '%(meta_cols)s'
-             '%(ngram_cols)s);')
-
-        if is_fragment is True:
-            parent_col = "parent_id int NOT NULL,"
-        else:
-            parent_col = ""
-
-        if ngram_index is not None:
-            ngram_cols = ", %s" % ",".join(["%s text[]" % Identifier(column).as_string(self.storage.conn)
-                                            for column in ngram_index])
-        else:
-            ngram_cols = ""
-
-        if meta is not None:
-            cols = [Identifier(col).as_string(self.storage.conn) for col in meta.keys()]
-            types = [pg.pytype2dbtype[py_type] for py_type in meta.values()]
-            meta_cols = ", %s" % ",".join(["%s %s" % (c, d) for c, d in zip(cols, types)])
-        else:
-            meta_cols = ""
-
-        q %= {"parent_col": parent_col, "ngram_cols": ngram_cols, "meta_cols": meta_cols}
-        if is_fragment:
-            layer_identifier = pg.table_identifier(self.storage, fragment_table_name(self.name, layer_name))
-        else:
-            layer_identifier = pg.table_identifier(self.storage, layer_table_name(self.name, layer_name))
-        q = SQL(q).format(temporary=temporary, layer_identifier=layer_identifier)
-        cursor.execute(q)
-        logger.debug(cursor.query.decode())
-
-        q = SQL("COMMENT ON TABLE {} IS {};").format(
-                layer_identifier,
-                Literal('created by {} on {}'.format(self.storage.user, time.asctime())))
-        cursor.execute(q)
-        logger.debug(cursor.query.decode())
-
-        # create jsonb index
-        if create_index is True:
-            cursor.execute(SQL(
-                "CREATE INDEX {index} ON {schema}.{table} USING gin ((data->'layers') jsonb_path_ops);").format(
-                schema=Identifier(self.storage.schema),
-                index=Identifier('idx_%s_data' % layer_table),
-                table=Identifier(layer_table)))
-            logger.debug(cursor.query.decode())
-
-        # create ngram array index
-        if ngram_index is not None:
-            for column in ngram_index:
-                cursor.execute(SQL(
-                    "CREATE INDEX {index} ON {schema}.{table} USING gin ({column});").format(
-                    schema=Identifier(self.storage.schema),
-                    index=Identifier('idx_%s_%s' % (layer_table, column)),
-                    table=Identifier(layer_table),
-                    column=Identifier(column)))
-                logger.debug(cursor.query.decode())
-
-        cursor.execute(SQL(
-            "CREATE INDEX {index} ON {layer_table} (text_id);").format(
-            index=Identifier('idx_%s__text_id' % layer_table),
-            layer_table=layer_identifier))
-        logger.debug(cursor.query.decode())
 
     def delete_layer(self, layer_name, cascade=False):
         if not self.exists():
