@@ -350,6 +350,25 @@ class PgCollection:
 
         return layers_extended
 
+    def refresh(self, omit_commit: bool=False, omit_rollback: bool=False):
+        """Reloads layer structure table of this collection. 
+        Motivation: if any tabled layers have been inserted or 
+        removed by a separate user/thread/job, this updates the 
+        layer information.
+        
+        By default, reloading the structure involves making a commit 
+        after the query. If you need to discard the commit (e.g. 
+        in order to preserve a lock), set omit_commit=True.
+        
+        By default, if the current transaction has been aborted due 
+        to an error, this function also makes a rollback, and starts 
+        a new transaction. If you need to discard that behaviour, 
+        set omit_rollback=True.
+        """
+        self._structure.load(update_structure=True, 
+                             omit_commit=omit_commit, 
+                             omit_rollback=omit_rollback)
+
     def create_index(self):
         """Create index for the collection table.
         """
@@ -811,11 +830,16 @@ class PgCollection:
                 # update, create index.
                 # (https://www.postgresql.org/docs/9.4/explicit-locking.html)
                 cur.execute(SQL('LOCK TABLE ONLY {} IN EXCLUSIVE MODE').format(structure_table_id))
-                
 
-                # We may have to wait for the lock and receive it later: validate that conditions are OK
+                # Refresh the structure
+                self.refresh(omit_commit=True, omit_rollback=True)
+
+                # Validate conditions again (in case collection has been modified by another thread)
                 if self._is_empty:
                     raise PgCollectionException("the collection is empty".format(layer_template.name))
+
+                if layer_template.name in list(self._structure):
+                    raise PgCollectionException("The {!r} layer already exists.".format(layer_template.name))
 
                 if layer_table_exists(self.storage, self.name, layer_template.name, layer_type=layer_type, 
                                                                       omit_commit=True, omit_rollback=True):
@@ -1312,7 +1336,7 @@ class PgCollection:
 
         # Attempt to load the structure
         if layer_name not in self._structure:
-            self._structure.load()
+            self.refresh()
         if layer_name not in self._structure:
             # Note: at this point, the structure should already exist
             # ( created by add_layer(...) function )
@@ -1422,7 +1446,7 @@ class PgCollection:
         # b) delete table entries 
         with self.storage.conn.cursor() as cur:
             try:
-                # Prepare deletion
+                # Prepare for deletion
                 self.storage.conn.commit()
                 self.storage.conn.autocommit = False
                 structure_table_id = structure_table_identifier(self.storage, self.name)
@@ -1432,7 +1456,14 @@ class PgCollection:
                 # update, create index.
                 # (https://www.postgresql.org/docs/9.4/explicit-locking.html)
                 cur.execute(SQL('LOCK TABLE ONLY {} IN EXCLUSIVE MODE').format(structure_table_id))
+
+                # Refresh the structure
+                self.refresh(omit_commit=True, omit_rollback=True)
+
                 for layer in deletable_layers:
+                    # Validate conditions again (in case collection has been modified by another thread)
+                    if layer not in self._structure:
+                        raise PgCollectionException("collection does not have a layer {!r}".format(layer_name))
                     # Test for existence of the layer table
                     if not layer_table_exists(self.storage, self.name, layer, layer_type=deletable_layer_types[layer], 
                                                                                  omit_commit=True, omit_rollback=True):
