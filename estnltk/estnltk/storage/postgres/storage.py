@@ -176,6 +176,8 @@ class PostgresStorage:
         PgCollection
             an instance of the created collection
         """
+        # This is required to avoid psycopg2.errors.NoActiveSqlTransaction
+        self.conn.commit()
         self.conn.autocommit = False
         collection = None
         # Add storage.collections entry (collection name + version)

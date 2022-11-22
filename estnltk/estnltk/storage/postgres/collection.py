@@ -806,7 +806,8 @@ class PgCollection:
                 if self._is_empty:
                     raise PgCollectionException("the collection is empty".format(layer_template.name))
 
-                if layer_table_exists(self.storage, self.name, layer_template.name, layer_type=layer_type, omit_commit=True):
+                if layer_table_exists(self.storage, self.name, layer_template.name, layer_type=layer_type, 
+                                                                      omit_commit=True, omit_rollback=True):
                     raise PgCollectionException(
                         "The table for the {} layer {!r} already exists.".format(layer_type, layer_template.name))
 
@@ -1374,10 +1375,11 @@ class PgCollection:
 
 
     def delete_layer(self, layer_name, cascade=False):
+        # Check collection status
         if not self.exists():
             raise PgCollectionException("collection {!r} does not exist, can't delete layer {!r}".format(
                 self.name, layer_name))
-    
+        # Check deletable layer
         if layer_name not in self._structure:
             raise PgCollectionException("collection does not have a layer {!r}".format(layer_name))
         if self._structure[layer_name]['layer_type'] == 'attached':
@@ -1401,12 +1403,44 @@ class PgCollection:
                                          "there are dependent layers: {!r}; "+ \
                                          'set cascade=True to remove layer '+ \
                                          'along with its dependents.').format(layer_name, dependents))
-        # Perform deletion
+        # Delete layers from structure table
+        # a) get layer types
+        deletable_layer_types = {}
         for layer in deletable_layers:
-            layer_type=self._structure[layer]['layer_type']
-            drop_layer_table(self.storage, self.name, layer, layer_type=layer_type)
-            self._structure.delete_layer(layer)
+            deletable_layer_types[layer] = self._structure[layer]['layer_type']
+        # b) delete table entries 
+        with self.storage.conn.cursor() as cur:
+            try:
+                # Prepare deletion
+                self.storage.conn.commit()
+                self.storage.conn.autocommit = False
+                structure_table_id = structure_table_identifier(self.storage, self.name)
+                # EXCLUSIVE locking -- this mode allows only reads from the table 
+                # can proceed in parallel with a transaction holding this lock mode.
+                # Prohibit all other modification operations such as delete, insert, 
+                # update, create index.
+                # (https://www.postgresql.org/docs/9.4/explicit-locking.html)
+                cur.execute(SQL('LOCK TABLE ONLY {} IN EXCLUSIVE MODE').format(structure_table_id))
+                for layer in deletable_layers:
+                    # Test for existence of the layer table
+                    if not layer_table_exists(self.storage, self.name, layer, layer_type=deletable_layer_types[layer], 
+                                                                                 omit_commit=True, omit_rollback=True):
+                        raise PgCollectionException(
+                            "The table for the {} layer {!r} does not exist.".format(layer_type, layer))
+                    # Delete layer (omit commit to avoid releasing a lock)
+                    self._structure.delete_layer(layer, omit_commit=True)
+            except Exception:
+                self.storage.conn.rollback()
+                raise
+            finally:
+                if self.storage.conn.status == STATUS_BEGIN:
+                    # no exception, transaction in progress
+                    self.storage.conn.commit()
+        # Delete layer tables
+        for layer in deletable_layers:
+            drop_layer_table(self.storage, self.name, layer, layer_type=deletable_layer_types[layer])
             logger.info('layer deleted: {!r}'.format(layer))
+
 
     def delete(self):
         """Removes collection and all related layers.

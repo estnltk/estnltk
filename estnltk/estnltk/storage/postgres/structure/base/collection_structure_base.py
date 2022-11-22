@@ -44,7 +44,7 @@ class CollectionStructureBase:
     def insert(self, layer, layer_type: str, meta: dict = None, loader: str = None, is_sparse: bool = False):
         raise NotImplementedError
 
-    def delete_layer(self, layer_name: str):
+    def delete_layer(self, layer_name: str, omit_commit: bool=False):
         self._modified = True
         with self.collection.storage.conn.cursor() as c:
             try:
@@ -58,8 +58,9 @@ class CollectionStructureBase:
                 raise
             finally:
                 if self.collection.storage.conn.status == STATUS_BEGIN:
-                    # no exception, transaction in progress
-                    self.collection.storage.conn.commit()
+                    if not omit_commit: # commit can be omitted to avoid releasing a lock
+                        # no exception, transaction in progress
+                        self.collection.storage.conn.commit()
                     logger.debug(c.query.decode())
 
     def load(self) -> dict:
