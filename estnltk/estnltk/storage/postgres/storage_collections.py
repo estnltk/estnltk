@@ -49,9 +49,9 @@ class StorageCollections:
     def __iter__(self):
         yield from self.collections
 
-    def load(self):
+    def load(self, omit_commit: bool=False):
         new_collections = {}
-        assert pg.table_exists(self._storage, '__collections')
+        assert pg.table_exists(self._storage, '__collections', omit_commit=omit_commit)
         with self._storage.conn.cursor() as c:
             c.execute(SQL("SELECT collection, version FROM {};").
                       format(self._storage.collections_table))
@@ -65,4 +65,6 @@ class StorageCollections:
                     # if user calls storage[collection]
                     new_collections[collection] = {'version': version,
                                                    'collection_object': None}
+        if not omit_commit:
+            self._storage.conn.commit()
         self.collections = new_collections

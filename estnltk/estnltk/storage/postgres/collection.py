@@ -806,7 +806,7 @@ class PgCollection:
                 if self._is_empty:
                     raise PgCollectionException("the collection is empty".format(layer_template.name))
 
-                if layer_table_exists(self.storage, self.name, layer_template.name, layer_type=layer_type):
+                if layer_table_exists(self.storage, self.name, layer_template.name, layer_type=layer_type, omit_commit=True):
                     raise PgCollectionException(
                         "The table for the {} layer {!r} already exists.".format(layer_type, layer_template.name))
 
