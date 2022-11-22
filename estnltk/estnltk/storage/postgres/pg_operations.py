@@ -18,19 +18,16 @@ pytype2dbtype = {
 
 def create_schema(storage):
     assert storage.conn.autocommit == False
-    # Proper way of using connections and cursors as context managers:
-    # https://www.psycopg.org/docs/usage.html#with-statement
-    with storage.conn:
-        with storage.conn.cursor() as c:
-            try:
-                c.execute(SQL("CREATE SCHEMA {};").format(Identifier(storage.schema)))
-            except:
-                storage.conn.rollback()
-                raise
-            finally:
-                if storage.conn.status == STATUS_BEGIN:
-                    # no exception, transaction in progress
-                    storage.conn.commit()
+    with storage.conn.cursor() as c:
+        try:
+            c.execute(SQL("CREATE SCHEMA {};").format(Identifier(storage.schema)))
+        except:
+            storage.conn.rollback()
+            raise
+        finally:
+            if storage.conn.status == STATUS_BEGIN:
+                # no exception, transaction in progress
+                storage.conn.commit()
 
 def schema_exists(storage, omit_commit: bool=False):
     return_value = False
@@ -45,17 +42,16 @@ def schema_exists(storage, omit_commit: bool=False):
 
 def delete_schema(storage):
     assert storage.conn.autocommit == False
-    with storage.conn:
-        with storage.conn.cursor() as c:
-            try:
-                c.execute(SQL("DROP SCHEMA {} CASCADE;").format(Identifier(storage.schema)))
-            except:
-                storage.conn.rollback()
-                raise
-            finally:
-                if storage.conn.status == STATUS_BEGIN:
-                    # no exception, transaction in progress
-                    storage.conn.commit()
+    with storage.conn.cursor() as c:
+        try:
+            c.execute(SQL("DROP SCHEMA {} CASCADE;").format(Identifier(storage.schema)))
+        except:
+            storage.conn.rollback()
+            raise
+        finally:
+            if storage.conn.status == STATUS_BEGIN:
+                # no exception, transaction in progress
+                storage.conn.commit()
 
 def table_identifier(storage, table_name):
     identifier = Identifier(table_name)
@@ -69,7 +65,9 @@ def table_exists(storage, table_name, omit_commit: bool=False, omit_rollback: bo
         raise NotImplementedError("don't know how to check existence of temporary table: {!r}".format(table_name))
     if not omit_rollback:
         if storage.conn.info.transaction_status == TRANSACTION_STATUS_INERROR:
-            # rollback an aborted transaction, so that a new one can be started
+            # rollback an aborted transaction, so that a new one can be started. 
+            # this removes "psycopg2.errors.InFailedSqlTransaction: current transaction 
+            # is aborted, commands ignored until end of transaction block"
             storage.conn.rollback()
     return_value = False
     with storage.conn.cursor() as c:
@@ -126,21 +124,22 @@ def drop_table(storage, table_name: str, cascade: bool = False):
         sql = SQL('DROP TABLE {} CASCADE;')
     else:
         sql = SQL('DROP TABLE {};')
-    with storage.conn:
-        with storage.conn.cursor() as c:
-            try:
-                c.execute(sql.format(table_identifier(storage, table_name)))
-            except Exception:
-                storage.conn.rollback()
-                raise
-            finally:
-                if storage.conn.status == STATUS_BEGIN:
-                    # no exception, transaction in progress
-                    storage.conn.commit()
-                    logger.debug(c.query.decode())
+    with storage.conn.cursor() as c:
+        try:
+            c.execute(sql.format(table_identifier(storage, table_name)))
+        except Exception:
+            storage.conn.rollback()
+            raise
+        finally:
+            if storage.conn.status == STATUS_BEGIN:
+                # no exception, transaction in progress
+                storage.conn.commit()
+                logger.debug(c.query.decode())
 
 
 def count_rows(storage, table=None, table_identifier=None):
+    # Convenient way of using connections and cursors as context managers:
+    # https://www.psycopg.org/docs/usage.html#with-statement
     with storage.conn:
         if table_identifier is not None:
             with storage.conn.cursor() as c:
@@ -199,28 +198,27 @@ def create_collection_table(storage, collection_name, meta_columns=None, descrip
     table_name = collection_table_name(collection_name)
     table = collection_table_identifier(storage, table_name)
 
-    with storage.conn:
-        with storage.conn.cursor() as c:
-            try:
-                c.execute(SQL("CREATE {} TABLE {} ({});").format(
-                    temp, table, SQL(', ').join(columns)))
+    with storage.conn.cursor() as c:
+        try:
+            c.execute(SQL("CREATE {} TABLE {} ({});").format(
+                temp, table, SQL(', ').join(columns)))
+            logger.debug(c.query.decode())
+            c.execute(
+                SQL("CREATE INDEX {index} ON {table} USING gin ((data->'layers') jsonb_path_ops);").format(
+                    index=Identifier('idx_%s_data' % table_name),
+                    table=table))
+            logger.debug(c.query.decode())
+            if isinstance(description, str):
+                c.execute(SQL("COMMENT ON TABLE {} IS {}").format(
+                    table, Literal(description)))
                 logger.debug(c.query.decode())
-                c.execute(
-                    SQL("CREATE INDEX {index} ON {table} USING gin ((data->'layers') jsonb_path_ops);").format(
-                        index=Identifier('idx_%s_data' % table_name),
-                        table=table))
-                logger.debug(c.query.decode())
-                if isinstance(description, str):
-                    c.execute(SQL("COMMENT ON TABLE {} IS {}").format(
-                        table, Literal(description)))
-                    logger.debug(c.query.decode())
-            except:
-                storage.conn.rollback()
-                raise
-            finally:
-                if storage.conn.status == STATUS_BEGIN:
-                    # no exception, transaction in progress
-                    storage.conn.commit()
+        except:
+            storage.conn.rollback()
+            raise
+        finally:
+            if storage.conn.status == STATUS_BEGIN:
+                # no exception, transaction in progress
+                storage.conn.commit()
 
 
 def layer_table_exists(storage, collection_name, layer_name, layer_type='detached', omit_commit: bool=False, omit_rollback: bool=False):
