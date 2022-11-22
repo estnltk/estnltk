@@ -191,20 +191,24 @@ class PostgresStorage:
             # Check if collection has been recorded in collection's table
             self.refresh(omit_commit=True, omit_rollback=True)
             if name not in self._collections:
-                collection = PgCollection(name, self, version='3.0')
                 # Add storage.collections entry (collection name + version)
+                # Note: we need to make insertion before creating PgCollection, 
+                # because creating PgCollection involves db queries with commits, 
+                # which would release the lock
+                version = '3.0'
                 c.execute(SQL(
                         "INSERT INTO {} (collection, version) "
                         "VALUES ({}, {});").format(
                         self.collections_table,
-                        Literal(collection.name),
-                        Literal(collection.version)
+                        Literal(name),
+                        Literal(version)
                 ))
+                self.conn.commit()
+                collection = PgCollection(name, self, version=version)
             else:
-                self.conn.rollback() # release lock
+                self.conn.commit() # release lock
                 raise PgStorageException(('(!) Cannot add new collection {!r}, '+\
                                           'this collection already exists.').format(name))
-        self.conn.commit()
         # At this point, either PgCollection object was successfully created and 
         # inserted into the collections table, or exception was encountered because 
         # the table already contains the collection. 
@@ -287,7 +291,7 @@ class PostgresStorage:
             # Check if collection hasn't already been deleted from collections_table
             self.refresh(omit_commit=True, omit_rollback=True)
             if collection_name not in self.collections:
-                self.conn.rollback() # release lock
+                self.conn.commit() # release lock
                 raise KeyError('collection not found: {!r}'.format(collection_name))
             try:
                 # Delete collection from collections_table
