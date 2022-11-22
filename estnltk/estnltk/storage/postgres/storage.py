@@ -176,42 +176,48 @@ class PostgresStorage:
         PgCollection
             an instance of the created collection
         """
-        # This is required to avoid psycopg2.errors.NoActiveSqlTransaction
-        self.conn.commit()
         self.conn.autocommit = False
         collection = None
+        # Add storage.collections entry (collection name + version)
         with self.conn.cursor() as c:
-            # EXCLUSIVE locking -- this mode allows only reads from the table 
-            # can proceed in parallel with a transaction holding this lock mode.
-            # Prohibit all other modification operations such as delete, insert, 
-            # update, create index.
-            # (https://www.postgresql.org/docs/9.4/explicit-locking.html)
-            c.execute(SQL('LOCK TABLE ONLY {} IN EXCLUSIVE MODE').format( \
-                                self.collections_table ) )
-            # Check if collection has been recorded in collection's table
-            self.refresh(omit_commit=True, omit_rollback=True)
-            if name not in self._collections:
-                # Add storage.collections entry (collection name + version)
-                # Note: we need to make insertion before creating PgCollection, 
-                # because creating PgCollection involves db queries with commits, 
-                # which would release the lock
-                version = '3.0'
-                c.execute(SQL(
-                        "INSERT INTO {} (collection, version) "
-                        "VALUES ({}, {});").format(
-                        self.collections_table,
-                        Literal(name),
-                        Literal(version)
-                ))
-                self.conn.commit()
-                collection = PgCollection(name, self, version=version)
-            else:
-                self.conn.commit() # release lock
-                raise PgStorageException(('(!) Cannot add new collection {!r}, '+\
-                                          'this collection already exists.').format(name))
+            try:
+                # EXCLUSIVE locking -- this mode allows only reads from the table 
+                # can proceed in parallel with a transaction holding this lock mode.
+                # Prohibit all other modification operations such as delete, insert, 
+                # update, create index.
+                # (https://www.postgresql.org/docs/9.4/explicit-locking.html)
+                c.execute(SQL('LOCK TABLE ONLY {} IN EXCLUSIVE MODE').format( \
+                                    self.collections_table ) )
+                # Check if collection has been recorded in collection's table
+                self.refresh(omit_commit=True, omit_rollback=True)
+                if name not in self._collections:
+                    # Note: we need to make insertion before creating PgCollection, 
+                    # because creating PgCollection involves db queries with commits, 
+                    # which would release the lock
+                    version = '3.0'
+                    c.execute(SQL(
+                            "INSERT INTO {} (collection, version) "
+                            "VALUES ({}, {});").format(
+                            self.collections_table,
+                            Literal(name),
+                            Literal(version)
+                    ))
+                    collection = PgCollection(name, self, version=version)
+                else:
+                    raise PgStorageException(('collection {!r} already exists.'+\
+                                              '').format(name))
+            except Exception as adding_error:
+                self.conn.rollback()
+                raise PgStorageException(('(!) Cannot add new collection {!r} '+\
+                                          'due to an exception: {}').format( \
+                                                name, adding_error)) from adding_error
+            finally:
+                if self.conn.status == STATUS_BEGIN:
+                    # no exception, transaction in progress
+                    self.conn.commit()
         # At this point, either PgCollection object was successfully created and 
-        # inserted into the collections table, or exception was encountered because 
-        # the table already contains the collection. 
+        # inserted into the collections table, or exception was encountered (due
+        # to collection already existing or some other problem).
         # Update the storage_collections view
         self._collections[collection.name] = collection
         try:
@@ -277,45 +283,52 @@ class PostgresStorage:
         If cascade=True is set, then removes layer and collection 
         tables along with the tables dependent on these (if any).
         '''
-        # This is required to avoid psycopg2.errors.NoActiveSqlTransaction
-        self.conn.commit()
-        self.conn.autocommit = False
+        # Delete storage.collections entry
+        assert self.conn.autocommit == False
         with self.conn.cursor() as c:
-            # EXCLUSIVE locking -- this mode allows only reads from the table 
-            # can proceed in parallel with a transaction holding this lock mode.
-            # Prohibit all other modification operations such as delete, insert, 
-            # update, create index.
-            # (https://www.postgresql.org/docs/9.4/explicit-locking.html)
-            c.execute(SQL('LOCK TABLE ONLY {} IN EXCLUSIVE MODE').format( \
-                self.collections_table ))
-            # Check if collection hasn't already been deleted from collections_table
-            self.refresh(omit_commit=True, omit_rollback=True)
-            if collection_name not in self.collections:
-                self.conn.commit() # release lock
-                raise KeyError('collection not found: {!r}'.format(collection_name))
             try:
+                # EXCLUSIVE locking -- this mode allows only reads from the table 
+                # can proceed in parallel with a transaction holding this lock mode.
+                # Prohibit all other modification operations such as delete, insert, 
+                # update, create index.
+                # (https://www.postgresql.org/docs/9.4/explicit-locking.html)
+                c.execute(SQL('LOCK TABLE ONLY {} IN EXCLUSIVE MODE').format( \
+                    self.collections_table ))
+                # Check if collection hasn't already been deleted from collections_table
+                self.refresh(omit_commit=True, omit_rollback=True)
+                if collection_name not in self.collections:
+                    raise KeyError('collection not found: {!r}'.format(collection_name))
                 # Delete collection from collections_table
                 c.execute(SQL("DELETE FROM {} WHERE collection={};").format(
                     self.collections_table,
                     Literal(collection_name)
                 ))
                 logger.debug(c.query.decode())
-                # Remove collection table, layer tables, structure table
-                for layer, v in self[collection_name].structure.structure.items():
-                    if v['layer_type'] in PostgresStorage.TABLED_LAYER_TYPES:
-                        drop_layer_table(self, collection_name, layer, 
-                                               cascade=cascade, layer_type=v['layer_type'])
-                pg.drop_collection_table(self, collection_name, cascade=cascade)
-                pg.drop_structure_table(self, collection_name)
+            except KeyError:
+                self.conn.rollback() # release lock
+                raise
             except Exception as deletion_err:
                 self.conn.rollback()
                 raise PgStorageException(('(!) Failed to delete collection {!r} '+\
                                           'due to an exception: {}.').format( \
-                                                deletion_err, collection_name)) from deletion_err
+                                                collection_name, deletion_err)) from deletion_err
             finally:
                 if self.conn.status == STATUS_BEGIN:
                     # no exception, transaction in progress
                     self.conn.commit()
+        # Remove collection table, layer tables, structure table
+        try:
+            for layer, v in self[collection_name].structure.structure.items():
+                if v['layer_type'] in PostgresStorage.TABLED_LAYER_TYPES:
+                    drop_layer_table(self, collection_name, layer, 
+                                           cascade=cascade, layer_type=v['layer_type'])
+            pg.drop_collection_table(self, collection_name, cascade=cascade)
+            pg.drop_structure_table(self, collection_name)
+        except Exception as deletion_err:
+            self.conn.rollback()
+            raise PgStorageException(('(!) Failed to delete collection {!r} '+\
+                                      'due to an exception: {}.').format( \
+                                            collection_name, deletion_err)) from deletion_err
         self.refresh()
 
 
