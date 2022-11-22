@@ -49,9 +49,10 @@ class StorageCollections:
     def __iter__(self):
         yield from self.collections
 
-    def load(self, omit_commit: bool=False):
+    def load(self, omit_commit: bool=False, omit_rollback: bool=False):
         new_collections = {}
-        assert pg.table_exists(self._storage, '__collections', omit_commit=omit_commit)
+        if not pg.table_exists(self._storage, '__collections', omit_commit=omit_commit, omit_rollback=omit_rollback):
+            raise Exception("(!) Collections table {!r} does not exist!".format(str(self._storage.collections_table)))
         with self._storage.conn.cursor() as c:
             c.execute(SQL("SELECT collection, version FROM {};").
                       format(self._storage.collections_table))
@@ -66,5 +67,6 @@ class StorageCollections:
                     new_collections[collection] = {'version': version,
                                                    'collection_object': None}
         if not omit_commit:
+            # make a commit to avoid 'idle in transaction' status
             self._storage.conn.commit()
         self.collections = new_collections

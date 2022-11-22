@@ -64,10 +64,10 @@ def table_identifier(storage, table_name):
     return SQL('{}.{}').format(Identifier(storage.schema), identifier)
 
 
-def table_exists(storage, table_name, omit_commit: bool=False):
+def table_exists(storage, table_name, omit_commit: bool=False, omit_rollback: bool=False):
     if storage.temporary:
         raise NotImplementedError("don't know how to check existence of temporary table: {!r}".format(table_name))
-    if not omit_commit:
+    if not omit_rollback:
         if storage.conn.info.transaction_status == TRANSACTION_STATUS_INERROR:
             # rollback an aborted transaction, so that a new one can be started
             storage.conn.rollback()
@@ -223,25 +223,25 @@ def create_collection_table(storage, collection_name, meta_columns=None, descrip
                     storage.conn.commit()
 
 
-def layer_table_exists(storage, collection_name, layer_name, layer_type='detached', omit_commit: bool=False):
+def layer_table_exists(storage, collection_name, layer_name, layer_type='detached', omit_commit: bool=False, omit_rollback: bool=False):
     if layer_type=='detached':
-        return table_exists(storage, layer_table_name(collection_name, layer_name), omit_commit=omit_commit)
+        return table_exists(storage, layer_table_name(collection_name, layer_name), omit_commit=omit_commit, omit_rollback=omit_rollback)
     elif layer_type=='fragmented':
-        return table_exists(storage, fragment_table_name(collection_name, layer_name), omit_commit=omit_commit)
+        return table_exists(storage, fragment_table_name(collection_name, layer_name), omit_commit=omit_commit, omit_rollback=omit_rollback)
     else:
         error_msg = \
           "(!) Checking table's existence not implemented for layer type: {!r}".format(layer_type)
         raise NotImplementedError( error_msg )
 
 
-def collection_table_exists(storage, collection_name, omit_commit: bool=False):
+def collection_table_exists(storage, collection_name, omit_commit: bool=False, omit_rollback: bool=False):
     table_name = collection_table_name(collection_name)
-    return table_exists(storage, table_name, omit_commit=omit_commit)
+    return table_exists(storage, table_name, omit_commit=omit_commit, omit_rollback=omit_rollback)
 
 
-def structure_table_exists(storage, collection_name, omit_commit: bool=False):
+def structure_table_exists(storage, collection_name, omit_commit: bool=False, omit_rollback: bool=False):
     table_name = structure_table_name(collection_name)
-    return table_exists(storage, table_name, omit_commit=omit_commit)
+    return table_exists(storage, table_name, omit_commit=omit_commit, omit_rollback=omit_rollback)
 
 
 def drop_collection_table(storage, collection_name, cascade: bool = False):

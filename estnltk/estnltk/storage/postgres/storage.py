@@ -107,7 +107,7 @@ class PostgresStorage:
         
         logger.info('schema: {!r}, temporary: {!r}, role: {!r}'.format(self.schema, self.temporary, role))
 
-    def refresh(self, omit_commit: bool=False):
+    def refresh(self, omit_commit: bool=False, omit_rollback: bool=False):
         """Reloads table of collections of this storage. 
         Motivation: if any new collections have been inserted to 
         the database by a separate user/thread/job, this updates 
@@ -116,8 +116,13 @@ class PostgresStorage:
         By default, reloading the table involves making a commit 
         after the query. If you need to discard the commit (e.g. 
         in order to preserve a lock), set omit_commit=True.
+        
+        By default, if the current transaction has been aborted due 
+        to an error, this function also makes a rollback, and starts 
+        a new transaction. If you need to discard that behaviour, 
+        set omit_rollback=True.
         """
-        self._collections.load(omit_commit=omit_commit)
+        self._collections.load(omit_commit=omit_commit, omit_rollback=omit_rollback)
 
     def close(self):
         """Closes database connection."""
@@ -184,7 +189,7 @@ class PostgresStorage:
             c.execute(SQL('LOCK TABLE ONLY {} IN EXCLUSIVE MODE').format( \
                                 self.collections_table ) )
             # Check if collection has been recorded in collection's table
-            self.refresh(omit_commit=True)
+            self.refresh(omit_commit=True, omit_rollback=True)
             if name not in self._collections:
                 collection = PgCollection(name, self, version='3.0')
                 # Add storage.collections entry (collection name + version)
@@ -280,7 +285,7 @@ class PostgresStorage:
             c.execute(SQL('LOCK TABLE ONLY {} IN EXCLUSIVE MODE').format( \
                 self.collections_table ))
             # Check if collection hasn't already been deleted from collections_table
-            self.refresh(omit_commit=True)
+            self.refresh(omit_commit=True, omit_rollback=True)
             if collection_name not in self.collections:
                 self.conn.rollback() # release lock
                 raise KeyError('collection not found: {!r}'.format(collection_name))
