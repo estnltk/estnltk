@@ -1,14 +1,14 @@
 *	Z	SYM
-&	Y	SYM	Abbr=Yes
-%	Y	SYM	Abbr=Yes
-$	Y	SYM	Abbr=Yes
-#	Y	SYM	Abbr=Yes
-@	Y	SYM	Abbr=Yes
-~	Y	SYM	Abbr=Yes
-£	Y	SYM	Abbr=Yes
-·	Y	PUNCT	Abbr=Yes
-§	Y	SYM	Abbr=Yes
-+	Y	SYM	Abbr=Yes
-…	Y	PUNCT	Abbr=Yes
-•	Y	PUNCT	Abbr=Yes
-ω	Y	SYM	Abbr=Yes
+&	J	SYM
+%	Y	SYM
+$	Y	SYM
+#	Y	SYM
+@	Y	SYM
+~	Y	SYM
+£	Y	SYM
+·	Y	PUNCT
+§	Y	SYM
++	Z	SYM
+…	Y	PUNCT
+•	Y	PUNCT
+ω	Y	SYM

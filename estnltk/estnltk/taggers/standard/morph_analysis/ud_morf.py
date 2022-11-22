@@ -181,8 +181,7 @@ _dash_ending_word = re.compile("^([A-ZÖÄÜÕŽŠa-zöäüõžš]+)-$")
 class UDMorphConverter( Tagger ):
     """Converts morphological analyses from Vabamorf's format to Universal Dependencies (UD) format. 
        Note that the output will have additional ambiguities as the conversion does not involve 
-       disambiguation.
-       Stores results of the conversion on a new layer."""
+       disambiguation. Produces a new layer with the results of the conversion."""
     conf_param = [ 'remove_connegatives', \
                    # Names of the specific input layers
                    '_input_words_layer', \
