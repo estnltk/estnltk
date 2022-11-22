@@ -96,8 +96,8 @@ class CollectionStructure(pg.CollectionStructureBase):
                     self.collection.storage.conn.commit()
                     logger.debug(c.query.decode())
 
-    def load(self):
-        if not self.collection.exists():
+    def load(self, update_structure:bool =False, omit_commit: bool=False, omit_rollback: bool=False):
+        if not self.collection.exists(omit_commit=omit_commit, omit_rollback=omit_rollback):
             return None
         structure = {}
         with self.collection.storage.conn.cursor() as c:
@@ -116,4 +116,7 @@ class CollectionStructure(pg.CollectionStructureBase):
                                      'serialisation_module': row[8],
                                      'layer_template_dict': row[9]
                                      }
+        if update_structure:
+            self._structure = structure
+            self._modified = False
         return structure

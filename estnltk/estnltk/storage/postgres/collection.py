@@ -500,10 +500,20 @@ class PgCollection:
             yield text_inserter
 
 
-    def exists(self):
-        """Returns True if collection tables exist"""
-        collection_table = table_exists(self.storage, self.name)
-        structure_table = structure_table_exists(self.storage, self.name)
+    def exists(self, omit_commit: bool=False, omit_rollback: bool=False):
+        """
+        Returns True if collection tables exist.
+        
+        By default, database queries required for checking the existence 
+        of the collection will have clearing rollbacks before them (if the 
+        current transaction is in error state) and they will be completed 
+        with commits. Use flags omit_commit and omit_rollback to remove 
+        these behaviours (e.g. if you want to preserve explicit locks).
+        """
+        collection_table = table_exists(self.storage, self.name, 
+                                             omit_commit=omit_commit, omit_rollback=omit_rollback)
+        structure_table = structure_table_exists(self.storage, self.name, 
+                                             omit_commit=omit_commit, omit_rollback=omit_rollback)
         assert collection_table is structure_table, \
             ('Collection {!r} has inconsistent table structure: '+\
              'collection_table_exists: {}, '+\
@@ -801,6 +811,7 @@ class PgCollection:
                 # update, create index.
                 # (https://www.postgresql.org/docs/9.4/explicit-locking.html)
                 cur.execute(SQL('LOCK TABLE ONLY {} IN EXCLUSIVE MODE').format(structure_table_id))
+                
 
                 # We may have to wait for the lock and receive it later: validate that conditions are OK
                 if self._is_empty:

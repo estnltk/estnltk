@@ -63,5 +63,5 @@ class CollectionStructureBase:
                         self.collection.storage.conn.commit()
                     logger.debug(c.query.decode())
 
-    def load(self) -> dict:
+    def load(self, update_structure:bool =False, omit_commit: bool=False, omit_rollback: bool=False) -> dict:
         raise NotImplementedError
