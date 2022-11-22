@@ -1,5 +1,5 @@
 from psycopg2.sql import SQL, Identifier, Literal
-from psycopg2.extensions import STATUS_BEGIN
+from psycopg2.extensions import STATUS_BEGIN, TRANSACTION_STATUS_INERROR
 
 from estnltk import logger
 from estnltk.storage.postgres import structure_table_name
@@ -67,6 +67,10 @@ def table_identifier(storage, table_name):
 def table_exists(storage, table_name, omit_commit: bool=False):
     if storage.temporary:
         raise NotImplementedError("don't know how to check existence of temporary table: {!r}".format(table_name))
+    if not omit_commit:
+        if storage.conn.info.transaction_status == TRANSACTION_STATUS_INERROR:
+            # rollback an aborted transaction, so that a new one can be started
+            storage.conn.rollback()
     return_value = False
     with storage.conn.cursor() as c:
         c.execute(SQL("SELECT EXISTS (SELECT 1 FROM pg_tables WHERE schemaname = {} AND tablename = {});"
