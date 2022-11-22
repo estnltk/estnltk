@@ -153,9 +153,19 @@ class PgSubCollection:
     @selected_layers.setter
     def selected_layers(self, layers: list):
         """
-        Selects layers together with all layers needed to define them.
+        Selects given layers together with their ancestor layers.
+        
+        Raises PgCollectionException in case any input layer is missing
+        from the collection.
+        
+        Note: only 'attached' and 'detached' are accepted, all the other 
+        layers will be left out of the selection.
         """
-
+        for layer in layers:
+            if layer not in self.collection.structure:
+                raise PgCollectionException('there is no layer {!r} in the collection {!r}'.format(
+                                            layer, self.collection.name))
+        layers = [l for l in layers if self.collection.structure[l]['layer_type'] in {'attached', 'detached'}]
         self._selected_layers = self.collection.dependent_layers(layers)
         self._attached_layers = [layer for layer in self._selected_layers
                                  if self.collection.structure[layer]['layer_type'] == 'attached']
@@ -169,11 +179,6 @@ class PgSubCollection:
     @property
     def detached_layers(self):
         return self._detached_layers
-
-    @property
-    def fragmented_layers(self):
-        # TODO: Complete this
-        raise NotImplementedError()
 
     @property
     def sql_query(self):

@@ -664,7 +664,18 @@ class TestLayerFragment(unittest.TestCase):
         self.assertTrue(collection.has_layer(layer_fragment_name))
         self.assertTrue(collection.has_layer(layer_fragment_name, 'fragmented'))
         self.assertFalse(collection.has_layer(layer_fragment_name, 'detached'))
+
+        # One does not simply select a fragmented layer
+        with self.assertRaises(AssertionError):
+            collection.selected_layers = [layer_fragment_name]
         
+        # Assert that fragmented layers will be discarded from subcollection's layers
+        pg_subcollection = collection.select(layers=['sentences', layer_fragment_name])
+        self.assertListEqual(pg_subcollection.selected_layers, ['words', 'sentences'])
+        pg_subcollection_2 = \
+            pg_subcollection.select(selected_layers=[layer_fragment_name, 'sentences'])
+        self.assertListEqual(pg_subcollection_2.selected_layers, ['words', 'sentences'])
+
         # Try an illegal insert: insert Text object after a fragmented layer has been added
         with self.assertRaises(pg.PgCollectionException):
             with collection.insert() as collection_insert:

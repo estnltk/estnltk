@@ -321,6 +321,7 @@ class PgCollection:
         assert isinstance(value, list)
         assert all(isinstance(v, str) for v in value)
         assert set(value) <= set(self._structure)
+        assert all(self._structure[v]['layer_type'] in {'attached', 'detached'} for v in value)
         self._selected_layers = self.dependent_layers(value)
 
     def dependent_layers(self, selected_layers):
