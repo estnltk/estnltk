@@ -83,7 +83,7 @@ class TestPgSubCollection(unittest.TestCase):
         subcollection = pg.PgSubCollection(self.collection)
         assert subcollection.selected_layers == []
 
-        with self.assertRaises(pg.PgCollectionException):
+        with self.assertRaises(ValueError):
             subcollection.selected_layers = ['not_existing_layer']
 
         subcollection.selected_layers = ['sentences', 'tokens']

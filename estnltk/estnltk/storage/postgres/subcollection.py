@@ -155,17 +155,18 @@ class PgSubCollection:
         """
         Selects given layers together with their ancestor layers.
         
-        Raises PgCollectionException in case any input layer is missing
-        from the collection.
-        
-        Note: only 'attached' and 'detached' are accepted, all the other 
-        layers will be left out of the selection.
+        Raises ValueError if any of the input layers is missing from
+        the collection, and TypeError if type of an input layer is not 
+        attached or detached layer.
         """
         for layer in layers:
             if layer not in self.collection.structure:
-                raise PgCollectionException('there is no layer {!r} in the collection {!r}'.format(
-                                            layer, self.collection.name))
-        layers = [l for l in layers if self.collection.structure[l]['layer_type'] in {'attached', 'detached'}]
+                raise ValueError('The collection {!r} does not have layer {!r}.'.format(
+                                                            self.collection.name, layer))
+            layer_type = self.collection.structure[layer]['layer_type']
+            if layer_type not in {'attached', 'detached'}:
+                raise TypeError(('Cannot select {} layer {!r}. Only attached and detached '+\
+                                 'layers can be selected.').format(layer_type, layer))
         self._selected_layers = self.collection.dependent_layers(layers)
         self._attached_layers = [layer for layer in self._selected_layers
                                  if self.collection.structure[layer]['layer_type'] == 'attached']

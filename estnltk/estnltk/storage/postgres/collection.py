@@ -317,12 +317,18 @@ class PgCollection:
         return self._selected_layers
 
     @selected_layers.setter
-    def selected_layers(self, value):
-        assert isinstance(value, list)
-        assert all(isinstance(v, str) for v in value)
-        assert set(value) <= set(self._structure)
-        assert all(self._structure[v]['layer_type'] in {'attached', 'detached'} for v in value)
-        self._selected_layers = self.dependent_layers(value)
+    def selected_layers(self, layers: list):
+        assert isinstance(layers, list)
+        assert all(isinstance(l, str) for l in layers)
+        for layer in layers:
+            if layer not in self._structure:
+                raise ValueError('The collection {!r} does not have layer {!r}.'.format(
+                                                                       self.name, layer))
+            layer_type = self._structure[layer]['layer_type']
+            if layer_type not in {'attached', 'detached'}:
+                raise TypeError(('Cannot select {} layer {!r}. Only attached and detached '+\
+                                 'layers can be selected.').format(layer_type, layer))
+        self._selected_layers = self.dependent_layers(layers)
 
     def dependent_layers(self, selected_layers):
         """Returns selected layers along with their ancestor layers.
