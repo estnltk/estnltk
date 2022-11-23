@@ -455,16 +455,6 @@ class PgCollection:
                     # no exception, transaction in progress
                     self.storage.conn.commit()
 
-    def _collection_table_meta(self):
-        if not self.exists():
-            return None
-        with self.storage.conn.cursor() as c:
-            c.execute(SQL('SELECT column_name, data_type from information_schema.columns '
-                          'WHERE table_schema={} and table_name={} '
-                          'ORDER BY ordinal_position'
-                          ).format(Literal(self.storage.schema), Literal(self.name)))
-            return collections.OrderedDict(c.fetchall())
-
 
     @contextmanager
     def insert(self, buffer_size=10000, query_length_limit=5000000):

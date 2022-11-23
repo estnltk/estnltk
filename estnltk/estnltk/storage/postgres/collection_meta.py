@@ -1,3 +1,7 @@
+from collections import OrderedDict
+
+from psycopg2.sql import SQL, Literal
+
 from estnltk.storage import postgres as pg
 from estnltk.storage.postgres.collection import PgCollectionException
 from estnltk.storage.postgres.collection_meta_selection import PgCollectionMetaSelection
@@ -28,6 +32,18 @@ class PgCollectionMeta:
         self._columns = None      # metadata columns of this collection
         self._column_types = None # OrderedDict of pairs (metadata_column, data_type_str)
 
+    def _collection_table_meta(self):
+        if not self.collection.exists():
+            return None
+        with self.collection.storage.conn:
+            with self.collection.storage.conn.cursor() as c:
+                c.execute(SQL('SELECT column_name, data_type from information_schema.columns '
+                              'WHERE table_schema={} and table_name={} '
+                              'ORDER BY ordinal_position'
+                              ).format(Literal(self.collection.storage.schema), 
+                                       Literal(self.collection.name)))
+                return OrderedDict(c.fetchall())
+
     @property
     def column_types(self):
         if self._column_types is None:
@@ -36,7 +52,7 @@ class PgCollectionMeta:
                                              'cannot select metadata columns').format( \
                                               self.collection.name))
             # Try to load metadata column information from db
-            column_meta = self.collection._collection_table_meta()
+            column_meta = self._collection_table_meta()
             if column_meta is not None:
                 column_meta.pop('id')
                 column_meta.pop('data')
