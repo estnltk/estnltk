@@ -1,4 +1,4 @@
-"""Test postgres storage functionality.
+"""Tests postgres storage & collection main functionality.
 
 Requires ~/.pgpass file with database connection settings to `test_db` database.
 Schema/table creation and read/write rights are required.

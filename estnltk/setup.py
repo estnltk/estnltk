@@ -78,6 +78,7 @@ setup(
     include_package_data=True,
     package_data={
         'estnltk.java': [ 'res/*.*'],
+        'estnltk.storage': ['postgres/tests/*.conll'],
         'estnltk.taggers.standard.ner': ['gazetteer/*', 'models/py3_default/*'],
         'estnltk.taggers.standard.morph_analysis': ['hfst/models/*.*', 
                                                     'number_fixes/*.*', 

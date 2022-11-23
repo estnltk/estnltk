@@ -4,6 +4,7 @@ include LICENSE
 graft include
 graft src
 graft estnltk/java/res
+graft estnltk/storage/postgres/tests/test_example_syntax.conll
 graft estnltk/taggers/standard/ner/gazetteer
 graft estnltk/taggers/standard/ner/models
 graft estnltk/taggers/standard/morph_analysis/hfst
