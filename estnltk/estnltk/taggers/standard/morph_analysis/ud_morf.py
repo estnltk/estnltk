@@ -172,7 +172,18 @@ def _participle_ending(lemma):
         return lemma[-1]
     return ''
 
+def _copy_ud_annotation(ud_annotation):
+    '''Makes a copy of the given ud_annotation (dictionary).
+    '''
+    new_annotation = \
+        {k:ud_annotation[k] for k in ud_annotation.keys()}
+    new_annotation['feats'] = ud_annotation['feats'].copy()
+    return new_annotation
+    
+
 _dash_ending_word = re.compile("^([A-ZÖÄÜÕŽŠa-zöäüõžš]+)-$")
+
+_roman_number = re.compile('^[IVXLCDM.]+$')
 
 # ===================================================================
 #   T h e   m a i n   c l a s s
@@ -183,6 +194,7 @@ class UDMorphConverter( Tagger ):
        Note that the output will have additional ambiguities as the conversion does not involve 
        disambiguation. Produces a new layer with the results of the conversion."""
     conf_param = [ 'remove_connegatives', \
+                   'generate_num_cases', \
                    # Names of the specific input layers
                    '_input_words_layer', \
                    '_input_sentences_layer', \
@@ -204,6 +216,7 @@ class UDMorphConverter( Tagger ):
                  conversion_rules_dir:str=None, \
                  add_deprel_attribs:bool=False, \
                  remove_connegatives:bool=False, \
+                 generate_num_cases:bool=False, \
                  adj_with_no_verb_feats_file:str=ADJ_WITH_NO_VERB_FEATURES_FILE ):
         ''' Initializes this UDMorphConverter.
             
@@ -246,6 +259,11 @@ class UDMorphConverter( Tagger ):
                 unrecognized negative word (such as a slang word '2ra', '2i' or 
                 'äi'), then the deletion will be erroneous.
 
+            generate_num_cases: bool (default: False)
+                If True, then generates exhaustively all cases for number tokens 
+                (words with postag NUM) that lack case/number information.
+                Exclusions: roman numerals will not recieve case/number information.
+
             adj_with_no_verb_feats_file: str (default: ADJ_WITH_NO_VERB_FEATURES_FILE)
                 Path to a text file containing adjective lemmas (each lemma on new line), 
                 corresponding to adjectives which should not obtain verb participle 
@@ -267,6 +285,7 @@ class UDMorphConverter( Tagger ):
         self._pos_lemma_conv_rules = {}
         self._lemma_conv_rules = {}
         self.remove_connegatives = remove_connegatives
+        self.generate_num_cases = generate_num_cases
         if conversion_rules_dir is not None:
             # Load conversion rules
             assert os.path.exists(conversion_rules_dir), \
@@ -431,6 +450,11 @@ class UDMorphConverter( Tagger ):
             if self.remove_connegatives:
                 sent_ud_annotations = \
                     self._remove_connegatives_heuristic(sent_ud_annotations)
+            # Add number and case annotations to number tokens that are missing them
+            if self.generate_num_cases:
+                sent_ud_annotations = \
+                    self._add_case_and_number_to_numerics( text.text, \
+                                                           sent_ud_annotations )
             # Finally, add annotations to the layer
             for [_base_span, _ud_annotation] in sent_ud_annotations:
                 ud_morph.add_annotation(_base_span, _ud_annotation)
@@ -531,9 +555,7 @@ class UDMorphConverter( Tagger ):
                     # to given VM annotation. Add them all:
                     for dict_rules in self._pos_lemma_conv_rules[vm_pos][vm_lemma_clean]:
                         # Copy base annotation
-                        new_annotation = \
-                            {k:base_ud_annotation[k] for k in base_ud_annotation.keys()}
-                        new_annotation['feats'] = base_ud_annotation['feats'].copy()
+                        new_annotation = _copy_ud_annotation(base_ud_annotation)
                         if 'upostag' in dict_rules:
                             new_annotation['upostag'] = dict_rules['upostag']
                         if 'feats' in dict_rules:
@@ -547,9 +569,7 @@ class UDMorphConverter( Tagger ):
                 # to given VM annotation. Add them all:
                 for dict_rules in self._lemma_conv_rules[vm_lemma_clean]:
                     # Copy base annotation
-                    new_annotation = \
-                        {k:base_ud_annotation[k] for k in base_ud_annotation.keys()}
-                    new_annotation['feats'] = base_ud_annotation['feats'].copy()
+                    new_annotation = _copy_ud_annotation(base_ud_annotation)
                     if 'upostag' in dict_rules:
                         new_annotation['upostag'] = dict_rules['upostag']
                     if 'feats' in dict_rules:
@@ -660,6 +680,8 @@ class UDMorphConverter( Tagger ):
                 elif vm_pos == 'G':
                     # Fix: according to the UD corpus, the most frequent
                     # partofspeech for 'G' is actually 'ADJ', not 'NOUN';
+                    # TODO: however, this could be an error in corpus annotation, 
+                    # as NOUN could be (theoretically) more suitable
                     base_ud_annotation['upostag'] = 'ADJ'
                     # TODO: should we really add Number/Case feats ?
                     # (these are not annotated in the corpus)
@@ -700,12 +722,15 @@ class UDMorphConverter( Tagger ):
             # https://github.com/EstSyntax/EstUD/blob/master/cgmorf2conllu/cgmorf2conllu.py#L630-L636
             if base_ud_annotation['upostag'] == 'NUM' or \
                (base_ud_annotation['upostag'] == 'ADJ' and base_ud_annotation['feats'].get('NumType', None) == 'Ord'):
-                if vm_lemma.isdigit() or (len(vm_lemma) > 1 and vm_lemma[0].isdigit()):
-                    # Is digit or starts with digit
+                if vm_lemma.isdigit() or (len(vm_lemma) > 1 and vm_lemma[0].isdigit()) or \
+                   (len(vm_lemma) > 1 and vm_lemma[0] in ['+', '-', '±'] and vm_lemma[1].isdigit()):
+                    # Is digit or starts with digit or startswith +/- followed by digit
                     base_ud_annotation['feats']['NumForm'] = 'Digit'
                 else:
-                    base_ud_annotation['feats']['NumForm'] = 'Word'
-                # TODO: add regex for detecting roman numerals or something
+                    if _roman_number.match( vm_lemma ):
+                        base_ud_annotation['feats']['NumForm'] = 'Roman'
+                    else:
+                        base_ud_annotation['feats']['NumForm'] = 'Word'
 
             # Hyph=Yes:
             if _add_hyph_feat:
@@ -736,8 +761,7 @@ class UDMorphConverter( Tagger ):
                     for (form, features) in _verb_form_conversion_rules:
                         if vm_form == form:
                             # Copy base annotation
-                            new_annotation = {k:base_ud_annotation[k] for k in base_ud_annotation.keys()}
-                            new_annotation['feats'] = base_ud_annotation['feats'].copy()
+                            new_annotation = _copy_ud_annotation(base_ud_annotation)
                             # Add new features
                             for attr, key in features.items():
                                 new_annotation['feats'][attr] = key
@@ -796,14 +820,11 @@ class UDMorphConverter( Tagger ):
                             ud_annotation['feats'][attr] = key
                     else:
                         # Create entirely new annotation
-                        new_annotation = \
-                            {k:ud_annotation[k] for k in ud_annotation.keys()}
-                        new_annotation['feats'] = \
-                            ud_annotation['feats'].copy()
+                        new_annotation = _copy_ud_annotation(ud_annotation)
                         for attr, key in feats.items():
                             new_annotation['feats'][attr] = key
                         new_annotations.append(new_annotation)
-        ud_annotations.extend(new_annotations)
+        ud_annotations.extend( new_annotations )
         return ud_annotations
 
 
@@ -847,3 +868,41 @@ class UDMorphConverter( Tagger ):
                     new_sent_ud_annotations.append(_ud_annotation)
             sent_ud_annotations=new_sent_ud_annotations
         return sent_ud_annotations
+
+
+    def _add_case_and_number_to_numerics(self, text_str, ud_annotations):
+        '''
+        Generates Number & Case information to NUM tokens. 
+        If a token with NUM postag does not have any number or case 
+        information, then adds to it all combinations of numbers
+        & cases.
+        
+        Roman numerals will be excluded from receiving generated 
+        Number & Case annotations.
+        '''
+        generated_annotations = []
+        for aid, _ud_annotation in enumerate(ud_annotations):
+            [base_span, ud_annotation] = _ud_annotation
+            text_span = text_str[base_span.start:base_span.end]
+            # Detect NUM tokens without any case/number information
+            if _has_postag(ud_annotation['upostag'], ['NUM']) and \
+               ud_annotation['feats'].get('Number', None) is None and \
+               ud_annotation['feats'].get('Case', None) is None and \
+               ud_annotation['feats'].get('NumForm', None) != 'Roman':
+                num_type = ud_annotation['feats'].get('NumType', None)
+                # Generate all possible combinations of case & number
+                for number in ['Sing', 'Plur']:
+                    for case in ['Nom', 'Gen', 'Par', \
+                                 'Ill', 'Ine', 'Ela', 'All', 'Ade', 'Abl', \
+                                 'Tra', 'Ter', 'Ess', 'Abe', 'Com']:
+                        new_annotation = _copy_ud_annotation(ud_annotation)
+                        new_annotation['feats']['Number'] = number
+                        new_annotation['feats']['Case'] = case
+                        generated_annotations.append([base_span, new_annotation])
+        if generated_annotations:
+            # Append generated annotations
+            ud_annotations.extend(generated_annotations)
+            # Sort annotations by base spans
+            ud_annotations = sorted( ud_annotations, key=lambda x: x[0], 
+                                     reverse=False )
+        return ud_annotations
