@@ -42,9 +42,15 @@ vm_to_ud_case_mapping = {
     'adt':'Add'
 }
 
-# Mapping verb forms from Vabamorf to UD
-# Based on:  https://cl.ut.ee/ressursid/morfo-systeemid/
-# For ambiguous form categories, there are multiple entries per category
+'''
+Mapping of verb forms from Vabamorf's categories to UD features.
+Based on:  https://cl.ut.ee/ressursid/morfo-systeemid/
+
+* For ambiguous form categories, there are multiple entries per category;
+* If there are multiple entries and one entry has Connegative=Yes, then the 
+  analysis with Connegative=Yes is a subject to removal when the heuristic 
+  remove_connegatives is used;
+'''
 _verb_form_conversion_rules = [ \
   ('da',   OrderedDict([('VerbForm','Inf')]) ),
   ('des',  OrderedDict([('VerbForm','Conv')]) ),
@@ -66,6 +72,7 @@ _verb_form_conversion_rules = [ \
   ('ksin', OrderedDict([('Voice','Act'), ('Tense','Pres'), ('Mood','Cnd'), ('VerbForm','Fin'), ('Number','Sing'), ('Person','1')]) ),
   ('ksid', OrderedDict([('Voice','Act'), ('Tense','Pres'), ('Mood','Cnd'), ('VerbForm','Fin'), ('Number','Sing'), ('Person','2')]) ),  # ambiguous
   ('ks',   OrderedDict([('Voice','Act'), ('Tense','Pres'), ('Mood','Cnd'), ('VerbForm','Fin') ]) ),
+  ('ks',   OrderedDict([('Voice','Act'), ('Tense','Pres'), ('Mood','Cnd'), ('VerbForm','Fin'), ('Connegative','Yes') ]) ),
   ('ksime', OrderedDict([('Voice','Act'), ('Tense','Pres'), ('Mood','Cnd'), ('VerbForm','Fin'), ('Number','Plur'), ('Person','1')]) ),
   ('ksite', OrderedDict([('Voice','Act'), ('Tense','Pres'), ('Mood','Cnd'), ('VerbForm','Fin'), ('Number','Plur'), ('Person','2')]) ),
   ('ksid',  OrderedDict([('Voice','Act'), ('Tense','Pres'), ('Mood','Cnd'), ('VerbForm','Fin'), ('Number','Plur'), ('Person','3')]) ), # ambiguous
