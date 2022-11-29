@@ -1,60 +1,67 @@
+from typing import List
+from estnltk import Text, Layer
 import json
-from typing import List, Dict, Union
-
-Layer = List[Dict[str, any]]
-REQUIRED_ATTRIBUTES = frozenset(('start', 'end', 'text'))
+import random
 
 
-def export_texts(
-        fname: str, texts: Union[List[str], str], layers: Union[List[Layer], Layer],
-        other_attributes: List[str] = (),
-        text_name: str = 'text', labelset_name: str = 'label'):
-    """
-    Writes texts together with annotations to file in the JSON format used by Label Studio.
-    The length of texts and layers arguments must match or otherwise not all texts are annotated.
+class LabelStudioExporter:
 
-    label_attribute:   an attribute in the layer that used as the entity type
-    other_attributes:  other attributes that characterise to the entity e.g. match score
+    def __init__(self, filename: str, texts: List[Text], layer: str, label_level: str = 'annotation',
+                 attribute: str = None,
+                 attribute_values: List = None):
+        if attribute is not None and attribute_values is None:
+            raise RuntimeError(
+                "If attribute is given then possible attribute values must also be passed as an argument")
+        self.filename = filename
+        self.texts = texts
+        self.layer = layer
+        self.attribute_values = attribute_values
+        self.label_level = label_level
+        self.attribute = attribute
 
-    The import to Label Studio succeeds if the labelling configuration corresponds to the NER template
+        self.labeling_interface = self.interface_generator()
 
-    <View>
-      <Labels name="label" toName="text">
-        <Label value="PER" background="red"/>
-        <Label value="ORG" background="darkorange"/>
-        <Label value="LOC" background="orange"/>
-        <Label value="MISC" background="green"/>
-      </Labels>
-      <Text name="text" value="$text"/>
-    </View>
+    def interface_generator(self):
 
-    and arguments text_name and labelset_name coincide with the name attribute of <Text> and <Labels> fields, e.g.
-    text_name = 'text' and labelset_name='label' for the example configuration shown above.
-    """
+        single_label = '\t<Label value="{label_value}" background="{background_value}"/> \n'
+        conf_string = """
+        <View>
+            <Labels name="label" toName="text">\n"""
+        end_block = """
+            </Labels>
+        <Text name="text" value="$text"/>
+        </View>"""
 
-    try:
-        output = open(fname, "wt")
-    except OSError:
-        raise ValueError("Could not open/read file: {}".format(fname))
+        if self.attribute_values is None:
+            conf_string += single_label.format(
+                label_value=self.layer,
+                background_value=("#" + "%06x" % random.randint(0, 0xFFFFFF)).upper()
+            )
+        else:
+            for val in self.attribute_values:
+                conf_string += single_label.format(
+                    label_value=val,
+                    background_value=("#" + "%06x" % random.randint(0, 0xFFFFFF)).upper()
+                )
 
-    # Convert arguments to lists if needed
-    if isinstance(texts, str):
-        texts = [texts]
-    if isinstance(layers, list) and (len(layers) == 0 or isinstance(layers[0], dict)):
-        layers = [layers]
+        conf_string += end_block
 
-    if len(texts) != len(layers):
-        raise ValueError("The is a mismatch between text and layer counts")
+        return conf_string
 
-    exported_attributes = sorted(REQUIRED_ATTRIBUTES.union(other_attributes))
-    json.dump([
-        text_to_dict(text, layer, exported_attributes, text_name, labelset_name)
-        for text, layer in zip(texts, layers)], output, indent=2)
+    def convert(self):
+        try:
+            output = open(self.filename, "wt")
+        except OSError:
+            raise ValueError("Could not open/read file: {}".format(self.filename))
+
+        json.dump([
+            text_to_dict(text, text[self.layer], self.attribute)
+            for text in self.texts], output, indent=2)
 
 
 def text_to_dict(
-        text: str, layer: Layer,
-        exported_attributes: List[str] = ('start', 'end', 'text'),
+        text: Text, layer: Layer,
+        attribute: str = None,
         text_name: str = 'text',
         labelset_name: str = 'label') -> dict:
     """
@@ -64,8 +71,17 @@ def text_to_dict(
     predictions = []
     for span in layer:
 
-        annotation = {key: getattr(span,key) for key in exported_attributes}
-        annotation['labels'] = [layer.name]
+        all_attributes = ['start', 'end', 'text']
+        all_attributes.append(attribute)
+
+        annotation = {key: getattr(span, key) for key in all_attributes}
+        if attribute is None:
+            annotation['labels'] = [layer.name]
+        else:
+            annotation['labels'] = [annotation[attribute]]
+
+        if isinstance(annotation['text'], list):
+            annotation['text'] = ' '.join(annotation['text'])
 
         predictions.append({
             'value': annotation,
@@ -78,22 +94,3 @@ def text_to_dict(
         'predictions': [{'result': predictions}],
         'data': {'text': text.text}
     }
-
-def conf_gen(classes: List[str]):
-    single_label = '\t<Label value="{label_value}" background="{background_value}"/> \n'
-    conf_string = """
-<View>
-    <Labels name="label" toName="text">\n"""
-    end_block = """
-    </Labels>
-<Text name="text" value="$text"/>
-</View>"""
-
-    for entry in classes:
-        conf_string += single_label.format(
-            label_value=entry,
-            background_value=("#" + "%06x" % random.randint(0, 0xFFFFFF)).upper()
-        )
-    conf_string += end_block
-
-    return conf_string
