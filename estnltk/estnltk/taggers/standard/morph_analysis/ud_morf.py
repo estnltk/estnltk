@@ -222,8 +222,8 @@ class UDMorphConverter( Tagger ):
                  input_clauses_layer:str='clauses', \
                  conversion_rules_dir:str=None, \
                  add_deprel_attribs:bool=False, \
-                 remove_connegatives:bool=False, \
-                 generate_num_cases:bool=False, \
+                 remove_connegatives:bool=True, \
+                 generate_num_cases:bool=True, \
                  adj_with_no_verb_feats_file:str=ADJ_WITH_NO_VERB_FEATURES_FILE ):
         ''' Initializes this UDMorphConverter.
             

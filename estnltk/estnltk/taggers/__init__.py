@@ -42,6 +42,7 @@ from estnltk.taggers.standard.morph_analysis.vm_spellcheck import SpellCheckReta
 from estnltk.taggers.standard.morph_analysis.cb_disambiguator import CorpusBasedMorphDisambiguator
 from estnltk.taggers.standard.morph_analysis.vm_corpus_tagger import VabamorfCorpusTagger
 from estnltk.taggers.standard.morph_analysis.hfst.hfst_morph_analyser_cmd_line import HfstClMorphAnalyser
+from estnltk.taggers.standard.morph_analysis.ud_morf import UDMorphConverter
 
 from estnltk.taggers.standard.syntax.preprocessing.pronoun_type_retagger import PronounTypeRetagger
 from estnltk.taggers.standard.syntax.preprocessing.verb_extension_suffix_tagger import VerbExtensionSuffixRetagger
