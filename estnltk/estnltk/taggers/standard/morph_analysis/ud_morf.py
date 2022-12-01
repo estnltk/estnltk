@@ -2,8 +2,6 @@
 #  Converts morphological analyses categories from Vabamorf's / Filosoft's format 
 #  to Universal Dependencies (UD) format.
 # 
-#  !!! WORK IN PROGRESS !!!
-#  
 
 import re
 import itertools
@@ -200,8 +198,11 @@ class UDMorphConverter( Tagger ):
     """Converts morphological analyses from Vabamorf's format to Universal Dependencies (UD) format. 
        Note that the output will have additional ambiguities as the conversion does not involve 
        disambiguation. Produces a new layer with the results of the conversion."""
-    conf_param = [ 'remove_connegatives', \
+    conf_param = [ # Parameters
+                   'remove_connegatives', \
                    'generate_num_cases', \
+                   'add_deprel_attribs', \
+                   'adj_with_no_verb_feats_file', \
                    # Names of the specific input layers
                    '_input_words_layer', \
                    '_input_sentences_layer', \
@@ -285,7 +286,8 @@ class UDMorphConverter( Tagger ):
         self._input_sentences_layer      = input_sentences_layer
         self._input_morph_analysis_layer = input_morph_analysis_layer
         self.input_layers = [input_words_layer, input_sentences_layer, input_morph_analysis_layer]
-        if add_deprel_attribs:
+        self.add_deprel_attribs = add_deprel_attribs
+        if self.add_deprel_attribs:
             self.output_attributes = ('id', 'lemma', 'upostag', 'xpostag', 'feats', 'head', 'deprel', 'deps', 'misc')
         else:
             self.output_attributes = ('id', 'lemma', 'upostag', 'xpostag', 'feats', 'misc')
@@ -304,6 +306,7 @@ class UDMorphConverter( Tagger ):
                     fpath=os.path.join(conversion_rules_dir, fname)
                     self._load_pos_lemma_conv_rules_from_file( fpath )
         self._adj_with_no_verb_features = set()
+        self.adj_with_no_verb_feats_file = adj_with_no_verb_feats_file
         if adj_with_no_verb_feats_file is not None:
             assert os.path.exists(adj_with_no_verb_feats_file), \
                 '(!) Non-existent adj_with_no_verb_feats_file: {!r}'.format(adj_with_no_verb_feats_file)
