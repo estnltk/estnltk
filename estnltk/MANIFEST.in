@@ -10,6 +10,7 @@ graft estnltk/taggers/standard/ner/models
 graft estnltk/taggers/standard/morph_analysis/hfst
 graft estnltk/taggers/standard/morph_analysis/number_fixes
 graft estnltk/taggers/standard/morph_analysis/reorderings
+graft estnltk/taggers/standard/morph_analysis/ud_conv_rules
 graft estnltk/taggers/standard/syntax/files
 graft estnltk/taggers/standard/syntax/maltparser_tagger/java-res/maltparser/lib
 include estnltk/taggers/standard/syntax/maltparser_tagger/java-res/maltparser/maltparser-1.9.0.jar
