@@ -8,7 +8,7 @@ from collections import OrderedDict
 from estnltk import Text
 from estnltk.common import PACKAGE_PATH
 
-from estnltk.taggers.standard.syntax.conll_morph_to_str import conll_to_str
+from estnltk.converters.conll.conll_exporter import layer_to_conll
 
 from estnltk.taggers.standard.morph_analysis.ud_morf import UDMorphConverter
 
@@ -1207,7 +1207,8 @@ def test_ud_morph_to_conllu_conversion():
                                      add_deprel_attribs=True )
     assert ud_converter.output_attributes == ('id', 'lemma', 'upostag', 'xpostag', 'feats', 'head', 'deprel', 'deps', 'misc')
     ud_converter.tag( text )
-    conll_str = conll_to_str( text, conll_morph_layer=ud_converter.output_layer, preserve_ambiguity=True, serialize=True )
+    
+    conll_str = layer_to_conll( text, ud_converter.output_layer, preserve_ambiguity=True, serialize=True )
     
     expected_conll_str = '''1	Rändur	rändur	NOUN	S	Number=Sing|Case=Nom	_	_	_	_
 2	peaks	pidama	VERB	V	Voice=Act|Tense=Pres|Mood=Cnd|VerbForm=Fin	_	_	_	_
