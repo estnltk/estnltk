@@ -467,6 +467,11 @@ class UDMorphConverter( Tagger ):
                                                            sent_ud_annotations )
             # Finally, add annotations to the layer
             for [_base_span, _ud_annotation] in sent_ud_annotations:
+                # Postfix: add None to dependency attributes
+                if 'deprel' in ud_morph.attributes:
+                    for dep_attr in ('head', 'deprel', 'deps', 'misc'):
+                        if len( _ud_annotation.get(dep_attr) ) == 0:
+                            _ud_annotation[dep_attr] = None
                 ud_morph.add_annotation(_base_span, _ud_annotation)
         return ud_morph
 

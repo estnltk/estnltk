@@ -126,7 +126,7 @@ class MaltParser(object):
             self.check_for_java_accessibility()
             self.java_check_completed = True
         # Obtain CONLL formatted version of the text
-        textConllStr = conll_to_str( text, preserve_ambiguity=False, serialize=False )
+        textConllStr = conll_to_str(text, preserve_ambiguity=False, serialize=False, add_ending_tab=True)
         # Execute MaltParser and get results 
         # (either as a CONLL formatted string or as name of the temp conllu file 
         result = \

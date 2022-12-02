@@ -23,14 +23,14 @@ Example:
 
 from conllu.serializer import serialize_field
 
-def conll_to_str(text, conll_morph_layer=None, preserve_ambiguity=True, serialize=True):
+def conll_to_str(text, conll_morph_layer=None, preserve_ambiguity=True, serialize=True, add_ending_tab=False):
     '''
     TODO: relocate to converters.conll
     TODO: add documentation
     TODO: rename conll_morph_layer --> layer
     TODO: make sentences and words layer names changable
     
-    For Maltparser, use settings preserve_ambiguity=False and serialize=False.
+    For Maltparser, use settings preserve_ambiguity=False, serialize=False and add_ending_tab=True.
     ''' 
     input_layer = None
     if conll_morph_layer is not None:
@@ -64,11 +64,17 @@ def conll_to_str(text, conll_morph_layer=None, preserve_ambiguity=True, serializ
                     annotation_deprel  = serialize_field( annotation_deprel )
                     annotation_deps    = serialize_field( annotation_deps )
                     annotation_misc    = serialize_field( annotation_misc )
-                conll_str += '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t\n' % (
+                conll_str += '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s' % (
                     annotation_id, annotation_form, annotation_lemma, annotation_upostag, annotation_xpostag, 
                     annotation_feats, annotation_head, annotation_deprel, annotation_deps, annotation_misc)
+                if add_ending_tab:
+                    # TODO: This is used by Maltparser models, not sure why.
+                    # perhaps we could get rid of it in future
+                    conll_str += '\t\n'
+                else:
+                    conll_str += '\n'
                 if aid == 0 and not preserve_ambiguity:
-                    # Quit 
+                    # Take only first annotation
                     break
         conll_str += '\n'
     return conll_str

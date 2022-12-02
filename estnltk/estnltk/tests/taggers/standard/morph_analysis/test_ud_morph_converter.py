@@ -8,6 +8,8 @@ from collections import OrderedDict
 from estnltk import Text
 from estnltk.common import PACKAGE_PATH
 
+from estnltk.taggers.standard.syntax.conll_morph_to_str import conll_to_str
+
 from estnltk.taggers.standard.morph_analysis.ud_morf import UDMorphConverter
 
 from estnltk.converters import layer_to_dict
@@ -1189,3 +1191,37 @@ def test_ud_morph_converter_generate_num_cases():
 
     #from pprint import pprint
     #pprint( layer_to_dict(text['ud_morph_analysis']) )
+
+
+# -------------------------------------------------------------------------------
+
+def test_ud_morph_to_conllu_conversion():
+    # Test converting UDMorphConverter's output layer to conllu
+    
+    text = Text('Rändur peaks kohe saabuma. Siis saame asjas selgust.')
+    # Tag required layers
+    text.tag_layer(['words', 'sentences', 'morph_analysis'])
+    # Convert morph categories to UD
+    ud_converter = UDMorphConverter( remove_connegatives=True, 
+                                     generate_num_cases=True,
+                                     add_deprel_attribs=True )
+    assert ud_converter.output_attributes == ('id', 'lemma', 'upostag', 'xpostag', 'feats', 'head', 'deprel', 'deps', 'misc')
+    ud_converter.tag( text )
+    conll_str = conll_to_str( text, conll_morph_layer=ud_converter.output_layer, preserve_ambiguity=True, serialize=True )
+    
+    expected_conll_str = '''1	Rändur	rändur	NOUN	S	Number=Sing|Case=Nom	_	_	_	_
+2	peaks	pidama	VERB	V	Voice=Act|Tense=Pres|Mood=Cnd|VerbForm=Fin	_	_	_	_
+2	peaks	pidama	AUX	V	Voice=Act|Tense=Pres|Mood=Cnd|VerbForm=Fin	_	_	_	_
+3	kohe	kohe	ADV	D	_	_	_	_	_
+4	saabuma	saabuma	VERB	V	Voice=Act|VerbForm=Sup|Case=Ill	_	_	_	_
+5	.	.	PUNCT	Z	_	_	_	_	_
+
+1	Siis	siis	ADV	D	_	_	_	_	_
+2	saame	saama	VERB	V	Voice=Act|Tense=Pres|Mood=Ind|VerbForm=Fin|Number=Plur|Person=1	_	_	_	_
+2	saame	saama	AUX	V	Voice=Act|Tense=Pres|Mood=Ind|VerbForm=Fin|Number=Plur|Person=1	_	_	_	_
+3	asjas	asi	NOUN	S	Number=Sing|Case=Ine	_	_	_	_
+4	selgust	selgus	NOUN	S	Number=Sing|Case=Par	_	_	_	_
+5	.	.	PUNCT	Z	_	_	_	_	_
+
+'''
+    assert conll_str == expected_conll_str
