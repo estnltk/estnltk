@@ -221,7 +221,7 @@ class UDMorphConverter( Tagger ):
                  input_sentences_layer:str='sentences', \
                  input_morph_analysis_layer:str='morph_analysis', \
                  input_clauses_layer:str='clauses', \
-                 conversion_rules_dir:str=None, \
+                 conversion_rules_dir:str=DEFAULT_VM_CONV_RULES_DIR, \
                  add_deprel_attribs:bool=False, \
                  remove_connegatives:bool=True, \
                  generate_num_cases:bool=True, \
@@ -242,7 +242,7 @@ class UDMorphConverter( Tagger ):
             input_morph_analysis_layer: str (default: 'morph_analysis')
                 Name of the input morph_analysis layer;
             
-            conversion_rules_dir: str (default: None)
+            conversion_rules_dir: str (default: DEFAULT_VM_CONV_RULES_DIR)
                 Directory containing *.tab files with dictionary-based conversions, 
                 each mapping Vabamorf's a lemma (and optionally part of speech) to 
                 appropriate upostags and feats. 
