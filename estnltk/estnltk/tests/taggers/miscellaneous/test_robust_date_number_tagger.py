@@ -6,7 +6,7 @@ from estnltk.taggers import RobustDateNumberTagger
 
 
 def test_tagger():
-    tagger = RobustDateNumberTagger(conflict_resolving_strategy='ALL')
+    tagger = RobustDateNumberTagger(conflict_resolver='KEEP_ALL')
     input_file = abs_path('tests/taggers/miscellaneous/robust_date_number_tagger_input.json')
     target_file = abs_path('tests/taggers/miscellaneous/robust_date_number_tagger_target.json')
 
