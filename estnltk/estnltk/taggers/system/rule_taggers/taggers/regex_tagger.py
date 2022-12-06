@@ -214,7 +214,7 @@ class RegexTagger(Tagger):
             span = Span(base_span=element[0], layer=layer)
             rule = element[2]
             matchobj = element[1]
-            annotation_dict = rule.attributes
+            annotation_dict = rule.attributes.copy()
             annotation_dict[self.match_attribute] = matchobj
 
             if self.global_decorator is not None:
