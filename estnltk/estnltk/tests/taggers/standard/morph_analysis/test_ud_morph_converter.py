@@ -1,6 +1,7 @@
 #
 #  Tests for UDMorphConverter. Smoke testing the main functionalities.
-#  Extensive testing can be done on the UD corpus: https://github.com/UniversalDependencies/UD_Estonian-EDT
+#  Code for extensive testing on the UD corpus can be found here: 
+#    https://github.com/estnltk/estnltk-model-training/tree/main/ud_morph_tools/eval_ud_morph_conv
 #
 
 from collections import OrderedDict
