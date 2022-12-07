@@ -1,7 +1,11 @@
-from estnltk.legacy.dict_taggers.span_tagger import SpanTagger
-from estnltk.legacy.dict_taggers.regex_tagger import RegexTagger
-from estnltk.legacy.dict_taggers.phrase_tagger import PhraseTagger
-import re
+import regex as re
+
+from estnltk.taggers.system.rule_taggers import PhraseTagger
+from estnltk.taggers.system.rule_taggers import SpanTagger
+from estnltk.taggers.system.rule_taggers import RegexTagger
+from estnltk.taggers.system.rule_taggers import AmbiguousRuleset, Ruleset
+from estnltk.taggers.system.rule_taggers import StaticExtractionRule
+
 from estnltk.taggers.system.grammar_taggers.finite_grammar import Rule, Grammar
 from estnltk.taggers import Tagger
 from estnltk.taggers import Atomizer
@@ -10,11 +14,21 @@ from estnltk.taggers import GrammarParsingTagger
 from estnltk.taggers import GapTagger
 from os import path
 
+def _house_nr_rules_decorator(text, base_span, annotation):
+    assert 'match' in annotation
+    is_valid = annotation['_validator_']( annotation['match'] )
+    if not is_valid:
+        return None
+    annotation['value'] = annotation['value']( annotation['match'] )
+    return annotation
+
+def _zip_code_rules_decorator(text, base_span, annotation):
+    assert 'match' in annotation
+    annotation['value'] = annotation['value']( annotation['match'] )
+    return annotation
 
 class AddressPartTagger(Tagger):
-    """
-    Tags address parts.
-    """
+    """Tags address parts."""
 
     conf_param = ['house_nr_tagger','zip_code_tagger', 'spec_voc_tagger', 'street_name_tagger', 'place_name_tagger',
                   'atomizer2', 'atomizer2a', 'atomizer3', 'gaps_tagger', 'merge_tagger',
@@ -26,64 +40,69 @@ class AddressPartTagger(Tagger):
                  # overlapped: bool = True,
                  output_layer: str = 'address_parts',
                  input_words_layer: str = 'words',
-                 # output_nodes={'ADDRESS'}
                  ):
         self.input_layers = [input_words_layer]
         self.output_attributes = tuple(output_attributes)
         self.output_layer = output_layer
         # priority_attribute = '_priority_'
 
-        house_nr_voc = [
-        {'grammar_symbol': 'MAJA',
-         'regex_type': 'house_nr',
-         '_regex_pattern_': r'([0-9]{1,3}([abcdefghijkABCDEFGHIJK])?/?){1,3}(\s*-\s*[0-9]{1,3})?',
-         '_group_': 0,
-         '_priority_': 1,
-         '_validator_': lambda m: not re.search(r'[0-9]{4,}', m.group(0)),
-         'value': lambda m: re.search(r'([0-9]{1,3}([abcdefghijkABCDEFGHIJK])?/?){1,3}(\s*-\s*[0-9]{1,3})?', 
-                                      m.group(0)).group(0)}]
-
+        house_nr_ruleset = Ruleset()
+        house_nr_ruleset.add_rules( [ \
+            StaticExtractionRule( pattern=re.Regex( r'([0-9]{1,3}([abcdefghijkABCDEFGHIJK])?/?){1,3}(\s*-\s*[0-9]{1,3})?' ), 
+                                  group=0, 
+                                  attributes={ 'grammar_symbol':'MAJA', 
+                                               'regex_type': 'house_nr', 
+                                               'value': lambda m: \
+                                                        re.search(r'([0-9]{1,3}([abcdefghijkABCDEFGHIJK])?/?){1,3}(\s*-\s*[0-9]{1,3})?', \
+                                                                  m.group(0)).group(0), 
+                                               '_validator_': lambda m: not re.search(r'[0-9]{4,}', m.group(0)), 
+                                               '_priority_': 1,
+                                               } )
+                                    ] 
+        )
         self.house_nr_tagger = RegexTagger(output_layer='house_nr',
-                                           vocabulary=house_nr_voc,
-                                           ambiguous=True,
-                                           output_attributes=('grammar_symbol', 'regex_type', 'value'))
-        
-        zip_code_voc = [
-        {'grammar_symbol': 'INDEKS',
-         'regex_type': 'zip_code',
-         '_regex_pattern_': r'[0-9]{5}',
-         '_group_': 0,
-         '_priority_': 1,
-         '_validator_': lambda m: True,
-         'value': lambda m: m.group(0)}]
-        
-        self.zip_code_tagger = RegexTagger(output_layer='zip_code',
-                                           vocabulary=zip_code_voc,
-                                           ambiguous=True,
-                                           output_attributes=('grammar_symbol', 'regex_type', 'value'))
-        
-        vocabulary_file1 = path.join(path.dirname(__file__), 'asula_vocabulary.csv')
+                                           ruleset=house_nr_ruleset,
+                                           decorator=_house_nr_rules_decorator,
+                                           output_attributes=('grammar_symbol', 'regex_type', 'value') )
 
+        zip_code_ruleset = Ruleset()
+        zip_code_ruleset.add_rules( [ \
+            StaticExtractionRule( pattern=re.Regex( r'[0-9]{5}' ), 
+                                  group=0, 
+                                  attributes={ 'grammar_symbol':'INDEKS', 
+                                               'regex_type': 'zip_code', 
+                                               'value': lambda m: m.group(0), 
+                                               '_priority_': 1,
+                                               } )
+                                    ] 
+        )
+        self.zip_code_tagger = RegexTagger(output_layer='zip_code',
+                                           ruleset=zip_code_ruleset,
+                                           decorator=_zip_code_rules_decorator,
+                                           output_attributes=('grammar_symbol', 'regex_type', 'value'))
+        
+        place_name_ruleset = AmbiguousRuleset()
+        place_name_ruleset.load( file_name=path.join(path.dirname(__file__), 'asula_vocabulary.csv'), 
+                                 key_column='_phrase_' )
         self.place_name_tagger = PhraseTagger(output_layer='place_name',
                                               input_layer=input_words_layer,
                                               input_attribute='text',
-                                              vocabulary=vocabulary_file1,
-                                              key='_phrase_',
-                                              output_ambiguous=True,
+                                              ruleset=place_name_ruleset,
+                                              phrase_attribute='_phrase_',
                                               output_attributes=['type', 'grammar_symbol'],
-                                              conflict_resolving_strategy='MAX')
+                                              conflict_resolver='KEEP_MAXIMAL')
         
-        vocabulary_file2 = path.join(path.dirname(__file__), 'street_vocabulary.csv')
-
+        street_name_ruleset = AmbiguousRuleset()
+        street_name_ruleset.load( file_name=path.join(path.dirname(__file__), 'street_vocabulary.csv'), 
+                                  key_column='_phrase_' )
         self.street_name_tagger = PhraseTagger(output_layer='street_name',
-                                         input_layer=input_words_layer,
-                                         input_attribute='text',
-                                         vocabulary=vocabulary_file2,
-                                         key='_phrase_',
-                                         output_ambiguous=True,
-                                         output_attributes=['type', 'grammar_symbol'],
-                                         conflict_resolving_strategy='MAX') 
-                                         
+                                               input_layer=input_words_layer,
+                                               input_attribute='text',
+                                               ruleset=street_name_ruleset,
+                                               phrase_attribute='_phrase_',
+                                               output_attributes=['type', 'grammar_symbol'],
+                                               conflict_resolver='KEEP_MAXIMAL')
+
         '''vocabulary_file3 = path.join(path.dirname(__file__), 'farm_vocabulary.csv')
 
         self.farm_name_tagger = PhraseTagger(output_layer='farm_name',
@@ -93,16 +112,16 @@ class AddressPartTagger(Tagger):
                                          key='_phrase_',
                                          output_ambiguous=True,
                                          output_attributes=['type', 'grammar_symbol'],
-                                         conflict_resolving_strategy='MAX')  '''                                                                  
+                                         conflict_resolving_strategy='MAX')  '''
 
-        spec_word_vocabulary = path.join(path.dirname(__file__), 'spec_word_voc.csv')
-
+        spec_word_ruleset = AmbiguousRuleset()
+        spec_word_ruleset.load(file_name=path.join(path.dirname(__file__), 'spec_word_voc.csv'), 
+                               key_column='_token_')
         self.spec_voc_tagger = SpanTagger(output_layer='spec_word',
+                                          ruleset=spec_word_ruleset,
                                           input_layer=input_words_layer,
                                           input_attribute='text',
-                                          ambiguous=True,
-                                          output_attributes=('type', 'grammar_symbol'),
-                                          vocabulary=spec_word_vocabulary)
+                                          output_attributes=('type', 'grammar_symbol'))
 
         self.atomizer2 = Atomizer(output_layer='some_layer2',
                              input_layer='place_name',
