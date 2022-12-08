@@ -14,6 +14,7 @@ from pandas.errors import EmptyDataError
 
 from estnltk.common import PACKAGE_PATH
 
+from estnltk_core import EnvelopingBaseSpan
 from estnltk import EnvelopingSpan
 from estnltk import SpanList
 from estnltk import Layer
@@ -715,15 +716,15 @@ class CompoundTokenTagger( Tagger ):
         Creates new SpanList that covers both compound_token_spans and regular_spans from given 
         text. Returns created SpanList.
         """
-        # 1) Get all tokens covered by compound_token_spans and regular_spans
+        # 1) Get all base_spans covered by compound_token_spans and regular_spans
         #    (basis material for the new spanlist)
         #    (also, leave out duplicate spans, if such exist)
-        all_covered_tokens = []
+        all_covered_base_spans = []
         for compound_token_span in compound_token_spans:
-            for span in compound_token_span:
-                self._insert_span(span, all_covered_tokens, discard_duplicate=True)
+            for base_span in compound_token_span.base_span:
+                self._insert_span(base_span, all_covered_base_spans, discard_duplicate=True)
         for span in regular_spans:
-            self._insert_span(span, all_covered_tokens, discard_duplicate=True)
+            self._insert_span(span.base_span, all_covered_base_spans, discard_duplicate=True)
 
         # 2) Get attributes
         all_normalizations = {}
@@ -748,8 +749,8 @@ class CompoundTokenTagger( Tagger ):
         normalized_str = None
         if len(all_normalizations.keys()) > 0:
             # get start and end of the entire string (unnormalized)
-            start_index = all_covered_tokens[0].start
-            end_index   = all_covered_tokens[-1].end
+            start_index = all_covered_base_spans[0].start
+            end_index   = all_covered_base_spans[-1].end
             # reconstruct string with normalizations
             i = start_index
             normalized = []
@@ -789,15 +790,17 @@ class CompoundTokenTagger( Tagger ):
         
         # 4) Create new SpanList and assign attributes
         record = {'type':('tokenization_hint',), 'normalized':normalized_str}
-        span = EnvelopingSpan.from_spans(all_covered_tokens, output_layer, [record])
+        span = EnvelopingSpan( base_span=EnvelopingBaseSpan(all_covered_base_spans), 
+                               layer=output_layer )
+        span.add_annotation( record )
         if all_types:
             # Few "repairs" on the types:
             # 1) "non_ending_abbreviation" ('st') + "case_ending" ('st')
             #     ==> "case_ending" ('st')
             if "non_ending_abbreviation" in all_types and \
                "case_ending" in all_types:
-                start_index = all_covered_tokens[0].start
-                end_index   = all_covered_tokens[-1].end
+                start_index = all_covered_base_spans[0].start
+                end_index   = all_covered_base_spans[-1].end
                 full_string = raw_text[start_index : end_index]
                 if full_string.endswith('st'):
                     # 'st' is not "non_ending_abbreviation", but
@@ -807,8 +810,8 @@ class CompoundTokenTagger( Tagger ):
             #     ==> "hyphenation" ('-')
             if "sign" in all_types and \
                "hyphenation" in all_types:
-                start_index = all_covered_tokens[0].start
-                end_index   = all_covered_tokens[-1].end
+                start_index = all_covered_base_spans[0].start
+                end_index   = all_covered_base_spans[-1].end
                 full_string = raw_text[start_index : end_index]
                 if _letter_pattern.match(full_string[0]):
                     # if the string begins with a letter instead of 
