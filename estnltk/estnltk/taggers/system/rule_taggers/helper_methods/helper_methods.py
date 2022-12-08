@@ -26,7 +26,7 @@ def keep_maximal_matches(sorted_tuples: List[Tuple[ElementaryBaseSpan, str]]) \
 
         # Check if the next span covers the current_tuple
         if current_tuple[0].start == next_tuple[0].start:
-            assert current_tuple[0].end < next_tuple[0].end, "Tuple sorting does not work as expected"
+            assert current_tuple[0].end <= next_tuple[0].end, "Tuple sorting does not work as expected"
             current_tuple = next_tuple
             continue
 
