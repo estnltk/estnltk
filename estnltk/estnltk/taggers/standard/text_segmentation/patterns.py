@@ -159,7 +159,7 @@ email_and_www_patterns = [
                          \s?\.\s?                                 # period
                          [{ALPHANUM}_.+-]+)                       # domain
                          '''.format(**MACROS), re.X),
-      'normalized': lambda m: re.sub(r'\s','', m.group(1) ) },
+      'normalized': r"lambda m: re.sub(r'\s','', m.group(1) )" },
       
       
      {'comment': '*) Pattern for detecting (possibly incorrectly tokenized) web addresses #1;',
@@ -178,7 +178,7 @@ email_and_www_patterns = [
                          (\?\S+|\#\S+)?                           # query variables (optional)
                          )
                          '''.format(**MACROS), re.X),
-      'normalized': lambda m: re.sub(r'\s','', m.group(1) ) },
+      'normalized': r"lambda m: re.sub(r'\s','', m.group(1) )" },
       
      {'comment': '*) Pattern for detecting (possibly incorrectly tokenized) web addresses #2;',
       'example': 'http://f6.pmo.ee',
@@ -194,7 +194,7 @@ email_and_www_patterns = [
                          (\?\S+|\#\S+)?                           # query variables (optional)
                          )
                          '''.format(**MACROS), re.X),
-      'normalized': lambda m: re.sub(r'\s','', m.group(1) ) },
+      'normalized': r"lambda m: re.sub(r'\s','', m.group(1) )" },
 
      {'comment': '*) Pattern for detecting (possibly incorrectly tokenized) web addresses #3;',
       'example': 'www. esindus.ee/korteriturg',
@@ -210,7 +210,7 @@ email_and_www_patterns = [
                          (\?\S+|\#\S+)?                           # query variables (optional)
                          )
                          '''.format(**MACROS), re.X),
-      'normalized': lambda m: re.sub(r'\s','', m.group(1) ) },
+      'normalized': r"lambda m: re.sub(r'\s','', m.group(1) )" },
       
      {'comment': '*) Pattern for detecting short web addresses (without prefixes "http" and "www");',
       'example': 'Postimees.ee',
@@ -226,7 +226,7 @@ email_and_www_patterns = [
                          )
                          ([^{ALPHANUM}]|$)                               # non-alphanum or ending
                          '''.format(**MACROS), re.X),
-      'normalized': lambda m: re.sub(r'\s','', m.group(2) ) },
+      'normalized': r"lambda m: re.sub(r'\s','', m.group(2) )" },
 
             ]
 
@@ -574,14 +574,14 @@ abbreviations_before_initials_patterns = [
 
 initial_patterns = [
     { 'comment': '*) Negative pattern: filters out "degree + temperature unit" before it is annotated as an initial;',
-      'pattern_type':   'negative:temperature_unit', # prefix "negative:" instructs to delete this pattern afterwards
+      'pattern_type': 'negative:temperature_unit', # prefix "negative:" instructs to delete this pattern afterwards
       'example': 'ºC',
       '_regex_pattern_': re.compile(r'''
                         ([º˚\u00B0]+\s*[CF])            # degree + temperature unit -- this shouldn't be an initial
                         '''.format(**MACROS), re.X),
      '_group_': 1,
      '_priority_': (4, 0, 1),
-     'normalized': lambda m: re.sub(r'\s','', m.group(1)),
+     'normalized': r"lambda m: re.sub(r'\s','', m.group(1))",
      },
     { 'comment': '*) Names starting with 2 initials;',
       'pattern_type': 'name_with_initial',
@@ -595,7 +595,7 @@ initial_patterns = [
                         '''.format(**MACROS), re.X),
      '_group_': 0,
      '_priority_': (4, 1),
-     'normalized': lambda m: re.sub('\1.\2. \3', '', m.group(0)),
+     'normalized': r"lambda m: re.sub('\1.\2. \3', '', m.group(0))",
      },
     { 'comment': '*) Names starting with one initial;',
       'pattern_type': 'name_with_initial',
@@ -607,7 +607,7 @@ initial_patterns = [
                         '''.format(**MACROS), re.X),
      '_group_': 0,
      '_priority_': (4, 2),
-     'normalized': lambda m: re.sub('\1. \2', '', m.group(0)),
+     'normalized': r"lambda m: re.sub('\1. \2', '', m.group(0))",
      }
                     ]
 

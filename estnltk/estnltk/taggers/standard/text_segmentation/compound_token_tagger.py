@@ -12,17 +12,21 @@ from typing import Union
 from pandas import read_csv
 from pandas.errors import EmptyDataError
 
+from estnltk_core import Layer
+from estnltk_core import SpanList
+from estnltk_core import EnvelopingSpan
+from estnltk_core import EnvelopingBaseSpan
+from estnltk_core.layer_operations import resolve_conflicts
+
 from estnltk.common import PACKAGE_PATH
 
-from estnltk_core import EnvelopingBaseSpan
-from estnltk import EnvelopingSpan
-from estnltk import SpanList
-from estnltk import Layer
 from estnltk.taggers import Tagger
-from estnltk.legacy.dict_taggers.regex_tagger import RegexTagger
 from estnltk.taggers import Disambiguator
 from estnltk.taggers.standard.morph_analysis.proxy import MorphAnalyzedToken
-from estnltk_core.layer_operations import resolve_conflicts
+
+from estnltk.taggers.system.rule_taggers import RegexTagger
+from estnltk.taggers.system.rule_taggers import AmbiguousRuleset
+from estnltk.taggers.system.rule_taggers import StaticExtractionRule
 
 from .patterns import MACROS
 from .patterns import email_and_www_patterns, emoticon_patterns, xml_patterns
@@ -191,68 +195,110 @@ class CompoundTokenTagger( Tagger ):
         self.custom_abbreviations = custom_abbreviations
         assert isinstance(do_not_join_on_strings, (list, tuple))
         self.do_not_join_on_strings = do_not_join_on_strings
+
+        # =========================
+        #  Decorator for tokenization hints tagger
+        # =========================
+        def _tokenization_hints_decorator(text, base_span, annotation):
+            assert 'match' in annotation
+            normalized = annotation['normalized']
+            if isinstance(normalized, str) and normalized.startswith('lambda m'):
+                # Convert string to callable
+                normalized = eval(normalized)
+            if callable(normalized):
+                annotation['normalized'] = normalized( annotation['match'] )
+            return annotation
+    
         # =========================
         #  1st level hints tagger
         # =========================
-        _vocabulary_1 = [] 
+        rules_1 = [] 
         for pat in patterns_1:
+            # Check if the pattern is allowed
+            allow_pattern = False
             pattern_type = pat['pattern_type'].lower()
             if pattern_type in ['numeric', 'numeric_date', 'numeric_time', 'roman_numerals']:
                 if tag_numbers:
-                    _vocabulary_1.append( pat )
+                    allow_pattern = True
             elif pattern_type in ['unit']:
                 if tag_units:
-                    _vocabulary_1.append( pat )
+                    allow_pattern = True
             elif pattern_type in ['xml_tag']:
                 if tag_xml:
-                    _vocabulary_1.append( pat )
+                    allow_pattern = True
             elif pattern_type in ['email', 'www_address', 'www_address_short']:
                 if tag_email_and_www:
-                    _vocabulary_1.append( pat )
+                    allow_pattern = True
             elif pattern_type in ['emoticon']:
                 if tag_emoticons:
-                    _vocabulary_1.append( pat )
+                    allow_pattern = True
             elif pattern_type in ['abbreviation', 'non_ending_abbreviation']:
                 if tag_abbreviations:
-                    _vocabulary_1.append( pat )
+                    allow_pattern = True
             elif pattern_type in ['negative:temperature_unit', 'name_with_initial']:
                 if tag_initials:
-                    _vocabulary_1.append( pat )
+                    allow_pattern = True
             elif pattern_type in ['hashtag', 'username_mention']:
                 if tag_hashtags_and_usernames:
-                    _vocabulary_1.append( pat )
+                    allow_pattern = True
             else:
                 # There is always room for some extra user-defined patterns
-                _vocabulary_1.append( pat )
-        self._tokenization_hints_tagger_1 = RegexTagger(vocabulary=_vocabulary_1,
+                allow_pattern = True
+            if allow_pattern:
+                # Create rule from the pattern
+                rule = StaticExtractionRule( pattern=pat['_regex_pattern_'], 
+                                             group=pat['_group_'], 
+                                             attributes={ '_priority_': pat['_priority_'], 
+                                                          'pattern_type': pat['pattern_type'], 
+                                                          'normalized': pat['normalized']
+                                                        } )
+                rules_1.append( rule )
+        tokenization_hints_1 = AmbiguousRuleset()
+        tokenization_hints_1.add_rules(rules_1)
+        self._tokenization_hints_tagger_1 = RegexTagger(ruleset=tokenization_hints_1,
                                                         output_attributes=('normalized', '_priority_', 'pattern_type'),
-                                                        conflict_resolving_strategy=conflict_resolving_strategy,
-                                                        priority_attribute='_priority_',
+                                                        conflict_resolver='KEEP_ALL',
+                                                        decorator=_tokenization_hints_decorator, 
                                                         overlapped=False,
                                                         output_layer='tokenization_hints',
                                                         )
         # =========================
         #  2nd level hints tagger
         # =========================
-        _vocabulary_2 = []
+        rules_2 = [] 
         for pat in patterns_2:
+            # Check if the pattern is allowed
+            allow_pattern = False
             pattern_type = pat['pattern_type'].lower()
             if pattern_type in ['case_ending']:
                 if tag_case_endings:
-                    _vocabulary_2.append( pat )
+                    allow_pattern = True
             elif pattern_type in ['sign', 'percentage']:
                 if tag_numbers:
-                    _vocabulary_2.append( pat )
+                    allow_pattern = True
             else:
                 # There is always room for some extra user-defined patterns
-                _vocabulary_2.append( pat )
+                allow_pattern = True
+            if allow_pattern:
+                # Create rule from the pattern
+                rule = StaticExtractionRule( pattern=pat['_regex_pattern_'], 
+                                             group=pat['_group_'], 
+                                             attributes={ '_priority_': pat['_priority_'], 
+                                                          'pattern_type': pat['pattern_type'], 
+                                                          'normalized': pat['normalized'], 
+                                                          'left_strict': pat['left_strict'], 
+                                                          'right_strict': pat['right_strict'], 
+                                                        } )
+                rules_2.append( rule )
         self._tokenization_hints_tagger_2 = None
-        if _vocabulary_2:
-            self._tokenization_hints_tagger_2 = RegexTagger(vocabulary=_vocabulary_2,
+        tokenization_hints_2 = AmbiguousRuleset()
+        tokenization_hints_2.add_rules(rules_2)
+        if rules_2:
+            self._tokenization_hints_tagger_2 = RegexTagger(ruleset=tokenization_hints_2,
                                                             output_attributes=('normalized', '_priority_', 'pattern_type',
                                                             'left_strict', 'right_strict'),
-                                                            conflict_resolving_strategy=conflict_resolving_strategy,
-                                                            priority_attribute='_priority_',
+                                                            conflict_resolver='KEEP_ALL',
+                                                            decorator=_tokenization_hints_decorator,
                                                             overlapped=False,
                                                             output_layer='tokenization_hints',
                                                             )
@@ -275,6 +321,10 @@ class CompoundTokenTagger( Tagger ):
                      text_object=None,
                      enveloping=self._input_tokens_layer,
                      ambiguous=True)
+
+    @staticmethod
+    def _any_starts_with(str_list, target):
+        return any([s.startswith(target) for s in str_list])
 
     def _make_layer(self, text, layers, status: dict):
         """Creates compound_tokens layer.
@@ -303,17 +353,19 @@ class CompoundTokenTagger( Tagger ):
         conflict_status = {}
         tokenization_hints = {}
         new_layer = self._tokenization_hints_tagger_1.make_layer(text=text, layers=layers, status=conflict_status)
+        # TODO: RegexTagger should resolve conflicts by itself in future
+        resolve_conflicts( new_layer, priority_attribute='_priority_' )
         for sp in new_layer:
             #print('*',text.text[sp.start:sp.end], sp.pattern_type, sp.normalized)
-            if hasattr(sp, 'pattern_type') and sp.pattern_type.startswith('negative:'):
+            if hasattr(sp, 'pattern_type') and CompoundTokenTagger._any_starts_with(sp.pattern_type, 'negative:'):
                 # This is a negative pattern (used for preventing other patterns from matching),
                 # and thus should be discarded altogether ...
                 continue
             end_node = {'end': sp.end}
             if hasattr(sp, 'pattern_type'):
-                end_node['pattern_type'] = sp.pattern_type
+                end_node['pattern_type'] = sp.pattern_type[0]
             if hasattr(sp, 'normalized'):
-                end_node['normalized'] = sp.normalized
+                end_node['normalized'] = sp.normalized[0]
             # Note: we assume that all conflicts have been resolved by 
             # RegexTagger, that is -- exactly one (compound) token begins
             # from one starting position ...
@@ -558,6 +610,8 @@ class CompoundTokenTagger( Tagger ):
         new_layer = self._tokenization_hints_tagger_2.make_layer(text=text,
                                                                  layers=layers,
                                                                  status=conflict_status)
+        # TODO: RegexTagger should resolve conflicts by itself in future
+        resolve_conflicts( new_layer, priority_attribute='_priority_' )
         # Find tokens that should be joined according to 2nd level hints and 
         # create new compound tokens based on them
         last_sp_start = -1
@@ -565,13 +619,15 @@ class CompoundTokenTagger( Tagger ):
         for sp in new_layer:
             # a sanity check: spans should be 1) ordered, 2) not overlapping
             assert last_sp_start < sp.start
+            sp_left_strict = sp.left_strict[0]
+            sp_right_strict = sp.right_strict[0]
             # get tokens covered by the span
             covered_compound_tokens, last_cp_index =\
                 self._get_covered_tokens(
-                    sp.start,sp.end,sp.left_strict,sp.right_strict, compound_tokens_lists, -1)
+                    sp.start,sp.end,sp_left_strict,sp_right_strict, compound_tokens_lists, -1)
             covered_tokens, last_token_index = \
                 self._get_covered_tokens(
-                    sp.start, sp.end, sp.left_strict, sp.right_strict, 
+                    sp.start, sp.end, sp_left_strict, sp_right_strict, 
                     layers[self._input_tokens_layer], last_token_index, optimize=True)
             # remove regular tokens that are within compound tokens
             covered_tokens = \
@@ -586,7 +642,7 @@ class CompoundTokenTagger( Tagger ):
             leftmost2 = \
                 covered_compound_tokens[0].start if covered_compound_tokens else len(text.text)
             leftmost = min(leftmost1, leftmost2)
-            if sp.left_strict and sp.start != leftmost:
+            if sp_left_strict and sp.start != leftmost:
                 # hint's left boundary was supposed to match exactly a token start, but did not
                 constraints_satisfied = False
             rightmost1 = \
@@ -594,7 +650,7 @@ class CompoundTokenTagger( Tagger ):
             rightmost2 = \
                 covered_compound_tokens[-1].end if covered_compound_tokens else -1
             rightmost = max( rightmost1, rightmost2 )
-            if sp.right_strict  and  sp.end != rightmost:
+            if sp_right_strict  and  sp.end != rightmost:
                 # hint's right boundary was supposed to match exactly a token end, but did not
                 constraints_satisfied = False
             last_sp_start = sp.start
@@ -738,14 +794,14 @@ class CompoundTokenTagger( Tagger ):
             for compound_token_type in compound_token_span.type[0]:
                 all_types.append( compound_token_type )
         # Add type of the joining span (if it exists) to the end
-        joining_span_type = joining_span.pattern_type if hasattr(joining_span, 'pattern_type') else None
+        joining_span_type = joining_span.pattern_type[0] if hasattr(joining_span, 'pattern_type') else None
         if joining_span_type:
             all_types.append(joining_span_type)
 
         # 3) Provide normalized string, if normalization is required
         if hasattr(joining_span, 'normalized') and joining_span.normalized:
             start = joining_span.start
-            all_normalizations[start] = (joining_span.normalized, joining_span.end)
+            all_normalizations[start] = (joining_span.normalized[0], joining_span.end)
         normalized_str = None
         if len(all_normalizations.keys()) > 0:
             # get start and end of the entire string (unnormalized)
