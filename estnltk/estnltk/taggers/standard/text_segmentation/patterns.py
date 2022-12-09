@@ -101,6 +101,8 @@ MACROS = {
 MACROS['LETTERS'] = MACROS['LOWERCASE'] + MACROS['UPPERCASE']
 MACROS['ALPHANUM'] = MACROS['LETTERS'] + MACROS['NUMERIC']
 
+WHITESPACEPAT = re.compile(r'\s')
+
 # =================================================
 #     1st level patterns
 #     ("strict tokenization hints")
@@ -117,7 +119,7 @@ xml_patterns = [
       '_regex_pattern_': re.compile(r'''
                          (<[^<>]{1,25}?>)                         # an xml tag
                          '''.format(**MACROS), re.X),
-      'normalized': 'lambda m: None'},
+      'normalized': lambda m: None},
     { 'comment': '*) Detect XML tags from the text (no content limit, but must include =");',
       'example': '<a href=”http://sait.ee/” rel=”nofollow”>',
       'pattern_type': 'xml_tag',
@@ -126,7 +128,7 @@ xml_patterns = [
       '_regex_pattern_': re.compile(r'''
                          (<[^<>]+?=["”][^<>]+?>)                  # an xml tag
                          '''.format(**MACROS), re.X),
-      'normalized': 'lambda m: None'},
+      'normalized': lambda m: None},
 ]
 
 email_and_www_patterns = [
@@ -141,7 +143,7 @@ email_and_www_patterns = [
                              (\(at\)|\[at\]|@)                 # @
                              [{ALPHANUM}-]+\.[{ALPHANUM}-.]+)  # domain
                           '''.format(**MACROS), re.X),
-      'normalized': 'lambda m: None'},
+      'normalized': lambda m: None},
       
      {'comment': '*) Pattern for detecting common e-mail formats;',
       'example': 'sambamees . siim @ pri . ee',
@@ -159,7 +161,7 @@ email_and_www_patterns = [
                          \s?\.\s?                                 # period
                          [{ALPHANUM}_.+-]+)                       # domain
                          '''.format(**MACROS), re.X),
-      'normalized': r"lambda m: re.sub(r'\s','', m.group(1) )" },
+      'normalized': lambda m: WHITESPACEPAT.sub('', m.group(1)) },
       
       
      {'comment': '*) Pattern for detecting (possibly incorrectly tokenized) web addresses #1;',
@@ -178,7 +180,7 @@ email_and_www_patterns = [
                          (\?\S+|\#\S+)?                           # query variables (optional)
                          )
                          '''.format(**MACROS), re.X),
-      'normalized': r"lambda m: re.sub(r'\s','', m.group(1) )" },
+      'normalized': lambda m: WHITESPACEPAT.sub('', m.group(1)) },
       
      {'comment': '*) Pattern for detecting (possibly incorrectly tokenized) web addresses #2;',
       'example': 'http://f6.pmo.ee',
@@ -194,7 +196,7 @@ email_and_www_patterns = [
                          (\?\S+|\#\S+)?                           # query variables (optional)
                          )
                          '''.format(**MACROS), re.X),
-      'normalized': r"lambda m: re.sub(r'\s','', m.group(1) )" },
+      'normalized': lambda m: WHITESPACEPAT.sub('', m.group(1)) },
 
      {'comment': '*) Pattern for detecting (possibly incorrectly tokenized) web addresses #3;',
       'example': 'www. esindus.ee/korteriturg',
@@ -210,7 +212,7 @@ email_and_www_patterns = [
                          (\?\S+|\#\S+)?                           # query variables (optional)
                          )
                          '''.format(**MACROS), re.X),
-      'normalized': r"lambda m: re.sub(r'\s','', m.group(1) )" },
+      'normalized': lambda m: WHITESPACEPAT.sub('', m.group(1)) },
       
      {'comment': '*) Pattern for detecting short web addresses (without prefixes "http" and "www");',
       'example': 'Postimees.ee',
@@ -226,7 +228,7 @@ email_and_www_patterns = [
                          )
                          ([^{ALPHANUM}]|$)                               # non-alphanum or ending
                          '''.format(**MACROS), re.X),
-      'normalized': r"lambda m: re.sub(r'\s','', m.group(2) )" },
+      'normalized': lambda m: WHITESPACEPAT.sub('', m.group(2)) },
 
             ]
 
@@ -240,7 +242,7 @@ emoticon_patterns = [
       '_regex_pattern_': re.compile(r'''
                          ([;:][=-]*[\)|\(ODP]+)                   # potential emoticon
                          '''.format(**MACROS), re.X),
-      'normalized': r"lambda m: re.sub(r'[\s]' ,'' , m.group(0))"},
+      'normalized': lambda m: WHITESPACEPAT.sub('', m.group(0))},
     # Patterns for emoticons in etTenTen: initial versions created by Kristiina Vaik
     { 'comment': '*) Aims to detect most common emoticons #2;',
       'example': ':-S',
@@ -252,7 +254,7 @@ emoticon_patterns = [
                          (:-?[Ss]|:S:S:S)                         # potential emoticon
                          (\s)
                          '''.format(**MACROS), re.X),
-      'normalized': r"lambda m: re.sub(r'[\s]' ,'' , m.group(2))"},
+      'normalized': lambda m: WHITESPACEPAT.sub('', m.group(2))},
     { 'comment': '*) Aims to detect most common emoticons #3;',
       'example': ':-o',
       'pattern_type': 'emoticon',
@@ -263,7 +265,7 @@ emoticon_patterns = [
                          ([:;][-']+[(\[/*o9]+)                    # potential emoticon
                          (\s)
                          '''.format(**MACROS), re.X),
-      'normalized': r"lambda m: re.sub(r'[\s]' ,'' , m.group(2))"},
+      'normalized': lambda m: WHITESPACEPAT.sub('', m.group(2))},
     { 'comment': '*) Aims to detect most common emoticons #4;',
       'example': ':o )',
       'pattern_type': 'emoticon',
@@ -272,7 +274,7 @@ emoticon_patterns = [
       '_regex_pattern_': re.compile(r'''
                          (\s)((=|:-|[;:]o)\s\)(\s\))*)(\s)        # potential emoticon
                          '''.format(**MACROS), re.X),
-      'normalized': r"lambda m: re.sub(r'[\s]' ,'' , m.group(2))"},
+      'normalized': lambda m: WHITESPACEPAT.sub('', m.group(2))},
     { 'comment': '*) Aims to detect most common emoticons #5;',
       'example': ':// ?',
       'pattern_type': 'emoticon',
@@ -283,7 +285,7 @@ emoticon_patterns = [
                          ([:;][\[/\]@o]+)                         # potential emoticon
                          (\s)
                          '''.format(**MACROS), re.X),
-      'normalized': r"lambda m: re.sub(r'[\s]' ,'' , m.group(2))"},
+      'normalized': lambda m: WHITESPACEPAT.sub('', m.group(2))},
     { 'comment': '*) Aims to detect most common emoticons #6;',
       'example': ': D',
       'pattern_type': 'emoticon',
@@ -294,7 +296,7 @@ emoticon_patterns = [
                          ([:;]\sD)                               # potential emoticon
                          (\s)
                          '''.format(**MACROS), re.X),
-      'normalized': r"lambda m: re.sub(r'[\s]' ,'' , m.group(2))"},
+      'normalized': lambda m: WHITESPACEPAT.sub('', m.group(2))},
     { 'comment': '*) Aims to detect most common emoticons #7;',
       'example': ':K',
       'pattern_type': 'emoticon',
@@ -304,7 +306,7 @@ emoticon_patterns = [
                          (:[KL])                                 # potential emoticon
                          (\s)
                          '''.format(**MACROS), re.X),
-      'normalized': r"lambda m: re.sub(r'[\s]' ,'' , m.group(1))"},
+      'normalized': lambda m: WHITESPACEPAT.sub('', m.group(1))},
 ]
 
 hashtag_and_username_patterns = [
@@ -317,7 +319,7 @@ hashtag_and_username_patterns = [
       '_regex_pattern_': re.compile(r'''
                          (\#[{ALPHANUM}_]+)          # potential hashtag
                          '''.format(**MACROS), re.X),
-      'normalized': r"lambda m: re.sub(r'[\s]' ,'' , m.group(0))"},
+      'normalized': lambda m: WHITESPACEPAT.sub('', m.group(0))},
     # Pattern for detecting Twitter-style username mentions
     { 'comment': '*) detect Twitter-style username mentions. Note: the pattern is a simplification;',
       'example': 'RT @polaaarkaru',
@@ -327,7 +329,7 @@ hashtag_and_username_patterns = [
       '_regex_pattern_': re.compile(r'''
                          (@[{ALPHANUM}_]+)           # potential user name mention
                          '''.format(**MACROS), re.X),
-      'normalized': r"lambda m: re.sub(r'[\s]' ,'' , m.group(0))"},
+      'normalized': lambda m: WHITESPACEPAT.sub('', m.group(0))},
 ]
 
 _month_period_year_pattern = re.compile(r'^([012][0-9]|1[012])\.(1[7-9]\d\d|2[0-2]\d\d)$')
@@ -362,7 +364,7 @@ number_patterns = [
                          (1[7-9]\d\d|2[0-2]\d\d)                  # year
                          a?                                       # a (optional)
                          '''.format(**MACROS), re.X),
-      'normalized': r"lambda m: re.sub(r'[\s]' ,'' , m.group(0))"},
+      'normalized': lambda m: WHITESPACEPAT.sub('', m.group(0))},
     { 'comment': '*) Date patterns in the ISO format "yyyy-mm-dd";',
       'example': '2011-04-22',
       'pattern_type': 'numeric_date',
@@ -375,7 +377,7 @@ number_patterns = [
                          -                                        # hypen
                          (3[01]|[12][0-9]|0?[0-9])                # day
                          '''.format(**MACROS), re.X),
-      'normalized': r"lambda m: re.sub(r'[\s]' ,'' , m.group(0))"},
+      'normalized': lambda m: WHITESPACEPAT.sub('', m.group(0))},
     { 'comment': '*) Date patterns in the commonly used form "dd/mm/yy";',
       'example': '19/09/11',
       'pattern_type': 'numeric_date',
@@ -388,7 +390,7 @@ number_patterns = [
                          /                                              # slash
                          (1[7-9]\d\d|2[0-2]\d\d|[7-9][0-9]|[0-3][0-9])  # year
                          '''.format(**MACROS), re.X),
-      'normalized': r"lambda m: re.sub(r'[\s]' ,'' , m.group(0))"},
+      'normalized': lambda m: WHITESPACEPAT.sub('', m.group(0))},
     { 'comment': '*) Date patterns that contain month as a Roman numeral: "dd. roman_mm yyyy";',
       'example': '26. XII 1933',
       'pattern_type': 'numeric_date',
@@ -402,7 +404,7 @@ number_patterns = [
                          \s+                                            # space(s)
                          (1[7-9]\d\d|2[0-2]\d\d)                        # year
                          '''.format(**MACROS), re.X),
-      'normalized': r"lambda m: re.sub(r'\s{2,}',' ', m.group(0))"},
+      'normalized': lambda m: re.sub(r'\s{2,}',' ', m.group(0))},
     { 'comment': '*) Time patterns in the commonly used form "HH:mm:ss";',
       'example': '21:14',
       'pattern_type': 'numeric_time',
@@ -415,7 +417,7 @@ number_patterns = [
                          (\s?:\s?                                 # colon
                          ([0-5][0-9]))?                           # second
                          '''.format(**MACROS), re.X),
-      'normalized': r"lambda m: re.sub(r'[\s]' ,'' , m.group(0))"},
+      'normalized': lambda m: WHITESPACEPAT.sub('', m.group(0))},
       
     # Patterns for generic numerics
     { 'comment': '*) A generic pattern for detecting long numbers (5 groups).',
@@ -427,7 +429,7 @@ number_patterns = [
                          \d+[\ \.]+\d+[\ \.]+\d+[\ \.]+\d+[\ \.]+\d+     # 5 groups of numbers
                          (\ ,\ \d+|,\d+)?                                # + comma-separated numbers
                          '''.format(**MACROS), re.X),
-      'normalized': r"lambda m: re.sub(r'[\s\.]' ,'' , m.group(0))"},
+      'normalized': lambda m: re.sub(r'[\s\.]' ,'' , m.group(0))},
     { 'comment': '*) A generic pattern for detecting long numbers (4 groups).',
       'example': '34 567 000 123 , 456',
       'pattern_type': 'numeric',
@@ -437,7 +439,7 @@ number_patterns = [
                          \d+[\ \.]+\d+[\ \.]+\d+[\ \.]+\d+       # 4 groups of numbers
                          (\ ,\ \d+|,\d+)?                        # + comma-separated numbers
                          '''.format(**MACROS), re.X),
-      'normalized': r"lambda m: re.sub(r'[\s\.]' ,'' , m.group(0))"},
+      'normalized': lambda m: re.sub(r'[\s\.]' ,'' , m.group(0))},
     { 'comment': '*) A generic pattern for detecting long numbers (3 groups).',
       'example': '67 000 123 , 456',
       'pattern_type': 'numeric',
@@ -447,7 +449,7 @@ number_patterns = [
                          \d+[\ \.]+\d+[\ \.]+\d+       # 3 groups of numbers
                          (\ ,\ \d+|,\d+)?              # + comma-separated numbers
                          '''.format(**MACROS), re.X),
-      'normalized': r"lambda m: re.sub(r'[\s\.]' ,'' , m.group(0))"},
+      'normalized': lambda m: re.sub(r'[\s\.]' ,'' , m.group(0))},
 
     { 'comment': '*) A generic pattern for detecting long numbers (2 groups, point-separated, followed by comma-separated numbers).',
       'example': '67.123 , 456',
@@ -458,7 +460,7 @@ number_patterns = [
                          \d+\.+\d+           # 2 groups of numbers
                          (\ ,\ \d+|,\d+)     # + comma-separated numbers
                          '''.format(**MACROS), re.X),
-      'normalized': r"lambda m: re.sub(r'[\s\.]' ,'' , m.group(0))" },
+      'normalized': lambda m: re.sub(r'[\s\.]' ,'' , m.group(0)) },
     { 'comment': '*) A generic pattern for detecting long numbers (2 groups, point-separated, without following comma-separated numbers).',
       'example': '67.123',
       'pattern_type': 'numeric',
@@ -469,7 +471,7 @@ number_patterns = [
                          '''.format(**MACROS), re.X),
       # Note: we do not delete '.' here, because that would harm 
       #   date/time expressions (such as '03.2003' or '31.12') and price expressions (such as '4.50', '3.25')'
-      'normalized': 'lambda m: None' },
+      'normalized': lambda m: None },
 
     { 'comment': '*) A generic pattern for detecting long numbers (2 groups, space-separated).',
       'example': '67 123 , 456',
@@ -480,7 +482,7 @@ number_patterns = [
                          \d+\ +\d\d\d+       # 2 groups of numbers
                          (\ ,\ \d+|,\d+)?    # + comma-separated numbers
                          '''.format(**MACROS), re.X),
-      'normalized': r"lambda m: re.sub(r'[\s]' ,'' , m.group(0))"},
+      'normalized': lambda m: WHITESPACEPAT.sub('' , m.group(0))},
 
     { 'comment': '*) A generic pattern for detecting long numbers (1 group).',
       'example': '12,456',
@@ -491,7 +493,7 @@ number_patterns = [
                          \d+                    # 1 group of numbers
                          (\ ,\ \d+|,\d+|\ *\.)  # + comma-separated numbers or period-ending
                          '''.format(**MACROS), re.X),
-      'normalized': r"lambda m: re.sub(r'[\s]' ,'' , m.group(0))"},
+      'normalized': lambda m: WHITESPACEPAT.sub('' , m.group(0))},
 
     # Remark on the decimal numerals (numerals with the decimal separator ','):
     #   *) form where the separator is between two spaces (' , ') is common to Koondkorpus 
@@ -511,7 +513,7 @@ number_patterns = [
                          ((I|II|III|IV|V|VI|VII|VIII|IX|X)\s*\.)  # roman numeral + period
                          \s*([{LOWERCASE}]|\d\d\d\d)              # lowercase word or year number (sentence continues)
                          '''.format(**MACROS), re.X),
-      'normalized': r"lambda m: re.sub(r'[\s]' ,'' , m.group(2))"},
+      'normalized': lambda m: WHITESPACEPAT.sub('' , m.group(2))},
               ]
 
 unit_patterns = [
@@ -527,7 +529,7 @@ unit_patterns = [
                          '''.format(**MACROS), re.X),
      '_group_': 2,
      '_priority_': (3, 1),
-     'normalized': r"lambda m: re.sub(r'\s' ,'' , m.group(2))",
+     'normalized': lambda m: WHITESPACEPAT.sub('' , m.group(2)),
     },
     { 'comment': '2.2) A pattern for capturing specific units of measure;',
       'example': 'km / h',
@@ -539,7 +541,7 @@ unit_patterns = [
                          '''.format(**MACROS), re.X),
      '_group_': 2,
      '_priority_': (3, 2),
-     'normalized': r"lambda m: re.sub(r'\s' ,'' , m.group(2))",
+     'normalized': lambda m: WHITESPACEPAT.sub('' , m.group(2)),
     },
                  ]
 
@@ -558,7 +560,7 @@ abbreviations_before_initials_patterns = [
                         '''.format(**MACROS), re.X),
       '_group_': 1,
       '_priority_': (4, 0, 0, 1),
-      'normalized': r"lambda m: re.sub(r'\.\s','.', re.sub(r'\s\.','.', m.group(1)))",
+      'normalized': lambda m: re.sub(r'\.\s','.', re.sub(r'\s\.','.', m.group(1))),
      },
     { 'comment': '*) P.S (post scriptum) abbreviation -- needs to be captured before name with initials;',
       'example': 'P.S',
@@ -568,7 +570,7 @@ abbreviations_before_initials_patterns = [
                         '''.format(**MACROS), re.X),
       '_group_': 1,
       '_priority_': (4, 0, 0, 2),
-      'normalized': r"lambda m: re.sub(r'\.\s','.', re.sub(r'\s\.','.', m.group(1)))",
+      'normalized': lambda m: re.sub(r'\.\s','.', re.sub(r'\s\.','.', m.group(1))),
      },
 ]
 
@@ -581,7 +583,7 @@ initial_patterns = [
                         '''.format(**MACROS), re.X),
      '_group_': 1,
      '_priority_': (4, 0, 1),
-     'normalized': r"lambda m: re.sub(r'\s','', m.group(1))",
+     'normalized': lambda m: WHITESPACEPAT.sub('', m.group(1)),
      },
     { 'comment': '*) Names starting with 2 initials;',
       'pattern_type': 'name_with_initial',
@@ -595,7 +597,7 @@ initial_patterns = [
                         '''.format(**MACROS), re.X),
      '_group_': 0,
      '_priority_': (4, 1),
-     'normalized': r"lambda m: re.sub('\1.\2. \3', '', m.group(0))",
+     'normalized': lambda m: re.sub('\1.\2. \3', '', m.group(0)),
      },
     { 'comment': '*) Names starting with one initial;',
       'pattern_type': 'name_with_initial',
@@ -607,7 +609,7 @@ initial_patterns = [
                         '''.format(**MACROS), re.X),
      '_group_': 0,
      '_priority_': (4, 2),
-     'normalized': r"lambda m: re.sub('\1. \2', '', m.group(0))",
+     'normalized': lambda m: re.sub('\1. \2', '', m.group(0)),
      }
                     ]
 
@@ -625,7 +627,7 @@ abbreviation_patterns = [
                         '''.format(**MACROS), re.X),
       '_group_': 1,
       '_priority_': (5, 1, 0),
-      'normalized': r"lambda m: re.sub(r'\s' ,'' , m.group(1))",
+      'normalized': lambda m: WHITESPACEPAT.sub('' , m.group(1)),
      },
     { 'comment': '*) Abbreviations that end with period, and usually do not end the sentence;',
       'example': 'sealh.',
@@ -636,7 +638,7 @@ abbreviation_patterns = [
                         '''.format(**MACROS), re.X),
       '_group_': 1,
       '_priority_': (5, 2, 0),
-      'normalized': r"lambda m: re.sub(r'\.\s','.', re.sub(r'\s\.','.', m.group(1)))",
+      'normalized': lambda m: re.sub(r'\.\s','.', re.sub(r'\s\.','.', m.group(1))),
      },
     { 'comment': '*) Abbreviations not ending with period, and usually do not end the sentence;',
       'example': 'Lp',
@@ -646,7 +648,7 @@ abbreviation_patterns = [
                         '''.format(**MACROS), re.X),
       '_group_': 1,
       '_priority_': (5, 3, 0),
-      'normalized': r"lambda m: re.sub(r'\.\s','.', re.sub(r'\s\.','.', m.group(1)))",
+      'normalized': lambda m: re.sub(r'\.\s','.', re.sub(r'\s\.','.', m.group(1))),
       #'overlapped': True,
      },
     # --------------------------------------------------
@@ -661,7 +663,7 @@ abbreviation_patterns = [
                         '''.format(**MACROS), re.X),
       '_group_': 1,
       '_priority_': (5, 4, 0),
-      'normalized': r"lambda m: re.sub(r'\.\s','.', re.sub(r'\s\.','.', m.group(1)))",
+      'normalized': lambda m: re.sub(r'\.\s','.', re.sub(r'\s\.','.', m.group(1))),
      },
     { 'comment': '*) Abbreviations not ending with period, and that can end the sentence;',
       'example': 'saj',
@@ -671,7 +673,7 @@ abbreviation_patterns = [
                         '''.format(**MACROS), re.X),
       '_group_': 1,
       '_priority_': (5, 5, 0),
-      'normalized': r"lambda m: re.sub(r'\.\s','.', re.sub(r'\s\.','.', m.group(1)))",
+      'normalized': lambda m: re.sub(r'\.\s','.', re.sub(r'\s\.','.', m.group(1))),
       #'overlapped': True,
      },
     { 'comment': '*) Abbreviations of type <uppercase letter> + <numbers>;',
@@ -684,7 +686,7 @@ abbreviation_patterns = [
                         '''.format(**MACROS), re.X),
       '_group_': 1,
       '_priority_': (5, 6, 0),
-      'normalized': r"lambda m: re.sub(r'\s' ,'' , m.group(1))",
+      'normalized': lambda m: WHITESPACEPAT.sub('', m.group(1)),
      },
                     ]
 
@@ -717,7 +719,7 @@ case_endings_patterns = [
                         '''.format(**MACROS), re.X),
       '_group_': 1,
       '_priority_': (6, 0, 1),
-      'normalized': r"lambda m: re.sub(r'\s','',  m.group(1))",
+      'normalized': lambda m: WHITESPACEPAT.sub('', m.group(1)),
      },
     { 'comment': '*) Words and their separated case endings (the special case of two separating spaces);',
       'example': "workshop ' e",
@@ -735,7 +737,7 @@ case_endings_patterns = [
                         '''.format(**MACROS), re.X),
       '_group_': 1,
       '_priority_': (6, 0, 2),
-      'normalized': r"lambda m: re.sub(r'\s','',  m.group(1))",
+      'normalized': lambda m: WHITESPACEPAT.sub('', m.group(1)),
      },
     { 'comment': '*) Numeric + "%" or "." + separated case ending;',
       'example': '20%ni',
@@ -755,7 +757,7 @@ case_endings_patterns = [
                         '''.format(**MACROS), re.X),
       '_group_': 1,
       '_priority_': (6, 0, 3),
-      'normalized': r"lambda m: re.sub(r'\s','',  m.group(1))",
+      'normalized': lambda m: WHITESPACEPAT.sub('', m.group(1)),
      },
     { 'comment': '*) Numeric with case ending (case ending not separated);',
       'example': '18.20ni',
@@ -771,7 +773,7 @@ case_endings_patterns = [
                         '''.format(**MACROS), re.X),
       '_group_': 1,
       '_priority_': (6, 0, 4),
-      'normalized': r"lambda m: re.sub(r'\s','',  m.group(1))",
+      'normalized': lambda m: WHITESPACEPAT.sub('', m.group(1)),
      },
     { 'comment': '*) Numeric (year/decade) + ".-" + separated case ending;',
       'example': '1990.-ndatel',
@@ -792,7 +794,7 @@ case_endings_patterns = [
                         '''.format(**MACROS), re.X),
       '_group_': 1,
       '_priority_': (6, 0, 5),
-      'normalized': r"lambda m: re.sub(r'\s','',  m.group(1))",
+      'normalized': lambda m: WHITESPACEPAT.sub('', m.group(1)),
      },
                     ]
 
@@ -810,7 +812,7 @@ number_fixes_patterns = [
                         '''.format(**MACROS), re.X),
       '_group_': 2,
       '_priority_': (7, 0, 1),
-      'normalized': r"lambda m: re.sub(r'\s','',  m.group(2))",
+      'normalized': lambda m: WHITESPACEPAT.sub('', m.group(2)),
      },
     { 'comment': '*) Add sign % to the number;',
       'example': '-20,5%',
@@ -824,6 +826,6 @@ number_fixes_patterns = [
                         '''.format(**MACROS), re.X),
       '_group_': 1,
       '_priority_': (7, 0, 2),
-      'normalized': r"lambda m: re.sub(r'\s','',  m.group(1))",
+      'normalized': lambda m: WHITESPACEPAT.sub('', m.group(1)),
      },
                     ]
