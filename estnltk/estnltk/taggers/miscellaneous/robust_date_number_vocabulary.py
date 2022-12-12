@@ -1,5 +1,10 @@
 import regex as re
 
+
+def dynamic_rule_decorator(text,span,annotation):
+ annotation['value'] = re.sub(r'\s?[.,]\s?','.', annotation['match'].group(2))
+ return annotation
+
 substitutions = {
     'LONGYEAR': r'(?P<LONGYEAR>((19[0-9]{2})|(20[0-9]{2})))',
     'YEAR':         r'(?P<YEAR>((19[0-9]{2})|(20[0-9]{2})|([0-9]{2})))',
@@ -16,7 +21,7 @@ vocabulary = [
  '_regex_pattern_': r'(^|[^0-9,.])([0-9]+(\s?[,.]\s?[0-9]+)?)',
  '_group_': 2,
  '_priority_': 1,
- 'value': lambda m: re.sub(r'\s?[.,]\s?','.', m.group(2)) },
+ 'value': dynamic_rule_decorator },
 
 {'grammar_symbol': 'NUMBER',
  'regex_type': 'int',
