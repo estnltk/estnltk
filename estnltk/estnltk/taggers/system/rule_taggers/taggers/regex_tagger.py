@@ -3,7 +3,7 @@ from typing import Sequence, Union, Generator, Tuple, Iterator, List, Callable, 
 
 from estnltk.taggers import Tagger
 from estnltk import Layer, Text
-from estnltk.taggers.system.rule_taggers.helper_methods.helper_methods import keep_maximal_matches, keep_minimal_matches
+from estnltk.taggers.system.rule_taggers.helper_methods.helper_methods import keep_maximal_matches, keep_minimal_matches,conflict_priority_resolver
 from estnltk_core import Annotation, ElementaryBaseSpan, Span
 from estnltk.taggers.system.rule_taggers import Ruleset, StaticExtractionRule
 from typing.re import Match
@@ -32,7 +32,8 @@ class RegexTagger(Tagger):
                  'match_attribute',
                  'static_ruleset_map',
                  'dynamic_ruleset_map',
-                 'lowercase_text']
+                 'lowercase_text',
+                 'resolve_priority_conflicts']
 
     def __init__(self,
                  ruleset: Union[str, dict, list, Ruleset],
@@ -43,7 +44,8 @@ class RegexTagger(Tagger):
                  lowercase_text: bool = False,
                  decorator: Callable[
                      [Text, ElementaryBaseSpan, Dict[str, Any]], Optional[Dict[str, Any]]] = None,
-                 match_attribute: str = 'match'
+                 match_attribute: str = 'match',
+                 resolve_priority_conflicts: bool = False,
                  ):
         """Initialize a new RegexTagger instance. Note that previously it was possible to
         have callables as attributes in the ruleset. This functionality is now replaced by
@@ -91,7 +93,8 @@ class RegexTagger(Tagger):
                            'match_attribute',
                            'static_ruleset_map',
                            'dynamic_ruleset_map',
-                           'lowercase_text']
+                           'lowercase_text',
+                           'resolve_priority_conflicts']
         self.input_layers = ()
         self.output_layer = output_layer
         if output_attributes is None:
@@ -142,6 +145,7 @@ class RegexTagger(Tagger):
 
         self.overlapped = overlapped
         self.conflict_resolver = conflict_resolver
+        self.resolve_priority_conflicts = resolve_priority_conflicts
 
     def _make_layer_template(self):
         return Layer(name=self.output_layer,
@@ -159,6 +163,8 @@ class RegexTagger(Tagger):
             raw_text = text.text
 
         all_matches = self.extract_annotations(raw_text)
+        if self.resolve_priority_conflicts:
+            all_matches = conflict_priority_resolver(all_matches)
 
         if self.conflict_resolver == 'KEEP_ALL':
             layer = self.add_decorated_annotations_to_layer(layer, iter(all_matches))

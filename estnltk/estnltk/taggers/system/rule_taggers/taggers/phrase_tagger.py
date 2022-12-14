@@ -7,7 +7,7 @@ from estnltk import Layer
 from estnltk.taggers import Tagger
 from estnltk.taggers.system.rule_taggers.extraction_rules.ambiguous_ruleset import AmbiguousRuleset
 from estnltk.taggers.system.rule_taggers.extraction_rules.ruleset import Ruleset
-from estnltk.taggers.system.rule_taggers.helper_methods.helper_methods import keep_maximal_matches, keep_minimal_matches
+from estnltk.taggers.system.rule_taggers.helper_methods.helper_methods import keep_maximal_matches, keep_minimal_matches, conflict_priority_resolver
 from estnltk_core import ElementaryBaseSpan
 
 
@@ -35,7 +35,8 @@ class PhraseTagger(Tagger):
                  output_attributes: Sequence = None,
                  decorator=None,
                  ignore_case=False,
-                 phrase_attribute='phrase'
+                 phrase_attribute='phrase',
+                 resolve_priority_conflicts=False
                  ):
         """Initialize a new PhraseTagger instance.
 
@@ -70,7 +71,7 @@ class PhraseTagger(Tagger):
         """
         self.conf_param = ('input_attribute', 'ruleset', 'decorator', '_heads',
                            'ignore_case', 'conflict_resolver', 'phrase_attribute',
-                           'static_ruleset_map', 'dynamic_ruleset_map')
+                           'static_ruleset_map', 'dynamic_ruleset_map','resolve_priority_conflicts')
 
         self.output_layer = output_layer
         self.input_layers = [input_layer]
@@ -81,6 +82,7 @@ class PhraseTagger(Tagger):
         self.decorator = decorator
 
         self.conflict_resolver = conflict_resolver
+        self.resolve_priority_conflicts = resolve_priority_conflicts
 
         # Validate ruleset. It must exist
         if not isinstance(ruleset, AmbiguousRuleset):
@@ -172,6 +174,9 @@ class PhraseTagger(Tagger):
         layer.text_object = text
         raw_text = text.text
         all_matches = self.extract_annotations(raw_text,layers)
+        matches_with_priority = [(phrase, self.static_ruleset_map.get(phrase, None)) for base_span, _, phrase in all_matches]
+        if self.resolve_priority_conflicts:
+            all_matches = conflict_priority_resolver(all_matches,matches_with_priority)
 
         if self.conflict_resolver == 'KEEP_ALL':
             layer = self.add_decorated_annotations_to_layer(layer, iter(all_matches))

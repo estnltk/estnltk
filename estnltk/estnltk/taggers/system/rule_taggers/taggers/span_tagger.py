@@ -4,7 +4,7 @@ from typing import Sequence, Callable, Dict, Any, Optional, Tuple, List, Union, 
 from estnltk.taggers import Tagger
 from estnltk.taggers.system.rule_taggers.extraction_rules.ruleset import Ruleset
 from estnltk.taggers.system.rule_taggers.extraction_rules.ambiguous_ruleset import AmbiguousRuleset
-from estnltk.taggers.system.rule_taggers.helper_methods.helper_methods import keep_minimal_matches, keep_maximal_matches
+from estnltk.taggers.system.rule_taggers.helper_methods.helper_methods import keep_minimal_matches, keep_maximal_matches,conflict_priority_resolver
 from estnltk import Span, Text
 from estnltk import Layer
 from estnltk import Annotation
@@ -34,7 +34,8 @@ class SpanTagger(Tagger):
                  decorator: Callable[
                      [Text, ElementaryBaseSpan, Dict[str, Any]], Optional[Dict[str, Any]]] = None,
                  ignore_case=False,
-                 conflict_resolver: Union[str, Callable[[Layer], Layer]] = 'KEEP_MAXIMAL'
+                 conflict_resolver: Union[str, Callable[[Layer], Layer]] = 'KEEP_MAXIMAL',
+                 resolve_priority_conflicts = False
                  ):
         """Initialize a new SpanTagger instance.
 
@@ -63,12 +64,12 @@ class SpanTagger(Tagger):
             and must output the updated layer which hopefully containing some spans.
             These triples can come in canonical order which means:
                 span[i].start <= span[i+1].start
-                span[i].start == span[i+1].start ==> span[i].end < span[i + 1].end
+                span[i].start == span[i+1].start => span[i].end < span[i + 1].end
             where the span is annotation.span
         """
         self.conf_param = ('input_attribute', '_vocabulary', 'global_decorator',
-                           'ambiguous', 'ignore_case', '_ruleset', 'dynamic_ruleset_map',
-                           'conflict_resolver', 'static_ruleset_map')
+                           'ignore_case', '_ruleset', 'dynamic_ruleset_map',
+                           'conflict_resolver', 'static_ruleset_map','resolve_priority_conflicts')
         self.output_layer = output_layer
         self.input_attribute = input_attribute
 
@@ -77,6 +78,7 @@ class SpanTagger(Tagger):
         self.global_decorator = decorator
 
         self.conflict_resolver = conflict_resolver
+        self.resolve_priority_conflicts = resolve_priority_conflicts
 
         self.input_layers = [input_layer]
 
@@ -240,6 +242,8 @@ class SpanTagger(Tagger):
         layer.text_object = text
 
         all_matches = self.extract_annotations(raw_text, layers)
+        if self.resolve_priority_conflicts:
+            all_matches = conflict_priority_resolver(all_matches)
 
         if self.conflict_resolver == 'KEEP_ALL':
             return self.add_redecorated_annotations_to_layer(layer, iter(all_matches))

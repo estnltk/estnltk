@@ -7,7 +7,7 @@ from typing import Tuple, List, Dict, Sequence, Union, Any, Callable, Iterator, 
 
 from estnltk.taggers.system.rule_taggers import Ruleset
 from estnltk.taggers.system.rule_taggers.extraction_rules.ambiguous_ruleset import AmbiguousRuleset
-from estnltk.taggers.system.rule_taggers.helper_methods.helper_methods import keep_maximal_matches, keep_minimal_matches
+from estnltk.taggers.system.rule_taggers.helper_methods.helper_methods import keep_maximal_matches, keep_minimal_matches,conflict_priority_resolver
 
 
 class SubstringTagger(Tagger):
@@ -55,7 +55,8 @@ class SubstringTagger(Tagger):
                  global_decorator: Callable[
                      [Text, ElementaryBaseSpan, Dict[str, Any]], Optional[Dict[str, Any]]] = None,
                  conflict_resolver: Union[str, Callable[[Layer], Layer]] = 'KEEP_MAXIMAL',
-                 ignore_case: bool = False
+                 ignore_case: bool = False,
+                 resolve_priority_conflicts=False
                  ):
         """
         Initialize a new SubstringTagger instance.
@@ -124,7 +125,8 @@ class SubstringTagger(Tagger):
             'ignore_case',
             'dynamic_ruleset_map',
             'static_ruleset_map',
-            'ambiguous_output_layer']
+            'ambiguous_output_layer',
+            'resolve_priority_conflicts']
 
         self.input_layers = ()
         self.output_layer = output_layer
@@ -191,6 +193,7 @@ class SubstringTagger(Tagger):
         self.token_separators = token_separators
         self.global_decorator = global_decorator
         self.conflict_resolver = conflict_resolver
+        self.resolve_priority_conflicts = resolve_priority_conflicts
         self.ambiguous_output_layer = ambiguous_output_layer
 
         # We bypass restrictions of Tagger class to set some private attributes
@@ -199,12 +202,10 @@ class SubstringTagger(Tagger):
         # Configures automaton to match the patters in the ruleset
         # Each pattern is here exactly once
         if self.ignore_case:
-            for rule in ruleset.static_rules:
-                pattern = rule.pattern
+            for pattern in self.static_ruleset_map:
                 self._automaton.add_word(pattern.lower(), len(pattern))
         else:
-            for rule in ruleset.static_rules:
-                pattern = rule.pattern
+            for pattern in self.static_ruleset_map:
                 self._automaton.add_word(pattern, len(pattern))
 
         self._automaton.make_automaton()
@@ -220,6 +221,8 @@ class SubstringTagger(Tagger):
 
         raw_text = text.text.lower() if self.ignore_case else text.text
         all_matches = self.extract_matches(raw_text, self.token_separators)
+        if self.resolve_priority_conflicts:
+            all_matches = conflict_priority_resolver(all_matches)
 
         if self.conflict_resolver == 'KEEP_ALL':
             return self.add_decorated_annotations_to_layer(layer, iter(all_matches))
