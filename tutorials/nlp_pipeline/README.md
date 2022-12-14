@@ -16,6 +16,8 @@ While many of the components are part of the default pipeline (callable via _def
 
 * [E_embeddings](E_embeddings/) tutorials describe pre-trained language models / embeddings available for Estonian.
 
+* [F_annotation_consistency](F_annotation_consistency/) tutorials describe tools for detecting inconsistencies between different linguistic annotations and for repairing annotations;
+
 * [X_miscellaneous](X_miscellaneous/) and experimental language analysers: verb chain detector, noun phrase chunker, date and number taggers for medical texts,  adjective phrase tagger and Flesch reading ease score tagger.
 
 
