@@ -8,11 +8,14 @@ def conflict_priority_resolver(sorted_tuples: List[Tuple[ElementaryBaseSpan, str
     deleted_tuples = []
     for tuple, priority_info in zip(sorted_tuples, priority_matches):
         for tuple2, priority_info2 in zip(sorted_tuples,priority_matches):
-            if tuple[0].start <= tuple2[0].end and tuple[0].end >= tuple2[0].start:
-                priority1 = priority_info[1][0][1]
-                priority2 = priority_info2[1][0][1]
-                if priority1 > priority2:
-                    deleted_tuples.append(tuple)
+            group1 = priority_info[1][0][0]
+            group2 = priority_info2[1][0][0]
+            if group1 == group2:
+                if tuple[0].start <= tuple2[0].end and tuple[0].end >= tuple2[0].start:
+                    priority1 = priority_info[1][0][1]
+                    priority2 = priority_info2[1][0][1]
+                    if priority1 > priority2:
+                        deleted_tuples.append(tuple)
 
     for tuple in deleted_tuples:
         sorted_tuples.remove(tuple)
