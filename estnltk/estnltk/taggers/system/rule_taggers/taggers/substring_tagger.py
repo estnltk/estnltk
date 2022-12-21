@@ -250,6 +250,10 @@ class SubstringTagger(Tagger):
 
         raise ValueError("Data field conflict_resolver is inconsistent")
 
+    def _make_layer_template(self):
+        """Creates and returns a template of the layer."""
+        return Layer(name=self.output_layer, attributes=self.output_attributes,ambiguous=self.ambiguous_output_layer)
+
     # noinspection PyUnresolvedReferences
     def extract_matches(self, text: str, separators: str) -> List[Tuple[ElementaryBaseSpan, str]]:
         """
