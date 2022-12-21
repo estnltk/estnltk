@@ -34,6 +34,9 @@ class SpanTagger(Tagger):
                  decorator: Callable[
                      [Text, ElementaryBaseSpan, Dict[str, Any]], Optional[Dict[str, Any]]] = None,
                  ignore_case=False,
+                 group_attribute: bool = False,
+                 priority_attribute: bool = False,
+                 pattern_attribute: bool = False,
                  conflict_resolver: Union[str, Callable[[Layer], Layer]] = 'KEEP_MAXIMAL',
                  resolve_priority_conflicts = False
                  ):
@@ -55,6 +58,12 @@ class SpanTagger(Tagger):
         :param ignore_case
             If True, then matches do not depend on capitalisation of letters
             If False, then capitalisation of letters is important
+        :param group_attribute: bool (Default: False)
+            Whether the final annotation should contain the group attribute of the rule or not.
+        :param priority_attribute: bool (Default: False)
+            Whether the final annotation should contain the group attribute of the rule or not.
+        pattern_attribute: bool (Default: False)
+            Whether the final annotation should contain the pattern attribute of the rule or not.
         :param conflict_resolver: 'KEEP_ALL', 'KEEP_MAXIMAL', 'KEEP_MINIMAL' (default: 'KEEP_MAXIMAL')
             Strategy to choose between overlapping matches.
             Specify your own layer assembler if none of the predefined strategies does not work.
@@ -67,8 +76,8 @@ class SpanTagger(Tagger):
                 span[i].start == span[i+1].start => span[i].end < span[i + 1].end
             where the span is annotation.span
         """
-        self.conf_param = ('input_attribute', '_vocabulary', 'global_decorator',
-                           'ignore_case', '_ruleset', 'dynamic_ruleset_map',
+        self.conf_param = ('input_attribute', '_vocabulary', 'global_decorator', 'pattern_attribute'
+                           'ignore_case', '_ruleset', 'dynamic_ruleset_map', 'group_attribute','priority_attribute'
                            'conflict_resolver', 'static_ruleset_map','resolve_priority_conflicts')
         self.output_layer = output_layer
         self.input_attribute = input_attribute
@@ -119,6 +128,9 @@ class SpanTagger(Tagger):
 
         # No errors were detected
         self.dynamic_ruleset_map = dynamic_ruleset_map
+        self.group_attribute = group_attribute
+        self.priority_attribute = priority_attribute
+        self.pattern_attribute = pattern_attribute
 
         self._ruleset = copy.copy(ruleset)
 
@@ -176,6 +188,13 @@ class SpanTagger(Tagger):
             span = Span(base_span=tuple[0], layer=layer)
             static_rulelist = self.static_ruleset_map.get(pattern, None)
             for group, priority, annotation in static_rulelist:
+                annotation = annotation.copy()
+                if self.group_attribute:
+                    annotation['group'] = group
+                if self.priority_attribute:
+                    annotation['priority'] = priority
+                if self.pattern_attribute:
+                    annotation['pattern'] = pattern
                 rec = annotation
                 attributes = {attr: rec[attr] for attr in layer.attributes}
                 if self.global_decorator is not None:
@@ -222,6 +241,13 @@ class SpanTagger(Tagger):
             span = Span(base_span=element[0], layer=layer)
             static_rulelist = self.static_ruleset_map.get(pattern, None)
             for group, priority, annotation in static_rulelist:
+                annotation = annotation.copy()
+                if self.group_attribute:
+                    annotation['group'] = group
+                if self.priority_attribute:
+                    annotation['priority'] = priority
+                if self.pattern_attribute:
+                    annotation['pattern'] = pattern
                 rec = annotation
                 attributes = {attr: rec[attr] for attr in layer.attributes}
                 annotation = self.global_decorator(raw_text, element[0], attributes)

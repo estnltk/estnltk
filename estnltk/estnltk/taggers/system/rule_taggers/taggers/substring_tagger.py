@@ -56,6 +56,9 @@ class SubstringTagger(Tagger):
                      [Text, ElementaryBaseSpan, Dict[str, Any]], Optional[Dict[str, Any]]] = None,
                  conflict_resolver: Union[str, Callable[[Layer], Layer]] = 'KEEP_MAXIMAL',
                  ignore_case: bool = False,
+                 group_attribute:bool = False,
+                 priority_attribute: bool = False,
+                 pattern_attribute: bool = False,
                  resolve_priority_conflicts=False
                  ):
         """
@@ -97,6 +100,12 @@ class SubstringTagger(Tagger):
                 span[i].start <= span[i+1].start
                 span[i].start == span[i+1].start ==> span[i].end < span[i + 1].end
             where the span is annotation.span
+        group_attribute: bool (Default: False)
+            Whether the final annotation should contain the group attribute of the rule or not.
+        priority_attribute: bool (Default: False)
+            Whether the final annotation should contain the priority attribute of the rule or not.
+        pattern_attribute: bool (Default: False)
+            Whether the final annotation should contain the pattern attribute of the rule or not.
         ignore_case:
             If True, then matches do not depend on capitalisation of letters
             If False, then capitalisation of letters is important
@@ -126,6 +135,9 @@ class SubstringTagger(Tagger):
             'dynamic_ruleset_map',
             'static_ruleset_map',
             'ambiguous_output_layer',
+            'group_attribute',
+            'priority_attribute',
+            'pattern_attribute',
             'resolve_priority_conflicts']
 
         self.input_layers = ()
@@ -195,6 +207,9 @@ class SubstringTagger(Tagger):
         self.conflict_resolver = conflict_resolver
         self.resolve_priority_conflicts = resolve_priority_conflicts
         self.ambiguous_output_layer = ambiguous_output_layer
+        self.group_attribute = group_attribute
+        self.priority_attribute = priority_attribute
+        self.pattern_attribute = pattern_attribute
 
         # We bypass restrictions of Tagger class to set some private attributes
         super(Tagger, self).__setattr__('_automaton', Automaton())
@@ -293,6 +308,13 @@ class SubstringTagger(Tagger):
             span = Span(base_span=base_span, layer=layer)
             static_rulelist = self.static_ruleset_map.get(pattern, None)
             for group, priority, annotation in static_rulelist:
+                annotation = annotation.copy()
+                if self.group_attribute:
+                    annotation['group'] = group
+                if self.priority_attribute:
+                    annotation['priority'] = priority
+                if self.pattern_attribute:
+                    annotation['pattern'] = pattern
                 # apply global decorator
                 # Drop annotations for which the global decorator fails
                 if self.global_decorator is not None:
@@ -343,6 +365,13 @@ class SubstringTagger(Tagger):
             # This hack is needed as EstNLTK wants complete attribute assignment for each annotation
             static_rulelist = self.static_ruleset_map.get(pattern, None)
             for group, priority, annotation_dict in static_rulelist:
+                annotation_dict = annotation_dict.copy()
+                if self.group_attribute:
+                    annotation_dict['group'] = group
+                if self.priority_attribute:
+                    annotation_dict['priority'] = priority
+                if self.pattern_attribute:
+                    annotation_dict['pattern'] = pattern
                 # apply global decorator
                 # Drop annotations for which the global decorator fails
                 if self.global_decorator is not None:

@@ -30,6 +30,9 @@ class RegexTagger(Tagger):
                  '_disamb_tagger',
                  'global_decorator',
                  'match_attribute',
+                 'group_attribute',
+                 'priority_attribute',
+                 'pattern_attribute',
                  'static_ruleset_map',
                  'dynamic_ruleset_map',
                  'lowercase_text',
@@ -45,7 +48,10 @@ class RegexTagger(Tagger):
                  decorator: Callable[
                      [Text, ElementaryBaseSpan, Dict[str, Any]], Optional[Dict[str, Any]]] = None,
                  match_attribute: str = 'match',
-                 resolve_priority_conflicts: bool = False,
+                 group_attribute: bool = False,
+                 priority_attribute: bool = False,
+                 pattern_attribute: bool = False,
+                 resolve_priority_conflicts: bool = False
                  ):
         """Initialize a new RegexTagger instance. Note that previously it was possible to
         have callables as attributes in the ruleset. This functionality is now replaced by
@@ -83,6 +89,12 @@ class RegexTagger(Tagger):
         match_attribute: str (Default: 'match')
             Name of the attribute in which the match object of the annotation is stored.
             The attribute can be used by the decorator or dynamic rules to change the annotation.
+        group_attribute: bool (Default: False)
+            Whether the final annotation should contain the group attribute of the rule or not.
+        priority_attribute: bool (Default: False)
+            Whether the final annotation should contain the priority attribute of the rule or not.
+        pattern_attribute: bool (Default: False)
+            Whether the final annotation should contain the pattern attribute of the rule or not.
         """
         self.conf_param = ['conflict_resolver',
                            'overlapped',
@@ -91,6 +103,9 @@ class RegexTagger(Tagger):
                            '_disamb_tagger',
                            'global_decorator',
                            'match_attribute',
+                           'group_attribute',
+                           'priority_attribute',
+                           'pattern_attribute',
                            'static_ruleset_map',
                            'dynamic_ruleset_map',
                            'lowercase_text',
@@ -138,6 +153,9 @@ class RegexTagger(Tagger):
         self.match_attribute = match_attribute
         if not isinstance(match_attribute, str):
             raise AttributeError("Match attribute must be str")
+        self.group_attribute = group_attribute
+        self.priority_attribute = priority_attribute
+        self.pattern_attribute = pattern_attribute
 
         self.ruleset = copy.copy(ruleset)
 
@@ -222,6 +240,12 @@ class RegexTagger(Tagger):
             matchobj = element[1]
             annotation_dict = rule.attributes.copy()
             annotation_dict[self.match_attribute] = matchobj
+            if self.group_attribute:
+                annotation_dict['group'] = rule.group
+            if self.priority_attribute:
+                annotation_dict['priority'] = rule.priority
+            if self.pattern_attribute:
+                annotation_dict['pattern'] = rule.pattern
 
             if self.global_decorator is not None:
                 annotation_dict = self.global_decorator(raw_text, element[0], annotation_dict)
@@ -261,6 +285,12 @@ class RegexTagger(Tagger):
             matchobj = element[1]
             annotation_dict = rule.attributes
             annotation_dict[self.match_attribute] = matchobj
+            if self.group_attribute:
+                annotation_dict['group'] = rule.group
+            if self.priority_attribute:
+                annotation_dict['priority'] = rule.priority
+            if self.pattern_attribute:
+                annotation_dict['pattern'] = rule.pattern
 
             if self.global_decorator is not None:
                 annotation_dict = self.global_decorator(raw_text, element[0], annotation_dict)

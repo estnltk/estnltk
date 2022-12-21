@@ -36,6 +36,9 @@ class PhraseTagger(Tagger):
                  decorator=None,
                  ignore_case=False,
                  phrase_attribute='phrase',
+                 group_attribute=False,
+                 priority_attribute=False,
+                 pattern_attribute=False,
                  resolve_priority_conflicts=False
                  ):
         """Initialize a new PhraseTagger instance.
@@ -68,10 +71,16 @@ class PhraseTagger(Tagger):
         :param phrase_attribute: str (Default: 'phrase')
             Name of the attribute in which the phrase object of the annotation is stored.
             The attribute can be used by the decorator or dynamic rules to change the annotation.
+        :param group_attribute: bool (Default: False)
+            Whether the final annotation should contain the group attribute of the rule or not.
+        :param priority_attribute: bool (Default: False)
+            Whether the final annotation should contain the priority attribute of the rule or not.
+        :param pattern_attribute: bool (Default: False)
+            Whether the final annotation should contain the pattern attribute of the rule or not.
         """
-        self.conf_param = ('input_attribute', 'ruleset', 'decorator', '_heads',
-                           'ignore_case', 'conflict_resolver', 'phrase_attribute',
-                           'static_ruleset_map', 'dynamic_ruleset_map','resolve_priority_conflicts')
+        self.conf_param = ('input_attribute', 'ruleset', 'decorator', '_heads','ignore_case',
+                           'conflict_resolver', 'phrase_attribute', 'group_attribute', 'priority_attribute',
+                           'pattern_attribute', 'static_ruleset_map', 'dynamic_ruleset_map','resolve_priority_conflicts')
 
         self.output_layer = output_layer
         self.input_layers = [input_layer]
@@ -155,6 +164,9 @@ class PhraseTagger(Tagger):
         self.phrase_attribute = phrase_attribute
         if not isinstance(phrase_attribute, str):
             raise AttributeError("Phrase attribute must be str")
+        self.group_attribute = group_attribute
+        self.priority_attribute = priority_attribute
+        self.pattern_attribute = pattern_attribute
 
         self._heads = {}
         for phrase in self.static_ruleset_map.keys():
@@ -257,6 +269,12 @@ class PhraseTagger(Tagger):
             for group, priority, annotation in static_rulelist:
                 annotation = annotation.copy()
                 annotation[self.phrase_attribute] = phrase
+                if self.group_attribute:
+                    annotation['group'] = group
+                if self.priority_attribute:
+                    annotation['priority'] = priority
+                if self.pattern_attribute:
+                    annotation['pattern'] = phrase
                 if self.decorator is not None:
                     annotation = self.decorator(text, base_span, annotation)
                     if not isinstance(annotation, dict):
@@ -297,6 +315,14 @@ class PhraseTagger(Tagger):
             span = EnvelopingSpan(base_span=base_span, layer=layer)
             static_rulelist = self.static_ruleset_map.get(phrase, None)
             for group, priority, annotation in static_rulelist:
+                annotation = annotation.copy()
+                annotation[self.phrase_attribute] = phrase
+                if self.group_attribute:
+                    annotation['group'] = group
+                if self.priority_attribute:
+                    annotation['priority'] = priority
+                if self.pattern_attribute:
+                    annotation['pattern'] = phrase
                 if self.decorator is not None:
                     annotation = self.decorator(text, base_span, annotation)
                     if not isinstance(annotation, dict):
