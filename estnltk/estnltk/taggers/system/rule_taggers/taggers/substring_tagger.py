@@ -56,9 +56,9 @@ class SubstringTagger(Tagger):
                      [Text, ElementaryBaseSpan, Dict[str, Any]], Optional[Dict[str, Any]]] = None,
                  conflict_resolver: Union[str, Callable[[Layer], Layer]] = 'KEEP_MAXIMAL',
                  ignore_case: bool = False,
-                 group_attribute:bool = False,
-                 priority_attribute: bool = False,
-                 pattern_attribute: bool = False,
+                 group_attribute: str = None,
+                 priority_attribute: str = None,
+                 pattern_attribute: str = None,
                  resolve_priority_conflicts=False
                  ):
         """
@@ -100,12 +100,12 @@ class SubstringTagger(Tagger):
                 span[i].start <= span[i+1].start
                 span[i].start == span[i+1].start ==> span[i].end < span[i + 1].end
             where the span is annotation.span
-        group_attribute: bool (Default: False)
-            Whether the final annotation should contain the group attribute of the rule or not.
-        priority_attribute: bool (Default: False)
-            Whether the final annotation should contain the priority attribute of the rule or not.
-        pattern_attribute: bool (Default: False)
-            Whether the final annotation should contain the pattern attribute of the rule or not.
+        :param group_attribute: str (Default: None)
+            If not None, the final annotation contains the group attribute of the rule with the given name
+        :param priority_attribute: str (Default: None)
+            If not None, the final annotation contains the priority attribute of the rule with the given name
+        pattern_attribute: str (Default: None)
+            If not None, the final annotation contains the pattern attribute of the rule with the given name
         ignore_case:
             If True, then matches do not depend on capitalisation of letters
             If False, then capitalisation of letters is important
@@ -314,11 +314,11 @@ class SubstringTagger(Tagger):
             for group, priority, annotation in static_rulelist:
                 annotation = annotation.copy()
                 if self.group_attribute:
-                    annotation['group'] = group
+                    annotation[self.group_attribute] = group
                 if self.priority_attribute:
-                    annotation['priority'] = priority
+                    annotation[self.priority_attribute] = priority
                 if self.pattern_attribute:
-                    annotation['pattern'] = pattern
+                    annotation[self.pattern_attribute] = pattern
                 # apply global decorator
                 # Drop annotations for which the global decorator fails
                 if self.global_decorator is not None:
@@ -371,11 +371,11 @@ class SubstringTagger(Tagger):
             for group, priority, annotation_dict in static_rulelist:
                 annotation_dict = annotation_dict.copy()
                 if self.group_attribute:
-                    annotation_dict['group'] = group
+                    annotation_dict[self.group_attribute] = group
                 if self.priority_attribute:
-                    annotation_dict['priority'] = priority
+                    annotation_dict[self.priority_attribute] = priority
                 if self.pattern_attribute:
-                    annotation_dict['pattern'] = pattern
+                    annotation_dict[self.pattern_attribute] = pattern
                 # apply global decorator
                 # Drop annotations for which the global decorator fails
                 if self.global_decorator is not None:

@@ -48,9 +48,9 @@ class RegexTagger(Tagger):
                  decorator: Callable[
                      [Text, ElementaryBaseSpan, Dict[str, Any]], Optional[Dict[str, Any]]] = None,
                  match_attribute: str = 'match',
-                 group_attribute: bool = False,
-                 priority_attribute: bool = False,
-                 pattern_attribute: bool = False,
+                 group_attribute: str = None,
+                 priority_attribute: str = None,
+                 pattern_attribute: str = None,
                  resolve_priority_conflicts: bool = False
                  ):
         """Initialize a new RegexTagger instance. Note that previously it was possible to
@@ -89,12 +89,12 @@ class RegexTagger(Tagger):
         match_attribute: str (Default: 'match')
             Name of the attribute in which the match object of the annotation is stored.
             The attribute can be used by the decorator or dynamic rules to change the annotation.
-        group_attribute: bool (Default: False)
-            Whether the final annotation should contain the group attribute of the rule or not.
-        priority_attribute: bool (Default: False)
-            Whether the final annotation should contain the priority attribute of the rule or not.
-        pattern_attribute: bool (Default: False)
-            Whether the final annotation should contain the pattern attribute of the rule or not.
+        group_attribute: str (Default: None)
+            If not None, the final annotation contains the group attribute of the rule with the given name
+        priority_attribute: str (Default: None)
+            If not None, the final annotation contains the priority attribute of the rule with the given name
+        pattern_attribute: str (Default: None)
+            If not None, the final annotation contains the pattern attribute of the rule with the given name
         """
         self.conf_param = ['conflict_resolver',
                            'overlapped',
@@ -241,11 +241,11 @@ class RegexTagger(Tagger):
             annotation_dict = rule.attributes.copy()
             annotation_dict[self.match_attribute] = matchobj
             if self.group_attribute:
-                annotation_dict['group'] = rule.group
+                annotation_dict[self.group_attribute] = rule.group
             if self.priority_attribute:
-                annotation_dict['priority'] = rule.priority
+                annotation_dict[self.priority_attribute] = rule.priority
             if self.pattern_attribute:
-                annotation_dict['pattern'] = rule.pattern
+                annotation_dict[self.pattern_attribute] = rule.pattern
 
             if self.global_decorator is not None:
                 annotation_dict = self.global_decorator(raw_text, element[0], annotation_dict)
@@ -286,11 +286,11 @@ class RegexTagger(Tagger):
             annotation_dict = rule.attributes
             annotation_dict[self.match_attribute] = matchobj
             if self.group_attribute:
-                annotation_dict['group'] = rule.group
+                annotation_dict[self.group_attribute] = rule.group
             if self.priority_attribute:
-                annotation_dict['priority'] = rule.priority
+                annotation_dict[self.priority_attribute] = rule.priority
             if self.pattern_attribute:
-                annotation_dict['pattern'] = rule.pattern
+                annotation_dict[self.pattern_attribute] = rule.pattern
 
             if self.global_decorator is not None:
                 annotation_dict = self.global_decorator(raw_text, element[0], annotation_dict)

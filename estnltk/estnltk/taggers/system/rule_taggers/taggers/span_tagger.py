@@ -34,9 +34,9 @@ class SpanTagger(Tagger):
                  decorator: Callable[
                      [Text, ElementaryBaseSpan, Dict[str, Any]], Optional[Dict[str, Any]]] = None,
                  ignore_case=False,
-                 group_attribute: bool = False,
-                 priority_attribute: bool = False,
-                 pattern_attribute: bool = False,
+                 group_attribute: str = None,
+                 priority_attribute: str = None,
+                 pattern_attribute: str = None,
                  conflict_resolver: Union[str, Callable[[Layer], Layer]] = 'KEEP_MAXIMAL',
                  resolve_priority_conflicts = False
                  ):
@@ -58,12 +58,12 @@ class SpanTagger(Tagger):
         :param ignore_case
             If True, then matches do not depend on capitalisation of letters
             If False, then capitalisation of letters is important
-        :param group_attribute: bool (Default: False)
-            Whether the final annotation should contain the group attribute of the rule or not.
-        :param priority_attribute: bool (Default: False)
-            Whether the final annotation should contain the group attribute of the rule or not.
-        pattern_attribute: bool (Default: False)
-            Whether the final annotation should contain the pattern attribute of the rule or not.
+        :param group_attribute: str (Default: None)
+            If not None, the final annotation contains the group attribute of the rule with the given name
+        :param priority_attribute: str (Default: None)
+            If not None, the final annotation contains the priority attribute of the rule with the given name
+        pattern_attribute: str (Default: None)
+            If not None, the final annotation contains the pattern attribute of the rule with the given name
         :param conflict_resolver: 'KEEP_ALL', 'KEEP_MAXIMAL', 'KEEP_MINIMAL' (default: 'KEEP_MAXIMAL')
             Strategy to choose between overlapping matches.
             Specify your own layer assembler if none of the predefined strategies does not work.
@@ -76,8 +76,8 @@ class SpanTagger(Tagger):
                 span[i].start == span[i+1].start => span[i].end < span[i + 1].end
             where the span is annotation.span
         """
-        self.conf_param = ('input_attribute', '_vocabulary', 'global_decorator', 'pattern_attribute'
-                           'ignore_case', '_ruleset', 'dynamic_ruleset_map', 'group_attribute','priority_attribute'
+        self.conf_param = ('input_attribute', '_vocabulary', 'global_decorator', 'pattern_attribute',
+                           'ignore_case', '_ruleset', 'dynamic_ruleset_map', 'group_attribute','priority_attribute',
                            'conflict_resolver', 'static_ruleset_map','resolve_priority_conflicts')
         self.output_layer = output_layer
         self.input_attribute = input_attribute
@@ -190,11 +190,11 @@ class SpanTagger(Tagger):
             for group, priority, annotation in static_rulelist:
                 annotation = annotation.copy()
                 if self.group_attribute:
-                    annotation['group'] = group
+                    annotation[self.group_attribute] = group
                 if self.priority_attribute:
-                    annotation['priority'] = priority
+                    annotation[self.priority_attribute] = priority
                 if self.pattern_attribute:
-                    annotation['pattern'] = pattern
+                    annotation[self.pattern_attribute] = pattern
                 rec = annotation
                 attributes = {attr: rec[attr] for attr in layer.attributes}
                 if self.global_decorator is not None:
@@ -243,11 +243,11 @@ class SpanTagger(Tagger):
             for group, priority, annotation in static_rulelist:
                 annotation = annotation.copy()
                 if self.group_attribute:
-                    annotation['group'] = group
+                    annotation[self.group_attribute] = group
                 if self.priority_attribute:
-                    annotation['priority'] = priority
+                    annotation[self.priority_attribute] = priority
                 if self.pattern_attribute:
-                    annotation['pattern'] = pattern
+                    annotation[self.pattern_attribute] = pattern
                 rec = annotation
                 attributes = {attr: rec[attr] for attr in layer.attributes}
                 annotation = self.global_decorator(raw_text, element[0], attributes)

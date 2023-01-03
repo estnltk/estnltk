@@ -36,9 +36,9 @@ class PhraseTagger(Tagger):
                  decorator=None,
                  ignore_case=False,
                  phrase_attribute='phrase',
-                 group_attribute=False,
-                 priority_attribute=False,
-                 pattern_attribute=False,
+                 group_attribute: str = None,
+                 priority_attribute: str = None,
+                 pattern_attribute: str = None,
                  resolve_priority_conflicts=False
                  ):
         """Initialize a new PhraseTagger instance.
@@ -71,12 +71,12 @@ class PhraseTagger(Tagger):
         :param phrase_attribute: str (Default: 'phrase')
             Name of the attribute in which the phrase object of the annotation is stored.
             The attribute can be used by the decorator or dynamic rules to change the annotation.
-        :param group_attribute: bool (Default: False)
-            Whether the final annotation should contain the group attribute of the rule or not.
-        :param priority_attribute: bool (Default: False)
-            Whether the final annotation should contain the priority attribute of the rule or not.
-        :param pattern_attribute: bool (Default: False)
-            Whether the final annotation should contain the pattern attribute of the rule or not.
+        :param group_attribute: str (Default: None)
+            If not None, the final annotation contains the group attribute of the rule with the given name
+        :param priority_attribute: str (Default: None)
+            If not None, the final annotation contains the priority attribute of the rule with the given name
+        pattern_attribute: str (Default: None)
+            If not None, the final annotation contains the pattern attribute of the rule with the given name
         """
         self.conf_param = ('input_attribute', 'ruleset', 'decorator', '_heads','ignore_case',
                            'conflict_resolver', 'phrase_attribute', 'group_attribute', 'priority_attribute',
@@ -270,11 +270,11 @@ class PhraseTagger(Tagger):
                 annotation = annotation.copy()
                 annotation[self.phrase_attribute] = phrase
                 if self.group_attribute:
-                    annotation['group'] = group
+                    annotation[self.group_attribute] = group
                 if self.priority_attribute:
-                    annotation['priority'] = priority
+                    annotation[self.priority_attribute] = priority
                 if self.pattern_attribute:
-                    annotation['pattern'] = phrase
+                    annotation[self.pattern_attribute] = phrase
                 if self.decorator is not None:
                     annotation = self.decorator(text, base_span, annotation)
                     if not isinstance(annotation, dict):
@@ -318,11 +318,11 @@ class PhraseTagger(Tagger):
                 annotation = annotation.copy()
                 annotation[self.phrase_attribute] = phrase
                 if self.group_attribute:
-                    annotation['group'] = group
+                    annotation[self.group_attribute] = group
                 if self.priority_attribute:
-                    annotation['priority'] = priority
+                    annotation[self.priority_attribute] = priority
                 if self.pattern_attribute:
-                    annotation['pattern'] = phrase
+                    annotation[self.pattern_attribute] = phrase
                 if self.decorator is not None:
                     annotation = self.decorator(text, base_span, annotation)
                     if not isinstance(annotation, dict):
