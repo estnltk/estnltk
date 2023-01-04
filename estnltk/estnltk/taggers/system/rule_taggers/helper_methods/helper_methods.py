@@ -3,19 +3,32 @@ from typing import List, Tuple, Generator
 from estnltk_core import ElementaryBaseSpan
 
 
-def conflict_priority_resolver(sorted_tuples: List[Tuple[ElementaryBaseSpan, str]], priority_matches) \
+def conflict_priority_resolver(sorted_tuples: List[Tuple[ElementaryBaseSpan, str]], priority_matches: List) \
     -> List[Tuple[ElementaryBaseSpan, str]]:
+    """
+
+    Parameters
+    ----------
+    sorted_tuples: list of tuples returned by the extract_matches method in rule-based taggers
+    priority_matches: priority information for the corresponding tuples
+
+    Returns
+    -------
+    sorted_tuples list without the elements that are filtered out by priority
+
+    """
+    #TODO make sure it is equivalent to the EstNLTK conflict resolver
     deleted_tuples = []
-    for tuple, priority_info in zip(sorted_tuples, priority_matches):
+    for tuple1, priority_info1 in zip(sorted_tuples, priority_matches):
         for tuple2, priority_info2 in zip(sorted_tuples,priority_matches):
-            group1 = priority_info[1][0][0]
+            group1 = priority_info1[1][0][0]
             group2 = priority_info2[1][0][0]
             if group1 == group2:
-                if tuple[0].start <= tuple2[0].end and tuple[0].end >= tuple2[0].start:
-                    priority1 = priority_info[1][0][1]
+                if tuple1[0].start <= tuple2[0].end and tuple1[0].end >= tuple2[0].start:
+                    priority1 = priority_info1[1][0][1]
                     priority2 = priority_info2[1][0][1]
                     if priority1 > priority2:
-                        deleted_tuples.append(tuple)
+                        deleted_tuples.append(tuple1)
 
     for tuple in deleted_tuples:
         sorted_tuples.remove(tuple)
