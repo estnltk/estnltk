@@ -268,8 +268,11 @@ class SpanTagger(Tagger):
         layer.text_object = text
 
         all_matches = self.extract_annotations(raw_text, layers)
+
         if self.resolve_priority_conflicts:
-            all_matches = conflict_priority_resolver(all_matches)
+            matches_with_priority = [(phrase, self.static_ruleset_map.get(phrase, None)) for base_span, phrase in
+                                     all_matches]
+            all_matches = conflict_priority_resolver(all_matches,matches_with_priority)
 
         if self.conflict_resolver == 'KEEP_ALL':
             return self.add_redecorated_annotations_to_layer(layer, iter(all_matches))

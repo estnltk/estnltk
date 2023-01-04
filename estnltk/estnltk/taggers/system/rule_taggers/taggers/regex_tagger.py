@@ -181,8 +181,11 @@ class RegexTagger(Tagger):
             raw_text = text.text
 
         all_matches = self.extract_annotations(raw_text)
+
         if self.resolve_priority_conflicts:
-            all_matches = conflict_priority_resolver(all_matches)
+            matches_with_priority = [(rule.pattern, self.static_ruleset_map.get(rule.pattern, None)) for base_span, match_obj, rule in
+                                     all_matches]
+            all_matches = conflict_priority_resolver(all_matches,matches_with_priority)
 
         if self.conflict_resolver == 'KEEP_ALL':
             layer = self.add_decorated_annotations_to_layer(layer, iter(all_matches))

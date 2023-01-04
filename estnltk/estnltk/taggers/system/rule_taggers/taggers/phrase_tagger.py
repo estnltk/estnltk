@@ -186,8 +186,10 @@ class PhraseTagger(Tagger):
         layer.text_object = text
         raw_text = text.text
         all_matches = self.extract_annotations(raw_text,layers)
-        matches_with_priority = [(phrase, self.static_ruleset_map.get(phrase, None)) for base_span, _, phrase in all_matches]
+        print(all_matches[0])
         if self.resolve_priority_conflicts:
+            matches_with_priority = [(phrase, self.static_ruleset_map.get(phrase, None)) for base_span, _, phrase in
+                                     all_matches]
             all_matches = conflict_priority_resolver(all_matches,matches_with_priority)
 
         if self.conflict_resolver == 'KEEP_ALL':
