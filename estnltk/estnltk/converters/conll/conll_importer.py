@@ -58,7 +58,7 @@ def add_layer_from_conll(file: str, text: Text, syntax_layer: str):
     return text
 
 
-def conll_to_text(file: str, syntax_layer: str = 'conll_syntax', discard_malformed_ids:bool=True) -> Text:
+def conll_to_text(file: str, syntax_layer: str = 'conll_syntax', remove_orphans:bool=True) -> Text:
     """
     Reads file in conll format and creates a Text object with words and syntax layers.
 
@@ -66,10 +66,11 @@ def conll_to_text(file: str, syntax_layer: str = 'conll_syntax', discard_malform
         name of the conll file
     :param syntax_layer: str
         name of the syntax layer
-    :param discard_malformed_ids: bool
-        if True, then annotations which 
-        'id' or 'head' values are not 
-        integers will be discarded.
+    :param remove_orphans: bool
+        if True, then orphan words 
+        (annotations which 'id' or 'head' 
+        values are not integers) 
+        will be discarded.
     :return: Text
     """
 
@@ -108,16 +109,16 @@ def conll_to_text(file: str, syntax_layer: str = 'conll_syntax', discard_malform
                 base_span = ElementaryBaseSpan(cur, cur+len_w)
                 words.add_annotation(base_span)
                 ids_ok = True
-                if discard_malformed_ids:
+                if remove_orphans:
                     # Check that both 'id' and 'head' are integers.
-                    # If not, discard annotation as broken.
+                    # If not, then discard orphan annotation.
                     ids_ok = isinstance(w['id'], int) and \
                              isinstance(w['head'], int)
                 if ids_ok:
                     syntax.add_annotation(base_span, **w)
                 else:
-                    warnings.warn(('(!) Unexpected id={!r}, head={!r} in token {!r} at position {}. '+\
-                                   'Discarding broken annotation.').format(w['id'], w['head'], w['form'], cur))
+                    warnings.warn(('(!) Removed orphan token {!r} {!r} at position {}. '+\
+                                   '').format(w['form'], w['id'], cur))
                 cur += len_w + 1
 
             sentences.add_annotation(words[sentence_start:])
@@ -134,7 +135,7 @@ def conll_to_text(file: str, syntax_layer: str = 'conll_syntax', discard_malform
 
 
 def conll_to_texts_list(file: str, syntax_layer: str = 'conll_syntax', postcorrect_sent_ids: bool=True,
-                                                                       discard_malformed_ids:bool=True) -> List[Text]:
+                                                                       remove_orphans:bool=True) -> List[Text]:
     """
     Reads file in conll format and creates separate Text objects according to 
     file names read from the 'sent_id' attributes in the metadata.
@@ -151,10 +152,11 @@ def conll_to_texts_list(file: str, syntax_layer: str = 'conll_syntax', postcorre
         if True, then postcorrections 
         will be applied to broken 
         'sent_id'-s;
-    :param discard_malformed_ids: bool
-        if True, then annotations which 
-        'id' or 'head' values are not 
-        integers will be discarded.
+    :param remove_orphans: bool
+        if True, then orphan words 
+        (annotations which 'id' or 'head' 
+        values are not integers) 
+        will be discarded.
     :return: List[Text]
     """
     texts = []
@@ -262,16 +264,16 @@ def conll_to_texts_list(file: str, syntax_layer: str = 'conll_syntax', postcorre
                 words_layers[-1].add_annotation(base_span)
 
                 ids_ok = True
-                if discard_malformed_ids:
+                if remove_orphans:
                     # Check that both 'id' and 'head' are integers.
-                    # If not, discard annotation as broken.
+                    # If not, then discard orphan word.
                     ids_ok = isinstance(w['id'], int) and \
                              isinstance(w['head'], int)
                 if ids_ok:
                     syntax_layers[-1].add_annotation(base_span, **w)
                 else:
-                    warnings.warn(('(!) Unexpected id={!r}, head={!r} in token {!r} at position {}. '+\
-                                   'Discarding broken annotation.').format(w['id'], w['head'], w['form'], cur))
+                    warnings.warn(('(!) Removed orphan token {!r} {!r} at position {}. '+\
+                                   '').format(w['form'], w['id'], cur))
                 cur += len_w + 1
 
             sentences_layers[-1].add_annotation(words[sentence_start:])
