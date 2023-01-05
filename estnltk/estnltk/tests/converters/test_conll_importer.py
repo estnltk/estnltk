@@ -351,51 +351,51 @@ def test_conll_importer_remove_empty_nodes():
         os.remove(fp.name)
     assert not os.path.exists(fp.name)
 
-    # 1) Check annotations loaded (via conll_to_text) from .conll without removing orphans 
+    # 1) Check annotations loaded (via conll_to_text) from .conll without removing null nodes
     text = text_with_0_nodes
-    # Chk that text contains orphan words:
+    # Chk that text contains null nodes
     assert text.text == 'Sonja isa oli Shveitsi tulnud juba 12 ja vennad tulnud 20 aastat tagasi . '+\
                         'Surnu pistis jooksu ja koer pistis järele .'
-    # Assert layers contains orphan words
+    # Assert layers contains null nodes
     words = [sp.text for sp in text['words']]
     syntax_words = [sp.text for sp in text['conll_syntax']]
     assert words == syntax_words
     assert syntax_words == ['Sonja', 'isa', 'oli', 'Shveitsi', 'tulnud', 'juba', '12', 'ja', 'vennad', \
                             'tulnud', '20', 'aastat', 'tagasi', '.', 'Surnu', 'pistis', 'jooksu', 'ja', \
                             'koer', 'pistis', 'järele', '.']
-    # Assert that sentences are correctly loaded and contain orphans
+    # Assert that sentences are correctly loaded and contain null nodes
     sentence_texts = [sp.enclosing_text for sp in text['sentences']]
     assert sentence_texts == ['Sonja isa oli Shveitsi tulnud juba 12 ja vennad tulnud 20 aastat tagasi .', \
                               'Surnu pistis jooksu ja koer pistis järele .']
 
-    # 2) Check annotations loaded (via conll_to_text) from .conll with removing orphans 
+    # 2) Check annotations loaded (via conll_to_text) from .conll with removing null nodes
     text = text_without_0_nodes
-    # Chk that text does not contain orphan words:
+    # Chk that text does not contain null nodes:
     assert text.text == 'Sonja isa oli Shveitsi tulnud juba 12 ja vennad 20 aastat tagasi . '+\
                         'Surnu pistis jooksu ja koer järele .'
-    # Assert layers do not contain orphan words
+    # Assert layers do not contain null nodes
     words = [sp.text for sp in text['words']]
     syntax_words = [sp.text for sp in text['conll_syntax']]
     assert words == syntax_words
     assert syntax_words == ['Sonja', 'isa', 'oli', 'Shveitsi', 'tulnud', 'juba', '12', 'ja', 'vennad', \
                             '20', 'aastat', 'tagasi', '.', 'Surnu', 'pistis', 'jooksu', 'ja', 'koer', 'järele', '.']
-    # Assert that sentences are correctly loaded and do not contain orphans
+    # Assert that sentences are correctly loaded and do not contain null nodes
     sentence_texts = [sp.enclosing_text for sp in text['sentences']]
     assert sentence_texts == ['Sonja isa oli Shveitsi tulnud juba 12 ja vennad 20 aastat tagasi .', \
                               'Surnu pistis jooksu ja koer järele .']
 
-    # 3) Check annotations loaded (via conll_to_texts_list) from .conll with removing orphans 
+    # 3) Check annotations loaded (via conll_to_texts_list) from .conll with removing null nodes
     text = texts_without_0_nodes[0]
-    # Chk that text does not contain orphan words:
+    # Chk that text does not contain orphan null nodes:
     assert text.text == 'Sonja isa oli Shveitsi tulnud juba 12 ja vennad 20 aastat tagasi . '+\
                         'Surnu pistis jooksu ja koer järele .'
-    # Assert layers do not contain orphan words
+    # Assert layers do not contain orphan null nodes
     words = [sp.text for sp in text['words']]
     syntax_words = [sp.text for sp in text['conll_syntax']]
     assert words == syntax_words
     assert syntax_words == ['Sonja', 'isa', 'oli', 'Shveitsi', 'tulnud', 'juba', '12', 'ja', 'vennad', \
                             '20', 'aastat', 'tagasi', '.', 'Surnu', 'pistis', 'jooksu', 'ja', 'koer', 'järele', '.']
-    # Assert that sentences are correctly loaded and do not contain orphans
+    # Assert that sentences are correctly loaded and do not contain null nodes
     sentence_texts = [sp.enclosing_text for sp in text['sentences']]
     assert sentence_texts == ['Sonja isa oli Shveitsi tulnud juba 12 ja vennad 20 aastat tagasi .', \
                               'Surnu pistis jooksu ja koer järele .']
