@@ -117,9 +117,6 @@ def conll_to_text(file: str, syntax_layer: str = 'conll_syntax', remove_orphans:
                     words.add_annotation(base_span)
                     syntax.add_annotation(base_span, **w)
                     cur += len_w + 1
-                else:
-                    warnings.warn(('(!) Removed orphan token {!r} {!r} at position {}. '+\
-                                   '').format(w['form'], w['id'], cur))
 
             sentences.add_annotation(words[sentence_start:])
             sentence_start += len(sentence)
@@ -271,9 +268,6 @@ def conll_to_texts_list(file: str, syntax_layer: str = 'conll_syntax', postcorre
                     words_layers[-1].add_annotation(base_span)
                     syntax_layers[-1].add_annotation(base_span, **w)
                     cur += len_w + 1
-                else:
-                    warnings.warn(('(!) Removed orphan token {!r} {!r} at position {}. '+\
-                                   '').format(w['form'], w['id'], cur))
 
             sentences_layers[-1].add_annotation(words[sentence_start:])
             sentence_start += len(sentence)

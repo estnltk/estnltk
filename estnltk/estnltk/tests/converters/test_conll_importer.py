@@ -327,8 +327,6 @@ input_conll_syntax_with_orphans_str = \
 
 '''
 
-
-@pytest.mark.filterwarnings("ignore::UserWarning")
 @pytest.mark.skipif(not check_if_conllu_is_available(),
                     reason="package conllu is required for this test")
 def test_conll_importer_remove_orphans():
