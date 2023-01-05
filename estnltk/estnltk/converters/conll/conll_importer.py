@@ -68,8 +68,8 @@ def conll_to_text(file: str, syntax_layer: str = 'conll_syntax', remove_orphans:
         name of the syntax layer
     :param remove_orphans: bool
         if True, then orphan words 
-        (annotations which 'id' or 'head' 
-        values are not integers) 
+        (a.k.a null nodes / ellipsis in 
+         the enhanced representation) 
         will be discarded.
     :return: Text
     """
@@ -103,11 +103,6 @@ def conll_to_text(file: str, syntax_layer: str = 'conll_syntax', remove_orphans:
 
         for sentence in parse_incr(data_file, fields=('id', 'form', 'lemma', 'upostag', 'xpostag', 'feats', 'head', 'deprel', 'deps', 'misc')):
             for w in sentence:
-                token = w['form']
-                t.append(token)
-                len_w = len(token)
-                base_span = ElementaryBaseSpan(cur, cur+len_w)
-                words.add_annotation(base_span)
                 ids_ok = True
                 if remove_orphans:
                     # Check that both 'id' and 'head' are integers.
@@ -115,11 +110,16 @@ def conll_to_text(file: str, syntax_layer: str = 'conll_syntax', remove_orphans:
                     ids_ok = isinstance(w['id'], int) and \
                              isinstance(w['head'], int)
                 if ids_ok:
+                    token = w['form']
+                    len_w = len(token)
+                    t.append(token)
+                    base_span = ElementaryBaseSpan(cur, cur+len_w)
+                    words.add_annotation(base_span)
                     syntax.add_annotation(base_span, **w)
+                    cur += len_w + 1
                 else:
                     warnings.warn(('(!) Removed orphan token {!r} {!r} at position {}. '+\
                                    '').format(w['form'], w['id'], cur))
-                cur += len_w + 1
 
             sentences.add_annotation(words[sentence_start:])
             sentence_start += len(sentence)
@@ -154,8 +154,8 @@ def conll_to_texts_list(file: str, syntax_layer: str = 'conll_syntax', postcorre
         'sent_id'-s;
     :param remove_orphans: bool
         if True, then orphan words 
-        (annotations which 'id' or 'head' 
-        values are not integers) 
+        (a.k.a null nodes / ellipsis in 
+         the enhanced representation) 
         will be discarded.
     :return: List[Text]
     """
@@ -257,12 +257,6 @@ def conll_to_texts_list(file: str, syntax_layer: str = 'conll_syntax', postcorre
                         
             # Load sentence content
             for w in sentence:
-                token = w['form']
-                t.append(token)
-                len_w = len(token)
-                base_span = ElementaryBaseSpan(cur, cur+len_w)
-                words_layers[-1].add_annotation(base_span)
-
                 ids_ok = True
                 if remove_orphans:
                     # Check that both 'id' and 'head' are integers.
@@ -270,11 +264,16 @@ def conll_to_texts_list(file: str, syntax_layer: str = 'conll_syntax', postcorre
                     ids_ok = isinstance(w['id'], int) and \
                              isinstance(w['head'], int)
                 if ids_ok:
+                    token = w['form']
+                    len_w = len(token)
+                    t.append(token)
+                    base_span = ElementaryBaseSpan(cur, cur+len_w)
+                    words_layers[-1].add_annotation(base_span)
                     syntax_layers[-1].add_annotation(base_span, **w)
+                    cur += len_w + 1
                 else:
                     warnings.warn(('(!) Removed orphan token {!r} {!r} at position {}. '+\
                                    '').format(w['form'], w['id'], cur))
-                cur += len_w + 1
 
             sentences_layers[-1].add_annotation(words[sentence_start:])
             sentence_start += len(sentence)
