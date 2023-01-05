@@ -58,7 +58,7 @@ def add_layer_from_conll(file: str, text: Text, syntax_layer: str):
     return text
 
 
-def conll_to_text(file: str, syntax_layer: str = 'conll_syntax', remove_orphans:bool=True) -> Text:
+def conll_to_text(file: str, syntax_layer: str = 'conll_syntax', remove_empty_nodes:bool=True) -> Text:
     """
     Reads file in conll format and creates a Text object with words and syntax layers.
 
@@ -66,11 +66,11 @@ def conll_to_text(file: str, syntax_layer: str = 'conll_syntax', remove_orphans:
         name of the conll file
     :param syntax_layer: str
         name of the syntax layer
-    :param remove_orphans: bool
-        if True, then orphan words 
-        (a.k.a null nodes / ellipsis in 
-         the enhanced representation) 
-        will be discarded.
+    :param remove_empty_nodes: bool
+        if True, then empty / null nodes (ellipsis 
+        in the enhanced representation) will be 
+        discarded (left out from textual content
+        and also from annotations).
     :return: Text
     """
 
@@ -104,7 +104,7 @@ def conll_to_text(file: str, syntax_layer: str = 'conll_syntax', remove_orphans:
         for sentence in parse_incr(data_file, fields=('id', 'form', 'lemma', 'upostag', 'xpostag', 'feats', 'head', 'deprel', 'deps', 'misc')):
             for w in sentence:
                 ids_ok = True
-                if remove_orphans:
+                if remove_empty_nodes:
                     # Check that both 'id' and 'head' are integers.
                     # If not, then discard orphan annotation.
                     ids_ok = isinstance(w['id'], int) and \
@@ -133,7 +133,7 @@ def conll_to_text(file: str, syntax_layer: str = 'conll_syntax', remove_orphans:
 
 
 def conll_to_texts_list(file: str, syntax_layer: str = 'conll_syntax', postcorrect_sent_ids: bool=True,
-                                                                       remove_orphans:bool=True) -> List[Text]:
+                                                                       remove_empty_nodes:bool=True) -> List[Text]:
     """
     Reads file in conll format and creates separate Text objects according to 
     file names read from the 'sent_id' attributes in the metadata.
@@ -150,11 +150,11 @@ def conll_to_texts_list(file: str, syntax_layer: str = 'conll_syntax', postcorre
         if True, then postcorrections 
         will be applied to broken 
         'sent_id'-s;
-    :param remove_orphans: bool
-        if True, then orphan words 
-        (a.k.a null nodes / ellipsis in 
-         the enhanced representation) 
-        will be discarded.
+    :param remove_empty_nodes: bool
+        if True, then empty / null nodes (ellipsis 
+        in the enhanced representation) will be 
+        discarded (left out from textual content
+        and also from annotations).
     :return: List[Text]
     """
     texts = []
@@ -256,7 +256,7 @@ def conll_to_texts_list(file: str, syntax_layer: str = 'conll_syntax', postcorre
             # Load sentence content
             for w in sentence:
                 ids_ok = True
-                if remove_orphans:
+                if remove_empty_nodes:
                     # Check that both 'id' and 'head' are integers.
                     # If not, then discard orphan word.
                     ids_ok = isinstance(w['id'], int) and \

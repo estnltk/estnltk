@@ -295,7 +295,7 @@ def test_conll_importers():
     assert text_to_dict(text) == text_dict
 
 
-input_conll_syntax_with_orphans_str = \
+input_conll_syntax_with_empty_nodes_str = \
 '''
 # sent_id = aja_luup200009_511
 # text = Sonja isa oli Shveitsi tulnud juba 12 ja vennad 20 aastat tagasi.
@@ -329,30 +329,30 @@ input_conll_syntax_with_orphans_str = \
 
 @pytest.mark.skipif(not check_if_conllu_is_available(),
                     reason="package conllu is required for this test")
-def test_conll_importer_remove_orphans():
-    # Tests remove_orphans functionality of the importer
+def test_conll_importer_remove_empty_nodes():
+    # Tests remove_empty_nodes functionality of the importer
     from estnltk.converters.conll.conll_importer import conll_to_text
     from estnltk.converters.conll.conll_importer import conll_to_texts_list
     
     # Write example conll text into tempfile
     fp = tempfile.NamedTemporaryFile(mode='w', encoding='utf-8', suffix='.conll', delete=False)
-    fp.write( input_conll_syntax_with_orphans_str )
+    fp.write( input_conll_syntax_with_empty_nodes_str )
     fp.close()
     
-    text_with_orphans = None
-    text_without_orphans = None
-    texts_without_orphans = None
+    text_with_0_nodes = None
+    text_without_0_nodes = None
+    texts_without_0_nodes = None
     try:
-        text_with_orphans = conll_to_text(fp.name, remove_orphans=False)
-        text_without_orphans = conll_to_text(fp.name, remove_orphans=True)
-        texts_without_orphans = conll_to_texts_list(fp.name, remove_orphans=True)
+        text_with_0_nodes = conll_to_text(fp.name, remove_empty_nodes=False)
+        text_without_0_nodes = conll_to_text(fp.name, remove_empty_nodes=True)
+        texts_without_0_nodes = conll_to_texts_list(fp.name, remove_empty_nodes=True)
     finally:
         # clean up: remove temporary file
         os.remove(fp.name)
     assert not os.path.exists(fp.name)
 
     # 1) Check annotations loaded (via conll_to_text) from .conll without removing orphans 
-    text = text_with_orphans
+    text = text_with_0_nodes
     # Chk that text contains orphan words:
     assert text.text == 'Sonja isa oli Shveitsi tulnud juba 12 ja vennad tulnud 20 aastat tagasi . '+\
                         'Surnu pistis jooksu ja koer pistis järele .'
@@ -369,7 +369,7 @@ def test_conll_importer_remove_orphans():
                               'Surnu pistis jooksu ja koer pistis järele .']
 
     # 2) Check annotations loaded (via conll_to_text) from .conll with removing orphans 
-    text = text_without_orphans
+    text = text_without_0_nodes
     # Chk that text does not contain orphan words:
     assert text.text == 'Sonja isa oli Shveitsi tulnud juba 12 ja vennad 20 aastat tagasi . '+\
                         'Surnu pistis jooksu ja koer järele .'
@@ -385,7 +385,7 @@ def test_conll_importer_remove_orphans():
                               'Surnu pistis jooksu ja koer järele .']
 
     # 3) Check annotations loaded (via conll_to_texts_list) from .conll with removing orphans 
-    text = texts_without_orphans[0]
+    text = texts_without_0_nodes[0]
     # Chk that text does not contain orphan words:
     assert text.text == 'Sonja isa oli Shveitsi tulnud juba 12 ja vennad 20 aastat tagasi . '+\
                         'Surnu pistis jooksu ja koer järele .'
