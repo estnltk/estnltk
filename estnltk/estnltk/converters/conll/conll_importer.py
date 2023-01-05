@@ -118,8 +118,9 @@ def conll_to_text(file: str, syntax_layer: str = 'conll_syntax', remove_orphans:
                     syntax.add_annotation(base_span, **w)
                     cur += len_w + 1
 
-            sentences.add_annotation(words[sentence_start:])
-            sentence_start += len(sentence)
+            sentence_words = words[sentence_start:]
+            sentences.add_annotation(sentence_words)
+            sentence_start += len(sentence_words)
 
     text.text = ' '.join(t)
     text.add_layer(words)
@@ -269,8 +270,9 @@ def conll_to_texts_list(file: str, syntax_layer: str = 'conll_syntax', postcorre
                     syntax_layers[-1].add_annotation(base_span, **w)
                     cur += len_w + 1
 
-            sentences_layers[-1].add_annotation(words[sentence_start:])
-            sentence_start += len(sentence)
+            sentence_words = words[sentence_start:]
+            sentences_layers[-1].add_annotation(sentence_words)
+            sentence_start += len(sentence_words)
             last_sent_id = cur_sent_id
     
     # Finalize the Text object

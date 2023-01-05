@@ -375,6 +375,10 @@ def test_conll_importer_remove_orphans():
     assert words == syntax_words
     assert syntax_words == ['Sonja', 'isa', 'oli', 'Shveitsi', 'tulnud', 'juba', '12', 'ja', 'vennad', \
                             '20', 'aastat', 'tagasi', '.', 'Surnu', 'pistis', 'jooksu', 'ja', 'koer', 'järele', '.']
+    # Assert that sentences are correctly loaded and do not contain orphans
+    sentence_texts = [sp.enclosing_text for sp in text['sentences']]
+    assert sentence_texts == ['Sonja isa oli Shveitsi tulnud juba 12 ja vennad 20 aastat tagasi .', \
+                              'Surnu pistis jooksu ja koer järele .']
 
     # 3) Check annotations loaded (via conll_to_texts_list) from .conll with removing orphans 
     text = texts_without_orphans[0]
@@ -387,3 +391,7 @@ def test_conll_importer_remove_orphans():
     assert words == syntax_words
     assert syntax_words == ['Sonja', 'isa', 'oli', 'Shveitsi', 'tulnud', 'juba', '12', 'ja', 'vennad', \
                             '20', 'aastat', 'tagasi', '.', 'Surnu', 'pistis', 'jooksu', 'ja', 'koer', 'järele', '.']
+    # Assert that sentences are correctly loaded and do not contain orphans
+    sentence_texts = [sp.enclosing_text for sp in text['sentences']]
+    assert sentence_texts == ['Sonja isa oli Shveitsi tulnud juba 12 ja vennad 20 aastat tagasi .', \
+                              'Surnu pistis jooksu ja koer järele .']
