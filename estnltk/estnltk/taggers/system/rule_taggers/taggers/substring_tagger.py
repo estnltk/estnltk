@@ -59,7 +59,8 @@ class SubstringTagger(Tagger):
                  group_attribute: str = None,
                  priority_attribute: str = None,
                  pattern_attribute: str = None,
-                 resolve_priority_conflicts=False
+                 resolve_priority_conflicts=False,
+                 expander: Callable[[str], List[str]] = None
                  ):
         """
         Initialize a new SubstringTagger instance.
@@ -109,6 +110,9 @@ class SubstringTagger(Tagger):
         ignore_case:
             If True, then matches do not depend on capitalisation of letters
             If False, then capitalisation of letters is important
+        expander:
+            Function used to expand the rules in the ruleset. Takes in a rule pattern as a string and outputs a list
+            of strings to be used in rules.
 
         Extraction rules are in the form string --> dict where the dict contains the annotation for the match, e.g.
             Washington    --> {type: capital, country: US},
@@ -138,7 +142,8 @@ class SubstringTagger(Tagger):
             'group_attribute',
             'priority_attribute',
             'pattern_attribute',
-            'resolve_priority_conflicts']
+            'resolve_priority_conflicts',
+            'expander']
 
         self.input_layers = ()
         self.output_layer = output_layer
@@ -151,20 +156,31 @@ class SubstringTagger(Tagger):
             raise ValueError('Output attributes of a ruleset must match the output attributes of a tagger')
 
         self.static_ruleset_map: Dict[str, List[Tuple[int, int, Dict[str, any]]]]
+        self.expander = expander
 
         static_ruleset_map = dict()
 
         self.ignore_case = ignore_case
 
         for rule in ruleset.static_rules:
-            if self.ignore_case:
-                subindex = static_ruleset_map.get(rule.pattern.lower(), [])
-                subindex.append((rule.group, rule.priority, rule.attributes))
-                static_ruleset_map[rule.pattern.lower()] = subindex
+            if self.expander:
+                if self.ignore_case:
+                    expanded = self.expander(rule.pattern.lower())
+                else:
+                    expanded = self.expander(rule.pattern)
+                for new_rule in expanded:
+                    subindex = static_ruleset_map.get(new_rule, [])
+                    subindex.append((rule.group, rule.priority, rule.attributes))
+                    static_ruleset_map[new_rule] = subindex
             else:
-                subindex = static_ruleset_map.get(rule.pattern, [])
-                subindex.append((rule.group, rule.priority, rule.attributes))
-                static_ruleset_map[rule.pattern] = subindex
+                if self.ignore_case:
+                    subindex = static_ruleset_map.get(rule.pattern.lower(), [])
+                    subindex.append((rule.group, rule.priority, rule.attributes))
+                    static_ruleset_map[rule.pattern.lower()] = subindex
+                else:
+                    subindex = static_ruleset_map.get(rule.pattern, [])
+                    subindex.append((rule.group, rule.priority, rule.attributes))
+                    static_ruleset_map[rule.pattern] = subindex
 
         self.static_ruleset_map = static_ruleset_map
 
