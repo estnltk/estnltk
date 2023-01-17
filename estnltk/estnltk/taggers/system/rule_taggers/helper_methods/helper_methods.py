@@ -1,6 +1,9 @@
 from typing import List, Tuple, Generator
 
 from estnltk_core import ElementaryBaseSpan
+from estnltk.vabamorf.morf import synthesize
+
+
 
 
 def conflict_priority_resolver(sorted_tuples: List[Tuple[ElementaryBaseSpan, str]], priority_matches: List) \
@@ -119,3 +122,28 @@ def keep_minimal_matches(sorted_tuples: List[Tuple[ElementaryBaseSpan, str]]) \
     # Output work list as there were no invalidating spans left
     for candidate_tuple in work_list:
         yield candidate_tuple
+
+
+def cases_expander(word):
+    cases = [
+        ('n', 'nimetav'),
+        ('g', 'omastav'),
+        ('p', 'osastav'),
+        ('ill', 'sisseütlev'),
+        ('in', 'seesütlev'),
+        ('el', 'seestütlev'),
+        ('all', 'alaleütlev'),
+        ('ad', 'alalütlev'),
+        ('abl', 'alaltütlev'),
+        ('tr', 'saav'),
+        ('ter', 'rajav'),
+        ('es', 'olev'),
+        ('ab', 'ilmaütlev'),
+        ('kom', 'kaasaütlev')]
+
+    expanded = []
+    for case, name in cases:
+        expanded.append(', '.join(synthesize(word, 'sg ' + case, 'S')))
+        expanded.append(', '.join(synthesize(word, 'pl ' + case, 'S')))
+
+    return expanded
