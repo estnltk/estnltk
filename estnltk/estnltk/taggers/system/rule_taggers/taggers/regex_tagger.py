@@ -35,8 +35,7 @@ class RegexTagger(Tagger):
                  'pattern_attribute',
                  'static_ruleset_map',
                  'dynamic_ruleset_map',
-                 'lowercase_text',
-                 'resolve_priority_conflicts']
+                 'lowercase_text']
 
     def __init__(self,
                  ruleset: Union[str, dict, list, Ruleset],
@@ -50,8 +49,7 @@ class RegexTagger(Tagger):
                  match_attribute: str = 'match',
                  group_attribute: str = None,
                  priority_attribute: str = None,
-                 pattern_attribute: str = None,
-                 resolve_priority_conflicts: bool = False
+                 pattern_attribute: str = None
                  ):
         """Initialize a new RegexTagger instance. Note that previously it was possible to
         have callables as attributes in the ruleset. This functionality is now replaced by
@@ -108,8 +106,7 @@ class RegexTagger(Tagger):
                            'pattern_attribute',
                            'static_ruleset_map',
                            'dynamic_ruleset_map',
-                           'lowercase_text',
-                           'resolve_priority_conflicts']
+                           'lowercase_text']
         self.input_layers = ()
         self.output_layer = output_layer
         if output_attributes is None:
@@ -163,7 +160,6 @@ class RegexTagger(Tagger):
 
         self.overlapped = overlapped
         self.conflict_resolver = conflict_resolver
-        self.resolve_priority_conflicts = resolve_priority_conflicts
 
     def _make_layer_template(self):
         return Layer(name=self.output_layer,
@@ -182,16 +178,26 @@ class RegexTagger(Tagger):
 
         all_matches = self.extract_annotations(raw_text)
 
-        if self.resolve_priority_conflicts:
-            matches_with_priority = [(rule.pattern, self.static_ruleset_map.get(rule.pattern, None)) for base_span, match_obj, rule in
-                                     all_matches]
-            all_matches = conflict_priority_resolver(all_matches,matches_with_priority)
-
         if self.conflict_resolver == 'KEEP_ALL':
             layer = self.add_decorated_annotations_to_layer(layer, iter(all_matches))
         elif self.conflict_resolver == 'KEEP_MAXIMAL':
             layer = self.add_decorated_annotations_to_layer(layer, keep_maximal_matches(all_matches))
         elif self.conflict_resolver == 'KEEP_MINIMAL':
+            layer = self.add_decorated_annotations_to_layer(layer, keep_minimal_matches(all_matches))
+        elif self.conflict_resolver == 'KEEP_ALL_EXCEPT_PRIORITY':
+            matches_with_priority = [(rule.pattern, self.static_ruleset_map.get(rule.pattern, None)) for base_span, match_obj, rule in
+                                     all_matches]
+            all_matches = conflict_priority_resolver(all_matches,matches_with_priority)
+            layer = self.add_decorated_annotations_to_layer(layer, iter(all_matches))
+        elif self.conflict_resolver == 'KEEP_MAXIMAL_EXCEPT_PRIORITY':
+            matches_with_priority = [(rule.pattern, self.static_ruleset_map.get(rule.pattern, None)) for base_span, match_obj, rule in
+                                     all_matches]
+            all_matches = conflict_priority_resolver(all_matches,matches_with_priority)
+            layer = self.add_decorated_annotations_to_layer(layer, keep_maximal_matches(all_matches))
+        elif self.conflict_resolver == 'KEEP_MINIMAL_EXCEPT_PRIORITY':
+            matches_with_priority = [(rule.pattern, self.static_ruleset_map.get(rule.pattern, None)) for base_span, match_obj, rule in
+                                     all_matches]
+            all_matches = conflict_priority_resolver(all_matches,matches_with_priority)
             layer = self.add_decorated_annotations_to_layer(layer, keep_minimal_matches(all_matches))
         elif callable(self.conflict_resolver):
             layer = self.conflict_resolver(layer, self.iterate_over_decorated_annotations(layer, iter(all_matches)))
