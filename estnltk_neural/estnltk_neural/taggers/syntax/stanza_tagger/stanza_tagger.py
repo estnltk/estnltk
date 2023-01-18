@@ -41,14 +41,21 @@ class StanzaSyntaxTagger(Tagger):
            must point to the name of the layer;
 
     Names of layers to use can be changed using parameters sentences_layer, words_layer and input_morph_layer,
-    if needed. To use GPU for parsing, parameter use_gpu must be set to True.
-    Parameter add_parents_and_children adds attributes that contain the parent and children of a word.
+    if needed. To use GPU for parsing, parameter use_gpu must be set to True. 
+    Parameter add_parents_and_children adds attributes that contain the parent and children of a word. 
+    
+    The input morph analysis layer can be ambiguous. In that case, StanzaSyntaxTagger picks randomly one 
+    morph analysis for each ambiguous word, and predicts from "unambiguous" input. 
+    A seed value is used ensure repeatability of the random picking process, you can change the seed value 
+    via parameter random_pick_seed (int, default value: 4).
+    
     Tutorial:
+    https://github.com/estnltk/estnltk/blob/main/tutorials/nlp_pipeline/C_syntax/03_syntactic_analysis_with_stanza.ipynb
     """
 
     conf_param = ['model_path', 'add_parent_and_children', 'syntax_dependency_retagger',
                   'input_type', 'dir', 'mark_syntax_error', 'mark_agreement_error', 'agreement_error_retagger',
-                  'ud_validation_retagger', 'use_gpu', 'nlp']
+                  'ud_validation_retagger', 'use_gpu', 'nlp', 'random_pick_seed']
 
     def __init__(self,
                  output_layer='stanza_syntax',
@@ -56,6 +63,7 @@ class StanzaSyntaxTagger(Tagger):
                  words_layer='words',
                  input_morph_layer='morph_analysis',
                  input_type='morph_analysis',  # or 'morph_extended', 'sentences'
+                 random_pick_seed=4,
                  add_parent_and_children=False,
                  depparse_path=None,
                  resources_path=None,
@@ -73,6 +81,7 @@ class StanzaSyntaxTagger(Tagger):
         self.output_attributes = ('id', 'lemma', 'upostag', 'xpostag', 'feats', 'head', 'deprel', 'deps', 'misc')
         self.input_type = input_type
         self.use_gpu = use_gpu
+        self.random_pick_seed = random_pick_seed
 
         if not resources_path:
             # Try to get the resources path for stanzasyntaxtagger. Attempt to download resources, if missing
@@ -172,7 +181,7 @@ class StanzaSyntaxTagger(Tagger):
         from stanza.models.common.doc import Document
         
         rand = Random()
-        rand.seed(4)
+        rand.seed( self.random_pick_seed )
 
         if self.input_type in ['morph_analysis', 'morph_extended']:
 

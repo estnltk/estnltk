@@ -33,18 +33,26 @@ class StanzaSyntaxEnsembleTagger(Tagger):
     replaced with a chosen string by assigning a tuple containing a list of field names as first element
     and string as a second to parameter `replace_fields`.
 
+    The input morph layer can be ambiguous. In that case, StanzaSyntaxEnsembleTagger picks randomly one 
+    morph analysis for each ambiguous word, and predicts from "unambiguous" input. 
+    A seed value is used ensure repeatability of the random picking process, you can change the seed via 
+    parameter random_pick_seed (int, default value: 5).
+    
     Tutorial:
+    https://github.com/estnltk/estnltk/blob/main/tutorials/nlp_pipeline/C_syntax/03_syntactic_analysis_with_stanza.ipynb
     """
 
     conf_param = ['add_parent_and_children', 'syntax_dependency_retagger',
                   'mark_syntax_error', 'mark_agreement_error', 'agreement_error_retagger',
-                  'ud_validation_retagger', 'use_gpu', 'model_paths', 'taggers', 'remove_fields', 'replace_fields']
+                  'ud_validation_retagger', 'use_gpu', 'model_paths', 'taggers', 'remove_fields', 
+                  'replace_fields', 'random_pick_seed']
 
     def __init__(self,
                  output_layer: str = 'stanza_ensemble_syntax',
                  sentences_layer: str = 'sentences',
                  words_layer: str = 'words',
                  input_morph_layer: str = 'morph_extended',
+                 random_pick_seed: int = 5,
                  remove_fields: list = None,
                  replace_fields: Tuple[list, str] = None,
                  model_paths: list = None,
@@ -65,6 +73,7 @@ class StanzaSyntaxEnsembleTagger(Tagger):
         self.mark_agreement_error = mark_agreement_error
         self.output_attributes = ('id', 'lemma', 'upostag', 'xpostag', 'feats', 'head', 'deprel', 'deps', 'misc')
         self.use_gpu = use_gpu
+        self.random_pick_seed = random_pick_seed
         
         # Try to get the resources path for stanzasyntaxensembletagger. Attempt to download resources, if missing
         resources_path = get_resource_paths("stanzasyntaxensembletagger", only_latest=True, download_missing=True)
@@ -135,7 +144,7 @@ class StanzaSyntaxEnsembleTagger(Tagger):
         parsed_texts = defaultdict()
 
         text_data = pretagged_document(text, sentences_layer, morph_layer, remove_fields=self.remove_fields,
-                                       replace_fields=self.replace_fields)
+                                       replace_fields=self.replace_fields, seed=self.random_pick_seed)
 
         for model, nlp in self.taggers.items():
             doc = Document(text_data)
@@ -254,9 +263,9 @@ def text_sentence_LAS(sents1, sents2):
     return file_sentence_lases
 
 
-def pretagged_document(text, sentences, morph, remove_fields, replace_fields):
+def pretagged_document(text, sentences, morph, remove_fields, replace_fields, seed=5):
     rand1 = Random()
-    rand1.seed(5)
+    rand1.seed(seed)
     data = list()
     for sentence in text[sentences]:
         pretagged_sent = list()
