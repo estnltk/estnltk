@@ -37,8 +37,7 @@ class SpanTagger(Tagger):
                  group_attribute: str = None,
                  priority_attribute: str = None,
                  pattern_attribute: str = None,
-                 conflict_resolver: Union[str, Callable[[Layer], Layer]] = 'KEEP_MAXIMAL',
-                 resolve_priority_conflicts = False
+                 conflict_resolver: Union[str, Callable[[Layer], Layer]] = 'KEEP_MAXIMAL'
                  ):
         """Initialize a new SpanTagger instance.
 
@@ -78,7 +77,7 @@ class SpanTagger(Tagger):
         """
         self.conf_param = ('input_attribute', '_vocabulary', 'global_decorator', 'pattern_attribute',
                            'ignore_case', '_ruleset', 'dynamic_ruleset_map', 'group_attribute','priority_attribute',
-                           'conflict_resolver', 'static_ruleset_map','resolve_priority_conflicts')
+                           'conflict_resolver', 'static_ruleset_map')
         self.output_layer = output_layer
         self.input_attribute = input_attribute
 
@@ -87,7 +86,6 @@ class SpanTagger(Tagger):
         self.global_decorator = decorator
 
         self.conflict_resolver = conflict_resolver
-        self.resolve_priority_conflicts = resolve_priority_conflicts
 
         self.input_layers = [input_layer]
 
@@ -269,17 +267,27 @@ class SpanTagger(Tagger):
 
         all_matches = self.extract_annotations(raw_text, layers)
 
-        if self.resolve_priority_conflicts:
-            matches_with_priority = [(phrase, self.static_ruleset_map.get(phrase, None)) for base_span, phrase in
-                                     all_matches]
-            all_matches = conflict_priority_resolver(all_matches,matches_with_priority)
-
         if self.conflict_resolver == 'KEEP_ALL':
             return self.add_redecorated_annotations_to_layer(layer, iter(all_matches))
         elif self.conflict_resolver == 'KEEP_MAXIMAL':
             return self.add_redecorated_annotations_to_layer(layer, keep_maximal_matches(all_matches))
         elif self.conflict_resolver == 'KEEP_MINIMAL':
             return self.add_redecorated_annotations_to_layer(layer, keep_minimal_matches(all_matches))
+        elif self.conflict_resolver == 'KEEP_ALL_EXCEPT_PRIORITY':
+            matches_with_priority = [(phrase, self.static_ruleset_map.get(phrase, None)) for base_span, phrase in
+                                     all_matches]
+            all_matches = conflict_priority_resolver(all_matches,matches_with_priority)
+            return self.add_decorated_annotations_to_layer(layer, iter(all_matches))
+        elif self.conflict_resolver == 'KEEP_MAXIMAL_EXCEPT_PRIORITY':
+            matches_with_priority = [(phrase, self.static_ruleset_map.get(phrase, None)) for base_span, phrase in
+                                     all_matches]
+            all_matches = conflict_priority_resolver(all_matches,matches_with_priority)
+            return self.add_decorated_annotations_to_layer(layer, keep_maximal_matches(all_matches))
+        elif self.conflict_resolver == 'KEEP_MINIMAL_EXCEPT_PRIORITY':
+            matches_with_priority = [(phrase, self.static_ruleset_map.get(phrase, None)) for base_span, phrase in
+                                     all_matches]
+            all_matches = conflict_priority_resolver(all_matches,matches_with_priority)
+            return self.add_decorated_annotations_to_layer(layer, keep_minimal_matches(all_matches))
         elif callable(self.conflict_resolver):
             return self.conflict_resolver(layer, self.iterate_over_redecorated_annotations(layer, iter(all_matches)))
 
