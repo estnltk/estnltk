@@ -34,7 +34,9 @@ def test_stanza_syntax_ensemble_tagger():
     text = Text('Väike jänes jooksis metsa! Mina ei jookse kuhugi.')
 
     text.tag_layer('morph_extended')
-    stanza_ensemble_tagger = StanzaSyntaxEnsembleTagger(output_layer='stanza_ensemble_syntax')
+    stanza_ensemble_tagger = StanzaSyntaxEnsembleTagger(output_layer='stanza_ensemble_syntax',
+                                                        random_pick_seed=5, 
+                                                        random_pick_max_score_seed=3)
     stanza_ensemble_tagger.tag(text)
 
     assert 'stanza_ensemble_syntax' in text.layers

@@ -46,8 +46,15 @@ class StanzaSyntaxTagger(Tagger):
     
     The input morph analysis layer can be ambiguous. In that case, StanzaSyntaxTagger picks randomly one 
     morph analysis for each ambiguous word, and predicts from "unambiguous" input. 
-    A seed value is used ensure repeatability of the random picking process, you can change the seed value 
-    via parameter random_pick_seed (int, default value: 4).
+    Important: as a result, by default, the output will not be deterministic: for ambiguous words, you will 
+    get different 'lemma', 'upostag', 'xpostag', 'feats' values on each run, and this also affects the results 
+    of dependency parsing. 
+    How to make the output deterministic: you can pass a seed value for the random generator via constructor 
+    parameter random_pick_seed (int, default value: None). Note that the seed value is fixed once at creating 
+    a new instance of StanzaSyntaxTagger, and you only get deterministic / repeatable results if you tag texts 
+    in exactly the same order.
+    Note: if you want to get the same deterministic output as in previous versions of the tagger, use 
+    random_pick_seed=4.
     
     Tutorial:
     https://github.com/estnltk/estnltk/blob/main/tutorials/nlp_pipeline/C_syntax/03_syntactic_analysis_with_stanza.ipynb
@@ -55,7 +62,7 @@ class StanzaSyntaxTagger(Tagger):
 
     conf_param = ['model_path', 'add_parent_and_children', 'syntax_dependency_retagger',
                   'input_type', 'dir', 'mark_syntax_error', 'mark_agreement_error', 'agreement_error_retagger',
-                  'ud_validation_retagger', 'use_gpu', 'nlp', 'random_pick_seed']
+                  'ud_validation_retagger', 'use_gpu', 'nlp', 'random_pick_seed', '_random']
 
     def __init__(self,
                  output_layer='stanza_syntax',
@@ -63,7 +70,7 @@ class StanzaSyntaxTagger(Tagger):
                  words_layer='words',
                  input_morph_layer='morph_analysis',
                  input_type='morph_analysis',  # or 'morph_extended', 'sentences'
-                 random_pick_seed=4,
+                 random_pick_seed=None,
                  add_parent_and_children=False,
                  depparse_path=None,
                  resources_path=None,
@@ -82,6 +89,9 @@ class StanzaSyntaxTagger(Tagger):
         self.input_type = input_type
         self.use_gpu = use_gpu
         self.random_pick_seed = random_pick_seed
+        self._random = Random()
+        if isinstance(self.random_pick_seed, int):
+            self._random.seed(self.random_pick_seed)
 
         if not resources_path:
             # Try to get the resources path for stanzasyntaxtagger. Attempt to download resources, if missing
@@ -179,9 +189,6 @@ class StanzaSyntaxTagger(Tagger):
     def _make_layer(self, text, layers, status=None):
         # Make an internal import to avoid explicit stanza dependency
         from stanza.models.common.doc import Document
-        
-        rand = Random()
-        rand.seed( self.random_pick_seed )
 
         if self.input_type in ['morph_analysis', 'morph_extended']:
 
@@ -193,7 +200,7 @@ class StanzaSyntaxTagger(Tagger):
 
                 # TODO Replace sentence.__getattr__ with appropriate code
                 for i, span in enumerate(sentence.__getattr__(self.input_layers[1])):
-                    annotation = rand.choice(span.annotations)
+                    annotation = self._random.choice(span.annotations)
                     id = i + 1
                     wordform = span.text
                     lemma = annotation['lemma']

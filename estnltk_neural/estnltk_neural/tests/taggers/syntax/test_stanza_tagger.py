@@ -265,7 +265,7 @@ def test_stanza_syntax_tagger_smoke():
     # Test that StanzaSyntaxTagger runs OK with default options
     text = Text('Väike jänes jooksis metsa! Mina ei jookse.')
     text.tag_layer('morph_analysis')
-    stanza_tagger = StanzaSyntaxTagger()  # default: input_morph_layer='morph_analysis'
+    stanza_tagger = StanzaSyntaxTagger(random_pick_seed=4)  # default: input_morph_layer='morph_analysis'
     stanza_tagger.tag(text)
     assert stanza_tagger.output_layer in text.layers
     assert len(text[stanza_tagger.output_layer]) == len(text['morph_analysis'])
@@ -278,6 +278,7 @@ def test_stanza_syntax_tagger_sentences():
 
     text.tag_layer('sentences')
     stanza_tagger = StanzaSyntaxTagger(input_type='sentences',
+                                       random_pick_seed=4,
                                        resources_path=STANZA_SYNTAX_MODELS_PATH,
                                        depparse_path=os.path.join(STANZA_SYNTAX_MODELS_PATH,
                                                                   'et', 'depparse', 'stanza_depparse.pt'))
@@ -295,6 +296,7 @@ def test_stanza_syntax_tagger_analysis():
 
     text.tag_layer(['sentences', 'morph_analysis'])
     stanza_tagger_ma = StanzaSyntaxTagger(output_layer='stanza_ma', input_type='morph_analysis',
+                                          random_pick_seed=4,
                                           resources_path=STANZA_SYNTAX_MODELS_PATH)
     stanza_tagger_ma.tag(text)
 
@@ -313,21 +315,43 @@ def test_stanza_ambiguous():
     stanza_tagger_me = StanzaSyntaxTagger(input_type='morph_extended',
                                           input_morph_layer='morph_extended',
                                           output_layer='stanza_me',
+                                          random_pick_seed=4,
                                           resources_path=STANZA_SYNTAX_MODELS_PATH,
                                           depparse_path=os.path.join(STANZA_SYNTAX_MODELS_PATH, 'et', 'depparse',
                                                                      'morph_extended.pt'))
 
     ambiguous_spans = [i for i, span in enumerate(text.morph_extended) if len(span.annotations) > 1]
 
-    assert ambiguous_spans is not None
+    assert ambiguous_spans is not None and len(ambiguous_spans) > 0
 
-    ambiguous_deprels = [[] for _ in range(len(ambiguous_spans))]
+    ambiguous_upostags_forms = [[] for _ in range(len(ambiguous_spans))]
 
-    # Tag multiple times to check ambiguous pos-tags
+    # 1) Tag multiple times to check ambiguous pos-tags and feats
+    # At each run, we should get a different result
     for i in range(10):
         stanza_tagger_me.tag(text)
         for idx, ambiguous_i in enumerate(ambiguous_spans):
-            ambiguous_deprels[idx].append(text.stanza_me[ambiguous_i].upostag)
+            # concatenate postag and feats into one string
+            concat_feats = '{}_{}'.format( \
+                    text.stanza_me[ambiguous_i].upostag[0], \
+                    '|'.join(list(text.stanza_me[ambiguous_i].feats.keys())) )
+            ambiguous_upostags_forms[idx].append( concat_feats )
         text.pop_layer('stanza_me')
+    
+    # For all ambiguous words, we should see different random picks over the runs
+    assert all([True if len(set(ambiguous)) > 1 else False for ambiguous in ambiguous_upostags_forms])
 
-    assert not any([True if len(set(ambiguous)) > 1 else False for ambiguous in ambiguous_deprels])
+    # 2) However, we can set the seed of random generator before tagging
+    # As a result, we get the same result at each run
+    ambiguous_upostags = [[] for _ in range(len(ambiguous_spans))]
+
+    # Tag multiple times to check ambiguous pos-tags and feats
+    # At each run, we should get a different result
+    for i in range(10):
+        stanza_tagger_me._random.seed(4)  # Set the seed before tagging
+        stanza_tagger_me.tag(text)
+        for idx, ambiguous_i in enumerate(ambiguous_spans):
+            ambiguous_upostags[idx].append( text.stanza_me[ambiguous_i].upostag[0] )
+        text.pop_layer('stanza_me')
+    
+    assert not any([True if len(set(ambiguous)) > 1 else False for ambiguous in ambiguous_upostags])

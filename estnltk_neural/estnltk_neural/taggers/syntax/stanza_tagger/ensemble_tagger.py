@@ -33,10 +33,22 @@ class StanzaSyntaxEnsembleTagger(Tagger):
     replaced with a chosen string by assigning a tuple containing a list of field names as first element
     and string as a second to parameter `replace_fields`.
 
-    The input morph layer can be ambiguous. In that case, StanzaSyntaxEnsembleTagger picks randomly one 
+    The input morph analysis layer can be ambiguous. In that case, StanzaSyntaxEnsembleTagger picks randomly one 
     morph analysis for each ambiguous word, and predicts from "unambiguous" input. 
-    A seed value is used ensure repeatability of the random picking process, you can change the seed via 
-    parameter random_pick_seed (int, default value: 5).
+    Important: as a result, by default, the output will not be deterministic: for ambiguous words, you will 
+    get different 'lemma', 'upostag', 'xpostag', 'feats' values on each run, and this also affects the results 
+    of dependency parsing. 
+    Ambiguity can also rise in dependency parsing: ensemble models can give multiple dependency parses with 
+    maximum score and one parse needs to be chosen -- this is again done via a random choice (using a different 
+    random generator).
+    How to make the output deterministic: you can pass a seed value for picking one analysis from ambiguous 
+    morph analyses via constructor parameter random_pick_seed (int, default value: None), and a seed value 
+    for choosing one dependency result from results with maximum scores via constructor parameter 
+    random_pick_max_score_seed (int, default value: None).
+    Note that seed values are fixed once at creating a new instance of StanzaSyntaxEnsembleTagger, and you only 
+    get deterministic / repeatable results if you tag texts in exactly the same order.
+    Note: if you want to get the same deterministic output as in previous versions of the tagger, use 
+    random_pick_seed=5 and random_pick_max_score_seed=3.
     
     Tutorial:
     https://github.com/estnltk/estnltk/blob/main/tutorials/nlp_pipeline/C_syntax/03_syntactic_analysis_with_stanza.ipynb
@@ -45,14 +57,16 @@ class StanzaSyntaxEnsembleTagger(Tagger):
     conf_param = ['add_parent_and_children', 'syntax_dependency_retagger',
                   'mark_syntax_error', 'mark_agreement_error', 'agreement_error_retagger',
                   'ud_validation_retagger', 'use_gpu', 'model_paths', 'taggers', 'remove_fields', 
-                  'replace_fields', 'random_pick_seed']
+                  'replace_fields', 'random_pick_seed', '_random1', 'random_pick_max_score_seed', 
+                  '_random2']
 
     def __init__(self,
                  output_layer: str = 'stanza_ensemble_syntax',
                  sentences_layer: str = 'sentences',
                  words_layer: str = 'words',
                  input_morph_layer: str = 'morph_extended',
-                 random_pick_seed: int = 5,
+                 random_pick_seed: int = None,
+                 random_pick_max_score_seed: int = None,
                  remove_fields: list = None,
                  replace_fields: Tuple[list, str] = None,
                  model_paths: list = None,
@@ -73,7 +87,16 @@ class StanzaSyntaxEnsembleTagger(Tagger):
         self.mark_agreement_error = mark_agreement_error
         self.output_attributes = ('id', 'lemma', 'upostag', 'xpostag', 'feats', 'head', 'deprel', 'deps', 'misc')
         self.use_gpu = use_gpu
+        # Random generator for picking one analysis from ambiguous morph analyses:
         self.random_pick_seed = random_pick_seed
+        self._random1 = Random()
+        if isinstance(self.random_pick_seed, int):
+            self._random1.seed(self.random_pick_seed)
+        # Random generator for choosing one dependency result from results with maximum scores:
+        self.random_pick_max_score_seed = random_pick_max_score_seed
+        self._random2 = Random()
+        if isinstance(self.random_pick_max_score_seed, int):
+            self._random2.seed(self.random_pick_max_score_seed)
         
         # Try to get the resources path for stanzasyntaxensembletagger. Attempt to download resources, if missing
         resources_path = get_resource_paths("stanzasyntaxensembletagger", only_latest=True, download_missing=True)
@@ -144,7 +167,7 @@ class StanzaSyntaxEnsembleTagger(Tagger):
         parsed_texts = defaultdict()
 
         text_data = pretagged_document(text, sentences_layer, morph_layer, remove_fields=self.remove_fields,
-                                       replace_fields=self.replace_fields, seed=self.random_pick_seed)
+                                       replace_fields=self.replace_fields, random_picker=self._random1)
 
         for model, nlp in self.taggers.items():
             doc = Document(text_data)
@@ -177,8 +200,6 @@ class StanzaSyntaxEnsembleTagger(Tagger):
                 sent_scores[sent][base_model] = avg_score
 
         chosen_sents = defaultdict(list)
-        rand = Random()
-        rand.seed(3)
 
         for sent, score in sent_scores.items():
             max_score = max(score.values())
@@ -188,7 +209,7 @@ class StanzaSyntaxEnsembleTagger(Tagger):
                 if score[s] == max_score:
                     max_score_count += 1
                     max_score_models.append(s)
-            rand.shuffle(max_score_models)
+            self._random2.shuffle(max_score_models)
             chosen_sents[max_score_models[0]].append(sent)
 
         idxed_sents = {}
@@ -263,9 +284,9 @@ def text_sentence_LAS(sents1, sents2):
     return file_sentence_lases
 
 
-def pretagged_document(text, sentences, morph, remove_fields, replace_fields, seed=5):
-    rand1 = Random()
-    rand1.seed(seed)
+def pretagged_document(text, sentences, morph, remove_fields, replace_fields, random_picker=None):
+    if random_picker is None:
+        random_picker = Random()
     data = list()
     for sentence in text[sentences]:
         pretagged_sent = list()
@@ -273,7 +294,7 @@ def pretagged_document(text, sentences, morph, remove_fields, replace_fields, se
         for word in sentence:
             id += 1
 
-            annotation = rand1.choice(text[morph].get(word).annotations)
+            annotation = random_picker.choice(text[morph].get(word).annotations)
 
             feats = ''
             if annotation['form']:
