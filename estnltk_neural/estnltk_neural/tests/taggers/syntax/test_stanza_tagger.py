@@ -341,12 +341,12 @@ def test_stanza_ambiguous():
     # For all ambiguous words, we should see different random picks over the runs
     assert all([True if len(set(ambiguous)) > 1 else False for ambiguous in ambiguous_upostags_forms])
 
-    # 2) However, we can set the seed of random generator before tagging
+    # 2) However, we can set the seed of random generator before tagging each document
     # As a result, we get the same result at each run
     ambiguous_upostags = [[] for _ in range(len(ambiguous_spans))]
 
     # Tag multiple times to check ambiguous pos-tags and feats
-    # At each run, we should get a different result
+    # At each run, we should get same result
     for i in range(10):
         stanza_tagger_me._random.seed(4)  # Set the seed before tagging
         stanza_tagger_me.tag(text)
