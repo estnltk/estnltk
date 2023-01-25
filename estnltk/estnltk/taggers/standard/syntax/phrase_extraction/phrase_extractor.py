@@ -10,8 +10,11 @@ from .syntax_tree_operations import extract_base_spans_of_subtree
 
 class PhraseExtractor(Tagger):
     """
-    This is a deprel ignore tagger applied to stanza_syntax layer that creates a new layer 
-    from the spans that should be removed if words with given deprels are removed.
+    Extracts various types of phases based on UD-syntax. 
+Creates layer syntax_ignore_entity by default or with given name.
+By default search subtrees with specific dependency relations but there are other options.
+User can specify decorator to filter out and annotate phrases. 
+There are sensible decorators for each phrasetype. 
     """
     
     conf_param = ['input_type', "deprel"]
