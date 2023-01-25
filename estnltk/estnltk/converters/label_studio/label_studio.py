@@ -6,14 +6,14 @@ import random
 
 class LabelStudioExporter:
 
-    def __init__(self, filename: str, layer: str, label_level: str = 'annotation',
+    def __init__(self, filename: str, layers: List[str], label_level: str = 'annotation',
                  attribute: str = None,
                  attribute_values: List = None,checkbox=False):
         if attribute is not None and attribute_values is None:
             raise RuntimeError(
                 "If attribute is given then possible attribute values must also be passed as an argument")
         self.filename = filename
-        self.layer = layer
+        self.layers = layers
         self.attribute_values = attribute_values
         self.label_level = label_level
         self.attribute = attribute
@@ -42,10 +42,11 @@ class LabelStudioExporter:
             </View>"""
 
         if self.attribute_values is None:
-            conf_string += single_label.format(
-                label_value=self.layer,
-                background_value=("#" + "%06x" % random.randint(0, 0xFFFFFF)).upper()
-            )
+            for layer in self.layers:
+                conf_string += single_label.format(
+                    label_value=layer,
+                    background_value=("#" + "%06x" % random.randint(0, 0xFFFFFF)).upper()
+                )
         else:
             for val in self.attribute_values:
                 conf_string += single_label.format(
@@ -64,7 +65,7 @@ class LabelStudioExporter:
                 existing = input.readlines()
             existing = "\n".join(existing)
             new_str = json.dumps([
-            text_to_dict(text, text[self.layer], self.attribute)
+            text_to_dict(text, self.layers, self.attribute)
             for text in texts])
             existing = existing[:-1]
             new_str = new_str[1:]
@@ -74,12 +75,12 @@ class LabelStudioExporter:
         else:
             with open(self.filename, "wt") as output:
                 json.dump([
-                text_to_dict(text, text[self.layer], i, self.attribute)
+                text_to_dict(text, self.layers, i, self.attribute)
                 for i,text in enumerate(texts)], output, indent=2)
 
 
 def text_to_dict(
-        text: Text, layer: Layer,
+        text: Text, layers: List[str],
         idx: int,
         attribute: str = None,
         text_name: str = 'text',
@@ -89,27 +90,29 @@ def text_to_dict(
     """
 
     predictions = []
-    for span in layer:
+    for layer_name in layers:
+        layer = text[layer_name]
+        for span in layer:
 
-        all_attributes = ['start', 'end', 'text']
-        if attribute is not None:
-            all_attributes.append(attribute)
-        annotation = {key: getattr(span, key) for key in all_attributes}
-        annotation['idx'] = idx
+            all_attributes = ['start', 'end', 'text']
+            if attribute is not None:
+                all_attributes.append(attribute)
+            annotation = {key: getattr(span, key) for key in all_attributes}
+            annotation['idx'] = idx
 
-        if attribute is None:
-            annotation['labels'] = [layer.name]
-        else:
-            annotation['labels'] = [annotation[attribute]]
+            if attribute is None:
+                annotation['labels'] = [layer.name]
+            else:
+                annotation['labels'] = [annotation[attribute]]
 
-        if isinstance(annotation['text'], list):
-            annotation['text'] = ' '.join(annotation['text'])
+            if isinstance(annotation['text'], list):
+                annotation['text'] = ' '.join(annotation['text'])
 
-        predictions.append({
-            'value': annotation,
-            'to_name': text_name,
-            'from_name': labelset_name,
-            'type': 'labels'})
+            predictions.append({
+                'value': annotation,
+                'to_name': text_name,
+                'from_name': labelset_name,
+                'type': 'labels'})
 
     return {
         'annotations': [],
