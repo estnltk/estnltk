@@ -124,7 +124,7 @@ def keep_minimal_matches(sorted_tuples: List[Tuple[ElementaryBaseSpan, str]]) \
         yield candidate_tuple
 
 
-def cases_expander(word):
+def noun_forms_expander(word):
     cases = [
         ('n', 'nimetav'),
         ('g', 'omastav'),
@@ -147,3 +147,12 @@ def cases_expander(word):
         expanded.append(', '.join(synthesize(word, 'pl ' + case, 'S')))
 
     return expanded
+
+
+def verb_forms_expander(word):
+    raise NotImplementedError
+
+
+def default_expander(word):
+    #TODO determine if word is noun or verb and use respective expander
+    return noun_forms_expander(word)
