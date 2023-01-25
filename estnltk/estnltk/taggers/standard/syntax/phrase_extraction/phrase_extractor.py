@@ -36,7 +36,7 @@ There are sensible decorators for each phrasetype.
         #self.ruleset = ruleset
         #self.decorator = decorator
         self.deprel = deprel
-        self.output_layer = output_layer #+ "_" + self.deprel
+        self.output_layer = output_layer
         self.output_attributes = output_attributes
         self.input_type = input_type
 
@@ -55,22 +55,23 @@ There are sensible decorators for each phrasetype.
         return layer
 
     def _make_layer(self, text, layers, status=None):
-        
         stanza_syntax_layer = layers[self.input_layers[3]]
-        
         layer = self._make_layer_template()
         layer.text_object = text
         
-        if len(text.sentences) > 1:
-            raise SystemExit('Input consist of more than 1 sentence.')
-               
-        # create syntax tree
-        syntaxtree = SyntaxTree(syntax_layer_sentence=stanza_syntax_layer)       
-        ignore_nodes = filter_nodes_by_attributes(syntaxtree, 'deprel', self.deprel)
+        syntax_layer = self.input_layers[3]
         
-        for node in ignore_nodes:
-            new_span = EnvelopingBaseSpan(extract_base_spans_of_subtree(syntaxtree, node))
-            layer.add_annotation(new_span, entity_type=None, free_entity=None, is_valid=None,
-                                 root=syntaxtree.graph.nodes[node]['span'])
+        text_word_idx = 0
+        for sentence in text.sentences:       
+            sent_end = text_word_idx + len(sentence)
+            syntaxtree = SyntaxTree(syntax_layer_sentence=text[syntax_layer][text_word_idx:sent_end])
+            ignore_nodes = filter_nodes_by_attributes(syntaxtree, 'deprel', self.deprel)
+            
+            for node in ignore_nodes:
+                new_span = EnvelopingBaseSpan(sorted(extract_base_spans_of_subtree(syntaxtree, node)))
+                layer.add_annotation(new_span, entity_type=None, free_entity=None, is_valid=None,
+                                     root=syntaxtree.graph.nodes[node]['span'])
+                                     
+            text_word_idx = sent_end
 
         return layer
