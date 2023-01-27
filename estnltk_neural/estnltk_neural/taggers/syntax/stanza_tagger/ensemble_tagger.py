@@ -56,9 +56,9 @@ class StanzaSyntaxEnsembleTagger(Tagger):
 
     conf_param = ['add_parent_and_children', 'syntax_dependency_retagger',
                   'mark_syntax_error', 'mark_agreement_error', 'agreement_error_retagger',
-                  'ud_validation_retagger', 'use_gpu', 'model_paths', 'taggers', 'remove_fields', 
-                  'replace_fields', 'random_pick_seed', '_random1', 'random_pick_max_score_seed', 
-                  '_random2']
+                  'ud_validation_retagger', 'use_gpu', 'gpu_max_words_in_sentence', 'model_paths', 
+                  'taggers', 'remove_fields', 'replace_fields', 'random_pick_seed', '_random1', 
+                  'random_pick_max_score_seed', '_random2']
 
     def __init__(self,
                  output_layer: str = 'stanza_ensemble_syntax',
@@ -74,6 +74,7 @@ class StanzaSyntaxEnsembleTagger(Tagger):
                  mark_syntax_error: bool = False,
                  mark_agreement_error: bool = False,
                  use_gpu: bool = False,
+                 gpu_max_words_in_sentence: int = 1000
                  ):
         # Make an internal import to avoid explicit stanza dependency
         import stanza
@@ -87,6 +88,12 @@ class StanzaSyntaxEnsembleTagger(Tagger):
         self.mark_agreement_error = mark_agreement_error
         self.output_attributes = ('id', 'lemma', 'upostag', 'xpostag', 'feats', 'head', 'deprel', 'deps', 'misc')
         self.use_gpu = use_gpu
+        # We may run into "CUDA out of memory" error when processing very long sentences 
+        # with GPU.
+        # Set a reasonable default for max sentence length: if that gets exceeded, then a 
+        # guarding exception will be thrown
+        self.gpu_max_words_in_sentence = gpu_max_words_in_sentence
+        
         # Random generator for picking one analysis from ambiguous morph analyses:
         self.random_pick_seed = random_pick_seed
         self._random1 = Random()
@@ -168,6 +175,19 @@ class StanzaSyntaxEnsembleTagger(Tagger):
 
         text_data = pretagged_document(text, sentences_layer, morph_layer, remove_fields=self.remove_fields,
                                        replace_fields=self.replace_fields, random_picker=self._random1)
+
+        if self.use_gpu and self.gpu_max_words_in_sentence is not None:
+            # Check that sentences are not too long (for CUDA memory)
+            for sentence in text_data:
+                if len(sentence) > self.gpu_max_words_in_sentence:
+                    raise Exception( ('(!) Encountered a sentence which length ({}) exceeds '+\
+                                      'gpu_max_words_in_sentence ({}). Are you sure GPU '+\
+                                      'has enough memory for processing this long sentence? '+\
+                                      'Either process this document with CPU or, if GPU '+\
+                                      'memory is ensured, pass parameter '+\
+                                      'gpu_max_words_in_sentence=None to this tagger '+\
+                                      'to disable this exception.').format(len(sentence), \
+                                      self.gpu_max_words_in_sentence) )
 
         for model, nlp in self.taggers.items():
             doc = Document(text_data)

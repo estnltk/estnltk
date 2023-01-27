@@ -62,7 +62,8 @@ class StanzaSyntaxTagger(Tagger):
 
     conf_param = ['model_path', 'add_parent_and_children', 'syntax_dependency_retagger',
                   'input_type', 'dir', 'mark_syntax_error', 'mark_agreement_error', 'agreement_error_retagger',
-                  'ud_validation_retagger', 'use_gpu', 'nlp', 'random_pick_seed', '_random']
+                  'ud_validation_retagger', 'nlp', 'use_gpu', 'gpu_max_words_in_sentence', 'random_pick_seed', 
+                  '_random']
 
     def __init__(self,
                  output_layer='stanza_syntax',
@@ -76,7 +77,8 @@ class StanzaSyntaxTagger(Tagger):
                  resources_path=None,
                  mark_syntax_error=False,
                  mark_agreement_error=False,
-                 use_gpu=False
+                 use_gpu=False,
+                 gpu_max_words_in_sentence=1000
                  ):
         # Make an internal import to avoid explicit stanza dependency
         import stanza
@@ -92,6 +94,12 @@ class StanzaSyntaxTagger(Tagger):
         self._random = Random()
         if isinstance(self.random_pick_seed, int):
             self._random.seed(self.random_pick_seed)
+
+        # We may run into "CUDA out of memory" error when processing very long sentences 
+        # with GPU.
+        # Set a reasonable default for max sentence length: if that gets exceeded, then a 
+        # guarding exception will be thrown
+        self.gpu_max_words_in_sentence = gpu_max_words_in_sentence
 
         if not resources_path:
             # Try to get the resources path for stanzasyntaxtagger. Attempt to download resources, if missing
@@ -198,6 +206,19 @@ class StanzaSyntaxTagger(Tagger):
             for sentence in sentences_layer:
                 sentence_analysis = []
 
+                if self.use_gpu:
+                    # Check that sentence is not too long (for CUDA memory)
+                    if self.gpu_max_words_in_sentence is not None and \
+                        len(sentence) > self.gpu_max_words_in_sentence:
+                        raise Exception( ('(!) Encountered a sentence which length ({}) exceeds '+\
+                                          'gpu_max_words_in_sentence ({}). Are you sure GPU '+\
+                                          'has enough memory for processing this long sentence? '+\
+                                          'Either process this document with CPU or, if GPU '+\
+                                          'memory is ensured, pass parameter '+\
+                                          'gpu_max_words_in_sentence=None to this tagger '+\
+                                          'to disable this exception.').format(len(sentence), \
+                                          self.gpu_max_words_in_sentence) )
+                    
                 # TODO Replace sentence.__getattr__ with appropriate code
                 for i, span in enumerate(sentence.__getattr__(self.input_layers[1])):
                     annotation = self._random.choice(span.annotations)
