@@ -42,6 +42,8 @@ conda activate py38
 conda install -c estnltk -c conda-forge estnltk=1.7.1
 ```
 
+_Remark on conda package:_ if you are trying to run estnltk conda package on CentOS 7 (or Ubuntu 18.04), you may stumble upon an error stating `version 'GLIBC_2.29' not found`. A quick and recommended solution is to install estnltk via pip instead. For possible alternative soultions, see [this thread](https://github.com/huggingface/tokenizers/issues/585).   
+
 _Note_: for using some of the tools in estnltk, you also need to have Java installed in your system. We recommend using Oracle Java http://www.oracle.com/technetwork/java/javase/downloads/index.html, although alternatives such as OpenJDK (http://openjdk.java.net/) should also work.
 
 ### Using on Google Colab
