@@ -11,6 +11,7 @@ from estnltk_core.layer.span import Span
 from estnltk_core.layer.enveloping_span import EnvelopingSpan
 from estnltk_core.layer.span_list import SpanList
 from estnltk_core.layer.layer import Layer
+from estnltk_core.layer.relations_layer import RelationsLayer, Relation
 
 from estnltk_core.taggers.tagger import Tagger
 from estnltk_core.taggers.retagger import Retagger
