@@ -180,14 +180,14 @@ class RelationsLayer:
             # List of NamedSpan-s
             if all(isinstance(i, NamedSpan) for i in item):
                 for relation in self._relation_list:
-                    if relation.spans_list == item:
+                    if relation.spans == item:
                         return relation
                 return None
             # List of Tuples (span_name, BaseSpan)
             if all(isinstance(i, tuple) and len(i)==2 and \
                    isinstance(i[0], str) and isinstance(i[1], BaseSpan) for i in item):
                 for relation in self._relation_list:
-                    if [r.as_tuple for r in relation.spans_list] == item:
+                    if [r.as_tuple for r in relation.spans] == item:
                         return relation
                 return None
         raise ValueError(item)
@@ -304,10 +304,14 @@ class RelationsLayer:
         for relation in self:
             spans = []
             for sp in self.span_names:
+                span_repr = None
                 if relation[sp] is not None:
-                    spans.append(relation[sp].text)
-                else:
-                    spans.append(None)
+                    span_repr = relation[sp].text
+                    if span_repr is None:
+                        # This means that no Text object is attached. 
+                        # Then use base_span value instead of text
+                        span_repr = str(relation[sp].base_span.raw())
+                spans.append( span_repr )
             attrib_values = relation[self.attributes]
             if not self.ambiguous:
                 layer_table_content.append(spans + attrib_values)
@@ -358,7 +362,7 @@ class Relation:
         return self._annotations
 
     @property
-    def spans_list(self):
+    def spans(self):
         return list(self._named_spans.values())
 
     @property
@@ -384,7 +388,7 @@ class Relation:
 
     def set_span(self, name: str, base_span: BaseSpan ):
         assert isinstance(name, str)
-        assert isinstance(base_span, BaseSpan)
+        assert isinstance(base_span, BaseSpan) 
         # Check span level
         if self.span_level is not None:
             if base_span.level != self.span_level:
@@ -401,6 +405,20 @@ class Relation:
         # Set span level based on the first span
         if self.span_level is None:
             self._span_level = base_span.level
+
+    def remove_span(self, name: str):
+        """
+        Removes given span by name from the relation.
+        Note thet span can be removed only if it is not the last span in the relation.
+        """
+        if name in self._named_spans.keys():
+            if len(self._named_spans) > 1:
+                del self._named_spans[name]
+            else:
+                raise Exception('(!) Cannot remove the last span of the relation '+\
+                                '-- relation must have at least one span: {}'.format(self) )
+        else:
+            raise KeyError(name)
 
     def add_annotation(self, annotation: Union[Dict[str, Any], 'RelationAnnotation']={} ):
         if isinstance(annotation, RelationAnnotation):
@@ -502,8 +520,8 @@ class Relation:
 
     def __eq__(self, other: Any) -> bool:
         return isinstance(other, Relation) \
-               and len(self.spans_list) == len(other.spans_list) \
-               and all(s in other.spans_list for s in self.spans_list) \
+               and len(self.spans) == len(other.spans) \
+               and all(s in other.spans for s in self.spans) \
                and len(self.annotations) == len(other.annotations) \
                and all(s in other.annotations for s in self.annotations)
 
@@ -519,7 +537,7 @@ class Relation:
         except:
             annotations = None
         return '{class_name}({named_spans!r}, {annotations})'.format(class_name=self.__class__.__name__, 
-                                                                     named_spans=self.spans_list,
+                                                                     named_spans=self.spans,
                                                                      annotations=annotations)
 
     # TODO: add HTML representation
