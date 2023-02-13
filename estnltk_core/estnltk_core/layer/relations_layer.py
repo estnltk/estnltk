@@ -107,6 +107,10 @@ class RelationsLayer:
         if len(self._relation_list) > 0:
             return self._relation_list[0].span_level
 
+    @property
+    def relations(self):
+        return self._relation_list
+
     def add_annotation(self, relation_dict: Dict[str, Any]={}, **relation_kwargs) -> 'RelationAnnotation':
         '''
         Adds new relation annotation based on the dictionary.
@@ -194,6 +198,16 @@ class RelationsLayer:
                 return None
         raise ValueError(item)
 
+    def remove_relation(self, relation: 'Relation'):
+        """Removes relation from the layer.
+        """
+        self._relation_list.remove(relation)
+
+    def clear_relations(self):
+        """Removes all relations from the given layer.
+        """
+        self._relation_list = []
+
     def get_overview_dataframe(self):
         """
         Returns DataFrame giving an overview about layer's configuration (name, attributes etc) and status (relation count).
@@ -273,6 +287,13 @@ class RelationsLayer:
             super().__setattr__('attributes', attributes)
             return
         super().__setattr__(key, value)
+
+    def __getattr__(self, item):
+        # Deny access to other attributes
+        raise AttributeError('attribute {} cannot be accessed directly in {}'.format(item, self.__class__.__name__))
+
+    def __delitem__(self, relation: 'Relation'):
+        self._relation_list.remove(relation)
 
     def __iter__(self):
         return iter(self._relation_list)
@@ -370,6 +391,10 @@ class Relation:
     @property
     def span_level(self):
         return self._span_level
+
+    @property
+    def text(self):
+        return [span.text for span in self.spans]
 
     @property
     def relations_layer(self):
