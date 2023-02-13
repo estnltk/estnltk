@@ -385,8 +385,16 @@ class Relation:
         return self._annotations
 
     @property
+    def span_names(self):
+        return list(self._named_spans.keys())
+
+    @property
     def spans(self):
         return list(self._named_spans.values())
+
+    @property
+    def base_spans(self):
+        return [span.base_span for span in self.spans]
 
     @property
     def span_level(self):
@@ -545,6 +553,16 @@ class Relation:
             # attributes are not guaranteed to be valid identifiers
         raise KeyError(item)
 
+    def __iter__(self):
+        # TODO: is it a good idea? this returns unsorted spans
+        yield from self.spans
+
+    def __len__(self) -> int:
+        return len(self.spans)
+
+    def __contains__(self, item: str) -> bool:
+        return item in self._named_spans
+
     def __eq__(self, other: Any) -> bool:
         return isinstance(other, Relation) \
                and len(self.spans) == len(other.spans) \
@@ -576,18 +594,26 @@ class NamedSpan:
        TODO: This class copies some methods and logic from estnltk_core.Span.
        Consider making an abstract super class for the two in future.
     """
-    __slots__ = ['name', '_base_span', '_relation']
+    __slots__ = ['_name', '_base_span', '_relation']
     
     def __init__(self, name: str, base_span: BaseSpan, relation: 'Relation'):
         assert isinstance(name, str), name
         assert isinstance(base_span, BaseSpan), base_span
-        self.name = name
+        self._name = name
         self._base_span = base_span
         self._relation = relation
 
     @property
+    def name(self):
+        return self._name
+        
+    @property
     def relation(self):
         return self._relation
+
+    @property
+    def relations_layer(self):
+        return self.relation.relations_layer
 
     @property
     def start(self) -> int:
@@ -643,18 +669,13 @@ class NamedSpan:
         raise NotImplementedError
 
     def __setattr__(self, key, value):
-        # TODO: allow to set attribute values of the relation ?
-        if key in {'_base_span', '_relation', 'name'}:
+        if key in self.__slots__:
             super().__setattr__(key, value)
         else:
             raise AttributeError(key)
 
     def __getattr__(self, item):
-        # TODO: allow to get attribute values of the relation ?
-        if item in {'name'}:
-            return self.name
-        else:
-            raise AttributeError('Getting attribute {!r} not implemented.'.format(item))
+        raise AttributeError('Getting attribute {!r} not implemented.'.format(item))
 
     def __lt__(self, other: Any) -> bool:
         return self.base_span < other.base_span
@@ -714,6 +735,10 @@ class RelationAnnotation(Mapping):
     @property
     def relation(self):
         return self._relation
+
+    @property
+    def relations_layer(self):
+        return self.relation.relations_layer
 
     @property
     def legal_attribute_names(self):
