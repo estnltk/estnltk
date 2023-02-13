@@ -107,7 +107,7 @@ class RelationsLayer:
         if len(self._relation_list) > 0:
             return self._relation_list[0].span_level
 
-    def add_annotation(self, relation_dict: Dict) -> 'RelationAnnotation':
+    def add_annotation(self, relation_dict: Dict[str, Any]={}, **relation_kwargs) -> 'RelationAnnotation':
         '''
         Adds new relation annotation based on the dictionary.
         
@@ -124,50 +124,52 @@ class RelationsLayer:
           existing relation; but if layer is not ambiguous, an 
           exception will be thrown;
         '''
-        if isinstance(relation_dict, dict):
-            # Get named spans
-            spans_list = []
-            for span_name in self.span_names:
-                span_value = relation_dict.get(span_name, None)
-                if span_value is not None:
-                    base_span = to_relation_base_span(span_value)
-                    spans_list.append( (span_name, base_span) )
-                else:
-                    spans_list.append( (span_name, None) )
-            # Get attributes (only valid ones)
-            annotation = \
-                { attr:relation_dict.get(attr, None) for attr in self.attributes }
-            existing_spans_list = \
-                [sp for sp in spans_list if sp[1] is not None]
-            # At least one named span must be given
-            if len(existing_spans_list) == 0:
-                raise ValueError(('Cannot add annotation: no named spans in {}, '+\
-                                  'at least one of {} must be defined').format(relation_dict, 
-                                                                               self.span_names))
-            # Try to get existing relation
-            relation = self.get( existing_spans_list )
-            if relation is None:
-                # Relation does not exits. Try to create it
-                relation = Relation( existing_spans_list, self )
-                # Check that span level matches with the current level
-                if len(self._relation_list) > 0:
-                    cur_span_level = self._relation_list[0].span_level
-                    if cur_span_level != relation.span_level:
-                        raise ValueError( ('Cannot add annotation: this layer has different '+\
-                                           'span level ({}) than newly addable spans {}.'+\
-                                           '').format(cur_span_level, existing_spans_list) )
-                annotation_obj = relation.add_annotation(annotation)
-                self._relation_list.append(relation)
+        if not isinstance(relation_dict, dict):
+            raise TypeError('(!) Unexpected relation_dict data type: {} ({})'.format( \
+                                 type(relation_dict), relation_dict) )
+        relation_dict_merged = { **{k: v for k, v in relation_dict.items()}, \
+                                 **{k: v for k, v in relation_kwargs.items()} }
+        # Get named spans
+        spans_list = []
+        for span_name in self.span_names:
+            span_value = relation_dict_merged.get(span_name, None)
+            if span_value is not None:
+                base_span = to_relation_base_span(span_value)
+                spans_list.append( (span_name, base_span) )
             else:
-                # Relation exists. Check ambiguity
-                if not self.ambiguous and len(relation.annotations)+1 > 1:
-                    raise Exception(('Cannot add another annotation to {}: '+\
-                                     'the layer is not ambiguous').format(relation) )
-                # Add annotation to existing relation
-                annotation_obj = relation.add_annotation(annotation)
-            return annotation_obj
+                spans_list.append( (span_name, None) )
+        # Get attributes (only valid ones)
+        annotation = \
+            { attr:relation_dict_merged.get(attr, None) for attr in self.attributes }
+        existing_spans_list = \
+            [sp for sp in spans_list if sp[1] is not None]
+        # At least one named span must be given
+        if len(existing_spans_list) == 0:
+            raise ValueError(('Cannot add annotation: no named spans in {}, '+\
+                              'at least one of {} must be defined').format(relation_dict_merged, 
+                                                                           self.span_names))
+        # Try to get existing relation
+        relation = self.get( existing_spans_list )
+        if relation is None:
+            # Relation does not exits. Try to create it
+            relation = Relation( existing_spans_list, self )
+            # Check that span level matches with the current level
+            if len(self._relation_list) > 0:
+                cur_span_level = self._relation_list[0].span_level
+                if cur_span_level != relation.span_level:
+                    raise ValueError( ('Cannot add annotation: this layer has different '+\
+                                       'span level ({}) than newly addable spans {}.'+\
+                                       '').format(cur_span_level, existing_spans_list) )
+            annotation_obj = relation.add_annotation(annotation)
+            self._relation_list.append(relation)
         else:
-            raise TypeError('(!) Unexpected relation_dict data type: {} ({})'.format(type(relation_dict), relation_dict))
+            # Relation exists. Check ambiguity
+            if not self.ambiguous and len(relation.annotations)+1 > 1:
+                raise Exception(('Cannot add another annotation to {}: '+\
+                                 'the layer is not ambiguous').format(relation) )
+            # Add annotation to existing relation
+            annotation_obj = relation.add_annotation(annotation)
+        return annotation_obj
 
     def get(self, item):
         """ Finds and returns Relation corresponding to the given list of NamedSpan(s).
