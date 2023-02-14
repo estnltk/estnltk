@@ -3,7 +3,7 @@ from typing import Union
 __version__ = 'relations_v0'
 
 from estnltk_core.layer.relations_layer import to_relation_base_span
-from estnltk_core.layer.relations_layer import RelationsLayer, Relation
+from estnltk_core.layer.relations_layer import RelationsLayer
 
 
 def layer_to_dict(layer: RelationsLayer) -> dict:
@@ -32,7 +32,10 @@ def dict_to_layer(layer_dict: dict, text: Union['BaseText', 'Text']) -> Relation
     for relation_dict in layer_dict['relations']:
         named_spans = [ (k, to_relation_base_span(v)) \
                          for k, v in relation_dict['named_spans'].items() ]
-        relation = Relation( named_spans, layer )
         for annotation in relation_dict['annotations']:
-            relation.add_annotation(annotation)
+            relation_annotation_dict = annotation.copy()
+            for span_name, base_span in named_spans:
+                assert span_name not in relation_annotation_dict.keys()
+                relation_annotation_dict[span_name] = base_span
+            layer.add_annotation( relation_annotation_dict )
     return layer
