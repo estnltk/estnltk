@@ -7,6 +7,7 @@
 
 from typing import Any, Mapping, Sequence, Dict, List, Tuple, Union
 
+from copy import deepcopy
 from reprlib import recursive_repr
 
 import pandas
@@ -227,7 +228,21 @@ class RelationsLayer:
         raise NotImplementedError
 
     def __deepcopy__(self, memo=None):
-        raise NotImplementedError
+        memo = memo or {}
+        result = self.__class__( name=self.name,
+                                 span_names=deepcopy(self.span_names, memo),
+                                 attributes=deepcopy(self.attributes, memo),
+                                 text_object=None,
+                                 ambiguous=self.ambiguous,
+                                 serialisation_module=self.serialisation_module )
+        memo[id(self)] = result
+        result.meta = deepcopy(self.meta, memo)
+        for relation in self:
+            deepcopy_relation = deepcopy( relation, memo )
+            deepcopy_relation._relations_layer = result
+            result._relation_list.append( deepcopy_relation )
+        result.text_object = deepcopy( self.text_object, memo )
+        return result
 
     def __setitem__(self, key: int, value: 'Relation'):
         self._relation_list[key] = value
@@ -431,10 +446,11 @@ class Relation:
                                    'span level ({}) than the input base_span {}.'+\
                                    '').format(self.span_level, base_span) )
         # Check span name 
-        if name not in self.legal_span_names:
-            raise ValueError(('Cannot set span: relations layer has does not have '+\
-                              'span named {!r}. Valid span names are: {}.'+\
-                              '').format(name, self.legal_span_names))
+        if self.relations_layer is not None:
+            if name not in self.legal_span_names:
+                raise ValueError(('Cannot set span: relations layer has does not have '+\
+                                  'span named {!r}. Valid span names are: {}.'+\
+                                  '').format(name, self.legal_span_names))
         arg_span = NamedSpan(name, base_span, self)
         self._named_spans[name] = arg_span
         # Set span level based on the first span
@@ -493,7 +509,19 @@ class Relation:
         raise NotImplementedError
 
     def __deepcopy__(self, memo=None):
-        raise NotImplementedError
+        memo = memo or {}
+        # Create new valid instance
+        result = self.__class__(spans=[s.as_tuple for s in self.spans], \
+                                relations_layer=None)
+        # Add self to memo
+        memo[id(self)] = result
+        # _annotations: List[Mutable]
+        for annotation in self.annotations:
+            deepcopy_annotation = deepcopy(annotation, memo)
+            result._annotations.append( deepcopy_annotation )
+        # _relations_layer: Mutable
+        result._relations_layer = deepcopy(self.relations_layer, memo)
+        return result
 
     def __getitem__(self, item):
         if isinstance(item, str):
@@ -547,7 +575,7 @@ class Relation:
 
     def __getattr__(self, item):
         if isinstance(item, str):
-            if item in self.legal_span_names:
+            if self.relations_layer is not None and item in self.legal_span_names:
                 return self._named_spans.get(item, None)
             # note: only named spans can be retrieved this way,
             # attributes are not guaranteed to be valid identifiers
@@ -666,7 +694,18 @@ class NamedSpan:
         raise NotImplementedError
 
     def __deepcopy__(self, memo=None):
-        raise NotImplementedError
+        memo = memo or {}
+        # Create new valid instance
+        # _name: Immutable
+        # _base_span: Immutable
+        result = self.__class__(name=self.name, \
+                                base_span=self.base_span, \
+                                relation=None)
+        # Add self to memo
+        memo[id(self)] = result
+        # _relation: Mutable
+        result._relation = deepcopy(self._relation, memo)
+        return result
 
     def __setattr__(self, key, value):
         if key in self.__slots__:
@@ -755,7 +794,13 @@ class RelationAnnotation(Mapping):
         raise NotImplementedError
 
     def __deepcopy__(self, memo=None):
-        raise NotImplementedError
+        memo = memo or {}
+        result = self.__class__(relation=None)
+        # Add newly created valid mutable objects to memo
+        memo[id(self)] = result
+        # Perform deep copy with a valid memo dict
+        result.__dict__ = deepcopy(self.__dict__, memo)
+        return result
 
     def __setattr__(self, key, value):
         if key in self.__slots__:
