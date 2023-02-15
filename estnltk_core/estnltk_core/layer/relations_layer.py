@@ -5,7 +5,7 @@
 #  (WORK IN PROGESS) 
 #
 
-from typing import Any, Mapping, Sequence, Dict, List, Tuple, Union
+from typing import Any, Mapping, Sequence, Dict, List, Tuple, Union, Optional
 
 from copy import deepcopy
 from reprlib import recursive_repr
@@ -224,6 +224,40 @@ class RelationsLayer:
                                                       'attributes', 'ambiguous', 
                                                       'relation count'])
 
+    def diff(self, other) -> Optional[str]:
+        """Finds differences between this relations layer and the other relations layer.
+           Checks that both layers:
+            * are instances of RelationsLayer;
+            * have same layer names, span names and attributes;
+            * are correspondingly ambiguous or unambiguous;
+            * have same serialisation_module;
+            * have same spans (and annotations);
+           Returns None if no differences were detected (both layers are the 
+           same or one is exact copy of another), or a message string describing 
+           the difference.
+        """
+        if self is other:
+            return None
+        if not isinstance(other, RelationsLayer):
+            return 'Other is not a RelationsLayer.'
+        if self.name != other.name:
+            return "Layer names are different: {self.name}!={other.name}".format(self=self, other=other)
+        if tuple(self.span_names) != tuple(other.span_names):
+            return "{self.name} layer span_names differ: {self.span_names} != {other.span_names}".format(self=self,
+                                                                                                         other=other)
+        if tuple(self.attributes) != tuple(other.attributes):
+            return "{self.name} layer attributes differ: {self.attributes} != {other.attributes}".format(self=self,
+                                                                                                         other=other)
+        if self.ambiguous != other.ambiguous:
+            return "{self.name} layer ambiguous differs: {self.ambiguous} != {other.ambiguous}".format(self=self,
+                                                                                                       other=other)
+        if self.serialisation_module != other.serialisation_module:
+            return "{self.name!r} layer dict converter modules are different: " \
+                   "{self.dict_converter_module!r}!={other.dict_converter_module!r}".format(self=self, other=other)
+        if self._relation_list != other._relation_list:
+            return "{self.name} layer relations differ".format(self=self)
+        return None
+
     def __copy__(self):
         raise NotImplementedError
 
@@ -307,14 +341,17 @@ class RelationsLayer:
         # Deny access to other attributes
         raise AttributeError('attribute {} cannot be accessed directly in {}'.format(item, self.__class__.__name__))
 
-    def __delitem__(self, relation: 'Relation'):
-        self._relation_list.remove(relation)
+    def __delitem__(self, index: int):
+        self._relation_list.remove(self[index])
 
     def __iter__(self):
         return iter(self._relation_list)
 
     def __len__(self):
         return len(self._relation_list)
+
+    def __eq__(self, other):
+        return self.diff(other) is None
 
     def __repr__(self):
         return ('{classname}(name={self.name!r}, span_names={self.span_names}, '+\
