@@ -251,6 +251,9 @@ class RelationsLayer:
         if tuple(self.attributes) != tuple(other.attributes):
             return "{self.name} layer attributes differ: {self.attributes} != {other.attributes}".format(self=self,
                                                                                                          other=other)
+        if tuple(self.secondary_attributes) != tuple(other.secondary_attributes):
+            return ("{self.name} layer secondary_attributes differ: {self.secondary_attributes} != {other.secondary_attributes}"+\
+                    "").format(self=self, other=other)
         if self.ambiguous != other.ambiguous:
             return "{self.name} layer ambiguous differs: {self.ambiguous} != {other.ambiguous}".format(self=self,
                                                                                                        other=other)
