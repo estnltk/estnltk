@@ -54,13 +54,14 @@ class RelationsLayer:
       (but not all) can be empty/unassigned;
     """
 
-    __slots__ = ['name', 'span_names', 'attributes', 'ambiguous', 'text_object', 
-                 'serialisation_module', 'meta', '_relation_list']
+    __slots__ = ['name', 'span_names', 'attributes', 'secondary_attributes', 'ambiguous', 
+                 'text_object', 'serialisation_module', 'meta', '_relation_list']
     
     def __init__(self,
                  name: str,
                  span_names: Sequence[str] = (),
                  attributes: Sequence[str] = (),
+                 secondary_attributes: Sequence[str] = (),
                  text_object: Union['BaseText','Text']=None,
                  ambiguous: bool = False,
                  serialisation_module: str="relations_v0"
@@ -72,6 +73,7 @@ class RelationsLayer:
         * span_names must contain at least one name;
         * span_names must be valid identifiers;
         * span_names and attributes cannot have overlap;
+        * secondary_attribute must be a subset of attributes;
         """
         # name of the layer
         assert name is not None and len(name) > 0 and not name.isspace(), \
@@ -79,6 +81,7 @@ class RelationsLayer:
         self.name = name
         self.span_names = span_names
         self.attributes = attributes
+        self.secondary_attributes = secondary_attributes
         # validate that span_names and attributes do not have common keys
         span_names_set = set(self.span_names) if self.span_names is not None else set()
         attributes_set = set(self.attributes) if self.attributes is not None else set()
@@ -266,6 +269,7 @@ class RelationsLayer:
         result = self.__class__( name=self.name,
                                  span_names=deepcopy(self.span_names, memo),
                                  attributes=deepcopy(self.attributes, memo),
+                                 secondary_attributes=deepcopy(self.secondary_attributes, memo),
                                  text_object=None,
                                  ambiguous=self.ambiguous,
                                  serialisation_module=self.serialisation_module )
@@ -334,6 +338,19 @@ class RelationsLayer:
             assert len(attributes) == len(attributes_set), 'repetitive attribute name: ' + str(attributes)
             # set attributes
             super().__setattr__('attributes', attributes)
+            return
+        elif key == 'secondary_attributes':
+            # check secondary_attributes
+            assert not isinstance(value, str), \
+                'secondary_attributes must be a list or tuple of strings, not a single string {!r}'.format(value)
+            secondary_attributes = value or ()
+            for sec_attrib in secondary_attributes:
+                if sec_attrib not in self.attributes:
+                    raise ValueError( \
+                        'secondary attribute {!r} not listed in attributes {!r}'.format(sec_attrib, self.attributes))
+            # set secondary_attributes
+            secondary_attributes = tuple(secondary_attributes)
+            super().__setattr__('secondary_attributes', secondary_attributes)
             return
         super().__setattr__(key, value)
 
@@ -678,7 +695,8 @@ class NamedSpan:
 
     @property
     def relations_layer(self):
-        return self.relation.relations_layer
+        if self.relation is not None:
+            return self.relation.relations_layer
 
     @property
     def start(self) -> int:
@@ -814,7 +832,8 @@ class RelationAnnotation(Mapping):
 
     @property
     def relations_layer(self):
-        return self.relation.relations_layer
+        if self.relation is not None:
+            return self.relation.relations_layer
 
     @property
     def legal_attribute_names(self):
@@ -877,7 +896,11 @@ class RelationAnnotation(Mapping):
         if isinstance(other, RelationAnnotation):
             self_dict  = self.__dict__
             other_dict = other.__dict__
-            # TODO: skip the comparison of the secondary attributes
+            if self.relations_layer is not None and len(self.relations_layer.secondary_attributes) > 0:
+                # skip the comparison of the secondary attributes
+                secondary_attributes = self.relations_layer.secondary_attributes
+                self_dict  = {k:v for k,v in self_dict.items() if k not in secondary_attributes}
+                other_dict = {k:v for k,v in other_dict.items() if k not in secondary_attributes}
             return self_dict == other_dict
         else:
             return False

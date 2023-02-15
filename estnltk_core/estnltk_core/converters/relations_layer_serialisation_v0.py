@@ -11,6 +11,7 @@ def layer_to_dict(layer: RelationsLayer) -> dict:
         'name': layer.name,
         'span_names': layer.span_names,
         'attributes': layer.attributes,
+        'secondary_attributes': layer.secondary_attributes,
         'ambiguous': layer.ambiguous,
         'serialisation_module': __version__,
         'meta': layer.meta,
@@ -25,6 +26,7 @@ def dict_to_layer(layer_dict: dict, text: Union['BaseText', 'Text']) -> Relation
     layer = RelationsLayer(name=layer_dict['name'],
                            span_names=layer_dict['span_names'],
                            attributes=layer_dict['attributes'],
+                           secondary_attributes=layer_dict['secondary_attributes'],
                            ambiguous=layer_dict['ambiguous'],
                            text_object=text)
     layer.meta.update(layer_dict['meta'])

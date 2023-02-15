@@ -100,6 +100,7 @@ def test_convert_relations_layer_to_dict():
     expected_relations_layer_dict = \
         {'ambiguous': False,
          'attributes': ('rel_id',),
+         'secondary_attributes': (),
          'meta': {},
          'name': 'coreference',
          'relations': [{'annotations': [{'rel_id': 1}],
@@ -121,6 +122,7 @@ def test_convert_relations_dict_to_layer():
     relations_layer_dict = \
         {'ambiguous': False,
          'attributes': ('rel_id',),
+         'secondary_attributes': (),
          'meta': {},
          'name': 'coreference',
          'relations': [{'annotations': [{'rel_id': 1}],
@@ -139,6 +141,7 @@ def test_convert_relations_dict_to_layer():
     assert isinstance(coref_layer, RelationsLayer)
     assert coref_layer.name == 'coreference'
     assert coref_layer.attributes == ('rel_id',)
+    assert coref_layer.secondary_attributes == ()
     assert coref_layer.span_names == ('mention', 'entity')
     assert coref_layer.meta == {}
     assert len(coref_layer) == 4
