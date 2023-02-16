@@ -69,7 +69,7 @@ class BaseText:
         # No copying is allowed or we cannot properly restore text object with recursive references.
         return dict(text=self.text, meta=self.meta, 
                     layers=[layer for layer in self.sorted_layers()],
-                    relation_layers=[layer for layer in self._relation_layers.values()])  # Assume Python 3.7+ and ordered dicts
+                    relation_layers=[layer for layer in self.sorted_relation_layers()])
 
     def __setstate__(self, state):
         # Initialisation is not guaranteed! Bypass the text protection mechanism
@@ -84,10 +84,12 @@ class BaseText:
             assert id(layer.text_object) == id(self), '\'layer.text_object\' must reference caller'
             layer.text_object = None
             self.add_layer(layer)
-        for rel_layer in state['relation_layers']:
-            assert id(rel_layer.text_object) == id(self), '\'relation_layer.text_object\' must reference caller'
-            rel_layer.text_object = None
-            self.add_layer(rel_layer)
+        if 'relation_layers' in state:
+            # Restore relation layers (available starting from version 1.7.2+)
+            for rel_layer in state['relation_layers']:
+                assert id(rel_layer.text_object) == id(self), '\'relation_layer.text_object\' must reference caller'
+                rel_layer.text_object = None
+                self.add_layer(rel_layer)
 
     def __setattr__(self, name, value):
         # Resolve meta attribute
@@ -298,6 +300,15 @@ class BaseText:
         The order is uniquely determined.
         """
         return self.topological_sort(self._layers)
+
+    def sorted_relation_layers(self) -> List[RelationLayer]:
+        """
+        Returns a list of relation layers of this text object in alphabetical order of layer names.
+        
+        Note: the default ordering returned by this method is subject to change in future versions, 
+        if we add dependencies between relation layers.
+        """
+        return [self._relation_layers[layer] for layer in sorted(self.relation_layers)]
 
     def diff(self, other):
         """

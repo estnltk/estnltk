@@ -344,7 +344,8 @@ def test_access_of_shadowed_layers():
     else:
         properties = ['layer_attributes', 'layers', 'relation_layers']
     private_methods = {method for method in dir(object) if callable(getattr(object, method, None))}
-    public_methods = ['add_layer', 'analyse', 'diff', 'pop_layer', 'sorted_layers', 'tag_layer', 'topological_sort']
+    public_methods = ['add_layer', 'analyse', 'diff', 'pop_layer', 'sorted_layers', 'sorted_relation_layers', 
+                      'tag_layer', 'topological_sort']
     protected_methods = ['_repr_html_']
     if Text().__class__.__name__ == 'BaseText':
         public_variables = []
