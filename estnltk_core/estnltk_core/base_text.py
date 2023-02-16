@@ -371,7 +371,7 @@ class BaseText:
         if self._relation_layers:
             layers = []
             for layer_name in self._relation_layers:
-                layers.append(self._layers[layer_name])
+                layers.append(self._relation_layers[layer_name])
 
             relations_layer_table = pandas.DataFrame()
             relations_layer_table = pandas.concat([layer.get_overview_dataframe() for layer in layers])
