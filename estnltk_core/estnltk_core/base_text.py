@@ -5,6 +5,7 @@ from copy import copy, deepcopy
 from typing import List, Sequence, Set, Union, Any, Mapping
 
 from estnltk_core.layer.base_layer import BaseLayer
+from estnltk_core.layer.relations_layer import RelationsLayer
 from estnltk_core.layer_operations.layer_dependencies import find_layer_dependencies
 
 class BaseText:
@@ -32,7 +33,7 @@ class BaseText:
     Note: BaseText does not provide any linguistic analysis / NLP pipeline. Use the Text class from the full EstNLTK
     package for NLP.
     """
-    __slots__ = ['text', 'meta', '_layers']
+    __slots__ = ['text', 'meta', '_layers', '_relation_layers']
 
     def __init__(self, text: str = None) -> None:
         assert text is None or isinstance(text, str), "{} takes string as an argument!".format( self.__class__.__name__ )
@@ -42,6 +43,9 @@ class BaseText:
         super().__setattr__('meta', {})
         # self._layers: MutableMapping
         object.__setattr__(self, '_layers', {})
+        # self._relation_layers: MutableMapping
+        object.__setattr__(self, '_relation_layers', {})
+        
 
     def __copy__(self):
         raise Exception('Shallow copying of {} object is not allowed. Use deepcopy instead.'.format( self.__class__.__name__ ) )
@@ -63,7 +67,9 @@ class BaseText:
 
     def __getstate__(self):
         # No copying is allowed or we cannot properly restore text object with recursive references.
-        return dict(text=self.text, meta=self.meta, layers=[layer for layer in self.sorted_layers()])
+        return dict(text=self.text, meta=self.meta, 
+                    layers=[layer for layer in self.sorted_layers()],
+                    relation_layers=[layer for layer in self._relation_layers.values()])  # Assume Python 3.7 and ordered dicts
 
     def __setstate__(self, state):
         # Initialisation is not guaranteed! Bypass the text protection mechanism
@@ -71,12 +77,17 @@ class BaseText:
         super().__setattr__('text', state['text'])
         super().__setattr__('meta', state['meta'])
         super().__setattr__('_layers', {})
+        super().__setattr__('_relation_layers', {})
         # Layer.text_object is already set! Bypass the add_layer protection mechanism
         # By wonders of pickling this resolves all recursive references including references to the text object itself
         for layer in state['layers']:
             assert id(layer.text_object) == id(self), '\'layer.text_object\' must reference caller'
             layer.text_object = None
             self.add_layer(layer)
+        for rel_layer in state['relation_layers']:
+            assert id(rel_layer.text_object) == id(self), '\'relation_layer.text_object\' must reference caller'
+            rel_layer.text_object = None
+            self.add_layer(rel_layer)
 
     def __setattr__(self, name, value):
         # Resolve meta attribute
@@ -104,6 +115,8 @@ class BaseText:
     def __getitem__(self, item):
         if item in self._layers:
             return self._layers[item]
+        elif item in self._relation_layers:
+            return self._relation_layers[item]
         else:
             raise KeyError("'{}' object has no layer {!r}".format( self.__class__.__name__, item ))
 
@@ -129,71 +142,113 @@ class BaseText:
     @property
     def layers(self) -> Set[str]:
         """
-        Returns the names of all layers in the text object in alphabetical order.
+        Returns the names of all span layers in the text object.
         """
         return set( self._layers.keys() )
 
-    def add_layer(self, layer: Union[BaseLayer, 'Layer']):
+    @property
+    def relation_layers(self) -> Set[str]:
+        """
+        Returns the names of all relation layers in the text object.
+        """
+        return set( self._relation_layers.keys() )
+
+    def add_layer(self, layer: Union[BaseLayer, 'Layer', RelationsLayer]):
         """
         Adds a layer to the text object.
         
+        Use this method to add both span layers and relation layers.
+        
         An addable layer must satisfy the following conditions:
-        * layer.name is unique among names of existing layers of this 
-          Text object;
+        * layer.name is unique among names of all existing layers (span layers
+          and relation layers) of this Text object;
         * layer.text_object is either None or points to this Text object;
           if layer has already been associated with another Text object, 
           throws an AssertionError;
-        * if the layer has parent, then its parent layer must already exist 
-          among the layers of this Text object;
-        * if the layer is enveloping, then the layer it envelops must already 
-          exist among the layers of this Text object;
+        * (span layer specific) if the layer has parent, then its parent 
+          layer must already exist among the layers of this Text object;
+        * (span layer specific) if the layer is enveloping, then the layer 
+          it envelops must already exist among the layers of this Text 
+          object;
         """
-        assert isinstance(layer, BaseLayer), 'Layer expected, got {!r}'.format(type(layer))
+        if isinstance(layer, BaseLayer):
+            # add span layer
+            name = layer.name
 
-        name = layer.name
+            assert name not in self._layers, \
+                'this {} object already has a span layer with name {!r}'.format(self.__class__.__name__, name)
+            assert name not in self._relation_layers, \
+                'this {} object already has a relation layer with name {!r}'.format(self.__class__.__name__, name)
 
-        assert name not in self._layers, 'this {} object already has a layer with name {!r}'.format(self.__class__.__name__, name)
+            if layer.text_object is None:
+                layer.text_object = self
+            else:
+                assert layer.text_object is self, \
+                    "can't add layer {!r}, this layer is already bound to another {} object".format(name, self.__class__.__name__)
 
-        if layer.text_object is None:
-            layer.text_object = self
+            if layer.parent:
+                assert layer.parent in self._layers, 'Cant add a layer "{layer}" before adding its parent "{parent}"'.format(
+                    parent=layer.parent, layer=layer.name)
+
+            if layer.enveloping:
+                assert layer.enveloping in self._layers, "can't add an enveloping layer before adding the layer it envelops"
+
+            self._layers[name] = layer
+        elif isinstance(layer, RelationsLayer):
+            # add relation layer
+            name = layer.name
+
+            assert name not in self._layers, \
+                'this {} object already has a span layer with name {!r}'.format(self.__class__.__name__, name)
+            assert name not in self._relation_layers, \
+                'this {} object already has a relation layer with name {!r}'.format(self.__class__.__name__, name)
+
+            if layer.text_object is None:
+                layer.text_object = self
+            else:
+                assert layer.text_object is self, \
+                    "can't add relation layer {!r}, this layer is already bound to another {} object".format(name, self.__class__.__name__)
+
+            self._relation_layers[name] = layer
         else:
-            assert layer.text_object is self, \
-                "can't add layer {!r}, this layer is already bound to another {} object".format(name, self.__class__.__name__)
+            raise AssertionError('BaseLayer or RelationsLayer expected, got {!r}'.format(type(layer)))
 
-        if layer.parent:
-            assert layer.parent in self._layers, 'Cant add a layer "{layer}" before adding its parent "{parent}"'.format(
-                parent=layer.parent, layer=layer.name)
 
-        if layer.enveloping:
-            assert layer.enveloping in self._layers, "can't add an enveloping layer before adding the layer it envelops"
-
-        self._layers[name] = layer
-
-    def pop_layer(self, name: str,  cascading: bool = True, default=Ellipsis) -> Union[BaseLayer, 'Layer', Any]:
+    def pop_layer(self, name: str, cascading: bool = True, default=Ellipsis) -> Union[BaseLayer, 'Layer', RelationsLayer, Any]:
         """
         Removes a layer from the text object together with the layers that are computed from it by default.
 
-        If the flag cascading is set all descendant layers are computed first and removed together with the layer.
-        If the flag is false only the layer is removed. This does not corrupt derivative layers, as spans of each
-        layer are independent form other layers.
+        Use this method to remove both span layers and relation layers.
 
-        Returns popped layer if the layer is present in the text object. If the layer is not found default is
+        (span layer specific) If the flag cascading is set all descendant layers are computed first and removed 
+        together with the layer. If the flag is false only the layer is removed. This does not corrupt derivative 
+        layers, as spans of each layer are independent form other layers.
+
+        Returns popped layer if the layer is present in the text object. If the layer is not found, then default is
         returned if given, otherwise KeyError is raised.
         """
-        if name not in self.layers and default is Ellipsis:
-            raise KeyError('{layer!r} is not a valid layer in this {classname} object'.format(layer=name,classname=self.__class__.__name__))
+        if name in self.layers:
+            # remove span layer
+            if not cascading:
+                return self._layers.pop(name, None)
 
-        if not cascading:
-            return self._layers.pop(name, None)
+            # Find layer's descendant layers
+            to_delete = sorted(find_layer_dependencies(self, name, reverse=True))
+            
+            result = self._layers.pop(name, None)
+            for name in to_delete:
+                self._layers.pop(name, None)
 
-        # Find layer's descendant layers
-        to_delete = sorted(find_layer_dependencies(self, name, reverse=True))
-        
-        result = self._layers.pop(name, None)
-        for name in to_delete:
-            self._layers.pop(name, None)
-
-        return result
+            return result
+        elif name in self.relation_layers:
+            # remove relation layer
+            result = self._relation_layers.pop(name, None)
+            return result
+        else:
+            if default is Ellipsis:
+                raise KeyError('{layer!r} is not a valid layer in this {classname} object'.format(layer=name,classname=self.__class__.__name__))
+            else:
+                return default
 
     def tag_layer(self, layer_names: Union[str, Sequence[str]]=None, resolver=None) -> 'Text':
         raise NotImplementedError('(!) The NLP pipeline is not available in estnltk-core. Please use the full EstNLTK package for the pipeline.')
@@ -204,7 +259,7 @@ class BaseText:
     @staticmethod
     def topological_sort(layers: Mapping[str, Union[BaseLayer, 'Layer']]) -> List[Union[BaseLayer, 'Layer']]:
         """
-        Returns a list of all layers of the given dict of layers in order of dependencies and layer names.
+        Returns a list of span layers of the given dict of layers in order of dependencies and layer names.
         The order is uniquely determined.
 
         layers: Mapping[str, Union[BaseLayer, Layer]]
@@ -239,7 +294,7 @@ class BaseText:
 
     def sorted_layers(self) -> List[Union[BaseLayer, 'Layer']]:
         """
-        Returns a list of all layers of this text object in order of dependencies and layer names.
+        Returns a list of span layers of this text object in order of dependencies and layer names.
         The order is uniquely determined.
         """
         return self.topological_sort(self._layers)
@@ -259,10 +314,17 @@ class BaseText:
             return 'The raw text is different.'
         if set(self._layers) != set(other.layers):
             return 'Different layer names: {} != {}'.format(set(self._layers), set(other.layers))
+        if set(self._relation_layers) != set(other.relation_layers):
+            return 'Different relation layer names: {} != {}'.format( set(self._relation_layers), \
+                                                                      set(other.relation_layers))
         if self.meta != other.meta:
             return 'Different metadata.'
         for layer_name in self._layers:
             difference = self._layers[layer_name].diff(other[layer_name])
+            if difference:
+                return difference
+        for layer_name in self._relation_layers:
+            difference = self._relation_layers[layer_name].diff(other[layer_name])
             if difference:
                 return difference
         return None
@@ -285,6 +347,9 @@ class BaseText:
             table_meta = pandas.DataFrame(data, columns=['key', 'value'])
             table_meta = table_meta.to_html(header=False, index=False)
             table = '\n'.join((table, '<h4>Metadata</h4>', table_meta))
+
+        layer_table = ''
+        relations_layer_table = ''
         if self._layers:
             layers = []
             # Try to fetch presorted layers (only available in Text)
@@ -302,6 +367,16 @@ class BaseText:
             layer_table = pandas.DataFrame()
             layer_table = pandas.concat([layer.get_overview_dataframe() for layer in layers])
             layer_table = layer_table.to_html(index=False, escape=False)
-            return '\n'.join((table, layer_table))
-        return table
+            layer_table = '\n'.join(('', layer_table))
+        if self._relation_layers:
+            layers = []
+            for layer_name in self._relation_layers:
+                layers.append(self._layers[layer_name])
+
+            relations_layer_table = pandas.DataFrame()
+            relations_layer_table = pandas.concat([layer.get_overview_dataframe() for layer in layers])
+            relations_layer_table = relations_layer_table.to_html(index=False, escape=False)
+            relations_layer_table = '\n'.join(('', relations_layer_table))
+
+        return ''.join((table, layer_table, relations_layer_table))
 

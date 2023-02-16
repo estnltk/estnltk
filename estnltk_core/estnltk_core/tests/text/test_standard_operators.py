@@ -339,9 +339,9 @@ def test_access_of_shadowed_layers():
     
     # List of all attributes that can be potentially shadowed
     if Text().__class__.__name__ == 'BaseText':
-        properties = ['layers']
+        properties = ['layers', 'relation_layers']
     else:
-        properties = ['layer_attributes', 'layers']
+        properties = ['layer_attributes', 'layers', 'relation_layers']
     private_methods = {method for method in dir(object) if callable(getattr(object, method, None))}
     public_methods = ['add_layer', 'analyse', 'diff', 'pop_layer', 'sorted_layers', 'tag_layer', 'topological_sort']
     protected_methods = ['_repr_html_']
@@ -353,7 +353,7 @@ def test_access_of_shadowed_layers():
                              'layer_resolver', \
                              'methods',
                              'presorted_layers' ]
-    slots = ['text', 'meta', '_layers']
+    slots = ['text', 'meta', '_layers', '_relation_layers']
     shadowed_layers = properties + public_methods + protected_methods + public_variables + slots
 
     # Check that lists are correct
@@ -444,7 +444,7 @@ def test_add_layer():
     text = Text('test')
     layer = Layer(name='empty_layer', attributes=['attr'])
     text.add_layer(layer)
-    with pytest.raises(AssertionError, match="this (Text|BaseText) object already has a layer with name 'empty_layer'"):
+    with pytest.raises(AssertionError, match="this (Text|BaseText) object already has a span layer with name 'empty_layer'"):
         text.add_layer(layer)
 
     # Safety against double linking

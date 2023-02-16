@@ -113,6 +113,7 @@ class Text( BaseText ):
         'pop_layer',
         'diff',
         'layers',
+        'relation_layers',
         'sorted_layers',
         'tag_layer',
         'topological_sort',
