@@ -562,6 +562,36 @@ class Relation:
         """
         self._annotations.clear()
 
+    def __getstate__(self):
+        return dict(named_spans=self.spans, 
+                    annotations=self.annotations, 
+                    relation_layer=self.relation_layer)
+
+    def __setstate__(self, state):
+        super().__setattr__('_named_spans', {})
+        super().__setattr__('_annotations', [])
+        super().__setattr__('_relation_layer', state['relation_layer'])
+        super().__setattr__('_span_level', None)
+        assert len( state['named_spans'] ) > 0
+        for named_span in state['named_spans']:
+            assert id(named_span.relation) == id(self), '\'named_span.relation\' must reference caller'
+            if self._relation_layer is not None:
+                #assert named_span.name in self._relation_layer.span_names
+                # TODO: we cannot access span_names property. 
+                # how to check that span names are valid ?
+                #
+                pass
+            self._named_spans[named_span.name] = named_span
+            # Set span level based on the first span
+            if self.span_level is None:
+                self._span_level = named_span.base_span.level
+            else:
+                assert named_span.base_span.level == self._span_level, \
+                    'mismatching span levels in relation'
+        for annotation in state['annotations']:
+            assert id(annotation.relation) == id(self), '\'annotation.relation\' must reference caller'
+            self._annotations.append(annotation)
+
     def __copy__(self):
         raise NotImplementedError
 
