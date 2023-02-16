@@ -5,7 +5,7 @@ from copy import copy, deepcopy
 from typing import List, Sequence, Set, Union, Any, Mapping
 
 from estnltk_core.layer.base_layer import BaseLayer
-from estnltk_core.layer.relations_layer import RelationsLayer
+from estnltk_core.layer.relation_layer import RelationLayer
 from estnltk_core.layer_operations.layer_dependencies import find_layer_dependencies
 
 class BaseText:
@@ -69,7 +69,7 @@ class BaseText:
         # No copying is allowed or we cannot properly restore text object with recursive references.
         return dict(text=self.text, meta=self.meta, 
                     layers=[layer for layer in self.sorted_layers()],
-                    relation_layers=[layer for layer in self._relation_layers.values()])  # Assume Python 3.7 and ordered dicts
+                    relation_layers=[layer for layer in self._relation_layers.values()])  # Assume Python 3.7+ and ordered dicts
 
     def __setstate__(self, state):
         # Initialisation is not guaranteed! Bypass the text protection mechanism
@@ -153,7 +153,7 @@ class BaseText:
         """
         return set( self._relation_layers.keys() )
 
-    def add_layer(self, layer: Union[BaseLayer, 'Layer', RelationsLayer]):
+    def add_layer(self, layer: Union[BaseLayer, 'Layer', RelationLayer]):
         """
         Adds a layer to the text object.
         
@@ -194,7 +194,7 @@ class BaseText:
                 assert layer.enveloping in self._layers, "can't add an enveloping layer before adding the layer it envelops"
 
             self._layers[name] = layer
-        elif isinstance(layer, RelationsLayer):
+        elif isinstance(layer, RelationLayer):
             # add relation layer
             name = layer.name
 
@@ -211,10 +211,10 @@ class BaseText:
 
             self._relation_layers[name] = layer
         else:
-            raise AssertionError('BaseLayer or RelationsLayer expected, got {!r}'.format(type(layer)))
+            raise AssertionError('BaseLayer or RelationLayer expected, got {!r}'.format(type(layer)))
 
 
-    def pop_layer(self, name: str, cascading: bool = True, default=Ellipsis) -> Union[BaseLayer, 'Layer', RelationsLayer, Any]:
+    def pop_layer(self, name: str, cascading: bool = True, default=Ellipsis) -> Union[BaseLayer, 'Layer', RelationLayer, Any]:
         """
         Removes a layer from the text object together with the layers that are computed from it by default.
 

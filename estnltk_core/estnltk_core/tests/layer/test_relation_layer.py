@@ -4,16 +4,16 @@ import re
 from copy import copy, deepcopy
 
 from estnltk_core import ElementaryBaseSpan
-from estnltk_core import RelationsLayer, Relation
+from estnltk_core import RelationLayer, Relation
 
 from estnltk_core.common import load_text_class
 
 
-def test_relations_layer_basic():
+def test_relation_layer_basic():
     # Test basic API of the relations layer (w/o Text object)
     
     # Test creating layer:
-    layer = RelationsLayer('test', span_names=['arg0', 'arg1'], 
+    layer = RelationLayer('test', span_names=['arg0', 'arg1'], 
                                    attributes=['attr1', 'attr2'])
     assert layer.span_names == ('arg0', 'arg1')
     assert layer.attributes == ('attr1', 'attr2')
@@ -23,7 +23,7 @@ def test_relations_layer_basic():
     
     with pytest.raises(AssertionError):
         # error: span_names and attribute names cannot overlap
-        layer2 = RelationsLayer('test2', span_names=['arg0', 'arg1'], 
+        layer2 = RelationLayer('test2', span_names=['arg0', 'arg1'], 
                                          attributes=['arg1', 'attr1', 'attr2'])
 
     # Test adding annotations:
@@ -68,14 +68,14 @@ def test_relations_layer_basic():
         layer.add_annotation( arg0=(20, 24), arg1=(26, 32), attr1=4, attr2=4 )
 
 
-def test_relations_layer_basic_with_text_obj():
+def test_relation_layer_basic_with_text_obj():
     # Test basic API of the relations layer (with Text object)
     
     # Load Text or BaseText class (depending on the available packages)
     Text = load_text_class()
     
     text = Text('0123456789')
-    layer = RelationsLayer('test', span_names=['arg0', 'arg1'], 
+    layer = RelationLayer('test', span_names=['arg0', 'arg1'], 
                                    attributes=['summa'],
                                    text_object=text)
     layer.add_annotation( {'arg0': (0, 1), 'arg1': (1, 2), 'summa': 1} )
@@ -94,16 +94,16 @@ def test_relations_layer_basic_with_text_obj():
          {'arg0': '5', 'arg1': '4', 'summa': 9}]
 
 
-def test_relations_layer_deep_copy():
+def test_relation_layer_deep_copy():
     # Simple empty layer
-    layer = RelationsLayer('test', span_names=['my_span'])
+    layer = RelationLayer('test', span_names=['my_span'])
     layer_deepcopy = deepcopy( layer )
     assert layer == layer_deepcopy
     assert layer is not layer_deepcopy
     assert layer.meta is not layer_deepcopy.meta
 
     # Simple relations layer with some relations
-    layer = RelationsLayer('test', span_names=['my_span'], 
+    layer = RelationLayer('test', span_names=['my_span'], 
                                    attributes=['attribute1', 'attribute2'],
                                    ambiguous=True)
     layer.add_annotation(my_span=(0, 2), attribute1='test1')

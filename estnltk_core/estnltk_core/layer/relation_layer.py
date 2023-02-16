@@ -41,9 +41,9 @@ def to_relation_base_span(x) -> BaseSpan:
     raise TypeError('{} ({}) cannot be converted to base span'.format(type(x), x))
 
 
-class RelationsLayer:
+class RelationLayer:
     """
-    RelationsLayer is a collection of Relation objects.
+    RelationLayer is a collection of Relation objects.
     
     Relation consists of named BaseSpans (NamedSpan objects) and a list of RelationAnnotations.
     
@@ -67,7 +67,7 @@ class RelationsLayer:
                  serialisation_module: str="relations_v0"
                  ) -> None:
         """
-        Initializes a new RelationsLayer object based on given configuration.
+        Initializes a new RelationLayer object based on given configuration.
         
         Rules:
         * span_names must contain at least one name;
@@ -230,7 +230,7 @@ class RelationsLayer:
     def diff(self, other) -> Optional[str]:
         """Finds differences between this relations layer and the other relations layer.
            Checks that both layers:
-            * are instances of RelationsLayer;
+            * are instances of RelationLayer;
             * have same layer names, span names and attributes;
             * are correspondingly ambiguous or unambiguous;
             * have same serialisation_module;
@@ -241,8 +241,8 @@ class RelationsLayer:
         """
         if self is other:
             return None
-        if not isinstance(other, RelationsLayer):
-            return 'Other is not a RelationsLayer.'
+        if not isinstance(other, RelationLayer):
+            return 'Other is not a RelationLayer.'
         if self.name != other.name:
             return "Layer names are different: {self.name}!={other.name}".format(self=self, other=other)
         if tuple(self.span_names) != tuple(other.span_names):
@@ -280,7 +280,7 @@ class RelationsLayer:
         result.meta = deepcopy(self.meta, memo)
         for relation in self:
             deepcopy_relation = deepcopy( relation, memo )
-            deepcopy_relation._relations_layer = result
+            deepcopy_relation._relation_layer = result
             result._relation_list.append( deepcopy_relation )
         result.text_object = deepcopy( self.text_object, memo )
         return result
@@ -435,13 +435,13 @@ class Relation:
     RelationAnnotation.
     """
     
-    __slots__ = ['_named_spans', '_annotations', '_relations_layer', '_span_level']
+    __slots__ = ['_named_spans', '_annotations', '_relation_layer', '_span_level']
 
-    def __init__(self, spans: List[Tuple[str, BaseSpan]], relations_layer: 'RelationsLayer'):
+    def __init__(self, spans: List[Tuple[str, BaseSpan]], relation_layer: 'RelationLayer'):
         assert isinstance(spans, list), spans
         self._named_spans = dict()
         self._span_level = None
-        self._relations_layer = relations_layer
+        self._relation_layer = relation_layer
         self._annotations = []
         # Validate that we have at least one span
         if len(spans) == 0:
@@ -477,21 +477,21 @@ class Relation:
         return [span.text for span in self.spans]
 
     @property
-    def relations_layer(self):
-        return self._relations_layer
+    def relation_layer(self):
+        return self._relation_layer
 
     @property
     def text_object(self):
-        if self.relations_layer is not None:
-            return self.relations_layer.text_object
+        if self.relation_layer is not None:
+            return self.relation_layer.text_object
 
     @property
     def legal_span_names(self):
-        return self.relations_layer.span_names
+        return self.relation_layer.span_names
 
     @property
     def legal_attribute_names(self):
-        return self.relations_layer.attributes
+        return self.relation_layer.attributes
 
     def set_span(self, name: str, base_span: BaseSpan ):
         assert isinstance(name, str)
@@ -503,7 +503,7 @@ class Relation:
                                    'span level ({}) than the input base_span {}.'+\
                                    '').format(self.span_level, base_span) )
         # Check span name 
-        if self.relations_layer is not None:
+        if self.relation_layer is not None:
             if name not in self.legal_span_names:
                 raise ValueError(('Cannot set span: relations layer has does not have '+\
                                   'span named {!r}. Valid span names are: {}.'+\
@@ -545,7 +545,7 @@ class Relation:
         else:
             raise TypeError('Cannot add annotation: unexpected annotation type: {}'.format(type(annotation)))
         # Check ambiguity
-        if not self.relations_layer.ambiguous and len(self.annotations)+1 > 1:
+        if not self.relation_layer.ambiguous and len(self.annotations)+1 > 1:
             raise Exception(('Cannot add another annotation to {}: '+\
                              'the layer is not ambiguous').format(self) )
         if annotation not in self._annotations: # Avoid duplicate annotations
@@ -569,15 +569,15 @@ class Relation:
         memo = memo or {}
         # Create new valid instance
         result = self.__class__(spans=[s.as_tuple for s in self.spans], \
-                                relations_layer=None)
+                                relation_layer=None)
         # Add self to memo
         memo[id(self)] = result
         # _annotations: List[Mutable]
         for annotation in self.annotations:
             deepcopy_annotation = deepcopy(annotation, memo)
             result._annotations.append( deepcopy_annotation )
-        # _relations_layer: Mutable
-        result._relations_layer = deepcopy(self.relations_layer, memo)
+        # _relation_layer: Mutable
+        result._relation_layer = deepcopy(self.relation_layer, memo)
         return result
 
     def __getitem__(self, item):
@@ -585,7 +585,7 @@ class Relation:
             if item in self.legal_span_names:
                 return self._named_spans.get(item, None)
             elif item in self.legal_attribute_names:
-                if self.relations_layer.ambiguous:
+                if self.relation_layer.ambiguous:
                     return [ann[item] for ann in self.annotations]
                 else:
                     return self.annotations[0][item]
@@ -606,7 +606,7 @@ class Relation:
             # Get spans
             spans = [self._named_spans.get(sp, None) for sp in selected_spans]
             # Get annotations
-            if not self.relations_layer.ambiguous:
+            if not self.relation_layer.ambiguous:
                 annotation_values = \
                     [self.annotations[0][a] for a in selected_attributes]
                 return spans + annotation_values
@@ -625,14 +625,14 @@ class Relation:
         self.set_span(key, value)
 
     def __setattr__(self, key, value):
-        if key in {'_named_spans', '_annotations', '_relations_layer', '_span_level'}:
+        if key in {'_named_spans', '_annotations', '_relation_layer', '_span_level'}:
             super().__setattr__(key, value)
         else:
             raise AttributeError(key)
 
     def __getattr__(self, item):
         if isinstance(item, str):
-            if self.relations_layer is not None and item in self.legal_span_names:
+            if self.relation_layer is not None and item in self.legal_span_names:
                 return self._named_spans.get(item, None)
             # note: only named spans can be retrieved this way,
             # attributes are not guaranteed to be valid identifiers
@@ -659,7 +659,7 @@ class Relation:
     def __repr__(self):
         try:
             annotation_strings = []
-            attribute_names = self.relations_layer.attributes
+            attribute_names = self.relation_layer.attributes
             for annotation in self.annotations:
                 attr_val_repr = _create_attr_val_repr( [(attr, annotation[attr]) for attr in attribute_names] )
                 annotation_strings.append( attr_val_repr )
@@ -697,9 +697,9 @@ class NamedSpan:
         return self._relation
 
     @property
-    def relations_layer(self):
+    def relation_layer(self):
         if self.relation is not None:
-            return self.relation.relations_layer
+            return self.relation.relation_layer
 
     @property
     def start(self) -> int:
@@ -834,14 +834,14 @@ class RelationAnnotation(Mapping):
         return self._relation
 
     @property
-    def relations_layer(self):
+    def relation_layer(self):
         if self.relation is not None:
-            return self.relation.relations_layer
+            return self.relation.relation_layer
 
     @property
     def legal_attribute_names(self):
-        if self.relation is not None and self.relation.relations_layer is not None:
-            return self.relation.relations_layer.attributes
+        if self.relation is not None and self.relation.relation_layer is not None:
+            return self.relation.relation_layer.attributes
         return None
 
     @property
@@ -899,9 +899,9 @@ class RelationAnnotation(Mapping):
         if isinstance(other, RelationAnnotation):
             self_dict  = self.__dict__
             other_dict = other.__dict__
-            if self.relations_layer is not None and len(self.relations_layer.secondary_attributes) > 0:
+            if self.relation_layer is not None and len(self.relation_layer.secondary_attributes) > 0:
                 # skip the comparison of the secondary attributes
-                secondary_attributes = self.relations_layer.secondary_attributes
+                secondary_attributes = self.relation_layer.secondary_attributes
                 self_dict  = {k:v for k,v in self_dict.items() if k not in secondary_attributes}
                 other_dict = {k:v for k,v in other_dict.items() if k not in secondary_attributes}
             return self_dict == other_dict

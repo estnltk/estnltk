@@ -1,14 +1,14 @@
 #
 # Test that converters are aware of the relations serialisation module 
-# and can convert a RelationsLayer ('relations_v0') to dict and backwards.
+# and can convert a RelationLayer ('relations_v0') to dict and backwards.
 #
 
 from estnltk_core.converters import dict_to_layer, layer_to_dict
 from estnltk_core.converters import dict_to_text
-from estnltk_core.layer.relations_layer import RelationsLayer, Relation
+from estnltk_core.layer.relation_layer import RelationLayer, Relation
 
 from estnltk import Text
-from estnltk_core import RelationsLayer
+from estnltk_core import RelationLayer
 
 example_text_dict = \
     {'layers': [{'ambiguous': True,
@@ -86,9 +86,9 @@ example_text_dict = \
 
 
 def test_convert_relations_layer_to_dict():
-    # Convert RelationsLayer -> dict
+    # Convert RelationLayer -> dict
     text_obj = dict_to_text( example_text_dict )
-    coref_layer = RelationsLayer('coreference', span_names=['mention', 'entity'], 
+    coref_layer = RelationLayer('coreference', span_names=['mention', 'entity'], 
                                                 attributes=['rel_id'], 
                                                 text_object=text_obj )
     # Add relation based on a dictionary
@@ -117,7 +117,7 @@ def test_convert_relations_layer_to_dict():
     assert expected_relations_layer_dict == layer_to_dict(coref_layer)
 
 def test_convert_relations_dict_to_layer():
-    # Convert dict -> RelationsLayer
+    # Convert dict -> RelationLayer
     text_obj = dict_to_text( example_text_dict )
     relations_layer_dict = \
         {'ambiguous': False,
@@ -138,7 +138,7 @@ def test_convert_relations_dict_to_layer():
     coref_layer = dict_to_layer(relations_layer_dict)
     coref_layer.text_object = text_obj
     # Validate layer
-    assert isinstance(coref_layer, RelationsLayer)
+    assert isinstance(coref_layer, RelationLayer)
     assert coref_layer.name == 'coreference'
     assert coref_layer.attributes == ('rel_id',)
     assert coref_layer.secondary_attributes == ()
