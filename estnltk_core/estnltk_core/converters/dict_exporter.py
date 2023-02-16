@@ -15,8 +15,13 @@ def text_to_dict(text: Union['BaseText', 'Text']) -> dict:
     assert isinstance( text, load_text_class() ), type(text)
     text_dict = {'text': text.text,
                  'meta': text.meta,
-                 'layers': []}
+                 'layers': [],
+                 'relation_layers': []}
     for layer in text.sorted_layers():
         text_dict['layers'].append(layer_dict_converter.layer_to_dict(layer))
+    for layer in text.sorted_relation_layers():
+        text_dict['relation_layers'].append( \
+            layer_dict_converter.layer_to_dict(layer)
+        )
     return text_dict
 

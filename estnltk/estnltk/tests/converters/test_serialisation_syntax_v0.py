@@ -148,6 +148,7 @@ test_text_dict = \
                                              'upostag': 'Z',
                                              'xpostag': 'Z'}],
                             'base_span': (12, 13)}]}],
+     'relation_layers': [],
      'meta': {},
      'text': 'Tere, Kerttu!'}
 

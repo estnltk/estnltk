@@ -274,7 +274,9 @@ text_dict = {
                                          (97, 107),
                                          (108, 114),
                                          (115, 116)),
-                           'annotations': [{}]}]}]}
+                           'annotations': [{}]}]}],
+    'relation_layers': []
+}
 
 @pytest.mark.skipif(not check_if_conllu_is_available(),
                     reason="package conllu is required for this test")

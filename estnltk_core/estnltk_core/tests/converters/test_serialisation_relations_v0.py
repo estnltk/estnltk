@@ -4,7 +4,7 @@
 #
 
 from estnltk_core.converters import dict_to_layer, layer_to_dict
-from estnltk_core.converters import dict_to_text
+from estnltk_core.converters import dict_to_text, text_to_dict
 from estnltk_core.layer.relation_layer import RelationLayer, Relation
 
 from estnltk import Text
@@ -79,6 +79,7 @@ example_text_dict = \
                             'base_span': (136, 137)},
                            {'annotations': [{'normalized_form': None}],
                             'base_span': (137, 138)}]}],
+     'relation_layers': [],
      'meta': {},
      'text': 'Mari kirjeldas õhinal, kuidas ta väiksena "Sipsikut" luges: "Ma ei '
              'suutnud seda raamatut kohe kuidagi käest ära panna! Nii põnev oli '
@@ -156,3 +157,121 @@ def test_convert_relations_dict_to_layer():
           (4, 'see', '"Sipsikut"') ]
 
 
+def test_convert_text_with_relation_layers_to_dict():
+    # Convert Text obj with Layer and RelationLayer --> dict
+    text_obj = dict_to_text( example_text_dict )
+    text_obj['words'].clear_spans()
+    coref_layer1 = RelationLayer('coreference_a', span_names=['mention', 'entity'], 
+                                                 attributes=['rel_id'], 
+                                                 text_object=text_obj )
+    coref_layer1.add_annotation( {'mention': (30, 32), 'entity': (0, 4)}, rel_id=1 )
+    coref_layer1.add_annotation( {'mention': (61, 63), 'entity': (0, 4)}, rel_id=2 )
+    coref_layer2 = RelationLayer('coreference_b', span_names=['entity', 'mention'], 
+                                                  attributes=['rel_id'], 
+                                                  text_object=text_obj )
+    coref_layer2.add_annotation( mention=(75, 88), entity=(42, 52), rel_id=3 )
+    coref_layer2.add_annotation( mention=(133, 136), entity=(42, 52), rel_id=4 )
+    text_obj.add_layer( coref_layer1 )
+    text_obj.add_layer( coref_layer2 )
+    expected_text_obj_dict = \
+        {'layers': [{'ambiguous': True,
+                     'attributes': ('normalized_form',),
+                     'enveloping': None,
+                     'meta': {},
+                     'name': 'words',
+                     'parent': None,
+                     'secondary_attributes': (),
+                     'serialisation_module': None,
+                     'spans': []}],
+         'meta': {},
+         'relation_layers': [{'ambiguous': False,
+                              'attributes': ('rel_id',),
+                              'meta': {},
+                              'name': 'coreference_a',
+                              'relations': [{'annotations': [{'rel_id': 1}],
+                                             'named_spans': {'entity': (0, 4),
+                                                             'mention': (30, 32)}},
+                                            {'annotations': [{'rel_id': 2}],
+                                             'named_spans': {'entity': (0, 4),
+                                                             'mention': (61, 63)}}],
+                              'secondary_attributes': (),
+                              'serialisation_module': 'relations_v0',
+                              'span_names': ('mention', 'entity')},
+                             {'ambiguous': False,
+                              'attributes': ('rel_id',),
+                              'meta': {},
+                              'name': 'coreference_b',
+                              'relations': [{'annotations': [{'rel_id': 3}],
+                                             'named_spans': {'entity': (42, 52),
+                                                             'mention': (75, 88)}},
+                                            {'annotations': [{'rel_id': 4}],
+                                             'named_spans': {'entity': (42, 52),
+                                                             'mention': (133, 136)}}],
+                              'secondary_attributes': (),
+                              'serialisation_module': 'relations_v0',
+                              'span_names': ('entity', 'mention')}],
+         'text': 'Mari kirjeldas õhinal, kuidas ta väiksena "Sipsikut" luges: "Ma ei '
+                 'suutnud seda raamatut kohe kuidagi käest ära panna! Nii põnev oli '
+                 'see!"'}
+    assert expected_text_obj_dict == text_to_dict(text_obj)
+
+
+def test_convert_dict_to_text_with_relation_layers():
+    # Convert dict --> Text obj with Layer and RelationLayer
+    text_obj_dict = \
+        {'layers': [{'ambiguous': True,
+                     'attributes': ('normalized_form',),
+                     'enveloping': None,
+                     'meta': {},
+                     'name': 'words',
+                     'parent': None,
+                     'secondary_attributes': (),
+                     'serialisation_module': None,
+                     'spans': []}],
+         'meta': {},
+         'relation_layers': [{'ambiguous': False,
+                              'attributes': ('rel_id',),
+                              'meta': {},
+                              'name': 'coreference_a',
+                              'relations': [{'annotations': [{'rel_id': 1}],
+                                             'named_spans': {'entity': (0, 4),
+                                                             'mention': (30, 32)}},
+                                            {'annotations': [{'rel_id': 2}],
+                                             'named_spans': {'entity': (0, 4),
+                                                             'mention': (61, 63)}}],
+                              'secondary_attributes': (),
+                              'serialisation_module': 'relations_v0',
+                              'span_names': ('mention', 'entity')},
+                             {'ambiguous': False,
+                              'attributes': ('rel_id',),
+                              'meta': {},
+                              'name': 'coreference_b',
+                              'relations': [{'annotations': [{'rel_id': 1}],
+                                             'named_spans': {'entity': (42, 52),
+                                                             'mention': (75, 88)}},
+                                            {'annotations': [{'rel_id': 2}],
+                                             'named_spans': {'entity': (42, 52),
+                                                             'mention': (133, 136)}}],
+                              'secondary_attributes': (),
+                              'serialisation_module': 'relations_v0',
+                              'span_names': ('entity', 'mention')}],
+         'text': 'Mari kirjeldas õhinal, kuidas ta väiksena "Sipsikut" luges: "Ma ei '
+                 'suutnud seda raamatut kohe kuidagi käest ära panna! Nii põnev oli '
+                 'see!"'}
+    text_obj = dict_to_text(text_obj_dict)
+    assert text_obj.layers == {'words'}
+    assert text_obj.relation_layers == {'coreference_a', 'coreference_b'}
+    assert isinstance(text_obj['coreference_a'], RelationLayer)
+    assert isinstance(text_obj['coreference_b'], RelationLayer)
+    layer_a = []
+    for rel in text_obj['coreference_a']:
+        assert isinstance(rel, Relation)
+        layer_a.append( (rel['rel_id'], rel['mention'].text, rel['entity'].text) )
+    assert layer_a == [ (1, 'ta', 'Mari'), \
+                        (2, 'Ma', 'Mari') ]
+    layer_b = []
+    for rel in text_obj['coreference_b']:
+        assert isinstance(rel, Relation)
+        layer_b.append( (rel['rel_id'], rel['mention'].text, rel['entity'].text) )
+    assert layer_b == [ (1, 'seda raamatut', '"Sipsikut"'), \
+                        (2, 'see', '"Sipsikut"') ]
