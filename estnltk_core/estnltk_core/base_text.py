@@ -58,8 +58,13 @@ class BaseText:
         memo[id(text)] = text
         result.meta = deepcopy(self.meta, memo)
         # Layers must be created in the topological order
-        for original_layer in self.sorted_layers():
-            layer = deepcopy(original_layer, memo)
+        for span_layer in self.sorted_layers():
+            layer = deepcopy(span_layer, memo)
+            layer.text_object = None
+            memo[id(layer)] = layer
+            result.add_layer(layer)
+        for relation_layer in self.sorted_relation_layers():
+            layer = deepcopy(relation_layer, memo)
             layer.text_object = None
             memo[id(layer)] = layer
             result.add_layer(layer)
