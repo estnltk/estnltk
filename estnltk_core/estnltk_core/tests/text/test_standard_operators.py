@@ -5,6 +5,7 @@ from types import MethodType
 
 from estnltk_core.common import load_text_class
 from estnltk_core import Layer
+from estnltk_core import RelationLayer
 from estnltk_core import ElementaryBaseSpan
 from estnltk_core import EnvelopingBaseSpan, EnvelopingSpan
 
@@ -410,6 +411,7 @@ def test_attribute_resolver():
 
 
 def test_add_layer():
+    # Test adding span layer
     # Load Text or BaseText class (depending on the available packages)
     Text = load_text_class()
     # The only way to add a layer
@@ -470,6 +472,47 @@ def test_add_layer():
         text = Text('test')
         with pytest.raises(AttributeError, match=error_message):
             text.empty_layer = layer
+
+
+def test_add_relation_layer():
+    # Test adding relation layer
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
+    
+    text = Text('ABCDEFGHIJ')
+    span_layer = Layer(name='span_test', attributes=['attr'], 
+                                         text_object=text)
+    rel_layer  = RelationLayer('rel_test', span_names=['arg0', 'arg1'], 
+                                           attributes=['rel_id'],
+                                           text_object=text)
+    text.add_layer(span_layer)
+    text.add_layer(rel_layer)
+    
+    # check that layers are listed in right properties
+    assert span_layer.name in text.layers
+    assert span_layer.name not in text.relation_layers
+    assert rel_layer.name in text.relation_layers
+    assert rel_layer.name not in text.layers
+
+    # Check that layers can be accessed via []
+    assert text['span_test'] is span_layer
+    assert text['rel_test'] is rel_layer
+    
+    # test that we cannot add another layer with the same name
+    with pytest.raises(AssertionError, match="this (Text|BaseText) object already has a relation layer with name 'rel_test'"):
+        new_layer = RelationLayer('rel_test', span_names=['arg0', 'arg1'], 
+                                              attributes=['rel_id'],
+                                              text_object=text)
+        text.add_layer(new_layer)
+    with pytest.raises(AssertionError, match="this (Text|BaseText) object already has a span layer with name 'span_test'"):
+        new_layer = RelationLayer('span_test', span_names=['arg0', 'arg1'], 
+                                               attributes=['rel_id'],
+                                               text_object=text)
+        text.add_layer(new_layer)
+    with pytest.raises(AssertionError, match="this (Text|BaseText) object already has a relation layer with name 'rel_test'"):
+        new_layer = Layer('rel_test', attributes=['rel_id'],
+                                      text_object=text)
+        text.add_layer(new_layer)
 
 
 def test_pop_layer():
@@ -765,6 +808,38 @@ def test_pop_layer():
         _ = text['morph_analysis']
 
     # Test more obscure configurations
+
+
+def test_pop_relation_layer():
+    # Test removing relation layer
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
+
+    text = Text('ABCDEFGHIJ')
+    span_layer = Layer(name='span_test', attributes=['attr'],
+                                         text_object=text)
+    rel_layer1 = RelationLayer('rel_test_1', span_names=['arg0', 'arg1'], 
+                                             attributes=['rel_id'],
+                                             text_object=text)
+    rel_layer2 = RelationLayer('rel_test_2', span_names=['arg_a', 'arg_b'], 
+                                             attributes=['rel_id'],
+                                             text_object=text)
+    text.add_layer(span_layer)
+    text.add_layer(rel_layer1)
+    text.add_layer(rel_layer2)
+
+    pop_rel1 = text.pop_layer('rel_test_1')
+    assert pop_rel1 is rel_layer1
+
+    assert span_layer.name in text.layers
+    assert rel_layer2.name in text.relation_layers
+    assert rel_layer1.name not in text.relation_layers
+
+    pop_rel2 = text.pop_layer('rel_test_2')
+    assert pop_rel2 is rel_layer2
+    assert span_layer.name in text.layers
+    assert rel_layer2.name not in text.relation_layers
+    assert rel_layer1.name not in text.relation_layers
 
 
 def test_equal():
