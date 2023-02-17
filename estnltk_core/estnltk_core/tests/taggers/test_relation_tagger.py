@@ -136,7 +136,7 @@ def test_relation_tagger_configuration_errors():
 class FawltyLayerCreationRelationTagger(RelationTagger):
     """Fawlty (Faulty) Layer Creation RelationTagger (for testing)."""
 
-    def __init__(self, detached_layer=True, 
+    def __init__(self, unassigned_layer=True, 
                        wrong_layer_type=False, 
                        wrong_layer_name=False, 
                        wrong_spans=False, 
@@ -145,19 +145,19 @@ class FawltyLayerCreationRelationTagger(RelationTagger):
         self.input_layers = []
         self.output_span_names = ['arg0', 'arg1']
         self.output_attributes = ['attr']
-        self.conf_param = ['detached_layer', 
+        self.conf_param = ['unassigned_layer', 
                            'wrong_layer_type', 
                            'wrong_layer_name',
                            'wrong_spans',
                            'wrong_attributes']
-        self.detached_layer = detached_layer
+        self.unassigned_layer = unassigned_layer
         self.wrong_layer_type = wrong_layer_type
         self.wrong_layer_name = wrong_layer_name
         self.wrong_spans = wrong_spans
         self.wrong_attributes = wrong_attributes
 
     def _make_layer(self, text: Union['BaseText', 'Text'], layers, status=None) -> RelationLayer:
-        if self.detached_layer:
+        if self.unassigned_layer:
             layer = RelationLayer(self.output_layer, self.output_span_names, self.output_attributes, text_object=None)
             layer.add_annotation( arg0=(0,1), arg1=(1,2) )
             layer.add_annotation( arg0=(2,3), arg1=(1,2), attr=43 )
@@ -185,11 +185,11 @@ def test_relation_tagger_layer_creation_errors():
     # Test errors risen due to faulty layer creation of relation tagger
     text1 = create_text_object('ABCDEFGHIJ')
     # Check all faulty layer creation settings
-    for conf_params in [{'detached_layer': True}, 
-                        {'detached_layer': False, 'wrong_layer_type':True },
-                        {'detached_layer': False, 'wrong_layer_name':True },
-                        {'detached_layer': False, 'wrong_spans':True },
-                        {'detached_layer': False, 'wrong_attributes':True }]:
+    for conf_params in [{'unassigned_layer': True}, 
+                        {'unassigned_layer': False, 'wrong_layer_type':True },
+                        {'unassigned_layer': False, 'wrong_layer_name':True },
+                        {'unassigned_layer': False, 'wrong_spans':True },
+                        {'unassigned_layer': False, 'wrong_attributes':True }]:
         relation_tagger = FawltyLayerCreationRelationTagger(**conf_params)
         with pytest.raises(Exception):
             relation_tagger.tag( text1 )

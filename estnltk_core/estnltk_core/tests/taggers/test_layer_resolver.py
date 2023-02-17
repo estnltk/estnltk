@@ -1,7 +1,9 @@
 from typing import Union
 
 from estnltk_core import Layer
+from estnltk_core import RelationLayer
 from estnltk_core.taggers import Tagger, Retagger
+from estnltk_core.taggers import RelationTagger
 from estnltk_core.taggers import TaggerLoader
 from estnltk_core.taggers import TaggerLoaded
 from estnltk_core.taggers.tagger_loader import TaggerClassNotFound
@@ -43,8 +45,27 @@ class StubRetagger(Retagger):
         target_layer.meta['modified'] += 1
         return None
 
+
+class StubRelationTagger(RelationTagger):
+    """A stub relation tagger for testing LayerResolver and TaggersRegistry.
+    """
+    conf_param = []
+
+    def __init__(self, output_layer, input_layers, output_span_names):
+        self.output_layer = output_layer
+        self.input_layers = input_layers
+        self.output_span_names = output_span_names
+        self.output_attributes = []
+
+    def _make_layer(self, text: Union['BaseText', 'Text'], layers, status=None) -> RelationLayer:
+        layer = RelationLayer(self.output_layer, self.output_span_names, self.output_attributes, text_object=text)
+        layer.meta['modified'] = 0
+        return layer
+
+
 stubtagger_import_path = 'estnltk_core.tests.taggers.test_layer_resolver.StubTagger'
 stubretagger_import_path = 'estnltk_core.tests.taggers.test_layer_resolver.StubRetagger'
+stubrelationtagger_import_path = 'estnltk_core.tests.taggers.test_layer_resolver.StubRelationTagger'
 
 
 def test_tagger_loader():
@@ -76,6 +97,20 @@ def test_tagger_loader():
     tagger_loader2 = TaggerLoaded( tagger )
     assert tagger_loader.is_loaded()
     assert isinstance( tagger_loader2.tagger, StubTagger )
+
+    # Test TaggerLoader for a RelationTagger
+    relation_tagger_loader = TaggerLoader( 'coreference', ['morph_analysis','sentences'], 
+                                           stubrelationtagger_import_path, 
+                                           output_span_names=['mention', 'entity'], 
+                                           parameters={'output_layer': 'coreference', 
+                                            'output_span_names': ['mention', 'entity'], 
+                                            'input_layers': ['morph_analysis','sentences']} )
+    assert relation_tagger_loader.output_layer == 'coreference'
+    assert relation_tagger_loader.input_layers == ['morph_analysis','sentences']
+    assert not relation_tagger_loader.is_loaded()
+    rel_tagger = relation_tagger_loader.tagger
+    assert isinstance( rel_tagger, StubRelationTagger )
+    assert relation_tagger_loader.is_loaded()
 
 
 def test_tagger_loader_exceptions():
@@ -123,12 +158,22 @@ def test_create_resolver():
                                               {'output_layer': 'sentences', 'input_layers': ['words']} ),
                                 TaggerLoader( 'morph_analysis', ['words', 'sentences'], 
                                               stubtagger_import_path, 
-                                              {'output_layer': 'morph_analysis', 'input_layers': ['words', 'sentences']} )
+                                              {'output_layer': 'morph_analysis', 'input_layers': ['words', 'sentences']} ),
+                                TaggerLoader( 'coreference', ['morph_analysis', 'sentences'], 
+                                              stubrelationtagger_import_path, 
+                                              output_span_names=['entity', 'mention'], 
+                                              parameters={'output_layer': 'coreference', 
+                                                          'input_layers': ['morph_analysis', 'sentences'],
+                                                          'output_span_names': ['entity', 'mention']} ),
                               ])
     resolver1 = LayerResolver(taggers)
     text1 = create_text_object('test')
     resolver1.apply(text1, 'morph_analysis')
     assert set(text1.layers) == {'tokens', 'compound_tokens', 'words', 'sentences', 'morph_analysis'}
+    assert set(text1.relation_layers) == set()
+    resolver1.apply(text1, 'coreference')
+    assert set(text1.layers) == {'tokens', 'compound_tokens', 'words', 'sentences', 'morph_analysis'}
+    assert set(text1.relation_layers) == {'coreference'}
     
     resolver2 = LayerResolver( TaggersRegistry([]) )
     resolver2.update( StubTagger('tokens', input_layers=[]) )
@@ -361,9 +406,15 @@ def test_resolver_list_layers():
                                 TaggerLoader( 'tokens', [], 
                                               stubtagger_import_path, 
                                               {'output_layer': 'tokens', 'input_layers': []} ),
+                                TaggerLoader( 'coreference', ['morph_analysis', 'sentences'], 
+                                              stubrelationtagger_import_path, 
+                                              output_span_names=['entity', 'mention'], 
+                                              parameters={'output_layer': 'coreference', 
+                                                          'input_layers': ['morph_analysis', 'sentences'],
+                                                          'output_span_names': ['entity', 'mention']} ),
                               ])
     resolver = LayerResolver(taggers)
-    assert list(resolver.layers) == ['tokens', 'compound_tokens', 'words', 'sentences', 'morph_analysis'] 
+    assert list(resolver.layers) == ['tokens', 'compound_tokens', 'words', 'sentences', 'morph_analysis', 'coreference'] 
 
 
 def test_resolver_access_and_update_default_layers():
@@ -507,4 +558,13 @@ def test_redefine_resolver_with_new_taggers():
     resolver.apply(text, 'sentences')
     assert set(text.layers) == {'tokens', 'words2', 'sentences'}
 
+    resolver.update(StubRelationTagger('coreference', input_layers=['sentences', 'morph_analysis'], 
+                                                      output_span_names=['entity', 'mention']))
+    text = create_text_object('test')
+    assert set(text.layers) == set()
+    assert set(text.relation_layers) == set()
+    resolver.apply(text, 'coreference')
+    assert set(text.layers) == {'tokens','compound_tokens', 'words', 'words2', 'sentences', \
+                                'normalized_words', 'morph_analysis'}
+    assert set(text.relation_layers) == {'coreference'}
 

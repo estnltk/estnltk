@@ -50,6 +50,7 @@ class RelationTagger(Tagger, metaclass=RelationTaggerChecker):
     (output_span_names) and that all layer creation methods (_make_layer(...), 
     _make_layer_template()) must return RelationLayer instead of Layer. 
     """
+    __slots__ = ['_initialized', 'conf_param', 'output_layer', 'output_span_names', 'output_attributes', 'input_layers']
 
     def __setattr__(self, key, value):
         if self._initialized:
