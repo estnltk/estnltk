@@ -458,11 +458,19 @@ class Relation:
 
     @property
     def span_names(self):
-        return list(self._named_spans.keys())
+        if self.legal_span_names is not None:
+            # put span names in the same order as on the relation layer
+            return [k for k in self.legal_span_names if k in self._named_spans.keys()]
+        else:
+            return list(self._named_spans.keys())
 
     @property
     def spans(self):
-        return list(self._named_spans.values())
+        if self.legal_span_names is not None:
+            # put spans in the same order as on the relation layer
+            return [self._named_spans[k] for k in self.legal_span_names if k in self._named_spans.keys()]
+        else:
+            return list(self._named_spans.values())
 
     @property
     def base_spans(self):
@@ -487,11 +495,13 @@ class Relation:
 
     @property
     def legal_span_names(self):
-        return self.relation_layer.span_names
+        if self.relation_layer is not None:
+            return self.relation_layer.span_names
 
     @property
     def legal_attribute_names(self):
-        return self.relation_layer.attributes
+        if self.relation_layer is not None:
+            return self.relation_layer.attributes
 
     def set_span(self, name: str, base_span: BaseSpan ):
         assert isinstance(name, str)
@@ -579,7 +589,6 @@ class Relation:
                 #assert named_span.name in self._relation_layer.span_names
                 # TODO: we cannot access span_names property. 
                 # how to check that span names are valid ?
-                #
                 pass
             self._named_spans[named_span.name] = named_span
             # Set span level based on the first span
