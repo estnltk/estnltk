@@ -340,7 +340,7 @@ class Tagger(metaclass=TaggerChecker):
         Union['BaseText', 'Text']
             Input Text object which has a new (attached) layer created by this tagger.
         """
-        text.add_layer(self.make_layer(text=text, layers=text.layers, status=status))
+        text.add_layer(self.make_layer(text=text, layers=(text.layers).union(text.relation_layers), status=status))
         return text
 
     def _make_layer_template(self) -> Layer:
