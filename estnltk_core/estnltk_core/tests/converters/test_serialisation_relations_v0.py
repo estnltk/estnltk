@@ -90,8 +90,9 @@ def test_convert_relations_layer_to_dict():
     # Convert RelationLayer -> dict
     text_obj = dict_to_text( example_text_dict )
     coref_layer = RelationLayer('coreference', span_names=['mention', 'entity'], 
-                                                attributes=['rel_id'], 
-                                                text_object=text_obj )
+                                               attributes=['rel_id'], 
+                                               text_object=text_obj,
+                                               serialisation_module='relations_v0' )
     # Add relation based on a dictionary
     coref_layer.add_annotation( {'mention': (30, 32), 'entity': (0, 4)}, rel_id=1 )
     coref_layer.add_annotation( {'mention': (61, 63), 'entity': (0, 4)}, rel_id=2 )
@@ -163,12 +164,14 @@ def test_convert_text_with_relation_layers_to_dict():
     text_obj['words'].clear_spans()
     coref_layer1 = RelationLayer('coreference_a', span_names=['mention', 'entity'], 
                                                  attributes=['rel_id'], 
-                                                 text_object=text_obj )
+                                                 text_object=text_obj,
+                                                 serialisation_module='relations_v0' )
     coref_layer1.add_annotation( {'mention': (30, 32), 'entity': (0, 4)}, rel_id=1 )
     coref_layer1.add_annotation( {'mention': (61, 63), 'entity': (0, 4)}, rel_id=2 )
     coref_layer2 = RelationLayer('coreference_b', span_names=['entity', 'mention'], 
                                                   attributes=['rel_id'], 
-                                                  text_object=text_obj )
+                                                  text_object=text_obj,
+                                                  serialisation_module='relations_v0' )
     coref_layer2.add_annotation( mention=(75, 88), entity=(42, 52), rel_id=3 )
     coref_layer2.add_annotation( mention=(133, 136), entity=(42, 52), rel_id=4 )
     text_obj.add_layer( coref_layer1 )

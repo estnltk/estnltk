@@ -173,6 +173,8 @@ class TaggerLoaded(TaggerLoader):
         self.input_layers = tagger.input_layers
         if isinstance(tagger, RelationTagger):
             self.output_span_names = tagger.output_span_names
+        else:
+            self.output_span_names = None
         self.output_attributes = tagger.output_attributes
         self._parameters = {}
         self._tagger_class_name = tagger.__class__.__name__
