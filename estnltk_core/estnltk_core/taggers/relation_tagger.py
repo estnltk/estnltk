@@ -190,7 +190,7 @@ class RelationTagger(Tagger, metaclass=RelationTaggerChecker):
         import pandas
         parameters = {'name': self.__class__.__name__,
                       'output layer': self.output_layer,
-                      'output span_names': str(self.output_span_names),
+                      'output span names': str(self.output_span_names),
                       'output attributes': str(self.output_attributes),
                       'input layers': str(self.input_layers)}
         table = pandas.DataFrame(data=parameters,
