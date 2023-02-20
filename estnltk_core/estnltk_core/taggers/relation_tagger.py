@@ -2,6 +2,7 @@ from estnltk_core.layer.layer import Layer
 from estnltk_core.layer.relation_layer import RelationLayer
 from estnltk_core.taggers.tagger import TaggerChecker
 from estnltk_core.taggers.tagger import Tagger
+from estnltk_core.layer.to_html import to_str
 
 from typing import MutableMapping, Union, Set, Sequence
 
