@@ -1,8 +1,19 @@
 #
 #  RelationsLayer is a special layer for holding Relation annotations.
 #  Relation consists of named BaseSpans (NamedSpan objects) and a list of RelationAnnotations.
-#  
-#  (WORK IN PROGESS) 
+#
+#  Example usage:
+#
+#  >>> from estnltk import Text
+#  >>> from estnltk_core import RelationLayer
+#  >>> text = Text('See on Peeter. Ta on, nagu ta on. Tubli mees.')
+#  >>> rels = RelationLayer('coref', span_names=('mention', 'entity'), attributes=('rel_id',), text_object=text)
+#  >>> rels.add_annotation(mention=(0,3),   entity=(7,13), rel_id=0)
+#  >>> rels.add_annotation(mention=(15,17), entity=(7,13), rel_id=1)
+#  >>> rels[0]
+#  Relation([NamedSpan(mention: 'See'), NamedSpan(entity: 'Peeter')], [{'rel_id': 0}])
+#  >>> rels[1]
+#  Relation([NamedSpan(mention: 'Ta'), NamedSpan(entity: 'Peeter')], [{'rel_id': 1}])
 #
 
 from typing import Any, Mapping, Sequence, Dict, List, Tuple, Union, Optional
@@ -43,15 +54,30 @@ def to_relation_base_span(x) -> BaseSpan:
 
 class RelationLayer:
     """
-    RelationLayer is a collection of Relation objects.
-    
-    Relation consists of named BaseSpans (NamedSpan objects) and a list of RelationAnnotations.
+    RelationLayer is a collection of Relation objects. 
+    Relation consists of named base spans (NamedSpan objects) and a list of RelationAnnotations.
     
     Rules:
     * span names and annotation attribute names cannot overlap;
     * each relation must have at least one NamedSpan, and at least one RelationAnnotation;
     * a relation does not need to have all spans defined by the layer, some spans 
       (but not all) can be empty/unassigned;
+    
+    Example usage:
+    
+    >>> from estnltk import Text
+    >>> from estnltk_core import RelationLayer
+    >>> text = Text('See on Peeter. Ta on, nagu ta on. Tubli mees.')
+    >>> rels = RelationLayer('coref', span_names=('mention', 'entity'), attributes=('rel_id',), text_object=text)
+    >>> rels.add_annotation(mention=(0,3),   entity=(7,13), rel_id=0)
+    RelationAnnotation({'rel_id': 0})
+    >>> rels.add_annotation(mention=(15,17), entity=(7,13), rel_id=1)
+    RelationAnnotation({'rel_id': 1})
+    >>> rels[0]
+    Relation([NamedSpan(mention: 'See'), NamedSpan(entity: 'Peeter')], [{'rel_id': 0}])
+    >>> rels[1]
+    Relation([NamedSpan(mention: 'Ta'), NamedSpan(entity: 'Peeter')], [{'rel_id': 1}])
+    
     """
 
     __slots__ = ['name', 'span_names', 'attributes', 'secondary_attributes', 'ambiguous', 
