@@ -7,9 +7,6 @@ from estnltk_core.converters import dict_to_layer, layer_to_dict
 from estnltk_core.converters import dict_to_text, text_to_dict
 from estnltk_core.layer.relation_layer import RelationLayer, Relation
 
-from estnltk import Text
-from estnltk_core import RelationLayer
-
 example_text_dict = \
     {'layers': [{'ambiguous': True,
                  'attributes': ('normalized_form',),
