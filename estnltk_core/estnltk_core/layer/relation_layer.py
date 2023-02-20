@@ -274,7 +274,6 @@ class RelationLayer:
                     _relation_list=self._relation_list)
 
     def __setstate__(self, state):
-        super().__setattr__('name', state['name'])
         super().__setattr__('ambiguous', state['ambiguous'])
         super().__setattr__('text_object', state['text_object'])
         super().__setattr__('serialisation_module', state['serialisation_module'])
@@ -285,6 +284,7 @@ class RelationLayer:
         object.__setattr__(self, 'attributes', ())
         object.__setattr__(self, 'secondary_attributes', ())
         # set variables (with validation done inside __setattr__)
+        self.name = state['name']
         self.span_names = state['span_names']
         self.attributes = state['attributes']
         self.secondary_attributes = state['secondary_attributes']
@@ -329,18 +329,15 @@ class RelationLayer:
             # Returns List of Relation-s
             return list(self._relation_list[item])
 
+        if isinstance(item, str):
+            item = [item]
+
         if isinstance(item, (list, tuple)) and all(isinstance(i, str) for i in item):
             # Expected call: layer[[span1, span2, attr1, attr2, ...]]
             # Returns named spans & annotation values extracted from all Relations
             results = []
             for relation in self:
-                if not self.ambiguous:
-                    results.append( relation[item] )
-                else:
-                    # ambiguous: more than one annotation per selection of spans
-                    # need to flatten the results (TODO: does Layer behave the same)
-                    for result in relation[item]:
-                        results.append( result )
+                results.append( relation[item] )
             return results
 
         raise TypeError('index not supported: ' + str(item))

@@ -107,6 +107,79 @@ def test_relation_layer_basic_with_text_obj():
          {'arg0': '5', 'arg1': '4', 'summa': 9}]
 
 
+def test_relation_layer_access_via_get_item():
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
+    
+    text = Text('0123456789')
+    # Case 1: unambiguous layer
+    layer = RelationLayer('relations', span_names=['arg0', 'arg1'], 
+                                       attributes=['summa'],
+                                       text_object=text)
+    layer.add_annotation( {'arg0': (0, 1), 'arg1': (1, 2), 'summa': 1} )
+    layer.add_annotation( {'arg0': (2, 3), 'arg1': (3, 4), 'summa': 5} )
+    layer.add_annotation( {'arg0': (5, 6), 'arg1': (2, 3), 'summa': 7} )
+    layer.add_annotation( {'arg0': (5, 6), 'arg1': (4, 5), 'summa': 9} )
+    text.add_layer(layer)
+    # access single span
+    assert str(text['relations']['arg0']) == \
+        "[[NamedSpan(arg0: '0')], [NamedSpan(arg0: '2')], [NamedSpan(arg0: '5')], [NamedSpan(arg0: '5')]]"
+    assert str(text['relations'][['arg0']]) == \
+        "[[NamedSpan(arg0: '0')], [NamedSpan(arg0: '2')], [NamedSpan(arg0: '5')], [NamedSpan(arg0: '5')]]"
+    # access span and attribute
+    assert str(text['relations'][['arg1', 'summa']]) == \
+        "[[NamedSpan(arg1: '1'), 1], [NamedSpan(arg1: '3'), 5], [NamedSpan(arg1: '2'), 7], [NamedSpan(arg1: '4'), 9]]"
+    # access multiple spans
+    assert str(text['relations'][['arg0', 'arg1']]) == \
+        "[[NamedSpan(arg0: '0'), NamedSpan(arg1: '1')], [NamedSpan(arg0: '2'), NamedSpan(arg1: '3')], "+\
+         "[NamedSpan(arg0: '5'), NamedSpan(arg1: '2')], [NamedSpan(arg0: '5'), NamedSpan(arg1: '4')]]"
+
+    with pytest.raises(ValueError):
+        # error: illegal attribute or span name
+        text['relations'][['arg2', 'arg3']]
+
+    # Case 2: ambiguous layer
+    layer2 = RelationLayer('relations2', span_names=['arg0', 'arg1'], 
+                                         attributes=['less_than'],
+                                         text_object=text, ambiguous=True)
+    layer2.add_annotation( {'arg0': (0, 1), 'arg1': (1, 2), 'less_than': 2} )
+    layer2.add_annotation( {'arg0': (0, 1), 'arg1': (1, 2), 'less_than': 3} )
+    layer2.add_annotation( {'arg0': (2, 3), 'arg1': (3, 4), 'less_than': 6} )
+    layer2.add_annotation( {'arg0': (5, 6), 'arg1': (2, 3), 'less_than': 8} )
+    layer2.add_annotation( {'arg0': (5, 6), 'arg1': (4, 5), 'less_than': 10} )
+    text.add_layer(layer2)
+    # access single span
+    assert str(text['relations2']['arg0']) == \
+        "[[[NamedSpan(arg0: '0')], [NamedSpan(arg0: '0')]], "+\
+         "[[NamedSpan(arg0: '2')]], "+\
+         "[[NamedSpan(arg0: '5')]], "+\
+         "[[NamedSpan(arg0: '5')]]]"
+    assert str(text['relations2'][['arg0']]) == \
+        "[[[NamedSpan(arg0: '0')], [NamedSpan(arg0: '0')]], "+\
+         "[[NamedSpan(arg0: '2')]], "+\
+         "[[NamedSpan(arg0: '5')]], "+\
+         "[[NamedSpan(arg0: '5')]]]"
+    # access span and attribute
+    assert str(text['relations2'][['arg1', 'less_than']]) == \
+        "[[[NamedSpan(arg1: '1'), 2], [NamedSpan(arg1: '1'), 3]], "+\
+         "[[NamedSpan(arg1: '3'), 6]], "+\
+         "[[NamedSpan(arg1: '2'), 8]], "+\
+         "[[NamedSpan(arg1: '4'), 10]]]"
+    assert str(text['relations2'][['arg0', 'arg1']]) == \
+        "[[[NamedSpan(arg0: '0'), NamedSpan(arg1: '1')], [NamedSpan(arg0: '0'), NamedSpan(arg1: '1')]], "+\
+         "[[NamedSpan(arg0: '2'), NamedSpan(arg1: '3')]], "+\
+         "[[NamedSpan(arg0: '5'), NamedSpan(arg1: '2')]], "+\
+         "[[NamedSpan(arg0: '5'), NamedSpan(arg1: '4')]]]"
+
+    # single relation: access single span
+    assert str(text['relations2'][0]['arg0']) == "NamedSpan(arg0: '0')"
+    assert str(text['relations2'][0][['arg0']]) == \
+        "[[NamedSpan(arg0: '0')], [NamedSpan(arg0: '0')]]"  # TODO: is this expected behaviour?
+    # single relation: access single span and attribute
+    assert str(text['relations2'][0][['arg0', 'less_than']]) == \
+        "[[NamedSpan(arg0: '0'), 2], [NamedSpan(arg0: '0'), 3]]"
+
+
 def test_relation_layer_deep_copy():
     # Simple empty layer
     layer = RelationLayer('test', span_names=['my_span'])
