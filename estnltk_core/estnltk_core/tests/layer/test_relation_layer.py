@@ -14,7 +14,7 @@ def test_relation_layer_basic():
     
     # Test creating layer:
     layer = RelationLayer('test', span_names=['arg0', 'arg1'], 
-                                   attributes=['attr1', 'attr2'])
+                                  attributes=['attr1', 'attr2'])
     assert layer.span_names == ('arg0', 'arg1')
     assert layer.attributes == ('attr1', 'attr2')
     assert layer.ambiguous == False
@@ -22,9 +22,22 @@ def test_relation_layer_basic():
     assert layer.span_level is None
     
     with pytest.raises(AssertionError):
+        # error: layer name cannot consist of whitespace
+        layer2 = RelationLayer('  ', span_names=['arg0', 'arg1'], 
+                                     attributes=['attr1', 'attr2'])
+    
+    with pytest.raises(AssertionError):
         # error: span_names and attribute names cannot overlap
         layer2 = RelationLayer('test2', span_names=['arg0', 'arg1'], 
-                                         attributes=['arg1', 'attr1', 'attr2'])
+                                        attributes=['arg1', 'attr1', 'attr2'])
+    
+    # Test that span names and attributes cannot be mingled later
+    with pytest.raises(AssertionError):
+        # error: span_names and attribute names cannot overlap
+        layer.attributes = ('arg0', 'arg1')
+    with pytest.raises(AssertionError):
+        # error: span_names and attribute names cannot overlap
+        layer.span_names = ('attr1', 'attr2')
 
     # Test adding annotations:
     # add relation annotation via dict 

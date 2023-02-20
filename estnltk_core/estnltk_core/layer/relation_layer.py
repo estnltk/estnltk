@@ -76,23 +76,21 @@ class RelationLayer:
         * secondary_attribute must be a subset of attributes;
         """
         # name of the layer
-        assert name is not None and len(name) > 0 and not name.isspace(), \
-            'layer name cannot be empty or consist of only whitespaces {!r}'.format(name)
         self.name = name
-        self.span_names = span_names
-        self.attributes = attributes
-        self.secondary_attributes = secondary_attributes
-        # validate that span_names and attributes do not have common keys
-        span_names_set = set(self.span_names) if self.span_names is not None else set()
-        attributes_set = set(self.attributes) if self.attributes is not None else set()
-        common = span_names_set.intersection(attributes_set)
-        assert len(common) == 0, \
-            'attributes cannot have overlapping values with span_names: {}'.format(list(common))
         self._relation_list = []
         self.ambiguous = ambiguous
         self.text_object = text_object
         self.serialisation_module = serialisation_module
         self.meta = {}
+        # pre-initialize variables
+        object.__setattr__(self, 'span_names', ())
+        object.__setattr__(self, 'attributes', ())
+        object.__setattr__(self, 'secondary_attributes', ())
+        # set variables (with validation done inside __setattr__)
+        self.span_names = span_names
+        self.attributes = attributes
+        self.secondary_attributes = secondary_attributes
+
 
     @property
     def span_level(self):
@@ -264,6 +262,38 @@ class RelationLayer:
             return "{self.name} layer relations differ".format(self=self)
         return None
 
+    def __getstate__(self):
+        return dict(name=self.name, 
+                    ambiguous=self.ambiguous, 
+                    text_object=self.text_object,
+                    serialisation_module=self.serialisation_module,
+                    meta=self.meta,
+                    span_names=self.span_names,
+                    attributes=self.attributes,
+                    secondary_attributes=self.secondary_attributes,
+                    _relation_list=self._relation_list)
+
+    def __setstate__(self, state):
+        super().__setattr__('name', state['name'])
+        super().__setattr__('ambiguous', state['ambiguous'])
+        super().__setattr__('text_object', state['text_object'])
+        super().__setattr__('serialisation_module', state['serialisation_module'])
+        super().__setattr__('meta', state['meta'])
+        super().__setattr__('_relation_list', [])
+        # pre-initialize variables
+        object.__setattr__(self, 'span_names', ())
+        object.__setattr__(self, 'attributes', ())
+        object.__setattr__(self, 'secondary_attributes', ())
+        # set variables (with validation done inside __setattr__)
+        self.span_names = state['span_names']
+        self.attributes = state['attributes']
+        self.secondary_attributes = state['secondary_attributes']
+        # add relations
+        for relation in state['_relation_list']:
+            assert id(relation.relation_layer) == id(self), \
+                '"relation.relation_layer" must reference caller'
+            self._relation_list.append( relation )
+
     def __copy__(self):
         raise NotImplementedError
 
@@ -316,7 +346,15 @@ class RelationLayer:
         raise TypeError('index not supported: ' + str(item))
 
     def __setattr__(self, key, value):
-        if key == 'span_names':
+        if key == 'name':
+            # check name
+            name = value
+            assert name is not None and len(name) > 0 and not name.isspace(), \
+                'layer name cannot be empty or consist of only whitespaces {!r}'.format(name)
+            # set name
+            super().__setattr__('name', name)
+            return
+        elif key == 'span_names':
             # check span_names
             span_names = value
             assert not isinstance(span_names, str), \
@@ -328,6 +366,11 @@ class RelationLayer:
             for span_name in span_names:
                 if not span_name.isidentifier():
                     raise ValueError('Unexpected span_name: {!r}. span_name should be a valid identifier.'.format(span_name))
+            # validate that span_names and attributes do not have common keys
+            attributes_set = set(self.attributes) if self.attributes is not None else set()
+            common = span_names_set.intersection(attributes_set)
+            assert len(common) == 0, \
+                'span_names cannot have overlapping values with attributes: {}'.format(list(common))
             # set span_names
             super().__setattr__('span_names', span_names)
             return
@@ -339,13 +382,25 @@ class RelationLayer:
             attributes = tuple(attributes)
             attributes_set = set(attributes)
             assert len(attributes) == len(attributes_set), 'repetitive attribute name: ' + str(attributes)
+            # validate that span_names and attributes do not have common keys
+            span_names_set = set(self.span_names) if self.span_names is not None else set()
+            common = span_names_set.intersection(attributes_set)
+            assert len(common) == 0, \
+                'attributes cannot have overlapping values with span_names: {}'.format(list(common))
             # set attributes
             super().__setattr__('attributes', attributes)
-            return
+            # update secondary_attributes
+            new_secondary_attributes = []
+            for sec_attrib in self.secondary_attributes:
+                if sec_attrib in self.attributes:
+                    new_secondary_attributes.append(sec_attrib)
+            object.__setattr__(self, 'secondary_attributes', tuple(new_secondary_attributes))
+            return 
         elif key == 'secondary_attributes':
             # check secondary_attributes
             assert not isinstance(value, str), \
                 'secondary_attributes must be a list or tuple of strings, not a single string {!r}'.format(value)
+            # validate secondary_attributes
             secondary_attributes = value or ()
             for sec_attrib in secondary_attributes:
                 if sec_attrib not in self.attributes:
