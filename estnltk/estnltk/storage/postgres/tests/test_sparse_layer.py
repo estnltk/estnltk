@@ -275,6 +275,7 @@ class TestSparseLayerSelection(unittest.TestCase):
                                    {'annotations': [{'normalized_form': None}],
                                     'base_span': (20, 21)}]}],
              'meta': {'number': 0},
+             'relation_layers': [],
              'text': 'See on tekst number 0'}
         self.assertEqual( text_to_dict(text1), expected_text_dict_1 )
         # Test that selection also works after changing the order of selected layers
@@ -329,6 +330,7 @@ class TestSparseLayerSelection(unittest.TestCase):
                                    {'annotations': [{'normalized_form': None}],
                                     'base_span': (20, 21)}]}],
              'meta': {'number': 4},
+             'relation_layers': [],
              'text': 'See on tekst number 4'}
         self.assertEqual( text_to_dict(text2), expected_text_dict_2 )
         
