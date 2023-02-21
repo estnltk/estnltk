@@ -1,9 +1,10 @@
 import requests
-from typing import MutableMapping
+from typing import MutableMapping, Union
 
 from estnltk.taggers import Tagger
 from estnltk import Text
 from estnltk import Layer
+from estnltk_core import RelationLayer
 from estnltk.converters import layers_to_json, dict_to_layer
 
 
@@ -18,9 +19,13 @@ class Status:
 
 class WebTagger(Tagger):
     __slots__ = []
-    conf_param = ['url']
+    conf_param = ['url', 'remove_relation_layers']
+    remove_relation_layers = True
 
-    def post_request(self, text: Text, layers: MutableMapping[str, Layer], parameters=None):
+    def post_request(self, text: Text, layers: MutableMapping[str, Union[Layer, RelationLayer]], parameters=None):
+        if self.remove_relation_layers:
+            # Remove relation_layers (because web services do not know how to handle these yet)
+            WebTagger._remove_relation_layers(text, layers)
         data = {
             'text': text.text,
             'meta': text.meta,
@@ -34,9 +39,15 @@ class WebTagger(Tagger):
         layer = dict_to_layer(resp_json, text)
         return layer
 
-    def _make_layer(self, text: Text, layers: MutableMapping[str, Layer], status: dict):
+    def _make_layer(self, text: Text, layers: MutableMapping[str, Union[Layer, RelationLayer]], status: dict):
         layer = self.post_request(text, layers)
         return layer
+
+    @staticmethod
+    def _remove_relation_layers(text: Text, layers: MutableMapping[str, Union[Layer, RelationLayer]]):
+        for relation_layer in text.relation_layers:
+            if relation_layer in layers:
+                del layers[relation_layer]
 
     @property
     def about(self) -> str:
