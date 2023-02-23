@@ -14,12 +14,6 @@ import pandas as pd
 
 def filter_nodes_by_attributes(tree: SyntaxTree, attribute: str, value: Any) -> List[int]:
     """Returns list of nodes in the syntax tree that have the desired attribute value"""
-    """for node, data in tree.nodes.items():
-        print(attribute in data)
-        if attribute in data:
-            print(data[attribute])
-            print(value, "value")
-            print(node)"""
     return [node for node, data in tree.nodes.items() if attribute in data and data[attribute] == value]
 
 
