@@ -14,6 +14,12 @@ import pandas as pd
 
 def filter_nodes_by_attributes(tree: SyntaxTree, attribute: str, value: Any) -> List[int]:
     """Returns list of nodes in the syntax tree that have the desired attribute value"""
+    """for node, data in tree.nodes.items():
+        print(attribute in data)
+        if attribute in data:
+            print(data[attribute])
+            print(value, "value")
+            print(node)"""
     return [node for node, data in tree.nodes.items() if attribute in data and data[attribute] == value]
 
 
@@ -28,14 +34,15 @@ def extract_base_spans_of_subtree(tree: SyntaxTree, root: int) -> List[BaseSpan]
     return [nodes[idx]['span'].base_span for idx in sorted(nx.dfs_postorder_nodes(tree.graph, root))]
     
     
-def get_graph_edge_difference(stanza_syntax_layer, without_entity_layer, ignore_layer):
+def get_graph_edge_difference(stanza_syntax_layer, without_entity_layer, ignore_layer, ignored_tokens):
     big_table = []
 
     for span in without_entity_layer.spans:  
         old_span = stanza_syntax_layer.get(span)  
         big_table.append((span.text, old_span.id, old_span.deprel, old_span.head, span.id, span.deprel, span.head))
-
-    ignored_tokens = [word for span in ignore_layer for word in span.words]
+    
+    if not ignored_tokens:
+        ignored_tokens = [word for span in ignore_layer for word in span.words]
     for span in ignored_tokens:
         old_span = stanza_syntax_layer.get(span) 
         big_table.append((span.text, old_span.id, old_span.deprel, old_span.head, "-", "-", "-"))
