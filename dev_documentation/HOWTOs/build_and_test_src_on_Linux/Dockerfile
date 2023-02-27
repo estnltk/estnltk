@@ -1,10 +1,10 @@
 #
-# Docker file for Ubuntu 18.04 based EstNLTK 1.6 devel building, installing and testing
+# Docker file for Ubuntu 20.04 based EstNLTK 1.7 devel building, installing and testing
 #
 # ================================
 #   Set up OS
 # ================================
-FROM ubuntu:18.04
+FROM ubuntu:20.04
 
 RUN apt-get update && apt-get upgrade -y && apt-get install -y wget && \
     apt-get install -y g++ libpcre3 libpcre3-dev swig && \
@@ -32,15 +32,17 @@ ENV PATH=/udpipe-1.2.0-bin/bin-linux64:${PATH}
 # https://github.com/hfst/hfst/wiki/Download-And-Install#download-and-install-hfst
 # https://github.com/hfst/hfst/wiki/Download-And-Install#installing-hfst-to-linux
 #
-# Get & install dependency: libhfst
+
+RUN wget https://apertium.projectjj.com/apt/install-nightly.sh
+RUN chmod ug+x install-nightly.sh
+RUN ./install-nightly.sh
+RUN apt-get install -y hfst
+
 #
-RUN wget -nv http://apertium.projectjj.com/apt/release/pool/main/h/hfst/libhfst53_3.15.4-1~bionic1_amd64.deb
-RUN apt install -y ./libhfst53_3.15.4-1~bionic1_amd64.deb
+# Check general hfst into
 #
-# Get & install hfst command line tools
-#
-RUN wget -nv http://apertium.projectjj.com/apt/release/pool/main/h/hfst/hfst_3.15.4-1~bionic1_amd64.deb
-RUN apt install -y ./hfst_3.15.4-1~bionic1_amd64.deb
+RUN hfst-info
+
 #
 # Check that command line tool is available
 #
@@ -61,42 +63,88 @@ RUN conda config --set always_yes yes && \
     conda info -a
 
 # ================================
-#   Get EstNLTK's devel source
+#   Python 3.9
 # ================================
-RUN git clone --depth=25 --branch=devel_1.6 https://github.com/estnltk/estnltk.git estnltk_devel
-
-# ================================
-#   Set paths to syntax models 
-# ================================
-ENV UDPIPE_SYNTAX_MODELS_PATH=/estnltk_devel/estnltk/taggers/syntax/udpipe_tagger/resources
-ENV MALTPARSER_SYNTAX_MODELS_PATH=/estnltk_devel/estnltk/taggers/syntax/maltparser_tagger/java-res/maltparser
-
-# ================================
-#   Python 3.7
-# ================================
-RUN echo " Python 3.7 " | figlet 
-RUN conda create -n py37 python=3.7
+RUN echo " Python 3.9 " | figlet 
+RUN conda create -n py39 python=3.9
 #
-# Make RUN commands use the new environment (https://pythonspeed.com/articles/activate-conda-dockerfile/)
+# Make RUN commands to use the new environment (https://pythonspeed.com/articles/activate-conda-dockerfile/)
 #
-SHELL ["conda", "run", "-n", "py37", "/bin/bash", "-c"]
+SHELL ["conda", "run", "-n", "py39", "/bin/bash", "-c"]
 RUN python --version
 #
 # Install packages required for testing
 #
 RUN conda install pytest
 RUN conda install -c conda-forge pytest-httpserver
+
+# ================================
+#   Get EstNLTK's devel source
+# ================================
+RUN echo "Load devel 1.7" | figlet 
+RUN git clone --depth=25 --branch=devel_1.7 https://github.com/estnltk/estnltk.git estnltk_devel
+
+# ================================
+#   Estnltk-core
+# ================================
+RUN echo " EstNLTK-core " | figlet 
+WORKDIR /estnltk_devel/estnltk_core
 #
-# Build and install EstNLTK
+# Build and install EstNLTK-core
 #
-WORKDIR /estnltk_devel
-RUN python setup.py build_ext install
+RUN python setup.py install
 #
-# Run estnltk's tests
+# Run estnltk-core's tests
 #
 WORKDIR /
 RUN conda list estnltk
+RUN pytest --pyargs estnltk_core.tests
+
+# ================================
+#   Estnltk (default package)
+# ================================
+RUN echo " EstNLTK " | figlet 
+WORKDIR /estnltk_devel/estnltk
+
+#
+# Build and install EstNLTK
+#
+RUN python setup.py build_ext install
+WORKDIR /
+RUN conda list estnltk
+
+#
+# Download syntax resources (optional)
+#
+RUN python -c "import estnltk; estnltk.download('udpipetagger')"
+RUN python -c "import estnltk; estnltk.download('maltparsertagger')"
+
+#
+# Enable testing of EstNLTK's downloader (optional)
+#
+#ENV TEST_ESTNLTK_DOWNLOADER=1
+
+#
+# Run estnltk's tests
+#
 RUN pytest --pyargs estnltk.vabamorf
 RUN pytest --pyargs estnltk.tests
+
+#
+# Clean-up: Delete downloaded the resources
+#
+#RUN python -c "from estnltk.resource_utils import delete_all_resources; delete_all_resources()"
+
+#
+# Clean-up: Delete installed package
+#
+#SHELL ["/bin/bash", "-c"]
+#WORKDIR /estnltk_devel/estnltk
+#RUN rm -r estnltk.egg-info
+#RUN rm -r build
+#RUN rm -r dist
+#WORKDIR /
+# Remove the environment
+#RUN conda remove --name py39 --all
 
 #ENTRYPOINT ["/bin/bash"]
