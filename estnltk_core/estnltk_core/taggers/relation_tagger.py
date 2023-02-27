@@ -160,7 +160,6 @@ class RelationTagger(Tagger, metaclass=RelationTaggerChecker):
         assert layer.attributes == self.output_attributes,\
             '{}._make_layer returned layer with unexpected attributes: {} != {}'.format(
                     self.__class__.__name__, layer.attributes, self.output_attributes)
-        assert isinstance(layer, RelationLayer), self.__class__.__name__ + '._make_layer must return Layer'
         assert layer.name == self.output_layer,\
             '{}._make_layer returned a layer with incorrect name: {} != {}'.format(
                     self.__class__.__name__, layer.name, self.output_layer)
