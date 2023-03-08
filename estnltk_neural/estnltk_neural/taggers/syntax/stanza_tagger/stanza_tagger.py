@@ -165,6 +165,7 @@ class StanzaSyntaxTagger(Tagger):
                     'StanzaSyntaxTagger under the subdirectory `stanza_resources/et`')
 
         if self.input_type == 'sentences':
+            # Stanza default pipeline on EstNLTK's pretagged tokens/sentences
             self.input_layers = [sentences_layer, words_layer]
             self.nlp = stanza.Pipeline(lang='et', processors='tokenize,pos,lemma,depparse',
                                        dir=self.dir,
@@ -199,17 +200,15 @@ class StanzaSyntaxTagger(Tagger):
         from stanza.models.common.doc import Document
 
         if self.input_type in ['morph_analysis', 'morph_extended']:
-
-            sentences_layer = layers[self.input_layers[0]]
-            data = []
-
-            for sentence in sentences_layer:
-                sentence_analysis = []
-
-                if self.use_gpu:
-                    # Check that sentence is not too long (for CUDA memory)
-                    if self.gpu_max_words_in_sentence is not None and \
-                        len(sentence) > self.gpu_max_words_in_sentence:
+            # Input: EstNLTK's tokenization and morphological features
+            sentences = self.input_layers[0]
+            morph_analysis = self.input_layers[1]
+            text_data = prepare_input_doc(layers, sentences, morph_analysis, 
+                                          random_picker=self._random)
+            if self.use_gpu and self.gpu_max_words_in_sentence is not None:
+                # Using GPU: Check that sentences are not too long (for CUDA memory)
+                for sentence in text_data:
+                    if len(sentence) > self.gpu_max_words_in_sentence:
                         raise Exception( ('(!) Encountered a sentence which length ({}) exceeds '+\
                                           'gpu_max_words_in_sentence ({}). Are you sure GPU '+\
                                           'has enough memory for processing this long sentence? '+\
@@ -218,37 +217,11 @@ class StanzaSyntaxTagger(Tagger):
                                           'gpu_max_words_in_sentence=None to this tagger '+\
                                           'to disable this exception.').format(len(sentence), \
                                           self.gpu_max_words_in_sentence) )
-                    
-                # TODO Replace sentence.__getattr__ with appropriate code
-                for i, span in enumerate(sentence.__getattr__(self.input_layers[1])):
-                    annotation = self._random.choice(span.annotations)
-                    id = i + 1
-                    wordform = span.text
-                    lemma = annotation['lemma']
-
-                    feats = ''
-
-                    if annotation['form']:
-                        feats = annotation['form']
-
-                    if not feats:
-                        feats = '_'
-
-                    else:
-                        # Make and join keyed features.
-                        feats = '|'.join([a + '=' + a for a in feats.strip().split(' ') if a])
-                    xpos = annotation['partofspeech']  # xpos and upos have the same value
-                    dict = {'id': id, 'text': wordform, 'lemma': lemma, 'feats': feats, 'upos': xpos, 'xpos': xpos}
-                    sentence_analysis.append(dict)
-
-                data.append(sentence_analysis)
-
-            document = Document(data)
-
-        # Stanza pipeline on pretagged tokens/sentences.
+            document = Document(text_data)
         else:
-            sentences_layer = layers[self.input_layers[0]]
-            document = [sentence.text for sentence in sentences_layer]
+            # Input: EstNLTK's tokenization only
+            sentences = self.input_layers[0]
+            document = prepare_input_doc(layers, sentences, None, only_tokenization=True)
 
         parent_layer = layers[self.input_layers[1]]
 
@@ -288,6 +261,68 @@ class StanzaSyntaxTagger(Tagger):
             self.agreement_error_retagger.change_layer(text, {self.output_layer: layer})
 
         return layer
+
+
+def prepare_input_doc(layers, sentences, morph_analysis, only_tokenization=False, 
+                      random_picker=None):
+    '''
+    Prepares input document for StanzaSyntaxTagger. Based on given sentences and 
+    morph_analysis layers, constructs a list of sentences, where each sentence 
+    consists of list of word dictionaries, each of which defines conllu fields
+    {'id', 'lemma', 'upostag', ..., 'deps'} for a word.
+    
+    (By default) Returns list of lists of dicts, which can be given as an input 
+    to stanza.models.common.doc.Document.
+    
+    If only_tokenization==True, then collects only sentence/word tokenization 
+    and discards words' morphological features (conllu dictionaries). In that 
+    case, returns list of lists of strings, which can be given as an input to 
+    stanza.models.common.doc.Document.
+    '''
+    if random_picker is None and not only_tokenization:
+        random_picker = Random()
+    assert isinstance(layers, dict)
+    assert sentences in layers.keys(), '(!) Missing {!r} layer'.format(sentences)
+    assert only_tokenization or \
+        morph_analysis in layers.keys(), '(!) Missing {!r} layer'.format(morph_analysis)
+    data = []
+    global_word_id = 0
+    for sentence in layers[sentences]:
+        sentence_analyses = []
+        if only_tokenization:
+            # Collect only sentence tokenization
+            sentence_analyses = sentence.text
+        else:
+            # Collect sentence tokenization & morph features
+            for wid, word_base_span in enumerate(sentence.base_span):
+                # Get morph analysis of the word
+                morph_word = layers[morph_analysis][global_word_id]
+                assert word_base_span == morph_word.base_span
+                # Pick an annotation randomly
+                annotation = random_picker.choice(morph_word.annotations)
+                feats = ''
+                if annotation['form']:
+                    feats = annotation['form']
+                if not feats:
+                    feats = '_'
+                else:
+                    # Make and join keyed features.
+                    feats = '|'.join([a + '=' + a for a in feats.strip().split(' ') if a])
+                # Construct conllu fields for the word
+                word_conllu = {
+                    'id': wid+1,
+                    'text': morph_word.text,
+                    'lemma': annotation['lemma'],
+                    'upos': annotation['partofspeech'],
+                    'xpos': annotation['partofspeech'],
+                    'feats': feats,
+                    'misc': '_',
+                    'deps': '_',
+                }
+                sentence_analyses.append( word_conllu )
+                global_word_id += 1
+        data.append(sentence_analyses)
+    return data
 
 
 def feats_to_ordereddict(feats_str):

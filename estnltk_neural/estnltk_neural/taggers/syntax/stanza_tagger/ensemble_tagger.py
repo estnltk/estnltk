@@ -173,8 +173,8 @@ class StanzaSyntaxEnsembleTagger(Tagger):
         sents_lases_table = defaultdict(dict)
         parsed_texts = defaultdict()
 
-        text_data = pretagged_document(text, sentences_layer, morph_layer, remove_fields=self.remove_fields,
-                                       replace_fields=self.replace_fields, random_picker=self._random1)
+        text_data = prepare_input_doc(layers, sentences_layer, morph_layer, remove_fields=self.remove_fields,
+                                      replace_fields=self.replace_fields, random_picker=self._random1)
 
         if self.use_gpu and self.gpu_max_words_in_sentence is not None:
             # Check that sentences are not too long (for CUDA memory)
@@ -201,7 +201,7 @@ class StanzaSyntaxEnsembleTagger(Tagger):
 
         final_table = defaultdict(dict)  # Scores by sentence indices.
 
-        for idx in range(len(text[sentences_layer])):
+        for idx in range(len(layers[sentences_layer])):
             for model, scores in sents_lases_table.items():
                 if model not in final_table:
                     final_table[idx][model] = {}
@@ -304,30 +304,51 @@ def text_sentence_LAS(sents1, sents2):
     return file_sentence_lases
 
 
-def pretagged_document(text, sentences, morph, remove_fields, replace_fields, random_picker=None):
+def prepare_input_doc(layers: dict, sentences: str, morph_analysis: str, remove_fields: list, 
+                      replace_fields: Tuple[list, str], random_picker:Random=None):
+    '''
+    Prepares input document for StanzaSyntaxEnsembleTagger. Based on given 
+    sentences and morph_analysis layers, constructs a list of sentences, where 
+    each sentence consists of list of word dictionaries, each of which defines 
+    conllu fields {'id', 'lemma', 'upostag', ..., 'deps'} for a word.
+    
+    If remove_fields is defined, replaces all values of given conllu fields 
+    with '_'.
+    If replace_fields is defined (Tuple[list, str]), the replaces values of 
+    all listed conllu fields (replace_fields[0]) with given string 
+    (replace_fields[1]). 
+    
+    Returns list of lists of dicts, which can be given as an input 
+    to stanza.models.common.doc.Document.
+    '''
     if random_picker is None:
         random_picker = Random()
-    data = list()
-    for sentence in text[sentences]:
-        pretagged_sent = list()
-        id = 0
-        for word in sentence:
-            id += 1
-
-            annotation = random_picker.choice(text[morph].get(word).annotations)
-
+    assert isinstance(layers, dict)
+    assert sentences in layers.keys(), '(!) Missing {!r} layer'.format(sentences)
+    assert morph_analysis in layers.keys(), '(!) Missing {!r} layer'.format(morph_analysis)
+    data = []
+    global_word_id = 0
+    for sentence in layers[sentences]:
+        sentence_analyses = []
+        # Collect sentence tokenization & morph features
+        for wid, word_base_span in enumerate(sentence.base_span):
+            # Get morph analysis of the word
+            morph_word = layers[morph_analysis][global_word_id]
+            assert word_base_span == morph_word.base_span
+            # Pick an annotation randomly
+            annotation = random_picker.choice(morph_word.annotations)
             feats = ''
             if annotation['form']:
                 feats = annotation['form']
-            # feats = attributes_to_feats(feats, annotation)
             if not feats:
                 feats = '_'
             else:
                 # Make and join keyed features.
                 feats = '|'.join([a + '=' + a for a in feats.strip().split(' ') if a])
-            word_feats = {
-                'id': id,
-                'text': word.text,
+            # Construct conllu fields for the word
+            word_conllu = {
+                'id': wid+1,
+                'text': morph_word.text,
                 'lemma': annotation['lemma'],
                 'upos': annotation['partofspeech'],
                 'xpos': annotation['partofspeech'],
@@ -335,16 +356,14 @@ def pretagged_document(text, sentences, morph, remove_fields, replace_fields, ra
                 'misc': '_',
                 'deps': '_',
             }
-
+            # Replace or remove specific fields
             if remove_fields is not None:
                 for field in remove_fields:
-                    word_feats[field] = '_'
-
+                    word_conllu[field] = '_'
             if replace_fields is not None:
                 for field in replace_fields[0]:
-                    word_feats[field] = replace_fields[1]
-
-            pretagged_sent.append(word_feats)
-        data.append(pretagged_sent)  # pretagged file by sentences for creating Document-obj
-
+                    word_conllu[field] = replace_fields[1]
+            sentence_analyses.append( word_conllu )
+            global_word_id += 1
+        data.append(sentence_analyses)
     return data

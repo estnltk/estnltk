@@ -355,3 +355,25 @@ def test_stanza_ambiguous():
         text.pop_layer('stanza_me')
     
     assert not any([True if len(set(ambiguous)) > 1 else False for ambiguous in ambiguous_upostags])
+
+
+@unittest.skipIf(STANZA_SYNTAX_MODELS_PATH is None,
+                 reason=skip_message_missing_models)
+def test_stanza_syntax_tagger_on_detached_layers():
+    # Test that StanzaSyntaxTagger works on detached_layers
+    text = Text('Väike jänes jooksis metsa! Mina ei jookse.')
+    text.tag_layer(['sentences', 'morph_analysis'])
+    # detach layers from Text obj
+    detached_layers = {}
+    for layer in ['morph_analysis', 'sentences', 'words', 'compound_tokens', 'tokens']:
+        detached_layers[layer] = text.pop_layer(layer)
+    assert len(text.layers) == 0
+    stanza_tagger_ma = StanzaSyntaxTagger(output_layer='stanza_ma', input_type='morph_analysis',
+                                          random_pick_seed=4,
+                                          resources_path=STANZA_SYNTAX_MODELS_PATH)
+    # Tag with detached layers
+    stanza_ma_layer = stanza_tagger_ma.make_layer(text, detached_layers)
+
+    # stanza pipeline (on tokenized unambigous input)
+    assert stanza_dict_morph_analysis == layer_to_dict(stanza_ma_layer), stanza_ma_layer.diff(
+        dict_to_layer(stanza_dict_morph_analysis))
