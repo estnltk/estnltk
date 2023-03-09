@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-from setuptools import setup, find_packages
+from setuptools import setup
+from setuptools import find_namespace_packages
 
 import os, os.path, re
 
@@ -19,7 +20,7 @@ def get_version():
 setup(
     name="estnltk_neural",
     version=get_version(),
-    packages=find_packages(),
+    packages=find_namespace_packages(),
     author="University of Tartu",
     author_email="siim.orasmaa@gmail.com, alex.tk.fb@gmail.com, tpetmanson@gmail.com, swen@math.ut.ee",
     description="EstNLTK neural -- EstNLTK's linguistic analysis based on neural models",

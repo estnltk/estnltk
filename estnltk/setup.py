@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-from setuptools import setup, find_packages, Extension
+from setuptools import setup, Extension
+from setuptools import find_namespace_packages
 import os, os.path, re
 import sys
 
@@ -60,9 +61,14 @@ swig_opts.append('-c++')
 
 # Check command line args: are we making a source distribution?
 is_source_dist = 'sdist' in sys.argv
-# If we are making a source distribution, then include "preinstall";
-# otherwise: exclude it.
-exclude_package_dirs=["preinstall"] if not is_source_dist else []
+
+exclude_package_dirs = ["scribbles*", "venv*"]
+# If we are making a source distribution, then include "preinstall",
+# "src" and "include"; otherwise: exclude them.
+if not is_source_dist:
+    exclude_package_dirs.append("preinstall*")
+    exclude_package_dirs.append("src*")
+    exclude_package_dirs.append("include*")
 
 # Create necessary cached files
 from preinstall import create_caches
@@ -72,8 +78,7 @@ create_caches()
 setup(
     name="estnltk",
     version=get_version(),
-
-    packages=find_packages(exclude=exclude_package_dirs),
+    packages=find_namespace_packages(exclude=exclude_package_dirs),
     # the list of package data used by "build", "bdist" and "install"
     include_package_data=True,
     package_data={
@@ -113,8 +118,7 @@ setup(
                                   'attribute_visualiser/*.js', 
                                   'span_visualiser/*.css', 
                                   'span_visualiser/*.js']
-    },
-
+    },    
     author="University of Tartu",
     author_email="siim.orasmaa@gmail.com, alex.tk.fb@gmail.com, tpetmanson@gmail.com, swen@math.ut.ee",
     description="Estnltk — open source tools for Estonian natural language processing",
