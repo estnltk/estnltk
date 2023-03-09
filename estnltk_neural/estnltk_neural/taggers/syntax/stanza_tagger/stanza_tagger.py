@@ -10,6 +10,9 @@ from estnltk.taggers import Tagger
 from estnltk.converters.serialisation_modules import syntax_v0
 from estnltk.downloader import get_resource_paths
 
+from estnltk_neural.taggers.syntax.stanza_tagger.common_utils import prepare_input_doc
+from estnltk_neural.taggers.syntax.stanza_tagger.common_utils import feats_to_ordereddict
+
 
 class StanzaSyntaxTagger(Tagger):
     """
@@ -262,78 +265,3 @@ class StanzaSyntaxTagger(Tagger):
 
         return layer
 
-
-def prepare_input_doc(layers, sentences, morph_analysis, only_tokenization=False, 
-                      random_picker=None):
-    '''
-    Prepares input document for StanzaSyntaxTagger. Based on given sentences and 
-    morph_analysis layers, constructs a list of sentences, where each sentence 
-    consists of list of word dictionaries, each of which defines conllu fields
-    {'id', 'lemma', 'upostag', ..., 'deps'} for a word.
-    
-    (By default) Returns list of lists of dicts, which can be given as an input 
-    to stanza.models.common.doc.Document.
-    
-    If only_tokenization==True, then collects only sentence/word tokenization 
-    and discards words' morphological features (conllu dictionaries). In that 
-    case, returns list of lists of strings, which can be given as an input to 
-    stanza.models.common.doc.Document.
-    '''
-    if random_picker is None and not only_tokenization:
-        random_picker = Random()
-    assert isinstance(layers, dict)
-    assert sentences in layers.keys(), '(!) Missing {!r} layer'.format(sentences)
-    assert only_tokenization or \
-        morph_analysis in layers.keys(), '(!) Missing {!r} layer'.format(morph_analysis)
-    data = []
-    global_word_id = 0
-    for sentence in layers[sentences]:
-        sentence_analyses = []
-        if only_tokenization:
-            # Collect only sentence tokenization
-            sentence_analyses = sentence.text
-        else:
-            # Collect sentence tokenization & morph features
-            for wid, word_base_span in enumerate(sentence.base_span):
-                # Get morph analysis of the word
-                morph_word = layers[morph_analysis][global_word_id]
-                assert word_base_span == morph_word.base_span
-                # Pick an annotation randomly
-                annotation = random_picker.choice(morph_word.annotations)
-                feats = ''
-                if annotation['form']:
-                    feats = annotation['form']
-                if not feats:
-                    feats = '_'
-                else:
-                    # Make and join keyed features.
-                    feats = '|'.join([a + '=' + a for a in feats.strip().split(' ') if a])
-                # Construct conllu fields for the word
-                word_conllu = {
-                    'id': wid+1,
-                    'text': morph_word.text,
-                    'lemma': annotation['lemma'],
-                    'upos': annotation['partofspeech'],
-                    'xpos': annotation['partofspeech'],
-                    'feats': feats,
-                    'misc': '_',
-                    'deps': '_',
-                }
-                sentence_analyses.append( word_conllu )
-                global_word_id += 1
-        data.append(sentence_analyses)
-    return data
-
-
-def feats_to_ordereddict(feats_str):
-    """
-    Converts feats string to OrderedDict (as in MaltParserTagger and UDPipeTagger)
-    """
-    feats = OrderedDict()
-    if feats_str == '_':
-        return feats
-    feature_pairs = feats_str.split('|')
-    for feature_pair in feature_pairs:
-        key, value = feature_pair.split('=')
-        feats[key] = value
-    return feats

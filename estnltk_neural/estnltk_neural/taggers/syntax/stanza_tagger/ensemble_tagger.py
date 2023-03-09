@@ -5,7 +5,6 @@ from random import Random
 from typing import Tuple
 
 from estnltk import Layer
-from estnltk_neural.taggers.syntax.stanza_tagger.stanza_tagger import feats_to_ordereddict
 from estnltk.taggers.standard.syntax.syntax_dependency_retagger import SyntaxDependencyRetagger
 from estnltk.taggers.standard.syntax.ud_validation.deprel_agreement_retagger import DeprelAgreementRetagger
 from estnltk.taggers.standard.syntax.ud_validation.ud_validation_retagger import UDValidationRetagger
@@ -14,6 +13,8 @@ from estnltk.downloader import get_resource_paths
 
 from estnltk.converters.serialisation_modules import syntax_v0
 
+from estnltk_neural.taggers.syntax.stanza_tagger.common_utils import prepare_input_doc
+from estnltk_neural.taggers.syntax.stanza_tagger.common_utils import feats_to_ordereddict
 
 class StanzaSyntaxEnsembleTagger(Tagger):
     """
@@ -303,67 +304,3 @@ def text_sentence_LAS(sents1, sents2):
         file_sentence_lases.append(las)
     return file_sentence_lases
 
-
-def prepare_input_doc(layers: dict, sentences: str, morph_analysis: str, remove_fields: list, 
-                      replace_fields: Tuple[list, str], random_picker:Random=None):
-    '''
-    Prepares input document for StanzaSyntaxEnsembleTagger. Based on given 
-    sentences and morph_analysis layers, constructs a list of sentences, where 
-    each sentence consists of list of word dictionaries, each of which defines 
-    conllu fields {'id', 'lemma', 'upostag', ..., 'deps'} for a word.
-    
-    If remove_fields is defined, replaces all values of given conllu fields 
-    with '_'.
-    If replace_fields is defined (Tuple[list, str]), the replaces values of 
-    all listed conllu fields (replace_fields[0]) with given string 
-    (replace_fields[1]). 
-    
-    Returns list of lists of dicts, which can be given as an input 
-    to stanza.models.common.doc.Document.
-    '''
-    if random_picker is None:
-        random_picker = Random()
-    assert isinstance(layers, dict)
-    assert sentences in layers.keys(), '(!) Missing {!r} layer'.format(sentences)
-    assert morph_analysis in layers.keys(), '(!) Missing {!r} layer'.format(morph_analysis)
-    data = []
-    global_word_id = 0
-    for sentence in layers[sentences]:
-        sentence_analyses = []
-        # Collect sentence tokenization & morph features
-        for wid, word_base_span in enumerate(sentence.base_span):
-            # Get morph analysis of the word
-            morph_word = layers[morph_analysis][global_word_id]
-            assert word_base_span == morph_word.base_span
-            # Pick an annotation randomly
-            annotation = random_picker.choice(morph_word.annotations)
-            feats = ''
-            if annotation['form']:
-                feats = annotation['form']
-            if not feats:
-                feats = '_'
-            else:
-                # Make and join keyed features.
-                feats = '|'.join([a + '=' + a for a in feats.strip().split(' ') if a])
-            # Construct conllu fields for the word
-            word_conllu = {
-                'id': wid+1,
-                'text': morph_word.text,
-                'lemma': annotation['lemma'],
-                'upos': annotation['partofspeech'],
-                'xpos': annotation['partofspeech'],
-                'feats': feats,
-                'misc': '_',
-                'deps': '_',
-            }
-            # Replace or remove specific fields
-            if remove_fields is not None:
-                for field in remove_fields:
-                    word_conllu[field] = '_'
-            if replace_fields is not None:
-                for field in replace_fields[0]:
-                    word_conllu[field] = replace_fields[1]
-            sentence_analyses.append( word_conllu )
-            global_word_id += 1
-        data.append(sentence_analyses)
-    return data
