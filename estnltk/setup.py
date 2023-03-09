@@ -131,41 +131,23 @@ setup(
     # we have fixed dependency versions to guarantee, what works
     # however, you can probably safely install newer versions of the dependencies
     install_requires=[
-        'estnltk-core',                           # EstNLTK's basic datastructures and conversion methods
-        'nltk>=3.4.1 ; python_version >= "3.6"',  # NLTK mainly required for tokenization
+        'estnltk-core >= 1.7.1',   # EstNLTK's basic datastructures and conversion methods
+        'nltk>=3.4.1',             # NLTK mainly required for tokenization
         'regex>=2015.07.19',       # improved Python regular expressions
         'python-crfsuite>=0.8.3',  # Conditional random fields library
         'cached-property>=1.2.0',  # Simple property for caching results
-        'bs4',           # BeautifulSoup: for processing XML files of the Estonian Reference Corpus
-        'html5lib',      # for processing XML files of the Estonian Reference Corpus
-        'lxml',          # required for importing/exporting TCF format data
-        'networkx ; python_version >  "3.7"',        # building graphs: required for layers, WordNet and grammars (> py37)
-        'networkx<=2.6.3 ; python_version == "3.7"', # building graphs: required for layers, WordNet and grammars (= py37)
-        'networkx==2.5 ;   python_version == "3.6"', # building graphs: required for layers, WordNet and grammars (= py36)
-        'matplotlib ; python_version >  "3.7"',        # required for visualizing layer graph (> py37)
-        'matplotlib<=3.5.3 ; python_version == "3.7"', # required for visualizing layer graph (= py37)
-        'matplotlib==3.3.4 ; python_version == "3.6"', # required for visualizing layer graph (= py36)
-        'requests',   # required for TextA export and WebTagger
-        'tqdm',       # progressbar: for showing progress on time-hungry operations
-        'ipython ; python_version >  "3.7"',         # required for integration with Jupyter Notebook-s (> py37)
-        'ipython<=7.32.0 ; python_version == "3.7"', # required for integration with Jupyter Notebook-s (= py37)
-        'ipython< 7.17.0 ; python_version == "3.6"', # required for integration with Jupyter Notebook-s (= py36)
-        'conllu',                                    # CONLLU for syntax
-        'pandas',                                    # Panel Data Analysis library for Python (exact version fixed in estnltk_core)
-        'pyahocorasick',                             # Fast multi-pattern string search 
+        'bs4',                     # BeautifulSoup: for processing XML files of the Estonian Reference Corpus
+        'html5lib',                # for processing XML files of the Estonian Reference Corpus
+        'lxml',                    # required for importing/exporting TCF format data
+        'networkx',                # building graphs: required for layers, WordNet and grammars
+        'matplotlib',              # required for visualizing layer graph
+        'requests',                # required for TextA export and WebTagger
+        'tqdm',                    # progressbar: for showing progress on time-hungry operations
+        'ipython',                 # required for integration with Jupyter Notebook-s
+        'conllu',                  # CONLLU for syntax
+        'pandas',                  # Panel Data Analysis library for Python
+        'pyahocorasick',           # Fast multi-pattern string search 
     ],
-    #
-    #  Note: if you need to build and install for Python 3.5, you need 
-    #  the following fixed package versions:
-    #     parso==0.7.0 
-    #     matplotlib==3.0.3 
-    #     pandas==0.25.3 
-    #     regex==2018.08.29 
-    #     networkx==2.4 
-    #     ipython==7.9.0
-    #     conllu==3.1.1
-    #  ( tested on Ubuntu 18.04 )
-    #
     classifiers=['Intended Audience :: Developers',
                  'Intended Audience :: Education',
                  'Intended Audience :: Science/Research',

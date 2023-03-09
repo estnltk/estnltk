@@ -34,9 +34,9 @@ setup(
     },
     url="https://github.com/estnltk/estnltk",
     install_requires=[
-        'estnltk-core',     # EstNLTK's basic data structures and conversion methods
-        'estnltk >= 1.7.0', # EstNLTK's NLP pipelines and database tools
-        'tensorflow',      
+        'estnltk-core >= 1.7.1', # EstNLTK's basic data structures and conversion methods
+        'estnltk >= 1.7.1',      # EstNLTK's NLP pipelines and database tools
+        'tensorflow',
         'torch',
         'transformers',
         'stanza',
