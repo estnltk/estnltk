@@ -1,8 +1,16 @@
 # -*- coding: utf-8 -*-
 from setuptools import setup, Extension
 from setuptools import find_namespace_packages
-import os, os.path, re
+import os, os.path
 import sys
+
+# Required for extraction of version info
+import re
+
+# Required for creating caches for number_analysis_rules
+from collections import defaultdict
+import pickle
+import csv
 
 # Get version number from __init__.py
 # Based on: 
@@ -25,7 +33,6 @@ os.environ['CXX'] = 'g++'
 def get_sources(src_dir='src', ending='.cpp'):
     """Function to get a list of files ending with `ending` in `src_dir`."""
     return [os.path.join(src_dir, fnm) for fnm in os.listdir(src_dir) if fnm.endswith(ending)]
-
 
 # define directories for vabamorf source directories
 dirs = ['etana', 'etyhh', 'fsc', 'json', 'proof', 'estnltk']
@@ -63,16 +70,76 @@ swig_opts.append('-c++')
 is_source_dist = 'sdist' in sys.argv
 
 exclude_package_dirs = ["scribbles*", "venv*"]
-# If we are making a source distribution, then include "preinstall",
+# If we are making a source distribution, then include 
 # "src" and "include"; otherwise: exclude them.
 if not is_source_dist:
-    exclude_package_dirs.append("preinstall*")
     exclude_package_dirs.append("src*")
     exclude_package_dirs.append("include*")
 
+#
 # Create necessary cached files
-from preinstall import create_caches
-create_caches()
+#
+# Note: this was done in a separate "preinstall" module previously, 
+# but now we have to do it here, inside setup.py, because the new 
+# build system defined in "pyproject.toml" currently does not allow 
+# to import local modules while building. 
+#
+def load_number_analysis_rules_csv( csv_file:str, encoding='utf-8' ):
+    '''Loads number analysis corrections from an input CSV file.
+       Works with the csv module, no pandas package dependency.
+    '''
+    rules = defaultdict(dict)
+    with open(csv_file, 'r', newline='', encoding=encoding) as csvfile_in:
+        fle_reader = csv.reader(csvfile_in, delimiter=',')
+        header = next(fle_reader)
+        # Collect and validate header
+        missing = []
+        for attr in ('number','suffix','pos','form','ending'):
+            if attr not in header:
+                missing.append(attr)
+        assert not missing, \
+            '(!) CSV file header misses the following key(s): '+str(missing)
+        # Collect and aggregate analyses
+        for row in fle_reader:
+            assert len(row) == len(header), \
+                   '(!) Unexpected number of elements in a row: {!r}'.format(row)
+            r = {}
+            for kid, key in enumerate(header):
+                r[key] = row[kid]
+            # Collect rule
+            if r['suffix'] not in rules[r['number']]:
+                rules[r['number']][r['suffix']] = []
+            rules[r['number']][r['suffix']].append( {'partofspeech': r['pos'], \
+                                                     'form': r['form'], \
+                                                     'ending':r['ending']} )
+    return rules
+
+
+def create_number_analysis_rules_cache( csv_file:str=None, force=False, verbose=False ):
+    '''Creates a pickled version of the number analysis corrections CSV file.
+       This cache file is used by PostMorphAnalysisTagger to speed up the 
+       processing. 
+       Note: the new pickled version is only created iff: 1) the pickle file 
+       does not exist, 2) the pickle file is outdated, or 3) force==True;
+    '''
+    if csv_file is None:
+        # Default path for NUMBER_ANALYSIS_RULES
+        csv_file = \
+            os.path.join(os.getcwd(),'estnltk','taggers','standard','morph_analysis',
+                                     'number_fixes','number_analysis_rules.csv')
+    if not os.path.exists(csv_file):
+        raise FileNotFoundError('(!) Missing number analysis corrections csv file: {!r}'.format(csv_file))
+    cache = csv_file + '.pickle'
+    if not os.path.exists(cache) or os.stat(cache).st_mtime < os.stat(csv_file).st_mtime or force==True:
+        rules = load_number_analysis_rules_csv( csv_file )
+        with open(cache, 'wb') as out_file:
+            pickle.dump(rules, out_file)
+        if verbose:
+            print('> cache file {!r} created.'.format(os.path.split(cache)[1]) )
+
+# create number_analysis_rules_cache for PostMorphAnalysisTagger
+if not is_source_dist:
+    create_number_analysis_rules_cache()
 
 
 setup(
