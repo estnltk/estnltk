@@ -38,8 +38,18 @@ dependencies = [
 ]
 dynamic = ["version"]
 
+[project.optional-dependencies]
+tests = [
+  "pytest",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["estnltk_core*"]
+namespaces = false
+
 [project.urls]
 homepage = "https://github.com/estnltk/estnltk"
 documentation = "https://github.com/estnltk/estnltk/tree/main/tutorials"
-repository = "https://github.com/estnltk/estnltk"
+repository = "https://github.com/estnltk/estnltk/tree/main/estnltk_core"
 changelog = "https://github.com/estnltk/estnltk/blob/main/CHANGELOG.md"
