@@ -4,6 +4,7 @@ from estnltk import Text
 from estnltk.taggers import TimexTagger
 
 from estnltk.taggers.standard.timexes.timex_tagger import TimexTagger
+from estnltk.taggers.standard.timexes.timex_phrases_tagger import TimexPhrasesTagger
 from estnltk.taggers.standard.timexes.core_timex_tagger import CoreTimexTagger
 from estnltk.taggers.standard.timexes.timex_tagger_preprocessing import make_adapted_cp_tagger
 
@@ -370,6 +371,57 @@ def test_timex_tagging_flat_output_layer():
             assert expected_vals == result_vals
     timexes_tagger.close()
 
+
+def test_smoke_timex_phrases_tagger():
+    # Test cut-down version of TimexTagger that extracts only phrases, no datetime semantics
+    timexes_phrases_tagger = TimexPhrasesTagger()
+    all_timex_attributes = ['text']+list(timexes_phrases_tagger.output_attributes)
+    test_data = [ {'text': 'Järgmisel kolmapäeval, kõige hiljemalt kell 18.00 algab viiepäevane koosolek, mida korraldatakse igal aastal.',\
+                   'expected_timexes': [ \
+                                 {'text': 'Järgmisel kolmapäeval', 'tid':'t1', 'type':'DATE', 'part_of_interval': None}, \
+                                 {'text': 'kell 18.00','tid':'t2', 'type':'TIME', 'part_of_interval': None},\
+                                 {'text': 'viiepäevane', 'tid':'t3', 'type':'DURATION', 'part_of_interval': None},\
+                                 {'text': 'igal aastal', 'tid':'t4', 'type':'SET', 'part_of_interval': None}, \
+                              ]  }, \
+                  # Timexes with implicit interval endpoints ('begin_point' & 'end_point'):
+                  {'text': 'Viimase viie aasta jooksul on tuulikute koguvõimsus kasvanud igal aastal ca 33 %.',\
+                   'expected_timexes': [ \
+                                 {'text': 'Viimase viie aasta jooksul', 'tid':'t1', 'type':'DURATION', 'part_of_interval': None}, \
+                                 {'text': 'igal aastal','tid':'t3', 'type':'SET', 'part_of_interval': None}, \
+                              ]
+                  },\
+                  # Timexes that require different tokenization than the standard pipeline provides
+                 {'text': 'Rahvusvaheline Festival Jazzkaar toimub 20.- 28. aprillini.',\
+                  'expected_timexes': [ \
+                                 {'text': '20.', 'tid':'t1', 'type':'DATE', 'part_of_interval': 't3'}, 
+                                 {'text': '28. aprillini', 'tid':'t2', 'type':'DATE', 'part_of_interval': 't3'}, 
+                              ]
+                  },\
+                 {'text': '24. detsembril kell 18 , 25. detsembril kell 10.30 , 26. ja 31. detsembril kell 17 ja 1. jaanuaril kell 10.30.',\
+                  'expected_timexes': [ \
+                                 {'text': '24. detsembril kell 18', 'tid':'t1', 'type':'TIME', 'part_of_interval': None}, 
+                                 {'text': '25. detsembril kell 10.30', 'tid':'t2', 'type':'TIME', 'part_of_interval': None}, 
+                                 #  Unfortunately, elliptic '26. (detsembril)' will be missed 
+                                 {'text': '31. detsembril kell 17', 'tid':'t3', 'type':'TIME', 'part_of_interval': None}, 
+                                 {'text': '1. jaanuaril kell 10.30', 'tid':'t4', 'type':'TIME', 'part_of_interval': None}, 
+                              ]
+                  },\
+    ]
+    for test_item in test_data:
+        # Prepare text
+        text = Text(test_item['text'])
+        timexes_phrases_tagger.tag( text )
+        # Compare attributes and values of all timexes
+        for timex_id, expected_timex in enumerate(test_item['expected_timexes']):
+            # Expected attributes & values
+            expected_attribs = [attr for attr in all_timex_attributes if attr in expected_timex]
+            expected_vals    = [expected_timex[attr] for attr in all_timex_attributes if attr in expected_timex]
+            # Obtained attributes & values
+            result_vals      = list(text['pre_timexes'][timex_id, expected_attribs])
+            #print(expected_vals, result_vals)
+            # Make assertions
+            assert expected_vals == result_vals
+    timexes_phrases_tagger.close()
 
 
 def test_core_timex_tagger_context_tear_down():
