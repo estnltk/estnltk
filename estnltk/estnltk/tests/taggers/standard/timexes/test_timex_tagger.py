@@ -282,6 +282,15 @@ def test_timex_tagging_4_additional_rules():
                    'dct':'1999-11-24',\
                    'expected_timexes': []
                   },\
+                  # Fix: don't allow too long number phrases (which can break org.joda.time integer limits)
+                  {'text': 'Taas toob M.R faktidele toetudes esile teooria , et eelmine tsivilisatsioon hävis 14 000 12 000 aastat tagasi maatelje '+\
+                           'nihke tõttu ning suur veeuputus ja Noa laev pole väljamõeldised .',\
+                   'dct':'1999-11-24',\
+                   'expected_timexes': [
+                       # This is wrongly computed date, but ignore it for the time being
+                       {'text':'aastat tagasi', 'tid':'t1', 'type':'DATE', 'value':'1998', 'temporal_function':True , 'anchor_time_id':'t0' }
+                   ]
+                  },\
                   
                 ]
     # TimexTagger with flat output layer (default settings)
