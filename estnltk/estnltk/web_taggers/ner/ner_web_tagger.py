@@ -37,7 +37,9 @@ class NerWebTagger(MultiLayerTagger):
         if custom_words_layer is None:
             self.output_layers.append(words_output_layer)
             self.output_layers_to_attributes[output_layers[1]] = []
-        self.input_layers = []
+            self.input_layers = []
+        else:
+            self.input_layers = [custom_words_layer]
         self.custom_words_layer = custom_words_layer
 
     def create_word_ner_layer(self, text, response):
