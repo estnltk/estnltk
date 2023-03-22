@@ -88,16 +88,16 @@ class MultiLayerTagger(metaclass=MultiLayerTaggerChecker):
 
         assert isinstance(layers, MutableMapping), '{}._make_layers did not return a dict object, but {!r}'.format(
             self.__class__.__name__, type(layers))
-        for layer in layers:
+        for layer in layers.values():
             assert layer.text_object is text, '{}._make_layers returned a layer with incorrect Text object'.format(
                 self.__class__.__name__)
-        for layer in layers:
-            assert layer.attributes == self.output_attributes[layer], \
+        for layername, layer in layers.items():
+            assert layer.attributes == tuple(self.output_layers_to_attributes[layername]), \
                 '{}._make_layer returned layer with unexpected attributes: {} != {}'.format(
-                    self.__class__.__name__, layer.attributes, self.output_attributes[layer])
-        for layer in layers:
+                    self.__class__.__name__, layer.attributes, tuple(self.output_layers_to_attributes[layername]))
+        for layer in layers.values():
             assert isinstance(layer, Layer), self.__class__.__name__ + '._make_layer must return Layer'
-        for layer in layers:
+        for layer in layers.values():
             assert layer.name in self.output_layers, \
                 '{}._make_layer returned a layer with incorrect name: {} != {}'.format(
                     self.__class__.__name__, layer.name, self.output_layers)
