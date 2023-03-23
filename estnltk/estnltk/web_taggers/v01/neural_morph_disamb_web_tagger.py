@@ -5,7 +5,7 @@ from estnltk import Layer
 from estnltk import Retagger
 from estnltk.web_taggers import BatchProcessingWebTagger
 
-class NeuralMoprhDisambWebTagger( BatchProcessingWebTagger, Retagger ):
+class NeuralMorphDisambWebTagger( BatchProcessingWebTagger, Retagger ):
     """
     Tags neural morph disambiguation using EstNLTK NeuralMorphTagger's webservice. 
     Uses softmax emb_cat_sum model.

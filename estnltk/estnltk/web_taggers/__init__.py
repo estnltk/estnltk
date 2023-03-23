@@ -1,6 +1,6 @@
 from estnltk.web_taggers.v01.web_tagger import WebTagger
 from estnltk.web_taggers.v01.batch_processing_web_tagger import BatchProcessingWebTagger
-from estnltk.web_taggers.v01.neural_morph_disamb_web_tagger import NeuralMoprhDisambWebTagger
+from estnltk.web_taggers.v01.neural_morph_disamb_web_tagger import NeuralMorphDisambWebTagger
 from estnltk.web_taggers.v01.vabamorf_web_tagger import VabamorfWebTagger
 from estnltk.web_taggers.v01.bert_embeddings_web_tagger import BertEmbeddingsWebTagger
 from estnltk.web_taggers.v01.stanza_syntax_web_tagger import StanzaSyntaxWebTagger
