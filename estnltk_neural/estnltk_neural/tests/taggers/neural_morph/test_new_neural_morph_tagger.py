@@ -4,6 +4,7 @@ from unittest import TestCase
 
 from estnltk import Text
 from estnltk.downloader import get_resource_paths
+from estnltk.converters import layer_to_dict
 
 from estnltk_neural.common import neural_abs_path
 from estnltk_neural.taggers.neural_morph.new_neural_morph.vabamorf_2_neural import neural_model_tags
@@ -132,10 +133,10 @@ class TestNeuralModel(TestCase):
                     correct_count += 1
                     
         self.assertTrue(correct_count/word_count >= 0.97)
-                    
+
 
 @unittest.skipIf(tagger is None, skip_reason)
-class TestNeuralTagger(TestCase):  
+class TestNeuralTagger(TestCase):
     def test(self):
         sentences = get_test_sentences(neural_abs_path("tests/taggers/neural_morph/neural_test_sentences.txt"))
         word_count = 0
@@ -153,3 +154,124 @@ class TestNeuralTagger(TestCase):
                     correct_count += 1
                     
         self.assertTrue(correct_count/word_count >= 0.97)
+
+
+@unittest.skipIf(tagger is None or model_module is None or model_dir is None, skip_reason)
+class TestNeuralRetagger(TestCase):
+
+    def test(self):
+        # Smoke test that NeuralMorphTagger can also be used as a Retagger
+        tagger.reset()
+        retagger = NeuralMorphTagger(output_layer='morph_analysis', 
+                                     model_module=model_module, 
+                                     model_dir=model_dir)
+        text = Text('Nad on läinud. Aga kadunud poeg on tagasi.').tag_layer('morph_analysis')
+        retagger.retag(text)
+
+        expected_morph_layer_dict = \
+            {'ambiguous': True,
+             'attributes': ('normalized_text',
+                            'lemma',
+                            'root',
+                            'root_tokens',
+                            'ending',
+                            'clitic',
+                            'form',
+                            'partofspeech'),
+             'enveloping': None,
+             'meta': {},
+             'name': 'morph_analysis',
+             'parent': 'words',
+             'secondary_attributes': (),
+             'serialisation_module': None,
+             'spans': [{'annotations': [{'clitic': '',
+                                         'ending': 'd',
+                                         'form': 'pl n',
+                                         'lemma': 'tema',
+                                         'normalized_text': 'Nad',
+                                         'partofspeech': 'P',
+                                         'root': 'tema',
+                                         'root_tokens': ['tema']}],
+                        'base_span': (0, 3)},
+                       {'annotations': [{'clitic': '',
+                                         'ending': '0',
+                                         'form': 'vad',
+                                         'lemma': 'olema',
+                                         'normalized_text': 'on',
+                                         'partofspeech': 'V',
+                                         'root': 'ole',
+                                         'root_tokens': ['ole']}],
+                        'base_span': (4, 6)},
+                       {'annotations': [{'clitic': '',
+                                         'ending': 'nud',
+                                         'form': 'nud',
+                                         'lemma': 'minema',
+                                         'normalized_text': 'läinud',
+                                         'partofspeech': 'V',
+                                         'root': 'mine',
+                                         'root_tokens': ['mine']}],
+                        'base_span': (7, 13)},
+                       {'annotations': [{'clitic': '',
+                                         'ending': '',
+                                         'form': '',
+                                         'lemma': '.',
+                                         'normalized_text': '.',
+                                         'partofspeech': 'Z',
+                                         'root': '.',
+                                         'root_tokens': ['.']}],
+                        'base_span': (13, 14)},
+                       {'annotations': [{'clitic': '',
+                                         'ending': '0',
+                                         'form': '',
+                                         'lemma': 'aga',
+                                         'normalized_text': 'Aga',
+                                         'partofspeech': 'J',
+                                         'root': 'aga',
+                                         'root_tokens': ['aga']}],
+                        'base_span': (15, 18)},
+                       {'annotations': [{'clitic': '',
+                                         'ending': '0',
+                                         'form': '',
+                                         'lemma': 'kadunud',
+                                         'normalized_text': 'kadunud',
+                                         'partofspeech': 'A',
+                                         'root': 'kadunud',
+                                         'root_tokens': ['kadunud']}],
+                        'base_span': (19, 26)},
+                       {'annotations': [{'clitic': '',
+                                         'ending': '0',
+                                         'form': 'sg n',
+                                         'lemma': 'poeg',
+                                         'normalized_text': 'poeg',
+                                         'partofspeech': 'S',
+                                         'root': 'poeg',
+                                         'root_tokens': ['poeg']}],
+                        'base_span': (27, 31)},
+                       {'annotations': [{'clitic': '',
+                                         'ending': '0',
+                                         'form': 'b',
+                                         'lemma': 'olema',
+                                         'normalized_text': 'on',
+                                         'partofspeech': 'V',
+                                         'root': 'ole',
+                                         'root_tokens': ['ole']}],
+                        'base_span': (32, 34)},
+                       {'annotations': [{'clitic': '',
+                                         'ending': '0',
+                                         'form': '',
+                                         'lemma': 'tagasi',
+                                         'normalized_text': 'tagasi',
+                                         'partofspeech': 'D',
+                                         'root': 'tagasi',
+                                         'root_tokens': ['tagasi']}],
+                        'base_span': (35, 41)},
+                       {'annotations': [{'clitic': '',
+                                         'ending': '',
+                                         'form': '',
+                                         'lemma': '.',
+                                         'normalized_text': '.',
+                                         'partofspeech': 'Z',
+                                         'root': '.',
+                                         'root_tokens': ['.']}],
+                        'base_span': (41, 42)}]}
+        assert layer_to_dict(text['morph_analysis']) == expected_morph_layer_dict
