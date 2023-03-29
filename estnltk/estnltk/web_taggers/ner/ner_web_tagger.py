@@ -58,7 +58,6 @@ class NerWebTagger(MultiLayerTagger):
         response = self.post_request(text)
         if self.custom_words_layer is None:
             nerwordslayer = self.create_word_ner_layer(text,response)
-            text.add_layer(nerwordslayer)
         nerlayer = Layer(name=self.output_layers[0], attributes=self.output_layers_to_attributes[self.output_layers[0]],
                          text_object=text,
                          enveloping = self.input_layers[0] if len(self.input_layers) > 0 else self.output_layers[1])
@@ -67,25 +66,44 @@ class NerWebTagger(MultiLayerTagger):
         entity_spans = []
         entity_type = None
         words = self.input_layers[0] if len(self.input_layers) > 0 else self.output_layers[1]
-
-        for span, label in zip(getattr(text, words), labels):
-            if entity_type is None:
+        if self.custom_words_layer is None:
+            for span, label in zip(nerwordslayer, labels):
+                if entity_type is None:
+                    entity_type = label[2:]
+                if label == "O":
+                    if entity_spans:
+                        nerlayer.add_annotation(EnvelopingBaseSpan(entity_spans),
+                                                **{self.output_layers_to_attributes[self.output_layers[0]][0]: entity_type})
+                        entity_spans = []
+                    continue
+                if label[0] == "B" or entity_type != label[2:]:
+                    if entity_spans:
+                        nerlayer.add_annotation(EnvelopingBaseSpan(entity_spans),
+                                                **{self.output_layers_to_attributes[self.output_layers[0]][0]: entity_type})
+                        entity_spans = []
                 entity_type = label[2:]
-            if label == "O":
-                if entity_spans:
-                    nerlayer.add_annotation(EnvelopingBaseSpan(entity_spans),
-                                            **{self.output_layers_to_attributes[self.output_layers[0]][0]: entity_type})
-                    entity_spans = []
-                continue
-            if label[0] == "B" or entity_type != label[2:]:
-                if entity_spans:
-                    nerlayer.add_annotation(EnvelopingBaseSpan(entity_spans),
-                                            **{self.output_layers_to_attributes[self.output_layers[0]][0]: entity_type})
-                    entity_spans = []
-            entity_type = label[2:]
-            entity_spans.append(span.base_span)
+                entity_spans.append(span.base_span)
 
-        return {self.output_layers[0]: nerlayer}
+            return {self.output_layers[1]: nerwordslayer, self.output_layers[0]: nerlayer}
+        else:
+            for span, label in zip(getattr(text,words), labels):
+                if entity_type is None:
+                    entity_type = label[2:]
+                if label == "O":
+                    if entity_spans:
+                        nerlayer.add_annotation(EnvelopingBaseSpan(entity_spans),
+                                                **{self.output_layers_to_attributes[self.output_layers[0]][0]: entity_type})
+                        entity_spans = []
+                    continue
+                if label[0] == "B" or entity_type != label[2:]:
+                    if entity_spans:
+                        nerlayer.add_annotation(EnvelopingBaseSpan(entity_spans),
+                                                **{self.output_layers_to_attributes[self.output_layers[0]][0]: entity_type})
+                        entity_spans = []
+                entity_type = label[2:]
+                entity_spans.append(span.base_span)
+            return {self.output_layers[0]: nerlayer}
+
 
 
     def post_request(self, text: Text):
