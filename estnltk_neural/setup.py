@@ -37,7 +37,6 @@ setup(
     install_requires=[
         'estnltk-core >= 1.7.1', # EstNLTK's basic data structures and conversion methods
         'estnltk >= 1.7.1',      # EstNLTK's NLP pipelines and database tools
-        'tensorflow',
         'torch',
         'transformers',
         'stanza',

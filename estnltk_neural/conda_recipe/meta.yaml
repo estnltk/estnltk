@@ -23,7 +23,6 @@ requirements:
     - estnltk >=1.7.0
     - tensorflow
     - pytorch
-    - transformers
     - stanza
     - packaging
 

@@ -1,3 +1,4 @@
+import pkgutil
 import importlib
 import os
 
@@ -9,6 +10,11 @@ from estnltk_neural.taggers.neural_morph.new_neural_morph.general_utils import l
 from estnltk_neural.taggers.neural_morph.new_neural_morph.general_utils import override_config_paths_from_model_dir
 from estnltk_neural.taggers.neural_morph.new_neural_morph.vabamorf_2_neural import neural_model_tags
 from estnltk_neural.taggers.neural_morph.new_neural_morph.neural_2_vabamorf import vabamorf_tags
+
+def is_tensorflow_available():
+    '''Checks if tensorflow package has been installed.'''
+    return pkgutil.find_loader('tensorflow') is not None
+
 
 MODEL_FILES = {"data": ["analysis.txt",
                         "chars.txt",
@@ -51,7 +57,7 @@ class NeuralMorphTagger(Retagger):
     The tagger also employs a special morphological tagset that extends Vabamorf's tags 
     towards UD's morphological features.
     
-    Do not use this class directly. Use the following methods to get taggers with
+    Do not use this class directly. Use the following classes to get taggers with
     different types of neural models:
     
     SoftmaxEmbTagSumTagger()
@@ -60,8 +66,8 @@ class NeuralMorphTagger(Retagger):
     Seq2SeqEmbCatSumTagger()
     
     This tagger works either as a tagger (A) or as a retagger (B), depending on 
-    whether the input morph_analysis layer is defined as different from the output 
-    layer or not. 
+    whether the input morph_analysis layer is different from the output layer or 
+    not. 
     
     A) If output_layer != input_morph_analysis_layer, then the tagger works as a tagger 
     and a new morph layer can be created by calling tagger's tag(...) or make_layer(...) 
@@ -106,6 +112,9 @@ class NeuralMorphTagger(Retagger):
                        input_sentences_layer='sentences', input_morph_analysis_layer='morph_analysis', 
                        module_name=None, module_package=None, model_module=None, model=None, 
                        model_dir=None):
+        if not is_tensorflow_available():
+            raise ModuleNotFoundError("(!) Tensorflow not installed. "+\
+                                      "You'll need tensorflow <= 1.15.5 for running this tagger.")
         if module_name is not None and module_package is not None:
             model_module = importlib.import_module('.' + module_name, module_package)
         if model_module is not None:

@@ -34,7 +34,6 @@ classifiers = [
 dependencies = [
     'estnltk-core >= 1.7.2',   # EstNLTK's basic datastructures and conversion methods
     'estnltk >= 1.7.2',        # EstNLTK's NLP pipelines and database tools
-    'tensorflow',              # Required by neural morphological disambiguator
     'torch',                   # Required by Stanza-based syntactic parsing and Bert embeddings tagger
     'transformers',            # Required by Bert embeddings tagger
     'stanza',                  # Required by Stanza-based syntactic parsing
@@ -44,6 +43,7 @@ dynamic = ["version"]
 
 [project.optional-dependencies]
 tests = [ "pytest" ]
+neural_morph = [ "tensorflow <= 1.15.5" ]  # Required by neural morphological disambiguator
 
 [tool.setuptools]
 include-package-data = true
