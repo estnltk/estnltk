@@ -21,7 +21,7 @@ requirements:
     - python 
     - estnltk_core
     - estnltk >=1.7.0
-    - tensorflow
+    - transformers
     - pytorch
     - stanza
     - packaging
