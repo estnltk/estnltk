@@ -278,49 +278,64 @@ def pronominal_coreference_candidate_pairs_with_locations(dict_info,sentences_li
     #dictionary holding the pair of sentences
     dict_sentence_pairs={}
 
-    for list_context in get_sentence_context(len(sentences_list),max_context_before,max_context_after) :
-        for sentence_pair in list_context :
+    if len(sentences_list) > 1:
+        # If we have more than one sentence, extract pairs from pairs of sentences and from single sentences
+        for list_context in get_sentence_context(len(sentences_list),max_context_before,max_context_after) :
+            for sentence_pair in list_context :
+                index_sentence_start=sentence_pair[0]+1
+                index_sentence_stop = sentence_pair[1]+1
+                pair_sentences=str(index_sentence_start)+"-"+str(index_sentence_stop)
 
-            index_sentence_start=sentence_pair[0]+1
-            index_sentence_stop = sentence_pair[1]+1
-            pair_sentences=str(index_sentence_start)+"-"+str(index_sentence_stop)
+                start_mention_list=get_mentions (sentences_list[index_sentence_start-1],dict_info["context"])
+                stop_mention_list=get_mentions(sentences_list[index_sentence_stop-1],dict_info["context"])
 
-            start_mention_list=get_mentions (sentences_list[index_sentence_start-1],dict_info["context"])
-            stop_mention_list=get_mentions(sentences_list[index_sentence_stop-1],dict_info["context"])
+                #Get pairs inside the sentence start
+                if index_sentence_start not in dict_sentences :
+                   pair_list_start=_get_pairs_in(start_mention_list,index_sentence_start,dict_info["context"])
+                   for pair in pair_list_start:
+                       # compute features
+                       s_mention=sentences_list[index_sentence_start - 1]
+                       s_pronoun=sentences_list[index_sentence_start - 1]
+                       coreference_features.compute_pair_features(pair, s_mention, s_pronoun, dict_features, dict_info, f_corpus_path, sentences_list)
+                       # get span location for the pair
+                       get_pair_span_locations(pair,s_mention,s_pronoun,dict_locations,f_corpus_path)
+                   dict_sentences[index_sentence_start] = 1
 
-            #Get pairs inside the sentence start
-            if index_sentence_start not in dict_sentences :
-               pair_list_start=_get_pairs_in(start_mention_list,index_sentence_start,dict_info["context"])
-               for pair in pair_list_start:
-                   # compute features
-                   s_mention=sentences_list[index_sentence_start - 1]
-                   s_pronoun=sentences_list[index_sentence_start - 1]
-                   coreference_features.compute_pair_features(pair, s_mention, s_pronoun, dict_features, dict_info, f_corpus_path, sentences_list)
-                   # get span location for the pair
-                   get_pair_span_locations(pair,s_mention,s_pronoun,dict_locations,f_corpus_path)
-               dict_sentences[index_sentence_start] = 1
+                #Get pairs inside the sentence stop
+                if index_sentence_stop not in dict_sentences :
+                    pair_list_stop=_get_pairs_in(stop_mention_list, index_sentence_stop,dict_info["context"])
+                    for pair in pair_list_stop:
+                        s_mention=sentences_list[index_sentence_stop - 1]
+                        s_pronoun=sentences_list[index_sentence_stop - 1]
+                        coreference_features.compute_pair_features(pair, s_mention, s_pronoun, dict_features, dict_info, f_corpus_path, sentences_list)
+                        # get span location for the pair
+                        get_pair_span_locations(pair,s_mention,s_pronoun,dict_locations,f_corpus_path)
+                    dict_sentences[index_sentence_start] = 1
 
-            #Get pairs inside the sentence stop
-            if index_sentence_stop not in dict_sentences :
-                pair_list_stop=_get_pairs_in(stop_mention_list, index_sentence_stop,dict_info["context"])
-                for pair in pair_list_stop:
-                    s_mention=sentences_list[index_sentence_stop - 1]
-                    s_pronoun=sentences_list[index_sentence_stop - 1]
-                    coreference_features.compute_pair_features(pair, s_mention, s_pronoun, dict_features, dict_info, f_corpus_path, sentences_list)
-                    # get span location for the pair
-                    get_pair_span_locations(pair,s_mention,s_pronoun,dict_locations,f_corpus_path)
-                dict_sentences[index_sentence_start] = 1
-
-            #Get the pairs across sentences
-            if not pair_sentences in dict_sentence_pairs :
-                pair_list_across=_get_pairs_across(start_mention_list, stop_mention_list, index_sentence_start, index_sentence_stop, dict_info["context"])
-                for pair in pair_list_across:
-                    s_mention=sentences_list[pair[-2] - 1]
-                    s_pronoun=sentences_list[pair[-1] - 1]
-                    coreference_features.compute_pair_features(pair, s_mention, s_pronoun, dict_features, dict_info, f_corpus_path, sentences_list)
-                    # get span location for the pair
-                    get_pair_span_locations(pair,s_mention,s_pronoun,dict_locations,f_corpus_path)
-            dict_sentence_pairs.setdefault(pair_sentences, 0)
+                #Get the pairs across sentences
+                if not pair_sentences in dict_sentence_pairs :
+                    pair_list_across=_get_pairs_across(start_mention_list, stop_mention_list, index_sentence_start, index_sentence_stop, dict_info["context"])
+                    for pair in pair_list_across:
+                        s_mention=sentences_list[pair[-2] - 1]
+                        s_pronoun=sentences_list[pair[-1] - 1]
+                        coreference_features.compute_pair_features(pair, s_mention, s_pronoun, dict_features, dict_info, f_corpus_path, sentences_list)
+                        # get span location for the pair
+                        get_pair_span_locations(pair,s_mention,s_pronoun,dict_locations,f_corpus_path)
+                dict_sentence_pairs.setdefault(pair_sentences, 0)
+    elif len(sentences_list) == 1:
+        # If we have only one sentence, extract pairs from that sentence only
+        index_sentence = 1
+        pair_sentences=str(index_sentence)+"-"+str(index_sentence)
+        mention_list=get_mentions(sentences_list[index_sentence-1],dict_info["context"])
+        pair_list=_get_pairs_in(mention_list,index_sentence,dict_info["context"])
+        for pair in pair_list:
+            # compute features
+            s_mention=sentences_list[index_sentence - 1]
+            s_pronoun=sentences_list[index_sentence - 1]
+            coreference_features.compute_pair_features(pair, s_mention, s_pronoun, dict_features, dict_info, f_corpus_path, sentences_list)
+            # get span location for the pair
+            get_pair_span_locations(pair,s_mention,s_pronoun,dict_locations,f_corpus_path)
+        dict_sentences[index_sentence] = 1
 
     return dict_features, dict_locations
 
