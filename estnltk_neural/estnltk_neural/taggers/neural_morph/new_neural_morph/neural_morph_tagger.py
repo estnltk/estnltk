@@ -111,10 +111,11 @@ class NeuralMorphTagger(Retagger):
     def __init__(self, output_layer='neural_morph_analysis', input_words_layer='words',
                        input_sentences_layer='sentences', input_morph_analysis_layer='morph_analysis', 
                        module_name=None, module_package=None, model_module=None, model=None, 
-                       model_dir=None):
+                       model_dir=None, bypass_tensorflow_check=False):
         if not is_tensorflow_available():
-            raise ModuleNotFoundError("(!) Tensorflow not installed. "+\
-                                      "You'll need tensorflow <= 1.15.5 for running this tagger.")
+            if not bypass_tensorflow_check:
+                raise ModuleNotFoundError("(!) Tensorflow not installed. "+\
+                                          "You'll need tensorflow <= 1.15.5 for running this tagger.")
         if module_name is not None and module_package is not None:
             model_module = importlib.import_module('.' + module_name, module_package)
         if model_module is not None:

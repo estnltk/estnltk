@@ -10,6 +10,7 @@ from estnltk_neural.common import neural_abs_path
 from estnltk_neural.taggers.neural_morph.new_neural_morph.vabamorf_2_neural import neural_model_tags
 from estnltk_neural.taggers.neural_morph.new_neural_morph.neural_2_vabamorf import vabamorf_tags
 from estnltk_neural.taggers.neural_morph.new_neural_morph.neural_morph_tagger import NeuralMorphTagger
+from estnltk_neural.taggers.neural_morph.new_neural_morph.neural_morph_tagger import is_tensorflow_available
 from estnltk_neural.taggers.neural_morph.new_neural_morph.general_utils import get_model_path_from_dir
 
 
@@ -25,7 +26,7 @@ class DummyTagger:
 
 class TestDummyTagger(TestCase):
     def test(self):
-        dummy_tagger = NeuralMorphTagger(model=DummyTagger())
+        dummy_tagger = NeuralMorphTagger(model=DummyTagger(), bypass_tensorflow_check=True)
         
         text = Text("Ära mine sinna.")
         text.tag_layer(["morph_analysis"])
@@ -97,24 +98,28 @@ if isinstance(NEURAL_MORPH_TAGGER_CONFIG, str):
 skip_reason = ("Could not load neural morph model{}. "+\
                'If the model has not been downloaded yet, please use {} to get the model for testing.').format( \
                              skip_reason_for_config, skip_reason_download_instruction )
-model_module = None
-model_dir = get_model_dir_from_esnltk_resources( NEURAL_MORPH_TAGGER_CONFIG )
-if model_dir is not None:
-    if 'softmax_emb_tag_sum' in model_dir:
-        import estnltk_neural.taggers.neural_morph.new_neural_morph.softmax_emb_tag_sum as model_module
-    elif 'softmax_emb_cat_sum' in model_dir:
-        import estnltk_neural.taggers.neural_morph.new_neural_morph.softmax_emb_cat_sum as model_module
-    elif 'seq2seq_emb_tag_sum' in model_dir:
-        import estnltk_neural.taggers.neural_morph.new_neural_morph.seq2seq_emb_tag_sum as model_module
-    elif 'seq2seq_emb_cat_sum' in model_dir:
-        import estnltk_neural.taggers.neural_morph.new_neural_morph.seq2seq_emb_cat_sum as model_module
-    else:
-        raise Exception( ("(!) Unexpected NeuralMorphTagger's model path {!r}. Must contain string "+\
-                          "'softmax_emb_tag_sum', 'softmax_emb_cat_sum', 'seq2seq_emb_tag_sum' or "+\
-                          "'seq2seq_emb_cat_sum'.").format(model_dir) )
-if model_module is not None and model_dir is not None:
-    tagger = NeuralMorphTagger(model_module=model_module, model_dir=model_dir)
 
+model_dir = None
+model_module = None
+if is_tensorflow_available(): # Only proceed if tensorflow is available
+    model_dir = get_model_dir_from_esnltk_resources( NEURAL_MORPH_TAGGER_CONFIG )
+    if model_dir is not None:
+        if 'softmax_emb_tag_sum' in model_dir:
+            import estnltk_neural.taggers.neural_morph.new_neural_morph.softmax_emb_tag_sum as model_module
+        elif 'softmax_emb_cat_sum' in model_dir:
+            import estnltk_neural.taggers.neural_morph.new_neural_morph.softmax_emb_cat_sum as model_module
+        elif 'seq2seq_emb_tag_sum' in model_dir:
+            import estnltk_neural.taggers.neural_morph.new_neural_morph.seq2seq_emb_tag_sum as model_module
+        elif 'seq2seq_emb_cat_sum' in model_dir:
+            import estnltk_neural.taggers.neural_morph.new_neural_morph.seq2seq_emb_cat_sum as model_module
+        else:
+            raise Exception( ("(!) Unexpected NeuralMorphTagger's model path {!r}. Must contain string "+\
+                              "'softmax_emb_tag_sum', 'softmax_emb_cat_sum', 'seq2seq_emb_tag_sum' or "+\
+                              "'seq2seq_emb_cat_sum'.").format(model_dir) )
+    if model_module is not None and model_dir is not None:
+        tagger = NeuralMorphTagger(model_module=model_module, model_dir=model_dir)
+else:
+    skip_reason = "Tensorflow is not installed. You'll need tensorflow <= 1.15.5 for running this test."
 
 @unittest.skipIf(tagger is None, skip_reason)
 class TestNeuralModel(TestCase):
