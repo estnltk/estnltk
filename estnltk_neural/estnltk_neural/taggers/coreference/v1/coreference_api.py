@@ -199,18 +199,19 @@ def predict(dict_features, dict_locations, model, model_features, verbose=False)
             X_test_dict[feature].append( feature_value )
             values.append( feature_value )
     X_test = pd.DataFrame( X_test_dict, columns=model_features[:-1] )
-    # Apply model
-    #y_pred = model.predict_proba(X_test)
-    y_pred = model.predict(X_test)
-    #print(y_pred)
-    # Extract results
-    for i, coreference_pair in enumerate( dict_features.keys() ):
-        if y_pred[i]:
-            mention_loc = extract_span_location(dict_locations[coreference_pair]['MENTION'])
-            pronoun_loc = extract_span_location(dict_locations[coreference_pair]['PRON'])
-            if verbose:
-                print(coreference_pair, f'mention: {mention_loc}', f'pronoun: {pronoun_loc}')
-            results.append( {'pronoun': pronoun_loc, 'mention': mention_loc})
+    if len(X_test) > 0:
+        # Apply model
+        #y_pred = model.predict_proba(X_test)
+        y_pred = model.predict(X_test)
+        #print(y_pred)
+        # Extract results
+        for i, coreference_pair in enumerate( dict_features.keys() ):
+            if y_pred[i]:
+                mention_loc = extract_span_location(dict_locations[coreference_pair]['MENTION'])
+                pronoun_loc = extract_span_location(dict_locations[coreference_pair]['PRON'])
+                if verbose:
+                    print(coreference_pair, f'mention: {mention_loc}', f'pronoun: {pronoun_loc}')
+                results.append( {'pronoun': pronoun_loc, 'mention': mention_loc})
     return results
 
 
