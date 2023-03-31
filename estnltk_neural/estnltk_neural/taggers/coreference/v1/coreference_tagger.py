@@ -11,23 +11,32 @@ def check_tagger_dependencies():
     '''
     Checks if all required packages ('stanza', 'scikit-learn', 'xgboost', 
     'gensim', 'pandas') have been installed. If any of the packages is 
-    missing, raises ModuleNotFoundError informing about the missing package.
+    missing, raises ModuleNotFoundError informing about missing packages.
     '''
+    missing_libraries = []
     for tagger_dependency in ['stanza', 'sklearn', 'xgboost', 'gensim', 'pandas']:
         pkg_exists = pkgutil.find_loader(tagger_dependency) is not None
         if not pkg_exists:
             if tagger_dependency == 'sklearn':
                 tagger_dependency = 'scikit-learn'
-            raise ModuleNotFoundError(f'Missing {tagger_dependency} package '+\
-              'that is required for using the tagger. Please install the '+\
-              f'package module via conda or pip, e.g.\n pip install {tagger_dependency}')
+            missing_libraries.append( tagger_dependency )
+    if missing_libraries:
+        missing_libraries_str = ', '.join(missing_libraries)
+        sg_plur_package = 'packages' if len(missing_libraries)>1 else 'package'
+        sg_plur_is = 'are' if len(missing_libraries)>1 else 'is'
+        raise ModuleNotFoundError(f'Missing {sg_plur_package} {missing_libraries_str} '+\
+                f'that {sg_plur_is} required for using the tagger. Please install the '+\
+                f'{sg_plur_package} module via conda or pip.')
     return
 
 def check_configuration_dir(configuration_dir):
     '''
-    Check that the configuration directory contains required file(s).
+    Check that the configuration directory exists and contains required file(s).
     Raises FileNotFoundError in case of a missing file.
     '''
+    if not os.path.exists(configuration_dir):
+        raise FileNotFoundError(f'Configuration directory {configuration_dir!r} '+\
+                                 'is missing or invalid.')
     catalog_file = \
         os.path.join(configuration_dir, 'estonian_catalog.xml')
     if not os.path.exists(catalog_file):
@@ -37,9 +46,12 @@ def check_configuration_dir(configuration_dir):
 
 def check_resources_dir(resources_dir):
     '''
-    Check that the resources directory contains required file(s).
+    Check that the resources directory exists and contains required file(s).
     Raises FileNotFoundError in case of a missing file.
     '''
+    if not os.path.exists(resources_dir):
+        raise FileNotFoundError(f'Resources directory {resources_dir!r} '+\
+                                 'is missing or invalid.')
     training_data_dir = \
         os.path.join(resources_dir, 'estonian_training_data_preprocessed')
     if not os.path.exists(training_data_dir):
@@ -59,9 +71,12 @@ def check_resources_dir(resources_dir):
 
 def check_stanza_models_dir(stanza_models_dir):
     '''
-    Check that the stanza models directory contains required file(s).
+    Check that the stanza models directory exists and contains required file(s).
     Raises FileNotFoundError in case of a missing file.
     '''
+    if not os.path.exists(stanza_models_dir):
+        raise FileNotFoundError(f'Stanza models directory {stanza_models_dir!r} '+\
+                                 'is missing or invalid.')
     resources_file = os.path.join(stanza_models_dir, 'resources.json')
     if not os.path.exists(resources_file):
         raise FileNotFoundError('Stanza models directory is missing '+\
@@ -76,8 +91,14 @@ def check_stanza_models_dir(stanza_models_dir):
 
 class CoreferenceRelationTagger(RelationTagger):
     '''Tags pronoun-mention coreference pairs in texts.
-       Uses EstonianCoreferenceSystem v1.0.0 by Eduard Barbu.
-       Relies on stanza based pre-processing of the input text.'''
+       
+       Uses EstonianCoreferenceSystem v1.0.0 created by Eduard Barbu. 
+       The system detects coreference of personal pronouns ("mina", "sina", 
+       "tema"), relative pronouns "kes" and "mis", and the demonstrative 
+       pronoun "see".
+       
+       Uses stanza 'et' models for pre-processing of the input text.
+    '''
     conf_param = ['add_chain_ids',
                   'stanza_nlp', 
                   'coref_model',
@@ -86,9 +107,40 @@ class CoreferenceRelationTagger(RelationTagger):
                   '_generate_features',
                   '_predict']
     
-    def __init__(self, resources_dir=None, stanza_models_dir=None, download_embeddings=False, 
-                       output_layer='coreference', ner_layer=None, add_chain_ids=True, 
-                       logger=None):
+    def __init__(self, output_layer='coreference', resources_dir=None, stanza_models_dir=None, 
+                       ner_layer=None, add_chain_ids=True, logger=None):
+        """Initializes pronominal coreference relation tagger.
+        
+        Parameters
+        ----------
+        output_layer: str (default: 'coreference')
+            Name of the output layer.
+        
+        resources_dir: str (default: None)
+            Root directory containing configuration files and resources required by 
+            the tagger. Should contain sub directories 'estonian_configuration_files' 
+            and 'estonian_resources'. If not provided, then attempts to download 
+            resources automatically from EstNLTK's resources repository.
+        
+        stanza_models_dir: str (default: None)
+            Root directory of stanza models to be used for preprocessing. Should 
+            contain sub directory "et" and the index file "resources.json". If not 
+            provided, then attempts to download resources automatically via stanza's 
+            resource downloader.
+
+        ner_layer: str (default: None)
+            Name of the named entity layer. If provided, then expands proper noun 
+            mentions detected by coreference system to full extend named entity 
+            phrases. Otherwise (default), mentions of names are detected only as 
+            1-word phrases.
+
+        add_chain_ids: bool (default: True)
+            If set (default), then detects chains among coreference pairs, and 
+            assigns a "chain_id" (integer starting from 0) to each relation. 
+        
+        logger (default: None)
+            
+        """
         self.output_layer = output_layer
         self.input_layers = ()
         if ner_layer is not None:
@@ -101,7 +153,11 @@ class CoreferenceRelationTagger(RelationTagger):
         # Check that tagger dependency packages exist
         check_tagger_dependencies()
         resources_root_dir = resources_dir
-        # TODO: download resources dir automagically (!)
+        if resources_root_dir is None:
+            # Attempt to download resources dir automagically
+            resources_root_dir = \
+                get_resource_paths("coreference_v1", only_latest=True, 
+                                                     download_missing=True)
         # Check root directory
         if resources_root_dir is not None:
             if not os.path.exists(resources_root_dir):
@@ -109,7 +165,7 @@ class CoreferenceRelationTagger(RelationTagger):
                                         f'{resources_root_dir!r}.')
         else:
             raise Exception(f'Models of {self.__class__.__name__} are missing. '+\
-                            'Please use estnltk.download("TODO") to download the models.')
+                             'Please use estnltk.download("coreference_v1") to download the models.')
         # Construct sub directories
         configuration_dir = \
             os.path.join(resources_root_dir, 'estonian_configuration_files')
@@ -130,18 +186,9 @@ class CoreferenceRelationTagger(RelationTagger):
         # (note: if not provided, stanza will attempt to download resources automagically)
         if stanza_models_dir is not None:
             check_stanza_models_dir(stanza_models_dir)
-        # Download embeddings via estnltk (if required)
-        # Otherwise, assumes embeddings file location:
-        # 'RESOURCES_ROOT_DIR/estonian_resources/estonian_embeddings/lemmas.cbow.s100.w2v.bin'
+        # Assumes embeddings file at location:
+        #  'RESOURCES_ROOT_DIR/estonian_resources/estonian_embeddings/lemmas.cbow.s100.w2v.bin'
         embedding_locations = None
-        if download_embeddings:
-            embeddings_path = \
-                get_resource_paths("word2vec_lemmas_cbow_s100_2015-06-21", only_latest=True, download_missing=True)
-            if embeddings_path is None:
-                raise Exception('Word2Vec embeddings file required for preprocessing is missing. '+\
-                                'Please use estnltk.download("word2vec_lemmas_cbow_s100_2015-06-21") '+\
-                                'to download the models.')
-            embedding_locations = {'tkachenko_embedding': embeddings_path}
         # Make an internal import to avoid explicit dependencies
         from estnltk_neural.taggers.coreference.v1.coreference_api import initialize_coreference_components
         from estnltk_neural.taggers.coreference.v1.coreference_api import generate_features
