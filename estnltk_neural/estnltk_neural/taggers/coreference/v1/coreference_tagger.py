@@ -89,7 +89,7 @@ def check_stanza_models_dir(stanza_models_dir):
 
 
 
-class CoreferenceRelationTagger(RelationTagger):
+class CoreferenceTagger(RelationTagger):
     '''Tags pronoun-mention coreference pairs in texts.
        
        Uses EstonianCoreferenceSystem v1.0.0 created by Eduard Barbu. 

@@ -1,7 +1,7 @@
 import unittest
 
 from estnltk import Text
-from estnltk_neural.taggers import CoreferenceRelationTagger
+from estnltk_neural.taggers import CoreferenceTagger
 from estnltk.converters import dict_to_layer, layer_to_dict
 from estnltk.downloader import get_resource_paths
 
@@ -9,14 +9,14 @@ from estnltk.downloader import get_resource_paths
 COREF_V1_MODEL_PATH = get_resource_paths("coreference_v1", only_latest=True, download_missing=False)
 
 skip_message_missing_models = \
-  "CoreferenceRelationTagger's resources have not been downloaded. Use estnltk.download('coreference_v1') to fetch the missing resources."
+  "CoreferenceTagger's resources have not been downloaded. Use estnltk.download('coreference_v1') to fetch the missing resources."
 
 
 @unittest.skipIf(COREF_V1_MODEL_PATH is None,
                  reason=skip_message_missing_models)
 def test_coreference_tagger_smoke():
-    # Test that CoreferenceRelationTagger runs OK with default options
-    coref_tagger = CoreferenceRelationTagger(resources_dir=COREF_V1_MODEL_PATH)
+    # Test that CoreferenceTagger runs OK with default options
+    coref_tagger = CoreferenceTagger(resources_dir=COREF_V1_MODEL_PATH)
     text = Text('Mina ei tagane sammugi, põrutas kapten Silver Üksjalg meestele.')
     coref_tagger.tag(text)
     assert coref_tagger.output_layer in text.relation_layers
@@ -41,8 +41,8 @@ def test_coreference_tagger_smoke():
 @unittest.skipIf(COREF_V1_MODEL_PATH is None,
                  reason=skip_message_missing_models)
 def test_coreference_tagger_multisentence_text():
-    # Test CoreferenceRelationTagger on multisentence text
-    coref_tagger = CoreferenceRelationTagger(resources_dir=COREF_V1_MODEL_PATH)
+    # Test CoreferenceTagger on multisentence text
+    coref_tagger = CoreferenceTagger(resources_dir=COREF_V1_MODEL_PATH)
     text = Text('Piilupart Donald, kes kunagi ei anna järele, läks uuele ringile. '+\
                 'Ta kärkis ja paukus, kuni muusika vaikis ja pasadoobel seiskus. '+\
                 'Mis sa tühja lällad, küsis rahvas.')
@@ -71,7 +71,7 @@ def test_coreference_tagger_multisentence_text():
 @unittest.skipIf(COREF_V1_MODEL_PATH is None,
                  reason=skip_message_missing_models)
 def test_coreference_tagger_with_named_entities_layer():
-    # Test CoreferenceRelationTagger works in combination with named entities layer
+    # Test CoreferenceTagger works in combination with named entities layer
     text = Text('Piilupart Donald, kes kunagi ei anna järele, läks uuele ringile. '+\
                 'Ta kärkis ja paukus, kuni muusika vaikis ja pasadoobel seiskus. '+\
                 'Mis sa tühja lällad, küsis rahvas.')
@@ -143,8 +143,8 @@ def test_coreference_tagger_with_named_entities_layer():
          'spans': [{'annotations': [{'nertag': 'PER'}],
                     'base_span': ((0, 9), (10, 16))}]}
     text.add_layer( dict_to_layer(ner_layer_dict) )
-    coref_tagger = CoreferenceRelationTagger(resources_dir=COREF_V1_MODEL_PATH, 
-                                             ner_layer='ner')
+    coref_tagger = CoreferenceTagger(resources_dir=COREF_V1_MODEL_PATH, 
+                                     ner_layer='ner')
     coref_tagger.tag(text)
     assert coref_tagger.output_layer in text.relation_layers
     coref_layer = text[coref_tagger.output_layer]
