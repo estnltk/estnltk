@@ -15,13 +15,17 @@ import xml
 import collections
 from gensim.models import KeyedVectors
 
-dict_embeddings={}
+# 
+#  TODO: this is not thread safe and breaks consistency 
+#  if multiple taggers with different configurations are 
+#  used. For thread safety, these variables should be 
+#  instance variables of the tagger
+# 
 mentions_score_dict={}
 eleri_dict={}
 dict_features_names=collections.OrderedDict()
-
-
-embedding_models_list=[]
+dict_embeddings_fpaths={}
+dict_embeddings_models={}
 
 def get_feature_names () :
     return dict_features_names
@@ -59,7 +63,7 @@ def get_embeddings_path (f_embeddings) :
 
         name= embedding.getElementsByTagName("name")[0].childNodes[0].data
         path = embedding.getElementsByTagName("path")[0].childNodes[0].data
-        dict_embeddings[name]=path
+        dict_embeddings_fpaths[name]=path
 
 
 def init_embedding_models (f_embeddings,logging) :
@@ -67,9 +71,9 @@ def init_embedding_models (f_embeddings,logging) :
 
     logger = logging.getLogger('coreference_features.init_embedding_models')
     get_embeddings_path(f_embeddings)
-    for name in dict_embeddings:
-        model = KeyedVectors.load_word2vec_format(dict_embeddings[name], binary=True)
-        embedding_models_list.append(model)
+    for name in dict_embeddings_fpaths:
+        model = KeyedVectors.load_word2vec_format(dict_embeddings_fpaths[name], binary=True)
+        dict_embeddings_models[name] = model
         logger.info ("Inited "+name+ " embeddings")
 
 def init_embedding_models_based_on_dict (embeddings_dict,logging) :
@@ -80,9 +84,9 @@ def init_embedding_models_based_on_dict (embeddings_dict,logging) :
     for name, embeddings_fpath in embeddings_dict.items():
         assert os.path.exists(embeddings_fpath), \
             f'(!) Unable to find embeddings file from location {embeddings_fpath!r}'
-        dict_embeddings[name]=embeddings_fpath
+        dict_embeddings_fpaths[name]=embeddings_fpath
         model = KeyedVectors.load_word2vec_format(embeddings_fpath, binary=True)
-        embedding_models_list.append(model)
+        dict_embeddings_models[name] = model
         logger.info ("Inited "+name+ " embeddings")
 
 def distance_pronoun_antecedent (pair) :
@@ -383,10 +387,8 @@ def compute_similarity (model, word, pronoun) :
 def compute_embeddings_similarity (word,pronoun,dict_features) :
 
      """Compute the feature embedding similarity for each model in the initialized model list"""
-     index=-1
-     for name in dict_embeddings :
-         index+=1
-         similarity=compute_similarity(embedding_models_list[index],word,pronoun)
+     for name in dict_embeddings_fpaths:
+         similarity=compute_similarity(dict_embeddings_models[name],word,pronoun)
          if similarity==-2 :
             dict_features[name]=0
             dict_features_names[name]="numerical"

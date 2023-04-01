@@ -97,6 +97,8 @@ class CoreferenceRelationTagger(RelationTagger):
        "tema"), relative pronouns "kes" and "mis", and the demonstrative 
        pronoun "see".
        
+       Warning: the current version of the tagger is not thread safe.
+       
        Uses stanza 'et' models for pre-processing of the input text.
     '''
     conf_param = ['add_chain_ids',
