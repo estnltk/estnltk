@@ -9,7 +9,7 @@
 """
 
 import fnmatch
-import os
+import os, os.path
 import xml.dom.minidom
 import numpy as np
 import pandas as pd
@@ -61,9 +61,13 @@ def read_corpus (corpus_dir,extension) :
         corpus_file_list.append(file_path)
     return corpus_file_list
 
-def read_resource_catalog (f_catalog) :
-    """Read the name of the files from the catalog"""
-
+def read_resource_catalog (f_catalog, f_root_dir=None) :
+    """Read the name of the files from the catalog.
+       Optionally, if f_root_dir has been defined, makes all relative 
+       paths as sub paths with respect to the f_root_dir.
+    """
+    assert f_root_dir is None or os.path.exists(f_root_dir), \
+        f'Missing or invalid resources root directory {f_root_dir!r}'
     doc = xml.dom.minidom.parse(f_catalog)
     dict_catalog = {
                     "tagset_file":doc.getElementsByTagName("tagset")[0].childNodes[0].data,
@@ -75,6 +79,9 @@ def read_resource_catalog (f_catalog) :
                     "eleri_abstractness": doc.getElementsByTagName("eleri_abstractness")[0].childNodes[0].data,
                     "mention_info": doc.getElementsByTagName("mention_info")[0].childNodes[0].data,
     }
+    if f_root_dir is not None:
+        for key in dict_catalog.keys():
+            dict_catalog[key] = os.path.join(f_root_dir, dict_catalog[key])
     return dict_catalog
 
 def read_context_file (f_context) :

@@ -53,9 +53,10 @@ def get_mention_global_scores (f_mentions_score) :
     fi.close()
 
 
-def get_embeddings_path (f_embeddings) :
+def get_embeddings_path (f_embeddings, f_root_dir=None) :
     """Read the XML configuration file"""
-
+    if f_root_dir is not None:
+        f_embeddings = os.path.join(f_root_dir, f_embeddings)
 
     doc = xml.dom.minidom.parse(f_embeddings)
     embeddings= doc.getElementsByTagName("embeddings")
@@ -64,13 +65,17 @@ def get_embeddings_path (f_embeddings) :
         name= embedding.getElementsByTagName("name")[0].childNodes[0].data
         path = embedding.getElementsByTagName("path")[0].childNodes[0].data
         dict_embeddings_fpaths[name]=path
+        if f_root_dir is not None:
+            dict_embeddings_fpaths[name] = os.path.join(f_root_dir, 
+                                                        dict_embeddings_fpaths[name])
 
 
-def init_embedding_models (f_embeddings,logging) :
+def init_embedding_models (f_embeddings,logging, f_root_dir=None) :
     """Init the embedding models globally based on given XML configuration."""
-
+    assert f_root_dir is None or os.path.exists(f_root_dir), \
+        f'Missing or invalid resources root directory {f_root_dir!r}'
     logger = logging.getLogger('coreference_features.init_embedding_models')
-    get_embeddings_path(f_embeddings)
+    get_embeddings_path(f_embeddings, f_root_dir=f_root_dir)
     for name in dict_embeddings_fpaths:
         model = KeyedVectors.load_word2vec_format(dict_embeddings_fpaths[name], binary=True)
         dict_embeddings_models[name] = model

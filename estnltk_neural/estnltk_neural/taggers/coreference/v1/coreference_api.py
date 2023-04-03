@@ -57,7 +57,7 @@ def fit_model(f_feature_names, f_training_file):
     pipeline.fit(X_train, y_train)
     return pipeline, features
 
-def initialize_coreference_components(resource_catalog, stanza_models_dir, training_file, train_feature_names_file, 
+def initialize_coreference_components(resources_root_dir, resource_catalog, stanza_models_dir, training_file, train_feature_names_file, 
                                       logger=None, embedding_locations=None, stanza_use_gpu=None):
     '''Initializes all resources/components required by Estonian Coreference System.'''
     if logger is None:
@@ -65,7 +65,7 @@ def initialize_coreference_components(resource_catalog, stanza_models_dir, train
         logger = logging
     # Initialize required resources
     logger.info(f"""test::Initializing resources""")
-    dict_catalog = utilities.read_resource_catalog( resource_catalog )
+    dict_catalog = utilities.read_resource_catalog( resource_catalog, f_root_dir=resources_root_dir )
     logger.info(f"""test::Read Resource Catalog from=>{resource_catalog}""")
     
     coreference_features.get_mention_global_scores(dict_catalog["global_mention_scores"])
@@ -74,7 +74,8 @@ def initialize_coreference_components(resource_catalog, stanza_models_dir, train
     logger.info(f"""test::Read Eleri Aedmaa abstractness scores from=> {dict_catalog["eleri_abstractness"]}""")
     if embedding_locations is None:
         # Load embeddings based on XML configuration file
-        coreference_features.init_embedding_models(dict_catalog["embeddings_file"], logger)
+        coreference_features.init_embedding_models(dict_catalog["embeddings_file"], logger, 
+                                                   f_root_dir=resources_root_dir )
         logger.info(f"""test::Inited the embedding models from=> {dict_catalog["embeddings_file"]}""")
     else:
         # Load embeddings based on given dictionary

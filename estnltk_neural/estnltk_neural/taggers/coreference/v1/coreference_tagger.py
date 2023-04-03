@@ -199,7 +199,8 @@ class CoreferenceTagger(RelationTagger):
         self._predict = predict
         # Initialize required resources & components
         dict_background_res, stanza_nlp, model, model_features = \
-            initialize_coreference_components(resource_catalog, 
+            initialize_coreference_components(resources_root_dir,
+                                              resource_catalog, 
                                               stanza_models_dir, 
                                               training_file, 
                                               train_feature_names_file, 
