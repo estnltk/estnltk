@@ -559,7 +559,9 @@ def is_huggingface_hub_installed():
     '''
     return pkgutil.find_loader("huggingface_hub") is not None
 
-def _download_and_install_hf_resource( resource_description, resources_dir ):
+
+def _download_and_install_hf_resource( resource_description, resources_dir,
+                                       remove_cache_files=True ):
     '''
     Downloads a resource with huggingface.co url and installs into 
     resources_dir. 
@@ -569,6 +571,8 @@ def _download_and_install_hf_resource( resource_description, resources_dir ):
     The huggingface-hub is required for downloading the resource;
     raises a ModuleNotFoundError if the package has not been 
     installed.
+    If remove_cache_files is True (default), then removes huggingface_hub
+    cache dir after the download is completed.
     '''
     if not is_huggingface_hub_installed():
         raise ModuleNotFoundError('Missing huggingface-hub module that is '+\
@@ -589,20 +593,37 @@ def _download_and_install_hf_resource( resource_description, resources_dir ):
     target_path = resource_description["unpack_target_path"]
     if target_path.endswith('/'):
         target_path = target_path[:-1]
-    # Download the resource
-    download_path = \
-        snapshot_download(repo_id=repo_id, revision=revision, cache_dir=resources_dir)
-    assert os.path.isdir( download_path )
-    if download_path.endswith( target_path ):
-        # This is most unlikely, but: if download path already 
-        # matches target_path, then we have nothing left to do
-        return
     full_target_path = os.path.join(resources_dir, target_path) 
-    # Remove old unpack_target_path [if redownloading]
     if os.path.exists( full_target_path ):
+        # Remove old unpack_target_path [if redownloading]
         shutil.rmtree( full_target_path )
-    # Rename download_path to unpack_target_path
-    os.renames(download_path, full_target_path)
+    else:
+        # Create new path
+        os.makedirs(full_target_path, exist_ok=True)
+    cache_files_before_download = \
+        [fnm for fnm in os.listdir(resources_dir)]
+    # Download the resource
+    # Disable symlinks because Windows cannot handle these.
+    # Note: this will double the required disk space, as 
+    # there will be both local_dir files and cached dir files
+    download_path = \
+        snapshot_download(repo_id=repo_id, revision=revision, 
+                          cache_dir=resources_dir,
+                          local_dir=full_target_path,
+                          local_dir_use_symlinks=False)
+    assert os.path.isdir( download_path )
+    # During the downloading process, huggingface_hub creates 
+    # a new cache dirs. Detect those
+    new_cache_files = \
+        [fnm for fnm in os.listdir(resources_dir) \
+             if fnm not in cache_files_before_download]
+    # Clean-up: remove huggingface_hub cached dirs
+    if remove_cache_files:
+        for fnm in new_cache_files:
+            fnm_path = os.path.join(resources_dir, fnm)
+            if os.path.isdir(fnm_path) and \
+               not full_target_path.startswith(fnm_path):
+                shutil.rmtree( fnm_path )
 
 
 # ====================================================
