@@ -56,15 +56,17 @@ class EstBERTNERTagger(MultiLayerTagger):
 
     def create_word_ner_layer(self, text):
         layer = Layer(name=self.output_layers[1], attributes=self.output_layers_to_attributes[self.output_layers[1]], text_object=text)
-        current_idx = 1
+        current_idx = 0
         for word in self.tokenizer.tokenize(text.text):
             if word.startswith('##'):
                 word = word[2:]
-            current_idx -= 1
-            while text.text[current_idx:current_idx + len(word)].lower() != word.lower():
-                current_idx += 1
-            layer.add_annotation(ElementaryBaseSpan(current_idx, current_idx + len(word)))
-            current_idx += len(word)
+            if word != "[UNK]":
+                while text.text[current_idx:current_idx + len(word)].lower().replace('õ','o').replace('ä','a').replace('ö','o').replace('ü','u').replace('ž','z').replace('š','s') != word.lower().replace('õ','o').replace('ä','a').replace('ö','o').replace('ü','u').replace('ž','z').replace('š','s'):
+                    current_idx += 1
+                layer.add_annotation(ElementaryBaseSpan(current_idx, current_idx + len(word)))
+                current_idx += len(word)
+            else:
+                layer.add_annotation(ElementaryBaseSpan(current_idx,current_idx))
         return layer
 
     def _make_layers(self, text: Text, layers: MutableMapping[str, Layer], status: dict) -> Layer:
