@@ -12,7 +12,7 @@ While many of the components are part of the default pipeline (callable via _def
 
 * [C_syntax](C_syntax/) tutorials give information about preprocessing for syntactic analysis and syntactic analysers, available models and utilities for comparing and validating syntactic annotations.
 
-* [D_information_extraction](D_information_extraction/) tutorials describe how to extract addresses, named entities, temporal expressions from texts, and for pronominal coreference resolution.
+* [D_information_extraction](D_information_extraction/) tutorials describe how to extract addresses, named entities, temporal expressions from texts, and how to resolve pronominal coreference.
 
 * [E_embeddings](E_embeddings/) tutorials describe pre-trained language models / embeddings available for Estonian.
 
