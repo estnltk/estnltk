@@ -1,6 +1,9 @@
-import os
-import torch
 from typing import MutableMapping, List
+import os
+
+import torch
+import numpy as np
+
 from transformers import BertTokenizer, logging, BertModel
 
 from estnltk.downloader import get_resource_paths
@@ -9,7 +12,6 @@ logging.set_verbosity(30)
 from estnltk import Text
 from estnltk.taggers import Tagger
 from estnltk import Layer
-import numpy as np
 
 
 class BertTagger(Tagger):
@@ -109,7 +111,7 @@ class BertTagger(Tagger):
                         next_token = tokens[j+1].replace('#', '') if j+1 < len(tokens) else None
                         next_word = word_spans[i+1][2] if i+1 < len(word_spans) else None
                         if (next_token is not None and next_word is not None and \
-                            not next_word.startswith(next_token)) or \
+                            not startswith_relaxed(next_word, next_token)) or \
                             next_word is None and next_token is not None:
                             cur_word_chars = [c for c in word]
                             if next_token[0] in cur_word_chars:
@@ -173,9 +175,9 @@ class BertTagger(Tagger):
                         shift_inside_word_span = False
                         next_token = (tokens[j+1]).replace('#', '') if j+1 < len(tokens) else None
                         next_word = word_spans[i+1][2] if i+1 < len(word_spans) else None
-                        if (next_token is not None and next_word is not None and \
-                            not next_word.startswith(next_token)) or \
-                            next_word is None and next_token is not None:
+                        if (token_init == '[UNK]' and ((next_token is not None and 
+                            next_word is not None and not startswith_relaxed(next_word, next_token)) or \
+                            next_word is None and next_token is not None)):
                             cur_word_chars = [c for c in word]
                             if next_token[0] in cur_word_chars:
                                 # shift pointer inside word_span
@@ -185,7 +187,7 @@ class BertTagger(Tagger):
                                 collected_embeddings.append(token_emb)
                                 collected_tokens.append(token_init)
                                 shift_inside_word_span = True
-                            elif token_init == '[UNK]' and next_token == '[UNK]':
+                            elif next_token == '[UNK]' and length > 1:
                                 # shift pointer inside word_span
                                 indx = 1
                                 counter += indx
@@ -248,6 +250,24 @@ class BertTagger(Tagger):
                                 word = word_spans[i][2]
 
         return embeddings_layer
+
+
+def startswith_relaxed(word_str: str, token_str: str) -> bool:
+    '''
+    Relaxed version of string.startswith for determining 
+    if EstNLTK's word_str starts with EstBert's token_str. 
+    Before comparison, takes care of the required character 
+    normalization: converts word_str to lowercase and 
+    removes common diacritics/accents from letters.
+    '''
+    word_str = word_str.lower()
+    word_str = word_str.replace('ö', 'o')
+    word_str = word_str.replace('õ', 'o')
+    word_str = word_str.replace('ä', 'a')
+    word_str = word_str.replace('ü', 'u')
+    word_str = word_str.replace('š', 's')
+    word_str = word_str.replace('ž', 'z')
+    return word_str.startswith(token_str)
 
 
 def get_embeddings(sentence: str, model, tokenizer, method, bert_layers):

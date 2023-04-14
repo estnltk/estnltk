@@ -199,3 +199,13 @@ def test_bert_tagger_tokens_and_word_span_misaligment_bugfix():
     for embedding_span in text.bert_word_embeddings:
         assert len(embedding_span.bert_embedding[0]) == 3072  # 768 * 4 
     assert text.bert_word_embeddings.text == text.words.text
+
+    # 3) Test BertTagger for handling tokenized words with diacritics and lowercase
+    text = Text('Hiljuti saime taas lugeda-kuulda , kuidas põhiseaduse muutmine tähtsustavat '+\
+                'eesti keelt . “ “ Joone ” tegijad on olnud tublid ja pühendunud .')
+    text.tag_layer('sentences')
+    bert_tagger_2.tag(text)
+    assert 'bert_word_embeddings' in text.layers
+    for embedding_span in text.bert_word_embeddings:
+        assert len(embedding_span.bert_embedding[0]) == 3072  # 768 * 4 
+    assert text.bert_word_embeddings.text == text.words.text
