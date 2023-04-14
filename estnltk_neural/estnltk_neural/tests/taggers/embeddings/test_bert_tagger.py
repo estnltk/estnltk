@@ -160,3 +160,42 @@ def test_bert_tagger_word_embeddings_all():
         assert len(embedding_span.bert_embedding[0][0]) == 4 # << This assertion fails: assert 768 == 4
         for emb in embedding_span.bert_embedding[0][0]:
             assert len(emb) == 768
+
+
+@pytest.mark.skipif(not check_if_transformers_is_available(),
+                    reason="package tranformers is required for this test")
+@pytest.mark.skipif(not check_if_pytorch_is_available(),
+                    reason="package pytorch is required for this test")
+@pytest.mark.skipif(not check_if_model_present(),
+                    reason="BertTagger's resources have not been downloaded. "+\
+                           "Use estnltk.download('berttagger') to get the missing resources.")
+def test_bert_tagger_tokens_and_word_span_misaligment_bugfix():
+    # 1) Test BertTagger for handling misalignment of word spans and embedding tokens
+    from estnltk_neural.taggers.embeddings.bert.bert_tagger import BertTagger
+    text = Text('Ta säutsus: 😃💁?💁!💁💁? Mina vastu: ☎☏??? Tema seepeale: ╳🔥!🔥!')
+
+    # token level
+    bert_tagger_1 = BertTagger(bert_location=MODEL_PATH, token_level=True)
+    text.tag_layer('sentences')
+    bert_tagger_1.tag(text)
+    assert 'bert_embeddings' in text.layers
+    for embedding_span in text.bert_embeddings:
+        assert len(embedding_span.bert_embedding[0]) == 3072  # 768 * 4 
+
+    # word level
+    bert_tagger_2 = BertTagger(output_layer='bert_word_embeddings',
+                                  bert_location=MODEL_PATH, token_level=False)
+    bert_tagger_2.tag(text)
+    assert 'bert_word_embeddings' in text.layers
+    for embedding_span in text.bert_word_embeddings:
+        assert len(embedding_span.bert_embedding[0]) == 3072  # 768 * 4 
+    assert text.bert_word_embeddings.text == text.words.text
+    
+    # 2) Test BertTagger for handling … and ...
+    text = Text('Ta säutsus: 😃💁?💁!💁💁? Mina vastu: ☎…??? ...! Tema seepeale: ╳🔥!🔥!')
+    text.tag_layer('sentences')
+    bert_tagger_2.tag(text)
+    assert 'bert_word_embeddings' in text.layers
+    for embedding_span in text.bert_word_embeddings:
+        assert len(embedding_span.bert_embedding[0]) == 3072  # 768 * 4 
+    assert text.bert_word_embeddings.text == text.words.text
