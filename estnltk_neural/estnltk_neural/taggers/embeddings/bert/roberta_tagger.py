@@ -93,8 +93,31 @@ class RobertaTagger(Tagger):
 
                     attributes = {'token': token_init, 'bert_embedding': embedding}
 
+                    shift_start = -1
                     if token_init == '<unk>':
                         token_end = end  # if token was UNK, set the end to word end
+                        #
+                        # Guard: check if the next token and the next word span match?
+                        # If not, then there is a misalignment between tokens and word 
+                        # spans, for instance:
+                        #     word span:  '💁!💁💁?'
+                        #     tokens:     '<unk>', '!', '<unk>', '?'
+                        # or
+                        #     word span:  '☏???'
+                        #     tokens:     '<unk>', '???'
+                        # In case of a misalignment, move incrementally inside word_span.
+                        #
+                        next_token = tokens[j+1].replace('▁', '') if j+1 < len(tokens) else None
+                        next_word = word_spans[i+1][2] if i+1 < len(word_spans) else None
+                        if (next_token is not None and next_word is not None and \
+                            not next_word.startswith(next_token)) or \
+                            next_word is None and next_token is not None:
+                            cur_word_chars = [c for c in word]
+                            if next_token[0] in cur_word_chars:
+                                # shift pointer inside word_span
+                                indx = cur_word_chars.index(next_token[0])
+                                token_end = start + indx
+                                shift_start = indx
                     else:
                         token = token_init.strip()  # if not, then len(token)
                         token_end = start + len(token.replace('▁', ''))
@@ -106,7 +129,13 @@ class RobertaTagger(Tagger):
                             word = word[1:]
 
                     embeddings_layer.add_annotation((start, token_end), **attributes)
-                    start = token_end  # adding token length to the current pointer
+                    if shift_start == -1:
+                        # shift the current pointer by full word_span length
+                        start = token_end
+                    else:
+                        # shift the current pointer incrementally inside word_span
+                        start = start + shift_start
+                        word = word[shift_start:]
                     if start == end:  # new word starts
                         i += 1
                         if len(word_spans) > i:  # update the values for the next word
@@ -120,6 +149,7 @@ class RobertaTagger(Tagger):
                 collected_tokens = []
                 collected_embeddings = []
                 counter = word_spans[0][0]
+                word = word_spans[0][2]
 
                 #  Example of tokenization difference:
                 # EstBert:     'muusikamaailmalt' -> ['muu', '##sika', '##maa', '##ilm', '##alt']
@@ -130,18 +160,46 @@ class RobertaTagger(Tagger):
                     span = word_spans[i]
                     length = span[1] - span[0]
                     if length == len(token_init.replace('▁', '')) or token_init == '<unk>':
-                        # Full word token or UNK token
-                        if self.method == 'all':
-                            embedding = [[float(e) for e in le] for le in token_emb]
-                        else:
-                            embedding = [float(e) for e in token_emb]
-                        attributes = {'token': token_init, 'bert_embedding': embedding}
-                        embeddings_layer.add_annotation((word_spans[i][0], word_spans[i][1]),
-                                                        **attributes)
-                        collected_tokens, collected_embeddings = [], []
-                        i += 1
-                        if len(word_spans) > i:
-                            counter = word_spans[i][0]
+                        #
+                        # Guard: check if the next token and the next word span match?
+                        # If not, then there is a misalignment between tokens and word 
+                        # spans, for instance:
+                        #     word span:  '💁!💁💁?'
+                        #     tokens:     '<unk>', '!', '<unk>', '?'
+                        # or
+                        #     word span:  '☏???'
+                        #     tokens:     '<unk>', '???'
+                        # In case of a misalignment, move incrementally inside word_span.
+                        #
+                        shift_inside_word_span = False
+                        next_token = (tokens[j+1]).replace('▁', '') if j+1 < len(tokens) else None
+                        next_word = word_spans[i+1][2] if i+1 < len(word_spans) else None
+                        if (next_token is not None and next_word is not None and \
+                            not next_word.startswith(next_token)) or \
+                            next_word is None and next_token is not None:
+                            cur_word_chars = [c for c in word]
+                            if next_token[0] in cur_word_chars:
+                                # shift pointer inside word_span
+                                indx = cur_word_chars.index(next_token[0])
+                                counter += indx
+                                word = word[indx:]
+                                collected_embeddings.append(token_emb)
+                                collected_tokens.append(token_init)
+                                shift_inside_word_span = True
+                        if not shift_inside_word_span:
+                            # Full word token or UNK token
+                            if self.method == 'all':
+                                embedding = [[float(e) for e in le] for le in token_emb]
+                            else:
+                                embedding = [float(e) for e in token_emb]
+                            attributes = {'token': token_init, 'bert_embedding': embedding}
+                            embeddings_layer.add_annotation((word_spans[i][0], word_spans[i][1]),
+                                                            **attributes)
+                            collected_tokens, collected_embeddings = [], []
+                            i += 1
+                            if len(word_spans) > i:
+                                counter = word_spans[i][0]
+                                word = word_spans[i][2]
                     elif length > len(token_init.replace('▁', '')) and token_init.startswith('▁') and counter == span[0]:
                         # first in many tokens
                         collected_embeddings.append(token_emb)
@@ -151,8 +209,11 @@ class RobertaTagger(Tagger):
                         # in the middle (or at the end) of a token
                         collected_embeddings.append(token_emb)
                         collected_tokens.append(token_init)
-                        counter += len(token_init.replace('▁', ''))
-                        if counter == span[1] or counter + span[2].count(' ') == span[1]:  
+                        add_length = len(token_init.replace('▁', ''))
+                        counter += add_length
+                        word = word[add_length:]
+                        if counter == span[1] or \
+                           counter + span[2].count(' ') == span[1]:  
                             # check if in the end of the word
                             if self.method == 'all':
                                 embedding = []
@@ -176,6 +237,7 @@ class RobertaTagger(Tagger):
                             i += 1
                             if len(word_spans) > i:
                                 counter = word_spans[i][0]
+                                word = word_spans[i][2]
 
         return embeddings_layer
 

@@ -1,7 +1,6 @@
 estnltk-core
 estnltk
 packaging
-tensorflow
 torch
 transformers
 stanza 

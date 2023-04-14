@@ -57,3 +57,33 @@ def test_roberta_tagger_word_level_smoke():
         assert len(embedding_span.bert_embedding[0]) == 3072  # 768 * 4 
 
     assert text.roberta_embeddings.text == text.words.text
+
+
+@pytest.mark.skipif(not check_if_transformers_is_available(),
+                    reason="package tranformers is required for this test")
+@pytest.mark.skipif(not check_if_pytorch_is_available(),
+                    reason="package pytorch is required for this test")
+@pytest.mark.skipif(ESTROBERTA_PATH is None,
+                    reason="RobertaTagger's model location not known. "+\
+                           "Set environment variable ESTROBERTA_PATH to model's local directory.")
+def test_roberta_tagger_tokens_and_word_span_misaligment_bugfix():
+    # Test RobertaTagger for handling misalignment of word spans and embedding tokens
+    from estnltk_neural.taggers.embeddings.bert.roberta_tagger import RobertaTagger
+    text = Text('Ta säutsus: 😃💁?💁!💁💁? Mina vastu: ☎☏??? Tema seepeale: ╳🔥!🔥!')
+
+    # token level
+    roberta_tagger_1 = RobertaTagger(bert_location=ESTROBERTA_PATH, token_level=True)
+    text.tag_layer('sentences')
+    roberta_tagger_1.tag(text)
+    assert 'roberta_embeddings' in text.layers
+    for embedding_span in text.roberta_embeddings:
+        assert len(embedding_span.bert_embedding[0]) == 3072  # 768 * 4 
+
+    # word level
+    roberta_tagger_2 = RobertaTagger(output_layer='roberta_word_embeddings',
+                                     bert_location=ESTROBERTA_PATH, token_level=False)
+    roberta_tagger_2.tag(text)
+    assert 'roberta_word_embeddings' in text.layers
+    for embedding_span in text.roberta_word_embeddings:
+        assert len(embedding_span.bert_embedding[0]) == 3072  # 768 * 4 
+    assert text.roberta_word_embeddings.text == text.words.text
