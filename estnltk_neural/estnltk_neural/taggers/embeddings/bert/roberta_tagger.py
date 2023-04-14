@@ -81,6 +81,11 @@ class RobertaTagger(Tagger):
                 for j, packed in enumerate(zip(embeddings, tokens)):
                     token_emb, token_init = packed[0], packed[1]
 
+                    if token_init == '▁...' and word.startswith('…'):
+                        # est-roberta's tokenizer replaces … with ...
+                        # replace it back
+                        token_init = '▁…'
+
                     if self.method == 'all':
                         embedding = []
                         for tok_emb in token_emb:
@@ -157,6 +162,31 @@ class RobertaTagger(Tagger):
 
                 for j, packed in enumerate(zip(embeddings, tokens)):
                     token_emb, token_init = packed[0], packed[1]
+                    if token_init == '▁...':
+                        if word.startswith('…'):
+                            # est-roberta's tokenizer replaces … with ...
+                            # replace it back
+                            token_init = '▁…'
+                        elif word == '.':
+                            # handle tokenization difference:
+                            #    word spans:    '.', '.', '.'
+                            #    tokens:        ▁...
+                            while word == '.':
+                                # Full word token
+                                if self.method == 'all':
+                                    embedding = [[float(e) for e in le] for le in token_emb]
+                                else:
+                                    embedding = [float(e) for e in token_emb]
+                                attributes = {'token': token_init, 'bert_embedding': embedding}
+                                embeddings_layer.add_annotation((word_spans[i][0], word_spans[i][1]),
+                                                                **attributes)
+                                collected_tokens, collected_embeddings = [], []
+                                i += 1
+                                if len(word_spans) > i:
+                                    counter = word_spans[i][0]
+                                    word = word_spans[i][2]
+                                else:
+                                    break
                     span = word_spans[i]
                     length = span[1] - span[0]
                     if length == len(token_init.replace('▁', '')) or token_init == '<unk>':
