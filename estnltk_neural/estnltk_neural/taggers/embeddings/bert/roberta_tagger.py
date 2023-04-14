@@ -235,7 +235,7 @@ class RobertaTagger(Tagger):
                         collected_embeddings.append(token_emb)
                         collected_tokens.append(token_init)
                         counter += len(token_init.replace('▁', ''))
-                    elif (length > len(token_init.replace('▁', '')) and counter > span[0]):
+                    elif (length > len(token_init.replace('▁', '')) and counter >= span[0]):
                         # in the middle (or at the end) of a token
                         collected_embeddings.append(token_emb)
                         collected_tokens.append(token_init)

@@ -96,3 +96,14 @@ def test_roberta_tagger_tokens_and_word_span_misaligment_bugfix():
     for embedding_span in text.roberta_word_embeddings:
         assert len(embedding_span.bert_embedding[0]) == 3072  # 768 * 4 
     assert text.roberta_word_embeddings.text == text.words.text
+    
+    # 3) Test RobertaTagger for handling tokens where starting ▁ is separated from
+    #    the first token of the word, such as in 'iaido' -> ['▁', 'ia', 'ido']
+    text = Text('Sobudo on täielik võitluskunstide süsteem , mis koosneb erinevatest aladest sh : '+\
+                'jodo , aikido , iaido ja jukempo . Tema seepeale: ╳🔥!🔥!')
+    text.tag_layer('sentences')
+    roberta_tagger_2.tag(text)
+    assert 'roberta_word_embeddings' in text.layers
+    for embedding_span in text.roberta_word_embeddings:
+        assert len(embedding_span.bert_embedding[0]) == 3072  # 768 * 4 
+    assert text.roberta_word_embeddings.text == text.words.text
