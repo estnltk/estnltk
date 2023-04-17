@@ -4,7 +4,9 @@ import os
 import torch
 import numpy as np
 
-from transformers import BertTokenizer, logging, BertModel
+from transformers import logging
+from transformers import AutoTokenizer
+from transformers import AutoModel
 
 from estnltk.downloader import get_resource_paths
 
@@ -49,8 +51,8 @@ class BertTagger(Tagger):
         self.output_layer = output_layer
         self.input_layers = [sentences_layer]
 
-        self.bert_model = BertModel.from_pretrained(self.bert_location, output_hidden_states=True)
-        self.tokenizer = BertTokenizer.from_pretrained(self.bert_location)
+        self.bert_model = AutoModel.from_pretrained(self.bert_location, output_hidden_states=True)
+        self.tokenizer = AutoTokenizer.from_pretrained(self.bert_location)
 
         self.output_attributes = ['token', 'bert_embedding']
 
