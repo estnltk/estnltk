@@ -209,3 +209,18 @@ def test_bert_tagger_tokens_and_word_span_misaligment_bugfix():
     for embedding_span in text.bert_word_embeddings:
         assert len(embedding_span.bert_embedding[0]) == 3072  # 768 * 4 
     assert text.bert_word_embeddings.text == text.words.text
+
+    # 4) Test BertTagger for handling '\xad' and multiword tokens
+    text = Text('Millenniumiprobleem : tõestada , et iga kompaktse lihtsa rühma G korral Yangi­Millsi '+\
+                'kalibratsioonivälja kvantteooria muutkonnal R 4 eksisteerib ja tema massispektris on '+\
+                'pilu > 0. Teda nimetatakse ka kalibratsiooniteisenduste rühmaks ja elektromagnetvälja '+\
+                'nimetatakse U ( 1 ) ­kalibratsiooniväljaks . Paarkümmend aastat hiljem leiti , et '+\
+                'Yangi­Millsi välja A μ ( x ) saab interpreteerida kui peakihtkonna P ( M , G ) seostuse '+\
+                '1­vormi komponente lokaalsel lõikel . Källeni­Lehmanni teoreem väidab , et on olemas '+\
+                'positiivne mõõt  ( m )  ...')
+    text.tag_layer('sentences')
+    bert_tagger_2.tag(text)
+    assert 'bert_word_embeddings' in text.layers
+    for embedding_span in text.bert_word_embeddings:
+        assert len(embedding_span.bert_embedding[0]) == 3072  # 768 * 4 
+    assert text.bert_word_embeddings.text == text.words.text
