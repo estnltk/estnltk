@@ -1,9 +1,12 @@
 import sqlite3
 import os.path
 import math
+import re
+import warnings
 import networkx as nx
 from typing import Union, List
 from estnltk.wordnet.synset import Synset
+from estnltk import get_resource_paths
 
 MAX_TAXONOMY_DEPTHS = {'a': 2, 'n': 13, 'r': 0, 'v': 10}
 
@@ -28,23 +31,48 @@ class WordnetIterator:
 class Wordnet:
     '''
     Wordnet class which implements sqlite database connection.
+    
     Attributes
     ----------
     version: str
-        Version of Wordnet to use. Currently only version 2.3.2 (default) is supported
+        Version of Wordnet to use. Defaults to the latest version in estnltk_resources, 
+        if the resource is not available, falls back to version 2.3.2;
     _relation_graph: Networkx.MultiDiGraph
         Graph where nodes are synset ids and edges are relations between nodes.
     '''
 
-    def __init__(self, version: str ='2.3.2', load_graph: bool = False) -> None:
+    def __init__(self, version: str=None, load_graph: bool = False) -> None:
         self.conn = None
         self.cur = None
-        self.version = version
         self._synsets_dict = dict()
         self._relation_graph = None
         self._hyponym_graph = None
 
-        wn_dir = '{}/data/estwn-et-{}'.format(os.path.dirname(os.path.abspath(__file__)), self.version)
+        wn_dir = None
+
+        # local wordnet dir inside the package (this will be removed in future versions)
+        wn_local_dir = '{}/data/estwn-et-{}'.format(os.path.dirname(os.path.abspath(__file__)), '2.3.2')
+
+        if isinstance(version, str):
+            # If the version parameter is set, try to load specified version of the wordnet
+            all_version_paths = get_resource_paths("wordnet", only_latest=False, download_missing=False)
+            all_version_paths.append(wn_local_dir)
+            for path in all_version_paths:
+                if ('estwn-et-{}'.format(version)) in path:
+                    wn_dir = path
+            if wn_dir is None:
+                raise WordnetException(("Invalid wordnet version {}: either this version "+\
+                                        "does not exist, or has not been downloaded yet. "+\
+                                        "Use estnltk.download('wordnet', only_latest=False) to "+\
+                                        "download all versions of wordnet.").format(version))
+        else:
+            # If the version parameter is unspecified, try to (down)load the latest version of the wordnet
+            latest_path = get_resource_paths("wordnet", only_latest=True, download_missing=True)
+            if latest_path is None and not os.path.exists(wn_local_dir):
+                raise WordnetException("Wordnet's resources have not been downloaded. "+\
+                                       "Use estnltk.download('wordnet') to get the missing resources.")
+            wn_dir = latest_path if latest_path is not None else wn_local_dir
+
         wn_entry = '{}/wordnet_entry.db'.format(wn_dir)
         wn_relation = '{}/wordnet_relation.db'.format(wn_dir)
         wn_example = '{}/wordnet_example.db'.format(wn_dir)
@@ -56,6 +84,14 @@ class Wordnet:
             raise WordnetException("Invalid wordnet version: missing file: {}".format(wn_entry))
         if not os.path.exists(wn_relation):
             raise WordnetException("Invalid wordnet version: missing file: {}".format(wn_relation))
+
+        # Parse wordnet version from wordnet path
+        version_str_matcher = re.search('estwn-et-([^-_ ]+)', wn_dir)
+        if version_str_matcher:
+            self.version = version_str_matcher.group(1)
+        else:
+            self.version = version
+            warnings.warn("Unable to parse wordnet version from path {!r}.".format(wn_dir))
 
         try:
             self.conn = sqlite3.connect(wn_entry)
