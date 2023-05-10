@@ -3,12 +3,19 @@ import os.path
 import math
 import re
 import warnings
-import networkx as nx
 from typing import Union, List
-from estnltk.wordnet.synset import Synset
-from estnltk import get_resource_paths
 
+import networkx as nx
+
+from estnltk.common import PACKAGE_PATH
+from estnltk import get_resource_paths
+from estnltk.wordnet.synset import Synset
+
+# taxonomy max depths used in calculating Leacock and Chodorow's similarity
 MAX_TAXONOMY_DEPTHS = {'a': 2, 'n': 13, 'r': 0, 'v': 10}
+
+# local wordnet dir inside the package (note: this will be removed in future versions)
+WORDNET_LOCAL_DIR = os.path.join(PACKAGE_PATH, 'wordnet', 'data', 'estwn-et-{}'.format('2.3.2'))
 
 
 class WordnetException(Exception):
@@ -30,18 +37,35 @@ class WordnetIterator:
 
 class Wordnet:
     '''
-    Wordnet class which implements sqlite database connection.
-    
-    Attributes
-    ----------
-    version: str
-        Version of Wordnet to use. Defaults to the latest version in estnltk_resources, 
-        if the resource is not available, falls back to version 2.3.2;
-    _relation_graph: Networkx.MultiDiGraph
-        Graph where nodes are synset ids and edges are relations between nodes.
+    Class for querying and iterating synsets and relations of Estonian Wordnet. 
+    Imports wordnet data from sqlite database. 
     '''
 
-    def __init__(self, version: str=None, load_graph: bool = False) -> None:
+    def __init__(self, version: str=None, local_dir: str=WORDNET_LOCAL_DIR, load_graph: bool = False) -> None:
+        '''
+        Initializes Estonian Wordnet.
+        
+        Parameters
+        ----------
+        version: str
+            Version of Wordnet to use (first priority). If not provided, falls back to wordnet 
+            specified via parameter local_dir. If parameter local_dir is also not provided, then 
+            uses the latest wordnet version in estnltk_resources that has been downloaded. 
+        local_dir: str
+            Local directory of Wordnet sqlite db files (second priority). Should be a full 
+            path to directory containing files 'wordnet_entry.db', 'wordnet_relation.db', 
+            'wordnet_example.db' and 'wordnet_definition.db'. The directory name should 
+            contain pattern 'estwn-et-{ver}', where {ver} is the version number of the 
+            Wordnet. Note that local_dir is used only if parameter version has not been 
+            provided or if version parameter matches with the version in local_dir. 
+            If local_dir is not provided, falls back to the latest wordnet version in 
+            estnltk_resources that has been downloaded.
+        load_graph: bool
+            Whether relation_graph and hyponym_graph will be built upon initialization. 
+            Building graphs takes time, and so lazy initialization is used: normally, 
+            graphs will be built on demand. 
+            Default: False
+        '''
         self.conn = None
         self.cur = None
         self._synsets_dict = dict()
@@ -49,14 +73,12 @@ class Wordnet:
         self._hyponym_graph = None
 
         wn_dir = None
-
-        # local wordnet dir inside the package (this will be removed in future versions)
-        wn_local_dir = '{}/data/estwn-et-{}'.format(os.path.dirname(os.path.abspath(__file__)), '2.3.2')
-
         if isinstance(version, str):
             # If the version parameter is set, try to load specified version of the wordnet
             all_version_paths = get_resource_paths("wordnet", only_latest=False, download_missing=False)
-            all_version_paths.append(wn_local_dir)
+            # Include user-provided local_dir
+            if isinstance(local_dir, str) and os.path.isdir(local_dir):
+                all_version_paths.append(local_dir)
             for path in all_version_paths:
                 if ('estwn-et-{}'.format(version)) in path:
                     wn_dir = path
@@ -66,13 +88,18 @@ class Wordnet:
                                         "Use estnltk.download('wordnet', only_latest=False) to "+\
                                         "download all versions of wordnet.").format(version))
         else:
-            # If the version parameter is unspecified, try to (down)load the latest version of the wordnet
-            latest_path = get_resource_paths("wordnet", only_latest=True, download_missing=True)
-            if latest_path is None and not os.path.exists(wn_local_dir):
-                raise WordnetException("Wordnet's resources have not been downloaded. "+\
-                                       "Use estnltk.download('wordnet') to get the missing resources.")
-            wn_dir = latest_path if latest_path is not None else wn_local_dir
+            # If the version parameter is unspecified, then:
+            if isinstance(local_dir, str):
+                # a) if local_dir is provided and exists, try to load wordnet from local_dir
+                wn_dir = local_dir
+            else:
+                # b) try to (down)load the latest version of the wordnet
+                wn_dir = get_resource_paths("wordnet", only_latest=True, download_missing=True)
+                if wn_dir is None:
+                    raise WordnetException("Wordnet's resources have not been downloaded. "+\
+                                           "Use estnltk.download('wordnet') to get the missing resources.")
 
+        # Construct paths to database files
         wn_entry = '{}/wordnet_entry.db'.format(wn_dir)
         wn_relation = '{}/wordnet_relation.db'.format(wn_dir)
         wn_example = '{}/wordnet_example.db'.format(wn_dir)
