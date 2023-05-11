@@ -48,9 +48,11 @@ class Wordnet:
         Parameters
         ----------
         version: str
-            Version of Wordnet to use (first priority). If not provided, falls back to wordnet 
-            specified via parameter local_dir. If parameter local_dir is also not provided, then 
-            uses the latest wordnet version in estnltk_resources that has been downloaded. 
+            Version of Wordnet to use (first priority). Must be a version in estnltk_resources 
+            that has been downloaded. If not provided, then falls back to wordnet specified 
+            via parameter local_dir. If parameter local_dir is also not provided, then uses 
+            the latest wordnet version from estnltk_resources index (if missing, then attempts 
+            to download the latest version).
         local_dir: str
             Local directory of Wordnet sqlite db files (second priority). Should be a full 
             path to directory containing files 'wordnet_entry.db', 'wordnet_relation.db', 
@@ -58,8 +60,8 @@ class Wordnet:
             contain pattern 'estwn-et-{ver}', where {ver} is the version number of the 
             Wordnet. Note that local_dir is used only if parameter version has not been 
             provided or if version parameter matches with the version in local_dir. 
-            If local_dir is not provided, falls back to the latest wordnet version in 
-            estnltk_resources that has been downloaded.
+            If local_dir is not provided, falls back to the latest wordnet version from 
+            estnltk_resources index (if missing, then attempts to download the latest version). 
         load_graph: bool
             Whether relation_graph and hyponym_graph will be built upon initialization. 
             Building graphs takes time, and so lazy initialization is used: normally, 
