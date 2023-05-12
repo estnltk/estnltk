@@ -1,4 +1,5 @@
 import pytest
+import sys
 import re
 
 from estnltk_core.layer.base_layer import BaseLayer
@@ -81,8 +82,10 @@ def test_getattr():
     assert isinstance(span_1.attr_1, AttributeList)
     assert span_1.attr_1 == create_amb_attribute_list([0, 3], 'attr_1')
 
-    with pytest.raises(AttributeError):
-        span_1.__getstate__
+    if sys.version_info[0] == 3 and sys.version_info[1] < 11:
+        # This only works for python < 3.11
+        with pytest.raises(AttributeError):
+            span_1.__getstate__
     with pytest.raises(AttributeError):
         span_1.__setstate__
     with pytest.raises(AttributeError):

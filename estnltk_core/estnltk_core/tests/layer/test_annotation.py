@@ -1,4 +1,6 @@
 import pytest
+import sys
+
 from estnltk_core.layer.base_layer import BaseLayer
 from estnltk_core import ElementaryBaseSpan, Span, Annotation
 from estnltk_core.common import load_text_class
@@ -63,8 +65,10 @@ def test_annotation_without_span():
     assert Annotation(None, attr_1=1, attr_2=2) != Annotation(None, attr_1=1, attr_2=22)
     assert Annotation(None, attr_1=1, attr_2=None) != Annotation(None, attr_1=1)
 
-    with pytest.raises(AttributeError):
-        annotation.__getstate__
+    if sys.version_info[0] == 3 and sys.version_info[1] < 11:
+        # This only works for python < 3.11
+        with pytest.raises(AttributeError):
+            annotation.__getstate__
 
     with pytest.raises(AttributeError):
         annotation.__setstate__
