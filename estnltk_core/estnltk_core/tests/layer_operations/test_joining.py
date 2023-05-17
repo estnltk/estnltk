@@ -6,6 +6,7 @@ from estnltk_core.converters import dict_to_layer
 from estnltk_core.layer_operations import join_texts
 from estnltk_core.layer_operations import join_layers
 from estnltk_core.layer_operations import join_layers_while_reusing_spans
+from estnltk_core.layer_operations import join_relation_layers
 from estnltk_core.layer_operations import split_by, split_by_sentences
 
 from estnltk_core.common import load_text_class
@@ -317,4 +318,83 @@ def test_join_layers_while_reusing_spans():
     new_text.add_layer( joined_layer )
     assert layer_to_dict( joined_layer ) == full_words_layer
     assert layer_to_dict( new_text['words'] ) == full_words_layer
+
+
+def test_relation_join_layers():
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
+    # Create test text and its split counterparts
+    text = Text('ABCD 123456  XYZ')
+    split_texts = [Text('ABCD'), Text('123456'), Text('XYZ')]
+    split_relation_layers = [ \
+        {'ambiguous': False,
+         'attributes': ('rel_index', 'str_a', 'str_b'),
+         'span_names': ('arg_a', 'arg_b'),
+         'meta': {},
+         'name': 'relation_layer',
+         'relations': [{'annotations': [{'rel_index': 0, 'str_a': 'A', 'str_b': 'CD'}],
+                        'named_spans': {'arg_a': (0, 1), 'arg_b': (2, 4)}},
+                       {'annotations': [{'rel_index': 1, 'str_a': 'A', 'str_b': 'D'}],
+                        'named_spans': {'arg_a': (0, 1), 'arg_b': (3, 4)}},
+                      ],
+         'secondary_attributes': (),
+         'serialisation_module': 'relations_v0'},
+         
+        {'ambiguous': False,
+         'attributes': ('rel_index', 'str_a', 'str_b'),
+         'span_names': ('arg_a', 'arg_b'),
+         'meta': {},
+         'name': 'relation_layer',
+         'relations': [{'annotations': [{'rel_index': 2, 'str_a': '1', 'str_b': '4'}],
+                        'named_spans': {'arg_a': (0, 1), 'arg_b': (3, 4)}},
+                       {'annotations': [{'rel_index': 3, 'str_a': '2', 'str_b': '56'}],
+                        'named_spans': {'arg_a': (1, 2), 'arg_b': (4, 6)}},
+                      ],
+         'secondary_attributes': (),
+         'serialisation_module': 'relations_v0'},
+         
+        {'ambiguous': False,
+         'attributes': ('rel_index', 'str_a', 'str_b'),
+         'span_names': ('arg_a', 'arg_b'),
+         'meta': {},
+         'name': 'relation_layer',
+         'relations': [{'annotations': [{'rel_index': 4, 'str_a': 'X', 'str_b': 'Z'}],
+                        'named_spans': {'arg_a': (0, 1), 'arg_b': (2, 3)}},
+                      ],
+         'secondary_attributes': (),
+         'serialisation_module': 'relations_v0'}
+    ]
+    rel_layers = [ dict_to_layer(layer_dict) for layer_dict in split_relation_layers ]
+    # Add Text objects to layers (join_layers* needs texts to determine span shifts)
+    for i, layer in enumerate(rel_layers):
+        layer.text_object = split_texts[i]
+
+    # Join relation layers
+    joined_layer = join_relation_layers(rel_layers, [' ', '  '])
+    new_text = Text( text.text )
+    new_text.add_layer( joined_layer )
+
+    # Check results
+    for rel in new_text['relation_layer']:
+        assert rel['arg_a'].text == rel.annotations[0]['str_a']
+        assert rel['arg_b'].text == rel.annotations[0]['str_b']
+    expected_relation_layer = \
+        {'ambiguous': False,
+         'attributes': ('rel_index', 'str_a', 'str_b'),
+         'meta': {},
+         'name': 'relation_layer',
+         'relations': [{'annotations': [{'rel_index': 0, 'str_a': 'A', 'str_b': 'CD'}],
+                        'named_spans': {'arg_a': (0, 1), 'arg_b': (2, 4)}},
+                       {'annotations': [{'rel_index': 1, 'str_a': 'A', 'str_b': 'D'}],
+                        'named_spans': {'arg_a': (0, 1), 'arg_b': (3, 4)}},
+                       {'annotations': [{'rel_index': 2, 'str_a': '1', 'str_b': '4'}],
+                        'named_spans': {'arg_a': (5, 6), 'arg_b': (8, 9)}},
+                       {'annotations': [{'rel_index': 3, 'str_a': '2', 'str_b': '56'}],
+                        'named_spans': {'arg_a': (6, 7), 'arg_b': (9, 11)}},
+                       {'annotations': [{'rel_index': 4, 'str_a': 'X', 'str_b': 'Z'}],
+                        'named_spans': {'arg_a': (13, 14), 'arg_b': (15, 16)}}],
+         'secondary_attributes': (),
+         'serialisation_module': 'relations_v0',
+         'span_names': ('arg_a', 'arg_b')}
+    assert layer_to_dict(new_text['relation_layer']) == expected_relation_layer
 

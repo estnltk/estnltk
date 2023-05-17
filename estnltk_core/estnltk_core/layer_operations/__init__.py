@@ -3,6 +3,7 @@ from .aggregators import GroupBy
 from .aggregators import Rolling
 from .combiners import join_texts
 from .combiners import join_layers
+from .combiners import join_relation_layers
 from .combiners import join_layers_while_reusing_spans
 from .combiners import merge_layers
 from .iterators import iterate_intersecting_spans
