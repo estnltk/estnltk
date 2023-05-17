@@ -40,7 +40,7 @@ class BatchProcessingWebTagger( WebTagger ):
                             'Please use EstNLTK\'s methods extract_sections or split_by to split the Text object '+\
                             'into smaller Texts, and proceed by processing smaller Texts with the web service. '+\
                             'More information about Text splitting: '+\
-                            'https://github.com/estnltk/estnltk/blob/version_1.6/tutorials/system/layer_operations.ipynb ')
+                            'https://github.com/estnltk/estnltk/blob/main/tutorials/system/layer_operations.ipynb ')
         return super().post_request( text, layers, parameters=parameters )
 
     def batch_process(self, text: Text, layers: MutableMapping[str, Layer], parameters=None):

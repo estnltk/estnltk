@@ -122,8 +122,9 @@ class CoreferenceTagger(RelationTagger):
             Root directory containing configuration files and resources required by 
             the tagger. Should contain sub directories 'estonian_configuration_files' 
             and 'estonian_resources'. If not provided, then attempts to download 
-            resources automatically from EstNLTK's resources repository.
-        
+            resources automatically from EstNLTK's resources repository. 
+            Note: This must be an absolute path.
+
         stanza_models_dir: str (default: None)
             Root directory of stanza models to be used for preprocessing. Should 
             contain sub directory "et" and the index file "resources.json". If not 
