@@ -1,24 +1,25 @@
 #
-#  BatchProcessingWebTagger -- a web tagger that processes input via small batches
-#                              ( splits large requests into smaller ones )
+#  BatchProcessingWebRelationTagger -- a web based relation tagger that processes 
+#                                      input via small batches ( splits large requests 
+#                                      into smaller ones )
 #
 from typing import MutableMapping
 
 from estnltk import Text
 from estnltk import Layer
-from estnltk.web_taggers import WebTagger
+from estnltk.web_taggers import WebRelationTagger
 
-from estnltk_core.layer_operations import join_layers_while_reusing_spans
+from estnltk_core.layer_operations import join_relation_layers
 from estnltk_core.layer_operations import extract_sections
 
 from estnltk import logger
 
-class BatchProcessingWebTaggerError(Exception):
+class BatchProcessingWebRelationTaggerError(Exception):
     pass
 
 
-class BatchProcessingWebTagger( WebTagger ):
-    '''A web tagger that processes large requests via small batches.
+class BatchProcessingWebRelationTagger( WebRelationTagger ):
+    '''A web based relation tagger that processes large requests via small batches.
     
     There are two working modes:
 
@@ -60,7 +61,7 @@ class BatchProcessingWebTagger( WebTagger ):
                    isinstance(self.batch_enveloping_layer, str)
             if len( layers[self.batch_layer] ) > self.batch_max_size:
                 # Note: normally, if batch processing works fine, this exception should never be thrown
-                raise BatchProcessingWebTaggerError('(!) The request Text object exceeds the web service '+\
+                raise BatchProcessingWebRelationTaggerError('(!) The request Text object exceeds the web service '+\
                                ('limit {} {!r} per text. '.format(self.batch_max_size, self.batch_layer))+\
                                 'Please use EstNLTK\'s methods extract_sections or split_by to split the Text object '+\
                                 'into smaller Texts, and proceed by processing smaller Texts with the web service. '+\
@@ -71,12 +72,12 @@ class BatchProcessingWebTagger( WebTagger ):
             #  batch splitting guided by text size limit
             # ================================================
             if len(layers) > 0:
-                raise BatchProcessingWebTaggerError('(!) The request Text object unexpectedly contains layers '+\
-                                                    'in text size limited splitting mode.')
+                raise BatchProcessingWebRelationTaggerError('(!) The request Text object unexpectedly contains layers '+\
+                                                            'in text size limited splitting mode.')
             if len( text.text ) > self.batch_max_size:
                 # Note: normally, if batch processing works fine, this exception should never be thrown
-                raise BatchProcessingWebTaggerError('(!) The request Text object exceeds the web service '+\
-                                                    'limit of maximum {} character size text.'.format(self.batch_max_size))
+                raise BatchProcessingWebRelationTaggerError('(!) The request Text object exceeds the web service '+\
+                                                            'limit of maximum {} character size text.'.format(self.batch_max_size))
         return super().post_request( text, layers, parameters=parameters )
 
     def batch_process(self, text: Text, layers: MutableMapping[str, Layer], parameters=None):
@@ -121,7 +122,7 @@ class BatchProcessingWebTagger( WebTagger ):
                     resulting_layers.append( new_layer )
                 logger.debug( 'Batch processing completed.'.format() )
                 # Join/concatenate results
-                new_layer = join_layers_while_reusing_spans( resulting_layers, separators )
+                new_layer = join_relation_layers( resulting_layers, separators )
                 # Set Text object and return newly created layer
                 new_layer.text_object = text
                 return new_layer
@@ -133,8 +134,8 @@ class BatchProcessingWebTagger( WebTagger ):
             #  batch splitting guided by text size limit
             # ================================================
             if len(self.input_layers) > 0:
-                raise BatchProcessingWebTaggerError('(!) BatchProcessingWebTagger cannot have input_layers '+\
-                                                    'in text size limited splitting mode.')
+                raise BatchProcessingWebRelationTaggerError('(!) BatchProcessingWebRelationTagger cannot have '+\
+                                                            'input_layers in text size limited splitting mode.')
             assert self.batch_enveloping_layer is None
             if len( text.text ) > self.batch_max_size:
                 # A) Text is too big: apply batched processing
@@ -150,7 +151,7 @@ class BatchProcessingWebTagger( WebTagger ):
                     resulting_layers.append( new_layer )
                 logger.debug( 'Batch processing completed.'.format() )
                 # Join/concatenate results
-                new_layer = join_layers_while_reusing_spans( resulting_layers, separators )
+                new_layer = join_relation_layers( resulting_layers, separators )
                 # Set Text object and return newly created layer
                 new_layer.text_object = text
                 return new_layer
@@ -297,4 +298,4 @@ class BatchProcessingWebTagger( WebTagger ):
                                   trim_overlapping=trimming_required), chunk_separators )
 
     def _repr_html_(self):
-        return self._repr_html('BatchProcessingWebTagger', self.about)
+        return self._repr_html('BatchProcessingWebRelationTagger', self.about)
