@@ -195,7 +195,7 @@ class BatchProcessingWebRelationTagger( WebRelationTagger ):
                         break
                     i -= 1
             chunks.append( Text(large_text.text[chunk_start:chunk_end]) )
-            # Find next chunk_start, skip newlines
+            # Find next chunk_start, skip space characters
             updated_chunk_end = chunk_end
             if chunk_end != len(large_text.text):
                 i = chunk_end
@@ -208,7 +208,7 @@ class BatchProcessingWebRelationTagger( WebRelationTagger ):
                 chunk_separators.append( large_text.text[chunk_end:updated_chunk_end] )
             last_chunk_end = updated_chunk_end
         assert len(chunk_separators) == len(chunks) - 1
-        # Return exctracted chunks
+        # Return extracted chunks
         return ( chunks, chunk_separators )
 
 
