@@ -320,7 +320,7 @@ def test_join_layers_while_reusing_spans():
     assert layer_to_dict( new_text['words'] ) == full_words_layer
 
 
-def test_relation_join_layers():
+def test_join_relation_layers():
     # Load Text or BaseText class (depending on the available packages)
     Text = load_text_class()
     # Create test text and its split counterparts
@@ -365,7 +365,7 @@ def test_relation_join_layers():
          'serialisation_module': 'relations_v0'}
     ]
     rel_layers = [ dict_to_layer(layer_dict) for layer_dict in split_relation_layers ]
-    # Add Text objects to layers (join_layers* needs texts to determine span shifts)
+    # Add Text objects to layers (join_relation_layers* needs texts to determine span shifts)
     for i, layer in enumerate(rel_layers):
         layer.text_object = split_texts[i]
 
