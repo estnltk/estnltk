@@ -4,7 +4,7 @@ from estnltk import Text
 from estnltk import Layer
 from estnltk.web_taggers import BatchProcessingWebRelationTagger
 
-class CoreferenceV1WebRelationTagger( BatchProcessingWebRelationTagger ):
+class CoreferenceV1WebTagger( BatchProcessingWebRelationTagger ):
     """Tags pronominal coreference relations using EstNLTK CoreferenceTagger's webservice.
 
     See also CoreferenceTagger's documentation:

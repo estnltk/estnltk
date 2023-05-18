@@ -2,7 +2,7 @@ import pytest
 
 from estnltk import Text
 from estnltk.converters import layer_to_dict
-from estnltk.web_taggers import CoreferenceV1WebRelationTagger
+from estnltk.web_taggers import CoreferenceV1WebTagger
 
 # Fix for DeprecationWarning: httpserver_listen_address fixture will be converted to session scope in version 1.0.0
 @pytest.fixture(scope="session")
@@ -33,7 +33,7 @@ def test_coreference_web_tagger_smoke(httpserver):
          'span_names': ('pronoun', 'mention')}
     httpserver.expect_request('/estnltk/tagger/coreference_v1').respond_with_json(response_layer_dict)
     # Tag coref
-    tagger = CoreferenceV1WebRelationTagger(url=httpserver.url_for('/estnltk/tagger/coreference_v1'))
+    tagger = CoreferenceV1WebTagger(url=httpserver.url_for('/estnltk/tagger/coreference_v1'))
     tagger.tag(text)
     # Check results
     assert tagger.output_layer in text.relation_layers
