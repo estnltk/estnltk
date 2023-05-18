@@ -474,8 +474,13 @@ def _download_and_unpack( resource_description, resources_dir ):
     if 'Content-Type' not in file_headers.keys():
         raise ValueError( ('Missing "Content-Type" in response headers '+\
                            'of the downloadable file: {!r}').format(file_headers) )
-    if file_headers['Content-Type'].startswith('application/zip') or \
-       file_headers['Content-Type'].startswith('application/gzip'):
+    # Note: sometimes server assigns erroneous 'Content-Type' 
+    # value 'text/html; charset=UTF-8, application/zip'. 
+    # If 'Content-Type' still refers to a packed file and the 
+    # status_code is OK,  we can ignore it and proceed with 
+    # downloading.
+    if 'application/zip' in file_headers['Content-Type'] or \
+       'application/gzip' in file_headers['Content-Type']:
         if response.status_code == requests.codes.ok:
             with open(temp_f.name, mode="wb") as out_f:
                 progress = tqdm( desc="Downloading {}".format(name),
@@ -489,7 +494,7 @@ def _download_and_unpack( resource_description, resources_dir ):
         else:
             response.raise_for_status()
     else:
-        raise ValueError( ('(!) File downloadable from {!r} is not a zip or gz file.'+\
+        raise ValueError( ('(!) File downloadable from {!r} is not a zip or gz file. '+\
                            'Unexpected Content-Type: {!r}').format( url, 
                            file_headers['Content-Type']) )
     # =================================================
