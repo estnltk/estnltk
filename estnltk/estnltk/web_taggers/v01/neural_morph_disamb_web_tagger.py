@@ -37,8 +37,8 @@ class NeuralMorphDisambWebTagger( BatchProcessingWebTagger, Retagger ):
                              input_sentences_layer, 
                              input_morph_analysis_layer]
         self.output_attributes = ('morphtag', 'pos', 'form')
-        self.batch_layer            = self.input_layers[0]
-        self.batch_layer_max_size   = 125
+        self.batch_layer    = self.input_layers[0]
+        self.batch_max_size = 125
         self.batch_enveloping_layer = self.input_layers[1]
 
     def _change_layer(self, text, layers, status):
