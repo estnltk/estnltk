@@ -78,3 +78,4 @@ from estnltk.web_taggers.v01.batch_processing_web_tagger import BatchProcessingW
 from estnltk.web_taggers.v01.bert_embeddings_web_tagger import BertEmbeddingsWebTagger
 from estnltk.web_taggers.v01.stanza_syntax_web_tagger import StanzaSyntaxWebTagger
 from estnltk.web_taggers.v01.stanza_syntax_ensemble_web_tagger import StanzaSyntaxEnsembleWebTagger
+from estnltk.web_taggers.v01.coreference_v1_web_tagger import CoreferenceV1WebRelationTagger
