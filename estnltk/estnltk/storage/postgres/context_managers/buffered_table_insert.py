@@ -1,6 +1,7 @@
 from psycopg2.sql import SQL, Identifier, Literal, Composed
 from psycopg2.sql import DEFAULT as SQL_DEFAULT
 from psycopg2.extensions import STATUS_BEGIN
+from psycopg2 import Error as psycopg2_Error
 
 from estnltk import logger
 
@@ -135,6 +136,17 @@ class BufferedTableInsert(object):
                            self.column_identifiers,
                            SQL(', ').join(self.buffer)))
         except Exception as ex:
+            if issubclass(type(ex), psycopg2_Error):
+                # Log more information about psycopg2_Error
+                if ex.diag.message_primary is not None:
+                    logger.error('{}: {}'.format( ex.__class__.__name__, \
+                                                  ex.diag.message_primary ))
+                if ex.diag.message_detail is not None:
+                    logger.error('DETAIL: {}'.format( ex.diag.message_detail ))
+                if ex.diag.message_hint is not None:
+                    logger.error('HINT: {}'.format( ex.diag.message_hint ))
+                if ex.diag.context is not None:
+                    logger.error('CONTEXT: {}'.format( ex.diag.context ))
             logger.error('flush insert buffer failed')
             logger.error('number of rows in the buffer: {}'.format(len(self.buffer)))
             logger.error('estimated insert query length: {}'.format(self._buffered_insert_query_length))

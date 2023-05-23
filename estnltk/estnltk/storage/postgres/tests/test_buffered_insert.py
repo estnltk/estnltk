@@ -4,6 +4,7 @@ Requires ~/.pgpass file with database connection settings to `test_db` database.
 Schema/table creation and read/write rights are required.
 
 """
+import json
 import random
 import unittest
 from collections import OrderedDict
@@ -92,6 +93,35 @@ class TestBufferedTableInsert(unittest.TestCase):
                                 (1, 'Mis kell on?', 'teine lausung'),
                                 (2, 'Halloo!', 'kolmas kutsung')]
         self.assertListEqual(result_rows, expected_result_rows)
+
+
+    def test_buffered_table_insert_NaN_values(self):
+        # A) Create test table
+        table_identifier = pg.table_identifier(storage=self.storage, table_name="testing_buffered_table_nan_insert")
+        columns = [
+            ('id', 'serial PRIMARY KEY'),
+            ('text', 'text NOT NULL'),
+            ('data', 'jsonb'),
+        ]
+        columns_sql = SQL(",\n").join(SQL("{} {}").format(Identifier(n), SQL(t)) for n, t in columns)
+        self.storage.conn.commit()
+        with self.storage.conn.cursor() as c:
+            logger.debug(c.query)
+            c.execute(SQL("CREATE TABLE {} ({});").format(table_identifier,
+                                                          columns_sql))
+            logger.debug(c.query)
+            self.storage.conn.commit()
+        # B) Try to insert json with NaN values
+        buffered_inserter = \
+            BufferedTableInsert( self.storage.conn, table_identifier, columns=[c[0] for c in columns])
+        target_dict = {'a': 3.6, 'b':3, 'c': '3.6', 'd': float('nan')}
+        target_json = json.dumps(target_dict, ensure_ascii=False)
+        with self.assertRaises(Exception):
+            # This raises psycopg2.errors.InvalidTextRepresentation [Token "NaN" is invalid] in 
+            # some PostgreSQL versions, but not in all versions.
+            buffered_inserter.insert( [0, 'Testime!',  target_json ] )
+            # Exception can only appear after we close the buffer
+            buffered_inserter.close()
 
 
 def get_random_collection_name():
