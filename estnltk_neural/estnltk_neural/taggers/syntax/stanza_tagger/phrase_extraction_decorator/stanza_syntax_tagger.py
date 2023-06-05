@@ -14,7 +14,7 @@ from estnltk.downloader import get_resource_paths
 from estnltk import Text
 
 
-class StanzaSyntaxTagger2(Tagger):
+class StanzaSyntaxTaggerWithIgnore(Tagger):
     """
     This is an entity ignore tagger that creates a layer with the subtrees from stanza_syntax_ignore_entity layer
     "removed" so that the spans will have None values. The short sentence after subtree removal is tagged with 
@@ -80,12 +80,12 @@ class StanzaSyntaxTagger2(Tagger):
                 self.agreement_error_retagger = DeprelAgreementRetagger(output_layer=self.output_layer)
                 self.output_attributes += ('agreement_deprel',)
 
-        if self.input_type not in ['sentences', 'morph_analysis', 'morph_extended', "stanza_syntax", "conll_syntax"]:
+        if self.input_type not in ['sentences', 'morph_analysis', 'morph_extended', "stanza_syntax"]:
             raise ValueError('Invalid input type {}'.format(input_type))
 
         self.input_layers = [sentences_layer, words_layer, input_morph_layer, ignore_layer]     
 
-        self.stanza_tagger = StanzaSyntaxTagger(input_type=self.input_type, input_morph_layer=self.input_layers[2], 
+        self.stanza_tagger = StanzaSyntaxTagger(input_type=self.input_type, input_morph_layer=self.input_type, 
                                             add_parent_and_children=True, resources_path=self.resources_path)
 
 
@@ -111,7 +111,7 @@ class StanzaSyntaxTagger2(Tagger):
 
         empty_layer = self._make_layer_template()
         empty_layer.text_object=text
-        
+
         ignored_tokens = [word for span in ignore_layer for word in span.words]
         tokens = [span for span in word_layer if span not in ignored_tokens]
         short_sent = " ".join([span.text for span in tokens])

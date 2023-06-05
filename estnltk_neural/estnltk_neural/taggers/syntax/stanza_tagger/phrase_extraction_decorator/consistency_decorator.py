@@ -1,6 +1,7 @@
 from estnltk import Layer
-from .syntax_tree_operations import *
-from .stanza_syntax_tagger import StanzaSyntaxTagger2
+from estnltk.taggers.standard.syntax.phrase_extraction.syntax_tree_operations import *
+
+from .stanza_syntax_tagger import StanzaSyntaxTaggerWithIgnore
 
 
 class ConsistencyDecorator:
@@ -18,7 +19,7 @@ class ConsistencyDecorator:
         self.syntax_layer = syntax_layer
         self.morph_layer = morph_layer
 
-        self.syntax_tagger = StanzaSyntaxTagger2(ignore_layer=self.output_layer, input_type=input_type,
+        self.syntax_tagger = StanzaSyntaxTaggerWithIgnore(ignore_layer=self.output_layer, input_type=input_type,
                                                  input_morph_layer=self.morph_layer, add_parent_and_children=True,
                                                  resources_path=self.resources_path)
 
