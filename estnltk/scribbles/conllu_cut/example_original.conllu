@@ -1,0 +1,40 @@
+# sent_id = aja_epl20070812_91
+# text = Alates reedest, 10. augustist on Non Grata kunstikonteineris väljas performance'ikunstniku, Non Grata asutajaliikme ja legendaarse pedagoogi Margus Tiitsma (kunstnik, keda aastani 2007 tunti kui Sorget) näitusmüük "Vaigutajad ja assamblaažid".
+1	Alates	alates	K	K	pre=pre	9	advcl	_	_
+2	reedest	reede	S	S	com=com|sg=sg|el=el	1	obl	_	_
+3	,	,	Z	Z	_	5	punct	_	_
+4	10.	10.	N	N	ord=ord|<?>=<?>|roman=roman	5	amod	_	_
+5	augustist	august	S	S	com=com|sg=sg|el=el	2	appos	_	_
+6	on	olema	V	V	main=main|indic=indic|pres=pres|ps3=ps3|pl=pl|ps=ps|af=af	9	cop	_	_
+7	Non	Non	S	S	prop=prop|sg=sg|nom=nom	9	nmod	_	_
+8	Grata	Grata	S	S	prop=prop|sg=sg|gen=gen	7	flat	_	_
+9	kunstikonteineris	kunstikonteiner	S	S	com=com|sg=sg|in=in	0	root	_	_
+10	väljas	väljas	D	D	_	9	advmod	_	_
+11	performance'ikunstniku	performance’ikunstnik	S	S	com=com|sg=sg|gen=gen	19	nmod	_	_
+12	,	,	Z	Z	_	15	punct	_	_
+13	Non	Non	S	S	prop=prop|sg=sg|nom=nom	15	nmod	_	_
+14	Grata	Grata	S	S	prop=prop|sg=sg|gen=gen	13	flat	_	_
+15	asutajaliikme	asutajaliige	S	S	com=com|sg=sg|gen=gen	11	conj	_	_
+16	ja	ja	J	J	sub=sub|crd=crd	18	cc	_	_
+17	legendaarse	legendaarne	A	A	pos=pos|sg=sg|gen=gen	18	amod	_	_
+18	pedagoogi	pedagoog	S	S	com=com|sg=sg|gen=gen	11	conj	_	_
+19	Margus	Margus	S	S	prop=prop|sg=sg|nom=nom	31	nmod	_	_
+20	Tiitsma	Tiitsma	S	S	prop=prop|sg=sg|nom=nom	19	flat	_	_
+21	(	(	Z	Z	_	22	punct	_	_
+22	kunstnik	kunstnik	S	S	com=com|sg=sg|nom=nom	18	parataxis	_	_
+23	,	,	Z	Z	_	27	punct	_	_
+24	keda	kes	P	P	sg=sg|part=part	27	obj	_	_
+25	aastani	aasta	S	S	com=com|sg=sg|term=term	27	obl	_	_
+26	2007	2007	N	N	card=card|<?>=<?>|digit=digit	25	nummod	_	_
+27	tunti	tundma	V	V	main=main|indic=indic|impf=impf|imps=imps|af=af	22	acl:relcl	_	_
+28	kui	kui	D	D	_	29	mark	_	_
+29	Sorget	Sorget	S	S	prop=prop|sg=sg|nom=nom	27	advcl	_	_
+30	)	)	Z	Z	_	22	punct	_	_
+31	näitusmüük	näitusmüük	S	S	com=com|sg=sg|nom=nom	9	nsubj	_	_
+32	"	"	Z	Z	_	33	punct	_	_
+33	Vaigutajad	vaigutaja	S	S	com=com|pl=pl|nom=nom	31	appos	_	_
+34	ja	ja	J	J	sub=sub|crd=crd	35	cc	_	_
+35	assamblaažid	assamblaaž	S	S	com=com|pl=pl|nom=nom	33	conj	_	_
+36	"	"	Z	Z	_	33	punct	_	_
+37	.	.	Z	Z	_	9	punct	_	_
+
