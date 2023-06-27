@@ -1,3 +1,0 @@
-This folder contains compiled _hfst_ models. The source code of the models was available at [https://victorio.uit.no/langtech/trunk/experiment-langs/est/](https://victorio.uit.no/langtech/trunk/experiment-langs/est/), and the last compiled model is based on the source revision 177977 (2019-03-22). The model was compiled with the guesser component. 
-
-Note that the source repository has been relocated and is now available at [https://github.com/giellalt/lang-est-x-utee](https://github.com/giellalt/lang-est-x-utee). 
