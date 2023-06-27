@@ -479,7 +479,10 @@ def _download_and_unpack( resource_description, resources_dir ):
     # If 'Content-Type' still refers to a packed file and the 
     # status_code is OK,  we can ignore it and proceed with 
     # downloading.
-    if 'application/zip' in file_headers['Content-Type'] or \
+    if 'application/x-zip-compressed' in file_headers['Content-Type'] or \
+       'application/x-zip' in file_headers['Content-Type'] or \
+       'application/x-gzip' in file_headers['Content-Type'] or \
+       'application/zip' in file_headers['Content-Type'] or \
        'application/gzip' in file_headers['Content-Type']:
         if response.status_code == requests.codes.ok:
             with open(temp_f.name, mode="wb") as out_f:
@@ -533,9 +536,9 @@ def _download_and_unpack( resource_description, resources_dir ):
         # =================================================
         # 4) Unpack resource into target path
         # =================================================
-        if file_headers['Content-Type'].startswith('application/zip'):
+        if file_headers['Content-Type'].startswith(('application/zip', 'application/x-zip', 'application/x-zip-compressed')):
             errors = _unpack_zip(downloaded_file, resource_description, resources_dir)
-        elif file_headers['Content-Type'].startswith('application/gzip'):
+        elif file_headers['Content-Type'].startswith(('application/gzip', 'application/x-gzip')):
             errors = _unpack_gzip(downloaded_file, resource_description, resources_dir)
     # =================================================
     # 5) Report errors if any
