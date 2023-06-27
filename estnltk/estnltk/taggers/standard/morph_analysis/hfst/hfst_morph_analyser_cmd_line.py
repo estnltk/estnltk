@@ -17,11 +17,12 @@ import atexit
 from estnltk import Layer, Text
 from estnltk.taggers import Tagger
 
+from estnltk.downloader import get_resource_paths
+
 from estnltk_core.converters import as_unicode, as_binary
 
 from estnltk.common import _get_word_texts
 
-from estnltk.taggers.standard.morph_analysis.hfst.hfst_morph_common import HFST_MODEL_FILE
 from estnltk.taggers.standard.morph_analysis.hfst.hfst_morph_common import HfstMorphOutputExtractor
 from estnltk.taggers.standard.morph_analysis.hfst.hfst_morph_common import RawAnalysesHfstMorphOutputExtractor
 from estnltk.taggers.standard.morph_analysis.hfst.hfst_morph_common import MorphemesLemmasHfstOutputExtractor
@@ -73,7 +74,7 @@ class HfstClMorphAnalyser(Tagger):
                  output_layer:str='hfst_gt_morph_analysis',
                  input_words_layer:str='words',
                  output_format:str='morphemes_lemmas',
-                 transducer_file:str=HFST_MODEL_FILE,
+                 transducer_file:str=None,
                  hfst_cmd:str=None,
                  use_stream:bool=True,
                  remove_guesses:bool=False):
@@ -111,16 +112,12 @@ class HfstClMorphAnalyser(Tagger):
                           'usage',
                           'weight'
             
-        transducer_file: str
-            Path to the ('analyser-gt-desc.hfstol') file, from
-            which Estonian morphological analyser can be 
-            loaded;
-            Note: this argument will be overridden by the 
-            argument transducer: if the transducer is specified
-            (default), then loading it from file will not be 
-            attempted;
-            ( default file: 
-                estnltk\taggers\standard\morph_analysis\hfst\models\analyser-gt-desc.hfstol )
+        transducer_file: str (default: None)
+            Full path to the 'analyser-gt-desc.hfstol' file, 
+            from which Estonian morphological analyser can be 
+            loaded.
+            If not provided (default), then attempts to download 
+            HFST analyser's model from estnltk_resources.
         
         hfst_cmd: str (default: None)
             Name and full path to the 'hfst-lookup' command 
@@ -195,13 +192,18 @@ class HfstClMorphAnalyser(Tagger):
         
         # Check for transducer_file
         self.transducer_file = None
-        if transducer_file:
-            if os.path.exists(transducer_file):
-                self.transducer_file = transducer_file
+        if transducer_file is None:
+            # Try to get the resources for hfstmorphanalyser. Attempt to download, if missing
+            model_dir = get_resource_paths("hfstmorphanalyser", only_latest=True, download_missing=True)
+            if model_dir is not None:
+                self.transducer_file = os.path.join(model_dir, 'analyser-gt-desc.hfstol')
             else:
-                raise FileNotFoundError('(!) Unable to load transducer_file {!r}'.format(transducer_file))
+                raise Exception( "HfstClMorphAnalyser's resources have not been downloaded. "+\
+                                 "Use estnltk.download('hfstmorphanalyser') to get the missing resources." )
         else:
-            raise Exception("(!) Missing HFST's transducer file. Please specify the argument transducer_file.")
+            self.transducer_file = transducer_file
+        if not os.path.exists( self.transducer_file ):
+            raise FileNotFoundError('(!) Unable to load transducer_file {!r}'.format( self.transducer_file ))
 
         # Launch hfst process (if streaming will be used)
         self._hfst_process = None
