@@ -474,16 +474,18 @@ def _download_and_unpack( resource_description, resources_dir ):
     if 'Content-Type' not in file_headers.keys():
         raise ValueError( ('Missing "Content-Type" in response headers '+\
                            'of the downloadable file: {!r}').format(file_headers) )
+    # Determine content type
     # Note: sometimes server assigns erroneous 'Content-Type' 
     # value 'text/html; charset=UTF-8, application/zip'. 
     # If 'Content-Type' still refers to a packed file and the 
     # status_code is OK,  we can ignore it and proceed with 
     # downloading.
-    if 'application/x-zip-compressed' in file_headers['Content-Type'] or \
-       'application/x-zip' in file_headers['Content-Type'] or \
-       'application/x-gzip' in file_headers['Content-Type'] or \
-       'application/zip' in file_headers['Content-Type'] or \
-       'application/gzip' in file_headers['Content-Type']:
+    is_zip_file = 'application/x-zip-compressed' in file_headers['Content-Type'] or \
+                  'application/x-zip' in file_headers['Content-Type'] or \
+                  'application/zip' in file_headers['Content-Type']
+    is_gzip_file = 'application/x-gzip' in file_headers['Content-Type'] or \
+                   'application/gzip' in file_headers['Content-Type']
+    if is_zip_file or is_gzip_file:
         if response.status_code == requests.codes.ok:
             with open(temp_f.name, mode="wb") as out_f:
                 progress = tqdm( desc="Downloading {}".format(name),
@@ -536,10 +538,15 @@ def _download_and_unpack( resource_description, resources_dir ):
         # =================================================
         # 4) Unpack resource into target path
         # =================================================
-        if file_headers['Content-Type'].startswith(('application/zip', 'application/x-zip', 'application/x-zip-compressed')):
+        if is_zip_file:
             errors = _unpack_zip(downloaded_file, resource_description, resources_dir)
-        elif file_headers['Content-Type'].startswith(('application/gzip', 'application/x-gzip')):
+        elif is_gzip_file:
             errors = _unpack_gzip(downloaded_file, resource_description, resources_dir)
+        else:
+            # Normally, we should never reach here
+            raise ValueError( ('(!) File downloaded from {!r} is not a zip or gz file. '+\
+                               'Unexpected Content-Type: {!r}').format( url, 
+                                file_headers['Content-Type']) )
     # =================================================
     # 5) Report errors if any
     # =================================================
