@@ -7,15 +7,11 @@ from typing import Union, List
 
 import networkx as nx
 
-from estnltk.common import PACKAGE_PATH
 from estnltk import get_resource_paths
 from estnltk.wordnet.synset import Synset
 
 # taxonomy max depths used in calculating Leacock and Chodorow's similarity
 MAX_TAXONOMY_DEPTHS = {'a': 2, 'n': 13, 'r': 0, 'v': 10}
-
-# local wordnet dir inside the package (note: this will be removed in future versions)
-WORDNET_LOCAL_DIR = os.path.join(PACKAGE_PATH, 'wordnet', 'data', 'estwn-et-{}'.format('2.3.2'))
 
 
 class WordnetException(Exception):
@@ -41,7 +37,7 @@ class Wordnet:
     Imports wordnet data from sqlite database. 
     '''
 
-    def __init__(self, version: str=None, local_dir: str=WORDNET_LOCAL_DIR, load_graph: bool = False) -> None:
+    def __init__(self, version: str=None, local_dir: str=None, load_graph: bool = False) -> None:
         '''
         Initializes Estonian Wordnet.
         
