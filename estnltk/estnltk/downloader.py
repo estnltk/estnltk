@@ -447,8 +447,8 @@ def _download_and_unpack( resource_description, resources_dir ):
     errors were encountered.
     
     Currently supported downloadable file types:
-    * application/zip
-    * application/gzip (excluding *.tar.gz)
+    * application/zip, application/x-zip, application/x-zip-compressed
+    * application/gzip, application/x-gzip (excluding *.tar.gz)
     
     Throws an exception when:
     *) Content-Type missing from response headers (TODO: can that happen?);
