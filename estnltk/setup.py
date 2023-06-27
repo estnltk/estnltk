@@ -179,7 +179,6 @@ setup(
                                         'expected_outputs/attribute_visualiser_outputs/*.txt'], 
         'estnltk.vabamorf': ['dct/2020-01-22_nosp/*.dct', 
                              'dct/2020-01-22_sp/*.dct'],
-        'estnltk.wordnet': ['data/estwn-et-2.3.2/*.*'],
         'estnltk.visualisation': ['attribute_visualiser/*.css', 
                                   'attribute_visualiser/*.js', 
                                   'span_visualiser/*.css', 

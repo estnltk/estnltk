@@ -20,7 +20,6 @@ graft estnltk/taggers/standard/syntax/preprocessing/rules_files
 graft estnltk/taggers/standard/text_segmentation
 graft estnltk/taggers/miscellaneous
 graft estnltk/vabamorf/dct
-graft estnltk/wordnet
 graft estnltk/visualisation/attribute_visualiser
 graft estnltk/visualisation/span_visualiser
 graft estnltk/tests/converters
