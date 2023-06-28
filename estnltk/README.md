@@ -10,7 +10,7 @@ This package contains EstNLTK's basic linguistic analysis, system and database t
 
 * `Text` class with the Estonian NLP pipeline;
 * tokenization tools: word, sentence and paragraph tokenization; clause segmentation; 
-* morphology tools: morphological analysis and disambiguation, spelling correction, morphological synthesis and syllabification, HFST based analyser and GT converter;
+* morphology tools: morphological analysis and disambiguation, spelling correction, morphological synthesis and syllabification, HFST based analyser, GT and UD converters;
 * information extraction tools: addresses tagger, named entity recognizer, temporal expression tagger; tools for rule based and grammar based fact extraction;
 * experimental taggers: verb chain detector, noun phrase chunker, adjective phrase tagger;
 * syntactic analysis tools: preprocessing for syntactic analysis, VislCG3 and Maltparser based syntactic parsers;
@@ -25,28 +25,28 @@ This package contains EstNLTK's basic linguistic analysis, system and database t
 
 ### Installation
 
-EstNLTK is available for osx, windows-64, and linux-64, and for python versions 3.7 to 3.10. 
+EstNLTK is available for osx, windows-64, and linux-64, and for python versions 3.8 to 3.11. 
 You can install the latest version via PyPI:
 
 ```
-pip install estnltk==1.7.1
+pip install estnltk==1.7.2
 ```
 
 Alternatively, you can install EstNLTK via [Anaconda](https://www.anaconda.com/download). Installation steps with conda:
 
-1. [create a conda environment](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#creating-an-environment-with-commands) with python 3.8, for instance:
+1. [create a conda environment](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#creating-an-environment-with-commands) with python 3.9, for instance:
 ```
-conda create -n py38 python=3.8
+conda create -n py39 python=3.9
 ```
 
 2. [activate the environment](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#activating-an-environment), for instance:
 ```
-conda activate py38
+conda activate py39
 ```
 
 3. install EstNLTK with the command:
 ```
-conda install -c estnltk -c conda-forge estnltk=1.7.1
+conda install -c estnltk -c conda-forge estnltk=1.7.2
 ```
 
 _Note_: for using some of the tools in estnltk, you also need to have Java installed in your system. We recommend using Oracle Java http://www.oracle.com/technetwork/java/javase/downloads/index.html, although alternatives such as OpenJDK (http://openjdk.java.net/) should also work.
@@ -56,7 +56,7 @@ _Note_: for using some of the tools in estnltk, you also need to have Java insta
 You can install EstNLTK on [Google Colab](https://colab.research.google.com) environment via command:
 
 ```
-!pip install estnltk==1.7.1
+!pip install estnltk==1.7.2
 ```
 
 ### Documentation
