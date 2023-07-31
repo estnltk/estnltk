@@ -37,7 +37,7 @@ def test_get_related_synset_without_relation():
     if wn.version == '2.3.2':
         # [("Synset('ekstsitatsioon.n.01')", 'hypernym')]
         expected = [(Synset(wn, 3203), 'hypernym')]
-    elif wn.version == '2.5.0':
+    elif wn.version in ['2.5.0', '2.6.0']:
         # [("Synset('faktilugu.n.01')", 'domain_topic'), ("Synset('ekstsitatsioon.n.01')", 'hypernym')]
         expected = [(Synset(wn, 58586), 'domain_topic'), (Synset(wn, 3203), 'hypernym')]
     else:
@@ -51,7 +51,7 @@ def test_closure():
         # wn['koer'] = ["Synset('koer.n.01')", "Synset('kaak.n.01')", "Synset('kutsikas.n.02')"]
         ss_koer = wn['koer'][0]
         expected = [Synset(wn, 55794)]
-    elif wn.version == '2.5.0':
+    elif wn.version in ['2.5.0', '2.6.0']:
         # wn['koer'] = ["Synset('distsiplineerimatu.a.01')", "Synset('kodukoer.n.01')", "Synset('kaak.n.01')", "Synset('koer.n.03')"]
         ss_koer = wn['koer'][1]
         expected = [Synset(wn, 55794)]
@@ -73,7 +73,7 @@ def test_path_similarity_with_self():
     if wn.version == '2.3.2':
         # wn['koer'] = ["Synset('koer.n.01')", "Synset('kaak.n.01')", "Synset('kutsikas.n.02')"]
         ss_koer = wn['koer'][0]
-    elif wn.version == '2.5.0':
+    elif wn.version in ['2.5.0', '2.6.0']:
         # wn['koer'] = ["Synset('distsiplineerimatu.a.01')", "Synset('kodukoer.n.01')", "Synset('kaak.n.01')", "Synset('koer.n.03')"]
         ss_koer = wn['koer'][1]
     else:
@@ -86,7 +86,7 @@ def test_path_similarity_with_parent():
     if wn.version == '2.3.2':
         # wn['koer'] = ["Synset('koer.n.01')", "Synset('kaak.n.01')", "Synset('kutsikas.n.02')"]
         ss_koer = wn['koer'][0]
-    elif wn.version == '2.5.0':
+    elif wn.version in ['2.5.0', '2.6.0']:
         # wn['koer'] = ["Synset('distsiplineerimatu.a.01')", "Synset('kodukoer.n.01')", "Synset('kaak.n.01')", "Synset('koer.n.03')"]
         ss_koer = wn['koer'][1]
     else:
