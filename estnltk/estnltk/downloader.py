@@ -482,9 +482,13 @@ def _download_and_unpack( resource_description, resources_dir ):
     # downloading.
     is_zip_file = 'application/x-zip-compressed' in file_headers['Content-Type'] or \
                   'application/x-zip' in file_headers['Content-Type'] or \
-                  'application/zip' in file_headers['Content-Type']
+                  'application/zip' in file_headers['Content-Type'] or \
+                  ('application/octet-stream' in file_headers['Content-Type'] and \
+                   (url.lower()).endswith('.zip'))
     is_gzip_file = 'application/x-gzip' in file_headers['Content-Type'] or \
-                   'application/gzip' in file_headers['Content-Type']
+                   'application/gzip' in file_headers['Content-Type'] or \
+                   ('application/octet-stream' in file_headers['Content-Type'] and \
+                    (url.lower()).endswith(('.gz', '.gzip')))
     if is_zip_file or is_gzip_file:
         if response.status_code == requests.codes.ok:
             with open(temp_f.name, mode="wb") as out_f:
