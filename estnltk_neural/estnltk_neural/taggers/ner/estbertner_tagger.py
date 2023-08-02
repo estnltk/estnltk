@@ -16,12 +16,13 @@ class EstBERTNERTagger(MultiLayerTagger):
     """EstNLTK wrapper for the huggingface EstBERTNER models."""
     conf_param = ('model_location', 'nlp', 'tokenizer','input_layers','output_layers', 
                   'output_layers_to_attributes', 'custom_tokens_layer', 'batch_size', 
-                  'postfix_expand_suffixes', 'postfix_remove_infix_matches')
+                  'postfix_expand_suffixes', 'postfix_concat_same_type_entities', 'postfix_remove_infix_matches')
 
     def __init__(self, model_location: str = None, output_layer: str = 'estbertner', 
                        tokens_output_layer:str ='nertokens', custom_tokens_layer:str = None, 
                        batch_size:int=1750, 
                        postfix_expand_suffixes:bool=True, 
+                       postfix_concat_same_type_entities:bool=True, 
                        postfix_remove_infix_matches:bool=True):
         """
         Initializes EstBERTNERTagger.
@@ -33,11 +34,12 @@ class EstBERTNERTagger(MultiLayerTagger):
             attempts to use estbertner v1 model from estnltk_resources. If that fails (model is 
             missing and downloading fails), then throws an exception.
         output_layer: str
-            Name of the output named entity annotations layer. Default: 'estbertner';
+            Name of the output named entity annotations layer. 
+            Default: 'estbertner'.
         tokens_output_layer: str
             Name of the (BERT) tokens layer, which is created during named entity recognition 
             and which tokens will be enveloped by named entity annotations. 
-            Default: 'nertokens';
+            Default: 'nertokens'.
         custom_tokens_layer: str
             Name of a customized tokens layer that should be taken as a basis on enveloping 
             named entity annotations (instead of tokens_output_layer). 
@@ -52,13 +54,19 @@ class EstBERTNERTagger(MultiLayerTagger):
         postfix_expand_suffixes: bool
             If set (default), then postcorrects NER annotations by adding missing suffixes to 
             phrases, for instance: "[Pärnu]ga" -> "[Pärnuga]", "[Brüsseli]sse" -> "[Brüsselisse]".
-            Default: True;
+            Default: True.
+        postfix_concat_same_type_entities: bool
+            If set (default), then postcorrects NER annotations by joining consecutive named 
+            entity snippets that are not separated by whitespace, and that have same type of 
+            named entities. For instance: "[Ken][yast]" -> "[Kenyast]", '[Kure][ssaare]' -> 
+            '[Kuressaare]', "[Domini][ca Ühendus]" -> "[Dominica Ühendus]", .
+            Default: True.
         postfix_remove_infix_matches: bool
             If set (default), then postcorrects NER annotations by removing entity snippets 
             that are shorter than / equal to 3 characters, and that are surrounded by alphanumeric 
             characters, either at the start or at the end of the entity. Examples:
             "Te[ma]" -> "Tema", "[L]A[P]S[E]P[Õ]LVEKODU" -> "LAPSEPÕLVEKODU".
-            Default: True;
+            Default: True.
         """
         if model_location is None:
             # Try to get the resources path for berttagger. Attempt to download, if missing
@@ -93,6 +101,7 @@ class EstBERTNERTagger(MultiLayerTagger):
 
         self.custom_tokens_layer = custom_tokens_layer
         self.postfix_expand_suffixes = postfix_expand_suffixes
+        self.postfix_concat_same_type_entities = postfix_concat_same_type_entities
         self.postfix_remove_infix_matches = postfix_remove_infix_matches
 
     def tokenize_with_bert(self, text):
@@ -226,6 +235,8 @@ class EstBERTNERTagger(MultiLayerTagger):
                 words = self.input_layers[0] if len(self.input_layers) > 0 else self.output_layers[1]
                 tokenslayer = getattr(text, words)
             self._postfix_expand_suffixes(text, nerlayer, tokenslayer)
+        if self.postfix_concat_same_type_entities:
+            self._postfix_concatenate_same_type_entities(text, nerlayer)
         if self.postfix_remove_infix_matches:
             self._postfix_remove_infix_matches(text, nerlayer)
         # Return results
@@ -278,6 +289,66 @@ class EstBERTNERTagger(MultiLayerTagger):
                     to_replace.append( (ne_span, EnvelopingBaseSpan(new_entity_spans), nertag) )
         for (old_span, new_entity_spans, ner_tag) in to_replace:
             nerlayer.remove_span(old_span)
+            nerlayer.add_annotation(new_entity_spans, **{nertag_attr: ner_tag})
+
+    def _postfix_concatenate_same_type_entities(self, text:Text, nerlayer:Layer):
+        '''Applies post-fixing on NER layer: finds consecutive named entity snippets 
+           that are not separated by whitespace, and that have same type of named entities 
+           and concatenates these entities into a single NE phrase.
+           The goal is to join NE phrases mistakenly broken into multiple annotations, 
+           for instance:
+           "[Ken][yast]" -> "[Kenyast]", "[Domini][ca Ühendus]" -> "[Dominica Ühendus]", 
+           "[Her][ko Sunts]" -> [Herko Sunts].
+        '''
+        # Collect start and end indexes of entities + corresponding tags
+        nertag_attr   = self.output_layers_to_attributes[self.output_layers[0]][0]
+        start_indexes = {}
+        end_indexes   = {}
+        for ne_span in nerlayer:
+            ne_start, ne_end = ne_span.start, ne_span.end
+            nertag = ne_span.annotations[0][nertag_attr]
+            start_indexes[ne_start] = nertag
+            end_indexes[ne_end] = nertag
+        to_concatenate = []
+        i = 0
+        while i < len(nerlayer):
+            ne_span = nerlayer[i]
+            nertag = ne_span.annotations[0][nertag_attr]
+            # Find following entities that can be appended to this entity
+            cur_concat_spans = [ne_span]
+            j = i + 1
+            while j < len(nerlayer):
+                ne_span2 = nerlayer[j]
+                nertag2 = ne_span2.annotations[0][nertag_attr]
+                if cur_concat_spans[-1].end == ne_span2.start and \
+                   text.text[ne_span2.start-1].isalnum() and \
+                   text.text[ne_span2.start].isalnum() and \
+                   nertag == nertag2:
+                    cur_concat_spans.append( ne_span2 )
+                else:
+                    # Not possible to expand any further
+                    break
+                j += 1
+            if len(cur_concat_spans) > 1:
+                # Concatenation possible: record spans that should be added together
+                new_entity_spans = []
+                for cur_span in cur_concat_spans:
+                    for base_span in cur_span.base_span:
+                        new_entity_spans.append( base_span )
+                current_span = f'{ne_span.enclosing_text}'
+                expansion    = f'{_text_snippet(text,ne_end,i)}'
+                ne_start = new_entity_spans[0].start
+                ne_end   = new_entity_spans[-1].end
+                conc_strs = [f'[{cur_span.enclosing_text}]' for cur_span in cur_concat_spans]
+                context = f'...{_text_snippet(text,ne_start-10,ne_start)}{"".join(conc_strs)}{_text_snippet(text,ne_end,ne_end+10)}...'
+                logger.debug( f'NER postfix concatenated entities in: {context!r}' )
+                to_concatenate.append( (cur_concat_spans, EnvelopingBaseSpan(new_entity_spans), nertag) )
+            i += 1
+        for (old_spans, new_entity_spans, ner_tag) in to_concatenate:
+            # Remove old spans
+            for old_span in old_spans:
+                nerlayer.remove_span(old_span)
+            # Add new concatenated spans
             nerlayer.add_annotation(new_entity_spans, **{nertag_attr: ner_tag})
 
     def _postfix_remove_infix_matches(self, text:Text, nerlayer:Layer, max_length:int=3):

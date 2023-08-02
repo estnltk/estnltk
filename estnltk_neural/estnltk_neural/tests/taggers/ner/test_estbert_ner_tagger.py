@@ -72,14 +72,14 @@ def test_estbertner_v2_smoke():
     assert output_layer in text.layers
     #print( _ner_spans_as_tuples( text[output_layer] ) )
     assert _ner_spans_as_tuples( text[output_layer] ) == \
-        [(0, 3, 'Tar', 'PER'), (3, 15, 'mo Kruusimäe', 'PER'), 
-         (18, 22, 'Vaik', 'PER'), (22, 29, 'o Eplik', 'PER'), 
+        [(0, 15, 'Tarmo Kruusimäe', 'PER'), 
+         (18, 29, 'Vaiko Eplik', 'PER'), 
          (48, 56, 'Euroopat', 'LOC'), 
          (58, 67, 'Läänemets', 'PER'), 
          (85, 90, 'Homme', 'DATE'), 
          (100, 122, 'Tartu Linnaraamatukogu', 'ORG'), 
          (140, 153, 'maalikunstnik', 'TITLE'), 
-         (154, 155, 'O', 'PER'), (155, 166, 've Büttneri', 'PER'), 
+         (154, 166, 'Ove Büttneri', 'PER'), 
          (168, 175, 'graafik', 'TITLE'), 
          (176, 188, 'Tiit Rammuli', 'PER'), 
          (195, 209, 'Tiina Vilbergi', 'PER'), 
@@ -97,6 +97,7 @@ def test_estbertner_v1_postfixes():
     # Initialize model without any postfixes
     from estnltk_neural.taggers import EstBERTNERTagger
     neural_ner_tagger = EstBERTNERTagger(postfix_expand_suffixes=False, 
+                                         postfix_concat_same_type_entities=False, 
                                          postfix_remove_infix_matches=False)
     # 1) Test _postfix_expand_suffixes
     text = Text('Seni Kuressaarel otseliin Pärnuga puudub. '+\
@@ -135,6 +136,7 @@ def test_estbertner_v2_postfixes():
     from estnltk_neural.taggers import EstBERTNERTagger
     neural_ner_tagger = EstBERTNERTagger(model_location=ESTBERTNER_V2_PATH,
                                          postfix_expand_suffixes=False, 
+                                         postfix_concat_same_type_entities=False, 
                                          postfix_remove_infix_matches=False)
     # 1) Test _postfix_expand_suffixes
     text = Text('Seni Kuressaarel otseliin Pärnuga puudub. '+\
