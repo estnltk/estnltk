@@ -18,22 +18,47 @@ class EstBERTNERTagger(MultiLayerTagger):
                   'output_layers_to_attributes', 'custom_tokens_layer', 'batch_size', 
                   'postfix_expand_suffixes', 'postfix_remove_infix_matches')
 
-    def __init__(self, model_location: str = None, output_layer: str = 'estbertner', custom_tokens_layer:str=None,
-                       batch_size:int=1750, tokens_output_layer:str ='nertokens', postfix_expand_suffixes:bool=True, 
+    def __init__(self, model_location: str = None, output_layer: str = 'estbertner', 
+                       tokens_output_layer:str ='nertokens', custom_tokens_layer:str = None, 
+                       batch_size:int=1750, 
+                       postfix_expand_suffixes:bool=True, 
                        postfix_remove_infix_matches:bool=True):
         """
         Initializes EstBERTNERTagger.
         
-        Note #1: if a custom tokens layer is chosen, then it is not checked whether the tokens segmentation in that 
-        layer matches the segmentation done by the NER tagger. If the segmentations do not match, it will lead to 
-        wrong tags in the output.
-        
-        Note #2: if flag postfix_expand_suffixes is set (default), then adds missing suffixes to NE phrases, for 
-        instance: "[Pärnu]ga" -> "[Pärnuga]", "[Brüsseli]sse" -> "[Brüsselisse]".
-        
-        Note #3: if flag postfix_remove_infix_matches is set (default), then applies post-fixing on NER layer: 
-        removes entity snippets that are shorter than / equal to 3 characters, and that are surrounded by 
-        alphanumeric characters, either at the start or at the end of the entity.
+        Parameters
+        ----------
+        model_location: str
+            Full path to the EstBERTNER model files directory. If not provided (default), then 
+            attempts to use estbertner v1 model from estnltk_resources. If that fails (model is 
+            missing and downloading fails), then throws an exception.
+        output_layer: str
+            Name of the output named entity annotations layer. Default: 'estbertner';
+        tokens_output_layer: str
+            Name of the (BERT) tokens layer, which is created during named entity recognition 
+            and which tokens will be enveloped by named entity annotations. 
+            Default: 'nertokens';
+        custom_tokens_layer: str
+            Name of a customized tokens layer that should be taken as a basis on enveloping 
+            named entity annotations (instead of tokens_output_layer). 
+            If a custom tokens layer is provided, then it is not checked whether the tokens 
+            segmentation in that layer matches the BERT segmentation done by the NER tagger. 
+            If the segmentations do not match, it will lead to wrong tags in the output. 
+            Default: None. 
+        batch_size: int
+            Maximum batch size (in characters) that is processed as a whole by the BERT model. 
+            The input text is split into batches of the given size before processing. 
+            Default: 1750
+        postfix_expand_suffixes: bool
+            If set (default), then postcorrects NER annotations by adding missing suffixes to 
+            phrases, for instance: "[Pärnu]ga" -> "[Pärnuga]", "[Brüsseli]sse" -> "[Brüsselisse]".
+            Default: True;
+        postfix_remove_infix_matches: bool
+            If set (default), then postcorrects NER annotations by removing entity snippets 
+            that are shorter than / equal to 3 characters, and that are surrounded by alphanumeric 
+            characters, either at the start or at the end of the entity. Examples:
+            "Te[ma]" -> "Tema", "[L]A[P]S[E]P[Õ]LVEKODU" -> "LAPSEPÕLVEKODU".
+            Default: True;
         """
         if model_location is None:
             # Try to get the resources path for berttagger. Attempt to download, if missing
