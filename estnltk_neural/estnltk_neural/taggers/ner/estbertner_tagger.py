@@ -15,18 +15,18 @@ from estnltk import logger
 class EstBERTNERTagger(MultiLayerTagger):
     """EstNLTK wrapper for the huggingface EstBERTNER models."""
     conf_param = ('model_location', 'nlp', 'tokenizer','input_layers','output_layers', 
-                  'output_layers_to_attributes', 'custom_words_layer', 'batch_size', 
+                  'output_layers_to_attributes', 'custom_tokens_layer', 'batch_size', 
                   'postfix_expand_suffixes', 'postfix_remove_infix_matches')
 
-    def __init__(self, model_location: str = None, output_layer: str = 'estbertner', custom_words_layer:str=None,
-                       batch_size:int=1750, words_output_layer:str ='nerwords', postfix_expand_suffixes:bool=True, 
+    def __init__(self, model_location: str = None, output_layer: str = 'estbertner', custom_tokens_layer:str=None,
+                       batch_size:int=1750, tokens_output_layer:str ='nertokens', postfix_expand_suffixes:bool=True, 
                        postfix_remove_infix_matches:bool=True):
         """
         Initializes EstBERTNERTagger.
         
-        Note #1: if a custom layer is chosen, it is not checked whether the word segmentation in that layer
-        matches the segmentation done by the NER tagger. If the segmentations do not match, it will lead to wrong 
-        tags in the output.
+        Note #1: if a custom tokens layer is chosen, then it is not checked whether the tokens segmentation in that 
+        layer matches the segmentation done by the NER tagger. If the segmentations do not match, it will lead to 
+        wrong tags in the output.
         
         Note #2: if flag postfix_expand_suffixes is set (default), then adds missing suffixes to NE phrases, for 
         instance: "[Pärnu]ga" -> "[Pärnuga]", "[Brüsseli]sse" -> "[Brüsselisse]".
@@ -60,13 +60,13 @@ class EstBERTNERTagger(MultiLayerTagger):
 
         self.output_layers_to_attributes = {self.output_layers[0]: ["nertag"]}
 
-        if custom_words_layer is None:
-            self.output_layers.append(words_output_layer)
+        if custom_tokens_layer is None:
+            self.output_layers.append(tokens_output_layer)
             self.output_layers_to_attributes[self.output_layers[1]] = []
         else:
-            self.input_layers = [custom_words_layer]
+            self.input_layers = [custom_tokens_layer]
 
-        self.custom_words_layer = custom_words_layer
+        self.custom_tokens_layer = custom_tokens_layer
         self.postfix_expand_suffixes = postfix_expand_suffixes
         self.postfix_remove_infix_matches = postfix_remove_infix_matches
 
@@ -118,7 +118,7 @@ class EstBERTNERTagger(MultiLayerTagger):
                          enveloping=self.input_layers[0] if len(self.input_layers) > 0 else self.output_layers[1])
         nertag_attr = self.output_layers_to_attributes[self.output_layers[0]][0]
         tokenslayer = None
-        if self.custom_words_layer is None:
+        if self.custom_tokens_layer is None:
             tokenslayer = Layer(name=self.output_layers[1], 
                                 attributes=self.output_layers_to_attributes[self.output_layers[1]], 
                                 text_object=text)
@@ -131,7 +131,7 @@ class EstBERTNERTagger(MultiLayerTagger):
             response = self.nlp( text_chunk )
             entity_spans = []
             entity_type = None
-            if self.custom_words_layer is None:
+            if self.custom_tokens_layer is None:
                 #
                 # A) Create NE tokens layer on the fly
                 #
@@ -205,7 +205,7 @@ class EstBERTNERTagger(MultiLayerTagger):
             self._postfix_remove_infix_matches(text, nerlayer)
         # Return results
         returnable_dict = { self.output_layers[0]: nerlayer }
-        if self.custom_words_layer is None:
+        if self.custom_tokens_layer is None:
             returnable_dict = { self.output_layers[1]: tokenslayer, 
                                 self.output_layers[0]: nerlayer }
         return returnable_dict
