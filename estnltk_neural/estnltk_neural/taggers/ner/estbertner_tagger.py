@@ -1,3 +1,5 @@
+from typing import MutableMapping
+
 from transformers import BertTokenizer, BertForTokenClassification
 from transformers import pipeline
 
@@ -9,16 +11,16 @@ from estnltk import Text, Layer, EnvelopingBaseSpan, ElementaryBaseSpan
 
 from estnltk import logger
 
-from typing import MutableMapping
 
 class EstBERTNERTagger(MultiLayerTagger):
-    """ EstNLTK wrapper for the huggingface EstBERTNER model."""
-    conf_param = ('model_location', 'nlp', 'tokenizer','input_layers','output_layers',
-                  'output_layers_to_attributes', 'custom_words_layer', 
-                  'batch_size', 'postfix_remove_infix_matches')
+    """EstNLTK wrapper for the huggingface EstBERTNER models."""
+    conf_param = ('model_location', 'nlp', 'tokenizer','input_layers','output_layers', 
+                  'output_layers_to_attributes', 'custom_words_layer', 'batch_size', 
+                  'postfix_expand_suffixes', 'postfix_remove_infix_matches')
 
     def __init__(self, model_location: str = None, output_layer: str = 'estbertner', custom_words_layer:str=None,
-                       batch_size:int=1750, words_output_layer:str ='nerwords', postfix_remove_infix_matches:bool=True):
+                       batch_size:int=1750, words_output_layer:str ='nerwords', postfix_expand_suffixes:bool=True, 
+                       postfix_remove_infix_matches:bool=True):
         """
         Initializes EstBERTNERTagger.
         
@@ -26,7 +28,10 @@ class EstBERTNERTagger(MultiLayerTagger):
         matches the segmentation done by the NER tagger. If the segmentations do not match, it will lead to wrong 
         tags in the output.
         
-        Note #2: if flag postfix_remove_infix_matches is set (default), then applies post-fixing on NER layer: 
+        Note #2: if flag postfix_expand_suffixes is set (default), then adds missing suffixes to NE phrases, for 
+        instance: "[Pärnu]ga" -> "[Pärnuga]", "[Brüsseli]sse" -> "[Brüsselisse]".
+        
+        Note #3: if flag postfix_remove_infix_matches is set (default), then applies post-fixing on NER layer: 
         removes entity snippets that are shorter than / equal to 3 characters, and that are surrounded by 
         alphanumeric characters, either at the start or at the end of the entity.
         """
@@ -62,6 +67,7 @@ class EstBERTNERTagger(MultiLayerTagger):
             self.input_layers = [custom_words_layer]
 
         self.custom_words_layer = custom_words_layer
+        self.postfix_expand_suffixes = postfix_expand_suffixes
         self.postfix_remove_infix_matches = postfix_remove_infix_matches
 
     def tokenize_with_bert(self, text):
@@ -189,6 +195,12 @@ class EstBERTNERTagger(MultiLayerTagger):
                             entity_spans = []
                     entity_type = label[2:]
                     entity_spans.append( span.base_span )
+        # Apply postfixes
+        if self.postfix_expand_suffixes:
+            if tokenslayer is None:
+                words = self.input_layers[0] if len(self.input_layers) > 0 else self.output_layers[1]
+                tokenslayer = getattr(text, words)
+            self._postfix_expand_suffixes(text, nerlayer, tokenslayer)
         if self.postfix_remove_infix_matches:
             self._postfix_remove_infix_matches(text, nerlayer)
         # Return results
@@ -197,6 +209,51 @@ class EstBERTNERTagger(MultiLayerTagger):
             returnable_dict = { self.output_layers[1]: tokenslayer, 
                                 self.output_layers[0]: nerlayer }
         return returnable_dict
+
+    def _postfix_expand_suffixes(self, text:Text, nerlayer:Layer, tokenslayer:Layer):
+        '''Applies post-fixing on NER layer: finds entity snippets that are followed by 
+           alphanumeric characters, and expands them in text until a punctuation or a 
+           whitespace character, whichever appears first. 
+           The goal is to fix suffixes of NE phrases, for instance:
+           "[Pärnu]ga" -> "[Pärnuga]", 
+           "[Brüsseli]sse" -> "[Brüsselisse]", 
+           "[Transatlantilise Kesk]use" -> "[Transatlantilise Keskuse]".
+        '''
+        # Collect start and end indexes of entities
+        start_indexes = set([ne_span.start for ne_span in nerlayer])
+        end_indexes   = set([ne_span.end for ne_span in nerlayer])
+        nertag_attr   = self.output_layers_to_attributes[self.output_layers[0]][0]
+        # Find NE snippets that can be further expanded 
+        to_replace = []
+        for ne_span in nerlayer:
+            ne_start, ne_end = ne_span.start, ne_span.end
+            ne_end_alphanum = ne_end < len(text.text) and text.text[ne_end].isalnum()
+            if ne_end_alphanum and not ne_end in start_indexes:
+                # Find potential NE ending (next whitespace)
+                i = ne_end
+                while i < len(text.text):
+                    if (text.text[i]).isspace() or text.text[i] in '"\',.:;?!':
+                        break
+                    i += 1
+                # Collect missing tokens 
+                missing_tokens = \
+                    [sp for sp in tokenslayer if ne_end <= sp.start and sp.end <= i]
+                # Check that missing tokens do not cover existing NE-s.  
+                # Otherwise, we'll have a conflict
+                if all([(t.start not in start_indexes and t.end not in end_indexes) for t in missing_tokens]) and \
+                   len(missing_tokens) > 0:
+                    nertag = ne_span.annotations[0][nertag_attr]
+                    new_entity_spans = [base_span for base_span in ne_span.base_span]
+                    for token in missing_tokens:
+                        new_entity_spans.append( ElementaryBaseSpan(token.start, token.end) )
+                    current_span = f'{ne_span.enclosing_text}'
+                    expansion    = f'{_text_snippet(text,ne_end,i)}'
+                    context = f'...{_text_snippet(text,ne_start-10,ne_start)}[{current_span}][{expansion}]{_text_snippet(text,i,i+10)}...'
+                    logger.debug( f'NER postfix expanded entity in: {context!r}' )
+                    to_replace.append( (ne_span, EnvelopingBaseSpan(new_entity_spans), nertag) )
+        for (old_span, new_entity_spans, ner_tag) in to_replace:
+            nerlayer.remove_span(old_span)
+            nerlayer.add_annotation(new_entity_spans, **{nertag_attr: ner_tag})
 
     def _postfix_remove_infix_matches(self, text:Text, nerlayer:Layer, max_length:int=3):
         '''Applies post-fixing on NER layer: removes entity snippets that are shorter than /
