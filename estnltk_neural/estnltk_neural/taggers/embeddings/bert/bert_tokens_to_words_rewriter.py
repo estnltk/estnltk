@@ -17,9 +17,9 @@ class BertTokens2WordsRewriter(Tagger):
     '''Rewrites BERT tokens layer to a layer enveloping EstNLTK's words layer. 
        
        Annotations of the new layer are created by a decorator function, 
-       which is applied on every pair (enveloped_words, overlapping_bert_tokens). 
-       The decorator function has input parameters (text_obj, sharing_words, 
-       shared_bert_tokens). 
+       which is applied on every pair (enveloped_words, corresponding_bert_tokens). 
+       The decorator function has input parameters (text_obj, enveloped_words, 
+       corresponding_bert_tokens). 
        The decorator function is expected to assign a single annotation to 
        each span of the layer (unambiguous output). Returned annotation should 
        be in form of a dictionary containing attributes & values. If decorator 
@@ -41,16 +41,22 @@ class BertTokens2WordsRewriter(Tagger):
             raise TypeError(f'(!) decorator should be a callable function, not {type(decorator)}')
         self.decorator = decorator
 
+    def _make_layer_template(self):
+        layer = Layer(name=self.output_layer,
+                      attributes=self.output_attributes,
+                      text_object=None,
+                      enveloping=self.input_layers[0],
+                      ambiguous=False )
+        return layer
+
     def _make_layer(self, text, layers, status):
         words = layers[self.input_layers[0]]
         bert_tokens = layers[self.input_layers[1]]
         assert bert_tokens != self.output_layer, \
             ('cannot make new layer: input_layer and output_layer have the same name: {!r}. '+\
              '').format(self.output_layer)
-        layer = Layer(name=self.output_layer,
-                      attributes=self.output_attributes,
-                      text_object=text,
-                      enveloping=words.name)
+        layer = self._make_layer_template()
+        layer.text_object = text
         words_to_bert_tokens_map = map_words_to_bert_tokens(words, bert_tokens)
         grouped_words = group_words_by_bert_tokens(words, words_to_bert_tokens_map)
         for (sharing_words, shared_bert_tokens) in grouped_words:
