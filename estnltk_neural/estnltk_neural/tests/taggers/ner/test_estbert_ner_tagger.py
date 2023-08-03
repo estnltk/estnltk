@@ -122,6 +122,28 @@ def test_estbertner_v1_postfixes():
         (102, 110, 'Helmutil', 'PER'), (124, 128, 'Ilse', 'PER'), (136, 141, 'Ellit', 'PER'), 
         (157, 164, 'Rolandi', 'PER'), (194, 200, 'Tartus', 'LOC'), (201, 207, 'Gogoli', 'ORG')]
 
+    # 2) Test _postfix_concat_same_type_entities
+    text = Text('RMK keelas Nipernaadil Rakvere linnametsa siseneda. '+\
+                'Myanmari mässulised olid ka kuulnud Bangkokis toimuvast. '+\
+                'See sundis MacArthurit lahkuma Kenyast ja siirduma Mecklenburgi. ')
+    neural_ner_tagger.tag(text)
+    output_layer = neural_ner_tagger.output_layers[0]
+    output_tokens_layer = neural_ner_tagger.output_layers[1]
+    #print( _ner_spans_as_tuples( text[output_layer] ) )
+    assert _ner_spans_as_tuples( text[output_layer] ) == \
+        [(0, 3, 'RMK', 'ORG'), (11, 13, 'Ni', 'PER'), (23, 30, 'Rakvere', 'LOC'), 
+         (52, 54, 'My', 'LOC'), (88, 97, 'Bangkokis', 'LOC'), 
+         (120, 124, 'MacA', 'PER'), (126, 129, 'hur', 'PER'), (140, 143, 'Ken', 'LOC'), (143, 145, 'ya', 'LOC'), 
+         (160, 162, 'Me', 'LOC'), (162, 164, 'ck', 'LOC'), (164, 167, 'len', 'LOC'), (167, 172, 'burgi', 'LOC')]
+    # Apply postfixes
+    neural_ner_tagger._postfix_expand_suffixes(text, text[output_layer], text[output_tokens_layer])
+    neural_ner_tagger._postfix_concatenate_same_type_entities(text, text[output_layer])
+    #print( _ner_spans_as_tuples( text[output_layer] ) )
+    assert _ner_spans_as_tuples( text[output_layer] ) == \
+        [(0, 3, 'RMK', 'ORG'), (11, 22, 'Nipernaadil', 'PER'), (23, 30, 'Rakvere', 'LOC'), 
+         (52, 60, 'Myanmari', 'LOC'), (88, 97, 'Bangkokis', 'LOC'), 
+         (120, 124, 'MacA', 'PER'), (126, 131, 'hurit', 'PER'), (140, 147, 'Kenyast', 'LOC'), (160, 172, 'Mecklenburgi', 'LOC')]
+
 
 @pytest.mark.skipif(not check_if_transformers_is_available(),
                     reason="package tranformers is required for this test")
@@ -160,3 +182,26 @@ def test_estbertner_v2_postfixes():
         (42, 47, 'Calev', 'PER'), (55, 58, 'Bru', 'GPE'), (58, 66, 'sselisse', 'GPE'), (68, 81, 'Kanepi alevik', 'GPE'), (94, 100, 'Kaiaks', 'GPE'), 
         (102, 110, 'Helmutil', 'PER'), (124, 128, 'Ilse', 'PER'), (136, 141, 'Ellit', 'PER'), 
         (157, 164, 'Rolandi', 'PER'), (194, 200, 'Tartus', 'GPE'), (201, 207, 'Gogoli', 'PROD'), (208, 220, 'raamatukogus', 'ORG')]
+
+    # 2) Test _postfix_concat_same_type_entities
+    text = Text('RMK keelas Nipernaadil Rakvere linnametsa siseneda. '+\
+                'Myanmari mässulised olid ka kuulnud Bangkokis toimuvast. '+\
+                'See sundis MacArthurit lahkuma Kenyast ja siirduma Mecklenburgi. ')
+    neural_ner_tagger.tag(text)
+    output_layer = neural_ner_tagger.output_layers[0]
+    output_tokens_layer = neural_ner_tagger.output_layers[1]
+    #print( _ner_spans_as_tuples( text[output_layer] ) )
+    assert _ner_spans_as_tuples( text[output_layer] ) == \
+        [(0, 3, 'RMK', 'ORG'), (11, 13, 'Ni', 'PER'), (13, 18, 'perna', 'PER'), (23, 26, 'Rak', 'GPE'), (26, 30, 'vere', 'GPE'), 
+         (52, 54, 'My', 'GPE'), (88, 90, 'Ba', 'GPE'), (90, 92, 'ng', 'GPE'), (92, 97, 'kokis', 'GPE'), 
+         (120, 122, 'Ma', 'PER'), (122, 125, 'cAr', 'PER'), (125, 127, 'th', 'PER'), (127, 130, 'uri', 'PER'), 
+         (140, 142, 'Ke', 'GPE'), (142, 147, 'nyast', 'GPE'), (160, 162, 'Me', 'GPE'), (162, 172, 'cklenburgi', 'GPE')]
+    # Apply postfixes
+    neural_ner_tagger._postfix_expand_suffixes(text, text[output_layer], text[output_tokens_layer])
+    neural_ner_tagger._postfix_concatenate_same_type_entities(text, text[output_layer])
+    #print( _ner_spans_as_tuples( text[output_layer] ) )
+    assert _ner_spans_as_tuples( text[output_layer] ) == \
+        [(0, 3, 'RMK', 'ORG'), (11, 22, 'Nipernaadil', 'PER'), (23, 30, 'Rakvere', 'GPE'), 
+         (52, 60, 'Myanmari', 'GPE'), (88, 97, 'Bangkokis', 'GPE'), 
+         (120, 131, 'MacArthurit', 'PER'), (140, 147, 'Kenyast', 'GPE'), (160, 172, 'Mecklenburgi', 'GPE')]
+

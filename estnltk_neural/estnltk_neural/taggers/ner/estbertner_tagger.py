@@ -298,7 +298,7 @@ class EstBERTNERTagger(MultiLayerTagger):
            The goal is to join NE phrases mistakenly broken into multiple annotations, 
            for instance:
            "[Ken][yast]" -> "[Kenyast]", "[Domini][ca Ühendus]" -> "[Dominica Ühendus]", 
-           "[Her][ko Sunts]" -> [Herko Sunts].
+           "[Me][ck][lenburg]" -> "[Mecklenburg]", "[MacA][rthurit]" -> "[MacArthurit]".
         '''
         # Collect start and end indexes of entities + corresponding tags
         nertag_attr   = self.output_layers_to_attributes[self.output_layers[0]][0]
@@ -343,6 +343,7 @@ class EstBERTNERTagger(MultiLayerTagger):
                 context = f'...{_text_snippet(text,ne_start-10,ne_start)}{"".join(conc_strs)}{_text_snippet(text,ne_end,ne_end+10)}...'
                 logger.debug( f'NER postfix concatenated entities in: {context!r}' )
                 to_concatenate.append( (cur_concat_spans, EnvelopingBaseSpan(new_entity_spans), nertag) )
+                i = j - 1
             i += 1
         for (old_spans, new_entity_spans, ner_tag) in to_concatenate:
             # Remove old spans
