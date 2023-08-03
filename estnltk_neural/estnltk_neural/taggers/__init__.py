@@ -8,3 +8,5 @@ from estnltk_neural.taggers.neural_morph.new_neural_morph.neural_morph_tagger im
 from estnltk_neural.taggers.neural_morph.new_neural_morph.neural_morph_tagger import Seq2SeqEmbCatSumTagger
 from estnltk_neural.taggers.syntax.stanza_tagger.ensemble_tagger import StanzaSyntaxEnsembleTagger
 from estnltk_neural.taggers.syntax.stanza_tagger.stanza_tagger import StanzaSyntaxTagger
+
+from estnltk_neural.taggers.embeddings.bert.bert_tokens_to_words_rewriter import BertTokens2WordsRewriter
