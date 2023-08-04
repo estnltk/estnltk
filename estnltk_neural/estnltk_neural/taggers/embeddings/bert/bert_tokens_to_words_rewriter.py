@@ -79,17 +79,17 @@ def map_words_to_bert_tokens( words_layer:Layer, bert_tokens_layer:Layer, warn_u
     unmatched_bert_tokens = \
         set([j for j in range(len(bert_tokens_layer))])
     word_id = 0
+    bert_tokens_start = 0
     while word_id < len( words_layer ):
         word    = words_layer[word_id]
         w_start = word.start
         w_end   = word.end
         matching_phrases = []
-        for i in range( len(bert_tokens_layer) ):
+        i = bert_tokens_start
+        while i < len(bert_tokens_layer):
             bert_tokens = bert_tokens_layer[i] # A single token or an enveloping tokens phrase
-            if w_end < bert_tokens.start:
-                continue
             if bert_tokens.start < w_end and w_end < bert_tokens.end:
-                # inside bert_tokens phrase and possibly next word also overlaps the phrase
+                # inside bert_tokens and the next word also possibly overlaps bert_tokens
                 '''
                 bbbbbbbb
                   wwwww
@@ -103,8 +103,10 @@ def map_words_to_bert_tokens( words_layer:Layer, bert_tokens_layer:Layer, warn_u
                 if i in unmatched_bert_tokens:
                     unmatched_bert_tokens.remove(i)
                 matching_phrases.append(bert_tokens)
+                # Advance starting index
+                bert_tokens_start = i
             elif bert_tokens.start <= w_end and w_start < bert_tokens.end and w_end >= bert_tokens.end:
-                # inside bert_tokens phrase and next word cannot overlap the phrase
+                # inside bert_tokens and the next word cannot overlap bert_tokens
                 '''
                 bbbbbbbb
                 wwwwwwww
@@ -118,6 +120,12 @@ def map_words_to_bert_tokens( words_layer:Layer, bert_tokens_layer:Layer, warn_u
                 if i in unmatched_bert_tokens:
                     unmatched_bert_tokens.remove(i)
                 matching_phrases.append(bert_tokens)
+                # Advance starting index
+                bert_tokens_start = i
+            elif w_end < bert_tokens.start:
+                # No need to look further
+                break
+            i += 1
         if matching_phrases:
             if word_id not in words_to_bert_tokens_map:
                 words_to_bert_tokens_map[word_id] = []
@@ -128,7 +136,6 @@ def map_words_to_bert_tokens( words_layer:Layer, bert_tokens_layer:Layer, warn_u
         for i in sorted(list(unmatched_bert_tokens)):
             warnings.warn(f"(!) No matching {words_layer.name} span for bert token {bert_tokens_layer[i]}.")
     return words_to_bert_tokens_map
-
 
 
 def group_words_by_bert_tokens( words_layer:Layer, words_to_bert_tokens_map:Dict[int,Any], only_groups_with_bert_tokens:bool=True ):
