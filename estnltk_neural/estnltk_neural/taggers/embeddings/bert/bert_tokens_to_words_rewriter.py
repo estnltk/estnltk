@@ -161,8 +161,12 @@ def group_words_by_bert_tokens( words_layer:Layer, words_to_bert_tokens_map:Dict
                         set(shared_base_bert_tokens).intersection(set(next_bert_base_tokens))
                     if len(common_bert_tokens) > 0:
                         # Found shared bert tokens
-                        shared_bert_tokens.append(words_to_bert_tokens_map[word_id2][:])
-                        shared_base_bert_tokens.extend( next_bert_base_tokens )
+                        for b_token in words_to_bert_tokens_map[word_id2]:
+                            (tok_start, tok_end) = b_token.start, b_token.end
+                            if (tok_start, tok_end) not in common_bert_tokens:
+                                # Add only unique tokens
+                                shared_bert_tokens.append(b_token)
+                        shared_base_bert_tokens.extend(next_bert_base_tokens)
                         sharing_words.append( word2 )
                     else:
                         # Look no further
