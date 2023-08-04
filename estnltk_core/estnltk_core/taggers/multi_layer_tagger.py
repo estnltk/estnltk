@@ -13,11 +13,18 @@ class MultiLayerTaggerChecker(type):
         assert all(isinstance(k, str) for k in tagger.conf_param), tagger.conf_param
         tagger.conf_param = tuple(tagger.conf_param)
 
-        assert isinstance(tagger.output_layers, list), "'output_layers' not defined in {!r}".format(cls.__name__)
+        assert isinstance(tagger.input_layers, Sequence), "'input_layers' not defined in {!r}".format(cls.__name__)
+        assert not isinstance(tagger.input_layers, str)
+        assert all(isinstance(k, str) for k in tagger.input_layers), tagger.input_layers
+        tagger.input_layers = tuple(tagger.input_layers)
 
-        assert isinstance(tagger.output_layers_to_attributes, MutableMapping), "'output_layers_to_attributes' not defined in {!r}".format(
-            cls.__name__)
-        assert isinstance(tagger.output_layers_to_attributes, MutableMapping)
+        assert isinstance(tagger.output_layers, list), "'output_layers' not defined in {!r}".format(cls.__name__)
+        assert not isinstance(tagger.output_layers, str)
+        assert len(tagger.output_layers) > 0, "'output_layers' cannot be empty in {!r}".format(cls.__name__)
+        assert all(isinstance(k, str) for k in tagger.output_layers), tagger.output_layers
+
+        assert isinstance(tagger.output_layers_to_attributes, MutableMapping), \
+                "'output_layers_to_attributes' not defined in {!r}".format(cls.__name__)
         assert all(isinstance(attr, str) for attr in tagger.output_layers_to_attributes), tagger.output_layers_to_attributes
 
         tagger._initialized = True
@@ -30,9 +37,41 @@ class MultiLayerTaggerChecker(type):
 
 class MultiLayerTagger(metaclass=MultiLayerTaggerChecker):
     """
-    multilayertagger
+    MultiLayerTagger is a tagger that creates multiple layers 
+    based on a single input Text.
+    
+    MultiLayerTagger's derived class needs to set the instance variables:
+    conf_param
+    output_layers
+    output_layers_to_attributes
+    input_layers
+
+    ... and implement the following methods:
+    __init__(...)
+    _make_layers(...)
+
+    Optionally, you may also add implementations of: 
+    _make_layer_templates
+    __copy__
+    __deepcopy__
+
+    output_layers
+    ==============
+    List or tuple with names of the layers created by this 
+    tagger. Cannot be empty. Can contain only one name. 
+
+    output_layers_to_attributes
+    ============================
+    A mapping from output_layers to their corresponding 
+    attributes (lists or tuples of attribute names). 
+
+    _make_layers(...) method
+    =========================
+    New layers are created inside the _make_layers(...) method, 
+    which should return a dictionary mapping from output_layers 
+    to corresponding Layer objects. 
     """
-    __slots__ = ['_initialized', 'conf_param', 'output_layers', 'output_layers_to_attributes']
+    __slots__ = ['_initialized', 'conf_param', 'output_layers', 'output_layers_to_attributes', 'input_layers']
 
     def __new__(cls, *args, **kwargs):
         instance = super().__new__(cls)
@@ -52,7 +91,7 @@ class MultiLayerTagger(metaclass=MultiLayerTaggerChecker):
         if self._initialized:
             raise AttributeError('changing of the tagger attributes is not allowed: {!r}, {!r}'.format(
                 self.__class__.__name__, key))
-        assert key in {'conf_param', 'output_layers', 'output_layers_to_attributes', '_initialized'} or \
+        assert key in {'conf_param', 'output_layers', 'output_layers_to_attributes', 'input_layers', '_initialized'} or \
                key in self.conf_param, \
             'attribute {!r} not listed in {}.conf_param'.format(key, self.__class__.__name__)
         super().__setattr__(key, value)
@@ -79,6 +118,14 @@ class MultiLayerTagger(metaclass=MultiLayerTaggerChecker):
         if type(layers) == set and (not layers or set(map(type, layers)) == {str}):
             layers = {layer: text[layer] for layer in layers}
         # End of fix
+
+        for layer in self.input_layers:
+            if layer in layers:
+                continue
+            if layer in text.layers:
+                layers[layer] = text[layer]
+            else:
+                raise ValueError('missing input layer: {!r}'.format(layer))
 
         try:
             layers = self._make_layers(text=text, layers=layers, status=status)
@@ -119,15 +166,16 @@ class MultiLayerTagger(metaclass=MultiLayerTaggerChecker):
         assert self.__doc__ is not None, 'No docstring.'
         description = self.__doc__.strip().split('\n', 1)[0]
 
-        return self._repr_html('Tagger', description)
+        return self._repr_html('MultiLayerTagger', description)
 
     def _repr_html(self, heading: str, description: str):
         import pandas
         parameters = {'name': self.__class__.__name__,
                       'output layers': self.output_layers,
-                      'output mapping': str(self.output_layers_to_attributes)}
+                      'output mapping': str(self.output_layers_to_attributes),
+                      'input layers': str(self.input_layers)}
         table = pandas.DataFrame(data=parameters,
-                                 columns=['name', 'output layers', 'output mapping'],
+                                 columns=['name', 'output layers', 'output mapping', 'input layers'],
                                  index=[0])
         table = table.to_html(index=False)
 
@@ -148,7 +196,7 @@ class MultiLayerTagger(metaclass=MultiLayerTaggerChecker):
     def __repr__(self):
         conf_str = ''
         if self.conf_param:
-            params = ['output_layers', 'output_layers_to_attributes'] + list(self.conf_param)
+            params = ['input_layers', 'output_layers', 'output_layers_to_attributes'] + list(self.conf_param)
             try:
                 conf = [attr + '=' + to_str(getattr(self, attr)) for attr in params if not attr.startswith('_')]
             except AttributeError as e:
@@ -158,5 +206,5 @@ class MultiLayerTagger(metaclass=MultiLayerTaggerChecker):
         return self.__class__.__name__ + '(' + conf_str + ')'
 
     def __str__(self):
-        return self.__class__.__name__ + '(' + str(self.output_layers_to_attributes) + ')'
+        return self.__class__.__name__ + '(' + str(self.input_layers) + '->' + self.output_layers + ')'
 
