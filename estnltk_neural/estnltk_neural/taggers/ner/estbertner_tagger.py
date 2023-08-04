@@ -21,8 +21,7 @@ def ner_decorator(text_obj, words_phrase, corresponding_bert_tokens):
 
 class EstBERTNERTagger(MultiLayerTagger):
     """EstNLTK wrapper for the huggingface EstBERTNER models."""
-    conf_param = ('model_location', 'nlp', 'tokenizer', 'input_layers', 'output_layers', 
-                  'output_layers_to_attributes', 'custom_words_layer', 'batch_size', 
+    conf_param = ('model_location', 'nlp', 'tokenizer', 'custom_words_layer', 'batch_size', 
                   'postfix_expand_suffixes', 'postfix_concat_same_type_entities', 'postfix_remove_infix_matches',
                   '_bert_tokens_rewriter')
 
@@ -170,7 +169,6 @@ class EstBERTNERTagger(MultiLayerTagger):
         return None
 
     def _make_layers(self, text: Text, layers: MutableMapping[str, Layer], status: dict) -> Layer:
-        assert self.custom_words_layer is None or self.custom_words_layer in layers
         # Create layers (and layer templates)
         nerlayer = Layer(name='temp_bertner', 
                          attributes=self.output_layers_to_attributes[self.output_layers[0]],
