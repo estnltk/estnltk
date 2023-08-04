@@ -38,7 +38,7 @@ def test_estbertner_v1_out_of_the_box():
     neural_ner_tagger = EstBERTNERTagger()
     text = Text('Tarmo Kruusimäe : Vaiko Eplik hoiatas ammu kogu Euroopat. Läänemets viib nüüd täide. '+\
                 'Homme avatakse Tartu Linnaraamatukogu muusikaosakonnas maalikunstnik Ove Büttneri, '+\
-                'graafik Tiit Rammuli, ning Tiina Vilbergi ühisnäitus "Loomaaed".')
+                'graafik Tiit Rammuli, ning Tiina Vilbergi ühisnäitus "Loomaaed".').tag_layer('words')
     neural_ner_tagger.tag(text)
     output_layer = neural_ner_tagger.output_layers[0]
     assert output_layer in text.layers
@@ -66,7 +66,7 @@ def test_estbertner_v2_smoke():
     neural_ner_tagger = EstBERTNERTagger( model_location=ESTBERTNER_V2_PATH )
     text = Text('Tarmo Kruusimäe : Vaiko Eplik hoiatas ammu kogu Euroopat. Läänemets viib nüüd täide. '+\
                 'Homme avatakse Tartu Linnaraamatukogu muusikaosakonnas maalikunstnik Ove Büttneri, '+\
-                'graafik Tiit Rammuli, ning Tiina Vilbergi ühisnäitus "Loomaaed".')
+                'graafik Tiit Rammuli, ning Tiina Vilbergi ühisnäitus "Loomaaed".').tag_layer('words')
     neural_ner_tagger.tag(text)
     output_layer = neural_ner_tagger.output_layers[0]
     assert output_layer in text.layers
@@ -86,6 +86,11 @@ def test_estbertner_v2_smoke():
          (221, 231, '"Loomaaed"', 'PROD')]
 
 
+# ========================================================================
+#   Test postfixes. Note: these postfixes are only required if we 
+#   do not align Bert tokens to EstNLTK's words.
+# ========================================================================
+
 @pytest.mark.skipif(not check_if_transformers_is_available(),
                     reason="package tranformers is required for this test")
 @pytest.mark.skipif(not check_if_pytorch_is_available(),
@@ -96,7 +101,8 @@ def test_estbertner_v2_smoke():
 def test_estbertner_v1_postfixes():
     # Initialize model without any postfixes
     from estnltk_neural.taggers import EstBERTNERTagger
-    neural_ner_tagger = EstBERTNERTagger(postfix_expand_suffixes=False, 
+    neural_ner_tagger = EstBERTNERTagger(custom_words_layer=None,
+                                         postfix_expand_suffixes=False, 
                                          postfix_concat_same_type_entities=False, 
                                          postfix_remove_infix_matches=False)
     # 1) Test _postfix_expand_suffixes
@@ -157,6 +163,7 @@ def test_estbertner_v2_postfixes():
     from estnltk_neural.taggers import EstBERTNERTagger
     from estnltk_neural.taggers import EstBERTNERTagger
     neural_ner_tagger = EstBERTNERTagger(model_location=ESTBERTNER_V2_PATH,
+                                         custom_words_layer=None,
                                          postfix_expand_suffixes=False, 
                                          postfix_concat_same_type_entities=False, 
                                          postfix_remove_infix_matches=False)

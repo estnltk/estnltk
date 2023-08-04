@@ -8,22 +8,30 @@ from estnltk_core.taggers import MultiLayerTagger
 from estnltk.downloader import get_resource_paths
 
 from estnltk import Text, Layer, EnvelopingBaseSpan, ElementaryBaseSpan
-
 from estnltk import logger
+
+from estnltk_neural.taggers.embeddings.bert.bert_tokens_to_words_rewriter import BertTokens2WordsRewriter
+
+
+# Decorator for producing words_phrase's NE annotation based on BERT NE tokens
+def ner_decorator(text_obj, words_phrase, corresponding_bert_tokens):
+    nertags = [t.annotations[0]['nertag'] for t in corresponding_bert_tokens]
+    return {"nertag": nertags[0]}
 
 
 class EstBERTNERTagger(MultiLayerTagger):
     """EstNLTK wrapper for the huggingface EstBERTNER models."""
-    conf_param = ('model_location', 'nlp', 'tokenizer','input_layers','output_layers', 
-                  'output_layers_to_attributes', 'custom_tokens_layer', 'batch_size', 
-                  'postfix_expand_suffixes', 'postfix_concat_same_type_entities', 'postfix_remove_infix_matches')
+    conf_param = ('model_location', 'nlp', 'tokenizer', 'input_layers', 'output_layers', 
+                  'output_layers_to_attributes', 'custom_words_layer', 'batch_size', 
+                  'postfix_expand_suffixes', 'postfix_concat_same_type_entities', 'postfix_remove_infix_matches',
+                  '_bert_tokens_rewriter')
 
     def __init__(self, model_location: str = None, output_layer: str = 'estbertner', 
-                       tokens_output_layer:str ='nertokens', custom_tokens_layer:str = None, 
+                       tokens_output_layer:str ='nertokens', custom_words_layer:str = 'words', 
                        batch_size:int=1750, 
-                       postfix_expand_suffixes:bool=True, 
-                       postfix_concat_same_type_entities:bool=True, 
-                       postfix_remove_infix_matches:bool=True):
+                       postfix_expand_suffixes:bool=False, 
+                       postfix_concat_same_type_entities:bool=False, 
+                       postfix_remove_infix_matches:bool=False):
         """
         Initializes EstBERTNERTagger.
         
@@ -37,36 +45,45 @@ class EstBERTNERTagger(MultiLayerTagger):
             Name of the output named entity annotations layer. 
             Default: 'estbertner'.
         tokens_output_layer: str
-            Name of the (BERT) tokens layer, which is created during named entity recognition 
-            and which tokens will be enveloped by named entity annotations. 
+            Name of the BERT tokens layer, which is created during named entity recognition. 
+            If custom_words_layer is None, then tokens_output_layer will be added to output 
+            layers, and tokens of this layer will be enveloped by the output NE layer. 
+            Otherwise, the output NE layer will be enveloping custom_words_layer, and 
+            tokens_output_layer will not be added to output layers.
+            Note that BERT's tokenization in this layer does not correspond to EstNLTK's 
+            tokenization. 
             Default: 'nertokens'.
-        custom_tokens_layer: str
-            Name of a customized tokens layer that should be taken as a basis on enveloping 
-            named entity annotations (instead of tokens_output_layer). 
-            If a custom tokens layer is provided, then it is not checked whether the tokens 
-            segmentation in that layer matches the BERT segmentation done by the NER tagger. 
-            If the segmentations do not match, it will lead to wrong tags in the output. 
-            Default: None. 
+        custom_words_layer: str
+            Name of a customized words layer that is taken as a basis on enveloping named 
+            entity annotations instead of tokens_output_layer. This means that all BERT NE 
+            tokens that hit word spans will be marked as covering corresponding spans, and 
+            BERT NE tokens covering multiple words will result in multi-word NE phrases. 
+            If multiple BERT NE tokens cover a word phrase, then label of the first BERT NE 
+            token will be chosen as the label of the whole words phrase. 
+            Default: 'words'. 
         batch_size: int
             Maximum batch size (in characters) that is processed as a whole by the BERT model. 
             The input text is split into batches of the given size before processing. 
             Default: 1750
         postfix_expand_suffixes: bool
             If set (default), then postcorrects NER annotations by adding missing suffixes to 
-            phrases, for instance: "[Pärnu]ga" -> "[Pärnuga]", "[Brüsseli]sse" -> "[Brüsselisse]".
-            Default: True.
+            phrases, for instance: "[Pärnu]ga" -> "[Pärnuga]", "[Brüsseli]sse" -> "[Brüsselisse]". 
+            These postcorrections are only required if custom_words_layer == None. 
+            Default: False.
         postfix_concat_same_type_entities: bool
             If set (default), then postcorrects NER annotations by joining consecutive named 
             entity snippets that are not separated by whitespace, and that have same type of 
             named entities. For instance: "[Ken][yast]" -> "[Kenyast]", '[Kure][ssaare]' -> 
             '[Kuressaare]', "[Domini][ca Ühendus]" -> "[Dominica Ühendus]", .
-            Default: True.
+            These postcorrections are only required if custom_words_layer == None. 
+            Default: False.
         postfix_remove_infix_matches: bool
             If set (default), then postcorrects NER annotations by removing entity snippets 
             that are shorter than / equal to 3 characters, and that are surrounded by alphanumeric 
             characters, either at the start or at the end of the entity. Examples:
-            "Te[ma]" -> "Tema", "[L]A[P]S[E]P[Õ]LVEKODU" -> "LAPSEPÕLVEKODU".
-            Default: True.
+            "Te[ma]" -> "Tema", "[L]A[P]S[E]P[Õ]LVEKODU" -> "LAPSEPÕLVEKODU". 
+            These postcorrections are only required if custom_words_layer == None. 
+            Default: False.
         """
         if model_location is None:
             # Try to get the resources path for berttagger. Attempt to download, if missing
@@ -93,13 +110,20 @@ class EstBERTNERTagger(MultiLayerTagger):
 
         self.output_layers_to_attributes = {self.output_layers[0]: ["nertag"]}
 
-        if custom_tokens_layer is None:
+        if custom_words_layer is None:
             self.output_layers.append(tokens_output_layer)
             self.output_layers_to_attributes[self.output_layers[1]] = []
+            self._bert_tokens_rewriter = None
         else:
-            self.input_layers = [custom_tokens_layer]
+            self.input_layers = [custom_words_layer]
+            self._bert_tokens_rewriter = \
+                BertTokens2WordsRewriter('temp_bertner', 
+                                         input_words_layer = custom_words_layer, 
+                                         output_attributes = ("nertag",), 
+                                         output_layer = self.output_layers[0],
+                                         decorator = ner_decorator)
 
-        self.custom_tokens_layer = custom_tokens_layer
+        self.custom_words_layer = custom_words_layer
         self.postfix_expand_suffixes = postfix_expand_suffixes
         self.postfix_concat_same_type_entities = postfix_concat_same_type_entities
         self.postfix_remove_infix_matches = postfix_remove_infix_matches
@@ -146,16 +170,14 @@ class EstBERTNERTagger(MultiLayerTagger):
         return None
 
     def _make_layers(self, text: Text, layers: MutableMapping[str, Layer], status: dict) -> Layer:
-        nerlayer = Layer(name=self.output_layers[0], 
+        assert self.custom_words_layer is None or self.custom_words_layer in layers
+        # Create layers (and layer templates)
+        nerlayer = Layer(name='temp_bertner', 
                          attributes=self.output_layers_to_attributes[self.output_layers[0]],
                          text_object=text,
                          enveloping=self.input_layers[0] if len(self.input_layers) > 0 else self.output_layers[1])
         nertag_attr = self.output_layers_to_attributes[self.output_layers[0]][0]
-        tokenslayer = None
-        if self.custom_tokens_layer is None:
-            tokenslayer = Layer(name=self.output_layers[1], 
-                                attributes=self.output_layers_to_attributes[self.output_layers[1]], 
-                                text_object=text)
+        tokenslayer = Layer(name='temp_bert_tokens', attributes=(), text_object=text)
         # Apply batch processing: split input text into smaller batches and process batch by batch
         text_chunks, text_indexes = _split_text_into_smaller_texts(text, max_size=self.batch_size)
         chunk_count = 0
@@ -165,83 +187,62 @@ class EstBERTNERTagger(MultiLayerTagger):
             response = self.nlp( text_chunk )
             entity_spans = []
             entity_type = None
-            if self.custom_tokens_layer is None:
-                #
-                # A) Create NE tokens layer on the fly
-                #
-                bert_token_indexes = self.tokenize_with_bert( Text(text_chunk) )
-                for (start_span, end_span) in bert_token_indexes:
-                    if (start_span, end_span) == (-1, -1):
-                        # Skip [UNK] tokens
-                        continue
-                    tokenslayer.add_annotation( ElementaryBaseSpan(chunk_start+start_span, chunk_start+end_span) )
-                labels = ['O'] * len(bert_token_indexes)
-                for word in response:
-                    labels[word['index'] - 1] = word['entity']
-                for span, label in zip(bert_token_indexes, labels):
-                    if span == (-1, -1):
-                        # Skip [UNK] tokens
-                        if label != 'O':
-                            logger.error( f'Skipping [UNK] token with tag {label!r} from annotations.' )
-                        continue
-                    if entity_type is None:
-                        entity_type = label[2:]
-                    if label == "O":
-                        if entity_spans:
-                            nerlayer.add_annotation(EnvelopingBaseSpan(entity_spans),
-                                                    **{nertag_attr: entity_type})
-                            entity_spans = []
-                        continue
-                    if label[0] == "B" or entity_type != label[2:]:
-                        if entity_spans:
-                            nerlayer.add_annotation(EnvelopingBaseSpan(entity_spans),
-                                                    **{nertag_attr: entity_type})
-                            entity_spans = []
+            #
+            # Create NE tokens layer on the fly, populate (temp) NER layer
+            #
+            bert_token_indexes = self.tokenize_with_bert( Text(text_chunk) )
+            for (start_span, end_span) in bert_token_indexes:
+                if (start_span, end_span) == (-1, -1):
+                    # Skip [UNK] tokens
+                    continue
+                tokenslayer.add_annotation( ElementaryBaseSpan(chunk_start+start_span, chunk_start+end_span) )
+            labels = ['O'] * len(bert_token_indexes)
+            for word in response:
+                labels[word['index'] - 1] = word['entity']
+            for span, label in zip(bert_token_indexes, labels):
+                if span == (-1, -1):
+                    # Skip [UNK] tokens
+                    if label != 'O':
+                        logger.error( f'Skipping [UNK] token with tag {label!r} from annotations.' )
+                    continue
+                if entity_type is None:
                     entity_type = label[2:]
-                    # Apply corrections to entity positions
-                    corrected_start = chunk_start + span[0]
-                    corrected_end   = chunk_start + span[1]
-                    entity_spans.append( ElementaryBaseSpan(corrected_start, corrected_end) )
-            else:
-                #
-                # B) Rely on existing NE tokens layer
-                #
-                words = self.input_layers[0] if len(self.input_layers) > 0 else self.output_layers[1]
-                existing_words_layer = getattr(text, words)
-                words_subset = [sp for sp in existing_words_layer if chunk_start <= sp.start and \
-                                                                     sp.end <= chunk_end]
-                labels = ['O'] * len( words_subset )
-                for word in response:
-                    labels[word['index'] - 1] = word['entity']
-                for span, label in zip(words_subset, labels):
-                    if entity_type is None:
-                        entity_type = label[2:]
-                    if label == "O":
-                        if entity_spans:
-                            nerlayer.add_annotation(EnvelopingBaseSpan(entity_spans),
-                                                    **{nertag_attr: entity_type})
-                            entity_spans = []
-                        continue
-                    if label[0] == "B" or entity_type != label[2:]:
-                        if entity_spans:
-                            nerlayer.add_annotation(EnvelopingBaseSpan(entity_spans),
-                                                    **{nertag_attr: entity_type})
-                            entity_spans = []
-                    entity_type = label[2:]
-                    entity_spans.append( span.base_span )
-        # Apply postfixes
+                if label == "O":
+                    if entity_spans:
+                        nerlayer.add_annotation(EnvelopingBaseSpan(entity_spans),
+                                                **{nertag_attr: entity_type})
+                        entity_spans = []
+                    continue
+                if label[0] == "B" or entity_type != label[2:]:
+                    if entity_spans:
+                        nerlayer.add_annotation(EnvelopingBaseSpan(entity_spans),
+                                                **{nertag_attr: entity_type})
+                        entity_spans = []
+                entity_type = label[2:]
+                # Apply corrections to entity positions
+                corrected_start = chunk_start + span[0]
+                corrected_end   = chunk_start + span[1]
+                entity_spans.append( ElementaryBaseSpan(corrected_start, corrected_end) )
+        # Apply postfixes to raw BERT output
+        # (Note: if you use custom_words_layer, then no need for postfixes)
         if self.postfix_expand_suffixes:
-            if tokenslayer is None:
-                words = self.input_layers[0] if len(self.input_layers) > 0 else self.output_layers[1]
-                tokenslayer = getattr(text, words)
             self._postfix_expand_suffixes(text, nerlayer, tokenslayer)
         if self.postfix_concat_same_type_entities:
             self._postfix_concatenate_same_type_entities(text, nerlayer)
         if self.postfix_remove_infix_matches:
             self._postfix_remove_infix_matches(text, nerlayer)
+        # Rewrite bert tokens to EstNLTK's words (or any other customized words)
+        if self.custom_words_layer is not None:
+            layers_copy = layers.copy()
+            assert self.custom_words_layer in layers_copy.keys()
+            layers_copy[nerlayer.name] = nerlayer
+            layers_copy[tokenslayer.name] = tokenslayer
+            nerlayer = self._bert_tokens_rewriter.make_layer(text, layers_copy, {})
         # Return results
+        nerlayer.name = self.output_layers[0]
         returnable_dict = { self.output_layers[0]: nerlayer }
-        if self.custom_tokens_layer is None:
+        if self.custom_words_layer is None:
+            tokenslayer.name = self.output_layers[1]
             returnable_dict = { self.output_layers[1]: tokenslayer, 
                                 self.output_layers[0]: nerlayer }
         return returnable_dict
