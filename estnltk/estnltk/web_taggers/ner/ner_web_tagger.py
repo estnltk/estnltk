@@ -16,7 +16,7 @@ class NerWebTagger(MultiLayerTagger):
     conf_param = ['custom_words_layer','url','nerwords_output_layer','input_layers','output_layers',
                   'output_layers_to_attributes']
 
-    def __init__(self, ner_output_layer=None, custom_words_layer=None, words_output_layer ='nerwords'):
+    def __init__(self, url='https://api.tartunlp.ai/bert/ner/v1', ner_output_layer=None, custom_words_layer=None, tokens_output_layer ='nertokens'):
         '''
         Note that if a custom layer is chosen, it is not checked whether the word segmentation in that layer
         matches the segmentation done by the NER tagger. If the segmentations do not match, it will lead to wrong tags
@@ -24,18 +24,23 @@ class NerWebTagger(MultiLayerTagger):
 
         Parameters
         ----------
-        ner_output_layer: str - NER output layer name
-        custom_words_layer: str - name of the words layer from which the NER layer envelops.
-            If None, the words layer is created based on the segmentation done by the NER tagger.
-        words_output_layer: str - name of the words layer created by the NER tagger if no custom layer is specified
+        url: str
+            URL of the web service. Defaults to the TartuNLP neural NER web API URL. 
+        ner_output_layer: str
+            NER output layer name. 
+        custom_words_layer: str
+            name of the words layer from which the NER layer envelops. 
+            If None, the words layer is created based on the segmentation done by the NER tagger. 
+        tokens_output_layer: str
+            name of the tokens layer created by the NER tagger if no custom layer is specified. 
         '''
         output_layers = ['ner'] if ner_output_layer is None else [ner_output_layer]
 
-        self.url = 'https://api.tartunlp.ai/bert/ner/v1'
+        self.url = url
         self.output_layers = output_layers
         self.output_layers_to_attributes = {output_layers[0]: ["nertag"]}
         if custom_words_layer is None:
-            self.output_layers.append(words_output_layer)
+            self.output_layers.append(tokens_output_layer)
             self.output_layers_to_attributes[output_layers[1]] = []
             self.input_layers = []
         else:
@@ -48,7 +53,7 @@ class NerWebTagger(MultiLayerTagger):
         for snt in response['result']:
             current_idx -= 1
             for word in snt:
-                while text.text[current_idx:current_idx + len(word['word'])] != word['word']:
+                while text.text[current_idx:current_idx + len(word['word'])] != word['word'] and current_idx < len(text.text):
                     current_idx += 1
                 layer.add_annotation(ElementaryBaseSpan(current_idx, current_idx + len(word['word'])))
                 current_idx += len(word['word'])
@@ -103,8 +108,6 @@ class NerWebTagger(MultiLayerTagger):
                 entity_type = label[2:]
                 entity_spans.append(span.base_span)
             return {self.output_layers[0]: nerlayer}
-
-
 
     def post_request(self, text: Text):
         data = {
