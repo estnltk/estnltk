@@ -206,5 +206,5 @@ class MultiLayerTagger(metaclass=MultiLayerTaggerChecker):
         return self.__class__.__name__ + '(' + conf_str + ')'
 
     def __str__(self):
-        return self.__class__.__name__ + '(' + str(self.input_layers) + '->' + self.output_layers + ')'
+        return self.__class__.__name__ + '(' + str(self.input_layers) + '->' + str(self.output_layers) + ')'
 
