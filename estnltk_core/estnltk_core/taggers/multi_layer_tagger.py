@@ -171,7 +171,7 @@ class MultiLayerTagger(metaclass=MultiLayerTaggerChecker):
     def _repr_html(self, heading: str, description: str):
         import pandas
         parameters = {'name': self.__class__.__name__,
-                      'output layers': self.output_layers,
+                      'output layers': str(self.output_layers),
                       'output mapping': str(self.output_layers_to_attributes),
                       'input layers': str(self.input_layers)}
         table = pandas.DataFrame(data=parameters,
