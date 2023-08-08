@@ -15,7 +15,7 @@ class NerWebTagger(MultiLayerTagger):
     IMPORTANT: Using this tagger means that the data will be processed by the public TartuNLP API. 
     This means that the text will be uploaded and can be read by a third party.
     '''
-    conf_param = ['custom_words_layer', 'url', 'nerwords_output_layer', 'batch_size', '_differ']
+    conf_param = ['custom_words_layer', 'url', 'batch_size', '_differ']
 
     def __init__(self, url='https://api.tartunlp.ai/bert/ner/v1', 
                        ner_output_layer='webner', tokens_output_layer ='nertokens', 
