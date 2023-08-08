@@ -52,9 +52,12 @@ class NerWebTagger(MultiLayerTagger):
         current_idx = 1
         for snt in response['result']:
             current_idx -= 1
+            snt_idx = current_idx
             for word in snt:
-                while text.text[current_idx:current_idx + len(word['word'])] != word['word'] and current_idx < len(text.text):
+                while text.text[current_idx:current_idx + len(word['word'])] != word['word']:
                     current_idx += 1
+                    if current_idx >= len(text.text):
+                        raise Exception(f"(!) Cannot find word's {word['word']!r} text location at {text.text[snt_idx:]!r}.")
                 layer.add_annotation(ElementaryBaseSpan(current_idx, current_idx + len(word['word'])))
                 current_idx += len(word['word'])
         return layer

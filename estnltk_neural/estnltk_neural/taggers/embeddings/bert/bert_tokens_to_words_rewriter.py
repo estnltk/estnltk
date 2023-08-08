@@ -72,7 +72,7 @@ def map_words_to_bert_tokens( words_layer:Layer, bert_tokens_layer:Layer, warn_u
     Finds a mapping from words to overlapping bert tokens. 
     Returns a dictionary where keys are indexes from the words_layer,
     and values are lists of entities from bert_tokens_layer.
-    Original source:
+    This function is based on the source:
       https://github.com/soras/vk_ner_lrec_2022/blob/main/data_preprocessing.py#L174C1-L222C32
     '''
     words_to_bert_tokens_map = dict()

@@ -30,15 +30,16 @@ def test_neural_ner_web_tagger_smoke(httpserver):
               {"word":"on", "ner":"O"},
               {"word":"Eesti", "ner":"B-LOC"},
               {"word":"vanim", "ner":"O"},
-              {"word":"Ülikool", "ner":"O"},
+              {"word":"ülikool", "ner":"O"},
               {"word":".", "ner":"O"}
             ]
           ]
         }
     httpserver.expect_request('/estnltk/tagger/neural_estbertner_v1').respond_with_json(response_layer_dict)
-    # Tag named entities
+    # Tag named entities (without custom words layer)
     tagger = NerWebTagger(url=httpserver.url_for('/estnltk/tagger/neural_estbertner_v1'), 
-                          ner_output_layer='webner')
+                          ner_output_layer='webner', 
+                          custom_words_layer=None)
     tagger.tag(text)
     
     # Check results
@@ -84,6 +85,6 @@ def test_neural_ner_web_tagger_smoke(httpserver):
                    {'annotations': [{}], 'base_span': (31, 33)},
                    {'annotations': [{}], 'base_span': (34, 39)},
                    {'annotations': [{}], 'base_span': (40, 45)},
-                   {'annotations': [{}], 'base_span': (54, 61)},
-                   {'annotations': [{}], 'base_span': (61, 62)}]}
+                   {'annotations': [{}], 'base_span': (46, 53)},
+                   {'annotations': [{}], 'base_span': (53, 54)}]}
     assert layer_to_dict( text[output_tokens_layer] ) == expected_ner_tokens_layer_dict
