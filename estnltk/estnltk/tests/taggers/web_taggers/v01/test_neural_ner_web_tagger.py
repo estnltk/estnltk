@@ -253,12 +253,12 @@ def test_neural_ner_web_tagger_with_custom_words_layers(httpserver):
     expected_ner_spans = \
         [(0, 8, 'Klaipeda', 'LOC'), 
          (9, 18, 'Neptunase', 'ORG'), 
-         (29, 31, 'TÜ', 'ORG'), (31, 32, '/', 'ORG'), (32, 36, 'Rock', 'ORG'), # TODO: fix
+         (29, 36, 'TÜ/Rock', 'ORG'), 
          (38, 41, 'USA', 'LOC'), 
          (52, 66, 'George W. Bush', 'PER'), 
          (84, 95, 'Austraalias', 'LOC'), 
          (106, 116, 'O. Angelus', 'ORG'), 
-         (133, 134, 'S', 'PER'), (134, 135, '.', 'PER'),           # TODO: fix
-         (197, 207, 'J. Cocteau', 'PER'), (207, 208, "'", 'PER'),  # TODO: fix
-         (213, 220, 'B. Shaw', 'PER'), (220, 221, "'", 'PER')]     # TODO: fix
+         (133, 135, 'S.', 'PER'), 
+         (197, 208, "J. Cocteau'", 'PER'), 
+         (213, 221, "B. Shaw'", 'PER')]
     assert _ner_spans_as_tuples( text[output_ner_layer] ) == expected_ner_spans

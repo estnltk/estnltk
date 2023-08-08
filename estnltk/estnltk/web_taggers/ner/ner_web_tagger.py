@@ -1,16 +1,17 @@
 from typing import MutableMapping, List, Tuple
 
+import time
 from difflib import Differ
 
 import requests
 
 from estnltk_core.taggers import MultiLayerTagger
-from estnltk import Text, Layer, EnvelopingBaseSpan, ElementaryBaseSpan
+from estnltk import Text, Layer
 
 
 class NerWebTagger(MultiLayerTagger):
     '''
-    NER tagger that uses TartuNLP's NER web service for tagging.
+    NER tagger that uses TartuNLP's NER web service. 
     IMPORTANT: Using this tagger means that the data will be processed by the public TartuNLP API. 
     This means that the text will be uploaded and can be read by a third party.
     '''
@@ -72,8 +73,7 @@ class NerWebTagger(MultiLayerTagger):
                 while text.text[current_idx:current_idx + len(word['word'])] != word['word']:
                     current_idx += 1
                     if current_idx >= len(text.text):
-                        max_extent = min(snt_idx + 500, len(text.text))
-                        raise Exception(f"(!) Cannot find word's {word['word']!r} text location at sentence {text.text[snt_idx:max_extent]!r}.")
+                        raise Exception(f"(!) Cannot find word {word['word']!r} from the sentence {text.text[snt_idx:snt_idx+500]!r}.")
                 base_spans.append( (current_idx, current_idx + len(word['word'])) )
                 current_idx += len(word['word'])
         return base_spans
@@ -88,6 +88,8 @@ class NerWebTagger(MultiLayerTagger):
         all_ner_word_labels = []
         for text_chunk, (chunk_start, chunk_end) in zip(text_chunks, text_indexes):
             chunk_count += 1
+            if chunk_count > 1:
+                time.sleep(2) # pause before processing next chunk
             #logger.debug( f'Processing chunk {chunk_count} out of {len(text_chunks)} chunks.' )
             text_chunk_obj = Text(text_chunk)
             response = self.post_request(text_chunk_obj)
@@ -135,40 +137,27 @@ class NerWebTagger(MultiLayerTagger):
             # Use the customized words layer as a basis for NER
             wordslayer = layers[self.input_layers[0]]
             nerlayer.enveloping = wordslayer.name
-            # Map indexes of words' layers
-            custom_2_ws_map = \
-                self._map_custom_words_2_ws_words(text, wordslayer, all_ner_word_spans)
-            # Create NE annotations according to the mapping
+            # Fix and merge NE labels
+            fixed_labels = \
+                self._fix_and_merge_ne_labels(text, wordslayer, all_ner_word_spans, all_ner_word_labels)
+            # Create NE annotations according to fixed labelling
             entity_spans = []
             entity_type = None
-            last_ws_indexes = []
-            #ws_words_texts = [text.text[s:e] for (s, e) in all_ner_word_spans]
             for wid, word in enumerate(wordslayer):
-                ws_indexes = custom_2_ws_map[wid]
-                ws_ner_labels = [all_ner_word_labels[i] for i in ws_indexes]
-                for cur_ws_index, label in zip(ws_indexes, ws_ner_labels):
-                    cur_entity_type = label[2:]
-                    if entity_type is None:
-                        entity_type = cur_entity_type
-                    if label == 'O':
-                        if entity_spans:
-                            nerlayer.add_annotation( entity_spans, {nertag_attr:entity_type} )
-                            entity_spans = []
-                        # Don't collect entity_span
-                        continue
-                    if label[0] == "B" or entity_type != cur_entity_type:
-                        if entity_spans:
-                            nerlayer.add_annotation( entity_spans, {nertag_attr:entity_type} )
-                            entity_spans = []
-                            entity_spans.append( word.base_span )
-                            entity_type = cur_entity_type
-                            break
-                    # Collect span only if it has not been collected yet;
-                    if word.base_span not in entity_spans:
-                        entity_spans.append( word.base_span )
-                    entity_type = cur_entity_type
-                last_ws_indexes = ws_indexes
-            # TODO: handle situations where multiple custom_words map to same ws_words
+                label = fixed_labels[wid]
+                if entity_type is None:
+                    entity_type = label[2:]
+                if label == "O":
+                    if entity_spans:
+                        nerlayer.add_annotation( entity_spans, {nertag_attr:entity_type} )
+                        entity_spans = []
+                    continue
+                if label[0] == "B" or entity_type != label[2:]:
+                    if entity_spans:
+                        nerlayer.add_annotation( entity_spans, {nertag_attr:entity_type} )
+                        entity_spans = []
+                entity_type = label[2:]
+                entity_spans.append( word.base_span )
         # Return results
         nerlayer.name = self.output_layers[0]
         returnable_dict = { self.output_layers[0]: nerlayer }
@@ -237,6 +226,51 @@ class NerWebTagger(MultiLayerTagger):
                     mapping[item] = []
                 mapping[item].extend(ws_diff)
         return mapping
+
+    def _fix_and_merge_ne_labels(self, text, wordslayer, ner_word_spans, ner_word_labels):
+        '''
+        Creates a mapping from wordslayer to ner_word_spans and fixes/merges ner_word_labels 
+        correspondingly. Returns a dict mapping from wordslayer indexes to corresponding NE 
+        tags. 
+        '''
+        # Map indexes of words' layers
+        custom_2_ws_map = \
+            self._map_custom_words_2_ws_words(text, wordslayer, ner_word_spans)
+        word2label = dict()
+        last_ws_indexes = []
+        last_entity_type = ''
+        for wid, word in enumerate(wordslayer):
+            ws_indexes = custom_2_ws_map[wid]
+            ws_ner_labels = [ner_word_labels[i] for i in ws_indexes]
+            for label in ws_ner_labels:
+                cur_entity_type = label[2:]
+                if label[0] == "B" or (label[0] == "I" and last_entity_type != cur_entity_type):
+                    # Start of a new NE phrase
+                    word2label[wid] = f'B-{cur_entity_type}'
+                    last_entity_type = cur_entity_type
+                    # Don't look further: consider the first 
+                    # tag as a correct one
+                    break
+                elif label[0] == "I":
+                    # Continue the old NE phrase
+                    word2label[wid] = label
+                last_entity_type = cur_entity_type
+            if wid not in word2label:
+                # If B/I were not encountered, then it is O instead
+                word2label[wid] = 'O'
+            if last_ws_indexes == ws_indexes:
+                # This word maps to same ws_words as the previous word: 
+                # consider it as a continuation of the last NE, if 
+                # such exists
+                assert wid-1 in word2label.keys()
+                prev_label = word2label[wid-1]
+                if prev_label[0] in ['B', 'I']:
+                    # Continue the previous NE phrase
+                    prev_label_type = prev_label[2:]
+                    word2label[wid] = f'I-{prev_label_type}'
+            last_ws_indexes = ws_indexes
+        return word2label
+
 
 
 def _split_text_into_smaller_texts(large_text: Text, max_size:int=1750, seek_end_symbols: str='.!?'):
