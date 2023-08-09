@@ -4,7 +4,7 @@ EstNLTK-core -- core components of the EstNLTK library
 This package contains core components of the EstNLTK library:
 
 * data structures: `BaseText`, `BaseLayer`, `Layer`, `RelationLayer`, `Span`, `EnvelopingSpan`, `SpanList`, `Annotation`;
-* tagger component interfaces: `Tagger`, `Retagger`, `RelationTagger`;
+* tagger component interfaces: `Tagger`, `Retagger`, `RelationTagger`, `MultiLayerTagger`;
 * basic layer operations: flatten, merge, rebase, split layers etc.
 * basic visualization and Jupyter Notebook support (HTML representations);
 * functions for converting between EstNLTK's data structures and JSON / dict representations;

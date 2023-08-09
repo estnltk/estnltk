@@ -15,7 +15,7 @@ This package contains EstNLTK's basic linguistic analysis, system and database t
 * experimental taggers: verb chain detector, noun phrase chunker, adjective phrase tagger;
 * syntactic analysis tools: preprocessing for syntactic analysis, VislCG3 and Maltparser based syntactic parsers;
 * Estonian Wordnet and Collocation-Net;
-* web taggers -- such as bert embeddings web tagger, stanza syntax web tagger and stanza ensemble syntax web tagger;
+* web taggers -- such as bert embeddings web tagger, neural named entity recognition web tagger, stanza syntax web tagger and stanza ensemble syntax web tagger;
 * corpus importing tools -- tools for importing data from large Estonian corpora, such as the Reference Corpus or the National Corpus of Estonia;
 * system taggers -- regex tagger, disambiguator, atomizer, merge tagger etc;
 * utils for downloading additional resources (e.g. model files required by taggers); 
