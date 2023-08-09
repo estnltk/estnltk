@@ -31,12 +31,13 @@ class NerWebTagger(MultiLayerTagger):
             Name of the output named entity annotations layer. 
             Default: 'webner'.
         tokens_output_layer: str
-            Name of the BERT tokens layer, which is created during named entity recognition. 
+            Name of the auxiliary tokens layer, which is created during named entity recognition. 
             If custom_words_layer is None, then tokens_output_layer will be added to output 
             layers, and tokens of this layer will be enveloped by the output NE layer. 
             Otherwise, the output NE layer will be enveloping custom_words_layer, and 
             tokens_output_layer will not be added to output layers.
-            Note that tokenization in this layer can diverge from EstNLTK's default tokenization. 
+            Note that tokenization in this layer can diverge from EstNLTK's default 'words' 
+            tokenization. 
             Default: 'nertokens'.
         custom_words_layer: str
             Name of a customized words layer that is taken as a basis on enveloping named 
