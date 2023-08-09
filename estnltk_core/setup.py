@@ -30,7 +30,7 @@ setup(
     url="https://github.com/estnltk/estnltk",
     install_requires=[
         'regex>=2015.07.19', # improved Python regular expressions
-        'networkx',          # building graphs: required for layers, WordNet and grammars
+        'networkx',          # building graphs: required for layers
         'pandas',            # Panel Data Analysis library for Python
     ],
     classifiers=['Intended Audience :: Developers',
@@ -38,10 +38,10 @@ setup(
                  'Intended Audience :: Science/Research',
                  'Intended Audience :: Information Technology',
                  'Operating System :: OS Independent',
-                 'Programming Language :: Python :: 3.7',
                  'Programming Language :: Python :: 3.8',
                  'Programming Language :: Python :: 3.9',
                  'Programming Language :: Python :: 3.10',
+                 'Programming Language :: Python :: 3.11',
                  'Topic :: Scientific/Engineering',
                  'Topic :: Scientific/Engineering :: Artificial Intelligence',
                  'Topic :: Scientific/Engineering :: Information Analysis',

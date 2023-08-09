@@ -200,7 +200,7 @@ setup(
     # we have fixed dependency versions to guarantee, what works
     # however, you can probably safely install newer versions of the dependencies
     install_requires=[
-        'estnltk-core >= 1.7.1',   # EstNLTK's basic datastructures and conversion methods
+        'estnltk-core >= 1.7.2',   # EstNLTK's basic datastructures and conversion methods
         'nltk>=3.4.1',             # NLTK mainly required for tokenization
         'regex>=2015.07.19',       # improved Python regular expressions
         'python-crfsuite>=0.8.3',  # Conditional random fields library
@@ -222,10 +222,10 @@ setup(
                  'Intended Audience :: Science/Research',
                  'Intended Audience :: Information Technology',
                  'Operating System :: OS Independent',
-                 'Programming Language :: Python :: 3.7',
                  'Programming Language :: Python :: 3.8',
                  'Programming Language :: Python :: 3.9',
                  'Programming Language :: Python :: 3.10',
+                 'Programming Language :: Python :: 3.11',
                  'Topic :: Scientific/Engineering',
                  'Topic :: Scientific/Engineering :: Artificial Intelligence',
                  'Topic :: Scientific/Engineering :: Information Analysis',

@@ -16,7 +16,7 @@ build:
 requirements:
   build:
     - python
-    - estnltk_core
+    - estnltk_core >=1.7.2
     - swig >=3.0.12
     - nltk >=3.4.1
     - regex >=2015.11.22
@@ -29,7 +29,7 @@ requirements:
     - lxml
   run:
     - python
-    - estnltk_core
+    - estnltk_core >=1.7.2
     - nltk >=3.4.1
     - regex >=2015.11.22
     - conllu >=3.1.1
