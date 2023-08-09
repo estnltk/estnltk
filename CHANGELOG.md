@@ -63,6 +63,9 @@ All notable changes to this project will be documented in this file.
 * `UDMorphConverter` -- tagger that converts Vabamorf's morphology categories to Universal Dependencies morphological categories. Note that the conversion can introduce additional ambiguities as there is no disambiguation included, and roughly 3% to 9% of words do not obtain correct UD labels with this conversion. More details in [tutorial](https://github.com/estnltk/estnltk/blob/4ba6d9896b851d0a922a6a43bf2cc08a09667802/tutorials/nlp_pipeline/B_morphology/06_morph_analysis_with_ud_categories.ipynb);
 * `RobertaTagger` for tagging `EMBEDDIA/est-roberta` embeddings. The interface is analogous to that of `BertTagger`. [Tutorial](https://github.com/estnltk/estnltk/blob/e223a7e6245d29a6b1838335bfa3872a0aa92840/tutorials/nlp_pipeline/E_embeddings/bert_embeddings_tagger.ipynb).
 * `BertTokens2WordsRewriter` -- tagger that rewrites BERT tokens layer to a layer enveloping EstNLTK's words layer. Can be useful for mapping Bert's output to EstNLTK's tokenization (currently used by `EstBERTNERTagger`). 
+* `PhraseExtractor` -- tagger for removing phrases and specific dependency relations based on UD-syntax;
+* `ConsistencyDecorator` -- decorator for PhraseExtractor. Calculates syntax conservation scores after removing phrase from text;
+* `StanzaSyntaxTaggerWithIgnore` -- entity ignore tagger. Retags text with StanzaSyntaxTagger and excludes phrases found by PhraseExtractor;
 * `estnltk.resource_utils.delete_all_resources`. Apply it before uninstalling EstNLTK to remove all resources;
 * `clauses_and_syntax_consistency` module, which allows to 1) detect potential errors in clauses layer using information from the syntax layer, 2) fix clause errors with the help of syntactic information. [Tutorial](https://github.com/estnltk/estnltk/blob/4ba6d9896b851d0a922a6a43bf2cc08a09667802/tutorials/nlp_pipeline/F_annotation_consistency/clauses_and_syntax_consistency.ipynb);
 * `PostgresStorage` methods:
