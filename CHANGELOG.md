@@ -3,6 +3,93 @@
 
 All notable changes to this project will be documented in this file.
 
+# [1.7.2] - 2023-08-11
+
+## Changed
+
+* Renamed `PgCollection.meta` -> `meta_columns`;
+* Deprecated `PgCollection.create()`. Use `PostgresStorage.add_collection` method to create new collections;
+* Deprecated `PgCollection.delete()`, `PostgresStorage.delete(collection)` and `PostgresStorage.__delitem__(collection)`. Use `PostgresStorage.delete_collection` method to remove collections;
+* Deprecated `PgCollection.select_fragment_raw()` (no longer relevant) and `continue_creating_layer` (use `create_layer(..., mode="append")` instead);
+* Deprecated `PgCollection.has_fragment()`, `get_fragment_names()`, `get_fragment_tables()`. Use `collection.has_layer(name, layer_type="fragmented")` and `collection.get_layer_names_by_type(layer_type="fragmented")` instead;
+* Merged `PgCollection.create_fragment` into `PgCollection.create_fragmented_layer`;
+* Merged `PgCollection._create_layer_table` into `PgCollection.add_layer`;
+* `StorageCollections.load()` removed legacy auto-insert behaviour;
+* Refactored `PostgresStorage`: upon connecting to database, a new schema is now automatically created if the flag `create_schema_if_missing` has been set and the user has enough privileges. No need to manually call `create_schema` anymore;
+* Refactored `StorageCollections` & `PostgresStorage`: relocated `storage_collections` table insertion and deletion logic to `PostgresStorage`;
+* Refactored `PgCollection.add_layer`: added `layer_type` parameter, deprecated `fragmented_layer` paramater and added `'multi'` to layer types;
+* Replaced function `conll_to_str` with `converters.conll.layer_to_conll`. For usage, see [this tutorial](https://github.com/estnltk/estnltk/blob/4ba6d9896b851d0a922a6a43bf2cc08a09667802/tutorials/nlp_pipeline/C_syntax/01_syntax_preprocessing.ipynb) ("CONLL exporter");
+* Refactored `DateTagger`, `AddressPartTagger`, `SyntaxIgnoreTagger`, `CompoundTokenTagger`: use new RegexTagger instead of the legacy one;
+* Refactored `AdjectivePhrasePartTagger`: use `rule_taggers` instead of legacy `dict_taggers`;
+* Updated `StanzaSyntax(Ensemble)Tagger`: random picking of ambiguous analyses is no longer deterministic: you'll get different result on each run if the input is morphologically ambiguous. However, if needed, you can use seed values to ensure repeatability. For details, see [stanza parser tutorials](https://github.com/estnltk/estnltk/blob/4ba6d9896b851d0a922a6a43bf2cc08a09667802/tutorials/nlp_pipeline/C_syntax/03_syntactic_analysis_with_stanza.ipynb);
+* Updated `StanzaSyntaxEnsembleTagger`: 
+	* if user attempts to process sentences longer than 1000 words with GPU / CUDA, a guarding exception will be thrown. Pass parameter `gpu_max_words_in_sentence=None` to the tagger to disable the exception;
+	* added `aggregation_algorithm` parameter, which defaults to `'las_coherence'` (the same algorithm that has been used in the previous versions);
+	* added a new aggregation algorithm: `'majority_voting'`. With the majority voting, the input will be processed token-wise and head & deprel that gets most votes from models will be picked for each token. Note, however, that this method can produce invalid tree structures, as there is no  mechanism to ensure that majority-voting-picked tokens will make up a valid tree. 
+* Renamed `SoftmaxEmbTagSumWebTagger` to `NeuralMorphDisambWebTagger` and made following updates:
+	* `NeuralMorphDisambWebTagger` is now a `BatchProcessingWebTagger`;
+	* `NeuralMorphDisambWebTagger` is now also a `Retagger` and can be used to disambiguate ambiguous `morph_analysis` layer. In the same vein, `NeuralMorphTagger` was also made `Retagger` and can be used for disambiguation. For details on the usage, see [the neural morph tutorial](https://github.com/estnltk/estnltk/blob/b67ca34ef0702bb7d7fbe1b55639327dfda55830/tutorials/nlp_pipeline/B_morphology/08_neural_morph_tagger_py37.ipynb); 
+* `estnltk_neural` package requirements: removed explicit `tensorflow` requirement. 
+	* Note, however, that `tensorflow <= 1.15.5` (along with Python `3.7`) is still required if you want to use `NeuralMorphTagger`;
+* `Wordnet`: 
+	* default database is no longer distributed with the package, wordnet now downloads the database automatically via `estnltk_resources`;
+	* alternatively, a local database can now be imported via parameter `local_dir`;
+	* updated wordnet database version to **2.6.0**;
+* `HfstClMorphAnalyser`: 
+	* the model is no longer distributed with the package, the analyser now downloads model automatically via `estnltk_resources`;
+* Refactored `BatchProcessingWebTagger`:
+	* renamed parameter `batch_layer_max_size` -> `batch_max_size`; 
+	* the tagger has now 2 working modes: a) batch splitting guided by text size limit, b) batch splitting guided by layer size limit (the old behaviour);
+* Updated `vabamorf`'s function `syllabify_word`: 
+    * made compound word splitting heuristic more tolerant to mismatches, and as a result, we can now more properly syllabify words which root tokens do not match exactly with the surface form. Examples: `kolmekümne` (`kol-me-küm-ne`),  `paarisada` (`paa-ri-sa-da`), `ühesainsas` (`ü-hes-ain-sas`). However, if you need to use the old syllabification  behaviour, pass parameter `tolerance=0` to the function, e.g. `syllabify_word('ühesainsas', tolerance=0)`.
+
+## Added
+
+* `MultiLayerTagger` -- interface for taggers that create multiple layers at once;
+* `NerWebTagger` that tags NER layers via [tartuNLP NER webservice](https://ner.tartunlp.ai/api) (uses EstBERTNER v1 model). See [this tutorial](https://github.com/estnltk/estnltk/blob/b970ea98532921a4e06022fff2cd3755fc181edf/tutorials/nlp_pipeline/D_information_extraction/02_named_entities.ipynb) for details;
+* `EstBERTNERTagger` that tags NER layers using huggingface EstBERTNER models. See [this tutorial](https://github.com/estnltk/estnltk/blob/b970ea98532921a4e06022fff2cd3755fc181edf/tutorials/nlp_pipeline/D_information_extraction/02_named_entities.ipynb) for details;
+* `RelationLayer` -- new type of layer for storing information about relations between entities mentioned in text, such as coreference relations between names and pronouns, or semantic roles/argument structures of verbs. However, `RelationLayer` has not yet completely integrated with EstNLTK's tools, and there are following limitations:
+	* you cannot access attributes of foreign layers (such as `lemmas` from `morph_analysis`) via spans of a relation layer;
+	* `estnltk_core.layer_operations` do not support `RelationLayer`;
+	* `estnltk.storage.postgres` does not support `RelationLayer`;
+	* `estnltk.visualisation` does not handle `RelationLayer`;
+
+    For usage examples, see the [RelationLayer's tutorial](https://github.com/estnltk/estnltk/blob/b8ad0932a852daedb1e3eddeb02c944dd1f292ee/tutorials/system/relation_layer.ipynb).
+
+* `RelationTagger` -- interface for taggers creating `RelationLayer`-s. Instructions on how to create a `RelationTagger` can be found in [this tutorial](https://github.com/estnltk/estnltk/blob/4ba6d9896b851d0a922a6a43bf2cc08a09667802/tutorials/taggers/base_tagger.ipynb);
+* `WebRelationTagger` & `BatchProcessingWebRelationTagger`, which allow to create web-based `RelationTagger`-s;
+* `CoreferenceTagger` which detects pronominal coreference relations. The tool is based on [Estonian Coreference System  v1.0.0](https://github.com/SoimulPatriei/EstonianCoreferenceSystem) and currently relies on stanza 'et' models for pre-processing the input text. In future, the tool also becomes available via a web service (by `CoreferenceV1WebTagger`). For details, see the [coreference tutorial](https://github.com/estnltk/estnltk/blob/28814a3fa9ff869cd4cfc88308f6ce7e29157889/tutorials/nlp_pipeline/D_information_extraction/04_pronominal_coreference.ipynb);
+* Updated `VabamorfDisambiguator`, `VabamorfTagger` & `VabamorfCorpusTagger`: added possibility to preserve phonetic mark-up (even with disambiguation);
+* `UDMorphConverter` -- tagger that converts Vabamorf's morphology categories to Universal Dependencies morphological categories. Note that the conversion can introduce additional ambiguities as there is no disambiguation included, and roughly 3% to 9% of words do not obtain correct UD labels with this conversion. More details in [tutorial](https://github.com/estnltk/estnltk/blob/4ba6d9896b851d0a922a6a43bf2cc08a09667802/tutorials/nlp_pipeline/B_morphology/06_morph_analysis_with_ud_categories.ipynb);
+* `RobertaTagger` for tagging `EMBEDDIA/est-roberta` embeddings. The interface is analogous to that of `BertTagger`. [Tutorial](https://github.com/estnltk/estnltk/blob/e223a7e6245d29a6b1838335bfa3872a0aa92840/tutorials/nlp_pipeline/E_embeddings/bert_embeddings_tagger.ipynb).
+* `BertTokens2WordsRewriter` -- tagger that rewrites BERT tokens layer to a layer enveloping EstNLTK's words layer. Can be useful for mapping Bert's output to EstNLTK's tokenization (currently used by `EstBERTNERTagger`). 
+* `estnltk.resource_utils.delete_all_resources`. Apply it before uninstalling EstNLTK to remove all resources;
+* `clauses_and_syntax_consistency` module, which allows to 1) detect potential errors in clauses layer using information from the syntax layer, 2) fix clause errors with the help of syntactic information. [Tutorial](https://github.com/estnltk/estnltk/blob/4ba6d9896b851d0a922a6a43bf2cc08a09667802/tutorials/nlp_pipeline/F_annotation_consistency/clauses_and_syntax_consistency.ipynb);
+* `PostgresStorage` methods:
+	* `add_collection`
+	* `refresh`
+	* `delete_collection`
+* `PgCollection` methods:
+	* `refresh` 
+	* `get_layer_names_by_type`
+* `PgCollectionMeta` (provides views to `PgCollection`'s metadata, and allows to query metadata) and `PgCollectionMetaSelection` (read-only iterable selection over `PgCollection`'s metadata values); 
+* Parameter `remove_empty_nodes` to `conll_to_text` importer -- if switched on (default), then empty / null nodes (ellipsis in the enhanced representation) will be discarded (left out from textual content and also from annotations) while importing from conllu files; 
+* Added a simplified example about how to get whitespace tokenization for words to tutorial [`restoring_pretokenized_text.ipynb`](https://github.com/estnltk/estnltk/blob/4ba6d9896b851d0a922a6a43bf2cc08a09667802/tutorials/corpus_processing/restoring_pretokenized_text.ipynb);
+* `pg_operations.drop_all`;
+
+## Fixed
+
+* `extract_(discontinuous_)sections`: should now also work on non-ambiguous layer that has a parent;
+* `BaseText.topological_sort`: should now also work on layers with malformed/unknown dependencies;
+* `CompoundTokenTagger`: 2nd level compounding rules now also work on detached layers;
+* `TimexTagger`'s rules: disabled extraction of too long year values (which could break _Joda-Time_ integer limits);
+* Bug that caused collection metadata to disappear when using `PgCollection.insert` (related to `PgCollection.column_names` not returning automatically correct metadata column names on a loaded collection; newly introduced `PgCollectionMeta` solved that problem);
+* `StanzaSyntax(Ensemble)Tagger`: should now also work on detached layers;
+* Fixed `BaseLayer.diff`: now also takes account of a difference in `secondary_attributes`;
+* Fixed `downloader._download_and_install_hf_resource`: disabled default behaviour and `use_symlinks` option, because it fails under the Windows;
+* Fixed `download`: made it more flexible on parsing (idiosyncratic) 'Content-Type' values;
+* Fixed `BertTagger` tokenization: `BertTagger` can now better handle misalignments between bert tokens and word spans caused by emojiis, letters with diacritics, and the invisible token `\xad`;
+
 # [1.7.1] - 2022-08-30
 
 ## Changed
