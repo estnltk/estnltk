@@ -56,12 +56,14 @@ jobs:
           output-dir:  ./estnltk/wheelhouse
         env:
           # Before build:
+          # 0) Install legacy versions of dependency packages (for py38);
           # 1) install estnltk_core, because the package is not yet 
           #    available from the pypi;
           # 2) run `build_ext` before creating the wheel, because `pip wheel`
           #    runs `build_ext` as the last command and then the package will
           #    be missing auto-generated `vabamorf.py`;
           CIBW_BEFORE_BUILD:  >
+            pip install numpy==1.24.4 ipython==8.12.2 && 
             cd estnltk_core && 
             python setup.py install && 
             echo --- estntlk_core completed --- &&
