@@ -20,9 +20,9 @@ jobs:
         os: [ubuntu-latest]
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v4
         name: Install Python
 
       - name: Install pypa/build
@@ -35,7 +35,7 @@ jobs:
           python -m build --sdist --wheel --outdir dist/ .
           ls dist
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           path: |
             ./estnltk_core/dist/*.whl
@@ -47,14 +47,14 @@ jobs:
     needs: [build_estnltk_core_wheels_and_sdist]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: artifact
           path: dist
 
-      - uses: pypa/gh-action-pypi-publish@v1.4.2
+      - uses: pypa/gh-action-pypi-publish@release/v1
         with:
           user: __token__
-          password: ${{ secrets.test_pypi_token }}
+          password: ${{ secrets.pypi_token }}
           # Use https://test.pypi.org instead of the default pypi:
-          repository_url: https://test.pypi.org/legacy/
+          #repository_url: https://test.pypi.org/legacy/
