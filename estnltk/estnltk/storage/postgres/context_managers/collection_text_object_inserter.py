@@ -86,17 +86,10 @@ class CollectionTextObjectInserter(object):
             # ( CollectionStructureBase should return None )
             if self.collection.structure:
                 raise pg.PgCollectionException("collection already has structure {!r}, can't create another".format( self.collection.structure.structure ))
-        # Check for existing detached layers
+        # Check for existing detached/fragmented layers
         if self.collection.structure:
-            if any(struct['layer_type'] == 'detached' for struct in self.collection.structure.structure.values()):
-                raise pg.PgCollectionException("this collection has detached layers, can't add new text objects")
-        # Lock the table
-        cursor.execute(SQL('LOCK TABLE {}').format(self.table_identifier))
-        # Note 1: "There is no UNLOCK TABLE command; locks are always 
-        # released at transaction end."
-        # see more: https://www.postgresql.org/docs/9.4/sql-lock.html
-        # Note 2: the old implementation only locked the table iff it
-        # was empty. But now we are locking it before any insertion.
+            if any(struct['layer_type'] in pg.PostgresStorage.TABLED_LAYER_TYPES for struct in self.collection.structure.structure.values()):
+                raise pg.PgCollectionException("this collection has tabled layer(s), can't add new text objects")
         return self
 
 

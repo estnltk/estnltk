@@ -1,6 +1,7 @@
 import pytest
 
 from estnltk_core import Layer
+from estnltk_core import RelationLayer
 from estnltk_core.common import load_text_class
 from estnltk_core.layer.base_span import ElementaryBaseSpan
 from estnltk_core.converters import dict_to_layer
@@ -104,6 +105,36 @@ def test_pickle():
     assert result['text'][1]['text'] is result
     assert result['text'][1]['layer'] is result['nonempty_layer']
     assert result['text'][1]['espan'] is result['nonempty_layer'][0]
+
+    text = Text("Relatsioonikihtidega teksti serialiseerimine 1")
+    text.add_layer(Layer('empty_layer', attributes=[]))
+    text.add_layer(RelationLayer('empty_relation_layer', span_names=['arg0', 'arg1'], attributes=['attr']))
+    result = save_restore(text)
+    assert result.text == text.text
+    assert result.meta == text.meta
+    assert result.layers == text.layers
+    assert result.relation_layers == text.relation_layers
+    
+    text = Text("Relatsioonikihtidega teksti serialiseerimine 2")
+    text.add_layer(Layer('span_layer', attributes=['attr1']))
+    text['span_layer'].add_annotation((0, 20), attr1='1. sõna')
+    text.add_layer(RelationLayer('relation_layer_1', span_names=['arg0', 'arg1'], attributes=['attr_a']))
+    text.add_layer(RelationLayer('relation_layer_2', span_names=['arg_a', 'arg_b'], attributes=['attr_b']))
+    text['relation_layer_1'].add_annotation({'arg0': (0, 11),   'arg1': (11, 20)})
+    text['relation_layer_1'].meta = {'meta_a': 1, 'meta_b:': 2}
+    text['relation_layer_2'].add_annotation({'arg_a': (21, 27), 'arg_b': (28, 44), 'attr_b': 99})
+    text['relation_layer_2'].add_annotation({'arg_a': (45, 46), 'arg_b': (11, 20), 'attr_b': 100})
+    result = save_restore(text)
+    assert result.text == text.text
+    assert result.meta == text.meta
+    assert result.layers == text.layers
+    assert result.relation_layers == text.relation_layers
+    assert text['span_layer'] == result['span_layer']
+    assert text['relation_layer_1'] == result['relation_layer_1']
+    assert text['relation_layer_2'] == result['relation_layer_2']
+    assert text['relation_layer_2'][0] == result['relation_layer_2'][0]
+    assert text['relation_layer_2'][1] == result['relation_layer_2'][1]
+
 
 def test_to_records():
     # Load Text or BaseText class (depending on the available packages)
@@ -583,3 +614,4 @@ def test_ambiguous_from_dict_unbound():
     assert t['words2'][0].lemma2 == create_amb_attribute_list(['kui', 'KUU'], 'lemma2')
 
     assert t['words2'][0].parent is t['words'][0]
+

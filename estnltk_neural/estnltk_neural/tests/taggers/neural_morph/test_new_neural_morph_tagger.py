@@ -4,11 +4,13 @@ from unittest import TestCase
 
 from estnltk import Text
 from estnltk.downloader import get_resource_paths
+from estnltk.converters import layer_to_dict
 
 from estnltk_neural.common import neural_abs_path
 from estnltk_neural.taggers.neural_morph.new_neural_morph.vabamorf_2_neural import neural_model_tags
 from estnltk_neural.taggers.neural_morph.new_neural_morph.neural_2_vabamorf import vabamorf_tags
 from estnltk_neural.taggers.neural_morph.new_neural_morph.neural_morph_tagger import NeuralMorphTagger
+from estnltk_neural.taggers.neural_morph.new_neural_morph.neural_morph_tagger import is_tensorflow_available
 from estnltk_neural.taggers.neural_morph.new_neural_morph.general_utils import get_model_path_from_dir
 
 
@@ -24,7 +26,7 @@ class DummyTagger:
 
 class TestDummyTagger(TestCase):
     def test(self):
-        dummy_tagger = NeuralMorphTagger(model=DummyTagger())
+        dummy_tagger = NeuralMorphTagger(model=DummyTagger(), bypass_tensorflow_check=True)
         
         text = Text("Ära mine sinna.")
         text.tag_layer(["morph_analysis"])
@@ -96,24 +98,28 @@ if isinstance(NEURAL_MORPH_TAGGER_CONFIG, str):
 skip_reason = ("Could not load neural morph model{}. "+\
                'If the model has not been downloaded yet, please use {} to get the model for testing.').format( \
                              skip_reason_for_config, skip_reason_download_instruction )
-model_module = None
-model_dir = get_model_dir_from_esnltk_resources( NEURAL_MORPH_TAGGER_CONFIG )
-if model_dir is not None:
-    if 'softmax_emb_tag_sum' in model_dir:
-        import estnltk_neural.taggers.neural_morph.new_neural_morph.softmax_emb_tag_sum as model_module
-    elif 'softmax_emb_cat_sum' in model_dir:
-        import estnltk_neural.taggers.neural_morph.new_neural_morph.softmax_emb_cat_sum as model_module
-    elif 'seq2seq_emb_tag_sum' in model_dir:
-        import estnltk_neural.taggers.neural_morph.new_neural_morph.seq2seq_emb_tag_sum as model_module
-    elif 'seq2seq_emb_cat_sum' in model_dir:
-        import estnltk_neural.taggers.neural_morph.new_neural_morph.seq2seq_emb_cat_sum as model_module
-    else:
-        raise Exception( ("(!) Unexpected NeuralMorphTagger's model path {!r}. Must contain string "+\
-                          "'softmax_emb_tag_sum', 'softmax_emb_cat_sum', 'seq2seq_emb_tag_sum' or "+\
-                          "'seq2seq_emb_cat_sum'.").format(model_dir) )
-if model_module is not None and model_dir is not None:
-    tagger = NeuralMorphTagger(model_module=model_module, model_dir=model_dir)
 
+model_dir = None
+model_module = None
+if is_tensorflow_available(): # Only proceed if tensorflow is available
+    model_dir = get_model_dir_from_esnltk_resources( NEURAL_MORPH_TAGGER_CONFIG )
+    if model_dir is not None:
+        if 'softmax_emb_tag_sum' in model_dir:
+            import estnltk_neural.taggers.neural_morph.new_neural_morph.softmax_emb_tag_sum as model_module
+        elif 'softmax_emb_cat_sum' in model_dir:
+            import estnltk_neural.taggers.neural_morph.new_neural_morph.softmax_emb_cat_sum as model_module
+        elif 'seq2seq_emb_tag_sum' in model_dir:
+            import estnltk_neural.taggers.neural_morph.new_neural_morph.seq2seq_emb_tag_sum as model_module
+        elif 'seq2seq_emb_cat_sum' in model_dir:
+            import estnltk_neural.taggers.neural_morph.new_neural_morph.seq2seq_emb_cat_sum as model_module
+        else:
+            raise Exception( ("(!) Unexpected NeuralMorphTagger's model path {!r}. Must contain string "+\
+                              "'softmax_emb_tag_sum', 'softmax_emb_cat_sum', 'seq2seq_emb_tag_sum' or "+\
+                              "'seq2seq_emb_cat_sum'.").format(model_dir) )
+    if model_module is not None and model_dir is not None:
+        tagger = NeuralMorphTagger(model_module=model_module, model_dir=model_dir)
+else:
+    skip_reason = "Tensorflow is not installed. You'll need tensorflow <= 1.15.5 for running this test."
 
 @unittest.skipIf(tagger is None, skip_reason)
 class TestNeuralModel(TestCase):
@@ -132,10 +138,10 @@ class TestNeuralModel(TestCase):
                     correct_count += 1
                     
         self.assertTrue(correct_count/word_count >= 0.97)
-                    
+
 
 @unittest.skipIf(tagger is None, skip_reason)
-class TestNeuralTagger(TestCase):  
+class TestNeuralTagger(TestCase):
     def test(self):
         sentences = get_test_sentences(neural_abs_path("tests/taggers/neural_morph/neural_test_sentences.txt"))
         word_count = 0
@@ -153,3 +159,124 @@ class TestNeuralTagger(TestCase):
                     correct_count += 1
                     
         self.assertTrue(correct_count/word_count >= 0.97)
+
+
+@unittest.skipIf(tagger is None or model_module is None or model_dir is None, skip_reason)
+class TestNeuralRetagger(TestCase):
+
+    def test(self):
+        # Smoke test that NeuralMorphTagger can also be used as a Retagger
+        tagger.reset()
+        retagger = NeuralMorphTagger(output_layer='morph_analysis', 
+                                     model_module=model_module, 
+                                     model_dir=model_dir)
+        text = Text('Nad on läinud. Aga kadunud poeg on tagasi.').tag_layer('morph_analysis')
+        retagger.retag(text)
+
+        expected_morph_layer_dict = \
+            {'ambiguous': True,
+             'attributes': ('normalized_text',
+                            'lemma',
+                            'root',
+                            'root_tokens',
+                            'ending',
+                            'clitic',
+                            'form',
+                            'partofspeech'),
+             'enveloping': None,
+             'meta': {},
+             'name': 'morph_analysis',
+             'parent': 'words',
+             'secondary_attributes': (),
+             'serialisation_module': None,
+             'spans': [{'annotations': [{'clitic': '',
+                                         'ending': 'd',
+                                         'form': 'pl n',
+                                         'lemma': 'tema',
+                                         'normalized_text': 'Nad',
+                                         'partofspeech': 'P',
+                                         'root': 'tema',
+                                         'root_tokens': ['tema']}],
+                        'base_span': (0, 3)},
+                       {'annotations': [{'clitic': '',
+                                         'ending': '0',
+                                         'form': 'vad',
+                                         'lemma': 'olema',
+                                         'normalized_text': 'on',
+                                         'partofspeech': 'V',
+                                         'root': 'ole',
+                                         'root_tokens': ['ole']}],
+                        'base_span': (4, 6)},
+                       {'annotations': [{'clitic': '',
+                                         'ending': 'nud',
+                                         'form': 'nud',
+                                         'lemma': 'minema',
+                                         'normalized_text': 'läinud',
+                                         'partofspeech': 'V',
+                                         'root': 'mine',
+                                         'root_tokens': ['mine']}],
+                        'base_span': (7, 13)},
+                       {'annotations': [{'clitic': '',
+                                         'ending': '',
+                                         'form': '',
+                                         'lemma': '.',
+                                         'normalized_text': '.',
+                                         'partofspeech': 'Z',
+                                         'root': '.',
+                                         'root_tokens': ['.']}],
+                        'base_span': (13, 14)},
+                       {'annotations': [{'clitic': '',
+                                         'ending': '0',
+                                         'form': '',
+                                         'lemma': 'aga',
+                                         'normalized_text': 'Aga',
+                                         'partofspeech': 'J',
+                                         'root': 'aga',
+                                         'root_tokens': ['aga']}],
+                        'base_span': (15, 18)},
+                       {'annotations': [{'clitic': '',
+                                         'ending': '0',
+                                         'form': '',
+                                         'lemma': 'kadunud',
+                                         'normalized_text': 'kadunud',
+                                         'partofspeech': 'A',
+                                         'root': 'kadunud',
+                                         'root_tokens': ['kadunud']}],
+                        'base_span': (19, 26)},
+                       {'annotations': [{'clitic': '',
+                                         'ending': '0',
+                                         'form': 'sg n',
+                                         'lemma': 'poeg',
+                                         'normalized_text': 'poeg',
+                                         'partofspeech': 'S',
+                                         'root': 'poeg',
+                                         'root_tokens': ['poeg']}],
+                        'base_span': (27, 31)},
+                       {'annotations': [{'clitic': '',
+                                         'ending': '0',
+                                         'form': 'b',
+                                         'lemma': 'olema',
+                                         'normalized_text': 'on',
+                                         'partofspeech': 'V',
+                                         'root': 'ole',
+                                         'root_tokens': ['ole']}],
+                        'base_span': (32, 34)},
+                       {'annotations': [{'clitic': '',
+                                         'ending': '0',
+                                         'form': '',
+                                         'lemma': 'tagasi',
+                                         'normalized_text': 'tagasi',
+                                         'partofspeech': 'D',
+                                         'root': 'tagasi',
+                                         'root_tokens': ['tagasi']}],
+                        'base_span': (35, 41)},
+                       {'annotations': [{'clitic': '',
+                                         'ending': '',
+                                         'form': '',
+                                         'lemma': '.',
+                                         'normalized_text': '.',
+                                         'partofspeech': 'Z',
+                                         'root': '.',
+                                         'root_tokens': ['.']}],
+                        'base_span': (41, 42)}]}
+        assert layer_to_dict(text['morph_analysis']) == expected_morph_layer_dict

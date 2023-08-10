@@ -53,7 +53,7 @@ class PgSubCollectionFragments:
 
         structure = collection._structure
         assert fragmented_layer in structure
-        assert structure[fragmented_layer]['layer_type'] in {'fragmented', 'detached'}, \
+        assert structure[fragmented_layer]['layer_type'] in pg.PostgresStorage.TABLED_LAYER_TYPES, \
             structure[fragmented_layer]['layer_type']
         if collection.is_sparse( fragmented_layer ):
             raise NotImplementedError('PgSubCollectionFragments not implemented for sparse layers')
@@ -70,8 +70,13 @@ class PgSubCollectionFragments:
 
         # TODO: Simplify query
 
-        selected_columns = [SQL('{}."text_id"').format(pg.layer_table_identifier(self.collection.storage, self.collection.name, self.fragmented_layer)),
-                            SQL('{}."data"').format(pg.layer_table_identifier(self.collection.storage, self.collection.name, self.fragmented_layer))]
+        layer_type = self.collection._structure[self.fragmented_layer]['layer_type']
+        fragmented_layer_table_id = \
+            pg.layer_table_identifier( self.collection.storage, self.collection.name, 
+                                       self.fragmented_layer, layer_type=layer_type )
+
+        selected_columns = [SQL('{}."text_id"').format(fragmented_layer_table_id),
+                            SQL('{}."data"').format(fragmented_layer_table_id)]
 
         required_layers = sorted({self.fragmented_layer, *self._selection_criterion.required_layers})
 
@@ -87,8 +92,12 @@ class PgSubCollectionFragments:
             return SQL("SELECT {} FROM {}").format(SQL(', ').join(selected_columns), collection_identifier)
 
         # Build a join clauses to merge required layers by text_id
-        required_layer_tables = [pg.layer_table_identifier(self.collection.storage, self.collection.name, layer)
-                                 for layer in required_layers]
+        required_layer_tables = []
+        for layer in required_layers:
+            layer_type = self.collection._structure[layer]['layer_type']
+            required_layer_tables.append( \
+                pg.layer_table_identifier(self.collection.storage, self.collection.name, layer, layer_type=layer_type))
+        
         join_condition = SQL(" AND ").join(SQL('{}."id" = {}."text_id"').format(collection_identifier,
                                                                                 layer_table_identifier)
                                            for layer_table_identifier in required_layer_tables)

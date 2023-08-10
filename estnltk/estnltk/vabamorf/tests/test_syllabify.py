@@ -108,6 +108,45 @@ class SyllabificationTest(unittest.TestCase):
         expected = ['-------']
         self.assertListEqual(expected, actual)
 
+    def test_split_compound_word_heuristically_with_tolerance(self):
+        # Split with tolerance for mismatches (default: tolerance=2)
+        # Case 0
+        actual = _split_compound_word_heuristically('kahekümne')
+        expected = ['kahe', 'kümne']
+        self.assertListEqual(expected, actual)
+        # Case 1
+        actual = _split_compound_word_heuristically('kolmekümnene')
+        expected = ['kolme', 'kümnene']
+        self.assertListEqual(expected, actual)
+        # Case 2
+        actual = _split_compound_word_heuristically('kolmekümne')
+        expected = ['kolme', 'kümne']
+        self.assertListEqual(expected, actual)
+        # Case 3
+        actual = _split_compound_word_heuristically('kolmekümne')
+        expected = ['kolme', 'kümne']
+        self.assertListEqual(expected, actual)
+        # Case 4
+        actual = _split_compound_word_heuristically('neljakümne')
+        expected = ['nelja', 'kümne']
+        self.assertListEqual(expected, actual)
+        # Case 5
+        actual = _split_compound_word_heuristically('viiekümne')
+        expected = ['viie', 'kümne']
+        self.assertListEqual(expected, actual)
+        # Case 6
+        actual = _split_compound_word_heuristically('kuuekümne')
+        expected = ['kuue', 'kümne']
+        self.assertListEqual(expected, actual)
+        # Case 7
+        actual = _split_compound_word_heuristically('seitsmekümne')
+        expected = ['seitsme', 'kümne']
+        self.assertListEqual(expected, actual)
+        # Case 8 -- TODO this is not working, needs a fix
+        actual = _split_compound_word_heuristically('sellessamas')
+        expected = ['selles', 'samas']
+        #self.assertListEqual(expected, actual)
+
     def test_syllabification_with_split_compounds(self):
         # Case 1
         actual = syllabify_word('kalamajja', split_compounds=True)

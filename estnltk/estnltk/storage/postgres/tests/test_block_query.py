@@ -4,7 +4,7 @@ import random
 from estnltk import logger
 from estnltk import Text
 from estnltk.storage.postgres import PostgresStorage
-from estnltk.storage.postgres import create_schema, delete_schema
+from estnltk.storage.postgres import delete_schema
 from estnltk.storage.postgres.queries.block_query import BlockQuery
 
 logger.setLevel('DEBUG')
@@ -17,9 +17,8 @@ def get_random_collection_name():
 class TestBlockQuery(unittest.TestCase):
     def setUp(self):
         schema = "test_schema"
-        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db')
-
-        create_schema(self.storage)
+        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db', \
+                                       create_schema_if_missing=True)
 
     def tearDown(self):
         delete_schema(self.storage)
@@ -27,8 +26,7 @@ class TestBlockQuery(unittest.TestCase):
 
     def test_block_query(self):
         collection_name = get_random_collection_name()
-        collection = self.storage[collection_name]
-        collection.create()
+        collection = self.storage.add_collection(collection_name)
 
         with collection.insert() as collection_insert:
             for i in range(100):
@@ -44,4 +42,4 @@ class TestBlockQuery(unittest.TestCase):
         res = list( collection.select( query=BlockQuery(3, 0) ) )
         self.assertEqual( len(res), 34 )
         
-        collection.delete()
+        self.storage.delete_collection(collection.name)

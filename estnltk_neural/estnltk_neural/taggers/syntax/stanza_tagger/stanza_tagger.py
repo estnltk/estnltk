@@ -10,6 +10,9 @@ from estnltk.taggers import Tagger
 from estnltk.converters.serialisation_modules import syntax_v0
 from estnltk.downloader import get_resource_paths
 
+from estnltk_neural.taggers.syntax.stanza_tagger.common_utils import prepare_input_doc
+from estnltk_neural.taggers.syntax.stanza_tagger.common_utils import feats_to_ordereddict
+
 
 class StanzaSyntaxTagger(Tagger):
     """
@@ -41,14 +44,29 @@ class StanzaSyntaxTagger(Tagger):
            must point to the name of the layer;
 
     Names of layers to use can be changed using parameters sentences_layer, words_layer and input_morph_layer,
-    if needed. To use GPU for parsing, parameter use_gpu must be set to True.
-    Parameter add_parents_and_children adds attributes that contain the parent and children of a word.
+    if needed. To use GPU for parsing, parameter use_gpu must be set to True. 
+    Parameter add_parents_and_children adds attributes that contain the parent and children of a word. 
+    
+    The input morph analysis layer can be ambiguous. In that case, StanzaSyntaxTagger picks randomly one 
+    morph analysis for each ambiguous word, and predicts from "unambiguous" input. 
+    Important: as a result, by default, the output will not be deterministic: for ambiguous words, you will 
+    get different 'lemma', 'upostag', 'xpostag', 'feats' values on each run, and this also affects the results 
+    of dependency parsing. 
+    How to make the output deterministic: you can pass a seed value for the random generator via constructor 
+    parameter random_pick_seed (int, default value: None). Note that the seed value is fixed once at creating 
+    a new instance of StanzaSyntaxTagger, and you only get deterministic / repeatable results if you tag texts 
+    in exactly the same order.
+    Note: if you want to get the same deterministic output as in previous versions of the tagger, use 
+    random_pick_seed=4.
+    
     Tutorial:
+    https://github.com/estnltk/estnltk/blob/main/tutorials/nlp_pipeline/C_syntax/03_syntactic_analysis_with_stanza.ipynb
     """
 
     conf_param = ['model_path', 'add_parent_and_children', 'syntax_dependency_retagger',
                   'input_type', 'dir', 'mark_syntax_error', 'mark_agreement_error', 'agreement_error_retagger',
-                  'ud_validation_retagger', 'use_gpu', 'nlp']
+                  'ud_validation_retagger', 'nlp', 'use_gpu', 'gpu_max_words_in_sentence', 'random_pick_seed', 
+                  '_random']
 
     def __init__(self,
                  output_layer='stanza_syntax',
@@ -56,12 +74,14 @@ class StanzaSyntaxTagger(Tagger):
                  words_layer='words',
                  input_morph_layer='morph_analysis',
                  input_type='morph_analysis',  # or 'morph_extended', 'sentences'
+                 random_pick_seed=None,
                  add_parent_and_children=False,
                  depparse_path=None,
                  resources_path=None,
                  mark_syntax_error=False,
                  mark_agreement_error=False,
-                 use_gpu=False
+                 use_gpu=False,
+                 gpu_max_words_in_sentence=1000
                  ):
         # Make an internal import to avoid explicit stanza dependency
         import stanza
@@ -73,6 +93,16 @@ class StanzaSyntaxTagger(Tagger):
         self.output_attributes = ('id', 'lemma', 'upostag', 'xpostag', 'feats', 'head', 'deprel', 'deps', 'misc')
         self.input_type = input_type
         self.use_gpu = use_gpu
+        self.random_pick_seed = random_pick_seed
+        self._random = Random()
+        if isinstance(self.random_pick_seed, int):
+            self._random.seed(self.random_pick_seed)
+
+        # We may run into "CUDA out of memory" error when processing very long sentences 
+        # with GPU.
+        # Set a reasonable default for max sentence length: if that gets exceeded, then a 
+        # guarding exception will be thrown
+        self.gpu_max_words_in_sentence = gpu_max_words_in_sentence
 
         if not resources_path:
             # Try to get the resources path for stanzasyntaxtagger. Attempt to download resources, if missing
@@ -138,6 +168,7 @@ class StanzaSyntaxTagger(Tagger):
                     'StanzaSyntaxTagger under the subdirectory `stanza_resources/et`')
 
         if self.input_type == 'sentences':
+            # Stanza default pipeline on EstNLTK's pretagged tokens/sentences
             self.input_layers = [sentences_layer, words_layer]
             self.nlp = stanza.Pipeline(lang='et', processors='tokenize,pos,lemma,depparse',
                                        dir=self.dir,
@@ -170,48 +201,30 @@ class StanzaSyntaxTagger(Tagger):
     def _make_layer(self, text, layers, status=None):
         # Make an internal import to avoid explicit stanza dependency
         from stanza.models.common.doc import Document
-        
-        rand = Random()
-        rand.seed(4)
 
         if self.input_type in ['morph_analysis', 'morph_extended']:
-
-            sentences_layer = layers[self.input_layers[0]]
-            data = []
-
-            for sentence in sentences_layer:
-                sentence_analysis = []
-
-                # TODO Replace sentence.__getattr__ with appropriate code
-                for i, span in enumerate(sentence.__getattr__(self.input_layers[1])):
-                    annotation = rand.choice(span.annotations)
-                    id = i + 1
-                    wordform = span.text
-                    lemma = annotation['lemma']
-
-                    feats = ''
-
-                    if annotation['form']:
-                        feats = annotation['form']
-
-                    if not feats:
-                        feats = '_'
-
-                    else:
-                        # Make and join keyed features.
-                        feats = '|'.join([a + '=' + a for a in feats.strip().split(' ') if a])
-                    xpos = annotation['partofspeech']  # xpos and upos have the same value
-                    dict = {'id': id, 'text': wordform, 'lemma': lemma, 'feats': feats, 'upos': xpos, 'xpos': xpos}
-                    sentence_analysis.append(dict)
-
-                data.append(sentence_analysis)
-
-            document = Document(data)
-
-        # Stanza pipeline on pretagged tokens/sentences.
+            # Input: EstNLTK's tokenization and morphological features
+            sentences = self.input_layers[0]
+            morph_analysis = self.input_layers[1]
+            text_data = prepare_input_doc(layers, sentences, morph_analysis, 
+                                          random_picker=self._random)
+            if self.use_gpu and self.gpu_max_words_in_sentence is not None:
+                # Using GPU: Check that sentences are not too long (for CUDA memory)
+                for sentence in text_data:
+                    if len(sentence) > self.gpu_max_words_in_sentence:
+                        raise Exception( ('(!) Encountered a sentence which length ({}) exceeds '+\
+                                          'gpu_max_words_in_sentence ({}). Are you sure GPU '+\
+                                          'has enough memory for processing this long sentence? '+\
+                                          'Either process this document with CPU or, if GPU '+\
+                                          'memory is ensured, pass parameter '+\
+                                          'gpu_max_words_in_sentence=None to this tagger '+\
+                                          'to disable this exception.').format(len(sentence), \
+                                          self.gpu_max_words_in_sentence) )
+            document = Document(text_data)
         else:
-            sentences_layer = layers[self.input_layers[0]]
-            document = [sentence.text for sentence in sentences_layer]
+            # Input: EstNLTK's tokenization only
+            sentences = self.input_layers[0]
+            document = prepare_input_doc(layers, sentences, None, only_tokenization=True)
 
         parent_layer = layers[self.input_layers[1]]
 
@@ -252,16 +265,3 @@ class StanzaSyntaxTagger(Tagger):
 
         return layer
 
-
-def feats_to_ordereddict(feats_str):
-    """
-    Converts feats string to OrderedDict (as in MaltParserTagger and UDPipeTagger)
-    """
-    feats = OrderedDict()
-    if feats_str == '_':
-        return feats
-    feature_pairs = feats_str.split('|')
-    for feature_pair in feature_pairs:
-        key, value = feature_pair.split('=')
-        feats[key] = value
-    return feats

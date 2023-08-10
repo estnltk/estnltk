@@ -5,7 +5,7 @@ import random
 from estnltk import logger
 from estnltk import Text
 from estnltk.storage.postgres import PostgresStorage, layer_table_identifier
-from estnltk.storage.postgres import create_schema, delete_schema, count_rows
+from estnltk.storage.postgres import delete_schema, count_rows
 from estnltk.taggers import VabamorfTagger
 from estnltk.storage.postgres.queries.layer_ngram_query import LayerNgramQuery
 from estnltk.storage.postgres.queries.layer_query import LayerQuery
@@ -22,17 +22,16 @@ def get_random_collection_name():
 class TestLayerNgramQuery(unittest.TestCase):
     def setUp(self):
         schema = "test_schema"
-        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db')
-
-        create_schema(self.storage)
+        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db', \
+                                       create_schema_if_missing=True)
 
     def tearDown(self):
         delete_schema(self.storage)
         self.storage.close()
 
     def test_layer_ngram_query(self):
-        collection = self.storage[get_random_collection_name()]
-        collection.create()
+        collection_name = get_random_collection_name()
+        collection = self.storage.add_collection(collection_name)
 
         id1 = 1
         id2 = 2
@@ -110,14 +109,14 @@ class TestLayerNgramQuery(unittest.TestCase):
         })))
         self.assertEqual(len(res), 1)
 
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
 
 
     def test_layer_ngram_query_on_layer_wo_ngram_index(self):
         # Test an invalid query: LayerNgramQuery on a layer that does not have ngram_index columns
-        collection = self.storage[get_random_collection_name()]
-        collection.create()
+        collection_name = get_random_collection_name()
+        collection = self.storage.add_collection(collection_name)
         
         with collection.insert() as collection_insert:
             text1 = Text("Kass tiksus mansardkorrusel.").tag_layer(["sentences"])
@@ -132,14 +131,14 @@ class TestLayerNgramQuery(unittest.TestCase):
         with self.assertRaises( Exception ):
             res = list( collection.select( query = LayerNgramQuery( {'morph_analysis': {"lemma": [("kass",)]}} ) ) )
         
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
 
 
     def test_layer_ngram_query_in_combination_with_layer_query(self):
         # Test combinations of LayerNgramQuery and LayerQuery
-        collection = self.storage[get_random_collection_name()]
-        collection.create()
+        collection_name = get_random_collection_name()
+        collection = self.storage.add_collection(collection_name)
 
         with collection.insert() as collection_insert:
             text1 = Text("Kass tiksus mansardkorrusel.").tag_layer(["morph_analysis"])
@@ -199,15 +198,14 @@ class TestLayerNgramQuery(unittest.TestCase):
         self.assertEqual(len(res), 1)
         self.assertEqual(res[0][1].meta['insert_id'], 2)
         
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
 
     @pytest.mark.filterwarnings("ignore:Metadata items were lost during the sparse insertion")
     def test_layer_ngram_query_on_sparse_layer(self):
         # Test that LayerNgramQuery successfully works with sparse layers
         collection_name = get_random_collection_name()
-        collection = self.storage[collection_name]
-        collection.create()
+        collection = self.storage.add_collection(collection_name)
         # Assert structure version 3.0+ (required for sparse layers)
         self.assertGreaterEqual(collection.version , '3.0')
         
@@ -290,4 +288,4 @@ class TestLayerNgramQuery(unittest.TestCase):
         self.assertEqual( len(res[4][1]['sixth_numbers']), 1 )
         self.assertEqual( len(res[5][1]['sixth_numbers']), 1 )
         
-        collection.delete()
+        self.storage.delete_collection(collection.name)

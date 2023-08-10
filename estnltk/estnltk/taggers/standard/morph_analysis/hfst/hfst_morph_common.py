@@ -14,21 +14,6 @@ from estnltk import Layer, Text
 from estnltk import Span
 from estnltk.taggers import Tagger
 
-from estnltk.common import PACKAGE_PATH
-
-#
-# About the HFST model:
-#
-# Source code for the Estonian transducer models can be obtained from here:
-#     https://victorio.uit.no/langtech/trunk/experiment-langs/est
-# Once you have compiled HFST models of this repository, look for file 
-# 'src/analyser-gt-desc.hfstol'. This is the file that can be given to 
-# HfstEstMorphAnalyser as the transducer model.
-#
-
-HFST_MODEL_FILE = \
-    os.path.join(PACKAGE_PATH, 'taggers', 'standard', 'morph_analysis', 'hfst', 'models', 'analyser-gt-desc.hfstol')
-
 # ========================================================
 
 class HfstMorphOutputExtractor(object):
@@ -139,6 +124,10 @@ class RawAnalysesHfstMorphOutputExtractor(HfstMorphOutputExtractor):
 #  Note: the structure of analysis is described in more 
 #  detail in:
 #     https://victorio.uit.no/langtech/trunk/experiment-langs/est/src/morphology/lexlang.xfscript
+#     ( the legacy location )
+#  or in:
+#     https://github.com/giellalt/lang-est-x-utee/blob/main/src/fst/lexlang.xfscript
+#     ( the new location )
 
 # part-of-speech_tags 
 est_hfst_postags = [

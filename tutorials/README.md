@@ -15,7 +15,7 @@
 
     * [syntactic analysis](nlp_pipeline/C_syntax) -- preprocessing for syntax and syntactic analysers; available models; utilities for comparing and validating syntactic annotations;
 
-    * [information extraction](nlp_pipeline/D_information_extraction): tools for extracting addresses, named entities and temporal expressions from texts;
+    * [information extraction](nlp_pipeline/D_information_extraction): tools for extracting addresses, named entities, temporal expressions from texts, and for detecting pronominal coreference relations;
    
     * [embeddings](nlp_pipeline/E_embeddings): EstNLTK's pretrained language models. 
 

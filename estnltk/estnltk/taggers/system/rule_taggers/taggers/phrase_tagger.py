@@ -7,7 +7,7 @@ from estnltk import Layer
 from estnltk.taggers import Tagger
 from estnltk.taggers.system.rule_taggers.extraction_rules.ambiguous_ruleset import AmbiguousRuleset
 from estnltk.taggers.system.rule_taggers.extraction_rules.ruleset import Ruleset
-from estnltk.taggers.system.rule_taggers.helper_methods.helper_methods import keep_maximal_matches, keep_minimal_matches
+from estnltk.taggers.system.rule_taggers.helper_methods.helper_methods import keep_maximal_matches, keep_minimal_matches, conflict_priority_resolver
 from estnltk_core import ElementaryBaseSpan
 
 
@@ -35,7 +35,10 @@ class PhraseTagger(Tagger):
                  output_attributes: Sequence = None,
                  decorator=None,
                  ignore_case=False,
-                 phrase_attribute='phrase'
+                 phrase_attribute='phrase',
+                 group_attribute: str = None,
+                 priority_attribute: str = None,
+                 pattern_attribute: str = None
                  ):
         """Initialize a new PhraseTagger instance.
 
@@ -67,10 +70,16 @@ class PhraseTagger(Tagger):
         :param phrase_attribute: str (Default: 'phrase')
             Name of the attribute in which the phrase object of the annotation is stored.
             The attribute can be used by the decorator or dynamic rules to change the annotation.
+        :param group_attribute: str (Default: None)
+            If not None, the final annotation contains the group attribute of the rule with the given name
+        :param priority_attribute: str (Default: None)
+            If not None, the final annotation contains the priority attribute of the rule with the given name
+        pattern_attribute: str (Default: None)
+            If not None, the final annotation contains the pattern attribute of the rule with the given name
         """
-        self.conf_param = ('input_attribute', 'ruleset', 'decorator', '_heads',
-                           'ignore_case', 'conflict_resolver', 'phrase_attribute',
-                           'static_ruleset_map', 'dynamic_ruleset_map')
+        self.conf_param = ('input_attribute', 'ruleset', 'decorator', '_heads','ignore_case',
+                           'conflict_resolver', 'phrase_attribute', 'group_attribute', 'priority_attribute',
+                           'pattern_attribute', 'static_ruleset_map', 'dynamic_ruleset_map')
 
         self.output_layer = output_layer
         self.input_layers = [input_layer]
@@ -153,6 +162,9 @@ class PhraseTagger(Tagger):
         self.phrase_attribute = phrase_attribute
         if not isinstance(phrase_attribute, str):
             raise AttributeError("Phrase attribute must be str")
+        self.group_attribute = group_attribute
+        self.priority_attribute = priority_attribute
+        self.pattern_attribute = pattern_attribute
 
         self._heads = {}
         for phrase in self.static_ruleset_map.keys():
@@ -178,6 +190,21 @@ class PhraseTagger(Tagger):
         elif self.conflict_resolver == 'KEEP_MAXIMAL':
             layer = self.add_decorated_annotations_to_layer(layer, keep_maximal_matches(all_matches))
         elif self.conflict_resolver == 'KEEP_MINIMAL':
+            layer = self.add_decorated_annotations_to_layer(layer, keep_minimal_matches(all_matches))
+        elif self.conflict_resolver == 'KEEP_ALL_EXCEPT_PRIORITY':
+            matches_with_priority = [(phrase, self.static_ruleset_map.get(phrase, None)) for base_span, _, phrase in
+                                     all_matches]
+            all_matches = conflict_priority_resolver(all_matches, matches_with_priority)
+            layer = self.add_decorated_annotations_to_layer(layer, iter(all_matches))
+        elif self.conflict_resolver == 'KEEP_MAXIMAL_EXCEPT_PRIORITY':
+            matches_with_priority = [(phrase, self.static_ruleset_map.get(phrase, None)) for base_span, _, phrase in
+                                     all_matches]
+            all_matches = conflict_priority_resolver(all_matches, matches_with_priority)
+            layer = self.add_decorated_annotations_to_layer(layer, keep_maximal_matches(all_matches))
+        elif self.conflict_resolver == 'KEEP_MINIMAL_EXCEPT_PRIORITY':
+            matches_with_priority = [(phrase, self.static_ruleset_map.get(phrase, None)) for base_span, _, phrase in
+                                     all_matches]
+            all_matches = conflict_priority_resolver(all_matches, matches_with_priority)
             layer = self.add_decorated_annotations_to_layer(layer, keep_minimal_matches(all_matches))
         elif callable(self.conflict_resolver):
             layer = self.conflict_resolver(layer, self.iterate_over_decorated_annotations(layer, iter(all_matches)))
@@ -252,6 +279,12 @@ class PhraseTagger(Tagger):
             for group, priority, annotation in static_rulelist:
                 annotation = annotation.copy()
                 annotation[self.phrase_attribute] = phrase
+                if self.group_attribute:
+                    annotation[self.group_attribute] = group
+                if self.priority_attribute:
+                    annotation[self.priority_attribute] = priority
+                if self.pattern_attribute:
+                    annotation[self.pattern_attribute] = phrase
                 if self.decorator is not None:
                     annotation = self.decorator(text, base_span, annotation)
                     if not isinstance(annotation, dict):
@@ -292,6 +325,14 @@ class PhraseTagger(Tagger):
             span = EnvelopingSpan(base_span=base_span, layer=layer)
             static_rulelist = self.static_ruleset_map.get(phrase, None)
             for group, priority, annotation in static_rulelist:
+                annotation = annotation.copy()
+                annotation[self.phrase_attribute] = phrase
+                if self.group_attribute:
+                    annotation[self.group_attribute] = group
+                if self.priority_attribute:
+                    annotation[self.priority_attribute] = priority
+                if self.pattern_attribute:
+                    annotation[self.pattern_attribute] = phrase
                 if self.decorator is not None:
                     annotation = self.decorator(text, base_span, annotation)
                     if not isinstance(annotation, dict):

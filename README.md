@@ -14,32 +14,34 @@ As of version 1.7, the EstNLTK library is split into 3 Python packages:
 
 Source code of packages is available at the [EstNLTK's monorepository](https://github.com/estnltk/estnltk/tree/main).  
 
-## `estnltk`
+* **NB!** Building EstNLTK version 1.7.2 is currently work in progress. Before the build is completed, we recommend to use [the previous version of the library.](https://github.com/estnltk/estnltk/tree/123fadf204fb99661da5320cf95172aa9b61c697)
+
+## EstNLTK
 
 ### Installation
 
-EstNLTK is available for osx, windows-64, and linux-64, and for python versions 3.7 to 3.10. 
+EstNLTK is available for osx, windows-64, and linux-64, and for python versions 3.8 to 3.11. 
 You can install the latest version via PyPI:
 
 ```
-pip install estnltk==1.7.1
+pip install estnltk==1.7.2
 ```
 
 Alternatively, you can install EstNLTK via [Anaconda](https://www.anaconda.com/download). Installation steps with conda:
 
-1. [create a conda environment](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#creating-an-environment-with-commands) with python 3.8, for instance:
+1. [create a conda environment](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#creating-an-environment-with-commands) with python 3.9, for instance:
 ```
-conda create -n py38 python=3.8
+conda create -n py39 python=3.9
 ```
 
 2. [activate the environment](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#activating-an-environment), for instance:
 ```
-conda activate py38
+conda activate py39
 ```
 
 3. install EstNLTK with the command:
 ```
-conda install -c estnltk -c conda-forge estnltk=1.7.1
+conda install -c estnltk -c conda-forge estnltk=1.7.2
 ```
 
 _Remark on conda package:_ if you are trying to run estnltk conda package on CentOS 7 (or Ubuntu 18.04), you may stumble upon an error stating `version 'GLIBC_2.29' not found`. A quick and recommended solution is to install estnltk via pip instead. For possible alternative soultions, see [this thread](https://github.com/huggingface/tokenizers/issues/585).   
@@ -51,7 +53,7 @@ _Note_: for using some of the tools in estnltk, you also need to have Java insta
 You can install EstNLTK on [Google Colab](https://colab.research.google.com) environment via command:
 
 ```
-!pip install estnltk==1.7.1
+!pip install estnltk==1.7.2
 ```
 
 ### Documentation
@@ -73,7 +75,7 @@ The source of the last release is available at the [main branch](https://github.
 
 Changelog is available [here](https://github.com/estnltk/estnltk/blob/main/CHANGELOG.md).
 
-## `estnltk_neural`
+## EstNLTK-neural
 
 Tools in `estnltk_neural` require installation of deep learning frameworks (`tensorflow`, `pytorch`), and are demanding for computational resources; they also rely on large models which need to be downloaded separately. 
 Instructions for installing the package can be found [here](https://github.com/estnltk/estnltk/blob/main/estnltk_neural/README.md).

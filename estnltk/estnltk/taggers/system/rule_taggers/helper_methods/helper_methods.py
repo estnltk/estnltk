@@ -1,6 +1,42 @@
 from typing import List, Tuple, Generator
 
 from estnltk_core import ElementaryBaseSpan
+from estnltk.vabamorf.morf import synthesize
+
+
+
+
+def conflict_priority_resolver(sorted_tuples: List[Tuple[ElementaryBaseSpan, str]], priority_matches: List) \
+    -> List[Tuple[ElementaryBaseSpan, str]]:
+    """
+
+    Parameters
+    ----------
+    sorted_tuples: list of tuples returned by the extract_matches method in rule-based taggers
+    priority_matches: priority information for the corresponding tuples
+
+    Returns
+    -------
+    sorted_tuples list without the elements that are filtered out by priority
+
+    """
+    #TODO make sure it is equivalent to the EstNLTK conflict resolver
+    deleted_tuples = []
+    for tuple1, priority_info1 in zip(sorted_tuples, priority_matches):
+        for tuple2, priority_info2 in zip(sorted_tuples,priority_matches):
+            group1 = priority_info1[1][0][0]
+            group2 = priority_info2[1][0][0]
+            if group1 == group2:
+                if tuple1[0].start <= tuple2[0].end and tuple1[0].end >= tuple2[0].start:
+                    priority1 = priority_info1[1][0][1]
+                    priority2 = priority_info2[1][0][1]
+                    if priority1 > priority2:
+                        deleted_tuples.append(tuple1)
+
+    for tuple in deleted_tuples:
+        sorted_tuples.remove(tuple)
+
+    return sorted_tuples
 
 
 def keep_maximal_matches(sorted_tuples: List[Tuple[ElementaryBaseSpan, str]]) \
@@ -26,7 +62,7 @@ def keep_maximal_matches(sorted_tuples: List[Tuple[ElementaryBaseSpan, str]]) \
 
         # Check if the next span covers the current_tuple
         if current_tuple[0].start == next_tuple[0].start:
-            assert current_tuple[0].end < next_tuple[0].end, "Tuple sorting does not work as expected"
+            assert current_tuple[0].end <= next_tuple[0].end, "Tuple sorting does not work as expected"
             current_tuple = next_tuple
             continue
 
@@ -86,3 +122,37 @@ def keep_minimal_matches(sorted_tuples: List[Tuple[ElementaryBaseSpan, str]]) \
     # Output work list as there were no invalidating spans left
     for candidate_tuple in work_list:
         yield candidate_tuple
+
+
+def noun_forms_expander(word):
+    cases = [
+        ('n', 'nimetav'),
+        ('g', 'omastav'),
+        ('p', 'osastav'),
+        ('ill', 'sisseütlev'),
+        ('in', 'seesütlev'),
+        ('el', 'seestütlev'),
+        ('all', 'alaleütlev'),
+        ('ad', 'alalütlev'),
+        ('abl', 'alaltütlev'),
+        ('tr', 'saav'),
+        ('ter', 'rajav'),
+        ('es', 'olev'),
+        ('ab', 'ilmaütlev'),
+        ('kom', 'kaasaütlev')]
+
+    expanded = []
+    for case, name in cases:
+        expanded.append(', '.join(synthesize(word, 'sg ' + case, 'S')))
+        expanded.append(', '.join(synthesize(word, 'pl ' + case, 'S')))
+
+    return expanded
+
+
+def verb_forms_expander(word):
+    raise NotImplementedError
+
+
+def default_expander(word):
+    #TODO determine if word is noun or verb and use respective expander
+    return noun_forms_expander(word)

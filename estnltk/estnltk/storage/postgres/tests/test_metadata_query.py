@@ -7,7 +7,7 @@ from psycopg2.errors import DuplicateSchema
 from estnltk import logger
 from estnltk import Text
 from estnltk.storage.postgres import PostgresStorage
-from estnltk.storage.postgres import create_schema, delete_schema
+from estnltk.storage.postgres import delete_schema
 
 from estnltk.storage.postgres.queries.metadata_query import MetadataQuery
 
@@ -22,23 +22,17 @@ def get_random_collection_name():
 class TestMetadataQuery(unittest.TestCase):
     def setUp(self):
         schema = "test_schema"
-        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db')
-        try:
-            create_schema(self.storage)
-        except DuplicateSchema as ds_error:
-            # TODO: for some reason we get DuplicateSchema error. Unexpected?
-            delete_schema(self.storage)
-            create_schema(self.storage)
-        except:
-            raise
+        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db', \
+                                       create_schema_if_missing=True)
 
     def tearDown(self):
         delete_schema(self.storage)
         self.storage.close()
 
     def test_metadata_query_str(self):
-        collection = self.storage[get_random_collection_name()]
-        collection.create( meta=OrderedDict([('subcorpus', 'str'), ('type', 'str')]) )
+        collection_name = get_random_collection_name()
+        collection = self.storage.add_collection( collection_name,
+                          meta=OrderedDict([('subcorpus', 'str'), ('type', 'str')]))
 
         with collection.insert() as collection_insert:
             text1 = Text('mis kell on?').tag_layer()
@@ -83,11 +77,12 @@ class TestMetadataQuery(unittest.TestCase):
         res = list(collection.select( MetadataQuery( {'type':['kõnekoosolek', 'kiirkoosolek', 'artikkel']} ) ) )
         self.assertEqual(len(res), 4)
 
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
     def test_metadata_query_int(self):
-        collection = self.storage[get_random_collection_name()]
-        collection.create( meta=OrderedDict([('jrknr', 'int'), ('tyyp_nr', 'int')]) )
+        collection_name = get_random_collection_name()
+        collection = self.storage.add_collection( collection_name,
+                          meta=OrderedDict([('jrknr', 'int'), ('tyyp_nr', 'int')]) )
 
         with collection.insert() as collection_insert:
             text1 = Text('mis kell on?').tag_layer()
@@ -129,14 +124,14 @@ class TestMetadataQuery(unittest.TestCase):
         res = list(collection.select( MetadataQuery( {'jrknr':[1,2,3,4]} ) ) )
         self.assertEqual(len(res), 4)
 
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
 
     def test_metadata_query_on_missing_metadata_columns(self):
         # Test an invalid query: MetadataQuery on a collection that misses appropriate metadata columns
-        collection = self.storage[get_random_collection_name()]
+        collection_name = get_random_collection_name()
         # Create a collection w/o metadata columns
-        collection.create()
+        collection = self.storage.add_collection(collection_name)
         
         with collection.insert() as collection_insert:
             text1 = Text("Kas kuubik kerib pinget ?").tag_layer(["sentences"])
@@ -146,30 +141,23 @@ class TestMetadataQuery(unittest.TestCase):
         with self.assertRaises( Exception ):
             res = list( collection.select( query = MetadataQuery( {'tyyp_nr':4, 'jrknr':3} ) ) )
 
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
 
 # Test metadata queries with meta_type = 'TEXT'
 class TestTextLevelMetadataQuery(unittest.TestCase):
     def setUp(self):
         schema = "test_schema"
-        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db')
-        try:
-            create_schema(self.storage)
-        except DuplicateSchema as ds_error:
-            # TODO: for some reason we get DuplicateSchema error. Unexpected?
-            delete_schema(self.storage)
-            create_schema(self.storage)
-        except:
-            raise
+        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db', \
+                                       create_schema_if_missing=True)
 
     def tearDown(self):
         delete_schema(self.storage)
         self.storage.close()
 
     def test_jsonb_metadata_query(self):
-        collection = self.storage[get_random_collection_name()]
-        collection.create()
+        collection_name = get_random_collection_name()
+        collection = self.storage.add_collection(collection_name)
 
         with collection.insert() as collection_insert:
             text1 = Text('mis kell on?').tag_layer()
@@ -217,6 +205,6 @@ class TestTextLevelMetadataQuery(unittest.TestCase):
                                                      meta_type='TEXT') ) )
         self.assertEqual(len(res), 4)
 
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
 

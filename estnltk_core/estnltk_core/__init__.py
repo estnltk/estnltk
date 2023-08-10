@@ -1,5 +1,5 @@
 # The current version of EstNLTK. Should be readable from setup.py
-__version__ = '1.7.0'
+__version__ = '1.7.2'
 
 from estnltk_core.common import CORE_PACKAGE_PATH
 
@@ -11,6 +11,8 @@ from estnltk_core.layer.span import Span
 from estnltk_core.layer.enveloping_span import EnvelopingSpan
 from estnltk_core.layer.span_list import SpanList
 from estnltk_core.layer.layer import Layer
+from estnltk_core.layer.relation_layer import RelationLayer
+from estnltk_core.layer.relation_layer import Relation
 
 from estnltk_core.taggers.tagger import Tagger
 from estnltk_core.taggers.retagger import Retagger

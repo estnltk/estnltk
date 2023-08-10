@@ -1,5 +1,6 @@
 from estnltk_core.taggers.tagger import Tagger
 from estnltk_core.taggers.retagger import Retagger
+from estnltk_core.taggers.relation_tagger import RelationTagger
 from estnltk_core.taggers.combined_tagger import CombinedTagger
 from estnltk_core.taggers.annotation_rewriter import AnnotationRewriter
 from estnltk_core.taggers.span_annotations_rewriter import SpanAnnotationsRewriter
@@ -42,6 +43,7 @@ from estnltk.taggers.standard.morph_analysis.vm_spellcheck import SpellCheckReta
 from estnltk.taggers.standard.morph_analysis.cb_disambiguator import CorpusBasedMorphDisambiguator
 from estnltk.taggers.standard.morph_analysis.vm_corpus_tagger import VabamorfCorpusTagger
 from estnltk.taggers.standard.morph_analysis.hfst.hfst_morph_analyser_cmd_line import HfstClMorphAnalyser
+from estnltk.taggers.standard.morph_analysis.ud_morf import UDMorphConverter
 
 from estnltk.taggers.standard.syntax.preprocessing.pronoun_type_retagger import PronounTypeRetagger
 from estnltk.taggers.standard.syntax.preprocessing.verb_extension_suffix_tagger import VerbExtensionSuffixRetagger
@@ -76,3 +78,5 @@ from estnltk.web_taggers.v01.batch_processing_web_tagger import BatchProcessingW
 from estnltk.web_taggers.v01.bert_embeddings_web_tagger import BertEmbeddingsWebTagger
 from estnltk.web_taggers.v01.stanza_syntax_web_tagger import StanzaSyntaxWebTagger
 from estnltk.web_taggers.v01.stanza_syntax_ensemble_web_tagger import StanzaSyntaxEnsembleWebTagger
+from estnltk.web_taggers.v01.coreference_v1_web_tagger import CoreferenceV1WebTagger
+from estnltk.web_taggers.ner.ner_web_tagger import NerWebTagger

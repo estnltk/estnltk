@@ -3,6 +3,8 @@
 #
 from typing import Sequence, List, Union
 
+import copy
+
 from estnltk_core.layer.span import Span
 from estnltk_core.layer.span_list import SpanList
 from estnltk_core.layer.annotation import Annotation
@@ -11,6 +13,7 @@ from estnltk_core.layer.base_layer import BaseLayer
 from estnltk_core.layer.base_span import ElementaryBaseSpan
 from estnltk_core.layer.base_span import EnvelopingBaseSpan
 from estnltk_core.layer.enveloping_span import EnvelopingSpan
+from estnltk_core.layer.relation_layer import RelationLayer
 
 from estnltk_core.common import create_text_object
 
@@ -222,6 +225,88 @@ def join_layers_while_reusing_spans( layers: Sequence[Union[BaseLayer, 'Layer']]
                     span._base_span = EnvelopingBaseSpan( new_base_spans )
                 # Add span to the new layer
                 new_layer.add_span( span )
+            # Calculate new shift
+            if i < len(layers) - 1:
+                last_shift += len(layer_original_text) + len(separators[i])
+        return new_layer
+
+
+def join_relation_layers( layers: Sequence[RelationLayer], separators: Sequence[str] ):
+    '''Joins given list of RelationLayer-s into one RelationLayer. 
+       
+       All layers must have same names, span_names, and attributes. 
+       
+       Upon joining layers, it is assumed that their respective Text
+       objects are joinable by string separators -- a separator placed 
+       between each two Texts. Therefore, separators are used to 
+       determine the distance/space between two consecutive layers, 
+       and len(separators) must be len(layers) - 1.
+       
+       The list of layers must contain at least one layer, otherwise an 
+       exception will be thrown. 
+       
+       Returns a new RelationLayer, which contains all relations from 
+       given layers in the order of the layers in the input. The new 
+       RelationLayer is not attached to any Text object. 
+       
+       Note: this function does not attempt to join or merge layer 
+       metadata. It responsibility of the user to carry metadata from
+       input layers to the new RelationLayer (if required).
+    '''
+    if len(layers) == 0:
+        raise ValueError('(!) Cannot join layers on an empty list of layers. ')
+    if len(layers) == 1:
+        new_layer = layers[0]
+        new_layer.text_object = None
+        return new_layer
+    else:
+        # 0) Validate input layers
+        if len(layers) != len(separators) + 1:
+             raise ValueError('(!) The number of layers ({}) does not meet the number of separators ({}).'+
+                              ' Expecting {} separators.').format( len(layers), len(separators), len(layers)-1 )
+        name = layers[0].name
+        span_names = layers[0].span_names
+        attributes = layers[0].attributes
+        secondary_attributes = layers[0].secondary_attributes
+        ambiguous = layers[0].ambiguous
+        for layer in layers:
+            if layer.name != name:
+                raise Exception( "Not all layers have the same name: " + str([l.name for l in layers] ) )
+            if layer.span_names != span_names:
+                raise Exception( "Not all layers have the same span_names: " + str([l.span_names for l in layers]) )
+            if layer.attributes != attributes:
+                raise Exception( "Not all layers have the same attributes: " + str([l.attributes for l in layers]) )
+            if layer.secondary_attributes != secondary_attributes:
+                raise Exception( "Not all layers have the same secondary_attributes: " + str([l.secondary_attributes for l in layers]) )
+            if layer.ambiguous != ambiguous:
+                raise Exception( "Not all layers have the same state of ambiguity: " + str([l.ambiguous for l in layers]) )
+        # 1) Make a new detached layer
+        new_layer = layers[0].__class__( name=name,
+                                         span_names=span_names, 
+                                         attributes=attributes,
+                                         secondary_attributes=secondary_attributes,
+                                         text_object=None,
+                                         ambiguous=ambiguous,
+                                         serialisation_module=layers[0].serialisation_module )
+        # 2) Add spans from the old list of layers to the new layer.
+        last_shift = 0
+        for i, layer in enumerate( layers ):
+            layer_original_text = layer.text_object.text
+            for relation in layer:
+                new_relation_template = {}
+                for named_span in relation.spans:
+                    # Create new base spans
+                    if type( named_span._base_span ) == ElementaryBaseSpan:
+                        new_relation_template[named_span.name] = ( named_span.start + last_shift, \
+                                                                   named_span.end + last_shift )
+                    else:
+                        raise Exception('(!) Unexpected _base_span type {}'.format(type(named_span._base_span)))
+                for annotation in relation.annotations:
+                    new_relation = { k:v for k,v in new_relation_template.items() }
+                    for attr in annotation.legal_attribute_names:
+                        new_relation[attr] = copy.deepcopy( annotation[attr] )
+                    # Add new_relation to the new layer
+                    new_layer.add_annotation( new_relation )
             # Calculate new shift
             if i < len(layers) - 1:
                 last_shift += len(layer_original_text) + len(separators[i])

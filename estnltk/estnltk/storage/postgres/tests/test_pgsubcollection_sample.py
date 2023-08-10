@@ -9,7 +9,7 @@ from estnltk import Text
 from estnltk.taggers import VabamorfTagger
 from estnltk.storage.postgres import PostgresStorage
 from estnltk.storage.postgres import RowMapperRecord
-from estnltk.storage.postgres import create_schema, delete_schema
+from estnltk.storage.postgres import delete_schema
 
 from estnltk.storage.postgres.queries.metadata_query import MetadataQuery
 from estnltk.storage.postgres.queries.slice_query import SliceQuery
@@ -26,15 +26,8 @@ def get_random_collection_name():
 class TestPgSubCollectionSample(unittest.TestCase):
     def setUp(self):
         schema = "test_schema"
-        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db')
-        try:
-            create_schema(self.storage)
-        except DuplicateSchema as ds_error:
-            # TODO: for some reason we get DuplicateSchema error. Unexpected?
-            delete_schema(self.storage)
-            create_schema(self.storage)
-        except:
-            raise
+        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db', \
+                                       create_schema_if_missing=True)
 
 
     def tearDown(self):
@@ -45,8 +38,9 @@ class TestPgSubCollectionSample(unittest.TestCase):
     def _create_test_collection_of_docs(self, size=100):
         assert size in [100, 200], '(!) Unexpected test collection size: {}'.format(size)
         # Create a test collection
-        collection = self.storage[get_random_collection_name()]
-        collection.create(meta=OrderedDict([('text_id', 'int'), ('text_name', 'str')]))
+        collection_name = get_random_collection_name()
+        collection = self.storage.add_collection( collection_name, 
+                          meta=OrderedDict([('text_id', 'int'), ('text_name', 'str')]) )
         # Populate collection with test sentences
         logger.debug('Creating a collection of {} texts:'.format(size))
         subj_words = ['kiisumiisu', 'vanahärra', 'vanama', 'neiu', 'tuttav']
@@ -151,7 +145,7 @@ class TestPgSubCollectionSample(unittest.TestCase):
         # and we give it a broad approximate range
         self.assertLessEqual(0, len(res))
         self.assertGreaterEqual(10+30, len(res))
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
 
 
@@ -175,7 +169,7 @@ class TestPgSubCollectionSample(unittest.TestCase):
                                                     65, 70, 78, 81, 86, 91, 94, 95, 100, 102, 117, 118, 139, 
                                                     144, 148, 155, 159, 160, 163, 165, 174, 175, 179, 180, 
                                                     187, 189, 190, 191, 197])
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
 
 
@@ -199,7 +193,7 @@ class TestPgSubCollectionSample(unittest.TestCase):
         with self.assertRaises(Exception) as exception:
             # Reiteration should rise an exception
             res4 = list( cur_selection.sample(5, seed=None, method='BERNOULLI', construction='JOIN') )
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
 
 
@@ -213,9 +207,9 @@ class TestPgSubCollectionSample(unittest.TestCase):
             status = {}
             layer = vabamorf_tagger.make_layer(text=text, status=status)
             return RowMapperRecord(layer=layer, meta=status)
-            
+        layer_template = vabamorf_tagger.get_layer_template()
         data_iterator = collection.select( layers=['words', 'sentences', 'compound_tokens'] )
-        collection.create_layer(layer_name = vabamorf_tagger.output_layer, 
+        collection.create_layer(layer_template = layer_template, 
                                 data_iterator = data_iterator, 
                                 row_mapper = vabamorf_row_mapper, 
                                 tagger=None, mode='overwrite')
@@ -258,7 +252,7 @@ class TestPgSubCollectionSample(unittest.TestCase):
         # and we give it a broad approximate range
         self.assertLessEqual(0, len(res))
         self.assertGreaterEqual(10+30, len(res))
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
 
 
@@ -272,9 +266,9 @@ class TestPgSubCollectionSample(unittest.TestCase):
             status = {}
             layer = vabamorf_tagger.make_layer(text=text, status=status)
             return RowMapperRecord(layer=layer, meta=status)
-            
+        layer_template = vabamorf_tagger.get_layer_template()
         data_iterator = collection.select( layers=['words', 'sentences', 'compound_tokens'] )
-        collection.create_layer(layer_name = vabamorf_tagger.output_layer, 
+        collection.create_layer(layer_template = layer_template, 
                                 data_iterator = data_iterator, 
                                 row_mapper = vabamorf_row_mapper, 
                                 tagger=None, mode='overwrite')
@@ -298,15 +292,14 @@ class TestPgSubCollectionSample(unittest.TestCase):
         self.assertEqual(len(res), 9)
         self.assertEqual(len(res[0]), 2)
         self.assertListEqual([t[1].meta['text_id'] for t in res], [26, 32, 37, 38, 40, 51, 66, 68, 72])
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
 
 
     def test_pgsubcollection_sample_query_on_sparse_table(self):
         # Test that sampling works with sparse layers
         collection_name = get_random_collection_name()
-        collection = self.storage[collection_name]
-        collection.create()
+        collection = self.storage.add_collection(collection_name)
         # Assert structure version 3.0+ (required for sparse layers)
         self.assertGreaterEqual(collection.version , '3.0')
         
@@ -351,4 +344,4 @@ class TestPgSubCollectionSample(unittest.TestCase):
         self.assertListEqual( [ t[0] for t in res ], [16, 36, 50, 76, 80, 92, 94] )
         self.assertListEqual( [len(t[1]['even_numbers']) for t in res], [1, 1, 1, 1, 1, 1, 1] )
 
-        collection.delete()
+        self.storage.delete_collection(collection.name)

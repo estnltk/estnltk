@@ -1,6 +1,8 @@
 from collections import OrderedDict
 import pkgutil
 import pytest
+import tempfile
+import os, os.path
 
 from estnltk.common import abs_path
 from estnltk.converters import text_to_dict
@@ -272,7 +274,9 @@ text_dict = {
                                          (97, 107),
                                          (108, 114),
                                          (115, 116)),
-                           'annotations': [{}]}]}]}
+                           'annotations': [{}]}]}],
+    'relation_layers': []
+}
 
 @pytest.mark.skipif(not check_if_conllu_is_available(),
                     reason="package conllu is required for this test")
@@ -291,3 +295,109 @@ def test_conll_importers():
     add_layer_from_conll(file, text, 'syntax')
 
     assert text_to_dict(text) == text_dict
+
+
+input_conll_syntax_with_empty_nodes_str = \
+'''
+# sent_id = aja_luup200009_511
+# text = Sonja isa oli Shveitsi tulnud juba 12 ja vennad 20 aastat tagasi.
+1	Sonja	Sonja	S	S	prop=prop|sg=sg|nom=nom	2	nmod	_	_
+2	isa	isa	S	S	com=com|sg=sg|nom=nom	5	nsubj	_	_
+3	oli	olema	V	V	aux=aux|indic=indic|impf=impf|ps3=ps3|sg=sg|ps=ps|af=af	5	aux	_	_
+4	Shveitsi	Shveits	S	S	prop=prop|sg=sg|gen=gen	5	obl	_	_
+5	tulnud	tulema	V	V	pos=pos	0	root	_	_
+6	juba	juba	D	D	_	7	advmod	_	_
+7	12	12	N	N	card=card|<?>=<?>|digit=digit	5	obl	_	_
+8	ja	ja	J	J	sub=sub|crd=crd	9	cc	_	_
+9	vennad	vend	S	S	com=com|pl=pl|nom=nom	5	conj	_	_
+9.1	tulnud	tulema	V	V	aux=aux|partic=partic|past=past|ps=ps	_	_	_	_
+10	20	20	N	N	card=card|<?>=<?>|digit=digit	11	nummod	_	_
+11	aastat	aasta	S	S	com=com|sg=sg|part=part	9	orphan	_	_
+12	tagasi	tagasi	K	K	post=post	11	case	_	_
+13	.	.	Z	Z	_	5	punct	_	_
+
+# sent_id = aja_luup200009_973
+# text = Surnu pistis jooksu ja koer järele.
+1	Surnu	surnu	S	S	com=com|sg=sg|nom=nom	2	nsubj	_	_
+2	pistis	pistma	V	V	main=main|indic=indic|impf=impf|ps3=ps3|sg=sg|ps=ps|af=af	0	root	_	_
+3	jooksu	jooks	S	S	com=com|sg=sg|adit=adit	2	obl	_	_
+4	ja	ja	J	J	sub=sub|crd=crd	5	cc	_	_
+5	koer	koer	S	S	com=com|sg=sg|nom=nom	2	conj	_	_
+5.1	pistis	pistma	V	V	aux=aux|indic=indic|impf=impf|ps3=ps3|sg=sg|ps=ps|af=af	_	_	_	_
+6	järele	järele	D	D	_	5	orphan	_	_
+7	.	.	Z	Z	_	2	punct	_	_
+
+'''
+
+@pytest.mark.skipif(not check_if_conllu_is_available(),
+                    reason="package conllu is required for this test")
+def test_conll_importer_remove_empty_nodes():
+    # Tests remove_empty_nodes functionality of the importer
+    from estnltk.converters.conll.conll_importer import conll_to_text
+    from estnltk.converters.conll.conll_importer import conll_to_texts_list
+    
+    # Write example conll text into tempfile
+    fp = tempfile.NamedTemporaryFile(mode='w', encoding='utf-8', suffix='.conll', delete=False)
+    fp.write( input_conll_syntax_with_empty_nodes_str )
+    fp.close()
+    
+    text_with_0_nodes = None
+    text_without_0_nodes = None
+    texts_without_0_nodes = None
+    try:
+        text_with_0_nodes = conll_to_text(fp.name, remove_empty_nodes=False)
+        text_without_0_nodes = conll_to_text(fp.name, remove_empty_nodes=True)
+        texts_without_0_nodes = conll_to_texts_list(fp.name, remove_empty_nodes=True)
+    finally:
+        # clean up: remove temporary file
+        os.remove(fp.name)
+    assert not os.path.exists(fp.name)
+
+    # 1) Check annotations loaded (via conll_to_text) from .conll without removing null nodes
+    text = text_with_0_nodes
+    # Chk that text contains null nodes
+    assert text.text == 'Sonja isa oli Shveitsi tulnud juba 12 ja vennad tulnud 20 aastat tagasi . '+\
+                        'Surnu pistis jooksu ja koer pistis järele .'
+    # Assert layers contains null nodes
+    words = [sp.text for sp in text['words']]
+    syntax_words = [sp.text for sp in text['conll_syntax']]
+    assert words == syntax_words
+    assert syntax_words == ['Sonja', 'isa', 'oli', 'Shveitsi', 'tulnud', 'juba', '12', 'ja', 'vennad', \
+                            'tulnud', '20', 'aastat', 'tagasi', '.', 'Surnu', 'pistis', 'jooksu', 'ja', \
+                            'koer', 'pistis', 'järele', '.']
+    # Assert that sentences are correctly loaded and contain null nodes
+    sentence_texts = [sp.enclosing_text for sp in text['sentences']]
+    assert sentence_texts == ['Sonja isa oli Shveitsi tulnud juba 12 ja vennad tulnud 20 aastat tagasi .', \
+                              'Surnu pistis jooksu ja koer pistis järele .']
+
+    # 2) Check annotations loaded (via conll_to_text) from .conll with removing null nodes
+    text = text_without_0_nodes
+    # Chk that text does not contain null nodes:
+    assert text.text == 'Sonja isa oli Shveitsi tulnud juba 12 ja vennad 20 aastat tagasi . '+\
+                        'Surnu pistis jooksu ja koer järele .'
+    # Assert layers do not contain null nodes
+    words = [sp.text for sp in text['words']]
+    syntax_words = [sp.text for sp in text['conll_syntax']]
+    assert words == syntax_words
+    assert syntax_words == ['Sonja', 'isa', 'oli', 'Shveitsi', 'tulnud', 'juba', '12', 'ja', 'vennad', \
+                            '20', 'aastat', 'tagasi', '.', 'Surnu', 'pistis', 'jooksu', 'ja', 'koer', 'järele', '.']
+    # Assert that sentences are correctly loaded and do not contain null nodes
+    sentence_texts = [sp.enclosing_text for sp in text['sentences']]
+    assert sentence_texts == ['Sonja isa oli Shveitsi tulnud juba 12 ja vennad 20 aastat tagasi .', \
+                              'Surnu pistis jooksu ja koer järele .']
+
+    # 3) Check annotations loaded (via conll_to_texts_list) from .conll with removing null nodes
+    text = texts_without_0_nodes[0]
+    # Chk that text does not contain orphan null nodes:
+    assert text.text == 'Sonja isa oli Shveitsi tulnud juba 12 ja vennad 20 aastat tagasi . '+\
+                        'Surnu pistis jooksu ja koer järele .'
+    # Assert layers do not contain orphan null nodes
+    words = [sp.text for sp in text['words']]
+    syntax_words = [sp.text for sp in text['conll_syntax']]
+    assert words == syntax_words
+    assert syntax_words == ['Sonja', 'isa', 'oli', 'Shveitsi', 'tulnud', 'juba', '12', 'ja', 'vennad', \
+                            '20', 'aastat', 'tagasi', '.', 'Surnu', 'pistis', 'jooksu', 'ja', 'koer', 'järele', '.']
+    # Assert that sentences are correctly loaded and do not contain null nodes
+    sentence_texts = [sp.enclosing_text for sp in text['sentences']]
+    assert sentence_texts == ['Sonja isa oli Shveitsi tulnud juba 12 ja vennad 20 aastat tagasi .', \
+                              'Surnu pistis jooksu ja koer järele .']

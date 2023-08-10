@@ -178,8 +178,10 @@ class VabamorfCorpusTagger( object ):
             # Pick out vabamorf_analyser's configuration parameters
             vm_analyser_conf = {}
             for (key, value) in self._kwargs.items():
-                if key in ['propername', 'guess', 'compound', 'phonetic']:
+                if key in ['propername', 'guess', 'phonetic']:
                     vm_analyser_conf[key] = value
+            # Note: setting compound=False is not allowed, because 
+            # CorpusBasedMorphDisambiguator needs compound information
             # Initialize vabamorf_analyser
             if not self._slang_lex:
                 # Use standard written language lexicon (default)
@@ -247,11 +249,19 @@ class VabamorfCorpusTagger( object ):
         # C) VabamorfDisambiguator (can be turned off for testing purposes)
         #
         if use_vabamorf_disambiguator and not vabamorf_disambiguator:
+            # Pick out vabamorf_disambiguator's configuration parameters
+            vm_disamb_conf = {}
+            for (key, value) in self._kwargs.items():
+                if key in ['phonetic']:
+                    vm_disamb_conf[key] = value
+            # Note: setting compound=False is not allowed, because 
+            # CorpusBasedMorphDisambiguator needs compound information
             # Initialize default vabamorf disambiguator
             self._vabamorf_disambiguator = VabamorfDisambiguator( vm_instance=vm_instance,
                                                                   output_layer=self.output_layer,
                                                                   input_words_layer=input_words_layer,
-                                                                  input_sentences_layer=input_sentences_layer )
+                                                                  input_sentences_layer=input_sentences_layer,
+                                                                  **vm_disamb_conf )
         elif use_vabamorf_disambiguator and vabamorf_disambiguator:
             # Use custom vabamorf disambiguator
             assert isinstance(vabamorf_disambiguator, VabamorfDisambiguator), \

@@ -1,0 +1,60 @@
+see	P	PRON	PronType=Dem
+too	P	PRON	PronType=Dem
+see_sama	P	PRON	PronType=Dem
+too_sama	P	PRON	PronType=Dem
+sama	P	PRON	PronType=Dem
+esimene	P	PRON	PronType=Dem
+teine	P	PRON	PronType=Dem
+selline	P	PRON	PronType=Dem
+säärane	P	PRON	PronType=Dem
+siuke	P	PRON	PronType=Dem
+minu_sugune	P	PRON	PronType=Dem
+sinu_sugune	P	PRON	PronType=Dem
+tema_sugune	P	PRON	PronType=Dem
+meie_sugune	P	PRON	PronType=Dem
+teie_sugune	P	PRON	PronType=Dem
+oma_sugune	P	PRON	PronType=Dem
+nii_sugune	P	PRON	PronType=Dem
+see_sugune	P	PRON	PronType=Dem
+
+üks_teise	P	PRON	PronType=Rcp Reflex=Yes
+teine_teise	P	PRON	PronType=Rcp Reflex=Yes
+
+mina	P	PRON	PronType=Prs Person=1
+sina	P	PRON	PronType=Prs Person=2
+tema	P	PRON	PronType=Prs Person=3
+
+oma	P	PRON	PronType=Prs Poss=Yes
+ise	P	PRON	PronType=Prs Reflex=Yes
+
+ise_enese	P	PRON	PronType=Prs Reflex=Yes
+oma_enese	P	PRON	PronType=Prs Reflex=Yes
+
+kes	P	PRON	PronType=Int,Rel
+mis	P	PRON	PronType=Int,Rel
+kumb	P	PRON	PronType=Int,Rel
+mis_sugune	P	PRON	PronType=Int,Rel
+milline	P	PRON	PronType=Int,Rel
+mitmes	P	PRON	PronType=Int,Rel
+
+keegi	P	PRON	PronType=Ind
+miski	P	PRON	PronType=Ind
+üks	P	PRON	PronType=Ind
+ükski	P	PRON	PronType=Ind
+igaüks	P	PRON	PronType=Ind
+muu	P	PRON	PronType=Ind
+mõni	P	PRON	PronType=Ind
+palju	P	PRON	PronType=Ind
+mitu	P	PRON	PronType=Ind
+iga_sugune	P	PRON	PronType=Ind
+mitme_sugune	P	PRON	PronType=Ind
+mingi_sugune	P	PRON	PronType=Ind
+mõningas	P	PRON	PronType=Ind
+mingi	P	PRON	PronType=Ind
+kõik	P	PRON	PronType=Tot
+iga	P	PRON	PronType=Tot
+
+kogu	A	PRON	PronType=Tot
+kogu	P	PRON	PronType=Tot
+mõlema	P	PRON	PronType=Tot
+kumbki	P	PRON	PronType=Tot

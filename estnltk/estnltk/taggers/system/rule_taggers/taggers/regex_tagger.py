@@ -3,7 +3,7 @@ from typing import Sequence, Union, Generator, Tuple, Iterator, List, Callable, 
 
 from estnltk.taggers import Tagger
 from estnltk import Layer, Text
-from estnltk.taggers.system.rule_taggers.helper_methods.helper_methods import keep_maximal_matches, keep_minimal_matches
+from estnltk.taggers.system.rule_taggers.helper_methods.helper_methods import keep_maximal_matches, keep_minimal_matches,conflict_priority_resolver
 from estnltk_core import Annotation, ElementaryBaseSpan, Span
 from estnltk.taggers.system.rule_taggers import Ruleset, StaticExtractionRule
 from typing.re import Match
@@ -30,6 +30,9 @@ class RegexTagger(Tagger):
                  '_disamb_tagger',
                  'global_decorator',
                  'match_attribute',
+                 'group_attribute',
+                 'priority_attribute',
+                 'pattern_attribute',
                  'static_ruleset_map',
                  'dynamic_ruleset_map',
                  'lowercase_text']
@@ -43,7 +46,10 @@ class RegexTagger(Tagger):
                  lowercase_text: bool = False,
                  decorator: Callable[
                      [Text, ElementaryBaseSpan, Dict[str, Any]], Optional[Dict[str, Any]]] = None,
-                 match_attribute: str = 'match'
+                 match_attribute: str = 'match',
+                 group_attribute: str = None,
+                 priority_attribute: str = None,
+                 pattern_attribute: str = None
                  ):
         """Initialize a new RegexTagger instance. Note that previously it was possible to
         have callables as attributes in the ruleset. This functionality is now replaced by
@@ -81,6 +87,12 @@ class RegexTagger(Tagger):
         match_attribute: str (Default: 'match')
             Name of the attribute in which the match object of the annotation is stored.
             The attribute can be used by the decorator or dynamic rules to change the annotation.
+        group_attribute: str (Default: None)
+            If not None, the final annotation contains the group attribute of the rule with the given name
+        priority_attribute: str (Default: None)
+            If not None, the final annotation contains the priority attribute of the rule with the given name
+        pattern_attribute: str (Default: None)
+            If not None, the final annotation contains the pattern attribute of the rule with the given name
         """
         self.conf_param = ['conflict_resolver',
                            'overlapped',
@@ -89,6 +101,9 @@ class RegexTagger(Tagger):
                            '_disamb_tagger',
                            'global_decorator',
                            'match_attribute',
+                           'group_attribute',
+                           'priority_attribute',
+                           'pattern_attribute',
                            'static_ruleset_map',
                            'dynamic_ruleset_map',
                            'lowercase_text']
@@ -135,6 +150,9 @@ class RegexTagger(Tagger):
         self.match_attribute = match_attribute
         if not isinstance(match_attribute, str):
             raise AttributeError("Match attribute must be str")
+        self.group_attribute = group_attribute
+        self.priority_attribute = priority_attribute
+        self.pattern_attribute = pattern_attribute
 
         self.ruleset = copy.copy(ruleset)
 
@@ -165,6 +183,21 @@ class RegexTagger(Tagger):
         elif self.conflict_resolver == 'KEEP_MAXIMAL':
             layer = self.add_decorated_annotations_to_layer(layer, keep_maximal_matches(all_matches))
         elif self.conflict_resolver == 'KEEP_MINIMAL':
+            layer = self.add_decorated_annotations_to_layer(layer, keep_minimal_matches(all_matches))
+        elif self.conflict_resolver == 'KEEP_ALL_EXCEPT_PRIORITY':
+            matches_with_priority = [(rule.pattern, self.static_ruleset_map.get(rule.pattern, None)) for base_span, match_obj, rule in
+                                     all_matches]
+            all_matches = conflict_priority_resolver(all_matches,matches_with_priority)
+            layer = self.add_decorated_annotations_to_layer(layer, iter(all_matches))
+        elif self.conflict_resolver == 'KEEP_MAXIMAL_EXCEPT_PRIORITY':
+            matches_with_priority = [(rule.pattern, self.static_ruleset_map.get(rule.pattern, None)) for base_span, match_obj, rule in
+                                     all_matches]
+            all_matches = conflict_priority_resolver(all_matches,matches_with_priority)
+            layer = self.add_decorated_annotations_to_layer(layer, keep_maximal_matches(all_matches))
+        elif self.conflict_resolver == 'KEEP_MINIMAL_EXCEPT_PRIORITY':
+            matches_with_priority = [(rule.pattern, self.static_ruleset_map.get(rule.pattern, None)) for base_span, match_obj, rule in
+                                     all_matches]
+            all_matches = conflict_priority_resolver(all_matches,matches_with_priority)
             layer = self.add_decorated_annotations_to_layer(layer, keep_minimal_matches(all_matches))
         elif callable(self.conflict_resolver):
             layer = self.conflict_resolver(layer, self.iterate_over_decorated_annotations(layer, iter(all_matches)))
@@ -214,8 +247,14 @@ class RegexTagger(Tagger):
             span = Span(base_span=element[0], layer=layer)
             rule = element[2]
             matchobj = element[1]
-            annotation_dict = rule.attributes
+            annotation_dict = rule.attributes.copy()
             annotation_dict[self.match_attribute] = matchobj
+            if self.group_attribute:
+                annotation_dict[self.group_attribute] = rule.group
+            if self.priority_attribute:
+                annotation_dict[self.priority_attribute] = rule.priority
+            if self.pattern_attribute:
+                annotation_dict[self.pattern_attribute] = rule.pattern
 
             if self.global_decorator is not None:
                 annotation_dict = self.global_decorator(raw_text, element[0], annotation_dict)
@@ -255,6 +294,12 @@ class RegexTagger(Tagger):
             matchobj = element[1]
             annotation_dict = rule.attributes
             annotation_dict[self.match_attribute] = matchobj
+            if self.group_attribute:
+                annotation_dict[self.group_attribute] = rule.group
+            if self.priority_attribute:
+                annotation_dict[self.priority_attribute] = rule.priority
+            if self.pattern_attribute:
+                annotation_dict[self.pattern_attribute] = rule.pattern
 
             if self.global_decorator is not None:
                 annotation_dict = self.global_decorator(raw_text, element[0], annotation_dict)

@@ -16,5 +16,11 @@ def dict_to_text(text_dict: dict, layers: Container = None) -> Union['BaseText',
         if layers is None or layer_dict['name'] in layers:
             layer = layer_dict_converter.dict_to_layer(layer_dict, text)
             text.add_layer(layer)
+    # Restore relation layers (available starting from version 1.7.2+)
+    if 'relation_layers' in text_dict:
+        for layer_dict in text_dict['relation_layers']:
+            if layers is None or layer_dict['name'] in layers:
+                layer = layer_dict_converter.dict_to_layer(layer_dict, text)
+                text.add_layer(layer)
     return text
 

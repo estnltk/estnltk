@@ -9,8 +9,8 @@ import os, os.path
 import codecs
 import tempfile
 import subprocess
-from estnltk.taggers.standard.syntax.conll_morph_to_str import conll_to_str
 
+from estnltk.converters.conll.conll_exporter import layer_to_conll
 from estnltk.downloader import get_resource_paths
 
 MALTPARSER_PATH = os.path.join(PACKAGE_PATH, 'taggers', 'standard', 'syntax', 'maltparser_tagger', 'java-res', 'maltparser')
@@ -126,7 +126,12 @@ class MaltParser(object):
             self.check_for_java_accessibility()
             self.java_check_completed = True
         # Obtain CONLL formatted version of the text
-        textConllStr = conll_to_str( text )
+        textConllStr = layer_to_conll( text, 'conll_morph', 
+                                       sentences_layer='sentences', 
+                                       validate_layer=False, 
+                                       preserve_ambiguity=False, 
+                                       serialize=False, 
+                                       add_ending_tab=True )
         # Execute MaltParser and get results 
         # (either as a CONLL formatted string or as name of the temp conllu file 
         result = \

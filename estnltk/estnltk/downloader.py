@@ -447,8 +447,8 @@ def _download_and_unpack( resource_description, resources_dir ):
     errors were encountered.
     
     Currently supported downloadable file types:
-    * application/zip
-    * application/gzip (excluding *.tar.gz)
+    * application/zip, application/x-zip, application/x-zip-compressed
+    * application/gzip, application/x-gzip (excluding *.tar.gz)
     
     Throws an exception when:
     *) Content-Type missing from response headers (TODO: can that happen?);
@@ -474,8 +474,22 @@ def _download_and_unpack( resource_description, resources_dir ):
     if 'Content-Type' not in file_headers.keys():
         raise ValueError( ('Missing "Content-Type" in response headers '+\
                            'of the downloadable file: {!r}').format(file_headers) )
-    if file_headers['Content-Type'].startswith('application/zip') or \
-       file_headers['Content-Type'].startswith('application/gzip'):
+    # Determine content type
+    # Note: sometimes server assigns erroneous 'Content-Type' 
+    # value 'text/html; charset=UTF-8, application/zip'. 
+    # If 'Content-Type' still refers to a packed file and the 
+    # status_code is OK,  we can ignore it and proceed with 
+    # downloading.
+    is_zip_file = 'application/x-zip-compressed' in file_headers['Content-Type'] or \
+                  'application/x-zip' in file_headers['Content-Type'] or \
+                  'application/zip' in file_headers['Content-Type'] or \
+                  ('application/octet-stream' in file_headers['Content-Type'] and \
+                   (url.lower()).endswith('.zip'))
+    is_gzip_file = 'application/x-gzip' in file_headers['Content-Type'] or \
+                   'application/gzip' in file_headers['Content-Type'] or \
+                   ('application/octet-stream' in file_headers['Content-Type'] and \
+                    (url.lower()).endswith(('.gz', '.gzip')))
+    if is_zip_file or is_gzip_file:
         if response.status_code == requests.codes.ok:
             with open(temp_f.name, mode="wb") as out_f:
                 progress = tqdm( desc="Downloading {}".format(name),
@@ -489,7 +503,7 @@ def _download_and_unpack( resource_description, resources_dir ):
         else:
             response.raise_for_status()
     else:
-        raise ValueError( ('(!) File downloadable from {!r} is not a zip or gz file.'+\
+        raise ValueError( ('(!) File downloadable from {!r} is not a zip or gz file. '+\
                            'Unexpected Content-Type: {!r}').format( url, 
                            file_headers['Content-Type']) )
     # =================================================
@@ -528,10 +542,15 @@ def _download_and_unpack( resource_description, resources_dir ):
         # =================================================
         # 4) Unpack resource into target path
         # =================================================
-        if file_headers['Content-Type'].startswith('application/zip'):
+        if is_zip_file:
             errors = _unpack_zip(downloaded_file, resource_description, resources_dir)
-        elif file_headers['Content-Type'].startswith('application/gzip'):
+        elif is_gzip_file:
             errors = _unpack_gzip(downloaded_file, resource_description, resources_dir)
+        else:
+            # Normally, we should never reach here
+            raise ValueError( ('(!) File downloaded from {!r} is not a zip or gz file. '+\
+                               'Unexpected Content-Type: {!r}').format( url, 
+                                file_headers['Content-Type']) )
     # =================================================
     # 5) Report errors if any
     # =================================================
@@ -559,7 +578,9 @@ def is_huggingface_hub_installed():
     '''
     return pkgutil.find_loader("huggingface_hub") is not None
 
-def _download_and_install_hf_resource( resource_description, resources_dir ):
+
+def _download_and_install_hf_resource( resource_description, resources_dir,
+                                       remove_cache_files=True ):
     '''
     Downloads a resource with huggingface.co url and installs into 
     resources_dir. 
@@ -569,6 +590,8 @@ def _download_and_install_hf_resource( resource_description, resources_dir ):
     The huggingface-hub is required for downloading the resource;
     raises a ModuleNotFoundError if the package has not been 
     installed.
+    If remove_cache_files is True (default), then removes huggingface_hub
+    cache dir after the download is completed.
     '''
     if not is_huggingface_hub_installed():
         raise ModuleNotFoundError('Missing huggingface-hub module that is '+\
@@ -589,20 +612,37 @@ def _download_and_install_hf_resource( resource_description, resources_dir ):
     target_path = resource_description["unpack_target_path"]
     if target_path.endswith('/'):
         target_path = target_path[:-1]
-    # Download the resource
-    download_path = \
-        snapshot_download(repo_id=repo_id, revision=revision, cache_dir=resources_dir)
-    assert os.path.isdir( download_path )
-    if download_path.endswith( target_path ):
-        # This is most unlikely, but: if download path already 
-        # matches target_path, then we have nothing left to do
-        return
     full_target_path = os.path.join(resources_dir, target_path) 
-    # Remove old unpack_target_path [if redownloading]
     if os.path.exists( full_target_path ):
+        # Remove old unpack_target_path [if redownloading]
         shutil.rmtree( full_target_path )
-    # Rename download_path to unpack_target_path
-    os.renames(download_path, full_target_path)
+    else:
+        # Create new path
+        os.makedirs(full_target_path, exist_ok=True)
+    cache_files_before_download = \
+        [fnm for fnm in os.listdir(resources_dir)]
+    # Download the resource
+    # Disable symlinks because Windows cannot handle these.
+    # Note: this will double the required disk space, as 
+    # there will be both local_dir files and cached dir files
+    download_path = \
+        snapshot_download(repo_id=repo_id, revision=revision, 
+                          cache_dir=resources_dir,
+                          local_dir=full_target_path,
+                          local_dir_use_symlinks=False)
+    assert os.path.isdir( download_path )
+    # During the downloading process, huggingface_hub creates 
+    # a new cache dirs. Detect those
+    new_cache_files = \
+        [fnm for fnm in os.listdir(resources_dir) \
+             if fnm not in cache_files_before_download]
+    # Clean-up: remove huggingface_hub cached dirs
+    if remove_cache_files:
+        for fnm in new_cache_files:
+            fnm_path = os.path.join(resources_dir, fnm)
+            if os.path.isdir(fnm_path) and \
+               not full_target_path.startswith(fnm_path):
+                shutil.rmtree( fnm_path )
 
 
 # ====================================================

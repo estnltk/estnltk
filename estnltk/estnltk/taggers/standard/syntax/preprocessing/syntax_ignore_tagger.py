@@ -2,8 +2,13 @@
 #  Tags text snippets that should be ignored during the syntactic analysis.
 #  
 from estnltk.taggers import Tagger
-from estnltk.legacy.dict_taggers.regex_tagger import RegexTagger
 from estnltk import Annotation, EnvelopingBaseSpan, EnvelopingSpan, Layer
+
+from estnltk_core.layer_operations import resolve_conflicts
+
+from estnltk.taggers.system.rule_taggers import RegexTagger
+from estnltk.taggers.system.rule_taggers import AmbiguousRuleset
+from estnltk.taggers.system.rule_taggers import StaticExtractionRule
 
 import regex as re
 
@@ -509,42 +514,51 @@ class SyntaxIgnoreTagger( Tagger ):
         self.ignore_sentences_with_comma_separated_num_name_lists=ignore_sentences_with_comma_separated_num_name_lists
         self.ignore_brackets=ignore_brackets
         # Populate vocabulary according to given settings
-        patterns = []
+        rules = []
         for ignore_pat in ignore_patterns:
+            # Check if the pattern is allowed
+            allow_pattern = False
             if ignore_pat['type'].startswith('parentheses_num') and \
                ignore_pat['type'].endswith('uncategorized'):
                 # Allow/disallow greedy filtering of parentheses that contain numbers
                 if self.ignore_parenthesized_num_greedy:
-                    patterns.append( ignore_pat )
+                    allow_pattern = True
             elif (ignore_pat['type'] in ['parentheses_num_word', \
                   'parentheses_num_comma_word', 'parentheses_num_range', \
                   'parentheses_datetime', 'parentheses_num']):
                 if self.ignore_parenthesized_num:
-                    patterns.append( ignore_pat )
+                    allow_pattern = True
             elif ignore_pat['type'].startswith('parentheses_ref'):
                 if self.ignore_parenthesized_ref:
-                    patterns.append( ignore_pat )
+                    allow_pattern = True
             elif ignore_pat['type'].startswith('brackets'):
                 if self.ignore_brackets:
-                    patterns.append( ignore_pat )
+                    allow_pattern = True
             elif (ignore_pat['type'] in ['parentheses_1to3', \
                   'parentheses_1to4', 'parentheses_birdeah_year', \
                   'parentheses_ucase_number_seq']):
                 if self.ignore_parenthesized_short_char_sequences:
-                    patterns.append( ignore_pat )
+                    allow_pattern = True
             elif ignore_pat['type'].startswith('parentheses_title_words'):
                 if self.ignore_parenthesized_title_words:
-                    patterns.append( ignore_pat )
+                    allow_pattern = True
             else:
-                patterns.append( ignore_pat )
+                allow_pattern = True
+            if allow_pattern:
+                # Create rule from the pattern
+                rule = StaticExtractionRule( pattern=ignore_pat['_regex_pattern_'], 
+                                             group=ignore_pat['_group_'], 
+                                             attributes={ '_priority_': ignore_pat['_priority_'], 
+                                                          'type': ignore_pat['type'] } )
+                rules.append( rule )
         # Create a new tagger
-        self._syntax_ignore_hints_tagger = RegexTagger(vocabulary=patterns,
-                                                 output_attributes=['_priority_', 'type'],
-                                                 priority_attribute='_priority_',
-                                                 conflict_resolving_strategy="MAX",
-                                                 overlapped=False,
-                                                 output_layer='syntax_ignore_hints',
-                                                 )
+        syntax_ignore_hints = AmbiguousRuleset()
+        syntax_ignore_hints.add_rules(rules)
+        self._syntax_ignore_hints_tagger = RegexTagger(ruleset=syntax_ignore_hints,
+                                                       output_attributes=['_priority_', 'type'],
+                                                       conflict_resolver='KEEP_ALL',
+                                                       overlapped=False,
+                                                       output_layer='syntax_ignore_hints')
 
     def _make_layer_template(self):
         """Creates and returns a template of the layer."""
@@ -552,7 +566,7 @@ class SyntaxIgnoreTagger( Tagger ):
                      enveloping=self._input_words_layer,
                      attributes=self.output_attributes,
                      text_object=None,
-                     ambiguous=False)
+                     ambiguous=True)
 
     def _make_layer(self, text: 'Text', layers, status: dict):
         """Creates syntax_ignore layer.
@@ -580,6 +594,8 @@ class SyntaxIgnoreTagger( Tagger ):
         hints_layer = self._syntax_ignore_hints_tagger.make_layer(text=text,
                                                                   layers=layers,
                                                                   status=conflict_status)
+        # TODO: RegexTagger should resolve conflict by itself in future
+        resolve_conflicts( hints_layer, priority_attribute='_priority_' )
         words = layers[ self._input_words_layer ]
         # Create an alignment between words and spans
         wid = 0
@@ -611,7 +627,8 @@ class SyntaxIgnoreTagger( Tagger ):
                 # Record ignored words
                 spans = words[words_start:words_end+1]
                 new_span = EnvelopingSpan(base_span=EnvelopingBaseSpan(s.base_span for s in spans), layer=layer)
-                new_span.add_annotation(Annotation(new_span, type=sp.type))
+                for annotation_type in sorted(list(sp.type)):
+                    new_span.add_annotation(Annotation(new_span, type=annotation_type))
                 ignored_words_spans.append(new_span)
                 #print('*',text.text[sp.start:sp.end], sp.start, sp.end)
                 #print(words[words_start].start, words[words_end].end, new_spanlist.spans)
@@ -652,6 +669,10 @@ class SyntaxIgnoreTagger( Tagger ):
             layer.add_span(span)
         return layer
 
+    @staticmethod
+    def _any_starts_with(str_list, target):
+        return any([s.startswith(target) for s in str_list])
+
     def _add_ignore_consecutive_parenthesized_sentences( 
                 self, text: 'Text', layers, ignored_words_spans:list, output_layer) -> list:
         """ First, detects consecutive sentences that:
@@ -673,7 +694,7 @@ class SyntaxIgnoreTagger( Tagger ):
             # collect ignored words inside sentences
             if ignored_words_spans:
                 for ignore_span in ignored_words_spans:
-                    if not ignore_span.type.startswith('parentheses'):
+                    if not SyntaxIgnoreTagger._any_starts_with(ignore_span.type, 'parentheses'):
                         # consider only ignored content inside parentheses
                         continue
                     if sentence_span.start <= ignore_span.start and \

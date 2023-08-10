@@ -71,12 +71,7 @@ class MetadataQuery(Query):
         """
         assert collection is not None
         # Get valid metadata column names
-        valid_meta_keys = None
-        column_meta = collection._collection_table_meta()
-        if column_meta is not None:
-            column_meta.pop('id')
-            column_meta.pop('data')
-            valid_meta_keys = column_meta
+        valid_meta_keys = collection.meta.column_types
         # Check for keys and value types
         for key in self._raw_meta_values.keys():
             if not isinstance(key, str):

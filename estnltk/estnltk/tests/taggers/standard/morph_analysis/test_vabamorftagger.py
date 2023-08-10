@@ -753,6 +753,87 @@ def test_default_morph_analysis_without_guessing():
                     'base_span': (21, 25)}]}
 
 
+def test_default_morph_analysis_with_phonetic():
+    # Test that morphological disambiguation preserves phonetic mark-up
+    text = Text("Olukord pärast päikeserohket suve ja reisipalavikku")
+    text.tag_layer('sentences')
+    morph_analyser = VabamorfTagger(phonetic=True)
+    morph_analyser.tag(text)
+    #from pprint import pprint
+    #pprint( layer_to_dict( text['morph_analysis'] ) )
+    # Check results
+    assert layer_to_dict( text['morph_analysis'] ) == \
+        {'ambiguous': True,
+         'attributes': ('normalized_text',
+                        'lemma',
+                        'root',
+                        'root_tokens',
+                        'ending',
+                        'clitic',
+                        'form',
+                        'partofspeech'),
+         'enveloping': None,
+         'meta': {},
+         'name': 'morph_analysis',
+         'parent': 'words',
+         'secondary_attributes': (),
+         'serialisation_module': None,
+         'spans': [{'annotations': [{'clitic': '',
+                                     'ending': '0',
+                                     'form': 'sg n',
+                                     'lemma': 'olukord',
+                                     'normalized_text': 'Olukord',
+                                     'partofspeech': 'S',
+                                     'root': 'olu_k<ord',
+                                     'root_tokens': ['olu', 'kord']}],
+                    'base_span': (0, 7)},
+                   {'annotations': [{'clitic': '',
+                                     'ending': '0',
+                                     'form': '',
+                                     'lemma': 'pärast',
+                                     'normalized_text': 'pärast',
+                                     'partofspeech': 'K',
+                                     'root': 'pärast',
+                                     'root_tokens': ['pärast']}],
+                    'base_span': (8, 14)},
+                   {'annotations': [{'clitic': '',
+                                     'ending': 't',
+                                     'form': 'sg p',
+                                     'lemma': 'päikeserohke',
+                                     'normalized_text': 'päikeserohket',
+                                     'partofspeech': 'A',
+                                     'root': 'p<äikese_r<ohke',
+                                     'root_tokens': ['päikese', 'rohke']}],
+                    'base_span': (15, 28)},
+                   {'annotations': [{'clitic': '',
+                                     'ending': '0',
+                                     'form': 'sg p',
+                                     'lemma': 'suvi',
+                                     'normalized_text': 'suve',
+                                     'partofspeech': 'S',
+                                     'root': 'suvi',
+                                     'root_tokens': ['suvi']}],
+                    'base_span': (29, 33)},
+                   {'annotations': [{'clitic': '',
+                                     'ending': '0',
+                                     'form': '',
+                                     'lemma': 'ja',
+                                     'normalized_text': 'ja',
+                                     'partofspeech': 'J',
+                                     'root': 'ja',
+                                     'root_tokens': ['ja']}],
+                    'base_span': (34, 36)},
+                   {'annotations': [{'clitic': '',
+                                     'ending': '0',
+                                     'form': 'sg p',
+                                     'lemma': 'reisipalavik',
+                                     'normalized_text': 'reisipalavikku',
+                                     'partofspeech': 'S',
+                                     'root': 'reisi_p?alav<ik',
+                                     'root_tokens': ['reisi', 'palavik']}],
+                    'base_span': (37, 51)}]}
+
+
 def test_default_morph_analysis_on_compound_tokens():
     # Case 1
     text = Text("Mis lil-li müüs Tiit Mac'ile 10'e krooniga?")

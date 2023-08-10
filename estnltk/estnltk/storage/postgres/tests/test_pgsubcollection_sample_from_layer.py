@@ -10,7 +10,7 @@ from estnltk import Text
 from estnltk.taggers import VabamorfTagger, SentenceTokenizer
 from estnltk.storage.postgres import PostgresStorage
 from estnltk.storage.postgres import RowMapperRecord
-from estnltk.storage.postgres import create_schema, delete_schema
+from estnltk.storage.postgres import delete_schema
 
 from estnltk.storage.postgres.queries.metadata_query import MetadataQuery
 
@@ -24,10 +24,12 @@ def get_random_collection_name():
 
 
 def get_server_version():
-    schema = "test_schema"
-    storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db')
+    schema = "test_schema_db_version"
+    storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db', \
+                                       create_schema_if_missing=True)
     # https://www.psycopg.org/docs/connection.html#connection.server_version
     version = storage.conn.server_version
+    delete_schema(storage)
     storage.close()
     return version
 
@@ -35,16 +37,8 @@ def get_server_version():
 class TestPgSubCollectionSampleFromLayer(unittest.TestCase):
     def setUp(self):
         schema = "test_schema"
-        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db')
-        try:
-            create_schema(self.storage)
-        except DuplicateSchema as ds_error:
-            # TODO: for some reason we get DuplicateSchema error. Unexpected?
-            delete_schema(self.storage)
-            create_schema(self.storage)
-        except:
-            raise
-
+        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db', \
+                                       create_schema_if_missing=True)
 
     def tearDown(self):
         delete_schema(self.storage)
@@ -54,8 +48,9 @@ class TestPgSubCollectionSampleFromLayer(unittest.TestCase):
     def _create_test_collection_of_docs(self, size=25, detached_sentences=False):
         assert size in [25, 100], '(!) Unexpected test collection size: {}'.format(size)
         # Create a test collection
-        collection = self.storage[get_random_collection_name()]
-        collection.create(meta=OrderedDict([('text_id', 'int'), ('text_name', 'str')]))
+        collection_name = get_random_collection_name()
+        collection = self.storage.add_collection( collection_name,
+                          meta=OrderedDict([('text_id', 'int'), ('text_name', 'str')]) )
         # Populate collection with test sentences
         logger.debug('Creating a collection of {} texts:'.format(size))
         subj_words = ['kiisumiisu', 'vanahärra', 'vanama', 'neiu', 'tuttav', \
@@ -104,7 +99,8 @@ class TestPgSubCollectionSampleFromLayer(unittest.TestCase):
                 layer = sent_tokenizer.make_layer(text=text, status=status)
                 return RowMapperRecord(layer=layer, meta=status)
             data_iterator = collection.select( layers=['words', 'compound_tokens'] )
-            collection.create_layer(layer_name = sent_tokenizer.output_layer, 
+            layer_template = sent_tokenizer.get_layer_template()
+            collection.create_layer(layer_template = layer_template, 
                                     data_iterator = data_iterator, 
                                     row_mapper = sent_tokenizer_row_mapper, 
                                     tagger=None, mode='overwrite')
@@ -245,7 +241,7 @@ class TestPgSubCollectionSampleFromLayer(unittest.TestCase):
         self.assertLessEqual(250, len(sent_locations))
         self.assertGreaterEqual(1750, len(sent_locations))
         
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
 
     def test_pgsubcollection_sample_from_detached_layer_based_on_simple_select(self):
@@ -322,7 +318,7 @@ class TestPgSubCollectionSampleFromLayer(unittest.TestCase):
                 sent_locations_2.append( (doc_id, sent.start, sent.end) )
         self.assertListEqual( sent_locations_1, sent_locations_2 )
 
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
 
 
@@ -370,7 +366,7 @@ class TestPgSubCollectionSampleFromLayer(unittest.TestCase):
                 sent_locations_2.append( (doc_id, sent.start, sent.end) )
         self.assertListEqual( sent_locations_1, sent_locations_2 )
         
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
 
     # This test can only be launched on server versions where SETSEED() / RANDOM() 
@@ -380,8 +376,7 @@ class TestPgSubCollectionSampleFromLayer(unittest.TestCase):
     def test_pgsubcollection_sample_from_sparse_layer(self):
         # Test that sampling works with sparse layers
         collection_name = get_random_collection_name()
-        collection = self.storage[collection_name]
-        collection.create()
+        collection = self.storage.add_collection(collection_name)
         # Assert structure version 3.0+ (required for sparse layers)
         self.assertGreaterEqual(collection.version , '3.0')
         
@@ -452,6 +447,6 @@ class TestPgSubCollectionSampleFromLayer(unittest.TestCase):
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1] )
 
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
 

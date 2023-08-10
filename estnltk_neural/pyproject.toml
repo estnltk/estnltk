@@ -1,0 +1,62 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "estnltk_neural"
+authors = [
+    {name = "University of Tartu"},
+    {name = "Siim Orasmaa", email = "siim.orasmaa@ut.ee"},
+    {name = "Sven Laur", email = "swen@math.ut.ee"},
+    {name = "Paul Tammo", email = "paul.tammo@gmail.com"},
+]
+description = "EstNLTK neural -- EstNLTK's linguistic analysis based on neural models"
+readme = "README.md"
+requires-python = ">=3.8"
+keywords = ["Estonian natural language processing", "Estonian linguistic processing"]
+license = {text = "GPLv2"}
+classifiers = [
+    "Intended Audience :: Developers",
+    "Intended Audience :: Education",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Information Technology",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "Topic :: Text Processing",
+    "Topic :: Text Processing :: Linguistic"
+]
+dependencies = [
+    'estnltk-core >= 1.7.2',   # EstNLTK's basic datastructures and conversion methods
+    'estnltk >= 1.7.2',        # EstNLTK's NLP pipelines and database tools
+    'torch',                   # Required by Stanza-based syntactic parsing and Bert embeddings tagger
+    'transformers',            # Required by Bert embeddings tagger
+    'stanza',                  # Required by Stanza-based syntactic parsing
+    'packaging'                # Required for version checking
+]
+dynamic = ["version"]
+
+[project.optional-dependencies]
+tests = [ "pytest" ]
+neural_morph = [ "tensorflow <= 1.15.5" ]  # Required by neural morphological disambiguator
+coreference_v1 = [ "scikit-learn", "xgboost", "gensim" ]  # Required by CoreferenceTagger
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["estnltk_neural*"]
+exclude = ["venv*", "scribbles*"]
+namespaces = true
+
+[project.urls]
+homepage = "https://github.com/estnltk/estnltk"
+documentation = "https://github.com/estnltk/estnltk/tree/main/tutorials"
+repository = "https://github.com/estnltk/estnltk/tree/main/estnltk_neural"
+changelog = "https://github.com/estnltk/estnltk/blob/main/CHANGELOG.md"

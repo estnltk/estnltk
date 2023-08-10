@@ -783,9 +783,41 @@ class CompoundTokenTaggerTest(unittest.TestCase):
         text.add_layer( cp_layer )
         # add words layer upon it
         text.tag_layer('words')
-        # check the words 
+        # check the words
         word_texts = [text.text[sp.start:sp.end] for sp in text.words.spans]
         self.assertListEqual(['Mis', 'lil', '-', 'li', 'müüs', 'Tiit', '10e', 'krooniga', '?'], word_texts)
+
+
+    def test_compound_token_tagger_make_detached_layer(self):
+        # Tests that CompoundTokenTagger also works on detached layers
+        tokens_tagger = TokensTagger(output_layer='my_tokens')
+        cp_tagger = CompoundTokenTagger(output_layer='my_compounds', input_tokens_layer='my_tokens')
+        word_tagger = WordTagger(input_tokens_layer='my_tokens', input_compound_tokens_layer='my_compounds')
+        test_texts = [ 
+            # Specifically test 2nd level compoundings, which were problematic previously due to an error
+            { 'text': "Alustame Palace'ist. Lähme 10 000-ni.", \
+              'expected_words': ['Alustame', "Palace'ist", '.', 'Lähme', '10 000-ni', '.'] }, \
+            { 'text': "Aadressid www.neti.ee-st kuni ut.ee-ni.", \
+              'expected_words' : ['Aadressid', 'www.neti.ee-st', 'kuni', 'ut.ee-ni', '.'] },
+            { 'text': "+20 ja -10 000. edasi +20% ja 21,567%", 
+              'expected_words' : ['+20', 'ja', '-10 000', '.', 'edasi', '+20%', 'ja', '21,567%'] }
+        ]
+        for test_text in test_texts:
+            text = Text( test_text['text'] )
+            # Perform analysis
+            tokens = tokens_tagger.make_layer(text, {}, {})
+            cp_tokens = cp_tagger.make_layer(text, {'my_tokens':tokens}, {})
+            words_layer = word_tagger.make_layer(text, {'my_tokens':tokens, "my_compounds":cp_tokens}, {})
+            self.assertTrue( len(text.layers) == 0 )
+            self.assertTrue( len(cp_tokens) != 0 )
+            # Fetch result
+            word_segmentation = [] 
+            for wid, word in enumerate(words_layer):
+                word_text = text.text[word.start:word.end]
+                word_segmentation.append(word_text)
+            #print(word_segmentation)
+            # Assert that the tokenization is correct
+            self.assertListEqual(test_text['expected_words'], word_segmentation)
 
 
 from estnltk.taggers.standard.text_segmentation.pretokenized_text_compound_tokens_tagger import PretokenizedTextCompoundTokensTagger

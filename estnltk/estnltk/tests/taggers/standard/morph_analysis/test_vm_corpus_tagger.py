@@ -181,6 +181,42 @@ def test_vm_corpus_tagger_with_changed_analyser_parameters():
     assert count_analyses(docs) == [13, 0, 13]
 
 
+def test_vm_corpus_tagger_with_phonetic():
+    # Enable phonetic markup in root
+    vm_corpus_tagger = VabamorfCorpusTagger(phonetic=True)
+    docs = [ Text('Perekonnanimi oli Nõmm.'), \
+             Text('Teisel tüübil oli nimeks Kass või Karu.') ]
+    for doc in docs:
+        doc.tag_layer(['compound_tokens', 'words', 'sentences'])
+    vm_corpus_tagger.tag(docs)
+    # Collect analyses
+    analyses = []
+    for doc in docs:
+        for morph_word in doc.morph_analysis:
+            annotations = morph_word.annotations
+            analyses.append( [morph_word.text]+ \
+                             [(a['root'], 
+                               a['partofspeech'], 
+                               a['form']) for a in annotations] )
+    #from pprint import pprint 
+    #pprint(analyses)
+    # Check results
+    assert analyses == \
+        [['Perekonnanimi', ('p?erekonna_nimi', 'S', 'sg n')],
+         ['oli', ('ole', 'V', 's')],
+         ['Nõmm', ('N<õmm', 'H', 'sg n'), ('Nõmm', 'H', 'sg n')],
+         ['.', ('.', 'Z', '')],
+         ['Teisel', ('teine', 'O', 'sg ad'), ('teine', 'P', 'sg ad')],
+         ['tüübil', ('t<üüp', 'S', 'sg ad')],
+         ['oli', ('ole', 'V', 's')],
+         ['nimeks', ('nimi', 'S', 'sg tr')],
+         ['Kass', ('K<as]s', 'H', 'sg n'), ('Kass', 'H', 'sg n')],
+         ['või', ('või', 'J', '')],
+         ['Karu', ('Karu', 'H', 'sg n')],
+         ['.', ('.', 'Z', '')]]
+    # Note that phonetic mark-up adds some additional 
+    # propername ambiguities
+
 
 def test_ordering_of_ambiguous_morph_analyses():
     # Test the default ordering of ambiguous morph analyses

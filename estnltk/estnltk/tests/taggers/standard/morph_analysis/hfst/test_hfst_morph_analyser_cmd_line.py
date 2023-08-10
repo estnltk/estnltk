@@ -9,11 +9,18 @@ from estnltk import Text
 
 from estnltk.converters import layer_to_records
 
+from estnltk.downloader import get_resource_paths
+
 from estnltk.taggers.standard.morph_analysis.hfst.hfst_morph_analyser_cmd_line import check_if_hfst_is_in_path
 from estnltk.taggers.standard.morph_analysis.hfst.hfst_morph_analyser_cmd_line import HfstClMorphAnalyser
 
+# Try to get the resources for hfstmorphanalyser. If missing, do nothing. It's up for the user to download the missing resources
+HSFT_MORPH_MODEL_PATH = get_resource_paths("hfstmorphanalyser", only_latest=True, download_missing=False)
+
 @pytest.mark.skipif(not check_if_hfst_is_in_path(),
                     reason="hfst command line tools are required for this test")
+@pytest.mark.skipif(HSFT_MORPH_MODEL_PATH is None,
+                    reason="HfstClMorphAnalyser's resources have not been downloaded. Use estnltk.download('hfstmorphanalyser') to fetch the missing resources.")
 def test_hfst_morph_analyser_raw_output():
     # Test HfstClMorphAnalyser's raw output format
     hfstAnalyser = HfstClMorphAnalyser( output_format='raw' )
@@ -109,6 +116,8 @@ def test_hfst_morph_analyser_raw_output():
 
 @pytest.mark.skipif(not check_if_hfst_is_in_path(),
                     reason="hfst command line tools are required for this test")
+@pytest.mark.skipif(HSFT_MORPH_MODEL_PATH is None,
+                    reason="HfstClMorphAnalyser's resources have not been downloaded. Use estnltk.download('hfstmorphanalyser') to fetch the missing resources.")
 def test_hfst_morph_analyser_raw_output_file_based_io():
     # Test HfstClMorphAnalyser's raw output format with file based I/O
     hfstAnalyser = HfstClMorphAnalyser( output_format='raw', use_stream=False )
@@ -189,6 +198,8 @@ def test_hfst_morph_analyser_raw_output_file_based_io():
 
 @pytest.mark.skipif(not check_if_hfst_is_in_path(),
                     reason="hfst command line tools are required for this test")
+@pytest.mark.skipif(HSFT_MORPH_MODEL_PATH is None,
+                    reason="HfstClMorphAnalyser's resources have not been downloaded. Use estnltk.download('hfstmorphanalyser') to fetch the missing resources.")
 def test_hfst_morph_analyser_raw_output_on_multiple_normalized_word_forms():
     # Test HfstClMorphAnalyser's raw output format
     hfstAnalyser = HfstClMorphAnalyser( output_format='raw' )
@@ -263,6 +274,8 @@ def test_hfst_morph_analyser_raw_output_on_multiple_normalized_word_forms():
 
 @pytest.mark.skipif(not check_if_hfst_is_in_path(),
                     reason="hfst command line tools are required for this test")
+@pytest.mark.skipif(HSFT_MORPH_MODEL_PATH is None,
+                    reason="HfstClMorphAnalyser's resources have not been downloaded. Use estnltk.download('hfstmorphanalyser') to fetch the missing resources.")
 def test_hfst_morph_analyser_morphemes_lemmas_output():
     # Test HfstClMorphAnalyser's morphemes_lemmas output format
     hfstAnalyser = HfstClMorphAnalyser( output_format='morphemes_lemmas' )
@@ -343,6 +356,8 @@ def test_hfst_morph_analyser_morphemes_lemmas_output():
 
 @pytest.mark.skipif(not check_if_hfst_is_in_path(),
                     reason="hfst command line tools are required for this test")
+@pytest.mark.skipif(HSFT_MORPH_MODEL_PATH is None,
+                    reason="HfstClMorphAnalyser's resources have not been downloaded. Use estnltk.download('hfstmorphanalyser') to fetch the missing resources.")
 def test_hfst_morph_analyser_with_guessing_switched_on_and_off():
     # Test HfstClMorphAnalyser's with guessing switched on and off
     # Case 1: lookup

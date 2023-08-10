@@ -164,8 +164,8 @@ def _convert_vm_records_to_morph_analysis_records(vm_dict, layer_attributes=None
 
 
 def _postprocess_root( root:str, partofspeech:str, \
-                       trim_phonetic:bool=DEFAULT_PARAM_PHONETIC, \
-                       trim_compound:bool=DEFAULT_PARAM_COMPOUND ):
+                       phonetic:bool=DEFAULT_PARAM_PHONETIC, \
+                       compound:bool=DEFAULT_PARAM_COMPOUND ):
     ''' Converts root string from Vabamorf's format to EstNLTK's format:
          1) trims phonetic and compound info from the root (if required);
          2) generates list of root tokens;
@@ -181,7 +181,7 @@ def _postprocess_root( root:str, partofspeech:str, \
     grouptoks   = get_group_tokens(root)
     root_tokens = reduce(operator.add, grouptoks)
     lemma = get_lemma(grouptoks, partofspeech)
-    root  = get_root(root, trim_phonetic, trim_compound)
+    root  = get_root(root, phonetic, compound)
     return root, root_tokens, lemma
 
 

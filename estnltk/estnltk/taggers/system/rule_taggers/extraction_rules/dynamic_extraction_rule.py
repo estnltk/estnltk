@@ -4,7 +4,7 @@ from typing import Union
 from typing import Callable
 from dataclasses import dataclass
 
-from estnltk_core import Span
+from estnltk_core import Span, Annotation
 from estnltk import Text
 
 
@@ -29,6 +29,6 @@ class DynamicExtractionRule:
     """
 
     pattern: str
-    decorator:  Callable[[Text, Span], Union[Dict[str, Any], None]]
+    decorator:  Callable[[Text, Span, Annotation], Union[Dict[str, Any], None]]
     group: int = 0
     priority: int = 0

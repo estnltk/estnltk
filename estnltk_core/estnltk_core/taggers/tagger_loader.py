@@ -4,6 +4,8 @@ import importlib, importlib.util
 
 from estnltk_core.taggers.tagger import Tagger
 from estnltk_core.taggers.retagger import Retagger
+from estnltk_core.taggers.relation_tagger import RelationTagger
+
 
 class TaggerClassNotFound(Exception):
     pass
@@ -25,12 +27,12 @@ class TaggerLoader:
        Note: TaggerLoader does not validate that declared inputs and output match with the actual inputs and 
        output of the tagger after it has been loaded. This validation should be done by users of the class. 
     """
-    __slots__ = ['output_layer', 'input_layers', 'import_path', 'output_attributes', 'description',
-                 '_parameters', '_tagger', '_tagger_class_name', '_tagger_module_path']
+    __slots__ = ['output_layer', 'input_layers', 'import_path', 'output_span_names', 'output_attributes', 
+                 'description', '_parameters', '_tagger', '_tagger_class_name', '_tagger_module_path']
 
     def __init__(self, output_layer:str, input_layers:Sequence[str], import_path:str, 
-                       parameters:Dict[str, Any]={}, output_attributes:Sequence[str]=None, 
-                       description:str=DEFAULT_DESCRIPTION):
+                       parameters:Dict[str, Any]={}, output_span_names:Sequence[str]=None, 
+                       output_attributes:Sequence[str]=None, description:str=DEFAULT_DESCRIPTION):
         """Initializes TaggerLoader, which can be used to load given Tagger/Retagger on demand.
         
         Parameters
@@ -47,6 +49,9 @@ class TaggerLoader:
         output_attributes: Sequence[str]
             attributes of the layer produced by the tagger.
             optional, defaults to None.
+        output_span_names: Sequence[str]
+            (only for RelationTagger) span names of the relation layer produced by the relation tagger. 
+            optional, defaults to None.
         description:str
             description of the tagger / layer. 
             optional, defaults to "No description provided."
@@ -55,6 +60,7 @@ class TaggerLoader:
         self.input_layers = input_layers
         self.import_path = import_path
         self.output_attributes = output_attributes
+        self.output_span_names = output_span_names
         self.description = description
         self._parameters = parameters
         if '.' in import_path:
@@ -125,6 +131,7 @@ class TaggerLoader:
         """
         record = {'name': self._tagger_class_name,
                   'layer': self.output_layer,
+                  'span_names': self.output_span_names,
                   'attributes': self.output_attributes,
                   'depends_on': self.input_layers,
                   'is_loaded': self.is_loaded(),
@@ -164,6 +171,10 @@ class TaggerLoaded(TaggerLoader):
         self._tagger = tagger
         self.output_layer = tagger.output_layer
         self.input_layers = tagger.input_layers
+        if isinstance(tagger, RelationTagger):
+            self.output_span_names = tagger.output_span_names
+        else:
+            self.output_span_names = None
         self.output_attributes = tagger.output_attributes
         self._parameters = {}
         self._tagger_class_name = tagger.__class__.__name__

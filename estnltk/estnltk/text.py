@@ -113,7 +113,9 @@ class Text( BaseText ):
         'pop_layer',
         'diff',
         'layers',
+        'relation_layers',
         'sorted_layers',
+        'sorted_relation_layers',
         'tag_layer',
         'topological_sort',
     } | {method for method in dir(object) if callable(getattr(object, method, None))}

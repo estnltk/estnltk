@@ -3,8 +3,8 @@ EstNLTK-core -- core components of the EstNLTK library
 
 This package contains core components of the EstNLTK library:
 
-* data structures: `BaseText`, `BaseLayer`, `Layer`, `Span`, `EnvelopingSpan`, `SpanList`, `Annotation`;
-* tagger component interfaces: `Tagger`, `Retagger`;
+* data structures: `BaseText`, `BaseLayer`, `Layer`, `RelationLayer`, `Span`, `EnvelopingSpan`, `SpanList`, `Annotation`;
+* tagger component interfaces: `Tagger`, `Retagger`, `RelationTagger`, `MultiLayerTagger`;
 * basic layer operations: flatten, merge, rebase, split layers etc.
 * basic visualization and Jupyter Notebook support (HTML representations);
 * functions for converting between EstNLTK's data structures and JSON / dict representations;
@@ -19,16 +19,16 @@ The EstNLTK project is funded by EKT ([Eesti Keeletehnoloogia Riiklik Programm](
 EstNLTK-core is available as a PyPI wheel:  
 
 ```
-pip install estnltk_core==1.7.0
+pip install estnltk_core==1.7.2
 ```
 
 And as an Anaconda package:
 
 ```
-conda install -c estnltk -c conda-forge estnltk_core=1.7.0
+conda install -c estnltk -c conda-forge estnltk_core=1.7.2
 ```
 
-Supported Python versions: 3.7+
+Supported Python versions: 3.8+
 
 ### Documentation
 

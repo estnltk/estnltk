@@ -14,16 +14,15 @@ build:
 requirements:
   build:
     - python 
-    - estnltk_core
-    - estnltk >=1.7.0
+    - estnltk_core >=1.7.2
+    - estnltk >=1.7.2
 
   run:
     - python 
-    - estnltk_core
-    - estnltk >=1.7.0
-    - tensorflow
-    - pytorch
+    - estnltk_core >=1.7.2
+    - estnltk >=1.7.2
     - transformers
+    - pytorch
     - stanza
     - packaging
 

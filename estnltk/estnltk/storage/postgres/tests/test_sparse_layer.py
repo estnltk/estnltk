@@ -8,7 +8,7 @@ from estnltk import logger
 from estnltk import Text, Layer
 from estnltk.converters import layer_to_dict, text_to_dict
 from estnltk.storage.postgres import PostgresStorage
-from estnltk.storage.postgres import create_schema, delete_schema
+from estnltk.storage.postgres import delete_schema
 from estnltk.storage.postgres import layer_table_name
 from estnltk.storage.postgres import count_rows
 from estnltk.taggers import Tagger
@@ -96,9 +96,9 @@ def _make_count_query( storage, collection, layer_name ):
 class TestSparseLayerCreation(unittest.TestCase):
     def setUp(self):
         schema = "test_schema"
-        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db')
+        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db', \
+                                       create_schema_if_missing=True)
 
-        create_schema(self.storage)
         self.maxDiff = None
 
     def tearDown(self):
@@ -107,8 +107,7 @@ class TestSparseLayerCreation(unittest.TestCase):
 
     def test_create_sparse_layer_structure(self):
         collection_name = get_random_collection_name()
-        collection = self.storage[collection_name]
-        collection.create()
+        collection = self.storage.add_collection(collection_name)
         # Assert structure version 3.0+ (required for sparse layers)
         self.assertGreaterEqual(collection.version , '3.0')
 
@@ -149,13 +148,12 @@ class TestSparseLayerCreation(unittest.TestCase):
                            'secondary_attributes': (),
                            'serialisation_module': None,
                            'spans': []} )
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
 
     def test_create_sparse_layer_insertion(self):
         collection_name = get_random_collection_name()
-        collection = self.storage[collection_name]
-        collection.create()
+        collection = self.storage.add_collection(collection_name)
         # Assert structure version 3.0+ (required for sparse layers)
         self.assertGreaterEqual(collection.version , '3.0')
         
@@ -194,15 +192,15 @@ class TestSparseLayerCreation(unittest.TestCase):
                                              only_table_ids=True),
                           [0, 4, 8, 12, 16, 20, 24, 28] )
 
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
 
 class TestSparseLayerSelection(unittest.TestCase):
     def setUp(self):
         schema = "test_schema"
-        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db')
+        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db', \
+                                       create_schema_if_missing=True)
 
-        create_schema(self.storage)
         self.maxDiff = None
 
     def tearDown(self):
@@ -211,8 +209,7 @@ class TestSparseLayerSelection(unittest.TestCase):
 
     def test_collection_select_by_key_on_sparse_layers(self):
         collection_name = get_random_collection_name()
-        collection = self.storage[collection_name]
-        collection.create()
+        collection = self.storage.add_collection(collection_name)
         # Assert structure version 3.0+ (required for sparse layers)
         self.assertGreaterEqual(collection.version , '3.0')
 
@@ -278,6 +275,7 @@ class TestSparseLayerSelection(unittest.TestCase):
                                    {'annotations': [{'normalized_form': None}],
                                     'base_span': (20, 21)}]}],
              'meta': {'number': 0},
+             'relation_layers': [],
              'text': 'See on tekst number 0'}
         self.assertEqual( text_to_dict(text1), expected_text_dict_1 )
         # Test that selection also works after changing the order of selected layers
@@ -332,6 +330,7 @@ class TestSparseLayerSelection(unittest.TestCase):
                                    {'annotations': [{'normalized_form': None}],
                                     'base_span': (20, 21)}]}],
              'meta': {'number': 4},
+             'relation_layers': [],
              'text': 'See on tekst number 4'}
         self.assertEqual( text_to_dict(text2), expected_text_dict_2 )
         
@@ -358,14 +357,13 @@ class TestSparseLayerSelection(unittest.TestCase):
         self.assertEqual( odd_number_annotations, 15 )
         self.assertEqual( fifth_number_annotations, 6 )
         
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
 
 
     def test_collection_default_select_on_sparse_layers(self):
         collection_name = get_random_collection_name()
-        collection = self.storage[collection_name]
-        collection.create()
+        collection = self.storage.add_collection(collection_name)
         # Assert structure version 3.0+ (required for sparse layers)
         self.assertGreaterEqual(collection.version , '3.0')
         
@@ -456,13 +454,12 @@ class TestSparseLayerSelection(unittest.TestCase):
         self.assertListEqual( text_ids_with_fourth_sparse_layers, \
                               [0, 4, 8, 12, 16, 20, 24, 28] )
         
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
 
     def test_collection_inner_join_select_on_sparse_layers(self):
         collection_name = get_random_collection_name()
-        collection = self.storage[collection_name]
-        collection.create()
+        collection = self.storage.add_collection(collection_name)
         # Assert structure version 3.0+ (required for sparse layers)
         self.assertGreaterEqual(collection.version , '3.0')
         
@@ -565,14 +562,13 @@ class TestSparseLayerSelection(unittest.TestCase):
         self.assertEqual( all_texts_iterated, 2 )
         self.assertListEqual( collected_text_ids, [18, 24] )
 
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
 
     def test_select_sparse_subcollection_layers(self):
         # Test that PgSubCollectionLayer handles sparse layers properly
         collection_name = get_random_collection_name()
-        collection = self.storage[collection_name]
-        collection.create()
+        collection = self.storage.add_collection(collection_name)
         # Assert structure version 3.0+ (required for sparse layers)
         self.assertGreaterEqual(collection.version , '3.0')
         
@@ -613,7 +609,7 @@ class TestSparseLayerSelection(unittest.TestCase):
         self.assertListEqual( texts_with_nonempty_layers, \
                               [0, 6, 12, 18, 24] )
 
-        collection.delete()
+        self.storage.delete_collection(collection.name)
         
 
 if __name__ == '__main__':

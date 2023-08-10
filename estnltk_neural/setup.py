@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-from setuptools import setup, find_packages
+from setuptools import setup
+from setuptools import find_namespace_packages
 
 import os, os.path, re
 
@@ -19,7 +20,7 @@ def get_version():
 setup(
     name="estnltk_neural",
     version=get_version(),
-    packages=find_packages(),
+    packages=find_namespace_packages(),
     author="University of Tartu",
     author_email="siim.orasmaa@gmail.com, alex.tk.fb@gmail.com, tpetmanson@gmail.com, swen@math.ut.ee",
     description="EstNLTK neural -- EstNLTK's linguistic analysis based on neural models",
@@ -34,9 +35,8 @@ setup(
     },
     url="https://github.com/estnltk/estnltk",
     install_requires=[
-        'estnltk-core',     # EstNLTK's basic data structures and conversion methods
-        'estnltk >= 1.7.0', # EstNLTK's NLP pipelines and database tools
-        'tensorflow',      
+        'estnltk-core >= 1.7.2', # EstNLTK's basic data structures and conversion methods
+        'estnltk >= 1.7.2',      # EstNLTK's NLP pipelines and database tools
         'torch',
         'transformers',
         'stanza',
@@ -47,10 +47,10 @@ setup(
                  'Intended Audience :: Science/Research',
                  'Intended Audience :: Information Technology',
                  'Operating System :: OS Independent',
-                 'Programming Language :: Python :: 3.7',
                  'Programming Language :: Python :: 3.8',
                  'Programming Language :: Python :: 3.9',
                  'Programming Language :: Python :: 3.10',
+                 'Programming Language :: Python :: 3.11',
                  'Topic :: Scientific/Engineering',
                  'Topic :: Scientific/Engineering :: Artificial Intelligence',
                  'Topic :: Scientific/Engineering :: Information Analysis',

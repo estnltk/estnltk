@@ -153,9 +153,20 @@ class PgSubCollection:
     @selected_layers.setter
     def selected_layers(self, layers: list):
         """
-        Selects layers together with all layers needed to define them.
+        Selects given layers together with their ancestor layers.
+        
+        Raises ValueError if any of the input layers is missing from
+        the collection, and TypeError if type of an input layer is not 
+        attached or detached layer.
         """
-
+        for layer in layers:
+            if layer not in self.collection.structure:
+                raise ValueError('The collection {!r} does not have layer {!r}.'.format(
+                                                            self.collection.name, layer))
+            layer_type = self.collection.structure[layer]['layer_type']
+            if layer_type not in {'attached', 'detached'}:
+                raise TypeError(('Cannot select {} layer {!r}. Only attached and detached '+\
+                                 'layers can be selected.').format(layer_type, layer))
         self._selected_layers = self.collection.dependent_layers(layers)
         self._attached_layers = [layer for layer in self._selected_layers
                                  if self.collection.structure[layer]['layer_type'] == 'attached']
@@ -169,11 +180,6 @@ class PgSubCollection:
     @property
     def detached_layers(self):
         return self._detached_layers
-
-    @property
-    def fragmented_layers(self):
-        # TODO: Complete this
-        raise NotImplementedError()
 
     @property
     def sql_query(self):
@@ -1031,6 +1037,10 @@ class PgSubCollection:
 
         :param tagger: Tagger
             Tagger to be used for creating the layer. 
+            tagger.get_layer_template method is called for creating the 
+            template of the new layer. 
+            tagger.make_layer method is called to create layer instances 
+            during the subcollection iteration. 
             Note: tagger's input_layers will be selected automatically, 
             but the collection must have all the input layers. 
         :param create_index: bool
@@ -1096,13 +1106,13 @@ class PgSubCollection:
             data_iterator = data_iterator.select( 
                 selected_layers=data_iterator.selected_layers + add_selected_layers )
         
-        # Use collection's create_layer method        
+        # Use collection's create_layer method 
         def default_row_mapper(row):
             text_id, text = row[0], row[1]
             status = {}
             layer = tagger.make_layer(text=text, status=status)
             return pg.RowMapperRecord(layer=layer, meta=status)
-        self.collection.create_layer(layer_name=tagger.output_layer, data_iterator=data_iterator, 
+        self.collection.create_layer(layer_template=tagger.get_layer_template(), data_iterator=data_iterator, 
                                      row_mapper=default_row_mapper, meta=meta, progressbar=progressbar, 
                                      query_length_limit=query_length_limit, mode=mode, sparse=True)
 

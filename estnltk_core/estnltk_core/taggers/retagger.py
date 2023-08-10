@@ -324,7 +324,7 @@ class Retagger(Tagger):
             Input Text object which has a output_layer changed by this retagger.
         """
         # Used change_layer to get the retagged variant of the layer
-        self.change_layer(text, text.layers, status)
+        self.change_layer(text, (text.layers).union(text.relation_layers), status)
         return text
 
     def __call__(self, text: Union['BaseText', 'Text'], status: dict = None) -> Union['BaseText', 'Text']:

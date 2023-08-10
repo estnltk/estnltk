@@ -1,3 +1,4 @@
+import warnings
 from typing import List
 from conllu import parse_incr
 from estnltk import Layer, Text, ElementaryBaseSpan
@@ -57,7 +58,7 @@ def add_layer_from_conll(file: str, text: Text, syntax_layer: str):
     return text
 
 
-def conll_to_text(file: str, syntax_layer: str = 'conll_syntax') -> Text:
+def conll_to_text(file: str, syntax_layer: str = 'conll_syntax', remove_empty_nodes:bool=True) -> Text:
     """
     Reads file in conll format and creates a Text object with words and syntax layers.
 
@@ -65,6 +66,11 @@ def conll_to_text(file: str, syntax_layer: str = 'conll_syntax') -> Text:
         name of the conll file
     :param syntax_layer: str
         name of the syntax layer
+    :param remove_empty_nodes: bool
+        if True, then empty / null nodes (ellipsis 
+        in the enhanced representation) will be 
+        discarded (left out from textual content
+        and also from annotations).
     :return: Text
     """
 
@@ -97,17 +103,24 @@ def conll_to_text(file: str, syntax_layer: str = 'conll_syntax') -> Text:
 
         for sentence in parse_incr(data_file, fields=('id', 'form', 'lemma', 'upostag', 'xpostag', 'feats', 'head', 'deprel', 'deps', 'misc')):
             for w in sentence:
-                token = w['form']
-                t.append(token)
-                len_w = len(token)
-                base_span = ElementaryBaseSpan(cur, cur+len_w)
-                words.add_annotation(base_span)
+                ids_ok = True
+                if remove_empty_nodes:
+                    # Check that both 'id' and 'head' are integers.
+                    # If not, then discard orphan annotation.
+                    ids_ok = isinstance(w['id'], int) and \
+                             isinstance(w['head'], int)
+                if ids_ok:
+                    token = w['form']
+                    len_w = len(token)
+                    t.append(token)
+                    base_span = ElementaryBaseSpan(cur, cur+len_w)
+                    words.add_annotation(base_span)
+                    syntax.add_annotation(base_span, **w)
+                    cur += len_w + 1
 
-                syntax.add_annotation(base_span, **w)
-                cur += len_w + 1
-
-            sentences.add_annotation(words[sentence_start:])
-            sentence_start += len(sentence)
+            sentence_words = words[sentence_start:]
+            sentences.add_annotation(sentence_words)
+            sentence_start += len(sentence_words)
 
     text.text = ' '.join(t)
     text.add_layer(words)
@@ -119,7 +132,8 @@ def conll_to_text(file: str, syntax_layer: str = 'conll_syntax') -> Text:
     return text
 
 
-def conll_to_texts_list(file: str, syntax_layer: str = 'conll_syntax', postcorrect_sent_ids: bool=True) -> List[Text]:
+def conll_to_texts_list(file: str, syntax_layer: str = 'conll_syntax', postcorrect_sent_ids: bool=True,
+                                                                       remove_empty_nodes:bool=True) -> List[Text]:
     """
     Reads file in conll format and creates separate Text objects according to 
     file names read from the 'sent_id' attributes in the metadata.
@@ -136,6 +150,11 @@ def conll_to_texts_list(file: str, syntax_layer: str = 'conll_syntax', postcorre
         if True, then postcorrections 
         will be applied to broken 
         'sent_id'-s;
+    :param remove_empty_nodes: bool
+        if True, then empty / null nodes (ellipsis 
+        in the enhanced representation) will be 
+        discarded (left out from textual content
+        and also from annotations).
     :return: List[Text]
     """
     texts = []
@@ -236,17 +255,24 @@ def conll_to_texts_list(file: str, syntax_layer: str = 'conll_syntax', postcorre
                         
             # Load sentence content
             for w in sentence:
-                token = w['form']
-                t.append(token)
-                len_w = len(token)
-                base_span = ElementaryBaseSpan(cur, cur+len_w)
-                words_layers[-1].add_annotation(base_span)
+                ids_ok = True
+                if remove_empty_nodes:
+                    # Check that both 'id' and 'head' are integers.
+                    # If not, then discard orphan word.
+                    ids_ok = isinstance(w['id'], int) and \
+                             isinstance(w['head'], int)
+                if ids_ok:
+                    token = w['form']
+                    len_w = len(token)
+                    t.append(token)
+                    base_span = ElementaryBaseSpan(cur, cur+len_w)
+                    words_layers[-1].add_annotation(base_span)
+                    syntax_layers[-1].add_annotation(base_span, **w)
+                    cur += len_w + 1
 
-                syntax_layers[-1].add_annotation(base_span, **w)
-                cur += len_w + 1
-
-            sentences_layers[-1].add_annotation(words[sentence_start:])
-            sentence_start += len(sentence)
+            sentence_words = words[sentence_start:]
+            sentences_layers[-1].add_annotation(sentence_words)
+            sentence_start += len(sentence_words)
             last_sent_id = cur_sent_id
     
     # Finalize the Text object

@@ -9,7 +9,7 @@ from estnltk import Text
 from estnltk.taggers import VabamorfTagger
 from estnltk.storage.postgres import PostgresStorage
 from estnltk.storage.postgres import RowMapperRecord
-from estnltk.storage.postgres import create_schema, delete_schema
+from estnltk.storage.postgres import delete_schema
 
 from estnltk.storage.postgres.queries.metadata_query import MetadataQuery
 from estnltk.storage.postgres.queries.slice_query import SliceQuery
@@ -24,15 +24,8 @@ def get_random_collection_name():
 class TestPgSubCollectionPermutate(unittest.TestCase):
     def setUp(self):
         schema = "test_schema"
-        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db')
-        try:
-            create_schema(self.storage)
-        except DuplicateSchema as ds_error:
-            # TODO: for some reason we get DuplicateSchema error. Unexpected?
-            delete_schema(self.storage)
-            create_schema(self.storage)
-        except:
-            raise
+        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db', \
+                                       create_schema_if_missing=True)
 
 
     def tearDown(self):
@@ -43,8 +36,9 @@ class TestPgSubCollectionPermutate(unittest.TestCase):
     def _create_test_collection_of_docs( self, size=100 ):
         assert size in [100, 200], '(!) Unexpected test collection size: {}'.format(size)
         # Create a test collection
-        collection = self.storage[get_random_collection_name()]
-        collection.create(meta=OrderedDict([('text_id', 'int'), ('text_name', 'str')]))
+        collection_name = get_random_collection_name()
+        collection = self.storage.add_collection( collection_name, 
+                          meta=OrderedDict([('text_id', 'int'), ('text_name', 'str')]) )
         # Populate collection with test sentences
         logger.debug('Creating a collection of {} texts:'.format(size))
         subj_words = ['kiisumiisu', 'vanahärra', 'vanama', 'neiu', 'tuttav']
@@ -135,7 +129,7 @@ class TestPgSubCollectionPermutate(unittest.TestCase):
         for text_id, text_obj in seed_0_5_results_2:
             self.assertTrue( text_obj.meta['mod_2'] == '2' )
         
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
 
 
@@ -150,7 +144,8 @@ class TestPgSubCollectionPermutate(unittest.TestCase):
             layer = vabamorf_tagger.make_layer(text=text, status=status)
             return RowMapperRecord(layer=layer, meta=status)
         data_iterator = collection.select( layers=['words', 'sentences', 'compound_tokens'] )
-        collection.create_layer(layer_name = vabamorf_tagger.output_layer, 
+        layer_template = vabamorf_tagger.get_layer_template()
+        collection.create_layer(layer_template=layer_template, 
                                 data_iterator = data_iterator, 
                                 row_mapper = vabamorf_row_mapper, 
                                 tagger=None, mode='overwrite')
@@ -193,5 +188,5 @@ class TestPgSubCollectionPermutate(unittest.TestCase):
         text_ids = [text_id for text_id, _ in res]
         self.assertTrue( len(res), len(set(text_ids)) )
         
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 

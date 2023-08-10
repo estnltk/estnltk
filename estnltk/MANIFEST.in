@@ -4,11 +4,12 @@ include LICENSE
 graft include
 graft src
 graft estnltk/java/res
+graft estnltk/storage/postgres/tests/test_example_syntax.conll
 graft estnltk/taggers/standard/ner/gazetteer
 graft estnltk/taggers/standard/ner/models
-graft estnltk/taggers/standard/morph_analysis/hfst
 graft estnltk/taggers/standard/morph_analysis/number_fixes
 graft estnltk/taggers/standard/morph_analysis/reorderings
+graft estnltk/taggers/standard/morph_analysis/ud_conv_rules
 graft estnltk/taggers/standard/syntax/files
 graft estnltk/taggers/standard/syntax/maltparser_tagger/java-res/maltparser/lib
 include estnltk/taggers/standard/syntax/maltparser_tagger/java-res/maltparser/maltparser-1.9.0.jar
@@ -19,7 +20,6 @@ graft estnltk/taggers/standard/syntax/preprocessing/rules_files
 graft estnltk/taggers/standard/text_segmentation
 graft estnltk/taggers/miscellaneous
 graft estnltk/vabamorf/dct
-graft estnltk/wordnet
 graft estnltk/visualisation/attribute_visualiser
 graft estnltk/visualisation/span_visualiser
 graft estnltk/tests/converters

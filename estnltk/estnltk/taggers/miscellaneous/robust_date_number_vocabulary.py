@@ -1,5 +1,10 @@
 import regex as re
 
+
+def dynamic_rule_decorator(text,span,annotation):
+ annotation['value'] = re.sub(r'\s?[.,]\s?','.', annotation['match'].group(2))
+ return annotation
+
 substitutions = {
     'LONGYEAR': r'(?P<LONGYEAR>((19[0-9]{2})|(20[0-9]{2})))',
     'YEAR':         r'(?P<YEAR>((19[0-9]{2})|(20[0-9]{2})|([0-9]{2})))',
@@ -16,15 +21,13 @@ vocabulary = [
  '_regex_pattern_': r'(^|[^0-9,.])([0-9]+(\s?[,.]\s?[0-9]+)?)',
  '_group_': 2,
  '_priority_': 1,
- '_validator_': lambda m: True,
- 'value': lambda m: re.sub(r'\s?[.,]\s?','.', m.group(2))},
+ 'value': dynamic_rule_decorator },
 
 {'grammar_symbol': 'NUMBER',
  'regex_type': 'int',
  '_regex_pattern_': r'(^|[^0-9,.])([0-9]+)',
  '_group_': 2,
  '_priority_': 2,
- '_validator_': lambda m: True,
  'value': 'some_int'},
 
 {'grammar_symbol': 'NUMBER',
@@ -32,7 +35,6 @@ vocabulary = [
  '_regex_pattern_': r'\s[,.][0-9]+',
  '_group_': 0,
  '_priority_': 1,
- '_validator_': lambda m: True,
  'value': 'why'},
 
 {'grammar_symbol': 'NUMBER',
@@ -40,7 +42,6 @@ vocabulary = [
  '_regex_pattern_': r'(^|[^0-9,.])([0-9]+\s?[,.]\s)',
  '_group_': 2,
  '_priority_': 1,
- '_validator_': lambda m: True,
  'value': 'why'},
 
 {'grammar_symbol': 'DATENUM',
@@ -48,7 +49,6 @@ vocabulary = [
  '_regex_pattern_': r'((19[0-9]{2})|(20[0-9]{2}))[.]?([0-9]+(\s?[,.]\s?[0-9]+)?)',
  '_group_': 4,
  '_priority_': -2,
- '_validator_': lambda m: True ,
  'value': 'date_and_num'},
 
 {'grammar_symbol': 'DATE',
@@ -56,7 +56,6 @@ vocabulary = [
  '_regex_pattern_': r'k(el)?l\s{HOUR}[.:]{MINUTE}(:{SECOND})?'.format(**substitutions),
  '_group_': 0,
  '_priority_': 2,
- '_validator_': lambda m: True,
  'value': 'time'},
 
 {'grammar_symbol': 'DATE',
@@ -65,7 +64,6 @@ vocabulary = [
   r'{DAY}\.?\s*{MONTH}\.?\s*{YEAR}\s*{HOUR}[.:]{MINUTE}(:{SECOND})?'.format(**substitutions),
  '_group_': 0,
  '_priority_': 2,
- '_validator_': lambda m: True,
  'value': 'date_time'},
 
 {'grammar_symbol': 'DATE',
@@ -74,7 +72,6 @@ vocabulary = [
  r'{DAY}\.?\s*{MONTH}\.?\s*{YEAR}[.a ]+\s*k(el)?l\.*\s*{HOUR}[.:]{MINUTE}(:{SECOND})?'.format(**substitutions),
  '_group_': 0,
  '_priority_': 2,
- '_validator_': lambda m: True,
  'value': 'date_time'},
 
 {'grammar_symbol': 'DATE',
@@ -82,7 +79,6 @@ vocabulary = [
  '_regex_pattern_': r'(?P<DAY>(0[1-9]|[12][0-9]|3[01]))\.?\s*(?P<MONTH>(0[1-9]|1[0-2]))\.?\s*{YEAR}'.format(**substitutions),
  '_group_': 0,
  '_priority_': -1,
- '_validator_': lambda m: True,
  'value': 'date'},
 
 {'grammar_symbol': 'DATE',
@@ -90,7 +86,6 @@ vocabulary = [
  '_regex_pattern_': r'{DAY}\.\s?{MONTH}'.format(**substitutions),
  '_group_': 0,
  '_priority_': 3,
- '_validator_': lambda m: True,
  'value': 'partial_date'},
 
 {'grammar_symbol': 'DATE',
@@ -98,7 +93,6 @@ vocabulary = [
  '_regex_pattern_': r'{MONTH}\.\s?{LONGYEAR}'.format(**substitutions),
  '_group_': 0,
  '_priority_': 3,
- '_validator_': lambda m: True,
  'value': 'partial_date'},
 
 {'grammar_symbol': 'DATE',
@@ -107,7 +101,6 @@ vocabulary = [
  r'{DAY}\.\s?{MONTH}\s*k(el)?l\s{HOUR}[.:]{MINUTE}(:{SECOND})?'.format(**substitutions),
  '_group_': 0,
  '_priority_': 3,
- '_validator_': lambda m: True,
  'value': 'partial_date'},
 
 {'grammar_symbol': 'DATE',
@@ -115,7 +108,6 @@ vocabulary = [
  '_regex_pattern_': r'{LONGYEAR}\s*a'.format(**substitutions),
  '_group_': 0,
  '_priority_': 0,
- '_validator_': lambda m: True,
  'value': 'partial_date'},
 
 {
@@ -124,6 +116,5 @@ vocabulary = [
  '_regex_pattern_': r'{LONGYEAR}'.format(**substitutions),
  '_group_': 0,
  '_priority_': 0,
- '_validator_': lambda m: True,
  'value': 'partial_date'}
 ]

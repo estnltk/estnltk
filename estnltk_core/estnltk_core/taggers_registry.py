@@ -5,7 +5,7 @@ import warnings
 from estnltk_core.taggers import Tagger, Retagger
 from estnltk_core.taggers import TaggerLoader
 from estnltk_core.taggers import TaggerLoaded
-
+from estnltk_core.taggers import RelationTagger
 
 class TaggersRegistry:
     """Registry of taggers required for layer creation. 
@@ -380,6 +380,19 @@ class TaggersRegistry:
                                        '').format( layer_name, loaded_tagger.__class__.__name__, 
                                                    loaded_tagger.output_attributes, 
                                                    tagger_loader.output_attributes ) )
+            # output span_names (if declared)
+            if tagger_loader.output_span_names is not None:
+                if not isinstance(loaded_tagger, RelationTagger):
+                    raise TypeError(('(!) Error at loading taggers for layer {!r}: '+\
+                                     'Expected a subclass of RelationTagger (because '+\
+                                     'TaggerLoader\'s output_span_names is defined), '+\
+                                     'but got {}.').format( layer_name, type(loaded_tagger) ) )
+                if tuple(tagger_loader.output_span_names) != tuple(loaded_tagger.output_span_names):
+                    raise ValueError( ('(!) Error at loading taggers for layer {!r}: '+\
+                                       "{}'s output_span_names {!r} do not match with TaggerLoader's output_span_names {!r}"+\
+                                       '').format( layer_name, loaded_tagger.__class__.__name__, 
+                                                   loaded_tagger.output_span_names, 
+                                                   tagger_loader.output_span_names ) )
             all_loaded_taggers.append( tagger_loader.tagger )
             is_first_tagger = False
         # leftover input layers

@@ -9,8 +9,7 @@ from estnltk import logger
 from estnltk import Text
 from estnltk.taggers import VabamorfTagger
 from estnltk.storage.postgres import PostgresStorage
-from estnltk.storage.postgres import RowMapperRecord
-from estnltk.storage.postgres import create_schema, delete_schema
+from estnltk.storage.postgres import delete_schema
 
 from estnltk.storage.postgres.queries.slice_query import SliceQuery
 from estnltk.storage.postgres import PgCollectionException
@@ -27,9 +26,9 @@ def get_random_collection_name():
 class TestPgSubCollectionCreateLayer(unittest.TestCase):
     def setUp(self):
         schema = "test_schema"
-        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db')
+        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db', \
+                                       create_schema_if_missing=True)
 
-        create_schema(self.storage)
         self.maxDiff = None
 
     def tearDown(self):
@@ -39,8 +38,7 @@ class TestPgSubCollectionCreateLayer(unittest.TestCase):
 
     def test_subcollection_create_layer(self):
         collection_name = get_random_collection_name()
-        collection = self.storage[collection_name]
-        collection.create()
+        collection = self.storage.add_collection(collection_name)
         # Assert structure version 3.0+ (required for sparse layers)
         self.assertGreaterEqual(collection.version , '3.0')
 
@@ -153,13 +151,12 @@ class TestPgSubCollectionCreateLayer(unittest.TestCase):
             len(list(collection.select(layers=['odd_numbers'], keep_all_texts=False)))
         self.assertEqual( layer_len_before, layer_len_after2 )
         
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
 
     def test_subcollection_create_layer_block(self):
         collection_name = get_random_collection_name()
-        collection = self.storage[collection_name]
-        collection.create()
+        collection = self.storage.add_collection(collection_name)
         # Assert structure version 3.0+ (required for sparse layers)
         self.assertGreaterEqual(collection.version , '3.0')
 
@@ -281,7 +278,7 @@ class TestPgSubCollectionCreateLayer(unittest.TestCase):
             len(list(collection.select(layers=['odd_numbers'], keep_all_texts=False)))
         self.assertEqual( layer_len_before, layer_len_after2 )
 
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
 
 if __name__ == '__main__':

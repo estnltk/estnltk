@@ -4,7 +4,7 @@ import random
 from estnltk import logger
 from estnltk import Text
 from estnltk.storage.postgres import PostgresStorage
-from estnltk.storage.postgres import create_schema, delete_schema
+from estnltk.storage.postgres import delete_schema
 from estnltk.storage import postgres as pg
 
 logger.setLevel('DEBUG')
@@ -17,17 +17,16 @@ def get_random_collection_name():
 class TestKeysQuery(unittest.TestCase):
     def setUp(self):
         schema = "test_schema"
-        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db')
-
-        create_schema(self.storage)
+        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db', \
+                                       create_schema_if_missing=True)
 
     def tearDown(self):
         delete_schema(self.storage)
         self.storage.close()
 
     def test_keys_query(self):
-        collection = self.storage[get_random_collection_name()]
-        collection.create()
+        collection_name = get_random_collection_name()
+        collection = self.storage.add_collection(collection_name)
 
         with collection.insert() as collection_insert:
             text1 = Text('mis kell on?').tag_layer('morph_analysis')
@@ -57,4 +56,4 @@ class TestKeysQuery(unittest.TestCase):
         res = list(collection.select(pg.IndexQuery(keys=[3, 4, 5, 6])))
         self.assertEqual(len(res), 4)
 
-        collection.delete()
+        self.storage.delete_collection(collection.name)

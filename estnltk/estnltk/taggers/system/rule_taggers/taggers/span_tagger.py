@@ -4,7 +4,7 @@ from typing import Sequence, Callable, Dict, Any, Optional, Tuple, List, Union, 
 from estnltk.taggers import Tagger
 from estnltk.taggers.system.rule_taggers.extraction_rules.ruleset import Ruleset
 from estnltk.taggers.system.rule_taggers.extraction_rules.ambiguous_ruleset import AmbiguousRuleset
-from estnltk.taggers.system.rule_taggers.helper_methods.helper_methods import keep_minimal_matches, keep_maximal_matches
+from estnltk.taggers.system.rule_taggers.helper_methods.helper_methods import keep_minimal_matches, keep_maximal_matches,conflict_priority_resolver
 from estnltk import Span, Text
 from estnltk import Layer
 from estnltk import Annotation
@@ -34,6 +34,9 @@ class SpanTagger(Tagger):
                  decorator: Callable[
                      [Text, ElementaryBaseSpan, Dict[str, Any]], Optional[Dict[str, Any]]] = None,
                  ignore_case=False,
+                 group_attribute: str = None,
+                 priority_attribute: str = None,
+                 pattern_attribute: str = None,
                  conflict_resolver: Union[str, Callable[[Layer], Layer]] = 'KEEP_MAXIMAL'
                  ):
         """Initialize a new SpanTagger instance.
@@ -54,6 +57,12 @@ class SpanTagger(Tagger):
         :param ignore_case
             If True, then matches do not depend on capitalisation of letters
             If False, then capitalisation of letters is important
+        :param group_attribute: str (Default: None)
+            If not None, the final annotation contains the group attribute of the rule with the given name
+        :param priority_attribute: str (Default: None)
+            If not None, the final annotation contains the priority attribute of the rule with the given name
+        pattern_attribute: str (Default: None)
+            If not None, the final annotation contains the pattern attribute of the rule with the given name
         :param conflict_resolver: 'KEEP_ALL', 'KEEP_MAXIMAL', 'KEEP_MINIMAL' (default: 'KEEP_MAXIMAL')
             Strategy to choose between overlapping matches.
             Specify your own layer assembler if none of the predefined strategies does not work.
@@ -63,11 +72,11 @@ class SpanTagger(Tagger):
             and must output the updated layer which hopefully containing some spans.
             These triples can come in canonical order which means:
                 span[i].start <= span[i+1].start
-                span[i].start == span[i+1].start ==> span[i].end < span[i + 1].end
+                span[i].start == span[i+1].start => span[i].end < span[i + 1].end
             where the span is annotation.span
         """
-        self.conf_param = ('input_attribute', '_vocabulary', 'global_decorator',
-                           'ambiguous', 'ignore_case', '_ruleset', 'dynamic_ruleset_map',
+        self.conf_param = ('input_attribute', '_vocabulary', 'global_decorator', 'pattern_attribute',
+                           'ignore_case', '_ruleset', 'dynamic_ruleset_map', 'group_attribute','priority_attribute',
                            'conflict_resolver', 'static_ruleset_map')
         self.output_layer = output_layer
         self.input_attribute = input_attribute
@@ -117,6 +126,9 @@ class SpanTagger(Tagger):
 
         # No errors were detected
         self.dynamic_ruleset_map = dynamic_ruleset_map
+        self.group_attribute = group_attribute
+        self.priority_attribute = priority_attribute
+        self.pattern_attribute = pattern_attribute
 
         self._ruleset = copy.copy(ruleset)
 
@@ -174,6 +186,13 @@ class SpanTagger(Tagger):
             span = Span(base_span=tuple[0], layer=layer)
             static_rulelist = self.static_ruleset_map.get(pattern, None)
             for group, priority, annotation in static_rulelist:
+                annotation = annotation.copy()
+                if self.group_attribute:
+                    annotation[self.group_attribute] = group
+                if self.priority_attribute:
+                    annotation[self.priority_attribute] = priority
+                if self.pattern_attribute:
+                    annotation[self.pattern_attribute] = pattern
                 rec = annotation
                 attributes = {attr: rec[attr] for attr in layer.attributes}
                 if self.global_decorator is not None:
@@ -220,6 +239,13 @@ class SpanTagger(Tagger):
             span = Span(base_span=element[0], layer=layer)
             static_rulelist = self.static_ruleset_map.get(pattern, None)
             for group, priority, annotation in static_rulelist:
+                annotation = annotation.copy()
+                if self.group_attribute:
+                    annotation[self.group_attribute] = group
+                if self.priority_attribute:
+                    annotation[self.priority_attribute] = priority
+                if self.pattern_attribute:
+                    annotation[self.pattern_attribute] = pattern
                 rec = annotation
                 attributes = {attr: rec[attr] for attr in layer.attributes}
                 annotation = self.global_decorator(raw_text, element[0], attributes)
@@ -247,6 +273,21 @@ class SpanTagger(Tagger):
             return self.add_redecorated_annotations_to_layer(layer, keep_maximal_matches(all_matches))
         elif self.conflict_resolver == 'KEEP_MINIMAL':
             return self.add_redecorated_annotations_to_layer(layer, keep_minimal_matches(all_matches))
+        elif self.conflict_resolver == 'KEEP_ALL_EXCEPT_PRIORITY':
+            matches_with_priority = [(phrase, self.static_ruleset_map.get(phrase, None)) for base_span, phrase in
+                                     all_matches]
+            all_matches = conflict_priority_resolver(all_matches,matches_with_priority)
+            return self.add_decorated_annotations_to_layer(layer, iter(all_matches))
+        elif self.conflict_resolver == 'KEEP_MAXIMAL_EXCEPT_PRIORITY':
+            matches_with_priority = [(phrase, self.static_ruleset_map.get(phrase, None)) for base_span, phrase in
+                                     all_matches]
+            all_matches = conflict_priority_resolver(all_matches,matches_with_priority)
+            return self.add_decorated_annotations_to_layer(layer, keep_maximal_matches(all_matches))
+        elif self.conflict_resolver == 'KEEP_MINIMAL_EXCEPT_PRIORITY':
+            matches_with_priority = [(phrase, self.static_ruleset_map.get(phrase, None)) for base_span, phrase in
+                                     all_matches]
+            all_matches = conflict_priority_resolver(all_matches,matches_with_priority)
+            return self.add_decorated_annotations_to_layer(layer, keep_minimal_matches(all_matches))
         elif callable(self.conflict_resolver):
             return self.conflict_resolver(layer, self.iterate_over_redecorated_annotations(layer, iter(all_matches)))
 

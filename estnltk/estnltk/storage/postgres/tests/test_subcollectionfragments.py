@@ -25,12 +25,12 @@ def get_random_collection_name():
 class TestPgSubCollectionFragments(unittest.TestCase):
     def setUp(self):
         schema = "test_schema"
-        self.storage = pg.PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db')
-        pg.create_schema(self.storage)
+        self.storage = pg.PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db', \
+                                       create_schema_if_missing=True)
 
         self.collection_name = get_random_collection_name()
-        self.collection = self.storage[self.collection_name]
-        self.collection.create(meta=OrderedDict([('meta_1', 'str'), ('meta_2', 'int')]))
+        self.collection = self.storage.add_collection( self.collection_name, 
+                               meta=OrderedDict([('meta_1', 'str'), ('meta_2', 'int')]) )
 
         texts = ['Esimene lause. Teine lause. Kolmas lause.',
                  'Teine tekst',

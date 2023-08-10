@@ -1,5 +1,7 @@
 from estnltk import Text
-from estnltk.legacy.dict_taggers.span_tagger import SpanTagger
+from estnltk.taggers.system.rule_taggers import SpanTagger
+from estnltk.taggers.system.rule_taggers import AmbiguousRuleset
+from estnltk.taggers.system.rule_taggers import StaticExtractionRule
 from estnltk.taggers.system.grammar_taggers.finite_grammar import Rule, Grammar
 from estnltk.taggers import Tagger
 from estnltk.taggers import Atomizer
@@ -11,9 +13,7 @@ from .adverbs import NOT_ADJ_MODIFIERS, CLASSES, WEIGHTS
 
 
 class AdjectivePhrasePartTagger(Tagger):
-    """
-    Tags adjective phrases.
-    """
+    """Tags adjective phrases (experimental)."""
 
     conf_param = ['adj_tagger','adv_tagger2', 'conj_tagger', 'adv_tagger', 'atomizer1', 'atomizer2',
                   'atomizer3', 'atomizer4', 'gaps_tagger', 'merge_tagger']
@@ -27,55 +27,43 @@ class AdjectivePhrasePartTagger(Tagger):
         self.output_attributes = output_attributes
         self.output_layer = output_layer
 
-        vocabulary = path.join(path.dirname(__file__), 'adj_modifiers.csv')
-
+        adv_ruleset = AmbiguousRuleset()
+        adv_ruleset.load(file_name=path.join(path.dirname(__file__), 'adj_modifiers.csv'), 
+                         key_column='_token_')
         self.adv_tagger = SpanTagger(output_layer='adv',
+                                     ruleset=adv_ruleset,
                                      input_layer='morph_analysis',
                                      input_attribute='lemma',
-                                     vocabulary=vocabulary,
-                                     output_attributes=['grammar_symbol'],
-                                     key='_token_',
-                                     ambiguous=True
-                                     )
+                                     output_attributes=('grammar_symbol',))
 
-        adj_voc = [
-                    {'grammar_symbol': 'ADJ', '_token_': 'A'},
-                    {'grammar_symbol': 'COMP', '_token_': 'C'}]
-
+        adj_ruleset = AmbiguousRuleset()
+        adj_ruleset.add_rules([StaticExtractionRule(pattern='A', 
+                                                    attributes={'grammar_symbol': 'ADJ'}),
+                               StaticExtractionRule(pattern='C', 
+                                                    attributes={'grammar_symbol': 'COMP'})])
         self.adj_tagger = SpanTagger(output_layer='adj',
-                    input_layer='morph_analysis',
-                    input_attribute='partofspeech',
-                    vocabulary=adj_voc,
-                    output_attributes=['grammar_symbol'], # default: None
-                    key='_token_', # default: '_token_'
-                    ambiguous=True # default: False
-                    )
+                                     ruleset=adj_ruleset,
+                                     input_layer='morph_analysis',
+                                     input_attribute='partofspeech',
+                                     output_attributes=('grammar_symbol',))
 
-        adv_voc = [
-        {'grammar_symbol': 'ADV2',
-         '_token_': 'D'}]
-
+        adv2_ruleset = AmbiguousRuleset()
+        adv2_ruleset.add_rules([StaticExtractionRule(pattern='D', 
+                                                     attributes={'grammar_symbol': 'ADV2'})])
         self.adv_tagger2 = SpanTagger(output_layer='adv2',
+                                      ruleset=adv2_ruleset,
                                       input_layer='morph_analysis',
                                       input_attribute='partofspeech',
-                                      vocabulary=adv_voc,
-                                      output_attributes=['grammar_symbol'], # default: None
-                                      key='_token_', # default: '_token_'
-                                      ambiguous=True
-                                      )
+                                      output_attributes=('grammar_symbol',))
 
-        conj_voc = [
-        {'grammar_symbol': 'CONJ',
-         '_token_': 'J'}]
-
+        conj_ruleset = AmbiguousRuleset()
+        conj_ruleset.add_rules([StaticExtractionRule(pattern='J', 
+                                                     attributes={'grammar_symbol': 'CONJ'})])
         self.conj_tagger = SpanTagger(output_layer='conj',
-                    input_layer='morph_analysis',
-                    input_attribute='partofspeech',
-                    vocabulary=conj_voc,
-                    output_attributes=['grammar_symbol'], # default: None
-                    key='_token_', # default: '_token_'
-                    ambiguous=True
-                    )
+                                      ruleset=conj_ruleset,
+                                      input_layer='morph_analysis',
+                                      input_attribute='partofspeech',
+                                      output_attributes=('grammar_symbol',))
 
         self.atomizer1 = Atomizer(output_layer='adv_',
                              input_layer='adv',

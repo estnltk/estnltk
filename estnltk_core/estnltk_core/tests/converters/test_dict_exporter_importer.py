@@ -61,7 +61,8 @@ def test_dict_export_import():
 def test_dict_export_import_simple():
     # Simple import/export of an existing Text, no tagging involved
     simple_text_dict = \
-        {'layers': [{'ambiguous': False,
+        {'relation_layers': [],
+         'layers': [{'ambiguous': False,
                      'attributes': (),
                      'secondary_attributes': (),
                      'enveloping': None,

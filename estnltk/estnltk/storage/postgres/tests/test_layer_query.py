@@ -4,7 +4,7 @@ import random
 from estnltk import logger
 from estnltk import Text
 from estnltk.storage.postgres import PostgresStorage, layer_table_identifier
-from estnltk.storage.postgres import create_schema, delete_schema, count_rows
+from estnltk.storage.postgres import delete_schema, count_rows
 from estnltk.taggers import VabamorfTagger
 from estnltk.storage.postgres.queries.layer_query import LayerQuery
 
@@ -20,9 +20,8 @@ def get_random_collection_name():
 class TestAttachedLayerQuery(unittest.TestCase):
     def setUp(self):
         schema = "test_schema"
-        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db')
-
-        create_schema(self.storage)
+        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db', \
+                                       create_schema_if_missing=True)
 
     def tearDown(self):
         delete_schema(self.storage)
@@ -30,8 +29,7 @@ class TestAttachedLayerQuery(unittest.TestCase):
 
     def test_attached_layer_query(self):
         collection_name = get_random_collection_name()
-        collection = self.storage[collection_name]
-        collection.create()
+        collection = self.storage.add_collection(collection_name)
 
         with collection.insert() as collection_insert:
             text1 = Text('Ööbik laulab.').tag_layer(['morph_analysis'])
@@ -55,15 +53,14 @@ class TestAttachedLayerQuery(unittest.TestCase):
         q = LayerQuery('morph_analysis', lemma='jooksma')
         self.assertEqual(len(list(collection.select(query=q))), 0)
 
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
 
 class TestDetachedLayerQuery(unittest.TestCase):
     def setUp(self):
         schema = "test_schema"
-        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db')
-
-        create_schema(self.storage)
+        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db', \
+                                       create_schema_if_missing=True)
 
     def tearDown(self):
         delete_schema(self.storage)
@@ -71,8 +68,7 @@ class TestDetachedLayerQuery(unittest.TestCase):
 
     def test_detached_layer_query(self):
         collection_name = get_random_collection_name()
-        collection = self.storage[collection_name]
-        collection.create()
+        collection = self.storage.add_collection(collection_name)
 
         with collection.insert() as collection_insert:
             text1 = Text('Ööbik laulab.').tag_layer(["sentences"])
@@ -121,15 +117,14 @@ class TestDetachedLayerQuery(unittest.TestCase):
         self.assertTrue(layer1_name in text.layers)
         self.assertTrue(layer2 in text.layers)
 
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
 
 class TestDetachedSparseLayerQuery(unittest.TestCase):
     def setUp(self):
         schema = "test_schema"
-        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db')
-
-        create_schema(self.storage)
+        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db', \
+                                       create_schema_if_missing=True)
 
     def tearDown(self):
         delete_schema(self.storage)
@@ -138,8 +133,7 @@ class TestDetachedSparseLayerQuery(unittest.TestCase):
     def test_detached_sparse_layer_query(self):
         # Test that LayerQuery successfully works with detached sparse layers
         collection_name = get_random_collection_name()
-        collection = self.storage[collection_name]
-        collection.create()
+        collection = self.storage.add_collection(collection_name)
         # Assert structure version 3.0+ (required for sparse layers)
         self.assertGreaterEqual(collection.version , '3.0')
         
@@ -194,3 +188,4 @@ class TestDetachedSparseLayerQuery(unittest.TestCase):
             text_ids.append( text_id )
         self.assertEqual(text_ids, [0, 4, 8, 12, 16, 20, 24, 28])
         
+        self.storage.delete_collection(collection.name)

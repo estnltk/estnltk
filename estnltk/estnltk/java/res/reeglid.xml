@@ -992,8 +992,8 @@
       </SonaKlass>
 
       <SonaKlass nimi="ARV_LOENDA_SUUR_A">
-          <Element tyyp="reg"     vaartus="([6-9][0-9][0-9]|[1-9]([0-9]){3,})-?(n)?(da)?(t|sse|le|ks|ta|s|l|ni|ga|st|lt|na)?" semValue="REF:1" />
-          <Element tyyp="arvSona" arvuPiirang="600-" arvuLiik="_N_"                                                           semValue="REF:1" />
+          <Element tyyp="reg"     vaartus="([6-9][0-9][0-9]|[1-9]([0-9]){3,7})-?(n)?(da)?(t|sse|le|ks|ta|s|l|ni|ga|st|lt|na)?" semValue="REF:1" />
+          <Element tyyp="arvSona" arvuPiirang="600-99999999" arvuLiik="_N_"                                                    semValue="REF:1" />
       </SonaKlass>
 
       <SonaKlass nimi="ARV_LOENDA_VAHEMIKU_ALGUS_A">

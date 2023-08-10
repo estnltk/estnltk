@@ -1,0 +1,73 @@
+[build-system]
+requires = ["setuptools", "swig"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "estnltk"
+authors = [
+    {name = "University of Tartu"},
+    {name = "Siim Orasmaa", email = "siim.orasmaa@ut.ee"},
+    {name = "Sven Laur", email = "swen@math.ut.ee"},
+    {name = "Paul Tammo", email = "paul.tammo@gmail.com"},
+]
+description = "EstNLTK — open source tools for Estonian natural language processing"
+readme = "README.md"
+requires-python = ">=3.8"
+keywords = ["Estonian natural language processing", "Estonian linguistic processing"]
+license = {text = "GPLv2"}
+classifiers = [
+    "Intended Audience :: Developers",
+    "Intended Audience :: Education",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Information Technology",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "Topic :: Text Processing",
+    "Topic :: Text Processing :: Linguistic"
+]
+dependencies = [
+    'estnltk-core >= 1.7.2',   # EstNLTK's basic datastructures and conversion methods
+    'nltk>=3.4.1',             # NLTK - mainly required for tokenization
+    'regex>=2015.07.19',       # improved Python regular expressions
+    'python-crfsuite>=0.8.3',  # Conditional random fields library for NER
+    'cached-property>=1.2.0',  # Simple property for caching results
+    'bs4',                     # BeautifulSoup: for processing XML files of the Estonian Reference Corpus
+    'html5lib',                # for processing XML files of the Estonian Reference Corpus
+    'lxml',                    # required for importing/exporting TCF format data
+    'networkx',                # building graphs: required for layers, WordNet and grammars
+    'matplotlib',              # required for visualizing layer graph
+    'requests',                # required by WebTaggers
+    'tqdm',                    # progressbar: for showing progress on time-hungry operations
+    'ipython',                 # required for integration with Jupyter Notebook-s
+    'conllu',                  # CONLLU for syntax
+    'pandas',                  # Panel Data Analysis library for Jupyter Notebook integration
+    'pyahocorasick',           # Fast multi-pattern string search 
+]
+dynamic = ["version"]
+
+[project.optional-dependencies]
+tests = [ "pytest", "pytest-httpserver" ]
+collocation_net = [ "scikit-learn" ]
+downloader = [ "huggingface-hub" ]
+postgresql = [ "psycopg2" ]
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["estnltk*"]
+exclude = ["venv*", "scribbles*", "src*", "include*"]
+namespaces = true
+
+[project.urls]
+homepage = "https://github.com/estnltk/estnltk"
+documentation = "https://github.com/estnltk/estnltk/tree/main/tutorials"
+repository = "https://github.com/estnltk/estnltk/tree/main/estnltk"
+changelog = "https://github.com/estnltk/estnltk/blob/main/CHANGELOG.md"

@@ -1,4 +1,4 @@
-"""Test postgres storage functionality.
+"""Tests postgres storage & collection main functionality.
 
 Requires ~/.pgpass file with database connection settings to `test_db` database.
 Schema/table creation and read/write rights are required.
@@ -7,8 +7,6 @@ Schema/table creation and read/write rights are required.
 import random
 import unittest
 
-from psycopg2.errors import DuplicateSchema
-
 from estnltk_core import Layer
 from estnltk import Text
 from estnltk import logger
@@ -16,19 +14,14 @@ from estnltk.storage import postgres as pg
 from estnltk.storage.postgres import LayerQuery
 from estnltk.storage.postgres import PgCollection
 from estnltk.storage.postgres import PgCollectionException
+from estnltk.storage.postgres import PgStorageException
 from estnltk.storage.postgres import PostgresStorage
-from estnltk.storage.postgres import RowMapperRecord
 from estnltk.storage.postgres import collection_table_exists
 from estnltk.storage.postgres import create_collection_table
-from estnltk.storage.postgres import create_schema, delete_schema
+from estnltk.storage.postgres import delete_schema
 from estnltk.storage.postgres import drop_collection_table
-from estnltk.storage.postgres import fragment_table_exists
-from estnltk.storage.postgres import layer_table_exists
 from estnltk.storage.postgres import table_exists
-from estnltk.storage.postgres import layer_table_name
-from estnltk.storage.postgres import count_rows
 from estnltk.taggers import ParagraphTokenizer
-from estnltk.taggers import SentenceTokenizer
 from estnltk.taggers import VabamorfTagger
 
 logger.setLevel('DEBUG')
@@ -41,12 +34,28 @@ def get_random_collection_name():
 class TestPgCollection(unittest.TestCase):
     def setUp(self):
         schema = "test_schema"
-        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db')
-        create_schema(self.storage)
+        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db', \
+                                       create_schema_if_missing=True)
 
     def tearDown(self):
         delete_schema(self.storage)
         self.storage.close()
+
+    def test_storage_connection(self):
+        # If we try to connect to a database that does not have 
+        # the schema, an exception will be thrown
+        schema = "unseen_test_schema"
+        with self.assertRaises( PgStorageException ):
+            storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, 
+                                      dbname='test_db', \
+                                      create_schema_if_missing=False)
+        # However, we can create the schema if we have sufficient privileges
+        storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, 
+                                  dbname='test_db', \
+                                  create_schema_if_missing=True)
+        self.assertTrue( pg.schema_exists(storage) )
+        delete_schema(storage)
+        storage.close()
 
     def test_storage_get_collections(self):
         # Test that the collections list can be accessed
@@ -55,13 +64,11 @@ class TestPgCollection(unittest.TestCase):
 
     def test_create_collection(self):
         collection_name = get_random_collection_name()
-        collection = self.storage[collection_name]
-
-        self.assertIs(collection, self.storage[collection_name])
-
-        self.assertFalse(collection.exists())
-
-        collection.create()
+        
+        with self.assertRaises(KeyError):
+            self.storage[collection_name]
+        
+        collection = self.storage.add_collection(collection_name)
 
         self.assertTrue(collection.exists())
 
@@ -70,18 +77,113 @@ class TestPgCollection(unittest.TestCase):
         # In case of an empty collection, collection.layers should be []
         self.assertTrue(collection.layers == [])
 
-        collection.delete()
+        # 1st way to remove collection
+        self.storage.delete_collection(collection_name)
 
-        collection = self.storage['not_existing']
-        self.assertIsInstance(collection, PgCollection)
+        with self.assertRaises(KeyError):
+            collection = self.storage[collection_name]
+        
+        self.storage.add_collection(collection_name)
+        collection = self.storage[collection_name]
+        self.assertTrue(collection.exists())
 
-        collection.delete()
-        self.assertFalse(collection.exists())
+        # 2nd way to remove collection
+        self.storage.delete_collection(collection_name)
+
+        with self.assertRaises(KeyError):
+            collection = self.storage[collection_name]
+
+    def test_create_collection_multiple_connections(self):
+        storage_1 = self.storage
+        storage_2 = PostgresStorage(pgpass_file='~/.pgpass', 
+                                    schema=storage_1.schema, 
+                                    dbname='test_db', 
+                                    create_schema_if_missing=False)
+        
+        collection_name = get_random_collection_name()
+        
+        # Check that the collection is missing at first place
+        with self.assertRaises(KeyError):
+            storage_1[collection_name]
+        with self.assertRaises(KeyError):
+            storage_2[collection_name]
+        
+        # Add new collection
+        storage_1.add_collection(collection_name)
+        
+        # Check that new collection cannot be added twice
+        with self.assertRaises(PgStorageException):
+            storage_2.add_collection(collection_name)
+        
+        # Add different collection via other thread
+        another_collection_name = get_random_collection_name()
+        assert collection_name != another_collection_name
+        storage_2.add_collection(another_collection_name)
+        
+        # Get collection
+        collection_from_1 = storage_1[collection_name]
+        collection_from_2 = storage_2[collection_name]
+
+        # Assert existence
+        self.assertTrue(collection_from_1.exists())
+        self.assertTrue(collection_from_2.exists())
+
+        self.assertIs(collection_from_1, storage_1[collection_name])
+        self.assertIs(collection_from_2, storage_2[collection_name])
+
+        # Make third connection. It should be able to retrieve
+        # up-to-date status of collections table instantly
+        storage_3 = PostgresStorage(pgpass_file='~/.pgpass', 
+                                    schema=storage_1.schema, 
+                                    dbname='test_db', 
+                                    create_schema_if_missing=False)
+        self.assertTrue(collection_name in storage_3.collections)
+        self.assertTrue(another_collection_name in storage_3.collections)
+        storage_3.close()
+
+        # Remove collection
+        storage_1.delete_collection(collection_name)
+
+        # Assert collection is not existing any more
+        self.assertFalse(collection_from_1.exists())
+        self.assertFalse(collection_from_2.exists())
+        
+        # Assert collection is not listed in storage.collections
+        self.assertFalse(collection_name in storage_1.collections)
+        
+        # Assert that collection is again "missing" from 1
+        with self.assertRaises(KeyError):
+            storage_1[collection_name]
+        # And not existing in 2
+        self.assertFalse(storage_2[collection_name].exists())
+
+        # Assert that collection cannot be deleted twice
+        with self.assertRaises(KeyError):
+            storage_2.delete_collection(collection_from_2.name)
+        
+        # Test that storage_1 can proceed with insertion
+        # (lock has been released)
+        yet_another_collection_name = get_random_collection_name()
+        assert collection_name != yet_another_collection_name
+        assert another_collection_name != yet_another_collection_name
+        yet_another_collection = \
+            storage_1.add_collection(yet_another_collection_name)
+
+        # Check the remaining collection
+        self.assertTrue(another_collection_name in storage_2.collections)
+        storage_1.refresh()
+        another_collection = storage_1[another_collection_name]
+        self.assertTrue(another_collection.exists())
+
+        # Remove last collections
+        storage_1.delete_collection(another_collection_name)
+        storage_1.delete_collection(yet_another_collection_name)
+
+        storage_2.close()
 
     def test_insert(self):
         collection_name = get_random_collection_name()
-        collection = self.storage[collection_name]
-        collection.create()
+        collection = self.storage.add_collection(collection_name)
 
         text_1 = Text('Esimene tekst.')
         text_2 = Text('Teine tekst')
@@ -97,13 +199,12 @@ class TestPgCollection(unittest.TestCase):
 
         assert len(collection) == 3
 
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
     def test_basic_collection_workflow(self):
         # insert texts -> create layers -> select texts
         collection_name = get_random_collection_name()
-        collection = self.storage[collection_name]
-        collection.create()
+        collection = self.storage.add_collection(collection_name)
 
         text_1 = Text('Esimene lause. Teine lause. Kolmas lause.')
         text_2 = Text('Teine tekst')
@@ -134,19 +235,26 @@ class TestPgCollection(unittest.TestCase):
         self.assertTrue('paragraphs' in collection.layers)
         self.assertTrue('morph_analysis' in collection.layers)
 
+        # Assert that layers have expected types
+        self.assertTrue(collection.has_layer('tokens', 'attached'))
+        self.assertTrue(collection.has_layer('compound_tokens', 'attached'))
+        self.assertTrue(collection.has_layer('words', 'attached'))
+        self.assertTrue(collection.has_layer('sentences', 'attached'))
+        self.assertTrue(collection.has_layer('paragraphs', 'detached'))
+        self.assertTrue(collection.has_layer('morph_analysis', 'detached'))
+
         for text_id, text in collection.select(layers=['compound_tokens', 'morph_analysis', 'paragraphs']):
             if text_id == 1:
                 assert text == text_1, text_1.diff(text)
             elif text_id == 2:
                 assert text == text_2, text_2.diff(text)
 
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
     def test_collection_getitem_and_iter(self):
         # insert texts -> create layers -> select texts
         collection_name = get_random_collection_name()
-        collection = self.storage[collection_name]
-        collection.create()
+        collection = self.storage.add_collection(collection_name)
 
         text_1 = Text('Esimene lause. Teine lause. Kolmas lause.')
         text_2 = Text('Teine tekst')
@@ -219,8 +327,7 @@ class TestPgCollection(unittest.TestCase):
         # Test that duplicates are removed from selected_layers
         # (this is required for correct assembling of results)
         collection_name = get_random_collection_name()
-        collection = self.storage[collection_name]
-        collection.create()
+        collection = self.storage.add_collection(collection_name)
 
         text_1 = Text('Esimene lause. Teine lause. Kolmas lause.')
         text_2 = Text('Teine tekst')
@@ -245,7 +352,7 @@ class TestPgCollection(unittest.TestCase):
         self.assertEqual( collection.selected_layers, \
             ['words', 'morph_analysis', 'sentences', 'paragraphs'] )
         
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
     def test_create_and_drop_collection_table(self):
         collection_name = get_random_collection_name()
@@ -271,12 +378,18 @@ class TestPgCollection(unittest.TestCase):
         drop_collection_table(self.storage, injected_collection_name)
 
     def test_select(self):
-        not_existing_collection = self.storage['not_existing']
+        # Test error case: try to select on non-existing collection
+        # Create a collection and then remove it
+        collection_name = get_random_collection_name()
+        not_existing_collection = self.storage.add_collection(collection_name)
+        self.storage.delete_collection(not_existing_collection.name)
+        # If the collection does not exist, select should rise PgCollectionException
         with self.assertRaises(pg.PgCollectionException):
             not_existing_collection.select()
 
-        collection = self.storage[get_random_collection_name()]
-        collection.create()
+        # Test positive cases
+        collection_name = get_random_collection_name()
+        collection = self.storage.add_collection(collection_name)
 
         with collection.insert() as collection_insert:
             text1 = Text('Ööbik laulab.')
@@ -306,10 +419,9 @@ class TestPgCollection(unittest.TestCase):
         self.assertEqual(id_, id2)
         self.assertEqual(text, text2)
 
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
-        collection = self.storage[get_random_collection_name()]
-        collection.create()
+        collection = self.storage.add_collection(get_random_collection_name())
 
         # test select (on attached layers)
         with collection.insert() as collection_insert:
@@ -386,391 +498,130 @@ class TestPgCollection(unittest.TestCase):
         res = list(collection.select(pg.IndexQuery(keys=[1, 3])))
         self.assertEqual(len(res), 1)
 
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
 
     def test_insert_fails(self):
-        collection = self.storage['no_such_collection_exists']
-
+        # Test that collection operations do not work if someone 
+        # has already deleted the collection
+        
+        # Create collection and then remove it
+        collection_name = get_random_collection_name()
+        collection = self.storage.add_collection(collection_name)
+        self.storage.delete_collection(collection.name)
         # If the collection does not exist, Text insertion should rise PgCollectionException
         with self.assertRaises( pg.PgCollectionException ):
             with collection.insert() as collection_insert:
                 collection_insert( Text('Esimene tekst.') )
 
+        # Create collection and then remove it
+        collection_name = get_random_collection_name()
+        collection = self.storage.add_collection(collection_name)
+        self.storage.delete_collection(collection.name)
         # If the collection does not exist, adding a layer template should rise PgCollectionException
         with self.assertRaises( pg.PgCollectionException ):
             collection.add_layer( ParagraphTokenizer().get_layer_template() )
 
+        # Create collection and then remove it
+        collection_name = get_random_collection_name()
+        collection = self.storage.add_collection(collection_name)
+        self.storage.delete_collection(collection.name)
         # If the collection does not exist, creating a layer should rise PgCollectionException
         with self.assertRaises( pg.PgCollectionException ):
             collection.create_layer( tagger=ParagraphTokenizer() )
 
-        collection.delete()
 
-
-class TestLayerFragment(unittest.TestCase):
-    def setUp(self):
-        schema = "test_layer_fragment"
-        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db')
-        create_schema(self.storage)
-
-    def tearDown(self):
-        delete_schema(self.storage)
-        self.storage.close()
-
-    def test_read_write(self):
+    def test_insert_and_select_meta(self):
         collection_name = get_random_collection_name()
-        collection = self.storage[collection_name]
-        collection.create()
+        collection = self.storage.add_collection(collection_name,
+                                                 description='demo collection', 
+                                                 meta={'author': 'str', 'date': 'str'})
+
+        text_1 = Text('Esimene tekst.')
+        text_1.meta['author'] = 'Niinepuu'
+        text_1.meta['date']   = '1983'
+        text_2 = Text('Teine tekst')
+        text_2.meta['author'] = 'Kõivupuu'
+        text_2.meta['date']   = '1997'
+        text_3 = Text('Kolmas tekst')
+        text_3.meta['author'] = 'Musumets'
+        text_3.meta['date']   = '2009'
 
         with collection.insert() as collection_insert:
-            text1 = Text('see on esimene lause').tag_layer(["sentences"])
-            collection_insert(text1)
-            text2 = Text('see on teine lause').tag_layer(["sentences"])
-            collection_insert(text2)
-
-        layer_fragment_name = "layer_fragment_1"
-        tagger1 = VabamorfTagger(disambiguate=False, output_layer=layer_fragment_name)
-
-        def fragmenter(layer):
-            # layer.serialisation_module = 'default_v1'
-            return [layer, layer]
-
-        collection.create_fragmented_layer(tagger=tagger1, fragmenter=fragmenter)
-
-        self.assertTrue(collection.has_layer(layer_fragment_name))
-
-        rows = list(collection.select().fragmented_layer(name=layer_fragment_name))
-
-        assert len(rows) == 4
-
-        text_ids = [row[0] for row in rows]
-        self.assertEqual(text_ids[0], text_ids[1])
-        self.assertEqual(text_ids[2], text_ids[3])
-        self.assertNotEqual(text_ids[1], text_ids[2])
-
-        for row in rows:
-            assert len(row) == 2, row
-            assert isinstance(row[0], int), row
-            assert isinstance(row[1], Layer), row
-            assert row[1].text_object is None
-
-        self.assertTrue(layer_table_exists(self.storage, collection.name, layer_fragment_name))
-
-        collection.delete()
-
-        self.assertFalse(layer_table_exists(self.storage, collection.name, layer_fragment_name))
-
-
-class TestFragment(unittest.TestCase):
-    def setUp(self):
-        schema = "test_fragment"
-        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db')
-        try:
-            create_schema(self.storage)
-        except DuplicateSchema as ds_error:
-            delete_schema(self.storage)
-            create_schema(self.storage)
-        except:
-            raise
-
-    def tearDown(self):
-        delete_schema(self.storage)
-        self.storage.close()
-
-    def test_read_write(self):
-        collection_name = get_random_collection_name()
-        collection = self.storage[collection_name]
-        collection.create()
-
-        with collection.insert() as collection_insert:
-            text1 = Text('see on esimene lause').tag_layer(["sentences"])
-            collection_insert(text1)
-            text2 = Text('see on teine lause').tag_layer(["sentences"])
-            collection_insert(text2)
-
-        layer_fragment_name = "layer_fragment_1"
-        tagger = VabamorfTagger(disambiguate=False, output_layer=layer_fragment_name)
-
-        collection.create_layer(tagger=tagger)
-
-        self.assertTrue(collection.has_layer(layer_fragment_name))
-
-        fragment_name = "fragment_1"
-
-        def row_mapper(row):
-            parent_id, layer = row
-            # TODO: remove next line
-            # layer.serialisation_module = 'default_v1'
-            return [{'fragment': layer, 'parent_id': parent_id},
-                    {'fragment': layer, 'parent_id': parent_id}]
-
-        collection.create_fragment(fragment_name,
-                                   data_iterator=collection.select().fragmented_layer(name=layer_fragment_name),
-                                   row_mapper=row_mapper,
-                                   create_index=False,
-                                   ngram_index=None)
-
-        rows = list(collection.select_fragment_raw(fragment_name, layer_fragment_name))
-        self.assertEqual(len(rows), 4)
-
-        row = rows[0]
-        self.assertEqual(len(row), 6)
-        self.assertIsInstance(row[0], int)
-        self.assertIsInstance(row[1], Text)
-        self.assertIsInstance(row[2], int)
-        self.assertIsInstance(row[3], Layer)
-        self.assertIsInstance(row[4], int)
-        self.assertIsInstance(row[5], Layer)
-
-        assert fragment_table_exists(self.storage, collection.name, fragment_name)
-        collection.delete_fragment(fragment_name)
-        assert not fragment_table_exists(self.storage, collection.name, fragment_name)
-
-
-class TestLayer(unittest.TestCase):
-    def setUp(self):
-        self.schema = "test_layer"
-        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=self.schema, dbname='test_db')
-        create_schema(self.storage)
-
-    def tearDown(self):
-        delete_schema(self.storage)
-        self.storage.close()
-
-    def test_layer_read_write(self):
-        collection_name = get_random_collection_name()
-        collection = self.storage[collection_name]
-        collection.create()
-
-        with collection.insert() as collection_insert:
-            text1 = Text('see on esimene lause').tag_layer(["sentences"])
-            collection_insert(text1)
-            text2 = Text('see on teine lause').tag_layer(["sentences"])
-            collection_insert(text2)
-
-        layer1 = "layer1"
-        tagger1 = VabamorfTagger(disambiguate=False, output_layer=layer1)
-
-        collection.create_layer(tagger=tagger1)
-
-        tagger1.tag(text1)
-        tagger1.tag(text2)
-
-        layer2 = "layer2"
-        tagger2 = VabamorfTagger(disambiguate=False, output_layer=layer2)
-
-        collection.create_layer(tagger=tagger2)
-
-        tagger2.tag(text1)
-        tagger2.tag(text2)
-
-        for key, text in collection.select(layers=['sentences']):
-            self.assertTrue("sentences" in text.layers)
-            self.assertTrue(layer1 not in text.layers)
-            self.assertTrue(layer2 not in text.layers)
-
-        rows = list(collection.select(layers=[layer1, layer2]))
-        text1_db = rows[0][1]
-        self.assertTrue(layer1 in text1_db.layers)
-        self.assertTrue(layer2 in text1_db.layers)
-        self.assertEqual(text1_db[layer1].lemma, text1[layer1].lemma)
-        self.assertEqual(text1_db[layer2].lemma, text1[layer2].lemma)
-
-        collection.delete()
-        self.assertFalse(layer_table_exists(self.storage, collection.name, layer1))
-        self.assertFalse(layer_table_exists(self.storage, collection.name, layer2))
-
-    def test_add_layer(self):
-        collection_name = get_random_collection_name()
-        collection = self.storage[collection_name]
-        collection.create()
+            collection_insert(text_1, meta_data=text_1.meta)
+            collection_insert(text_2, meta_data=text_2.meta)
+            collection_insert(text_3, meta_data=text_3.meta)
         
-        # Test case 1: Add layer from user-defined layer template
-        layer_template = Layer('test_layer', ['attr_1', 'attr_2'], ambiguous=True)
+        self.assertEqual( len(collection), 3 )
+        # Check meta columns
+        self.assertEqual( collection.meta.columns, ['author', 'date'] )
+        # Iterate over collection and select id, text_obj and meta
+        selection = \
+            list( collection.select( collection_meta=['author', 'date'] ) )
+        self.assertEqual( len(selection), 3 )
+        # Check meta values
+        self.assertEqual( selection[0][2], \
+                          {'author': 'Niinepuu', 'date': '1983'} )
+        self.assertEqual( selection[1][2], \
+                          {'author': 'Kõivupuu', 'date': '1997'} )
+        self.assertEqual( selection[2][2], \
+                          {'author': 'Musumets', 'date': '2009'} )
 
-        # Test that add_layer() cannot be applied on an empty collection
-        with self.assertRaises(pg.PgCollectionException):
+        # Iterate over collection and select id and meta exclusively 
+        selection = list( collection.meta[0:] )
+        self.assertEqual( len(selection), 3 )
+        # Check meta values
+        self.assertEqual( selection[0], \
+                          {'author': 'Niinepuu', 'date': '1983'} )
+        self.assertEqual( selection[1], \
+                          {'author': 'Kõivupuu', 'date': '1997'} )
+        self.assertEqual( selection[2], \
+                          {'author': 'Musumets', 'date': '2009'} )
+        
+        self.storage.delete_collection(collection.name)
+
+
+    @unittest.expectedFailure
+    def test_dependent_layers_topological_sort(self):
+        # Test that Text.topological_sort(...) gives same results as collection.dependent_layers(...)
+        # Create input layers
+        tokens = Layer(name='tokens', parent=None, enveloping=None, text_object=None)
+        words = Layer(name='words', parent=None, enveloping=None, text_object=None)
+        sentences = Layer(name='sentences', parent=None, enveloping='words', text_object=None)
+        paragraphs = Layer(name='paragraphs', parent=None, enveloping='sentences', text_object=None)
+        morph_analysis = \
+            Layer(name='morph_analysis', parent='words', enveloping=None, text_object=None)
+        morph_extended = \
+            Layer(name='morph_extended', parent='morph_analysis', enveloping=None, text_object=None)
+        syntax = Layer(name='syntax', parent='morph_extended', enveloping=None, text_object=None)
+        # 1) Text.topological_sort(...)
+        layers_dict = {layer.name: layer for layer in [ morph_extended, paragraphs, morph_analysis, 
+                                                        sentences, syntax, words, tokens ]}
+        text_obj_top_sorted_layers = Text.topological_sort( layers_dict )
+        text_obj_top_sorted_layers = [layer.name for layer in text_obj_top_sorted_layers]
+        self.assertListEqual( text_obj_top_sorted_layers, \
+                              ['tokens', 'words', 'morph_analysis', 'morph_extended', \
+                               'sentences', 'paragraphs', 'syntax'] )
+        # 2) collection.dependent_layers(...)
+        collection_name = get_random_collection_name()
+        collection = self.storage.add_collection(collection_name)
+        # Add some documents to the collection
+        with collection.insert() as collection_insert:
+            collection_insert( Text('Näidislause') )
+        # Add layers to collection in arbitrary order
+        for layer_template in [ morph_extended, paragraphs, morph_analysis, 
+                                          sentences, syntax, words, tokens ]:
             collection.add_layer( layer_template )
-        
-        # Add some documents to the collection
-        with collection.insert() as collection_insert:
-            text1 = Text('see on esimene lause').tag_layer('words')
-            collection_insert(text1)
-            text2 = Text('see on teine lause').tag_layer('words')
-            collection_insert(text2)
-        
-        # Add layer from the template (creates an empty layer)
-        collection.add_layer( layer_template )
-        
-        self.assertTrue( layer_table_exists(self.storage, collection.name, layer_template.name) )
-        self.assertTrue( layer_template.name in collection.layers )
-        
-        # Add some annotations to the layer
-        def row_mapper_x(row):
-            text_id, text = row[0], row[1]
-            layer = Layer('test_layer', ['attr_1', 'attr_2'], ambiguous=True)
-            layer.add_annotation( (0, 3), attr_1='a', attr_2='b' )
-            return RowMapperRecord( layer=layer, meta={} )
-
-        collection.create_layer(layer_template.name,
-                                data_iterator=collection.select(),
-                                row_mapper=row_mapper_x,
-                                mode='overwrite')
-        
-        # Check added data
-        res = collection.select( query = LayerQuery(layer_template.name, attr_1='a') )
-        self.assertEqual(len(list(res)), 2)
-        
-        # 2) Add layer from Tagger's layer template
-        sent_tokenizer = SentenceTokenizer()
-        layer_template_2 = sent_tokenizer.get_layer_template()
-        collection.add_layer( layer_template_2 )
-        
-        self.assertTrue( layer_table_exists(self.storage, collection.name, layer_template_2.name) )
-        self.assertTrue( layer_template_2.name in collection.layers )
-        
-        collection.create_layer(tagger=sent_tokenizer, mode='overwrite')
-        
-        collection.delete()
-
-    def test_create_layer_block(self):
-        collection_name = get_random_collection_name()
-        collection = self.storage[collection_name]
-        collection.create()
-        
-        # Add some documents to the collection
-        with collection.insert() as collection_insert:
-            text1 = Text('see on esimene lause').tag_layer('words')
-            collection_insert(text1)
-            text2 = Text('see on teine lause').tag_layer('words')
-            collection_insert(text2)
-            text3 = Text('ja see paistab olevat kolmas').tag_layer('words')
-            collection_insert(text3)
-            text4 = Text('üks lause veel siia lõppu').tag_layer('words')
-            collection_insert(text4)
-            text5 = Text('ja veel üks').tag_layer('words')
-            collection_insert(text5)
-        
-        # Add layer from Tagger's layer template
-        sent_tokenizer = SentenceTokenizer()
-        layer_template = sent_tokenizer.get_layer_template()
-        collection.add_layer( layer_template )
-        
-        self.assertTrue( layer_table_exists(self.storage, collection.name, layer_template.name) )
-        self.assertTrue( layer_template.name in collection.layers )
-        initial_rows = count_rows( self.storage, 
-                                   table=layer_table_name(collection.name, layer_template.name) )
-        self.assertEqual( initial_rows, 0 )
-
-        # Tag the first block
-        collection.create_layer_block( sent_tokenizer, (2, 0) )
-        inserted_rows = count_rows( self.storage, 
-                                    table=layer_table_name(collection.name, layer_template.name))
-        self.assertEqual( inserted_rows, 3 )
-        # Tag the second block
-        collection.create_layer_block( sent_tokenizer, (2, 1) )
-        inserted_rows = count_rows( self.storage, 
-                                    table=layer_table_name(collection.name, layer_template.name) )
-        self.assertEqual( inserted_rows, 5 )
-        
-        for key, text in collection.select(layers=['sentences']):
-            self.assertTrue("sentences" in text.layers)
-            self.assertEqual( len(text['sentences']), 1 )
-        
-        collection.delete()
-
-    def test_layer_meta(self):
-        collection_name = get_random_collection_name()
-        collection = self.storage[collection_name]
-        collection.create()
-
-        with collection.insert() as collection_insert:
-            text1 = Text('see on esimene lause').tag_layer(["sentences"])
-            collection_insert(text1)
-            text2 = Text('see on teine lause').tag_layer(["sentences"])
-            collection_insert(text2)
-
-        layer1 = "layer1"
-        tagger1 = VabamorfTagger(disambiguate=False, output_layer=layer1)
-
-        def row_mapper1(row):
-            text_id, text = row[0], row[1]
-            layer = tagger1.make_layer(text)
-            return RowMapperRecord(layer=layer, meta={"meta_text_id": text_id, "sum": 45.5})
-
-        collection.create_layer(layer1,
-                                data_iterator=collection.select(layers=['sentences', 'compound_tokens']),
-                                row_mapper=row_mapper1,
-                                meta={"meta_text_id": "int",
-                                      "sum": "float"})
-        self.assertTrue(layer_table_exists(self.storage, collection.name, layer1))
-
-        # get_layer_meta
-        layer_meta = collection.get_layer_meta(layer_name=layer1)
-        assert layer_meta.to_dict() == {'id': {0: 0, 1: 1},
-                                        'meta_text_id': {0: 0, 1: 1},
-                                        'sum': {0: 45.5, 1: 45.5},
-                                        'text_id': {0: 0, 1: 1}}, layer_meta.to_dict()
-
-        with self.assertRaises(PgCollectionException):
-            collection.get_layer_meta(layer_name='not_exists')
-
-        assert set(collection.structure[layer1]['meta']) == {'sum', 'meta_text_id'}
-
-        collection.delete()
-
-    def test_detached_layer_query(self):
-        collection_name = get_random_collection_name()
-        collection = self.storage[collection_name]
-        collection.create()
-
-        with collection.insert() as collection_insert:
-            text1 = Text('Ööbik laulab.').tag_layer(["sentences"])
-            collection_insert(text1)
-
-            text2 = Text('Mis kell on?').tag_layer(["sentences"])
-            collection_insert(text2)
-
-        layer1 = "layer1"
-        layer2 = "layer2"
-        tagger1 = VabamorfTagger(disambiguate=False, output_layer=layer1)
-        tagger2 = VabamorfTagger(disambiguate=False, output_layer=layer2)
-
-        collection.create_layer(tagger=tagger1)
-        collection.create_layer(tagger=tagger2)
-
-        #
-        # Note: the following tests previously targeted find_fingerprint,
-        #       which is a deprecated method and will be removed.
-        #       But we'll keep the tests to check that the same queries
-        #       can be made via select().
-        #
-        # test one layer
-        # "query": ["ööbik"]
-        res = collection.select( query = LayerQuery(layer1, lemma="ööbik") )
-        self.assertEqual(len(list(res)), 1)
-
-        # "query": ["ööbik", "mis"],  # ööbik OR mis
-        res = collection.select( query = LayerQuery(layer1, lemma="ööbik") | 
-                                         LayerQuery(layer1, lemma="mis") )
-        self.assertEqual(len(list(res)), 2)
-
-        # "query": [["ööbik", "mis"]],  # ööbik AND mis
-        res = collection.select( query = LayerQuery(layer1, lemma="ööbik") & 
-                                         LayerQuery(layer1, lemma="mis") )
-        self.assertEqual(len(list(res)), 0)
-
-        # "query": [["ööbik", "laulma"]],  # ööbik AND laulma
-        res = collection.select( query = LayerQuery(layer1, lemma="ööbik") & 
-                                         LayerQuery(layer1, lemma="laulma") )
-        self.assertEqual(len(list(res)), 1)
-
-        # test multiple layers
-        # layer1: "query": ["ööbik"]; layer2: "query": ["ööbik"];
-        res = collection.select( query = LayerQuery(layer1, lemma="ööbik") & 
-                                         LayerQuery(layer2, lemma="ööbik") )
-        self.assertEqual(len(list(res)), 1)
+        collection_top_sorted_layers = \
+            collection.dependent_layers( collection.layers )
+        self.assertListEqual( collection_top_sorted_layers, \
+                             ['words', 'morph_analysis', 'morph_extended', 'sentences', \
+                              'paragraphs', 'syntax', 'tokens'] )
+        self.storage.delete_collection(collection.name)
+        # Currently, the two topological orderings are different,
+        # so the following is expected to fail:
+        self.assertListEqual(collection_top_sorted_layers, text_obj_top_sorted_layers)
+        # TODO: two topological orderings need to be synchronized
 
 
 if __name__ == '__main__':

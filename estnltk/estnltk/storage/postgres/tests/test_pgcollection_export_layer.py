@@ -18,7 +18,7 @@ from estnltk import logger
 from estnltk.storage import postgres as pg
 from estnltk.storage.postgres import PostgresStorage
 from estnltk.storage.postgres.collection import RowMapperRecord
-from estnltk.storage.postgres import create_schema, delete_schema
+from estnltk.storage.postgres import delete_schema
 
 logger.setLevel('DEBUG')
 
@@ -30,15 +30,8 @@ def get_random_collection_name():
 class TestPgCollectionExportLayer(unittest.TestCase):
     def setUp(self):
         schema = "test_schema"
-        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db')
-        try:
-            create_schema(self.storage)
-        except DuplicateSchema as ds_error:
-            # TODO: for some reason we get DuplicateSchema error. Unexpected?
-            delete_schema(self.storage)
-            create_schema(self.storage)
-        except:
-            raise
+        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db', \
+                                       create_schema_if_missing=True)
 
 
     def tearDown(self):
@@ -61,8 +54,8 @@ class TestPgCollectionExportLayer(unittest.TestCase):
 
     def test_export_layer(self):
         collection_name = get_random_collection_name()
-        collection = self.storage[collection_name]
-        collection.create(meta=OrderedDict([('text_id', 'int'), ('text_name', 'str')]))
+        collection = self.storage.add_collection( collection_name, 
+                          meta=OrderedDict([('text_id', 'int'), ('text_name', 'str')]) )
 
         text_1 = Text('Esimene tekst.').tag_layer('words')
         text_2 = Text('Teine tekst').tag_layer('words')
@@ -130,13 +123,13 @@ class TestPgCollectionExportLayer(unittest.TestCase):
              (7, 2, 1, 7, 12, None, 'kolmas yllitis')]
         assert table_entries == expected_entries
         
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
 
     def test_export_layer_invalid_modes(self):
         collection_name = get_random_collection_name()
-        collection = self.storage[collection_name]
-        collection.create(meta=OrderedDict([('text_id', 'int'), ('text_name', 'str')]))
+        collection = self.storage.add_collection( collection_name, 
+                          meta=OrderedDict([('text_id', 'int'), ('text_name', 'str')]) )
         
         text_1 = Text('Esimene tekst.').tag_layer('words')
         text_2 = Text('Teine tekst').tag_layer('words')
@@ -154,13 +147,13 @@ class TestPgCollectionExportLayer(unittest.TestCase):
         with self.assertRaises(pg.PgCollectionException) as exception:
             collection.export_layer('words', [])
         
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
 
     def test_export_layer_appending(self):
         collection_name = get_random_collection_name()
-        collection = self.storage[collection_name]
-        collection.create(meta=OrderedDict([('text_id', 'int'), ('text_name', 'str')]))
+        collection = self.storage.add_collection( collection_name, 
+                          meta=OrderedDict([('text_id', 'int'), ('text_name', 'str')]) )
 
         text_1 = Text('Esimene tekst.').tag_layer('words')
         text_2 = Text('Teine tekst').tag_layer('words')
@@ -193,13 +186,13 @@ class TestPgCollectionExportLayer(unittest.TestCase):
              (10, 1, 1, 6, 11, None, 'teine yllitis')]
         assert table_entries == expected_entries
         
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
 
     def test_export_sparse_layer(self):
         collection_name = get_random_collection_name()
-        collection = self.storage[collection_name]
-        collection.create(meta=OrderedDict([('text_id', 'int'), ('text_name', 'str')]))
+        collection = self.storage.add_collection( collection_name, 
+                          meta=OrderedDict([('text_id', 'int'), ('text_name', 'str')]) )
         # Assert structure version 3.0+ (required for sparse layers)
         assert collection.version >= '3.0'
 
@@ -214,16 +207,18 @@ class TestPgCollectionExportLayer(unittest.TestCase):
             collection_insert( text_3, meta_data={'text_id':3, 'text_name':'kolmas yllitis'} )
             collection_insert( text_4, meta_data={'text_id':4, 'text_name':'viimne yllitis'} )
 
+        layer_template = Layer('my_sparse_layer', attributes=['attr1'])
         # Create a sparse layer
         def my_row_mapper(row):
             text_id, text = row[0], row[1]
             status = {}
             layer = Layer('my_sparse_layer', attributes=['attr1'])
+            layer.text_object = text
             if text_id % 2 == 0:
                 # Fill in only every second layer
                 layer.add_annotation( (0, 4), attr1='{} snippet'.format(text_id) )
             return RowMapperRecord(layer=layer, meta=status)
-        collection.create_layer( layer_name='my_sparse_layer', 
+        collection.create_layer( layer_template=layer_template, 
                                  data_iterator=collection.select(), 
                                  row_mapper=my_row_mapper, 
                                  sparse=True )
@@ -239,7 +234,7 @@ class TestPgCollectionExportLayer(unittest.TestCase):
              (2, 2, 0, 0, 4, '2 snippet', 'kolmas yllitis')]
         assert table_entries == expected_entries
         
-        collection.delete()
+        self.storage.delete_collection(collection.name)
 
 if __name__ == '__main__':
     unittest.main()
