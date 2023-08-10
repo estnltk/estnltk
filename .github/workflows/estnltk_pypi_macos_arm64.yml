@@ -20,13 +20,13 @@ jobs:
         os: [macos-latest]   # Should be:  macos-11
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v4
         name: Install Python
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.9.0
+        uses: pypa/cibuildwheel@v2.15.0
         with:
           package-dir: ./estnltk
           output-dir:  ./estnltk/wheelhouse
@@ -55,13 +55,13 @@ jobs:
           # List of available platforms: 
           # https://cibuildwheel.readthedocs.io/en/stable/options/#build-skip 
           # Build only for macosx_arm64
-          CIBW_BUILD:  cp39-macosx_arm64
+          CIBW_BUILD:  cp39-macosx_arm64  cp310-macosx_arm64  cp311-macosx_arm64
 
           # Disable building PyPy wheels on all platforms.
           # Enable if you get it working.
           #CIBW_SKIP: pp* *arm64 *musllinux_x86_64 *musllinux_aarch64
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: estnltk-pypi-macos-arm64-packages
           path: ./estnltk/wheelhouse/*.whl
@@ -72,12 +72,12 @@ jobs:
     needs: [build_estnltk_wheels]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: estnltk-pypi-macos-arm64-packages
           path: dist
 
-      - uses: pypa/gh-action-pypi-publish@v1.4.2
+      - uses: pypa/gh-action-pypi-publish@release/v1
         with:
           user: __token__
           password: ${{ secrets.pypi_token }}
