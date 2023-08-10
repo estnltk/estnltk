@@ -16,9 +16,9 @@ jobs:
     name: Build estnltk source distribution
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v4
         name: Install Python
 
       - name: Build sdist
@@ -26,7 +26,7 @@ jobs:
           cd estnltk
           python setup.py sdist
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: estnltk-pypi-packages
           path: |
@@ -41,13 +41,14 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-latest]
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v4
         name: Install Python
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.3.1
+        # Check the latest version from: https://github.com/pypa/cibuildwheel
+        uses: pypa/cibuildwheel@v2.15.0
         with:
           package-dir: ./estnltk
           output-dir:  ./estnltk/wheelhouse
@@ -69,15 +70,15 @@ jobs:
 
           # List of available platforms: 
           # https://cibuildwheel.readthedocs.io/en/stable/options/#build-skip 
-          #CIBW_BUILD:  cp37-*64
           #CIBW_BUILD:  cp37-*64  cp38-*64  cp39-*64
-          CIBW_BUILD:  cp37-*64  cp38-*64  cp39-*64  cp310-*64
+          #CIBW_BUILD:  cp37-*64  cp38-*64  cp39-*64  cp310-*64  cp311-*64
+          CIBW_BUILD: cp310-*64
 
           # Disable building PyPy wheels on all platforms.
           # Enable if you get it working.
           CIBW_SKIP: pp* *arm64 *musllinux_x86_64 *musllinux_aarch64
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: estnltk-pypi-packages
           path: ./estnltk/wheelhouse/*.whl
@@ -88,14 +89,14 @@ jobs:
     needs: [build_estnltk_wheels, build_estnltk_sdist]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: estnltk-pypi-packages
           path: dist
 
-      - uses: pypa/gh-action-pypi-publish@v1.4.2
+      - uses: pypa/gh-action-pypi-publish@release/v1
         with:
           user: __token__
-          password: ${{ secrets.pypi_token }}
+          password: ${{ secrets.test_pypi_token }}
           # Use https://test.pypi.org instead of the default pypi:
-          #repository_url: https://test.pypi.org/legacy/
+          repository_url: https://test.pypi.org/legacy/
