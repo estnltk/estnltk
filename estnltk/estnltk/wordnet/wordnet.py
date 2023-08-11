@@ -200,7 +200,8 @@ class Wordnet:
             return self._hyponym_graph
 
     def __del__(self) -> None:
-        self.conn.close()
+        if self.conn:
+            self.conn.close()
 
     def __getitem__(self, key: Union[tuple, str]) -> Union[Synset, list, None]:
         """Returns synset object or list of synset objects with the provided key.
