@@ -14,8 +14,6 @@ As of version 1.7, the EstNLTK library is split into 3 Python packages:
 
 Source code of packages is available at the [EstNLTK's monorepository](https://github.com/estnltk/estnltk/tree/main).  
 
-* **NB!** Building EstNLTK version 1.7.2 is currently work in progress. Before the build is completed, we recommend to use [the previous version of the library.](https://github.com/estnltk/estnltk/tree/123fadf204fb99661da5320cf95172aa9b61c697)
-
 ## EstNLTK
 
 ### Installation
