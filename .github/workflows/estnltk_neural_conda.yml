@@ -21,9 +21,9 @@ jobs:
         python-version: ['3.8']
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v4
         name: Install Python
         with:
           python-version: ${{ matrix.python-version }}
@@ -48,10 +48,10 @@ jobs:
       # of building estnltk_core conda package
       - name: Cache ec_channel
         id: cache-ec-channel
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: estnltk_core/ec_channel
-          key: estnltk-core-channel-2022-08-30
+          key: estnltk-core-channel-2023-08-10-1
 
       - name: Build estnltk_core conda package (noarch)
         if: steps.cache-ec-channel.outputs.cache-hit != 'true'
@@ -68,10 +68,10 @@ jobs:
       # of building estnltk conda package
       - name: Cache e_channel
         id: cache-e-channel
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: estnltk/e_channel
-          key: estnltk-channel-2022-08-30
+          key: estnltk-channel-2023-08-10-1
 
       - name: Build estnltk conda package (${{ matrix.os }})
         if: steps.cache-e-channel.outputs.cache-hit != 'true'
@@ -88,7 +88,7 @@ jobs:
           ls estnltk_neural/en_channel
           echo ---------------------
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: estnltk-neural-conda-package
           path: |
@@ -101,7 +101,7 @@ jobs:
     needs: [build_estnltk_neural_conda_package]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: estnltk-neural-conda-package
           path: conda-packages
@@ -110,7 +110,7 @@ jobs:
         uses: s-weigand/setup-conda@v1
         with:
           update-conda: true
-          python-version: 3.9
+          python-version: '3.10'
           conda-channels: anaconda, conda-forge
 
       - name: Install anaconda-client
