@@ -19,8 +19,9 @@ jobs:
       matrix:
         #os: [windows-latest]
         os: [ubuntu-latest, windows-latest, macos-latest]
-        python-version: ['3.9']
-        #python-version: ['3.9', '3.10', '3.11']
+        #python-version: ['3.8']
+        python-version: ['3.10', '3.11']
+        #python-version: ['3.8', '3.9', '3.10', '3.11']
 
     steps:
       - uses: actions/checkout@v3
@@ -41,17 +42,6 @@ jobs:
         run: |
           conda install conda-build conda-verify swig cython
           conda update conda-build
-
-      # A fix from here: https://github.com/actions/cache/issues/591 
-      #- name: "Use GNU tar instead BSD tar (fix for windows caching)"
-      #  if: matrix.os == 'windows-latest'
-      #  shell: cmd
-      #  run: echo C:\Program Files\Git\usr\bin>>"%GITHUB_PATH%"
-
-      # A fix for the fix ...
-      #- name: "Rename link cmd to avoid overriding msvc link (windows caching)"
-      #  if: matrix.os == 'windows-latest'
-      #  run: Rename-Item -Path "C:\Program Files\Git\usr\bin\link.exe" -NewName "link__disabled.exe"
 
       # Use estnltk-core-channel cache
       # load data from the cache if it exists.
@@ -98,7 +88,7 @@ jobs:
       # in cache unless the cache key has been changed.
       # (so, you should change the key if you want 
       #  to store a new build)
-      - if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.8'
+      - if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.10'
         name: Cache e_channel
         id: cache-e-channel
         uses: actions/cache@v3
