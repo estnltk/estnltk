@@ -19,7 +19,7 @@ jobs:
       matrix:
         #os: [windows-latest]
         os: [ubuntu-latest, windows-latest, macos-latest]
-        python-version: ['3.8']
+        python-version: ['3.9']
         #python-version: ['3.9', '3.10', '3.11']
 
     steps:
@@ -43,15 +43,15 @@ jobs:
           conda update conda-build
 
       # A fix from here: https://github.com/actions/cache/issues/591 
-      - name: "Use GNU tar instead BSD tar (fix for windows caching)"
-        if: matrix.os == 'windows-latest'
-        shell: cmd
-        run: echo C:\Program Files\Git\usr\bin>>"%GITHUB_PATH%"
+      #- name: "Use GNU tar instead BSD tar (fix for windows caching)"
+      #  if: matrix.os == 'windows-latest'
+      #  shell: cmd
+      #  run: echo C:\Program Files\Git\usr\bin>>"%GITHUB_PATH%"
 
       # A fix for the fix ...
-      - name: "Rename link cmd to avoid overriding msvc link (windows caching)"
-        if: matrix.os == 'windows-latest'
-        run: Rename-Item -Path "C:\Program Files\Git\usr\bin\link.exe" -NewName "link__disabled.exe"
+      #- name: "Rename link cmd to avoid overriding msvc link (windows caching)"
+      #  if: matrix.os == 'windows-latest'
+      #  run: Rename-Item -Path "C:\Program Files\Git\usr\bin\link.exe" -NewName "link__disabled.exe"
 
       # Use estnltk-core-channel cache
       # load data from the cache if it exists.
@@ -65,6 +65,7 @@ jobs:
         with:
           path: estnltk_core/ec_channel
           key: estnltk-core-channel-2023-08-10-1
+          enableCrossOsArchive: true
 
       - name: Build estnltk_core conda package
         if: steps.cache-ec-channel.outputs.cache-hit != 'true'
@@ -104,6 +105,7 @@ jobs:
         with:
           path: estnltk/e_channel
           key: estnltk-channel-2023-08-10-1
+          enableCrossOsArchive: true
 
       - if: matrix.os != 'windows-latest'
         name: Build estnltk conda package (linux or macos)
