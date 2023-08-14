@@ -6,6 +6,7 @@ Schema/table creation and read/write rights are required.
 """
 import unittest
 import random
+import pkgutil
 from collections import OrderedDict
 
 from estnltk import logger
@@ -21,6 +22,13 @@ logger.setLevel('DEBUG')
 
 def get_random_collection_name():
     return 'collection_{}'.format(random.randint(1, 1000000))
+
+
+def is_package_installed(module: str) -> bool:
+    """
+    Checks if the given package has been installed. 
+    """
+    return pkgutil.find_loader(module) is not None
 
 
 class TestPgSubCollection(unittest.TestCase):
@@ -208,6 +216,18 @@ class TestPgSubCollection(unittest.TestCase):
         assert text.text == 'Esimene lause. Teine lause. Kolmas lause.'
         assert set(text.layers) == set()
 
+        subcollection = pg.PgSubCollection(self.collection, progressbar='undefined')
+        with self.assertRaises(ValueError):
+            next(iter(subcollection))
+
+    @unittest.skipIf(not is_package_installed('jupyter') and \
+                     not is_package_installed('ipywidgets'),
+                     "This test requires that either package jupyter or ipywidgets has been installed.")
+    def test_iter_notebook(self):
+        # This test only works if jupyter and/or ipywidgets have been installed. 
+        # If both packages are missing, you'll get: 
+        #   "ImportError: IProgress not found. Please update jupyter and ipywidgets. 
+        #    See https://ipywidgets.readthedocs.io/en/stable/user_install.html" 
         subcollection = pg.PgSubCollection(self.collection, progressbar='notebook')
         result = list(subcollection)
         assert len(result) == 4
@@ -215,10 +235,6 @@ class TestPgSubCollection(unittest.TestCase):
         assert text_id == 0
         assert text.text == 'Esimene lause. Teine lause. Kolmas lause.'
         assert set(text.layers) == set()
-
-        subcollection = pg.PgSubCollection(self.collection, progressbar='undefined')
-        with self.assertRaises(ValueError):
-            next(iter(subcollection))
 
     def test_head(self):
         subcollection = pg.PgSubCollection(self.collection)
