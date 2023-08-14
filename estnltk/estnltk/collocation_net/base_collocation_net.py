@@ -4,7 +4,6 @@ import pkgutil
 import pandas as pd
 import numpy as np
 from typing import List
-import matplotlib.pyplot as plt
 from collections import defaultdict
 from estnltk import get_resource_paths
 
@@ -224,6 +223,7 @@ class BaseCollocationNet:
                                       'module via conda or pip, e.g.\n pip install wordcloud')
 
         from wordcloud import WordCloud
+        import matplotlib.pyplot as plt
 
         topic_idx = None
 
