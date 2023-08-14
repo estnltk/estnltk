@@ -210,7 +210,7 @@ setup(
         'lxml',                    # required for importing/exporting TCF format data
         'networkx',                # building graphs: required for layers, WordNet and grammars
         'matplotlib',              # required for visualizing layer graph
-        'requests',                # required for TextA export and WebTagger
+        'requests',                # required by the resource downloader & WebTaggers
         'tqdm',                    # progressbar: for showing progress on time-hungry operations
         'ipython',                 # required for integration with Jupyter Notebook-s
         'conllu',                  # CONLLU for syntax
