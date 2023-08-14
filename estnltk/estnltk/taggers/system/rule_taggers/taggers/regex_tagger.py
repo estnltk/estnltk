@@ -6,7 +6,7 @@ from estnltk import Layer, Text
 from estnltk.taggers.system.rule_taggers.helper_methods.helper_methods import keep_maximal_matches, keep_minimal_matches,conflict_priority_resolver
 from estnltk_core import Annotation, ElementaryBaseSpan, Span
 from estnltk.taggers.system.rule_taggers import Ruleset, StaticExtractionRule
-from typing.re import Match
+from typing import Match
 
 
 class RegexTagger(Tagger):
