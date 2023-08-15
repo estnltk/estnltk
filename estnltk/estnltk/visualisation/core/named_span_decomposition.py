@@ -1,6 +1,6 @@
 from typing import List
 
-from estnltk_core.layer.relation_layer import RelationLayer
+from estnltk_core import RelationLayer
 import html
 
 
