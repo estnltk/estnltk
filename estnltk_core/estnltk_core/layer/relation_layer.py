@@ -913,8 +913,53 @@ class NamedSpan:
         else:
             raise AttributeError(key)
 
+    def resolve_attribute(self, item):
+        """Resolves and returns values of foreign attribute `item`, 
+           or resolves and returns a foreign span from layer `item`.
+           
+           More specifically:
+           1) If `item` is a name of a foreign attribute which 
+              is listed in the mapping from attribute names to 
+              foreign layer names 
+              (`attribute_mapping_for_elementary_layers`),
+              attempts to find foreign span with the same base 
+              span as this span from the foreign layer & returns 
+              value(s) of the attribute `item` from that foreign 
+              span. 
+              (raises KeyError if base span is missing in the 
+               foreign layer);
+              Note: this is only available when this span belongs to 
+              estnltk's `Text` object. The step will be skipped if 
+              the span belongs to `BaseText`;
+           
+           2) If `item` is a layer attached to span's text_object,
+              attempts to get & return span with the same base span 
+              from that layer (raises KeyError if base span is missing);
+        """
+        if self.text_object is not None:
+            if hasattr(self.text_object, 'attribute_mapping_for_elementary_layers'):
+                # Attempt to get the foreign attribute of 
+                # the same base span of a different attached 
+                # layer, based on the mapping of attributes-layers
+                # (only available if we have estnltk.text.Text object)
+                attribute_mapping = self.text_object.attribute_mapping_for_elementary_layers
+                if item in attribute_mapping:
+                    return self.text_object[attribute_mapping[item]].get(self.base_span)[item]
+            if item in self.text_object.layers:
+                # Attempt to get the same base span from 
+                # a different attached layer 
+                # (e.g parent or child span)
+                return self.text_object[item].get(self.base_span)
+        else:
+            raise AttributeError(("Unable to resolve foreign attribute {!r}: "+\
+                                  "the layer is not attached to Text object.").format(item))
+        raise AttributeError("Unable to resolve foreign attribute {!r}.".format(item))
+
     def __getattr__(self, item):
-        raise AttributeError('Getting attribute {!r} not implemented.'.format(item))
+        try:
+            return self.resolve_attribute(item)
+        except KeyError as key_error:
+            raise AttributeError(key_error.args[0]) from key_error
 
     def __lt__(self, other: Any) -> bool:
         return self.base_span < other.base_span
