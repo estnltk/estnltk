@@ -18,6 +18,7 @@
 
 from typing import Any, Mapping, Sequence, Dict, List, Tuple, Union, Optional
 
+import pkgutil
 from copy import deepcopy
 from reprlib import recursive_repr
 
@@ -26,6 +27,8 @@ import pandas
 from estnltk_core import BaseSpan, ElementaryBaseSpan, EnvelopingBaseSpan, Span
 from estnltk_core.common import _create_attr_val_repr
 
+def check_if_estnltk_is_available():
+    return pkgutil.find_loader("estnltk") is not None
 
 def to_relation_base_span(x) -> BaseSpan:
     """Reduces estnltk's relation annotation structure to BaseSpan or creates BaseSpan from raw location.
@@ -501,6 +504,18 @@ class RelationLayer:
         df = pandas.DataFrame.from_records(layer_table_content, columns=columns)
         table_2 = df.to_html(index=False, escape=True)
         return '\n'.join(('<h4>{}</h4>'.format(self.__class__.__name__), meta, text_object_msg, table_1, table_2))
+
+    def display(self, **kwargs):
+        if check_if_estnltk_is_available():
+            # This requires estnltk version 1.7.3+
+            from estnltk.visualisation import DisplayNamedSpans
+            # By default, display relation id-s
+            if 'add_relation_ids' not in kwargs.keys():
+                kwargs['add_relation_ids'] = True
+            display_spans = DisplayNamedSpans(**kwargs)
+            display_spans(self)
+        else:
+            raise NotImplementedError("RelationLayer display is not available in estnltk-core. Please use the full EstNLTK package for that.")
 
 
 class Relation:
