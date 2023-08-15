@@ -880,6 +880,16 @@ class NamedSpan:
     def raw_text(self):
         return self.text_object.text
 
+    def __getstate__(self):
+        return dict(name=self._name, 
+                    base_span=self._base_span, 
+                    relation=self._relation)
+
+    def __setstate__(self, state):
+        super().__setattr__('_name', state['name'])
+        super().__setattr__('_base_span', state['base_span'])
+        super().__setattr__('_relation', state['relation'])
+
     def __copy__(self):
         raise NotImplementedError
 
