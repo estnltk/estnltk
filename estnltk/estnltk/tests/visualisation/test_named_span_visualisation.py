@@ -13,9 +13,17 @@ def _extract_html_content(html_output_str, remove_tags=['script', 'style']):
         html_output_str = pat.sub('', html_output_str)
     return html_output_str
 
+def test_html_output_empty_layer():
+    text = Text('Mari kirjeldas õhinal, kuidas ta väiksena "Sipsikut" luges.')
+    coref_layer = RelationLayer('coreference', span_names=['mention', 'entity'], text_object=text)
+    display_spans = DisplayNamedSpans()
+    #print( _extract_html_content( display_spans.html_output(coref_layer) ) )
+    assert _extract_html_content( display_spans.html_output(coref_layer) ) == \
+        'Mari kirjeldas õhinal, kuidas ta väiksena "Sipsikut" luges.'
+
 def test_html_output():
     text = Text('Mari kirjeldas õhinal, kuidas ta väiksena "Sipsikut" luges: '+\
-    '"Ma ei suutnud seda raamatut kohe kuidagi käest ära panna! Nii põnev oli see!"').tag_layer('words')
+    '"Ma ei suutnud seda raamatut kohe kuidagi käest ära panna! Nii põnev oli see!"')
     coref_layer = RelationLayer('coreference', span_names=['mention', 'entity'], text_object=text)
     # Add relation based on a dictionary
     coref_layer.add_annotation( {'mention': (30, 32), 'entity': (0, 4)} )
