@@ -19,6 +19,17 @@ def test_decompose_text_with_empty_layer():
     assert result == expected
 
 
+def test_decompose_text_with_1_span_layer():
+    text = Text('Sada kakskümmend kolm. ')
+    layer = RelationLayer('test_rel_layer', span_names=['mention'], text_object=text)
+    layer.add_annotation( {'mention': (5, 9)} )
+    segments, named_spans = decompose_to_elementary_named_spans(layer, text.text)
+    assert segments == \
+        [['Sada ', []], ['kaks', [0]], ['kümmend kolm. ', []]]
+    named_spans_texts = [(ns.name, ns.text) for ns in named_spans]
+    assert named_spans_texts == [('mention', 'kaks')]
+
+
 def test_decompose_text_with_filled_layer():
     text = Text('Mari kirjeldas õhinal, kuidas ta väiksena "Sipsikut" luges: '+\
     '"Ma ei suutnud seda raamatut kohe kuidagi käest ära panna! Nii põnev oli see!"')
@@ -30,25 +41,25 @@ def test_decompose_text_with_filled_layer():
     coref_layer.add_annotation( mention=(75, 88), entity=(43, 51) )
     coref_layer.add_annotation( mention=(133, 136), entity=(42, 52) )
     # Case 1: decompose into named span indexes
-    segments, named_spans  = decompose_to_elementary_named_spans(coref_layer, text.text)
+    segments, named_spans = decompose_to_elementary_named_spans(coref_layer, text.text)
     assert segments == \
         [['Mari', [0, 1]],
         [' kirjeldas õhinal, kuidas ', []],
         ['ta', [2]],
         [' väiksena ', []],
-        ['"', [3]], ['Sipsikut', [4, 5]], ['"', [6]],
+        ['"', [3]], ['Sipsikut', [3, 4]], ['"', [3]],
         [' luges: "', []],
-        ['Ma', [7]],
+        ['Ma', [5]],
         [' ei suutnud ', []],
-        ['seda raamatut', [8]],
+        ['seda raamatut', [6]],
         [' kohe kuidagi käest ära panna! Nii põnev oli ', []],
-        ['see', [9]],
+        ['see', [7]],
         ['!"', []]]
     named_spans_texts = [(ns.name, ns.text) for ns in named_spans]
     assert named_spans_texts == \
         [('entity', 'Mari'), ('entity', 'Mari'), 
          ('mention', 'ta'), 
-         ('entity', '"Sipsikut"'), ('entity', '"Sipsikut"'), ('entity', 'Sipsikut'), ('entity', '"Sipsikut"'), 
+         ('entity', '"Sipsikut"'), ('entity', 'Sipsikut'),
          ('mention', 'Ma'), 
          ('mention', 'seda raamatut'), 
          ('mention', 'see')]
@@ -60,19 +71,19 @@ def test_decompose_text_with_filled_layer():
          [' kirjeldas õhinal, kuidas ', []], 
          ['ta', [(2, 0)]], 
          [' väiksena ', []], 
-         ['"', [(3, 3)]], ['Sipsikut', [(4, 3), (5, 2)]], ['"', [(6, 3)]], 
+         ['"', [(3, 3)]], ['Sipsikut', [(3, 3), (4, 2)]], ['"', [(3, 3)]], 
          [' luges: "', []], 
-         ['Ma', [(7, 1)]], 
+         ['Ma', [(5, 1)]], 
          [' ei suutnud ', []], 
-         ['seda raamatut', [(8, 2)]], 
+         ['seda raamatut', [(6, 2)]], 
          [' kohe kuidagi käest ära panna! Nii põnev oli ', []], 
-         ['see', [(9, 3)]], 
+         ['see', [(7, 3)]], 
          ['!"', []]]
     named_spans_texts = [(ns.name, ns.text) for ns in named_spans]
     assert named_spans_texts == \
         [('entity', 'Mari'), ('entity', 'Mari'), 
          ('mention', 'ta'), 
-         ('entity', '"Sipsikut"'), ('entity', '"Sipsikut"'), ('entity', 'Sipsikut'), ('entity', '"Sipsikut"'), 
+         ('entity', '"Sipsikut"'), ('entity', 'Sipsikut'), 
          ('mention', 'Ma'), 
          ('mention', 'seda raamatut'), 
          ('mention', 'see')]
