@@ -272,36 +272,38 @@ class StanzaSyntaxEnsembleTagger(Tagger):
             #    This method can produce invalid tree structures.
             word_id = 0
             sentence_id = 0
-            sentence_word_id = 0
-            while word_id < len( parent_layer ):
-                sentence = None
-                voting_table = defaultdict(int)
-                # Get deprel votes for the word token
-                label_token_map = {}
-                for model, parsed_doc in parsed_texts.items():
-                    sentence = parsed_doc[sentence_id]
-                    token = sentence[sentence_word_id]
-                    label = '{}__{}'.format(token['deprel'], token['head'])
-                    voting_table[label] += 1
-                    if label not in label_token_map.keys():
-                        label_token_map[label] = []
-                    label_token_map[label].append(token)
-                # Find maximum voting score and corresponding tokens
-                max_votes = max( voting_table.values() )
-                max_votes_labels = [l for l, v in voting_table.items() if v==max_votes]
-                max_votes_tokens = []
-                for label, tokens in label_token_map.items():
-                    if label in max_votes_labels:
-                        max_votes_tokens.extend(tokens)
-                # In case of a tie, pick a token randomly
-                self._random2.shuffle(max_votes_tokens)
-                extracted_words.append(max_votes_tokens[0])
-                word_id += 1
-                sentence_word_id += 1
-                if sentence_word_id >= len(sentence):
-                    # Next sentence
-                    sentence_id += 1
-                    sentence_word_id = 0
+            while sentence_id < len(layers[sentences_layer]):
+                # 1) Collect words and votes for the current sentence
+                sentence_word_id = 0
+                sent_len = len(layers[sentences_layer][sentence_id])
+                voting_table = defaultdict(lambda: defaultdict(int))
+                head_voting_table = defaultdict(lambda: defaultdict(int))
+                label_token_map = defaultdict(lambda: defaultdict(list))
+                while sentence_word_id < sent_len:
+                    for model, parsed_doc in parsed_texts.items():
+                        assert len(parsed_doc) == len(layers[sentences_layer])
+                        sentence = parsed_doc[sentence_id]
+                        assert len(sentence) == sent_len
+                        token = sentence[sentence_word_id]
+                        label = '{}__{}'.format(token['deprel'], token['head'])
+                        voting_table[sentence_word_id][label] += 1
+                        head_voting_table[sentence_word_id][int(token['head'])] += 1
+                        label_token_map[sentence_word_id][label].append(token)
+                    sentence_word_id += 1
+                    word_id += 1
+                # 2) For each word, find maximum voting score and corresponding tokens
+                for wid in sorted(voting_table.keys()):
+                    max_votes = max(voting_table[wid].values())
+                    max_votes_labels = [l for l, v in voting_table[wid].items() if v==max_votes]
+                    max_votes_tokens = []
+                    for label, tokens in label_token_map[wid].items():
+                        if label in max_votes_labels:
+                            max_votes_tokens.extend(tokens)
+                    # In case of a tie, pick a token randomly
+                    self._random2.shuffle(max_votes_tokens)
+                    extracted_words.append(max_votes_tokens[0])
+                # Next sentence
+                sentence_id += 1
             assert len(extracted_words) == len(parent_layer)
 
         layer = self._make_layer_template()
