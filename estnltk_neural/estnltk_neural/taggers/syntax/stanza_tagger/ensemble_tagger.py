@@ -55,11 +55,11 @@ class StanzaSyntaxEnsembleTagger(Tagger):
     Aggregation algorithm. For aggregating predictions from multiple models, there are currently 2 algorithms 
     available. The first / default method ('las_coherence') processes input sentence-wise and calculates LAS 
     scores between each model's sentence prediction and all other sentence predictions. The sentence prediction  
-    with the highest average LAS will be chosen for the output. This method ensures valid output tree structure. 
-    The second method ('majority_voting') processes input token-wise and picks a token with the most frequently 
-    predicted head & deprel; if there are multiple tokens with the same number of votes, then the token is 
-    chosen randomly. Note, however, that this method can produce invalid tree structures, as there is no 
-    mechanism to ensure that majority-voting-picked tokens will make up a valid tree. 
+    with the highest average LAS will be chosen for the output. 
+    The second method ('majority_voting') processes input token-wise and records predicted head & deprel frequencies 
+    for each token in a sentence. After that, it applies Chu–Liu/Edmonds' algorithm to construct a valid syntactic 
+    tree of the sentence over high frequency heads of each token. Any remaining ambiguities (e.g. choices between 
+    multiple different deprels for a head) will be resolved via random choice. 
     You can set the aggregation algorithm via constructor parameter aggregation_algorithm. 
     
     Tutorial:
@@ -128,7 +128,7 @@ class StanzaSyntaxEnsembleTagger(Tagger):
         if resources_path is None:
             raise Exception('Models of StanzaSyntaxEnsembleTagger are missing. '+\
                             'Please use estnltk.download("stanzasyntaxensembletagger") to download the models.')
-
+        
         if not model_paths:
             self.model_paths = list()
             ensemble_path = os.path.join(resources_path, 'et', 'depparse', 'ensemble_models')
@@ -295,7 +295,6 @@ class StanzaSyntaxEnsembleTagger(Tagger):
                         label_token_map[sentence_word_id][label].append(token)
                         head_int = int(token['head'])
                         sent_matrix[sentence_word_id+1, head_int] += 1.0
-                    # TODO: do we need to normalize the matrix here ?!
                     sentence_word_id += 1
                     word_id += 1
                 # 2) use Chu–Liu/Edmonds' algorithm to find head_seq of a valid tree 
@@ -316,7 +315,7 @@ class StanzaSyntaxEnsembleTagger(Tagger):
                         msg += 'Falling back to unchecked tree construction, '
                         msg += 'which may result in an invalid syntax tree.'
                         warnings.warn(msg)
-                        max_votes_valid = voting_table[wid].values()
+                        max_votes_valid = voting_table[wid].items()
                     max_votes = max([v for (l, v) in max_votes_valid])
                     max_votes_labels = [l for l, v in max_votes_valid if v==max_votes]
                     max_votes_tokens = []
