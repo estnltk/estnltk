@@ -1049,6 +1049,7 @@ class PgCollection:
 
         conn = self.storage.conn
         with conn.cursor() as c:
+            text_id = None
             try:
                 conn.commit()
                 conn.autocommit = False
@@ -1097,6 +1098,13 @@ class PgCollection:
                                 buffered_inserter.insert( values )
                                 fragment_id += 1
             except Exception:
+                if text_id is not None:
+                    layer_creation_error_msg = ('Layer creation failed at document with id {} '+\
+                                                'due to an error: {}.').format(text_id, layer_creation_error)
+                else:
+                    layer_creation_error_msg = ('Layer creation failed due to an error: {}.'+\
+                                                '').format(layer_creation_error)
+                logger.error(layer_creation_error_msg)
                 conn.rollback()
                 raise
             finally:
@@ -1248,6 +1256,7 @@ class PgCollection:
         conn.autocommit = False
 
         with conn.cursor() as c:
+            collection_text_id = None
             try:
                 # insert data
                 logger.info('inserting data into the {!r} layer table'.format(layer_name))
@@ -1273,7 +1282,15 @@ class PgCollection:
                                           for attr in ngram_index_keys)
 
                         buffered_inserter.insert(layer, collection_text_id, key=collection_text_id, extra_data=extra_values)
-            except Exception:
+            except Exception as layer_creation_error:
+                if collection_text_id is not None:
+                    layer_creation_error_msg = ('Layer creation failed at document with id {} '+\
+                                                'due to an error: {}.').format(collection_text_id, \
+                                                                               layer_creation_error)
+                else:
+                    layer_creation_error_msg = ('Layer creation failed due to an error: {}.'+\
+                                                '').format(layer_creation_error)
+                logger.error(layer_creation_error_msg)
                 conn.rollback()
                 raise
             finally:
@@ -1381,27 +1398,39 @@ class PgCollection:
             if mode.lower() == 'append':
                 block_query &= MissingLayerQuery( missing_layer = tagger.output_layer )
             data_iterator = self.select(query=block_query, layers=tagger.input_layers)
-        
-        with CollectionDetachedLayerInserter( self, layer_name, extra_columns=meta_columns, 
-                                              query_length_limit=query_length_limit,
-                                              sparse=sparse) as buffered_inserter:
 
-            for collection_text_id, text in data_iterator:
-                layer = tagger.make_layer(text=text, status=None)
-                # Check layer structure
-                layer_structure_from_tagger = (layer.name, layer.attributes, layer.ambiguous,
-                                               layer.parent, layer.enveloping)
-                if layer_structure != layer_structure_from_tagger:
-                    raise ValueError( ('(!) Mismatching layer structures: '+
-                                       'structure in database: {!r} and '+
-                                       'structure created by tagger: {!r}').format(layer_structure,
-                                                                                   layer_structure_from_tagger) )
+        collection_text_id = None
+        try:
+            with CollectionDetachedLayerInserter( self, layer_name, extra_columns=meta_columns, 
+                                                  query_length_limit=query_length_limit,
+                                                  sparse=sparse) as buffered_inserter:
 
-                extra_values = []
-                if meta_columns:
-                    extra_values.extend( [layer.meta[k] for k in meta_columns] )
-                
-                buffered_inserter.insert(layer, collection_text_id, key=collection_text_id, extra_data=extra_values)
+                for collection_text_id, text in data_iterator:
+                    layer = tagger.make_layer(text=text, status=None)
+                    # Check layer structure
+                    layer_structure_from_tagger = (layer.name, layer.attributes, layer.ambiguous,
+                                                   layer.parent, layer.enveloping)
+                    if layer_structure != layer_structure_from_tagger:
+                        raise ValueError( ('(!) Mismatching layer structures: '+
+                                           'structure in database: {!r} and '+
+                                           'structure created by tagger: {!r}').format(layer_structure,
+                                                                                       layer_structure_from_tagger) )
+
+                    extra_values = []
+                    if meta_columns:
+                        extra_values.extend( [layer.meta[k] for k in meta_columns] )
+                    
+                    buffered_inserter.insert(layer, collection_text_id, key=collection_text_id, extra_data=extra_values)
+        except Exception as layer_creation_error:
+            if collection_text_id is not None:
+                layer_creation_error_msg = ('Layer creation failed at document with id {} '+\
+                                            'due to an error: {}.').format(collection_text_id, \
+                                                                           layer_creation_error)
+            else:
+                layer_creation_error_msg = ('Layer creation failed due to an error: {}.'+\
+                                            '').format(layer_creation_error)
+            logger.error(layer_creation_error_msg)
+            raise
 
         logger.info('block {} of {!r} layer created'.format(block, layer_name))
 

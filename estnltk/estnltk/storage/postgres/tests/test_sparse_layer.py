@@ -25,12 +25,12 @@ class ModuleRemainderNumberTagger(Tagger):
     '''Tagger for detecting numbers that match criterion: number % module = remainder'''
     
     def __init__(self, layer_name, module, remainder, parent_layer=None,
-                       force_str_values=False):
+                       force_str_values=False, fail_at_number=None):
         self.output_layer = layer_name
         self.input_layers = ['words']
         self.output_attributes = ('normalized', 'module', 'remainder')
         self.conf_param = ('module', 'remainder', 'number_regex', 'parent_layer', 
-                           'force_str_values')
+                           'force_str_values', 'fail_at_number')
         self.parent_layer = parent_layer
         if self.parent_layer is not None:
             self.input_layers.append( self.parent_layer )
@@ -40,6 +40,7 @@ class ModuleRemainderNumberTagger(Tagger):
         self.module = module
         self.remainder = remainder
         self.number_regex = re.compile('([0-9]+)')
+        self.fail_at_number = fail_at_number
 
     def _make_layer_template(self):
         return Layer(self.output_layer, attributes=self.output_attributes, 
@@ -53,6 +54,10 @@ class ModuleRemainderNumberTagger(Tagger):
             m_end    = match.end(1)
             m_text   = match.group(1)
             m_normalized = int(m_text)
+            if self.fail_at_number is not None:
+                # Optionally, test failing
+                if self.fail_at_number == m_normalized:
+                    raise Exception('(!) Failed at tagging number {}'.format(m_normalized))
             if m_normalized % self.module == self.remainder:
                 annotations = {'normalized':m_normalized, 
                                'module': self.module,
@@ -610,7 +615,36 @@ class TestSparseLayerSelection(unittest.TestCase):
                               [0, 6, 12, 18, 24] )
 
         self.storage.delete_collection(collection.name)
+
+
+    def test_collection_create_sparse_layer_failing(self):
+        # Test that when sparse layer creation fails, index of the document will be logged in errors
+        collection_name = get_random_collection_name()
+        collection = self.storage.add_collection(collection_name)
+        # Assert structure version 3.0+ (required for sparse layers)
+        self.assertGreaterEqual(collection.version , '3.0')
         
+        # Add regular (non-sparse) layers
+        with collection.insert() as collection_insert:
+            for i in range(30):
+                text = Text('See on tekst number {}'.format(i)).tag_layer('words')
+                text.meta['number'] = i
+                collection_insert( text )
+        
+        # Add sparse layers, but fail at the middle of the process. 
+        # Test that the index of the failing document will be logged
+        odd_number_tagger_that_fails = \
+            ModuleRemainderNumberTagger('odd_numbers', 2, 1, fail_at_number=13)
+        with self.assertRaises(Exception):
+            with self.assertLogs('Layer creation failed at document with id 13 due to an error', level='ERROR') as cm:
+                collection.create_layer(tagger=odd_number_tagger_that_fails, sparse=True)
+        even_number_tagger_that_fails = \
+            ModuleRemainderNumberTagger('even_numbers', 2, 0, fail_at_number=15)
+        with self.assertRaises(Exception):
+            with self.assertLogs('Layer creation failed at document with id 15 due to an error', level='ERROR') as cm:
+                collection.create_layer(tagger=even_number_tagger_that_fails, sparse=True)
+        self.storage.delete_collection(collection.name)
+
 
 if __name__ == '__main__':
     unittest.main()
