@@ -62,12 +62,31 @@ class StanzaSyntaxEnsembleTagger(Tagger):
     multiple different deprels for a head) will be resolved via random choice. 
     You can set the aggregation algorithm via constructor parameter aggregation_algorithm. 
     
+    Predictions' entropy. If `find_entropy` is switched on, then predictions' uncertainty (Shannon entropy) will 
+    be calculated for each word, reflecting how much ensemble's models disagreed on choosing the deprel and the 
+    head. 
+    Zero entropy means no disagreement (full agreement between all models), while an entropy greater than zero 
+    indicates disagreement: greater the value, larger the disagreement. 
+    Calculated entropy will be stored in attribute `entropy`; another attribute `max_votes` will show the number 
+    of votes that the top candidate obtained. 
+    If `find_entropy` is switched on with `add_voting_results`, then explicit counts for f'{deprel}_{head}' 
+    pairs will be recorded in the attribute `voting_results` for each word. 
+    If `find_entropy` is switched on with `deprel_entropy`, then, in addition to deprel & head entropy, entropies 
+    are also calculated separately for deprel values alone and the results will be stored in attributes:
+    `deprel_max` (deprel that got maximal votes), `deprel_max_votes` (the number of votes top deprel obtained), 
+    `deprel_entropy` (entropy encountered while choosing deprel value).
+    If `find_entropy` is switched on with `head_entropy`, then, in addition to deprel & head entropy, entropies 
+    are also calculated separately for head values alone and the results will be stored in attributes:
+    `head_max` (head that got maximal votes), `head_max_votes` (the number of votes top head obtained), 
+    `head_entropy` (entropy encountered while choosing head value).
+    
     Tutorial:
     https://github.com/estnltk/estnltk/blob/main/tutorials/nlp_pipeline/C_syntax/03_syntactic_analysis_with_stanza.ipynb
     """
 
     conf_param = ['add_parent_and_children', 'aggregation_algorithm', 'syntax_dependency_retagger',
-                  'mark_syntax_error', 'mark_agreement_error', 'agreement_error_retagger',
+                  'mark_syntax_error', 'mark_agreement_error', 'agreement_error_retagger', 
+                  'find_entropy', 'deprel_entropy', 'head_entropy', 'add_voting_results', 
                   'ud_validation_retagger', 'use_gpu', 'gpu_max_words_in_sentence', 'model_paths', 
                   'taggers', 'remove_fields', 'replace_fields', 'random_pick_seed', '_random1', 
                   'random_pick_max_score_seed', '_random2']
@@ -86,6 +105,10 @@ class StanzaSyntaxEnsembleTagger(Tagger):
                  add_parent_and_children: bool = False,
                  mark_syntax_error: bool = False,
                  mark_agreement_error: bool = False,
+                 find_entropy: bool = False,
+                 deprel_entropy: bool = False,
+                 head_entropy: bool = False,
+                 add_voting_results: bool = False,
                  use_gpu: bool = False,
                  gpu_max_words_in_sentence: int = 1000
                  ):
@@ -169,6 +192,25 @@ class StanzaSyntaxEnsembleTagger(Tagger):
             else:
                 self.agreement_error_retagger = DeprelAgreementRetagger(output_layer=output_layer)
                 self.output_attributes += ('agreement_deprel',)
+        
+        self.find_entropy = find_entropy
+        if add_voting_results and not find_entropy:
+            raise ValueError('Conflicting configuration: `find_entropy` must be True if `add_voting_results` is True.')
+        self.add_voting_results = add_voting_results
+        if deprel_entropy and not find_entropy:
+            raise ValueError('Conflicting configuration: `find_entropy` must be True if `deprel_entropy` is True.')
+        self.deprel_entropy = deprel_entropy
+        if head_entropy and not find_entropy:
+            raise ValueError('Conflicting configuration: `find_entropy` must be True if `head_entropy` is True.')
+        self.head_entropy   = head_entropy
+        if self.find_entropy:
+            self.output_attributes += ('max_votes', 'entropy')
+            if self.add_voting_results:
+                self.output_attributes += ('voting_results',)
+            if self.deprel_entropy:
+                self.output_attributes += ('deprel_max', 'deprel_max_votes', 'deprel_entropy')
+            if self.head_entropy:
+                self.output_attributes += ('head_max', 'head_max_votes', 'head_entropy')
 
     def _make_layer_template(self):
         """Creates and returns a template of the layer."""
@@ -215,6 +257,17 @@ class StanzaSyntaxEnsembleTagger(Tagger):
             parsed_texts[model] = doc.to_dict()
 
         parent_layer = layers[self.input_layers[1]]
+
+        # Find predictions' uncertainty/entropy & votes
+        words_entropy = None
+        if self.find_entropy:
+            words_entropy = \
+                find_prediction_entropy(parent_layer, parsed_texts, 
+                                               add_model_votes=self.add_voting_results, 
+                                               separate_deprel_entropy=self.deprel_entropy, 
+                                               separate_head_entropy=self.head_entropy )
+            assert len(words_entropy) == len(parent_layer)
+
         extracted_words = []
         if self.aggregation_algorithm == 'las_coherence':
             # 1) Compare predictions of each model against every other
@@ -332,6 +385,7 @@ class StanzaSyntaxEnsembleTagger(Tagger):
         layer = self._make_layer_template()
         layer.text_object=text
 
+        global_word_id = 0
         for token, span in zip(extracted_words, parent_layer):
             assert span.text == token['text']
             word_id = token['id']
@@ -346,8 +400,28 @@ class StanzaSyntaxEnsembleTagger(Tagger):
 
             attributes = {'id': word_id, 'lemma': lemma, 'upostag': upostag, 'xpostag': xpostag, 
                           'feats': feats, 'head': head, 'deprel': deprel, 'deps': '_', 'misc': '_'}
+            
+            # Record voting & entropy information
+            if words_entropy is not None:
+                entropy_info = words_entropy[global_word_id]
+                attributes['entropy'] = entropy_info['entropy']
+                attributes['max_votes'] = entropy_info['max_votes']
+                if self.add_voting_results:
+                    # Table that contains all head & deprel voting results
+                    attributes['voting_results'] = entropy_info['all_votes']
+                if self.deprel_entropy:
+                    # Separate voting results covering only deprel-s
+                    attributes['deprel_max'] = entropy_info['deprel_max']
+                    attributes['deprel_max_votes'] = entropy_info['deprel_max_votes']
+                    attributes['deprel_entropy'] = entropy_info['deprel_entropy']
+                if self.head_entropy:
+                    # Separate voting results covering only head-s
+                    attributes['head_max'] = entropy_info['head_max']
+                    attributes['head_max_votes'] = entropy_info['head_max_votes']
+                    attributes['head_entropy'] = entropy_info['head_entropy']
 
             layer.add_annotation(span, **attributes)
+            global_word_id += 1
 
         if self.add_parent_and_children:
             # Add 'parent_span' & 'children' to the syntax layer.
@@ -362,6 +436,71 @@ class StanzaSyntaxEnsembleTagger(Tagger):
             self.agreement_error_retagger.change_layer(text, {self.output_layer: layer})
 
         return layer
+
+
+def find_prediction_entropy(words_layer, parsed_texts, add_model_votes=True, 
+                                         separate_deprel_entropy=False, 
+                                         separate_head_entropy=False):
+    '''
+    Calculates uncertainty/Shannon entropy for ensemble predictions of each word. 
+    If add_model_votes, then adds frequencies of model votes to results (for debugging).
+    If separate_deprel_entropy, then calculates entropy separately for assigining 
+    deprels and adds to the results.
+    If separate_head_entropy, then calculates entropy separately for assigining 
+    heads and adds to the results.
+    '''
+    from scipy.stats import entropy
+    word_id = 0
+    sentence_id = 0
+    sentence_word_id = 0
+    results = []
+    nr_of_models = len(parsed_texts.items())
+    while word_id < len( words_layer ):
+        sentence = None
+        # Get (deprel,head) votes for the word token
+        votes = []
+        votes_head = []
+        votes_deprel = []
+        for model, parsed_doc in parsed_texts.items():
+            sentence = parsed_doc[sentence_id]
+            token = sentence[sentence_word_id]
+            label = '{}_{}'.format(token['deprel'], token['head'])
+            votes.append(label)
+            votes_head.append(token['head'])
+            votes_deprel.append(token['deprel'])
+        # A) Votes/entropy for both deprel & head
+        voting_table = Counter(votes)
+        normalized_voting_table = \
+            [voting_table[k] / nr_of_models for k in voting_table.keys()]
+        e = entropy(normalized_voting_table)
+        r = {'entropy': e}
+        r['max_votes'] = voting_table.most_common()[0][1]
+        if add_model_votes:
+            r['all_votes'] = voting_table.most_common()
+        # B) Votes/entropy for deprel only
+        if separate_deprel_entropy:
+            deprel_table = Counter(votes_deprel)
+            normalized_voting_table_deprel = \
+                [deprel_table[k] / nr_of_models for k in deprel_table.keys()]
+            r['deprel_entropy'] = entropy(normalized_voting_table_deprel)
+            r['deprel_max'] = deprel_table.most_common()[0][0]
+            r['deprel_max_votes'] = deprel_table.most_common()[0][1]
+        # C) Votes/entropy for head only
+        if separate_head_entropy:
+            head_table = Counter(votes_head)
+            normalized_voting_table_head = \
+                [head_table[k] / nr_of_models for k in head_table.keys()]
+            r['head_entropy'] = entropy(normalized_voting_table_head)
+            r['head_max'] = head_table.most_common()[0][0]
+            r['head_max_votes'] = head_table.most_common()[0][1]
+        results.append(r)
+        word_id += 1
+        sentence_word_id += 1
+        if sentence_word_id >= len(sentence):
+            # Next sentence
+            sentence_id += 1
+            sentence_word_id = 0
+    return results
 
 
 def sentence_LAS(sent1, sent2):
@@ -386,4 +525,5 @@ def text_sentence_LAS(sents1, sents2):
         las = sentence_LAS(sent1, sent2)
         file_sentence_lases.append(las)
     return file_sentence_lases
+
 
