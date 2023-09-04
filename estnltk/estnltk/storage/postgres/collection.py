@@ -22,6 +22,7 @@ from estnltk.storage import postgres as pg
 from estnltk.storage.postgres import BufferedTableInsert
 from estnltk.storage.postgres import CollectionDetachedLayerInserter
 from estnltk.storage.postgres import CollectionTextObjectInserter
+from estnltk.storage.postgres import is_empty
 from estnltk.storage.postgres import count_rows
 from estnltk.storage.postgres import drop_layer_table
 from estnltk.storage.postgres import fragment_table_name
@@ -267,7 +268,7 @@ class PgCollection:
         self._meta = None
         self._column_names = None
         self._selected_layers = None
-        self._is_empty = not self.exists() or len(self) == 0
+        self._is_empty = not self.exists() or is_empty(self.storage, self.name)
 
     def create(self, description=None, meta: dict = None, temporary=None):
         """Creates and adds new collection to the database. 

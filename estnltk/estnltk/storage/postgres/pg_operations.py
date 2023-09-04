@@ -137,6 +137,19 @@ def drop_table(storage, table_name: str, cascade: bool = False):
                 logger.debug(c.query.decode())
 
 
+def is_empty(storage, table=None, table_identifier=None):
+    # An optimized function to quickly find out if a collection / table is empty
+    # (should work relatively fast even on large tables)
+    with storage.conn:
+        if table_identifier is not None:
+            with storage.conn.cursor() as c:
+                c.execute(SQL("SELECT NOT EXISTS (SELECT 1 FROM {} LIMIT 1)").format(table_identifier))
+                return c.fetchone()[0]
+        with storage.conn.cursor() as c:
+            c.execute(SQL("SELECT NOT EXISTS (SELECT 1 FROM {}.{} LIMIT 1)").format(Identifier(storage.schema), Identifier(table)))
+            return c.fetchone()[0]
+
+
 def count_rows(storage, table=None, table_identifier=None):
     # Convenient way of using connections and cursors as context managers:
     # https://www.psycopg.org/docs/usage.html#with-statement

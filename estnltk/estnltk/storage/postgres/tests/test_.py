@@ -21,6 +21,7 @@ from estnltk.storage.postgres import create_collection_table
 from estnltk.storage.postgres import delete_schema
 from estnltk.storage.postgres import drop_collection_table
 from estnltk.storage.postgres import table_exists
+from estnltk.storage.postgres import is_empty
 from estnltk.taggers import ParagraphTokenizer
 from estnltk.taggers import VabamorfTagger
 
@@ -200,6 +201,21 @@ class TestPgCollection(unittest.TestCase):
         assert len(collection) == 3
 
         self.storage.delete_collection(collection.name)
+
+    def test_collection_emptyness_check(self):
+        collection_name = get_random_collection_name()
+        collection = self.storage.add_collection(collection_name)
+
+        # newly created collection is empty
+        self.assertTrue( collection._is_empty )
+        self.assertTrue( is_empty(collection.storage, collection.name) )
+
+        with collection.insert() as collection_insert:
+            collection_insert( Text('Esimene tekst.') )
+
+        # collection is no longer empty after the insertion
+        self.assertFalse( collection._is_empty )
+        self.assertFalse( is_empty(collection.storage, collection.name) )
 
     def test_basic_collection_workflow(self):
         # insert texts -> create layers -> select texts

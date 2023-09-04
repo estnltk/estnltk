@@ -59,6 +59,7 @@ from .pg_operations import drop_collection_table
 from .pg_operations import drop_structure_table
 from .pg_operations import drop_layer_table
 
+from .pg_operations import is_empty
 from .pg_operations import count_rows
 
 from estnltk.storage.postgres.queries.layer_query import LayerQuery
