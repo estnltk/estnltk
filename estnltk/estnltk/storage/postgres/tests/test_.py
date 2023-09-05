@@ -217,6 +217,8 @@ class TestPgCollection(unittest.TestCase):
         self.assertFalse( collection._is_empty )
         self.assertFalse( is_empty(collection.storage, collection.name) )
 
+        self.storage.delete_collection(collection.name)
+
     def test_basic_collection_workflow(self):
         # insert texts -> create layers -> select texts
         collection_name = get_random_collection_name()
