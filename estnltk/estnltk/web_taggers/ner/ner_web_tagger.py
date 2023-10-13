@@ -18,7 +18,7 @@ class NerWebTagger(MultiLayerTagger):
     conf_param = ['custom_words_layer', 'url', 'batch_size', '_differ']
 
     def __init__(self, url='https://api.tartunlp.ai/bert/ner/v1', 
-                       ner_output_layer='webner', tokens_output_layer ='nertokens', 
+                       output_layer='webner', tokens_output_layer ='nertokens', 
                        custom_words_layer='words', batch_size = 4500):
         '''
         Initializes NerWebTagger that uses TartuNLP's NER web service for tagging.
@@ -27,7 +27,7 @@ class NerWebTagger(MultiLayerTagger):
         ----------
         url: str
             URL of the web service. Defaults to the TartuNLP neural NER web service URL. 
-        ner_output_layer: str
+        output_layer: str
             Name of the output named entity annotations layer. 
             Default: 'webner'.
         tokens_output_layer: str
@@ -48,7 +48,7 @@ class NerWebTagger(MultiLayerTagger):
             The input text is split into batches of the given size before processing. 
             Default: 4500
         '''
-        output_layers = ['ner'] if ner_output_layer is None else [ner_output_layer]
+        output_layers = ['ner'] if output_layer is None else [output_layer]
 
         self.url = url
         self.output_layers = output_layers
