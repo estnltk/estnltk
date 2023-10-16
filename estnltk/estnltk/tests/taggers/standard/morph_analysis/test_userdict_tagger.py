@@ -1,5 +1,3 @@
-import pytest
-
 from estnltk import Text
 from estnltk.common import PACKAGE_PATH
 
@@ -579,9 +577,8 @@ def test_userdict_tagger_words_with_skip_existing_analyses():
 
 
 
-@pytest.mark.xfail(reason="fails due to a bug, probably in UserDictTagger")
 def test_userdict_tagger_bug_changed_span_shows_old_value():
-    # UserDictTagger's bug: changed span still shows an old value
+    # UserDictTagger's bug: changed span still shows an old value [fixed]
     text = Text("Kaheteistkümne aastane. Kolmteistkümmend.")
     words_dict = \
         {'ambiguous': True,

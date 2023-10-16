@@ -606,6 +606,7 @@ class UserDictTagger(Retagger):
         morph_spans = layers[self.output_layer].spans
         attribute_names    = layers[self.output_layer].attributes
         estnltk_vm_attribs = [a for a in attribute_names if a not in [NORMALIZED_TEXT, IGNORE_ATTR]]
+        changed_spans = []
         while morph_span_id < len(morph_spans):
             # 1) Get morph records
             records = span_to_records( morph_spans[morph_span_id] )
@@ -661,11 +662,20 @@ class UserDictTagger(Retagger):
                     attributes = {attr: rec.get(attr) for attr in attribute_names}
                     span.add_annotation( Annotation(span, **attributes) )
 
-                # 2.5) Overwrite the old span
-                morph_spans[morph_span_id] = span
+                # 2.5) Remember the change (save mapping from old span to new span)
+                changed_spans.append( [morph_spans[morph_span_id], span])
 
             # Advance in the old "morph_analysis" layer
             morph_span_id += 1
+
+        # Execute changes on the layer
+        # ( must update both layer.span_list.spans && layer.span_list._base_span_to_span )
+        for [old_span, new_span] in changed_spans:
+            assert old_span.base_span == new_span.base_span
+            # Remove old span
+            layers[self.output_layer].remove_span(old_span)
+            # Add new span
+            layers[self.output_layer].add_span(new_span)
 
 
 
