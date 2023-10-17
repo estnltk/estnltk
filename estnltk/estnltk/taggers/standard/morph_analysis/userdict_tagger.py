@@ -144,11 +144,11 @@ class UserDictTagger(Retagger):
                                       'quotechar', 'quoting', 'skipinitialspace', 'strict']
             new_fmtparams = { name:kwargs.get(name) for name in allowed_fmtparam_names if name in kwargs.keys() }
             # 2) Add words from the CSV file
-            self.add_words_from_csv_file(csv_file, encoding=encoding, 
-                                         dialect=dialect, 
-                                         allow_unspecified_fields=allow_unspecified_fields, 
-                                         suppress_deprecation_warnings=True,
-                                         **new_fmtparams)
+            self._add_words_from_csv_file(csv_file, encoding=encoding, 
+                                          dialect=dialect, 
+                                          allow_unspecified_fields=allow_unspecified_fields, 
+                                          suppress_deprecation_warnings=True,
+                                          **new_fmtparams)
             words_supplied = True
         # Initialize #2: take data from the input dictionary
         if words_dict is not None:
@@ -156,7 +156,7 @@ class UserDictTagger(Retagger):
             # Add words from a Python dictionary
             for word in words_dict.keys():
                 analysis_struct = words_dict.get(word)
-                self.add_word( word, analysis_struct, suppress_deprecation_warnings=True )
+                self._add_word( word, analysis_struct, suppress_deprecation_warnings=True )
             words_supplied = True
         if not words_supplied:
             # Give a DeprecationWarning if an empty dictionary was created
@@ -167,7 +167,7 @@ class UserDictTagger(Retagger):
             warnings.simplefilter("ignore", DeprecationWarning)
 
 
-    def add_word(self, word, analysis_struct, suppress_deprecation_warnings=False):
+    def _add_word(self, word, analysis_struct, suppress_deprecation_warnings=False):
         """ Adds a word and its new morphological analysis to the user 
             dictionary.
             
@@ -226,12 +226,12 @@ class UserDictTagger(Retagger):
             
             suppress_deprecation_warnings: bool
                 This function gives a deprecation warning when called directly. 
-                In future, it should be only called via add_words_from_csv_file(),
+                In future, it should be only called via _add_words_from_csv_file(),
                 so you should not rely on the direct calling nor build upon it;
         """
         if not suppress_deprecation_warnings:
             warnings.simplefilter("always", DeprecationWarning)
-            warnings.warn('Adding words via add_word() will not be supported in future versions. '+\
+            warnings.warn('Adding words via _add_word() will not be supported in future versions. '+\
                           'Please use constructor parameter words_dict for passing dictionary entries to the tagger.', 
                           DeprecationWarning)
             warnings.simplefilter("ignore", DeprecationWarning)
@@ -316,11 +316,11 @@ class UserDictTagger(Retagger):
 
 
 
-    def add_words_from_csv_file(self, filename, encoding='utf-8', \
-                                dialect='excel-tab', 
-                                allow_unspecified_fields=True, 
-                                suppress_deprecation_warnings=False,
-                                **fmtparams):
+    def _add_words_from_csv_file(self, filename, encoding='utf-8', \
+                                 dialect='excel-tab', 
+                                 allow_unspecified_fields=True, 
+                                 suppress_deprecation_warnings=False,
+                                 **fmtparams):
         ''' Loads words with their morphological analyses from the given 
             csv file, and inserts to the user dictionary.
             
@@ -350,7 +350,7 @@ class UserDictTagger(Retagger):
             ambiguous word.
             
             Note: after analyses have been collected from the file, they
-            will be inserted to the dictionary via the method add_word().
+            will be inserted to the dictionary via the method _add_word().
             
             Parameters
             ----------
@@ -391,7 +391,7 @@ class UserDictTagger(Retagger):
         '''
         if not suppress_deprecation_warnings:
             warnings.simplefilter("always", DeprecationWarning)
-            warnings.warn('Adding words via add_words_from_csv_file() will not be supported in future versions. '+\
+            warnings.warn('Adding words via _add_words_from_csv_file() will not be supported in future versions. '+\
                           'Please use constructor parameter csv_file instead.', DeprecationWarning)
             warnings.simplefilter("ignore", DeprecationWarning)
         collected_analyses = {}
@@ -458,7 +458,7 @@ class UserDictTagger(Retagger):
                     #print(', '.join(row))
         # Rewrite all analyses into the user dict
         for word in collected_analyses.keys():
-            self.add_word( word, collected_analyses[word], suppress_deprecation_warnings=suppress_deprecation_warnings )
+            self._add_word( word, collected_analyses[word], suppress_deprecation_warnings=suppress_deprecation_warnings )
 
 
     def save_as_csv(self, filename, encoding='utf-8', \
