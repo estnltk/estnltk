@@ -606,7 +606,6 @@ class UserDictTagger(Retagger):
         morph_spans = layers[self.output_layer].spans
         attribute_names    = layers[self.output_layer].attributes
         estnltk_vm_attribs = [a for a in attribute_names if a not in [NORMALIZED_TEXT, IGNORE_ATTR]]
-        changed_spans = []
         while morph_span_id < len(morph_spans):
             # 1) Get morph records
             records = span_to_records( morph_spans[morph_span_id] )
@@ -649,34 +648,22 @@ class UserDictTagger(Retagger):
             if records_merged or overwrite_records:
                 records = overwrite_records if overwrite_records else records
                 
-                # 2.3) Create a new Span
-                span = Span(morph_spans[morph_span_id].base_span, layer=layers[self.output_layer])
+                # 2.3) Clear span from old annotations
+                span = morph_spans[morph_span_id]
+                span.clear_annotations()
 
                 # 2.4.1) Preserve existing records that were not allowed to be overwritten
                 if len(preserve_records) > 0:
                     for rec in preserve_records:
                         attributes = {attr: rec.get(attr) for attr in attribute_names}
                         span.add_annotation( Annotation(span, **attributes) )
-                # 2.4.2) Populate it with new records
+                # 2.4.2) Populate span with new records
                 for rec in records:
                     attributes = {attr: rec.get(attr) for attr in attribute_names}
                     span.add_annotation( Annotation(span, **attributes) )
 
-                # 2.5) Remember the change (save mapping from old span to new span)
-                changed_spans.append( [morph_spans[morph_span_id], span])
-
             # Advance in the old "morph_analysis" layer
             morph_span_id += 1
-
-        # Execute changes on the layer
-        # ( must update both layer.span_list.spans && layer.span_list._base_span_to_span )
-        for [old_span, new_span] in changed_spans:
-            assert old_span.base_span == new_span.base_span
-            # Remove old span
-            layers[self.output_layer].remove_span(old_span)
-            # Add new span
-            layers[self.output_layer].add_span(new_span)
-
 
 
     def validate_morph_record_for_vm_categories(self, morph_dict):
