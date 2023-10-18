@@ -411,6 +411,19 @@ class BaseLayer:
 
     @property
     def spans(self):
+        """Returns the list of spans of this layer, sorted by 
+           start indexes.
+           
+           **Important**: Do not add, remove or rewrite spans 
+           in this list, as this creates inconsistencies in 
+           layer's data structures! 
+           You should only add spans via layer methods 
+           add_annotation/add_span, and remove spans via layer 
+           method remove_span (or clear_spans). 
+           For rewriting a span (changing its annotations), 
+           use a combination of span.clear_annotations() and 
+           span.add_annotation( annotation_dict ).
+        """
         return self._span_list.spans
 
     @property

@@ -20,7 +20,8 @@ class Disambiguator(Retagger):
     which is applied on every span of the input 
     layer.
     The decorator function takes 2 input parameters: 
-    span and raw_text corresponding to the span. 
+    span and raw_text corresponding to the whole
+    text where the span is marked. 
     The function is expected to pick one of the span's 
     annotations (or, alternatively, create a new 
     annotation based on existing ones) and return 

@@ -672,11 +672,12 @@ def test_userdict_tagger_bug_changed_span_shows_old_value():
     assert list(text['morph_analysis'][0]['root']) == ['kaks_teist_kümmend']
     assert list(text['morph_analysis'][3]['root']) == ['kolm_teist_kümmend']
 
-    # B) if we access morph span by corresponding word span, then we get incorrect/old value
+    # B) if we access morph span by corresponding word span, then we should also get 
+    #    the correct value (after the bugfix)
     assert list(text['morph_analysis'].get(text['words'][0])['root']) == ['kaks_teist_kümmend']
     assert list(text['morph_analysis'].get(text['words'][3])['root']) == ['kolm_teist_kümmend']
 
-    # Both ways of accessing should give the same spans!
+    # Both ways of accessing should give the same spans! (after the bugfix)
     assert text['morph_analysis'].get(text['words'][0]) is text['morph_analysis'][0]
     assert text['morph_analysis'].get(text['words'][3]) is text['morph_analysis'][3]
 
