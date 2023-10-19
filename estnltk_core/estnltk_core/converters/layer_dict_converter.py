@@ -1,11 +1,14 @@
 from estnltk_core.converters.default_serialisation import layer_to_dict as default_layer_to_dict
 from estnltk_core.converters.default_serialisation import dict_to_layer as default_dict_to_layer
 from estnltk_core.converters.serialisation_registry import SERIALISATION_REGISTRY
-import estnltk_core.converters.relation_layer_serialisation_v0 as relations_serialisation
+import estnltk_core.converters.relation_layer_serialisation_v0 as relations_serialisation_v0
+import estnltk_core.converters.relation_layer_serialisation_v1 as relations_serialisation_v1
 
 # Update global serialization registry: add default relations_serialisation
-if relations_serialisation.__version__ not in SERIALISATION_REGISTRY:
-    SERIALISATION_REGISTRY[relations_serialisation.__version__] = relations_serialisation
+if relations_serialisation_v0.__version__ not in SERIALISATION_REGISTRY:
+    SERIALISATION_REGISTRY[relations_serialisation_v0.__version__] = relations_serialisation_v0
+if relations_serialisation_v1.__version__ not in SERIALISATION_REGISTRY:
+    SERIALISATION_REGISTRY[relations_serialisation_v1.__version__] = relations_serialisation_v1
 
 
 def layer_to_dict(layer):

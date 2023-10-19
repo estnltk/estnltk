@@ -1,5 +1,5 @@
 #
-#  RelationsLayer is a special layer for holding Relation annotations.
+#  RelationLayer is a special layer for holding Relation annotations.
 #  Relation consists of named BaseSpans (NamedSpan objects) and a list of RelationAnnotations.
 #
 #  Example usage:
@@ -65,6 +65,8 @@ class RelationLayer:
     * each relation must have at least one NamedSpan, and at least one RelationAnnotation;
     * a relation does not need to have all spans defined by the layer, some spans 
       (but not all) can be empty/unassigned;
+    * ordering of span names and attribute names in the HTML output can be customized 
+      via parameter display_order;
     
     Example usage:
     
@@ -83,17 +85,18 @@ class RelationLayer:
     
     """
 
-    __slots__ = ['name', 'span_names', 'attributes', 'secondary_attributes', 'ambiguous', 
-                 'text_object', 'serialisation_module', 'meta', '_relation_list']
+    __slots__ = ['name', 'span_names', 'attributes', 'secondary_attributes', 'display_order',
+                 'ambiguous', 'text_object', 'serialisation_module', 'meta', '_relation_list']
     
     def __init__(self,
                  name: str,
                  span_names: Sequence[str] = (),
                  attributes: Sequence[str] = (),
                  secondary_attributes: Sequence[str] = (),
+                 display_order: Sequence[str] = (),
                  text_object: Union['BaseText','Text']=None,
                  ambiguous: bool = False,
-                 serialisation_module: str="relations_v0"
+                 serialisation_module: str="relations_v1"
                  ) -> None:
         """
         Initializes a new RelationLayer object based on given configuration.
@@ -102,7 +105,11 @@ class RelationLayer:
         * span_names must contain at least one name;
         * span_names must be valid identifiers;
         * span_names and attributes cannot have overlap;
-        * secondary_attribute must be a subset of attributes;
+        * secondary_attributes must be a subset of attributes;
+        
+        display_order is a list with customized order of span_names and 
+        attributes that is used only in displaying contents of the relation 
+        layer. Defaults to span_names + attributes.
         """
         # name of the layer
         self.name = name
@@ -115,11 +122,16 @@ class RelationLayer:
         object.__setattr__(self, 'span_names', ())
         object.__setattr__(self, 'attributes', ())
         object.__setattr__(self, 'secondary_attributes', ())
+        object.__setattr__(self, 'display_order', ())
         # set variables (with validation done inside __setattr__)
         self.span_names = span_names
         self.attributes = attributes
         self.secondary_attributes = secondary_attributes
-
+        if len(display_order) > 0:
+            # Only set display_order if it's defined by the user. 
+            # Otherwise, display_order will be set automatically 
+            # inside the setter function.
+            self.display_order = display_order
 
     @property
     def span_level(self):
@@ -281,6 +293,9 @@ class RelationLayer:
         if tuple(self.secondary_attributes) != tuple(other.secondary_attributes):
             return ("{self.name} layer secondary_attributes differ: {self.secondary_attributes} != {other.secondary_attributes}"+\
                     "").format(self=self, other=other)
+        if tuple(self.display_order) != tuple(other.display_order):
+            return ("{self.name} layer display_order values differ: {self.display_order} != {other.display_order}"+\
+                    "").format(self=self, other=other)
         if self.ambiguous != other.ambiguous:
             return "{self.name} layer ambiguous differs: {self.ambiguous} != {other.ambiguous}".format(self=self,
                                                                                                        other=other)
@@ -299,6 +314,7 @@ class RelationLayer:
                     meta=self.meta,
                     span_names=self.span_names,
                     attributes=self.attributes,
+                    display_order=self.display_order,
                     secondary_attributes=self.secondary_attributes,
                     _relation_list=self._relation_list)
 
@@ -312,11 +328,13 @@ class RelationLayer:
         object.__setattr__(self, 'span_names', ())
         object.__setattr__(self, 'attributes', ())
         object.__setattr__(self, 'secondary_attributes', ())
+        object.__setattr__(self, 'display_order', ())
         # set variables (with validation done inside __setattr__)
         self.name = state['name']
         self.span_names = state['span_names']
         self.attributes = state['attributes']
         self.secondary_attributes = state['secondary_attributes']
+        self.display_order = state['display_order']
         # add relations
         for relation in state['_relation_list']:
             assert id(relation.relation_layer) == id(self), \
@@ -332,6 +350,7 @@ class RelationLayer:
                                  span_names=deepcopy(self.span_names, memo),
                                  attributes=deepcopy(self.attributes, memo),
                                  secondary_attributes=deepcopy(self.secondary_attributes, memo),
+                                 display_order=deepcopy(self.display_order, memo),
                                  text_object=None,
                                  ambiguous=self.ambiguous,
                                  serialisation_module=self.serialisation_module )
@@ -399,6 +418,8 @@ class RelationLayer:
                 'span_names cannot have overlapping values with attributes: {}'.format(list(common))
             # set span_names
             super().__setattr__('span_names', span_names)
+            # reset display_order
+            object.__setattr__(self, 'display_order', span_names+(self.attributes if self.attributes is not None else ()) )
             return
         elif key == 'attributes':
             # check attributes
@@ -421,6 +442,8 @@ class RelationLayer:
                 if sec_attrib in self.attributes:
                     new_secondary_attributes.append(sec_attrib)
             object.__setattr__(self, 'secondary_attributes', tuple(new_secondary_attributes))
+            # reset display_order
+            object.__setattr__(self, 'display_order', (self.span_names if self.span_names is not None else ())+attributes ) 
             return 
         elif key == 'secondary_attributes':
             # check secondary_attributes
@@ -435,6 +458,28 @@ class RelationLayer:
             # set secondary_attributes
             secondary_attributes = tuple(secondary_attributes)
             super().__setattr__('secondary_attributes', secondary_attributes)
+            return
+        elif key == 'display_order':
+            # check display_order
+            display_order = value
+            assert not isinstance(display_order, str), \
+                'display_order must be a list or tuple of strings, not a single string {!r}'.format(display_order)
+            display_order = tuple(display_order)
+            # validate that display_order only contains elements from span_names and attributes
+            for disp_attr in display_order:
+                if not (disp_attr in self.span_names or disp_attr in self.attributes):
+                    raise ValueError( \
+                        'display_order element {!r} not listed in span_names {!r} nor in attributes {!r}.'.format( \
+                            disp_attr, self.span_names, self.attributes))
+            # validate that all elements of span_names and attributes are inside display_order
+            for sp in self.span_names:
+                if sp not in display_order:
+                    raise ValueError('span_name {!r} missing from display_order {!r}'.format(sp, display_order))
+            for attr in self.attributes:
+                if attr not in display_order:
+                    raise ValueError('attribute {!r} missing from display_order {!r}'.format(attr, display_order))
+            # we're good to go: set display_order
+            super().__setattr__('display_order', display_order)
             return
         super().__setattr__(key, value)
 
@@ -475,32 +520,35 @@ class RelationLayer:
         table_1 = self.get_overview_dataframe().to_html(index=False, escape=False)
         # Construct layer table
         table_2 = ''
-        columns = self.span_names + self.attributes
+        # Follow the display order (which can be customized)
+        columns = self.display_order
         layer_table_content = []
         for relation in self:
-            spans = []
-            for sp in self.span_names:
-                span_repr = None
-                if relation[sp] is not None:
-                    span_repr = relation[sp].text
-                    if span_repr is None:
-                        # This means that no Text object is attached. 
-                        # Then use base_span value instead of text
-                        span_repr = str(relation[sp].base_span.raw())
-                spans.append( span_repr )
-            attrib_values = relation[self.attributes]
-            if not self.ambiguous:
-                layer_table_content.append(spans + attrib_values)
-            else:
-                # attrib_values is a list of lists
-                empty_spans = ['' for i in range(len(self.span_names))]
-                first = True
-                for values in attrib_values:
-                    if first:
-                        layer_table_content.append(spans + values)
-                    else:
-                        layer_table_content.append(empty_spans + values)
-                    first = False
+            for i in range( len(relation.annotations) ):
+                values = []
+                for column in self.display_order:
+                    if column in self.span_names:
+                        if i == 0:
+                            span_repr = None
+                            if relation[column] is not None:
+                                span_repr = relation[column].text
+                                if span_repr is None:
+                                    # This means that no Text object is attached. 
+                                    # Then use base_span value instead of text
+                                    span_repr = str(relation[column].base_span.raw())
+                            values.append( span_repr )
+                        else:
+                            # the second annotation of an ambiguous span:
+                            # display only annotations, skip span representations
+                            values.append( '' )
+                    elif column in self.attributes:
+                        val = relation[column]
+                        if not self.ambiguous:
+                            values.append( relation[column] )
+                        else:
+                            values.append( relation[column][i] )
+                assert len(values)==len(self.span_names)+len(self.attributes)
+                layer_table_content.append( values )
         df = pandas.DataFrame.from_records(layer_table_content, columns=columns)
         table_2 = df.to_html(index=False, escape=True)
         return '\n'.join(('<h4>{}</h4>'.format(self.__class__.__name__), meta, text_object_msg, table_1, table_2))

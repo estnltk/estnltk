@@ -330,6 +330,7 @@ def test_join_relation_layers():
         {'ambiguous': False,
          'attributes': ('rel_index', 'str_a', 'str_b'),
          'span_names': ('arg_a', 'arg_b'),
+         'display_order': ('arg_a', 'arg_b', 'rel_index', 'str_a', 'str_b'), 
          'meta': {},
          'name': 'relation_layer',
          'relations': [{'annotations': [{'rel_index': 0, 'str_a': 'A', 'str_b': 'CD'}],
@@ -338,11 +339,12 @@ def test_join_relation_layers():
                         'named_spans': {'arg_a': (0, 1), 'arg_b': (3, 4)}},
                       ],
          'secondary_attributes': (),
-         'serialisation_module': 'relations_v0'},
+         'serialisation_module': 'relations_v1'},
          
         {'ambiguous': False,
          'attributes': ('rel_index', 'str_a', 'str_b'),
          'span_names': ('arg_a', 'arg_b'),
+         'display_order': ('arg_a', 'arg_b', 'rel_index', 'str_a', 'str_b'), 
          'meta': {},
          'name': 'relation_layer',
          'relations': [{'annotations': [{'rel_index': 2, 'str_a': '1', 'str_b': '4'}],
@@ -351,18 +353,19 @@ def test_join_relation_layers():
                         'named_spans': {'arg_a': (1, 2), 'arg_b': (4, 6)}},
                       ],
          'secondary_attributes': (),
-         'serialisation_module': 'relations_v0'},
+         'serialisation_module': 'relations_v1'},
          
         {'ambiguous': False,
          'attributes': ('rel_index', 'str_a', 'str_b'),
          'span_names': ('arg_a', 'arg_b'),
+         'display_order': ('arg_a', 'arg_b', 'rel_index', 'str_a', 'str_b'), 
          'meta': {},
          'name': 'relation_layer',
          'relations': [{'annotations': [{'rel_index': 4, 'str_a': 'X', 'str_b': 'Z'}],
                         'named_spans': {'arg_a': (0, 1), 'arg_b': (2, 3)}},
                       ],
          'secondary_attributes': (),
-         'serialisation_module': 'relations_v0'}
+         'serialisation_module': 'relations_v1'}
     ]
     rel_layers = [ dict_to_layer(layer_dict) for layer_dict in split_relation_layers ]
     # Add Text objects to layers (join_relation_layers* needs texts to determine span shifts)
@@ -381,6 +384,7 @@ def test_join_relation_layers():
     expected_relation_layer = \
         {'ambiguous': False,
          'attributes': ('rel_index', 'str_a', 'str_b'),
+         'display_order': ('arg_a', 'arg_b', 'rel_index', 'str_a', 'str_b'), 
          'meta': {},
          'name': 'relation_layer',
          'relations': [{'annotations': [{'rel_index': 0, 'str_a': 'A', 'str_b': 'CD'}],
@@ -394,7 +398,7 @@ def test_join_relation_layers():
                        {'annotations': [{'rel_index': 4, 'str_a': 'X', 'str_b': 'Z'}],
                         'named_spans': {'arg_a': (13, 14), 'arg_b': (15, 16)}}],
          'secondary_attributes': (),
-         'serialisation_module': 'relations_v0',
+         'serialisation_module': 'relations_v1',
          'span_names': ('arg_a', 'arg_b')}
     assert layer_to_dict(new_text['relation_layer']) == expected_relation_layer
 
