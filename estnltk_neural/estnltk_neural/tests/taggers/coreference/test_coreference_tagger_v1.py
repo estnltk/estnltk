@@ -11,12 +11,23 @@ COREF_V1_MODEL_PATH = get_resource_paths("coreference_v1", only_latest=True, dow
 skip_message_missing_models = \
   "CoreferenceTagger's resources have not been downloaded. Use estnltk.download('coreference_v1') to fetch the missing resources."
 
+#
+#  Note: since each initialization of CoreferenceTagger retrains the model, 
+#  the outcome depends on specific versions of libraries used during in the 
+#  training. 
+#  Notable prediction differences appeared when xgboost version was changed 
+#  from 1.7.4 to 2.0.0, mostly due to the change of the default tree method 
+#  in xgboost. 
+#  So, currently, we test for varying outcomes, although a more stable 
+#  solution is desirable.
+#
 
 @unittest.skipIf(COREF_V1_MODEL_PATH is None,
                  reason=skip_message_missing_models)
 def test_coreference_tagger_smoke():
     # Test that CoreferenceTagger runs OK with default options
-    coref_tagger = CoreferenceTagger(resources_dir=COREF_V1_MODEL_PATH)
+    coref_tagger = CoreferenceTagger(resources_dir=COREF_V1_MODEL_PATH,
+                                     xgb_tree_method='approx')
     text = Text('Mina ei tagane sammugi, põrutas kapten Silver Üksjalg meestele.')
     coref_tagger.tag(text)
     assert coref_tagger.output_layer in text.relation_layers
@@ -26,12 +37,13 @@ def test_coreference_tagger_smoke():
     expected_coref_layer_dict = \
         {'ambiguous': False,
          'attributes': ('chain_id',),
+         'display_order': ('pronoun', 'mention', 'chain_id'),
          'meta': {},
          'name': 'coreference',
          'relations': [{'annotations': [{'chain_id': 0}],
                         'named_spans': {'mention': (39, 45), 'pronoun': (0, 4)}}],
          'secondary_attributes': (),
-         'serialisation_module': 'relations_v0',
+         'serialisation_module': 'relations_v1',
          'span_names': ('pronoun', 'mention')}
     #from pprint import pprint
     #pprint( layer_to_dict( coref_layer ) )
@@ -42,7 +54,8 @@ def test_coreference_tagger_smoke():
                  reason=skip_message_missing_models)
 def test_coreference_tagger_multisentence_text():
     # Test CoreferenceTagger on multisentence text
-    coref_tagger = CoreferenceTagger(resources_dir=COREF_V1_MODEL_PATH)
+    coref_tagger = CoreferenceTagger(resources_dir=COREF_V1_MODEL_PATH,
+                                     xgb_tree_method='approx')
     text = Text('Piilupart Donald, kes kunagi ei anna järele, läks uuele ringile. '+\
                 'Ta kärkis ja paukus, kuni muusika vaikis ja pasadoobel seiskus. '+\
                 'Mis sa tühja lällad, küsis rahvas.')
@@ -51,9 +64,11 @@ def test_coreference_tagger_multisentence_text():
     coref_layer = text[coref_tagger.output_layer]
     #from pprint import pprint
     #pprint( layer_to_dict(coref_layer) )
-    expected_coref_layer_dict = \
+    # There are different outcomes, depending on the xgboost version:
+    expected_coref_layer_dict_1 = \
         {'ambiguous': False,
          'attributes': ('chain_id',),
+         'display_order': ('pronoun', 'mention', 'chain_id'),
          'meta': {},
          'name': 'coreference',
          'relations': [{'annotations': [{'chain_id': 0}],
@@ -63,9 +78,23 @@ def test_coreference_tagger_multisentence_text():
                        {'annotations': [{'chain_id': 0}],
                         'named_spans': {'mention': (10, 16), 'pronoun': (133, 135)}}],
          'secondary_attributes': (),
-         'serialisation_module': 'relations_v0',
+         'serialisation_module': 'relations_v1',
          'span_names': ('pronoun', 'mention')}
-    assert layer_to_dict(coref_layer) == expected_coref_layer_dict
+    expected_coref_layer_dict_2 = \
+        {'ambiguous': False,
+         'attributes': ('chain_id',),
+         'display_order': ('pronoun', 'mention', 'chain_id'),
+         'meta': {},
+         'name': 'coreference',
+         'relations': [{'annotations': [{'chain_id': 0}],
+                        'named_spans': {'mention': (10, 16), 'pronoun': (18, 21)}},
+                       {'annotations': [{'chain_id': 0}],
+                        'named_spans': {'mention': (10, 16), 'pronoun': (65, 67)}}],
+         'secondary_attributes': (),
+         'serialisation_module': 'relations_v1',
+         'span_names': ('pronoun', 'mention')}
+    assert layer_to_dict(coref_layer) == expected_coref_layer_dict_1 or \
+           layer_to_dict(coref_layer) == expected_coref_layer_dict_2
 
 
 @unittest.skipIf(COREF_V1_MODEL_PATH is None,
@@ -144,13 +173,16 @@ def test_coreference_tagger_with_named_entities_layer():
                     'base_span': ((0, 9), (10, 16))}]}
     text.add_layer( dict_to_layer(ner_layer_dict) )
     coref_tagger = CoreferenceTagger(resources_dir=COREF_V1_MODEL_PATH, 
+                                     xgb_tree_method='approx', 
                                      ner_layer='ner')
     coref_tagger.tag(text)
     assert coref_tagger.output_layer in text.relation_layers
     coref_layer = text[coref_tagger.output_layer]
-    expected_coref_layer_dict = \
+    # There are different outcomes, depending on the xgboost version:
+    expected_coref_layer_dict_1 = \
         {'ambiguous': False,
          'attributes': ('chain_id',),
+         'display_order': ('pronoun', 'mention', 'chain_id'),
          'meta': {},
          'name': 'coreference',
          'relations': [{'annotations': [{'chain_id': 0}],
@@ -160,7 +192,21 @@ def test_coreference_tagger_with_named_entities_layer():
                        {'annotations': [{'chain_id': 0}],
                         'named_spans': {'mention': (0, 16), 'pronoun': (133, 135)}}],
          'secondary_attributes': (),
-         'serialisation_module': 'relations_v0',
+         'serialisation_module': 'relations_v1',
          'span_names': ('pronoun', 'mention')}
-    assert layer_to_dict(coref_layer) == expected_coref_layer_dict
+    expected_coref_layer_dict_2 = \
+        {'ambiguous': False,
+         'attributes': ('chain_id',),
+         'display_order': ('pronoun', 'mention', 'chain_id'),
+         'meta': {},
+         'name': 'coreference',
+         'relations': [{'annotations': [{'chain_id': 0}],
+                        'named_spans': {'mention': (0, 16), 'pronoun': (18, 21)}},
+                       {'annotations': [{'chain_id': 0}],
+                        'named_spans': {'mention': (0, 16), 'pronoun': (65, 67)}}],
+         'secondary_attributes': (),
+         'serialisation_module': 'relations_v1',
+         'span_names': ('pronoun', 'mention')}
+    assert layer_to_dict(coref_layer) == expected_coref_layer_dict_1 or \
+           layer_to_dict(coref_layer) == expected_coref_layer_dict_2
 
