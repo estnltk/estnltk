@@ -159,8 +159,8 @@ def generate_features(input_text, dict_background_res, stanza_nlp):
     assert list(dict_locations.keys()) == list(dict_features.keys())
     return dict_locations, dict_features
 
-_start_char_pat = re.compile('start_char=(\d+)')
-_end_char_pat = re.compile('end_char=(\d+)')
+_start_char_pat = re.compile(r'start_char=(\d+)')
+_end_char_pat = re.compile(r'end_char=(\d+)')
 
 def extract_span_location(misc_value):
     '''Extracts start,end span locations from conllu 'misc' value.'''
