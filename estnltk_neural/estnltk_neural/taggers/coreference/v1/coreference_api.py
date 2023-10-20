@@ -45,20 +45,26 @@ def init_stanza_pipeline(config=None):
     nlp = stanza.Pipeline(**config)
     return nlp
 
-def fit_model(f_feature_names, f_training_file):
-    '''Fits coreference prediction model based on given feature_names and training_file.
+def fit_model(f_feature_names, f_training_file, tree_method=None):
+    '''Fits coreference prediction model based on given feature_names and training_file. 
+       
+       tree_method is an optional parameter passed to the XGBClassifier. Since xgboost 
+       version 2.0, the default tree_method has been changed, so this parameter allows 
+       to roll back to the previous tree_method to restore the old behaviour of the 
+       model. 
+       
        Returns (sklearn.pipeline.Pipeline, pipeline_features).
     '''
     dict_feature_type = utilities.get_feature_type(f_feature_names)
     categorical_features = [feature for feature in dict_feature_type if dict_feature_type[feature] == 'categorical']
     ct = ColumnTransformer([('one_hot_encoder', OneHotEncoder(categories='auto',handle_unknown='ignore'), categorical_features)],remainder = 'passthrough')
-    pipeline = Pipeline(steps=[('t', ct), ('m', XGBClassifier())])
+    pipeline = Pipeline(steps=[('t', ct), ('m', XGBClassifier(tree_method=tree_method))])
     X_train, y_train, features = utilities.getXy(f_training_file)
     pipeline.fit(X_train, y_train)
     return pipeline, features
 
 def initialize_coreference_components(resources_root_dir, resource_catalog, stanza_models_dir, training_file, train_feature_names_file, 
-                                      logger=None, embedding_locations=None, stanza_use_gpu=None):
+                                      logger=None, embedding_locations=None, stanza_use_gpu=None, xgb_tree_method=None):
     '''Initializes all resources/components required by Estonian Coreference System.'''
     if logger is None:
         # use the default logger
@@ -85,7 +91,7 @@ def initialize_coreference_components(resources_root_dir, resource_catalog, stan
         logger.info(f"""test::Inited the embedding models from=> {list(embedding_locations.keys())}""")
     # Fit model
     logger.info(f"""test::Fitting model based on=> {training_file}""")
-    model, model_features = fit_model(train_feature_names_file, training_file)
+    model, model_features = fit_model(train_feature_names_file, training_file, tree_method=xgb_tree_method)
     # Initialize background resources (required for feature extraction)
     dict_background_res = { 
         "context": utilities.read_context_file(dict_catalog["sentence_context_file"]),

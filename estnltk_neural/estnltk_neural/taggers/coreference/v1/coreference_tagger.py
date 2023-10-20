@@ -110,7 +110,7 @@ class CoreferenceTagger(RelationTagger):
                   '_predict']
     
     def __init__(self, output_layer='coreference', resources_dir=None, stanza_models_dir=None, 
-                       ner_layer=None, add_chain_ids=True, logger=None):
+                       ner_layer=None, add_chain_ids=True, logger=None, xgb_tree_method=None):
         """Initializes pronominal coreference relation tagger.
         
         Parameters
@@ -142,7 +142,14 @@ class CoreferenceTagger(RelationTagger):
             assigns a "chain_id" (integer starting from 0) to each relation. 
         
         logger (default: None)
+            Optional. A customized logger that is used for recording messages 
+            of the coreference system (mostly during the initialization phase).
             
+        xgb_tree_method: str (default: None)
+            An optional parameter passed to the XGBClassifier. Since xgboost 
+            version 2.0, the default tree_method has been changed, so changing 
+            this parameter allows to restore to the old behaviour of the model. 
+            More details: https://xgboost.readthedocs.io/en/stable/treemethod.html
         """
         self.output_layer = output_layer
         self.input_layers = ()
@@ -206,7 +213,8 @@ class CoreferenceTagger(RelationTagger):
                                               training_file, 
                                               train_feature_names_file, 
                                               embedding_locations=embedding_locations,
-                                              logger=logger)
+                                              logger=logger,
+                                              xgb_tree_method=xgb_tree_method)
         self.stanza_nlp = stanza_nlp
         self._dict_background_res = dict_background_res
         self.coref_model = model
