@@ -173,7 +173,6 @@ def test_coreference_tagger_with_named_entities_layer():
                     'base_span': ((0, 9), (10, 16))}]}
     text.add_layer( dict_to_layer(ner_layer_dict) )
     coref_tagger = CoreferenceTagger(resources_dir=COREF_V1_MODEL_PATH, 
-                                     xgb_tree_method='approx', 
                                      ner_layer='ner')
     coref_tagger.tag(text)
     assert coref_tagger.output_layer in text.relation_layers

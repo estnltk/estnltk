@@ -247,8 +247,18 @@ class CoreferenceTagger(RelationTagger):
 
 
 def expand_mentions_to_named_entities(relations, ner_layer):
-    '''Expands mentions (in results) to full extend named entity phrases,
-       using the phrases from given ner_layer.'''
+    '''Expands mentions (in results) to full extend named entity phrases, 
+       using the phrases from given ner_layer. 
+       
+       Note: due to the expansion, we may end up with coreference relation 
+       duplicates. E.g. a pronoun may refer to the first name, and, in 
+       another relation, to the last name. If we join the first name and 
+       the last name into one named entity, then we get two identical 
+       relations. 
+       This method automatically removes such duplicate relations. 
+    '''
+    seen_relations = []
+    removable_duplicates = []
     for relation in relations:
         mention_start = relation['mention'][0]
         mention_end   = relation['mention'][1]
@@ -258,9 +268,19 @@ def expand_mentions_to_named_entities(relations, ner_layer):
                mention_end <= ner_phrase.end:
                 # Check that mention is shorter than the NER phrase
                 if mention_end-mention_start<ner_phrase.end-ner_phrase.start:
-                    # Update mention location from NER phrase
-                    relation['mention'] = (ner_phrase.start, ner_phrase.end)
+                    # Check for duplicates 
+                    key = (relation['pronoun'][0], relation['pronoun'][1],
+                           ner_phrase.start, ner_phrase.end)
+                    if key in seen_relations:
+                        # Remove this relation altogether
+                        removable_duplicates.append(relation)
+                    else:
+                        # Update mention location from NER phrase
+                        relation['mention'] = (ner_phrase.start, ner_phrase.end)
+                        seen_relations.append( key )
                     break
+    for duplicate in removable_duplicates:
+        relations.remove(duplicate)
     return relations
 
 
