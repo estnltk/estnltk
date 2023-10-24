@@ -186,11 +186,8 @@ class SpanTagger(Tagger):
                     annotation[self.priority_attribute] = priority
                 if self.pattern_attribute:
                     annotation[self.pattern_attribute] = pattern
-                rec = annotation
-                # TODO: why we discard group_attribute, priority_attribute &
-                # pattern_attribute here ?!
-                attributes = {attr: rec[attr] for attr in layer.attributes}
-                output.append( (text_obj, base_span, attributes) )
+                annotation = self.global_decorator(raw_text, cur_tuple[0], annotation)
+                output.append( (text_obj, base_span, annotation) )
         return output
 
     def add_redecorated_annotations_to_layer(
@@ -209,9 +206,9 @@ class SpanTagger(Tagger):
 
         raw_text = layer.text_object
 
-        for tuple in sorted_tuples:
-            pattern = tuple[1]
-            span = Span(base_span=tuple[0], layer=layer)
+        for cur_tuple in sorted_tuples:
+            pattern = cur_tuple[1]
+            span = Span(base_span=cur_tuple[0], layer=layer)
             static_rulelist = self.static_ruleset_map.get(pattern, None)
             for group, priority, annotation in static_rulelist:
                 annotation = annotation.copy()
@@ -221,13 +218,8 @@ class SpanTagger(Tagger):
                     annotation[self.priority_attribute] = priority
                 if self.pattern_attribute:
                     annotation[self.pattern_attribute] = pattern
-                rec = annotation
-                # TODO: why we discard group_attribute, priority_attribute &
-                # pattern_attribute here ?!
-                attributes = {attr: rec[attr] for attr in layer.attributes}
                 if self.global_decorator is not None:
-                    annotation = self.global_decorator(raw_text, tuple[0], attributes)
-
+                    annotation = self.global_decorator(raw_text, cur_tuple[0], annotation)
                 subindex = self.dynamic_ruleset_map.get(pattern, None)
                 decorator = subindex[(group, priority)] if subindex is not None else None
                 if decorator is None:
