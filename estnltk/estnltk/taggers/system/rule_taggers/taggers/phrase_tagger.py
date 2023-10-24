@@ -77,6 +77,9 @@ class PhraseTagger(Tagger):
         pattern_attribute: str (Default: None)
             If not None, the final annotation contains the pattern attribute of the rule with the given name
         """
+        # TODO: It is impossible to determine the layer type based on the ruleset as input layer can be anbigious
+        # Thus, we should specify this explicitly during the initialisation
+
         self.conf_param = ('input_attribute', 'ruleset', 'decorator', '_heads','ignore_case',
                            'conflict_resolver', 'phrase_attribute', 'group_attribute', 'priority_attribute',
                            'pattern_attribute', 'static_ruleset_map', 'dynamic_ruleset_map')
@@ -173,6 +176,8 @@ class PhraseTagger(Tagger):
             self._heads[phrase[0]] = current_phrase
 
     def _make_layer_template(self):
+        # TODO: It is impossible to determine the layer type based on the ruleset as input layer can be anbigious
+        # Thus, we should specify this explicitly during the initialisation
         return Layer(name=self.output_layer,
                      attributes=self.output_attributes,
                      text_object=None,
