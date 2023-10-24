@@ -186,7 +186,6 @@ class SpanTagger(Tagger):
                     annotation[self.priority_attribute] = priority
                 if self.pattern_attribute:
                     annotation[self.pattern_attribute] = pattern
-                annotation = self.global_decorator(raw_text, cur_tuple[0], annotation)
                 output.append( (text_obj, base_span, annotation) )
         return output
 
