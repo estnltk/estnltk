@@ -227,6 +227,30 @@ class RegexTagger(Tagger):
 
         return sorted(match_tuples, key=lambda x: (x[0].start, x[0].end))
 
+    def get_decorator_inputs(self, text_obj, match_list):
+        """
+        Converts all matches into decorator inputs. 
+        The input match_list is expected to be the output of 
+        self.extract_annotations or keep_minimal_matches/
+        keep_maximal_matches.
+        Returns list of tuples (text_obj, base_span, annotation).
+        This method is mainly used in decorator development & 
+        debugging. 
+        """
+        output = []
+        for i, (base_span, matchobj, rule) in enumerate(match_list):
+            static_rulelist = self.static_ruleset_map.get(phrase, None)
+            annotation_dict = rule.attributes.copy()
+            annotation_dict[self.match_attribute] = matchobj
+            if self.group_attribute:
+                annotation_dict[self.group_attribute] = rule.group
+            if self.priority_attribute:
+                annotation_dict[self.priority_attribute] = rule.priority
+            if self.pattern_attribute:
+                annotation_dict[self.pattern_attribute] = rule.pattern
+            output.append( (text_obj, base_span, annotation) )
+        return output
+
     def add_decorated_annotations_to_layer(
             self,
             layer: Layer,

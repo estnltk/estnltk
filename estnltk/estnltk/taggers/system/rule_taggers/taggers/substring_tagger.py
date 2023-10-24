@@ -317,6 +317,30 @@ class SubstringTagger(Tagger):
 
         return sorted(match_tuples, key=lambda x: (x[0].start, x[0].end))
 
+    def get_decorator_inputs(self, text_obj, match_list):
+        """
+        Converts all matches into decorator inputs. 
+        The input match_list is expected to be the output of 
+        self.extract_annotations or keep_minimal_matches/
+        keep_maximal_matches.
+        Returns list of tuples (text_obj, base_span, annotation).
+        This method is mainly used in decorator development & 
+        debugging. 
+        """
+        output = []
+        for i, (base_span, pattern) in enumerate(match_list):
+            static_rulelist = self.static_ruleset_map.get(pattern, None)
+            for group, priority, annotation in static_rulelist:
+                annotation = annotation.copy()
+                if self.group_attribute:
+                    annotation[self.group_attribute] = group
+                if self.priority_attribute:
+                    annotation[self.priority_attribute] = priority
+                if self.pattern_attribute:
+                    annotation[self.pattern_attribute] = pattern
+                output.append( (text_obj, base_span, annotation) )
+        return output
+
     # noinspection PyUnresolvedReferences
     def add_decorated_annotations_to_layer(
             self,
