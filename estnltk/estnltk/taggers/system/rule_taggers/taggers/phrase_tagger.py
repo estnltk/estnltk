@@ -179,7 +179,7 @@ class PhraseTagger(Tagger):
                      enveloping=self.input_layers[0],
                      ambiguous=not isinstance(self.ruleset, Ruleset))
 
-    def _make_layer(self, text, layers: dict, status=None):
+    def _make_layer(self, text: 'Text', layers: dict, status=None):
         layer = self._make_layer_template()
         layer.text_object = text
         raw_text = text.text
@@ -213,7 +213,7 @@ class PhraseTagger(Tagger):
 
         return layer
 
-    def extract_annotations(self, text: str, layers: dict) -> List[Tuple[EnvelopingBaseSpan, str, Any]]:
+    def extract_annotations(self, text: 'Text', layers: dict) -> List[Tuple[EnvelopingBaseSpan, str, Any]]:
         """
         Returns a list of matches of the defined by the list of extraction rules that are canonically ordered:
             span[i].start <= span[i+1].start
@@ -256,6 +256,31 @@ class PhraseTagger(Tagger):
                             match_tuples.append((base_span, text[base_span.start:base_span.end], phrase))
 
         return sorted(match_tuples, key=lambda x: (x[0].start, x[0].end))
+
+    def get_decorator_inputs(self, text_obj, match_list):
+        """
+        Converts all matches into decorator inputs. 
+        The input match_list is expected to be the output of 
+        self.extract_annotations or keep_minimal_matches/
+        keep_maximal_matches.
+        Returns list of tuples (text_obj, base_span, annotation).
+        This method is mainly used in decorator development & 
+        debugging. 
+        """
+        output = []
+        for i, (base_span, _, phrase) in enumerate(match_list):
+            static_rulelist = self.static_ruleset_map.get(phrase, None)
+            for group, priority, annotation in static_rulelist:
+                annotation = annotation.copy()
+                annotation[self.phrase_attribute] = phrase
+                if self.group_attribute:
+                    annotation[self.group_attribute] = group
+                if self.priority_attribute:
+                    annotation[self.priority_attribute] = priority
+                if self.pattern_attribute:
+                    annotation[self.pattern_attribute] = phrase
+                output.append( (text_obj, base_span, annotation) )
+        return output
 
     def add_decorated_annotations_to_layer(
             self,
