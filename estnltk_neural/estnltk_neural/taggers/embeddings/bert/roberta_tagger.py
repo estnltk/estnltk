@@ -273,7 +273,7 @@ class RobertaTagger(Tagger):
 
 
 def get_embeddings(sentence: str, model, tokenizer, method, bert_layers):
-    input_data = tokenizer.encode_plus(sentence)
+    input_data = tokenizer(sentence)
     input_ids = input_data.get('input_ids')
     token_vecs_cat = []
     if len(input_ids) > 512:  # maximum sequence length can be 512
