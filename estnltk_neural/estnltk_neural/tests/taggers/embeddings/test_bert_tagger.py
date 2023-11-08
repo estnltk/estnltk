@@ -82,11 +82,11 @@ def test_bert_tagger():
     bert_all_tagger.tag(text)
     assert 'bert_embeddings_all' in text.layers
     for embedding_span in text.bert_embeddings_all:
+        assert len(embedding_span.bert_embedding[0]) == 4
         assert len(embedding_span.bert_embedding[0][0]) == 768
         assert len(embedding_span.bert_embedding[0][1]) == 768
         assert len(embedding_span.bert_embedding[0][2]) == 768
         assert len(embedding_span.bert_embedding[0][3]) == 768
-        assert len(embedding_span.bert_embedding[0]) == 4
 
     bert_word_tagger = BertTagger(bert_location=MODEL_PATH, token_level=False,
                                   output_layer='bert_word_embeddings')
@@ -148,18 +148,31 @@ def test_bert_tagger():
 @pytest.mark.skipif(not check_if_model_present(),
                     reason="BertTagger's resources have not been downloaded. "+\
                            "Use estnltk.download('berttagger') to get the missing resources.")
-@pytest.mark.xfail(reason='fails for some reason, needs to be fixed')
 def test_bert_tagger_word_embeddings_all():
     from estnltk_neural.taggers.embeddings.bert.bert_tagger import BertTagger
+    text = Text(
+        'Ilus suur karvane kass nurrus punasel diivanil. Ta on ise tee esimesel poolel. Valge jänes jooksis metsa!')
+    text.tag_layer('sentences')
     bert_word_tagger_all = BertTagger(bert_location=MODEL_PATH, token_level=False, method='all',
                                       output_layer='bert_word_embeddings_all')
     bert_word_tagger_all.tag(text)
     assert 'bert_word_embeddings_all' in text.layers
 
     for embedding_span in text.bert_word_embeddings_all:
-        assert len(embedding_span.bert_embedding[0][0]) == 4 # << This assertion fails: assert 768 == 4
-        for emb in embedding_span.bert_embedding[0][0]:
-            assert len(emb) == 768
+        # Note: because the layer is ambiguous, the embeddings list more deeply nested than expected. 
+        # However, none of the spans actually has ambiguous annotations, so we can safely pick first 
+        # annotation of each span:
+        bert_embeddings = embedding_span.annotations[0]['bert_embedding']
+        tokens = embedding_span.annotations[0]['token']
+        tokens = [tokens] if isinstance(tokens, str) else tokens  # TODO: get rid of ambiguities here
+        # At the first level, there should be a list containing an embeddings for each bert token
+        assert len(bert_embeddings) == len(tokens)
+        for emb in bert_embeddings:
+            # At the second level, each token has 4 embeddings (all from the last 4 layers)
+            assert len(emb) == 4
+            # At the third level, each embedding should have size 768
+            for e in emb:
+                assert len(e) == 768
 
 # Fetches pairs (word, bert_tokens) from BertTagger's output
 def _get_bert_tokens(text_obj, bert_layer='bert_word_embeddings'):
