@@ -161,6 +161,12 @@ def test_bert_tagger_word_embeddings_all():
         for emb in embedding_span.bert_embedding[0][0]:
             assert len(emb) == 768
 
+# Fetches pairs (word, bert_tokens) from BertTagger's output
+def _get_bert_tokens(text_obj, bert_layer='bert_word_embeddings'):
+    results = []
+    for bert_span in text_obj[bert_layer]:
+        results.append( (bert_span.text, list(bert_span.token)))
+    return results
 
 @pytest.mark.skipif(not check_if_transformers_is_available(),
                     reason="package tranformers is required for this test")
@@ -224,3 +230,28 @@ def test_bert_tagger_tokens_and_word_span_misaligment_bugfix():
     for embedding_span in text.bert_word_embeddings:
         assert len(embedding_span.bert_embedding[0]) == 3072  # 768 * 4 
     assert text.bert_word_embeddings.text == text.words.text
+
+    # 5) Check how partial overlaps between bert tokens and words are handled.
+    #    Current logic: if a bert token can be associated with multiple words, 
+    #    then associate it with all words;
+    partial_overlap1 = Text('Yangi­Millsi kalibratsioonivälja kvantteooria.').tag_layer('sentences')
+    bert_tagger_2.tag(partial_overlap1)
+    words_and_bert_tokens = _get_bert_tokens(partial_overlap1, bert_layer=bert_tagger_2.output_layer)
+    assert words_and_bert_tokens == \
+        [('Yangi', [['y', '##angi']]), 
+         ('\xad', ['##mil']), 
+         ('Millsi', [['##mil', '##ls', '##i']]), 
+         ('kalibratsioonivälja', [['kalib', '##ratsiooni', '##val', '##ja']]), 
+         ('kvantteooria', [['kvant', '##teooria']]), 
+         ('.', ['.'])]
+    partial_overlap2 = Text('Ning Källeni­Lehmanni teoreem').tag_layer('sentences')
+    bert_tagger_2.tag(partial_overlap2)
+    words_and_bert_tokens = _get_bert_tokens(partial_overlap2, bert_layer=bert_tagger_2.output_layer)
+    assert words_and_bert_tokens == \
+        [('Ning', ['ning']), 
+         ('Källeni', [['kalle', '##nile']]), 
+         ('\xad', ['##nile']), 
+         ('Lehmanni', [['##nile', '##hma', '##nni']]), 
+         ('teoreem', [['teoree', '##m']])]
+
+    
