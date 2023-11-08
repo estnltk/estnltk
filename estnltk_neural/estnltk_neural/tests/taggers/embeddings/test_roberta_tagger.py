@@ -58,6 +58,12 @@ def test_roberta_tagger_word_level_smoke():
 
     assert text.roberta_embeddings.text == text.words.text
 
+# Fetches pairs (word, bert_tokens) from RobertaTagger's output
+def _get_bert_tokens(text_obj, bert_layer='roberta_word_embeddings'):
+    results = []
+    for bert_span in text_obj[bert_layer]:
+        results.append( (bert_span.text, list(bert_span.token)))
+    return results
 
 @pytest.mark.skipif(not check_if_transformers_is_available(),
                     reason="package tranformers is required for this test")
@@ -107,3 +113,25 @@ def test_roberta_tagger_tokens_and_word_span_misaligment_bugfix():
     for embedding_span in text.roberta_word_embeddings:
         assert len(embedding_span.bert_embedding[0]) == 3072  # 768 * 4 
     assert text.roberta_word_embeddings.text == text.words.text
+
+    # 4) Test handling inputs that have '\xad' and/or '…' symbol.
+    partial_overlap1 = Text('Yangi­Millsi kalibratsioonivälja kvantteooria …?').tag_layer('sentences')
+    roberta_tagger_2.tag(partial_overlap1)
+    words_and_bert_tokens = _get_bert_tokens(partial_overlap1, bert_layer=roberta_tagger_2.output_layer)
+    assert words_and_bert_tokens == \
+        [('Yangi', [['▁Y', 'angi']]), 
+         ('\xad', ['\xad']), 
+         ('Millsi', [['M', 'ill', 'si']]), 
+         ('kalibratsioonivälja', [['▁kal', 'ib', 'ratsiooni', 'välja']]), 
+         ('kvantteooria', [['▁kvant', 'teooria']]), 
+         ('…?', [['▁...', '?']])]
+    partial_overlap2 = Text('Ning Källeni­Lehmanni teoreem').tag_layer('sentences')
+    roberta_tagger_2.tag(partial_overlap2)
+    words_and_bert_tokens = _get_bert_tokens(partial_overlap2, bert_layer=roberta_tagger_2.output_layer)
+    assert words_and_bert_tokens == \
+        [('Ning', ['▁Ning']), 
+         ('Källeni', [['▁Kä', 'lle', 'ni']]), 
+         ('\xad', ['\xad']), 
+         ('Lehmanni', [['Le', 'hma', 'nni']]), 
+         ('teoreem', [['▁te', 'or', 'eem']])]
+
