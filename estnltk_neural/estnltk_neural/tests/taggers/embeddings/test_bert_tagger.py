@@ -44,9 +44,9 @@ def test_bert_tagger_out_of_the_box():
     text.tag_layer('sentences')
     bert_tagger.tag(text)
     assert 'bert_embeddings' in text.layers
-
+    assert not text.bert_embeddings.ambiguous
     for embedding_span in text.bert_embeddings:
-        assert len(embedding_span.bert_embedding[0]) == 3072
+        assert len(embedding_span.bert_embedding) == 3072
 
 
 @pytest.mark.skipif(not check_if_transformers_is_available(),
@@ -65,9 +65,10 @@ def test_bert_tagger():
     text.tag_layer('sentences')
     bert_tagger.tag(text)
     assert 'bert_embeddings' in text.layers
+    assert not text.bert_embeddings.ambiguous
 
     for embedding_span in text.bert_embeddings:
-        assert len(embedding_span.bert_embedding[0]) == 3072
+        assert len(embedding_span.bert_embedding) == 3072
 
     bert_add_tagger = BertTagger(bert_location=MODEL_PATH, method='add',
                                  output_layer='bert_embeddings_add')
@@ -75,45 +76,48 @@ def test_bert_tagger():
     assert 'bert_embeddings_add' in text.layers
 
     for embedding_span in text.bert_embeddings_add:
-        assert len(embedding_span.bert_embedding[0]) == 768
+        assert len(embedding_span.bert_embedding) == 768
 
     bert_all_tagger = BertTagger(bert_location=MODEL_PATH, method='all',
                                  output_layer='bert_embeddings_all')
     bert_all_tagger.tag(text)
     assert 'bert_embeddings_all' in text.layers
     for embedding_span in text.bert_embeddings_all:
-        assert len(embedding_span.bert_embedding[0]) == 4
-        assert len(embedding_span.bert_embedding[0][0]) == 768
-        assert len(embedding_span.bert_embedding[0][1]) == 768
-        assert len(embedding_span.bert_embedding[0][2]) == 768
-        assert len(embedding_span.bert_embedding[0][3]) == 768
+        assert len(embedding_span.bert_embedding) == 4
+        assert len(embedding_span.bert_embedding[0]) == 768
+        assert len(embedding_span.bert_embedding[1]) == 768
+        assert len(embedding_span.bert_embedding[2]) == 768
+        assert len(embedding_span.bert_embedding[3]) == 768
 
     bert_word_tagger = BertTagger(bert_location=MODEL_PATH, token_level=False,
                                   output_layer='bert_word_embeddings')
     bert_word_tagger.tag(text)
 
     assert 'bert_word_embeddings' in text.layers
+    assert not text.bert_word_embeddings.ambiguous
 
     assert len(text.words) == len(text.bert_word_embeddings)
     for s1, s2 in zip(text.words, text.bert_word_embeddings):
         assert s1.start == s2.start
         assert s1.end == s2.end
-        assert len(s2.bert_embedding[0]) == 3072
+        assert len(s2.bert_embedding) == 3072
 
     bert_word_tagger_concat = BertTagger(bert_location=MODEL_PATH, token_level=False, method='concatenate',
                                          output_layer='bert_word_embeddings_concat')
     bert_word_tagger_concat.tag(text)
     assert 'bert_word_embeddings_concat' in text.layers
+    assert not text.bert_word_embeddings_concat.ambiguous
 
     for embedding_span in text.bert_word_embeddings_concat:
-        assert len(embedding_span.bert_embedding[0]) == 3072
+        assert len(embedding_span.bert_embedding) == 3072
 
     bert_word_tagger_add = BertTagger(bert_location=MODEL_PATH, token_level=False, method='add',
                                       output_layer='bert_word_embeddings_add')
     bert_word_tagger_add.tag(text)
     assert 'bert_word_embeddings_add' in text.layers
+    assert not text.bert_word_embeddings_add.ambiguous
     for embedding_span in text.bert_word_embeddings_add:
-        assert len(embedding_span.bert_embedding[0]) == 768
+        assert len(embedding_span.bert_embedding) == 768
 
     bert_diff_layer_tagger1 = BertTagger(bert_location=MODEL_PATH, bert_layers=[-1],
                                          output_layer='bert_diff_layers1_embeddings')
@@ -121,7 +125,7 @@ def test_bert_tagger():
     assert 'bert_diff_layers1_embeddings' in text.layers
 
     for embedding_span in text.bert_diff_layers1_embeddings:
-        assert len(embedding_span.bert_embedding[0]) == 768
+        assert len(embedding_span.bert_embedding) == 768
 
     bert_diff_layer_tagger2 = BertTagger(bert_location=MODEL_PATH, bert_layers=[-2, -1],
                                          output_layer='bert_diff_layers2_embeddings')
@@ -129,7 +133,7 @@ def test_bert_tagger():
     assert 'bert_diff_layers2_embeddings' in text.layers
 
     for embedding_span in text.bert_diff_layers2_embeddings:
-        assert len(embedding_span.bert_embedding[0]) == 1536
+        assert len(embedding_span.bert_embedding) == 1536
 
     text = Text(' '.join(['Tere ']*513))
     text.tag_layer('sentences')
@@ -138,7 +142,7 @@ def test_bert_tagger():
     assert 'bert_embeddings_long_seq' in text.layers
 
     for embedding_span in text.bert_embeddings_long_seq:
-        assert len(embedding_span.bert_embedding[0]) == 3072
+        assert len(embedding_span.bert_embedding) == 3072
 
 
 @pytest.mark.skipif(not check_if_transformers_is_available(),
@@ -157,20 +161,17 @@ def test_bert_tagger_word_embeddings_all():
                                       output_layer='bert_word_embeddings_all')
     bert_word_tagger_all.tag(text)
     assert 'bert_word_embeddings_all' in text.layers
+    assert text.bert_word_embeddings_all.ambiguous
 
     for embedding_span in text.bert_word_embeddings_all:
-        # Note: because the layer is ambiguous, the embeddings list more deeply nested than expected. 
-        # However, none of the spans actually has ambiguous annotations, so we can safely pick first 
-        # annotation of each span:
-        bert_embeddings = embedding_span.annotations[0]['bert_embedding']
-        tokens = embedding_span.annotations[0]['token']
-        tokens = [tokens] if isinstance(tokens, str) else tokens  # TODO: get rid of ambiguities here
+        tokens = embedding_span.token
+        bert_embeddings = embedding_span.bert_embedding
         # At the first level, there should be a list containing an embeddings for each bert token
         assert len(bert_embeddings) == len(tokens)
         for emb in bert_embeddings:
-            # At the second level, each token has 4 embeddings (all from the last 4 layers)
+            # At the second level, each token has 4 embedding vectors (all from the last 4 layers)
             assert len(emb) == 4
-            # At the third level, each embedding should have size 768
+            # At the third level, each embedding vector should have length 768
             for e in emb:
                 assert len(e) == 768
 
@@ -199,7 +200,7 @@ def test_bert_tagger_tokens_and_word_span_misaligment_bugfix():
     bert_tagger_1.tag(text)
     assert 'bert_embeddings' in text.layers
     for embedding_span in text.bert_embeddings:
-        assert len(embedding_span.bert_embedding[0]) == 3072  # 768 * 4 
+        assert len(embedding_span.bert_embedding) == 3072  # 768 * 4 
 
     # word level
     bert_tagger_2 = BertTagger(output_layer='bert_word_embeddings',
@@ -207,7 +208,7 @@ def test_bert_tagger_tokens_and_word_span_misaligment_bugfix():
     bert_tagger_2.tag(text)
     assert 'bert_word_embeddings' in text.layers
     for embedding_span in text.bert_word_embeddings:
-        assert len(embedding_span.bert_embedding[0]) == 3072  # 768 * 4 
+        assert len(embedding_span.bert_embedding) == 3072  # 768 * 4 
     assert text.bert_word_embeddings.text == text.words.text
     
     # 2) Test BertTagger for handling … and ...
@@ -216,7 +217,7 @@ def test_bert_tagger_tokens_and_word_span_misaligment_bugfix():
     bert_tagger_2.tag(text)
     assert 'bert_word_embeddings' in text.layers
     for embedding_span in text.bert_word_embeddings:
-        assert len(embedding_span.bert_embedding[0]) == 3072  # 768 * 4 
+        assert len(embedding_span.bert_embedding) == 3072  # 768 * 4 
     assert text.bert_word_embeddings.text == text.words.text
 
     # 3) Test BertTagger for handling tokenized words with diacritics and lowercase
@@ -226,7 +227,7 @@ def test_bert_tagger_tokens_and_word_span_misaligment_bugfix():
     bert_tagger_2.tag(text)
     assert 'bert_word_embeddings' in text.layers
     for embedding_span in text.bert_word_embeddings:
-        assert len(embedding_span.bert_embedding[0]) == 3072  # 768 * 4 
+        assert len(embedding_span.bert_embedding) == 3072  # 768 * 4 
     assert text.bert_word_embeddings.text == text.words.text
 
     # 4) Test BertTagger for handling '\xad' and multiword tokens
@@ -241,7 +242,7 @@ def test_bert_tagger_tokens_and_word_span_misaligment_bugfix():
     bert_tagger_2.tag(text)
     assert 'bert_word_embeddings' in text.layers
     for embedding_span in text.bert_word_embeddings:
-        assert len(embedding_span.bert_embedding[0]) == 3072  # 768 * 4 
+        assert len(embedding_span.bert_embedding) == 3072  # 768 * 4 
     assert text.bert_word_embeddings.text == text.words.text
 
     # 5) Check how partial overlaps between bert tokens and words are handled.
@@ -251,20 +252,20 @@ def test_bert_tagger_tokens_and_word_span_misaligment_bugfix():
     bert_tagger_2.tag(partial_overlap1)
     words_and_bert_tokens = _get_bert_tokens(partial_overlap1, bert_layer=bert_tagger_2.output_layer)
     assert words_and_bert_tokens == \
-        [('Yangi', [['y', '##angi']]), 
+        [('Yangi', ['y', '##angi']), 
          ('\xad', ['##mil']), 
-         ('Millsi', [['##mil', '##ls', '##i']]), 
-         ('kalibratsioonivälja', [['kalib', '##ratsiooni', '##val', '##ja']]), 
-         ('kvantteooria', [['kvant', '##teooria']]), 
+         ('Millsi', ['##mil', '##ls', '##i']), 
+         ('kalibratsioonivälja', ['kalib', '##ratsiooni', '##val', '##ja']), 
+         ('kvantteooria', ['kvant', '##teooria']), 
          ('.', ['.'])]
     partial_overlap2 = Text('Ning Källeni­Lehmanni teoreem').tag_layer('sentences')
     bert_tagger_2.tag(partial_overlap2)
     words_and_bert_tokens = _get_bert_tokens(partial_overlap2, bert_layer=bert_tagger_2.output_layer)
     assert words_and_bert_tokens == \
         [('Ning', ['ning']), 
-         ('Källeni', [['kalle', '##nile']]), 
+         ('Källeni', ['kalle', '##nile']), 
          ('\xad', ['##nile']), 
-         ('Lehmanni', [['##nile', '##hma', '##nni']]), 
-         ('teoreem', [['teoree', '##m']])]
+         ('Lehmanni', ['##nile', '##hma', '##nni']), 
+         ('teoreem', ['teoree', '##m'])]
 
     

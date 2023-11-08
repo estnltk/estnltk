@@ -78,8 +78,9 @@ class BertTagger(Tagger):
 
     def _make_layer(self, text: Text, layers: MutableMapping[str, Layer], status: dict) -> Layer:
         sentences_layer = layers[self.input_layers[0]]
-        embeddings_layer = Layer(name=self.output_layer, text_object=text, attributes=self.output_attributes,
-                                 ambiguous=True)
+        embeddings_layer = Layer(name=self.output_layer, text_object=text, 
+                                 attributes=self.output_attributes,
+                                 ambiguous=(not self.token_level and self.method == 'all'))
 
         for k, sentence in enumerate(sentences_layer):
             sent_text = sentence.enclosing_text
@@ -134,22 +135,22 @@ class BertTagger(Tagger):
                         if collected_tokens and collected_embeddings:
                             # add annotation
                             if self.method == 'all':
-                                embedding = []
-                                for tok_embs in collected_embeddings:
+                                assert embeddings_layer.ambiguous
+                                for cur_token, tok_embs in zip(collected_tokens, collected_embeddings):
                                     token_embs = []
                                     for embs in tok_embs:
                                         token_embs_emb = []
                                         for emb in embs:
                                             token_embs_emb.append(float(emb))
                                         token_embs.append(token_embs_emb)
-                                    embedding.append(token_embs)
+                                    attributes = {'token': cur_token, 'bert_embedding': token_embs}
+                                    embeddings_layer.add_annotation((current_word[0], current_word[1]),
+                                                                    **attributes)
                             else:
                                 embedding = [float(t) for t in np.sum(collected_embeddings, 0)]
-                            if len(collected_tokens) == 1:
-                                collected_tokens = collected_tokens[0]
-                            attributes = {'token': collected_tokens, 'bert_embedding': embedding}
-                            embeddings_layer.add_annotation((current_word[0], current_word[1]),
-                                                            **attributes)
+                                attributes = {'token': collected_tokens, 'bert_embedding': embedding}
+                                embeddings_layer.add_annotation((current_word[0], current_word[1]),
+                                                                **attributes)
                         collected_tokens = []
                         collected_embeddings = []
                         # 2) take the next word or words. 
@@ -171,22 +172,22 @@ class BertTagger(Tagger):
                             if collected_tokens and collected_embeddings:
                                 # add annotation
                                 if self.method == 'all':
-                                    embedding = []
-                                    for tok_embs in collected_embeddings:
+                                    assert embeddings_layer.ambiguous
+                                    for cur_token, tok_embs in zip(collected_tokens, collected_embeddings):
                                         token_embs = []
                                         for embs in tok_embs:
                                             token_embs_emb = []
                                             for emb in embs:
                                                 token_embs_emb.append(float(emb))
                                             token_embs.append(token_embs_emb)
-                                        embedding.append(token_embs)
+                                        attributes = {'token': cur_token, 'bert_embedding': token_embs}
+                                        embeddings_layer.add_annotation((current_word[0], current_word[1]),
+                                                                        **attributes)
                                 else:
                                     embedding = [float(t) for t in np.sum(collected_embeddings, 0)]
-                                if len(collected_tokens) == 1:
-                                    collected_tokens = collected_tokens[0]
-                                attributes = {'token': collected_tokens, 'bert_embedding': embedding}
-                                embeddings_layer.add_annotation((current_word[0], current_word[1]),
-                                                                **attributes)
+                                    attributes = {'token': collected_tokens, 'bert_embedding': embedding}
+                                    embeddings_layer.add_annotation((current_word[0], current_word[1]),
+                                                                    **attributes)
                                 collected_tokens = []
                                 collected_embeddings = []
                             word_id += 1
@@ -219,22 +220,22 @@ class BertTagger(Tagger):
                             if collected_tokens and collected_embeddings:
                                 # add annotation
                                 if self.method == 'all':
-                                    embedding = []
-                                    for tok_embs in collected_embeddings:
+                                    assert embeddings_layer.ambiguous
+                                    for cur_token, tok_embs in zip(collected_tokens, collected_embeddings):
                                         token_embs = []
                                         for embs in tok_embs:
                                             token_embs_emb = []
                                             for emb in embs:
                                                 token_embs_emb.append(float(emb))
                                             token_embs.append(token_embs_emb)
-                                        embedding.append(token_embs)
+                                        attributes = {'token': cur_token, 'bert_embedding': token_embs}
+                                        embeddings_layer.add_annotation((current_word[0], current_word[1]),
+                                                                        **attributes)
                                 else:
                                     embedding = [float(t) for t in np.sum(collected_embeddings, 0)]
-                                if len(collected_tokens) == 1:
-                                    collected_tokens = collected_tokens[0]
-                                attributes = {'token': collected_tokens, 'bert_embedding': embedding}
-                                embeddings_layer.add_annotation((current_word[0], current_word[1]),
-                                                                **attributes)
+                                    attributes = {'token': collected_tokens, 'bert_embedding': embedding}
+                                    embeddings_layer.add_annotation((current_word[0], current_word[1]),
+                                                                    **attributes)
                                 collected_tokens = []
                                 collected_embeddings = []
                             word_id += 1
@@ -258,22 +259,22 @@ class BertTagger(Tagger):
                         if end == current_word[1]:
                             # add annotation
                             if self.method == 'all':
-                                embedding = []
-                                for tok_embs in collected_embeddings:
+                                assert embeddings_layer.ambiguous
+                                for cur_token, tok_embs in zip(collected_tokens, collected_embeddings):
                                     token_embs = []
                                     for embs in tok_embs:
                                         token_embs_emb = []
                                         for emb in embs:
                                             token_embs_emb.append(float(emb))
                                         token_embs.append(token_embs_emb)
-                                    embedding.append(token_embs)
+                                    attributes = {'token': cur_token, 'bert_embedding': token_embs}
+                                    embeddings_layer.add_annotation((current_word[0], current_word[1]),
+                                                                    **attributes)
                             else:
                                 embedding = [float(t) for t in np.sum(collected_embeddings, 0)]
-                            if len(collected_tokens) == 1:
-                                collected_tokens = collected_tokens[0]
-                            attributes = {'token': collected_tokens, 'bert_embedding': embedding}
-                            embeddings_layer.add_annotation((current_word[0], current_word[1]),
-                                                            **attributes)
+                                attributes = {'token': collected_tokens, 'bert_embedding': embedding}
+                                embeddings_layer.add_annotation((current_word[0], current_word[1]),
+                                                                **attributes)
                             collected_tokens = []
                             collected_embeddings = []
                 
@@ -281,22 +282,22 @@ class BertTagger(Tagger):
                 if collected_tokens and collected_embeddings:
                     # add annotation
                     if self.method == 'all':
-                        embedding = []
-                        for tok_embs in collected_embeddings:
+                        assert embeddings_layer.ambiguous
+                        for cur_token, tok_embs in zip(collected_tokens, collected_embeddings):
                             token_embs = []
                             for embs in tok_embs:
                                 token_embs_emb = []
                                 for emb in embs:
                                     token_embs_emb.append(float(emb))
                                 token_embs.append(token_embs_emb)
-                            embedding.append(token_embs)
+                            attributes = {'token': cur_token, 'bert_embedding': token_embs}
+                            embeddings_layer.add_annotation((current_word[0], current_word[1]),
+                                                            **attributes)
                     else:
                         embedding = [float(t) for t in np.sum(collected_embeddings, 0)]
-                    if len(collected_tokens) == 1:
-                        collected_tokens = collected_tokens[0]
-                    attributes = {'token': collected_tokens, 'bert_embedding': embedding}
-                    embeddings_layer.add_annotation((current_word[0], current_word[1]),
-                                                    **attributes)
+                        attributes = {'token': collected_tokens, 'bert_embedding': embedding}
+                        embeddings_layer.add_annotation((current_word[0], current_word[1]),
+                                                        **attributes)
         if not self.token_level:
             # Check that each word got an embedding
             assert len(embeddings_layer) == sum([len(s) for s in sentences_layer])
