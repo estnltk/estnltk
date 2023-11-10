@@ -317,17 +317,26 @@ class SubstringTagger(Tagger):
 
         return sorted(match_tuples, key=lambda x: (x[0].start, x[0].end))
 
-    def get_decorator_inputs(self, text_obj, match_list):
+
+    def get_decorator_inputs(self, text_obj, match_list, add_aux=False):
         """
         Converts all matches into decorator inputs. 
+        
         The input match_list is expected to be the output of 
         self.extract_annotations or keep_minimal_matches/
         keep_maximal_matches.
-        Returns list of tuples (text_obj, base_span, annotation).
-        This method is mainly used in decorator development & 
-        debugging. 
+        By default, yields a list of tuples (text_obj, base_span, 
+        annotation). 
+        If add_aux==True, then yields list of tuples (text_obj, 
+        base_span, annotation, pattern, group, priority), where 
+        pattern is extracted pattern from the match_list/match_tuples, 
+        and group & priority are attribute values of the corresponding 
+        static extraction rule.
+        
+        This method is used in decorator development & debugging, 
+        and by methods add_decorated_annotations_to_layer & 
+        iterate_over_decorated_annotations. 
         """
-        output = []
         for i, (base_span, pattern) in enumerate(match_list):
             static_rulelist = self.static_ruleset_map.get(pattern, None)
             for group, priority, annotation in static_rulelist:
@@ -338,8 +347,10 @@ class SubstringTagger(Tagger):
                     annotation[self.priority_attribute] = priority
                 if self.pattern_attribute:
                     annotation[self.pattern_attribute] = pattern
-                output.append( (text_obj, base_span, annotation) )
-        return output
+                yield (text_obj, base_span, annotation) \
+                       if not add_aux else \
+                      (text_obj, base_span, annotation, pattern, group, priority)
+
 
     # noinspection PyUnresolvedReferences
     def add_decorated_annotations_to_layer(
@@ -350,46 +361,47 @@ class SubstringTagger(Tagger):
         Adds annotations to extracted matches and assembles them into a layer.
         Annotations are added to extracted matches based on the right-hand-side of the matching extraction rule:
         * First statical rules are applied to specify fixed attributes. No spans are dropped!
+          (method self.get_decorator_inputs(...));
         * Next the global decorator is applied to update the annotation.
         * A span is dropped when the resulting annotation is not a dictionary of attribute values.
         * Finally decorators from dynamical rules are applied to update the annotation.
         * A span is dropped when the resulting annotation is not a dictionary of attribute values.
         """
-
-        text_object = layer.text_object
-        base_span, pattern = next(sorted_tuples, (None, None))
-        while base_span is not None:
-            span = Span(base_span=base_span, layer=layer)
-            static_rulelist = self.static_ruleset_map.get(pattern, None)
-            for group, priority, annotation in static_rulelist:
-                annotation = annotation.copy()
-                if self.group_attribute:
-                    annotation[self.group_attribute] = group
-                if self.priority_attribute:
-                    annotation[self.priority_attribute] = priority
-                if self.pattern_attribute:
-                    annotation[self.pattern_attribute] = pattern
-                # apply global decorator
-                # Drop annotations for which the global decorator fails
-                if self.global_decorator is not None:
-                    annotation = self.global_decorator(text_object, base_span, annotation)
-                    if not isinstance(annotation, dict):
-                        continue
-
-                # apply dynamic_decorator --- it must be unique or have matching priority and group
-                # No dynamic rules to change the annotation
-                subindex = self.dynamic_ruleset_map.get(pattern, None)
-                decorator = subindex[(group, priority)] if subindex is not None else None
-                if decorator is None:
-                    layer.add_annotation(base_span,annotation)
+        text = layer.text_object
+        cur_span = None # current span
+        for (_, base_span, annotation, pattern, group, priority) in self.get_decorator_inputs(text, 
+                                                                                       sorted_tuples, 
+                                                                                       add_aux=True):
+            if cur_span is None or cur_span.base_span != base_span:
+                # Add previously created span to the layer
+                if cur_span is not None and cur_span.annotations:
+                    layer.add_span(cur_span)
+                # Create new Span
+                cur_span = Span(base_span=base_span, layer=layer)
+            # apply global decorator
+            # Drop annotations for which the global decorator fails
+            if self.global_decorator is not None:
+                annotation = self.global_decorator(text, base_span, annotation)
+                if not isinstance(annotation, dict):
                     continue
-                annotation = decorator(text_object, span, annotation)
-                if annotation is not None:
-                    layer.add_annotation(base_span,annotation)
-
-            base_span, pattern = next(sorted_tuples, (None, None))
-
+            # apply dynamic_decorator --- it must be unique or have matching 
+            # priority and group
+            # No dynamic rules to change the annotation
+            subindex = self.dynamic_ruleset_map.get(pattern, None)
+            decorator = subindex[(group, priority)] if subindex is not None else None
+            if decorator is None:
+                annotation = Annotation(cur_span, annotation)
+                cur_span.add_annotation(annotation)
+                continue
+            annotation = decorator(text, base_span, annotation)
+            annotation = Annotation(cur_span, annotation)
+            cur_span.add_annotation(annotation)
+        # Add the last span
+        if cur_span is not None and cur_span.annotations and \
+           cur_span not in layer.spans:
+            layer.add_span(cur_span)
         return layer
+
 
     # noinspection PyUnresolvedReferences
     def iterate_over_decorated_annotations(
@@ -405,42 +417,36 @@ class SubstringTagger(Tagger):
 
         Annotations are added to extracted matches based on the right-hand-side of the matching extraction rule:
         * First statical rules are applied to specify fixed attributes. No spans are dropped!
+          (method self.get_decorator_inputs(...));
         * Next the global decorator is applied to update the annotation.
         * A span is dropped when the resulting annotation is not a dictionary of attribute values.
         * Finally decorators from dynamical rules are applied to update the annotation.
         * A span is dropped when the resulting annotation is not a dictionary of attribute values.
         """
+        text = layer.text_object
+        cur_span = None # current span
+        for (_, base_span, annotation_dict, pattern, group, priority) in self.get_decorator_inputs(text, 
+                                                                                           sorted_tuples, 
+                                                                                           add_aux=True):
+            if cur_span is None or cur_span.base_span != base_span:
+                # Add previously created span to the layer
+                if cur_span is not None and cur_span.annotations:
+                    layer.add_span(cur_span)
+                # Create new Span
+                cur_span = Span(base_span=base_span, layer=layer)
+            # apply global decorator
+            # Drop annotations for which the global decorator fails
+            if self.global_decorator is not None:
+                annotation_dict = self.global_decorator(text, base_span, annotation_dict)
+                if not isinstance(annotation_dict, dict):
+                    continue
+            # apply dynamic_decorator
+            subindex = self.dynamic_ruleset_map.get(pattern, None)
+            decorator = subindex[(group, priority)] if subindex is not None else None
+            # Use dynamic rules to change the annotation
+            if decorator is not None:
+                annotation_dict = decorator(text_object, base_span, annotation_dict)
+            if isinstance(annotation_dict, dict):
+                annotation = Annotation(span, annotation_dict)
+                yield annotation, group, priority
 
-        text_object = layer.text_object
-        base_span, pattern = next(sorted_tuples, (None, None))
-        # This hack is needed as EstNLTK wants complete attribute assignment for each annotation
-        while base_span is not None:
-            span = Span(base_span=base_span, layer=layer)
-            # This hack is needed as EstNLTK wants complete attribute assignment for each annotation
-            static_rulelist = self.static_ruleset_map.get(pattern, None)
-            for group, priority, annotation_dict in static_rulelist:
-                annotation_dict = annotation_dict.copy()
-                if self.group_attribute:
-                    annotation_dict[self.group_attribute] = group
-                if self.priority_attribute:
-                    annotation_dict[self.priority_attribute] = priority
-                if self.pattern_attribute:
-                    annotation_dict[self.pattern_attribute] = pattern
-                # apply global decorator
-                # Drop annotations for which the global decorator fails
-                if self.global_decorator is not None:
-                    annotation_dict = self.global_decorator(text_object, base_span, annotation_dict)
-                    if not isinstance(annotation_dict, dict):
-                        continue
-
-                # apply dynamic_decorator
-                subindex = self.dynamic_ruleset_map.get(pattern, None)
-                decorator = subindex[(group, priority)] if subindex is not None else None
-                # No dynamic rules to change the annotation
-                if decorator is not None:
-                    annotation_dict = decorator(text_object, base_span, annotation_dict)
-                if isinstance(annotation_dict, dict):
-                    annotation = Annotation(span, annotation_dict)
-                    yield annotation, group, priority
-
-            base_span, pattern = next(sorted_tuples, (None, None))

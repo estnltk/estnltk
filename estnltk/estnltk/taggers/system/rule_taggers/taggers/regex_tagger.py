@@ -227,19 +227,25 @@ class RegexTagger(Tagger):
 
         return sorted(match_tuples, key=lambda x: (x[0].start, x[0].end))
 
-    def get_decorator_inputs(self, text_obj, match_list):
+    def get_decorator_inputs(self, text_obj, match_list, add_aux=False):
         """
         Converts all matches into decorator inputs. 
+        
         The input match_list is expected to be the output of 
         self.extract_annotations or keep_minimal_matches/
-        keep_maximal_matches.
-        Returns list of tuples (text_obj, base_span, annotation).
-        This method is mainly used in decorator development & 
-        debugging. 
+        keep_maximal_matches. 
+        By default, yields a list of tuples (text_obj, base_span, annotation). 
+        If add_aux==True, then adds auxiliary information and yields a list 
+        of tuples (text_obj, base_span, annotation, rule, group, priority), 
+        where rule is a static extraction rule from the match_list/match_tuples,
+        and group & priority are attributes of the corresponding static 
+        extraction rule.
+        
+        This method is used in decorator development & debugging, 
+        and by methods add_decorated_annotations_to_layer & 
+        iterate_over_decorated_annotations. 
         """
-        output = []
-        for i, (base_span, matchobj, rule) in enumerate(match_list):
-            static_rulelist = self.static_ruleset_map.get(phrase, None)
+        for base_span, matchobj, rule in match_list:
             annotation_dict = rule.attributes.copy()
             annotation_dict[self.match_attribute] = matchobj
             if self.group_attribute:
@@ -248,8 +254,10 @@ class RegexTagger(Tagger):
                 annotation_dict[self.priority_attribute] = rule.priority
             if self.pattern_attribute:
                 annotation_dict[self.pattern_attribute] = rule.pattern
-            output.append( (text_obj, base_span, annotation) )
-        return output
+            yield (text_obj, base_span, annotation_dict) \
+                   if not add_aux else \
+                  (text_obj, base_span, annotation_dict, rule, rule.group, rule.priority)
+
 
     def add_decorated_annotations_to_layer(
             self,
@@ -259,37 +267,27 @@ class RegexTagger(Tagger):
         Adds annotations to extracted matches and assembles them into a layer.
         Annotations are added to extracted matches based on the right-hand-side of the matching extraction rule:
         * First statical rules are applied to specify fixed attributes. No spans are dropped!
+          (method self.get_decorator_inputs(...));
         * Next the global decorator is applied to update the annotation.
         * A span is dropped when the resulting annotation is not a dictionary of attribute values.
         * Finally decorators from dynamical rules are applied to update the annotation.
         * A span is dropped when the resulting annotation is not a dictionary of attribute values.
         """
 
-        raw_text = layer.text_object
-
-        for element in sorted_tuples:
-            span = Span(base_span=element[0], layer=layer)
-            rule = element[2]
-            matchobj = element[1]
-            annotation_dict = rule.attributes.copy()
-            annotation_dict[self.match_attribute] = matchobj
-            if self.group_attribute:
-                annotation_dict[self.group_attribute] = rule.group
-            if self.priority_attribute:
-                annotation_dict[self.priority_attribute] = rule.priority
-            if self.pattern_attribute:
-                annotation_dict[self.pattern_attribute] = rule.pattern
-
+        text_obj = layer.text_object
+        for (_, base_span, annotation_dict, rule, group, priority) in self.get_decorator_inputs(text_obj, 
+                                                                                                sorted_tuples, 
+                                                                                                add_aux=True):
             if self.global_decorator is not None:
-                annotation_dict = self.global_decorator(raw_text, element[0], annotation_dict)
+                annotation_dict = self.global_decorator(text_obj, base_span, annotation_dict)
             if rule.pattern in self.dynamic_ruleset_map:
-                dynamic_decorator = self.dynamic_ruleset_map[rule.pattern].get((rule.group, rule.priority), None)
+                dynamic_decorator = self.dynamic_ruleset_map[rule.pattern].get((group, priority), None)
                 if dynamic_decorator is not None:
-                    annotation_dict = dynamic_decorator(layer.text_object, span, annotation_dict)
+                    annotation_dict = dynamic_decorator(text_obj, base_span, annotation_dict)
             if annotation_dict is not None:
-                layer.add_annotation(element[0], annotation_dict)
-
+                layer.add_annotation(base_span, annotation_dict)
         return layer
+
 
     def iterate_over_decorated_annotations(
             self,
@@ -304,32 +302,24 @@ class RegexTagger(Tagger):
 
         Annotations are added to extracted matches based on the right-hand-side of the matching extraction rule:
         * First statical rules are applied to specify fixed attributes. No spans are dropped!
+          (method self.get_decorator_inputs(...));
         * Next the global decorator is applied to update the annotation.
         * A span is dropped when the resulting annotation is not a dictionary of attribute values.
         * Finally decorators from dynamical rules are applied to update the annotation.
         * A span is dropped when the resulting annotation is not a dictionary of attribute values.
         """
-
-        raw_text = layer.text_object
-
-        for element in sorted_tuples:
-            span = Span(base_span=element[0], layer=layer)
-            rule = element[2]
-            matchobj = element[1]
-            annotation_dict = rule.attributes
-            annotation_dict[self.match_attribute] = matchobj
-            if self.group_attribute:
-                annotation_dict[self.group_attribute] = rule.group
-            if self.priority_attribute:
-                annotation_dict[self.priority_attribute] = rule.priority
-            if self.pattern_attribute:
-                annotation_dict[self.pattern_attribute] = rule.pattern
-
+        text_obj = layer.text_object
+        for (_, base_span, annotation_dict, rule, group, priority) in self.get_decorator_inputs(text_obj, 
+                                                                                                sorted_tuples, 
+                                                                                                add_aux=True):
             if self.global_decorator is not None:
-                annotation_dict = self.global_decorator(raw_text, element[0], annotation_dict)
+                annotation_dict = self.global_decorator(text_obj, base_span, annotation_dict)
             if rule.pattern in self.dynamic_ruleset_map:
-                dynamic_decorator = self.dynamic_ruleset_map[rule.pattern].get((rule.group, rule.priority), None)
+                dynamic_decorator = self.dynamic_ruleset_map[rule.pattern].get((group, priority), None)
                 if dynamic_decorator is not None:
-                    annotation_dict = dynamic_decorator(layer.text_object, span, annotation_dict)
+                    annotation_dict = dynamic_decorator(text_obj, base_span, annotation_dict)
             if annotation_dict is not None:
-                yield annotation_dict, rule.group, rule.priority
+                # TODO: should we return Annotation or annotation_dict here?
+                yield annotation_dict, group, priority
+
+

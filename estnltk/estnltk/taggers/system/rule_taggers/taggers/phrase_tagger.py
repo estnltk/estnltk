@@ -262,18 +262,25 @@ class PhraseTagger(Tagger):
 
         return sorted(match_tuples, key=lambda x: (x[0].start, x[0].end))
 
-    def get_decorator_inputs(self, text_obj, match_list):
+    def get_decorator_inputs(self, text_obj, match_list, add_aux=False):
         """
         Converts all matches into decorator inputs. 
+        
         The input match_list is expected to be the output of 
         self.extract_annotations or keep_minimal_matches/
-        keep_maximal_matches.
-        Returns list of tuples (text_obj, base_span, annotation).
-        This method is mainly used in decorator development & 
-        debugging. 
+        keep_maximal_matches. 
+        By default, yields a list of tuples (text_obj, base_span, annotation).
+        If add_aux==True, then adds auxiliary information and yields list 
+        of tuples (text_obj, base_span, annotation, phrase, group, priority), 
+        where phrase is extracted phrase from the match_list/match_tuples, 
+        and group & priority are attributes of the corresponding static 
+        extraction rule.
+        
+        This method is used in decorator development & debugging, 
+        and by methods add_decorated_annotations_to_layer & 
+        iterate_over_decorated_annotations. 
         """
-        output = []
-        for i, (base_span, _, phrase) in enumerate(match_list):
+        for base_span, _, phrase in match_list:
             static_rulelist = self.static_ruleset_map.get(phrase, None)
             for group, priority, annotation in static_rulelist:
                 annotation = annotation.copy()
@@ -284,8 +291,9 @@ class PhraseTagger(Tagger):
                     annotation[self.priority_attribute] = priority
                 if self.pattern_attribute:
                     annotation[self.pattern_attribute] = phrase
-                output.append( (text_obj, base_span, annotation) )
-        return output
+                yield (text_obj, base_span, annotation) \
+                       if not add_aux else \
+                      (text_obj, base_span, annotation, phrase, group, priority)
 
     def add_decorated_annotations_to_layer(
             self,
@@ -295,6 +303,7 @@ class PhraseTagger(Tagger):
         Adds annotations to extracted matches and assembles them into a layer.
         Annotations are added to extracted matches based on the right-hand-side of the matching extraction rule:
         * First statical rules are applied to specify fixed attributes. No spans are dropped!
+          (method self.get_decorator_inputs(...));
         * Next the global decorator is applied to update the annotation.
         * A span is dropped when the resulting annotation is not a dictionary of attribute values.
         * Finally decorators from dynamical rules are applied to update the annotation.
@@ -302,33 +311,23 @@ class PhraseTagger(Tagger):
         """
 
         text = layer.text_object
-
-        for base_span, _, phrase in sorted_tuples:
-            span = EnvelopingSpan(base_span=base_span, layer=layer)
-            static_rulelist = self.static_ruleset_map.get(phrase, None)
-            for group, priority, annotation in static_rulelist:
-                annotation = annotation.copy()
-                annotation[self.phrase_attribute] = phrase
-                if self.group_attribute:
-                    annotation[self.group_attribute] = group
-                if self.priority_attribute:
-                    annotation[self.priority_attribute] = priority
-                if self.pattern_attribute:
-                    annotation[self.pattern_attribute] = phrase
-                if self.decorator is not None:
-                    annotation = self.decorator(text, base_span, annotation)
-                    if not isinstance(annotation, dict):
-                        continue
-                subindex = self.dynamic_ruleset_map.get(phrase, None)
-                decorator = subindex[(group, priority)] if subindex is not None else None
-                if decorator is None:
-                    layer.add_annotation(base_span, annotation)
+        for (_, base_span, annotation, phrase, group, priority) in self.get_decorator_inputs(text, 
+                                                                                             sorted_tuples, 
+                                                                                             add_aux=True):
+            if self.decorator is not None:
+                annotation = self.decorator(text, base_span, annotation)
+                if not isinstance(annotation, dict):
                     continue
-                annotation = decorator(text, span, annotation)
-                if annotation is not None:
-                    layer.add_annotation(base_span, annotation)
-
+            subindex = self.dynamic_ruleset_map.get(phrase, None)
+            decorator = subindex[(group, priority)] if subindex is not None else None
+            if decorator is None:
+                layer.add_annotation(base_span, annotation)
+                continue
+            annotation = decorator(text, span, annotation)
+            if annotation is not None:
+                layer.add_annotation(base_span, annotation)
         return layer
+
 
     def iterate_over_decorated_annotations(
             self,
@@ -343,35 +342,29 @@ class PhraseTagger(Tagger):
 
         Annotations are added to extracted matches based on the right-hand-side of the matching extraction rule:
         * First statical rules are applied to specify fixed attributes. No spans are dropped!
+          (method self.get_decorator_inputs(...));
         * Next the global decorator is applied to update the annotation.
         * A span is dropped when the resulting annotation is not a dictionary of attribute values.
         * Finally decorators from dynamical rules are applied to update the annotation.
         * A span is dropped when the resulting annotation is not a dictionary of attribute values.
         """
-
         text = layer.text_object
-
-        for base_span, _, phrase in sorted_tuples:
-            span = EnvelopingSpan(base_span=base_span, layer=layer)
-            static_rulelist = self.static_ruleset_map.get(phrase, None)
-            for group, priority, annotation in static_rulelist:
-                annotation = annotation.copy()
-                annotation[self.phrase_attribute] = phrase
-                if self.group_attribute:
-                    annotation[self.group_attribute] = group
-                if self.priority_attribute:
-                    annotation[self.priority_attribute] = priority
-                if self.pattern_attribute:
-                    annotation[self.pattern_attribute] = phrase
-                if self.decorator is not None:
-                    annotation = self.decorator(text, base_span, annotation)
-                    if not isinstance(annotation, dict):
-                        continue
-                subindex = self.dynamic_ruleset_map.get(phrase, None)
-                decorator = subindex[(group, priority)] if subindex is not None else None
-                if decorator is None:
-                    yield annotation, group, priority
+        for (_, base_span, annotation, phrase, group, priority) in self.get_decorator_inputs(text, 
+                                                                                             sorted_tuples, 
+                                                                                             add_aux=True):
+            if self.decorator is not None:
+                annotation = self.decorator(text, base_span, annotation)
+                if not isinstance(annotation, dict):
                     continue
-                annotation = decorator(text, span, annotation)
-                if annotation is not None:
-                    yield annotation, group, priority
+            subindex = self.dynamic_ruleset_map.get(phrase, None)
+            decorator = subindex[(group, priority)] if subindex is not None else None
+            if decorator is None:
+                # TODO: should we return Annotation or annotation_dict here?
+                yield annotation, group, priority
+                continue
+            annotation = decorator(text, span, annotation)
+            if annotation is not None:
+                # TODO: should we return Annotation or annotation_dict here?
+                yield annotation, group, priority
+
+
