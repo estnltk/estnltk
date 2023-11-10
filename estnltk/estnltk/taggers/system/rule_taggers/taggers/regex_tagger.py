@@ -278,8 +278,12 @@ class RegexTagger(Tagger):
         for (_, base_span, annotation_dict, rule, group, priority) in self.get_decorator_inputs(text_obj, 
                                                                                                 sorted_tuples, 
                                                                                                 add_aux=True):
+            # apply global decorator
+            # Drop annotations for which the global decorator fails
             if self.global_decorator is not None:
                 annotation_dict = self.global_decorator(text_obj, base_span, annotation_dict)
+                if not isinstance(annotation_dict, dict):
+                    continue
             if rule.pattern in self.dynamic_ruleset_map:
                 dynamic_decorator = self.dynamic_ruleset_map[rule.pattern].get((group, priority), None)
                 if dynamic_decorator is not None:
@@ -312,8 +316,12 @@ class RegexTagger(Tagger):
         for (_, base_span, annotation_dict, rule, group, priority) in self.get_decorator_inputs(text_obj, 
                                                                                                 sorted_tuples, 
                                                                                                 add_aux=True):
+            # apply global decorator
+            # Drop annotations for which the global decorator fails
             if self.global_decorator is not None:
                 annotation_dict = self.global_decorator(text_obj, base_span, annotation_dict)
+                if not isinstance(annotation_dict, dict):
+                    continue
             if rule.pattern in self.dynamic_ruleset_map:
                 dynamic_decorator = self.dynamic_ruleset_map[rule.pattern].get((group, priority), None)
                 if dynamic_decorator is not None:

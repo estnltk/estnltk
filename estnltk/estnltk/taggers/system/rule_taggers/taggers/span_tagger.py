@@ -221,8 +221,12 @@ class SpanTagger(Tagger):
                     layer.add_span(cur_span)
                 # Create new Span
                 cur_span = Span(base_span=base_span, layer=layer)
+            # apply global decorator
+            # Drop annotations for which the global decorator fails
             if self.global_decorator is not None:
                 annotation = self.global_decorator(text, base_span, annotation)
+                if not isinstance(annotation, dict):
+                    continue
             subindex = self.dynamic_ruleset_map.get(pattern, None)
             decorator = subindex[(group, priority)] if subindex is not None else None
             if decorator is None:
@@ -266,8 +270,12 @@ class SpanTagger(Tagger):
             if cur_span is None or cur_span.base_span != base_span:
                 # Create new Span
                 cur_span = Span(base_span=base_span, layer=layer)
+            # apply global decorator
+            # Drop annotations for which the global decorator fails
             if self.global_decorator is not None:
                 annotation = self.global_decorator(text, base_span, annotation)
+                if not isinstance(annotation, dict):
+                    continue
             subindex = self.dynamic_ruleset_map.get(pattern, None)
             decorator = subindex[(group, priority)] if subindex is not None else None
             if decorator is None:
