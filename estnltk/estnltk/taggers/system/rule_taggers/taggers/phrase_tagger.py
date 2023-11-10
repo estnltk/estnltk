@@ -3,7 +3,7 @@ from typing import Sequence, List, Tuple, Iterator, Generator, Dict, Callable, A
 
 from estnltk import Annotation, EnvelopingBaseSpan
 from estnltk import EnvelopingSpan
-from estnltk import Layer
+from estnltk import Layer, Span
 from estnltk.taggers import Tagger
 from estnltk.taggers.system.rule_taggers.extraction_rules.ambiguous_ruleset import AmbiguousRuleset
 from estnltk.taggers.system.rule_taggers.extraction_rules.ruleset import Ruleset

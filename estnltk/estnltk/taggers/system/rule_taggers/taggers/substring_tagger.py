@@ -46,6 +46,7 @@ class SubstringTagger(Tagger):
     """
 
     # noinspection PyMissingConstructor,PyUnresolvedReferences
+    # TODO: homogenize parameter names: global_decorator -> decorator
     def __init__(self,
                  ruleset: AmbiguousRuleset,
                  token_separators: str = '',

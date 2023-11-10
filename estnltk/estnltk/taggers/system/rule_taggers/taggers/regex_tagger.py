@@ -2,7 +2,7 @@ import copy
 from typing import Sequence, Union, Generator, Tuple, Iterator, List, Callable, Dict, Any, Optional
 
 from estnltk.taggers import Tagger
-from estnltk import Layer, Text
+from estnltk import Layer, Text, Span
 from estnltk.taggers.system.rule_taggers.helper_methods.helper_methods import keep_maximal_matches, keep_minimal_matches,conflict_priority_resolver
 from estnltk_core import Annotation, ElementaryBaseSpan, Span
 from estnltk.taggers.system.rule_taggers import Ruleset, StaticExtractionRule
