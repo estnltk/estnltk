@@ -284,7 +284,7 @@ class SpanTagger(Tagger):
                 annotation = dynamic_decorator(text, base_span, annotation)
             if annotation is not None:
                 annotation_obj = Annotation(cur_span, annotation)
-                yield annotation, group, priority
+                yield annotation_obj, group, priority
 
 
     def _make_layer(self, text, layers: dict, status: dict):

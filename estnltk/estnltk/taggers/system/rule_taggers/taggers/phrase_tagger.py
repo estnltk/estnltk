@@ -351,9 +351,13 @@ class PhraseTagger(Tagger):
         * A span is dropped when the resulting annotation is not a dictionary of attribute values.
         """
         text = layer.text_object
+        cur_span = None # current span
         for (_, base_span, annotation, phrase, group, priority) in self.get_decorator_inputs(text, 
                                                                                              sorted_tuples, 
                                                                                              add_aux=True):
+            if cur_span is None or cur_span.base_span != base_span:
+                # Create new Span
+                cur_span = Span(base_span=base_span, layer=layer)
             # apply global decorator
             # Drop annotations for which the global decorator fails
             if self.decorator is not None:
@@ -367,7 +371,7 @@ class PhraseTagger(Tagger):
             if dynamic_decorator is not None:
                 annotation = dynamic_decorator(text, base_span, annotation)
             if annotation is not None:
-                # TODO: should we return Annotation or annotation_dict here?
-                yield annotation, group, priority      
+                annotation_obj = Annotation(cur_span, annotation)
+                yield annotation_obj, group, priority   
 
 
