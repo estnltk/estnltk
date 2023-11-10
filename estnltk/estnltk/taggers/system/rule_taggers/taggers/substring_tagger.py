@@ -429,9 +429,6 @@ class SubstringTagger(Tagger):
                                                                                            sorted_tuples, 
                                                                                            add_aux=True):
             if cur_span is None or cur_span.base_span != base_span:
-                # Add previously created span to the layer
-                if cur_span is not None and cur_span.annotations:
-                    layer.add_span(cur_span)
                 # Create new Span
                 cur_span = Span(base_span=base_span, layer=layer)
             # apply global decorator
