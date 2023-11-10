@@ -227,15 +227,15 @@ class SpanTagger(Tagger):
                 annotation = self.global_decorator(text, base_span, annotation)
                 if not isinstance(annotation, dict):
                     continue
+            # apply dynamic_decorator --- it must be unique or have matching 
+            # priority and group
             subindex = self.dynamic_ruleset_map.get(pattern, None)
-            decorator = subindex[(group, priority)] if subindex is not None else None
-            if decorator is None:
-                annotation = Annotation(cur_span, annotation)
-                cur_span.add_annotation(annotation)
-                continue
-            annotation = decorator(text, base_span, annotation)
-            annotation = Annotation(cur_span, annotation)
-            cur_span.add_annotation(annotation)
+            dynamic_decorator = subindex[(group, priority)] if subindex is not None else None
+            if dynamic_decorator is not None:
+                annotation = dynamic_decorator(text, base_span, annotation)
+            if annotation is not None:
+                annotation_obj = Annotation(cur_span, annotation)
+                cur_span.add_annotation(annotation_obj)
         # Add the last span
         if cur_span is not None and cur_span.annotations and \
            cur_span not in layer.spans:
@@ -276,15 +276,15 @@ class SpanTagger(Tagger):
                 annotation = self.global_decorator(text, base_span, annotation)
                 if not isinstance(annotation, dict):
                     continue
+            # apply dynamic_decorator --- it must be unique or have matching 
+            # priority and group
             subindex = self.dynamic_ruleset_map.get(pattern, None)
-            decorator = subindex[(group, priority)] if subindex is not None else None
-            if decorator is None:
-                annotation = Annotation(cur_span, annotation)
+            dynamic_decorator = subindex[(group, priority)] if subindex is not None else None
+            if dynamic_decorator is not None:
+                annotation = dynamic_decorator(text, base_span, annotation)
+            if annotation is not None:
+                annotation_obj = Annotation(cur_span, annotation)
                 yield annotation, group, priority
-                continue
-            annotation = decorator(text, base_span, annotation)
-            annotation = Annotation(cur_span, annotation)
-            yield annotation, group, priority
 
 
     def _make_layer(self, text, layers: dict, status: dict):

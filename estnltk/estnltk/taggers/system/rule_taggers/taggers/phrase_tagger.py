@@ -314,16 +314,18 @@ class PhraseTagger(Tagger):
         for (_, base_span, annotation, phrase, group, priority) in self.get_decorator_inputs(text, 
                                                                                              sorted_tuples, 
                                                                                              add_aux=True):
+            # apply global decorator
+            # Drop annotations for which the global decorator fails
             if self.decorator is not None:
                 annotation = self.decorator(text, base_span, annotation)
                 if not isinstance(annotation, dict):
                     continue
+            # apply dynamic_decorator --- it must be unique or have matching 
+            # priority and group
             subindex = self.dynamic_ruleset_map.get(phrase, None)
-            decorator = subindex[(group, priority)] if subindex is not None else None
-            if decorator is None:
-                layer.add_annotation(base_span, annotation)
-                continue
-            annotation = decorator(text, span, annotation)
+            dynamic_decorator = subindex[(group, priority)] if subindex is not None else None
+            if dynamic_decorator is not None:
+                annotation = dynamic_decorator(text, base_span, annotation)
             if annotation is not None:
                 layer.add_annotation(base_span, annotation)
         return layer
@@ -352,19 +354,20 @@ class PhraseTagger(Tagger):
         for (_, base_span, annotation, phrase, group, priority) in self.get_decorator_inputs(text, 
                                                                                              sorted_tuples, 
                                                                                              add_aux=True):
+            # apply global decorator
+            # Drop annotations for which the global decorator fails
             if self.decorator is not None:
                 annotation = self.decorator(text, base_span, annotation)
                 if not isinstance(annotation, dict):
                     continue
+            # apply dynamic_decorator --- it must be unique or have matching 
+            # priority and group
             subindex = self.dynamic_ruleset_map.get(phrase, None)
-            decorator = subindex[(group, priority)] if subindex is not None else None
-            if decorator is None:
-                # TODO: should we return Annotation or annotation_dict here?
-                yield annotation, group, priority
-                continue
-            annotation = decorator(text, span, annotation)
+            dynamic_decorator = subindex[(group, priority)] if subindex is not None else None
+            if dynamic_decorator is not None:
+                annotation = dynamic_decorator(text, base_span, annotation)
             if annotation is not None:
                 # TODO: should we return Annotation or annotation_dict here?
-                yield annotation, group, priority
+                yield annotation, group, priority      
 
 

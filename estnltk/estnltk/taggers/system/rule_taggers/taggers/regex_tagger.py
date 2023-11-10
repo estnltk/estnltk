@@ -284,6 +284,7 @@ class RegexTagger(Tagger):
                 annotation_dict = self.global_decorator(text_obj, base_span, annotation_dict)
                 if not isinstance(annotation_dict, dict):
                     continue
+            # apply dynamic_decorator 
             if rule.pattern in self.dynamic_ruleset_map:
                 dynamic_decorator = self.dynamic_ruleset_map[rule.pattern].get((group, priority), None)
                 if dynamic_decorator is not None:
@@ -322,6 +323,7 @@ class RegexTagger(Tagger):
                 annotation_dict = self.global_decorator(text_obj, base_span, annotation_dict)
                 if not isinstance(annotation_dict, dict):
                     continue
+            # apply dynamic_decorator 
             if rule.pattern in self.dynamic_ruleset_map:
                 dynamic_decorator = self.dynamic_ruleset_map[rule.pattern].get((group, priority), None)
                 if dynamic_decorator is not None:

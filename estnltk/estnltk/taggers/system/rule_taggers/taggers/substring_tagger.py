@@ -386,16 +386,14 @@ class SubstringTagger(Tagger):
                     continue
             # apply dynamic_decorator --- it must be unique or have matching 
             # priority and group
-            # No dynamic rules to change the annotation
             subindex = self.dynamic_ruleset_map.get(pattern, None)
-            decorator = subindex[(group, priority)] if subindex is not None else None
-            if decorator is None:
-                annotation = Annotation(cur_span, annotation)
-                cur_span.add_annotation(annotation)
-                continue
-            annotation = decorator(text, base_span, annotation)
-            annotation = Annotation(cur_span, annotation)
-            cur_span.add_annotation(annotation)
+            dynamic_decorator = subindex[(group, priority)] if subindex is not None else None
+            if dynamic_decorator is not None:
+                # Use dynamic rules to change the annotation
+                annotation = dynamic_decorator(text, base_span, annotation)
+            if annotation is not None:
+                annotation_obj = Annotation(cur_span, annotation)
+                cur_span.add_annotation(annotation_obj)
         # Add the last span
         if cur_span is not None and cur_span.annotations and \
            cur_span not in layer.spans:
@@ -439,11 +437,11 @@ class SubstringTagger(Tagger):
                     continue
             # apply dynamic_decorator
             subindex = self.dynamic_ruleset_map.get(pattern, None)
-            decorator = subindex[(group, priority)] if subindex is not None else None
-            # Use dynamic rules to change the annotation
-            if decorator is not None:
-                annotation_dict = decorator(text_object, base_span, annotation_dict)
-            if isinstance(annotation_dict, dict):
-                annotation = Annotation(span, annotation_dict)
-                yield annotation, group, priority
+            dynamic_decorator = subindex[(group, priority)] if subindex is not None else None
+            if dynamic_decorator is not None:
+                # Use dynamic rules to change the annotation
+                annotation_dict = dynamic_decorator(text, base_span, annotation_dict)
+            if annotation_dict is not None:
+                annotation_obj = Annotation(cur_span, annotation_dict)
+                yield annotation_obj, group, priority
 
