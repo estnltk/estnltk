@@ -8,18 +8,17 @@ from estnltk.taggers.standard.syntax.phrase_extraction.syntax_tree_operations im
 
 class PhraseExtractor(Tagger):
     """
-    Extracts various types of phases based on UD-syntax. 
-    Creates layer syntax_ignore_entity by default or with given name.
-    By default, search subtrees with specific dependency relations but there are other options.
+    Extracts various types of phrases based on UD-syntax. 
+    By default, searches subtrees with specific dependency relations but there are other options. 
     User can specify decorator to filter out and annotate phrases.
-    There are sensible decorators for each phrase type.
+    There are sensible decorators for different phrase types.
     """
 
     conf_param = ['input_type', "deprel", "decorator", "output_layer"]
 
     def __init__(self,
                  decorator: callable = None,
-                 output_layer='syntax_ignore_entity',
+                 output_layer='syntax_phrases',
                  sentences_layer='sentences',
                  words_layer='words',
                  syntax_layer="stanza_syntax",
