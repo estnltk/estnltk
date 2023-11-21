@@ -61,8 +61,8 @@ class PhraseExtractor(Tagger):
                                "root": syntaxtree.graph.nodes[node]['span']}
                 if self.decorator:
                     annotations = self.decorator(text, new_span, annotations)
-                    # TODO: delete annotation if decorator tells you to do so
-                layer.add_annotation(new_span, **annotations)
+                if annotations is not None:
+                    layer.add_annotation(new_span, **annotations)
             text_word_idx = sent_end
 
         return layer
