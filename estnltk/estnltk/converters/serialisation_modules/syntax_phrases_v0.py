@@ -26,11 +26,7 @@ def layer_to_dict(layer):
     }
     attributes = []
     for attr in layer.attributes:
-        if attr == "root":
-            if len(layer[attr]) != 0 and \
-               not any([isinstance(a, Span) for a in layer[attr]]):
-                attributes.append(attr)
-        else:
+        if attr != "root":
             attributes.append(attr)
     spans = []
     for span in layer:
