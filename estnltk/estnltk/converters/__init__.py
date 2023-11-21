@@ -32,10 +32,13 @@ from estnltk.converters.tcf.TCF_importer import import_TCF
 
 # Update global serialization registry: add syntax & legacy serialization modules
 from estnltk_core.converters.serialisation_registry import SERIALISATION_REGISTRY
-from estnltk.converters.serialisation_modules import syntax_v0
 from estnltk.converters.serialisation_modules import legacy_v0
+from estnltk.converters.serialisation_modules import syntax_v0
+from estnltk.converters.serialisation_modules import syntax_phrases_v0
 
 if 'syntax_v0' not in SERIALISATION_REGISTRY:
     SERIALISATION_REGISTRY['syntax_v0'] = syntax_v0
+if 'syntax_phrases_v0' not in SERIALISATION_REGISTRY:
+    SERIALISATION_REGISTRY['syntax_phrases_v0'] = syntax_phrases_v0
 if 'legacy_v0' not in SERIALISATION_REGISTRY:
     SERIALISATION_REGISTRY['legacy_v0'] = legacy_v0

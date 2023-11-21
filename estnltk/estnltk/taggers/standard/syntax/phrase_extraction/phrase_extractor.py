@@ -39,7 +39,7 @@ class PhraseExtractor(Tagger):
                       attributes=self.output_attributes,
                       enveloping=self.input_layers[-1],
                       ambiguous=False,
-                      serialisation_module='syntax_v1')
+                      serialisation_module='syntax_phrases_v0')
         return layer
 
     def _make_layer(self, text, layers, status=None):
@@ -61,6 +61,7 @@ class PhraseExtractor(Tagger):
                                "root": syntaxtree.graph.nodes[node]['span']}
                 if self.decorator:
                     annotations = self.decorator(text, new_span, annotations)
+                    # TODO: delete annotation if decorator tells you to do so
                 layer.add_annotation(new_span, **annotations)
             text_word_idx = sent_end
 
