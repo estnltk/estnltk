@@ -1,13 +1,12 @@
-
-import networkx as nx
-from estnltk import Span
-from estnltk import BaseSpan
-
-from .syntax_tree import SyntaxTree
-
 from typing import Any
 from typing import List
 
+import networkx as nx
+
+from estnltk import Span
+from estnltk import BaseSpan
+
+from estnltk.taggers.standard.syntax.phrase_extraction.syntax_tree import SyntaxTree
 from estnltk.taggers.standard.syntax.syntax_error_count_tagger import by_sentences
 
 import pandas as pd 
