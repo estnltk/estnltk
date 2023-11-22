@@ -669,7 +669,7 @@ def test_syntax_time_loc_tagger_smoke():
          'parent': None,
          'secondary_attributes': (),
          'serialisation_module': 'syntax_phrases_v0',
-         'spans': [{'annotations': [{'phrase_type': None, 'root_id': 2}],
+         'spans': [{'annotations': [{'phrase_type': 'LOC', 'root_id': 2}],
                     'base_span': ((0, 7), (8, 15))},
                    {'annotations': [{'phrase_type': 'TIME', 'root_id': 5}],
                     'base_span': ((51, 54), (55, 62), (63, 69))},
@@ -681,7 +681,7 @@ def test_syntax_time_loc_tagger_smoke():
     for phrase in three_sentences[time_loc_tagger.output_layer]:
         phrases.append( (phrase.enclosing_text, phrase.phrase_type) )
     assert phrases == \
-        [('Valgest tornist', None), 
+        [('Valgest tornist', 'LOC'), 
          ('70. aastate lõpust', 'TIME'), 
          ('TV 3 eetrisse', 'LOC'), 
          ('sügisel', 'TIME')]

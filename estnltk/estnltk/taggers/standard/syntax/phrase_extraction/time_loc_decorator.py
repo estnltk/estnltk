@@ -3,7 +3,6 @@
 #      https://github.com/estnltk/syntax_experiments/tree/ec864a6e20909b56f388d9f675b109310306d8e9/adverbials/estnltk_patches
 #
 import os, os.path
-import pandas as pd
 from estnltk.wordnet import Wordnet
 
 
@@ -22,13 +21,28 @@ class TimeLocDecorator:
                        syntax_layer="stanza_syntax", 
                        morph_layer="morph_analysis"):
         self.wn = Wordnet()
+        
+        self.time_lemmas = set()
         if time_lemmas_path is None:
             time_lemmas_path = DEFAULT_TIME_LEMMAS_PATH
-        self.time_lemmas = pd.read_csv(time_lemmas_path, encoding="UTF8")
-
+        if not os.path.exists(time_lemmas_path):
+            raise FileNotFoundError(f'Invalid time_lemmas_path: {time_lemmas_path}')
+        with open(time_lemmas_path, mode='r', encoding="UTF-8") as in_f:
+            for line in in_f:
+                line = line.strip()
+                if len(line) > 0:
+                    self.time_lemmas.add(line)
+        
+        self.loc_lemmas = set()
         if loc_lemmas_path is None:
             loc_lemmas_path = DEFAULT_LOC_LEMMAS_PATH
-        self.loc_lemmas = pd.read_csv(loc_lemmas_path, encoding="UTF8")
+        if not os.path.exists(loc_lemmas_path):
+            raise FileNotFoundError(f'Invalid loc_lemmas_path: {loc_lemmas_path}')
+        with open(loc_lemmas_path, mode='r', encoding="UTF-8") as in_f:
+            for line in in_f:
+                line = line.strip()
+                if len(line) > 0:
+                    self.loc_lemmas.add(line)
         
         self.loc_form = ['sg ill', 'sg in', 'sg el', 'sg all', 'sg ad', 'sg abl',
                          'pl ill', 'pl in', 'pl el', 'pl all', 'pl ad', 'pl abl']
@@ -36,7 +50,6 @@ class TimeLocDecorator:
                        "ala", "maa-asula", "eluruum", "rahvusriik", "hoone", "ruum", "maapind",
                        "maa-ala", "mander", "tuba", "asukoht", "linn"]
         self.time_wn = ["kuu", "aasta", "aastaaeg", "ajavahemik", "ajaühik", "nädalapäev", "aeg", "päev"]
-
         self.verb_obl_loc = [["õppima", "kool", "sg in"], ["kirjutama", "alla", "kool", "sg in"]]
         assert isinstance(syntax_layer, str), '(!) syntax_layer must be of type str'
         self.syntax_layer = syntax_layer
