@@ -20,7 +20,8 @@ class TimeLocTagger(Tagger):
                  sentences_layer="sentences",
                  morph_layer="morph_analysis",
                  time_lemmas_path=None, 
-                 loc_lemmas_path=None):
+                 loc_lemmas_path=None,
+                 discard_unclassified=False):
         ''' Initializes this TimeLocTagger.
             
             Parameters
@@ -50,9 +51,14 @@ class TimeLocTagger(Tagger):
             
             loc_lemmas_path: str (default: None)
                 Path to a text file containing lemmas of head words of location phrases 
-                (each lemma on new line). The file should be in "utf-8" encoding.
+                (each lemma on new line). The file should be in "utf-8" encoding. 
                 If path is not provided, then loads the default resource from the 
                 path: 'estnltk/taggers/standard/syntax/phrase_extraction/resources/loc_lemmas.txt'
+            
+            discard_unclassified: bool (default: False)
+                If set, then discards unclassified phrases, that is, phrases with phrase_type==None.  
+                Otherwise, all OBL phrases will make it to the output layer, even if the tagger could 
+                not classify some of them. 
         '''
         self.output_layer = output_layer
         self.input_layers = [sentences_layer, morph_layer, syntax_layer]
@@ -60,7 +66,8 @@ class TimeLocTagger(Tagger):
         self.decorator = TimeLocDecorator(time_lemmas_path=time_lemmas_path, 
                                           loc_lemmas_path=loc_lemmas_path, 
                                           syntax_layer=syntax_layer, 
-                                          morph_layer=morph_layer)
+                                          morph_layer=morph_layer,
+                                          discard_unclassified=discard_unclassified)
         self.extractor = PhraseExtractor(deprel="obl", 
                                          decorator=self.decorator, 
                                          sentences_layer=sentences_layer, 
