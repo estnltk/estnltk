@@ -56,37 +56,38 @@ class TimeLocDecorator:
         assert isinstance(morph_layer, str), '(!) morph_layer must be of type str'
         self.morph_layer = morph_layer
 
-    def __call__(self, text_object, phrase_span, annotations):
+    def __call__(self, text_object, base_span, annotation):
         """
-        Adds three syntax conservation scores for the shortened sentence.
-        Shortened sentence is obtained by removing the phrase in the phrase_span from the text.
+        Determines phrase_type ("LOC", "TIME" or "INCONCLUSIVE") of the given OBL phrase. 
+        Updates the given annotation correspondingly and returns updated annotation. 
+        Assumes that the annotation already contains 'root' and 'root_id'. 
         """
         # Extract all of the necessary information from the parameters
-        obl_root = annotations['root']
-        obl_root_id = annotations['root_id']
+        obl_root = annotation['root']
+        obl_root_id = annotation['root_id']
         obl_lemma = obl_root.lemma
         obl_form = (text_object[self.morph_layer].get(obl_root.base_span)).form[0]
         phrase_type = None
 
         # Check if OBL phrase is in locative case, if not return 'None' type
         if obl_form not in self.loc_form:
-            annotations.update({
+            annotation.update({
                 'phrase_type': phrase_type})
-            return annotations
+            return annotation
 
         # If OBL is in locative case and the lemma is a pre-determined time word, return 'TIME' type
         if obl_form in self.loc_form and obl_lemma in self.time_lemmas:
             phrase_type = "TIME"
-            annotations.update({
+            annotation.update({
                 "phrase_type": phrase_type})
-            return annotations
+            return annotation
 
         # If OBL is in locative case and the lemma is a pre-determined location word, return 'LOC' type
         if obl_form in self.loc_form and obl_lemma in self.loc_lemmas:
             phrase_type = "LOC"
-            annotations.update({
+            annotation.update({
                 "phrase_type": phrase_type})
-            return annotations
+            return annotation
 
         # Find the verb-OBL-case combination. In some cases it is possible to determine whether the
         # OBL phrase is a location based on the verb phrase it is in. If the current phrase is like this
@@ -111,9 +112,9 @@ class TimeLocDecorator:
 
         if verb_obl in self.verb_obl_loc:
             phrase_type = "LOC"
-            annotations.update({
+            annotation.update({
                 "phrase_type": phrase_type})
-            return annotations
+            return annotation
 
         # There are a lot of different words referring to places and it is impossible to create an
         # exhaustive list. The next section combats this issue by finding time and location words
@@ -147,7 +148,7 @@ class TimeLocDecorator:
             if "TIME" in literal_types and "LOC" in literal_types:
                 phrase_type = "INCONCLUSIVE"
 
-        annotations.update({
+        annotation.update({
             "phrase_type": phrase_type})
 
-        return annotations
+        return annotation

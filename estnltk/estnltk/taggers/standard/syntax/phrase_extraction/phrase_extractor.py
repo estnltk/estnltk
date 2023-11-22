@@ -56,12 +56,12 @@ class PhraseExtractor(Tagger):
             ignore_nodes = filter_nodes_by_attributes(syntaxtree, 'deprel', self.deprel)
             for node in ignore_nodes:
                 new_span = EnvelopingBaseSpan(sorted(extract_base_spans_of_subtree(syntaxtree, node)))
-                annotations = {"root_id": syntaxtree.graph.nodes[node]['span']["id"],
-                               "root": syntaxtree.graph.nodes[node]['span']}
+                annotation = {"root_id": syntaxtree.graph.nodes[node]['span']["id"],
+                              "root": syntaxtree.graph.nodes[node]['span']}
                 if self.decorator:
-                    annotations = self.decorator(text, new_span, annotations)
-                if annotations is not None:
-                    layer.add_annotation(new_span, **annotations)
+                    annotation = self.decorator(text, new_span, annotation)
+                if annotation is not None:
+                    layer.add_annotation(new_span, **annotation)
             text_word_idx = sent_end
 
         return layer
