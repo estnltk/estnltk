@@ -18,11 +18,48 @@ class TimeLocTagger(Tagger):
                  output_layer="time_loc_phrases",
                  syntax_layer="stanza_syntax",
                  sentences_layer="sentences",
-                 morph_layer="morph_analysis"):
+                 morph_layer="morph_analysis",
+                 time_lemmas_path=None, 
+                 loc_lemmas_path=None):
+        ''' Initializes this TimeLocTagger.
+            
+            Parameters
+            -----------
+            output_layer: str (default: 'time_loc_phrases')
+                Name for the time/location phrases layer;
+            
+            syntax_layer: str (default: 'stanza_syntax')
+                Name of the input syntactic analysis layer. 
+                This layer is used as a basis for extracting OBL phrases 
+                and for determining phrase type. Must be an UD syntax 
+                layer. 
+            
+            sentences_layer: str (default: 'sentences')
+                Name of the input sentences layer;
+            
+            morph_layer: str (default: 'morph_analysis')
+                Name of the input morph_analysis layer.
+                Must be a morphological analysis layer using 
+                Vabamorf's tagset. 
+            
+            time_lemmas_path: str (default: None)
+                Path to a text file containing lemmas of head words of time phrases 
+                (each lemma on new line). The file should be in "utf-8" encoding. 
+                If path is not provided, then loads the default resource from the 
+                path: 'estnltk/taggers/standard/syntax/phrase_extraction/resources/time_lemmas.txt'
+            
+            loc_lemmas_path: str (default: None)
+                Path to a text file containing lemmas of head words of location phrases 
+                (each lemma on new line). The file should be in "utf-8" encoding.
+                If path is not provided, then loads the default resource from the 
+                path: 'estnltk/taggers/standard/syntax/phrase_extraction/resources/loc_lemmas.txt'
+        '''
         self.output_layer = output_layer
         self.input_layers = [sentences_layer, morph_layer, syntax_layer]
         self.output_attributes = ["phrase_type", "root_id", "root"]
-        self.decorator = TimeLocDecorator(syntax_layer=syntax_layer,
+        self.decorator = TimeLocDecorator(time_lemmas_path=time_lemmas_path, 
+                                          loc_lemmas_path=loc_lemmas_path, 
+                                          syntax_layer=syntax_layer, 
                                           morph_layer=morph_layer)
         self.extractor = PhraseExtractor(deprel="obl", 
                                          decorator=self.decorator, 
