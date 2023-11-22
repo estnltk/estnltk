@@ -7,9 +7,9 @@ from estnltk.wordnet import Wordnet
 
 
 DEFAULT_TIME_LEMMAS_PATH = \
-    os.path.join( os.path.dirname(os.path.abspath(__file__)), 'time_lemmas.csv' )
+    os.path.join( os.path.dirname(os.path.abspath(__file__)), 'resources', 'time_lemmas.txt' )
 DEFAULT_LOC_LEMMAS_PATH  = \
-    os.path.join( os.path.dirname(os.path.abspath(__file__)), 'loc_lemmas.csv' )
+    os.path.join( os.path.dirname(os.path.abspath(__file__)), 'resources', 'loc_lemmas.txt' )
 
 class TimeLocDecorator:
     """
