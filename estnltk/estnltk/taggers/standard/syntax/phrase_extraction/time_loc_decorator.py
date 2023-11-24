@@ -3,7 +3,6 @@
 #      https://github.com/estnltk/syntax_experiments/tree/ec864a6e20909b56f388d9f675b109310306d8e9/adverbials/estnltk_patches
 #
 import os, os.path
-from estnltk.wordnet import Wordnet
 
 DEFAULT_TIME_LEMMAS_PATH = \
     os.path.join( os.path.dirname(os.path.abspath(__file__)), 'resources', 'time_lemmas.txt' )
@@ -20,6 +19,8 @@ class TimeLocDecorator:
                        syntax_layer="stanza_syntax", 
                        morph_layer="morph_analysis",
                        discard_unclassified=False):
+        # Use internal import to avoid circular import
+        from estnltk.wordnet import Wordnet
         self.wn = Wordnet()
         
         self.time_lemmas = set()
