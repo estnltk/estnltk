@@ -5,7 +5,6 @@
 import os, os.path
 from estnltk.wordnet import Wordnet
 
-
 DEFAULT_TIME_LEMMAS_PATH = \
     os.path.join( os.path.dirname(os.path.abspath(__file__)), 'resources', 'time_lemmas.txt' )
 DEFAULT_LOC_LEMMAS_PATH  = \
@@ -13,13 +12,14 @@ DEFAULT_LOC_LEMMAS_PATH  = \
 
 class TimeLocDecorator:
     """
-    Decorator for PhraseTagger.
+    Decorator for PhraseTagger (of TimeLocTagger).
     Marks whether the given OBL phrase refers to a location, time or both ("INCONCLUSIVE").
     """
 
     def __init__(self, time_lemmas_path=None, loc_lemmas_path=None, 
                        syntax_layer="stanza_syntax", 
-                       morph_layer="morph_analysis"):
+                       morph_layer="morph_analysis",
+                       discard_unclassified=False):
         self.wn = Wordnet()
         
         self.time_lemmas = set()
@@ -55,12 +55,14 @@ class TimeLocDecorator:
         self.syntax_layer = syntax_layer
         assert isinstance(morph_layer, str), '(!) morph_layer must be of type str'
         self.morph_layer = morph_layer
+        self.discard_unclassified = discard_unclassified
 
     def __call__(self, text_object, base_span, annotation):
         """
-        Determines phrase_type ("LOC", "TIME" or "INCONCLUSIVE") of the given OBL phrase. 
-        Updates the given annotation correspondingly and returns updated annotation. 
-        Assumes that the annotation already contains 'root' and 'root_id'. 
+        Determines phrase_type ("LOC", "TIME", "INCONCLUSIVE" or None) of the given OBL phrase. 
+        If discard_unclassified is set, and phrase_type could not be determined (phrase_type==None), 
+        then returns None. Otherwise, returns updated annotation dict.
+        Assumes that the input annotation contains 'root' and 'root_id'. 
         """
         # Extract all of the necessary information from the parameters
         obl_root = annotation['root']
@@ -71,6 +73,8 @@ class TimeLocDecorator:
 
         # Check if OBL phrase is in locative case, if not return 'None' type
         if obl_form not in self.loc_form:
+            if self.discard_unclassified:
+                return None
             annotation.update({
                 'phrase_type': phrase_type})
             return annotation
@@ -147,8 +151,12 @@ class TimeLocDecorator:
                 phrase_type = "LOC"
             if "TIME" in literal_types and "LOC" in literal_types:
                 phrase_type = "INCONCLUSIVE"
-
+        
+        if phrase_type is None:
+            if self.discard_unclassified:
+                return None
+        
         annotation.update({
             "phrase_type": phrase_type})
-
+        
         return annotation
