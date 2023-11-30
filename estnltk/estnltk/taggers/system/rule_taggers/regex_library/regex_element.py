@@ -1,7 +1,16 @@
-import re
+from typing import Dict, Union
 
-from typing import Dict
-from typing import Union
+import re
+import regex
+
+from pandas import DataFrame
+
+def truncate_middle_text(text, max_length):
+    """ Truncates text in the middle if text length exceeds max_length """
+    if len(text) <= max_length or max_length <= 3:
+        return text
+    k = int(max_length/2) - 1
+    return f'{text[:k]}...{text[-k:]}'
 
 
 class RegexElement:
@@ -19,6 +28,9 @@ class RegexElement:
     true in case of string replacement. One way to diagnose is to compare re.sub(..., count=-1) and
     several invocations of re.sub.(..., count=1) to see if there are some differences.
     """
+    
+    MAX_STRING_WIDTH = 50
+    
     def __init__(self, pattern: str, group_name: str = None, description: str = None):
         """
         Encapsulates a regular expression, so it can be safely combined with other regular expressions.
@@ -31,9 +43,13 @@ class RegexElement:
         The function checks only the validity of the regular expression, everything else is your responsibility.
         """
         try:
-            re.compile(pattern)
+            temp_regex = re.compile(pattern)
         except Exception:
             raise ValueError(f"Invalid regular expression: '{pattern}'")
+
+        if isinstance(group_name, str):
+            if group_name not in temp_regex.groupindex.keys():
+                raise ValueError(f'(!) group_name {group_name!r} not found in pattern {pattern!r}')
 
         self.pattern = pattern
         self.group_name = group_name
@@ -50,42 +66,96 @@ class RegexElement:
 
     def compile(self, **kwargs):
         """
-        TODO: make it possible to use regex library
-        Compiles regex. All arguments are passed to re.compile() or regex.compile() functions.
+        Compiles regex. All arguments are passed to regex.compile() function.
         """
-        return re.compile(str(self), **kwargs)
+        # TODO: re.compile() vs regex.compile() -- which one to prefer?
+        # TODO: shouldn't all testing and validation methods compile via this method?
+        return regex.compile(self.pattern, **kwargs)
 
     def _repr_html_(self):
         """
         TODO: Make a nice representation which also shows if the regex confirms to test cases
         """
-        pass
+        # regex & description
+        regex_str = truncate_middle_text(self.pattern, self.MAX_STRING_WIDTH)
+        regex_str = f'<b>regex:</b> {regex_str}<br/>'
+        if isinstance(self.description, str):
+            description_str = f'<b>description:</b> <p>{self.description}</p></br>'
+        else:
+            description_str = ''
+        
+        # testing results
+        test_group_names = ['positive examples', 'negative examples', 'extraction tests']
+        pos_examples_results = self.evaluate_positive_examples()
+        neg_examples_results = self.evaluate_negative_examples()
+        extraction_results   = self.evaluate_extraction_examples()
+        test_groups = [pos_examples_results, neg_examples_results, extraction_results]
+        eval_results = []
+        for test_group_name, results_df in zip(test_group_names, test_groups):
+            passed = results_df['Status'].value_counts().get('+', 0)
+            failed = results_df['Status'].value_counts().get('F', 0)
+            eval_results.append( [test_group_name, passed, failed] )
+        eval_summary_df = DataFrame(columns=['Test group', 'passed', 'failed'], data=eval_results)
+        eval_summary_df = (eval_summary_df.style
+            .hide(axis='index')
+            .set_caption('Testing results')
+            .applymap(lambda x: 'color: green' if x > 0 else 'color: black', subset='passed')
+            .applymap(lambda x: 'color: red' if x > 0 else 'color: black', subset='failed'))
+
+        # examples
+        examples_data = []
+        has_descriptions = any([isinstance(example_desc, str) for (_, example_desc) in self.examples])
+        for (example_str, example_desc) in self.examples:
+            # Get the status of example (passed or failed)
+            example_row = pos_examples_results.loc[pos_examples_results['Example'] == example_str]
+            example_status = example_row.iloc[0]['Status']
+            if example_desc is None:
+                example_desc = ''
+            if has_descriptions:
+                examples_data.append( (example_str, example_desc, example_status) )
+            else:
+                examples_data.append( (example_str, example_status) )
+        examples_df_columns = \
+            ['Example', 'Description', 'Status'] if has_descriptions else ['Example', 'Status']
+        examples_df = DataFrame(columns=examples_df_columns, data=examples_data)
+        examples_df = (examples_df.style
+            .hide(axis='index')
+            .set_caption('Examples')
+            .applymap(lambda x: 'color: red' if x == 'F' else 'color: green', subset='Status'))
+        examples_str = examples_df.to_html(index=False) if len(examples_data) > 0 else ''
+
+        return ('{regex}{description}{examples}{evaluation_summary}').format( \
+                 regex=regex_str, 
+                 description=description_str, 
+                 examples=examples_str,
+                 evaluation_summary=eval_summary_df.to_html(index=False))
 
     def no_match(self, negative_example: str, description: str = None):
         """
-        A negative test case for the regular expression.
+        Adds a negative test case for the regular expression.
         The correctness of these test cases will be tested during validation.
         These examples will not be included to the html representation of the regex in Jupyter notebooks.
         """
-        pass
+        self.negative_tests.append( (negative_example, description) )
 
     def example(self, positive_example: str, description: str = None):
         """
-        A distinct example that describes the essence of the regular expression.
+        Adds a distinct example that describes the essence of the regular expression.
         These examples will be included to the html representation of the regex in Jupyter notebooks.
         The example will be also added to the set of full matches.
         """
-        pass
+        self.examples.append( (positive_example, description))
+        self.full_match(positive_example, description)
 
     def full_match(self, positive_example: str, description: str = None):
         """
-        A positive test case for the regular expression.
+        Adds a positive test case for the regular expression.
         The correctness of these test cases will be tested during validation.
         These examples will not be included to the html representation of the regex in Jupyter notebooks.
         """
-        pass
+        self.positive_tests.append( (positive_example, description) )
 
-    def partial_match(self, text: str,  target: Union[str, Dict[str, str]], description: str = None):
+    def partial_match(self, text: str, target: Union[str, Dict[str, str]], description: str = None):
         """
         A positive test case for the regular expression which provides a way to specify matches for capture groups.
         The correctness of these test cases will be tested during validation.
@@ -95,7 +165,9 @@ class RegexElement:
         Otherwise, the dictionary specifies the target values for all capture groups specifies as keys.
         The string match test works even if the `group_name` is None. It meant to test maximality of the match.
         """
-        pass
+        if not isinstance(target, (str, dict)):
+            raise TypeError(f'(!) Unexpected target type {type(target)!r}. Expected str or Dict[str, str].')
+        self.extraction_tests.append( (text, target, description) )
 
     def test(self):
         """
@@ -110,7 +182,11 @@ class RegexElement:
         - outcome (+) means that the regex was not found in the example;
         - outcome (F) means that the regex was found at least once in the example.
         """
-        pass
+        # TODO: why search(...) instead of match(...)?
+        return DataFrame(
+            columns=['Example', 'Status'],
+            data=[[example, '+' if re.search(self.pattern, example) is None else 'F']
+                  for example, _ in self.negative_tests])
 
     def evaluate_positive_examples(self):
         """
@@ -119,7 +195,10 @@ class RegexElement:
         - outcome (+) means that the regex matched the entire test string;
         - outcome (F) means that the regex did not match the entire test string.
         """
-        pass
+        return DataFrame(
+            columns=['Example', 'Status'],
+            data=[[example, '+' if re.match(self.pattern, example) else 'F']
+                  for example, _ in self.positive_tests])
 
     def evaluate_extraction_examples(self):
         """
@@ -128,4 +207,25 @@ class RegexElement:
         - outcome (+) means that the desired outputs are extracted by specified capture groups;
         - outcome (F) means that some capture groups did not return the desired outcomes.
         """
-        pass
+        test_data = []
+        for text, target, _ in self.extraction_tests:
+            case = [text]
+            match = re.search(self.pattern, text)
+            if match:
+                if isinstance(target, str):
+                    # TODO: top level group versus named group: which one to prefer?
+                    if self.group_name is None:
+                        final_outcome = '+' if match.group(0) == target else 'F'
+                    else:
+                        final_outcome = '+' if match.group(self.group_name) == target else 'F'
+                elif isinstance(target, dict):
+                    outcomes = []
+                    for (group_name, target_val) in target.items():
+                        outcome = '+' if match.group(group_name) == target_val else 'F'
+                        outcomes.append(outcome)
+                    final_outcome = '+' if 'F' not in outcomes else 'F'
+                case.append(final_outcome)
+            else:
+                case.append('F')
+            test_data.append( case )
+        return DataFrame(columns=['Example', 'Status'], data=test_data)
