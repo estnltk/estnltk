@@ -170,10 +170,34 @@ class RegexElement:
         self.extraction_tests.append( (text, target, description) )
 
     def test(self):
-        """
-        TODO: make it work with pytest so that it would provide concise and meaningful error message
-        """
-        pass
+        for example, desc in self.positive_tests:
+            assert re.match(self.pattern, example) is not None, \
+                f'pattern {self.pattern!r} did not match positive example {example!r}'
+
+        for example, desc in self.negative_tests:
+            # TODO: search(...) or match(...)?
+            assert re.search(self.pattern, example) is None, \
+                f'pattern {self.pattern!r} was found in negative example {example!r}'
+
+        for text, target, desc in self.extraction_tests:
+            case = [text]
+            match = re.search(self.pattern, text)
+            assert match is not None, \
+                f'pattern {self.pattern!r} was not found in extraction example {text!r}'
+            if isinstance(target, str):
+                # TODO: top level group versus named group: which one to prefer?
+                if self.group_name is None:
+                    assert match.group(0) == target, \
+                        f'top level group of pattern {self.pattern!r} did not match {target!r}'
+                else:
+                    assert match.group(self.group_name) == target, \
+                        f'group {self.group_name!r} of pattern {self.pattern!r} did not match {target!r}'
+            elif isinstance(target, dict):
+                for (group_name, target_val) in target.items():
+                    assert group_name in (match.groupdict()).keys(), \
+                        f'group {group_name!r} of pattern {self.pattern!r} not found in {target_val!r}'
+                    assert match.group(group_name) == target_val, \
+                        f'group {group_name!r} of pattern {self.pattern!r} not found in {target_val!r}'
 
     def evaluate_negative_examples(self):
         """
@@ -221,8 +245,11 @@ class RegexElement:
                 elif isinstance(target, dict):
                     outcomes = []
                     for (group_name, target_val) in target.items():
-                        outcome = '+' if match.group(group_name) == target_val else 'F'
-                        outcomes.append(outcome)
+                        if group_name in (match.groupdict()).keys():
+                            outcome = '+' if match.group(group_name) == target_val else 'F'
+                            outcomes.append(outcome)
+                        else:
+                            outcomes.append('F')
                     final_outcome = '+' if 'F' not in outcomes else 'F'
                 case.append(final_outcome)
             else:
