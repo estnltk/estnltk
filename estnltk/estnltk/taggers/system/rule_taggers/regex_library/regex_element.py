@@ -68,14 +68,20 @@ class RegexElement:
 
     def compile(self, **kwargs):
         """
-        Compiles regex. All arguments are passed to regex.compile() function.
+        Compiles regex. All arguments are passed to regex.compile() function. 
+        
+        Rationale: use combinations of RegexElements and f-strings to create 
+        a complex regular expression pattern, and to cover it with tests. Once 
+        you've arrived at the final pattern, call this method to compile the 
+        regular expression. 
         """
-        # TODO: shouldn't all testing and validation methods compile via this method?
         return regex.compile(self.pattern, **kwargs)
 
     def _repr_html_(self):
         """
-        TODO: Make a nice representation which also shows if the regex confirms to test cases
+        Displays HTML representation of RegexElement, which shows the regex pattern, 
+        pattern's description (if provided), matching examples and the results of 
+        testing.
         """
         # regex & description
         regex_str = truncate_middle_text(str(self), self.MAX_STRING_WIDTH)
