@@ -171,13 +171,12 @@ class RegexElement:
 
     def test(self):
         for example, desc in self.positive_tests:
-            assert regex.match(self.pattern, example) is not None, \
+            assert regex.fullmatch(self.pattern, example) is not None, \
                 f'pattern {self.pattern!r} did not match positive example {example!r}'
 
         for example, desc in self.negative_tests:
-            # TODO: search(...) or match(...)?
-            assert regex.search(self.pattern, example) is None, \
-                f'pattern {self.pattern!r} was found in negative example {example!r}'
+            assert regex.fullmatch(self.pattern, example) is None, \
+                f'pattern {self.pattern!r} matched with the negative example {example!r}'
 
         for text, target, desc in self.extraction_tests:
             case = [text]
@@ -203,13 +202,12 @@ class RegexElement:
         """
         Returns a dataframe where each row describes the status of the corresponding test.
         There are two potential outcomes for each test:
-        - outcome (+) means that the regex was not found in the example;
-        - outcome (F) means that the regex was found at least once in the example.
+        - outcome (+) means that the regex did not match the entire test string;
+        - outcome (F) means that the regex matched the entire test string.
         """
-        # TODO: why search(...) instead of match(...)?
         return DataFrame(
             columns=['Example', 'Status'],
-            data=[[example, '+' if regex.search(self.pattern, example) is None else 'F']
+            data=[[example, '+' if regex.fullmatch(self.pattern, example) is None else 'F']
                   for example, _ in self.negative_tests])
 
     def evaluate_positive_examples(self):
@@ -221,7 +219,7 @@ class RegexElement:
         """
         return DataFrame(
             columns=['Example', 'Status'],
-            data=[[example, '+' if regex.match(self.pattern, example) else 'F']
+            data=[[example, '+' if regex.fullmatch(self.pattern, example) else 'F']
                   for example, _ in self.positive_tests])
 
     def evaluate_extraction_examples(self):
