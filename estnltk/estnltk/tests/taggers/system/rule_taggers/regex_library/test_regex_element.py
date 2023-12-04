@@ -385,3 +385,83 @@ def test_regex_element_symbols():
     TEXTUAL_SCORE_RATIO.partial_match('(20/30) ','(20/30)')
     TEXTUAL_SCORE_RATIO.partial_match('saadud punkte 30-st 20 ','saadud punkte 30-st 20')
     TEXTUAL_SCORE_RATIO.test()
+
+
+def test_regex_element_name_extensions():
+    # Already tested in test_regex_element_symbols()
+    GAP = RegexElement(r'([ \t]+)')
+    DASH = RegexElement(r'([ \t]*-[ \t]*)')
+    
+    # New tests
+    LEFT_EXT_24H = RegexElement(r'24( |\t)*h( |\t)*$')
+    LEFT_EXT_24H.full_match('24h')
+    LEFT_EXT_24H.full_match('24 h')
+    LEFT_EXT_24H.full_match('24h ')
+    LEFT_EXT_24H.full_match('24 h ')
+    LEFT_EXT_24H.no_match(' 24 h ')
+    LEFT_EXT_24H.test()
+
+    RIGHT_EXT_24H = RegexElement(r'^:?( |\t)*24( |\t)*h')
+    RIGHT_EXT_24H.full_match('24h')
+    RIGHT_EXT_24H.full_match('24 h')
+    RIGHT_EXT_24H.full_match(' 24h')
+    RIGHT_EXT_24H.full_match(' 24 h')
+    RIGHT_EXT_24H.full_match(': 24 h')
+    RIGHT_EXT_24H.full_match(':24h')
+    RIGHT_EXT_24H.no_match(' 24 h ')
+    RIGHT_EXT_24H.test()
+
+    RIGHT_EXT_SCORE = RegexElement(r'^( |\t)*(skoor|skaala)')
+    RIGHT_EXT_SCORE.partial_match('skoor','skoor')
+    RIGHT_EXT_SCORE.partial_match('skoor:','skoor')
+    RIGHT_EXT_SCORE.partial_match('skaala','skaala')
+    RIGHT_EXT_SCORE.partial_match('skaala ','skaala')
+    RIGHT_EXT_SCORE.test()
+
+    RIGHT_EXT_BRACKET = RegexElement(rf'^({GAP})?\)')
+    RIGHT_EXT_BRACKET.partial_match(')',')')
+    RIGHT_EXT_BRACKET.partial_match(' ) ',' )')
+    RIGHT_EXT_BRACKET.test()
+
+    RIGHT_EXT_CASE = RegexElement(rf'^(-l|{DASH}l)')
+    RIGHT_EXT_CASE.partial_match('-l','-l')
+    RIGHT_EXT_CASE.partial_match(' -l',' -l')
+    RIGHT_EXT_CASE.partial_match(' -l ',' -l')
+    RIGHT_EXT_CASE.test()
+
+    MMSE_NAME_1 = r'Mini - mental test'
+    MMSE_NAME_2 = r'VMU'
+    MMSE_NAME_3 = r'[Vv]aimse seisundi miniuuring'
+    MMSE_NAME_4 = r'Mini-Mental State Examination'
+    MMSE_NAME_5 = rf'[Vv]aimse seisundi mini{DASH}?uuringu'
+
+    LEFT_MMSE_NAME_EXT = RegexElement(rf'({MMSE_NAME_3}|{MMSE_NAME_4}|{MMSE_NAME_5}){GAP}\($')
+    LEFT_MMSE_NAME_EXT.partial_match('vaimse seisundi miniuuring (', 'vaimse seisundi miniuuring (')
+    LEFT_MMSE_NAME_EXT.partial_match('Mini-Mental State Examination (', 'Mini-Mental State Examination (')
+    LEFT_MMSE_NAME_EXT.partial_match('Vaimse seisundi miniuuringu (', 'Vaimse seisundi miniuuringu (')
+    LEFT_MMSE_NAME_EXT.partial_match('Vaimse seisundi mini-uuringu (', 'Vaimse seisundi mini-uuringu (')
+    LEFT_MMSE_NAME_EXT.test()
+
+    RIGHT_MMSE_NAME_EXT = RegexElement(rf'^({GAP}({MMSE_NAME_1}|\({MMSE_NAME_2}\)|\({MMSE_NAME_3}\)))|^{DASH}{MMSE_NAME_4}')
+    RIGHT_MMSE_NAME_EXT.partial_match(' Mini - mental test',' Mini - mental test')
+    RIGHT_MMSE_NAME_EXT.partial_match(' (VMU)',' (VMU)')
+    RIGHT_MMSE_NAME_EXT.partial_match(' (vaimse seisundi miniuuring)',' (vaimse seisundi miniuuring)')
+    RIGHT_MMSE_NAME_EXT.partial_match(' - Mini-Mental State Examination',' - Mini-Mental State Examination')
+    #RIGHT_MMSE_NAME_EXT.no_partial_match(' something else ... Mini - mental test')
+    #RIGHT_MMSE_NAME_EXT.no_partial_match(' something else ... - Mini-Mental State Examination')
+    RIGHT_MMSE_NAME_EXT.test()
+
+    MMSE_COMPLETED = r'([Tt]einud|[Tt]eostatud|[Tt]ehtud|[Tt]egin)'
+    LEFT_MMSE_COMPLETED_EXT = RegexElement(rf'{MMSE_COMPLETED}{GAP}$')
+    LEFT_MMSE_COMPLETED_EXT.partial_match('teinud ', 'teinud ')
+    LEFT_MMSE_COMPLETED_EXT.partial_match('Teostatud ', 'Teostatud ')
+    LEFT_MMSE_COMPLETED_EXT.partial_match('tehtud ', 'tehtud ')
+    LEFT_MMSE_COMPLETED_EXT.partial_match(' Tegin ', 'Tegin ')
+    LEFT_MMSE_COMPLETED_EXT.test()
+
+    RIGHT_MMSE_COMPLETED_EXT = RegexElement(rf'^({GAP})?,({GAP}? kus)?')
+    RIGHT_MMSE_COMPLETED_EXT.partial_match(', ',',')
+    RIGHT_MMSE_COMPLETED_EXT.partial_match(' ,',' ,')
+    RIGHT_MMSE_COMPLETED_EXT.partial_match(', kus', ', kus')
+    RIGHT_MMSE_COMPLETED_EXT.test()
+
