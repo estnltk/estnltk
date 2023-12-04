@@ -62,7 +62,7 @@ class RegexElement:
         self.positive_tests = []
         self.extraction_tests = []
 
-    def __str__(self):
+    def __repr__(self):
         name_prefix = '?:' if self.group_name is None else f'?P<{self.group_name}>'
         return f"({name_prefix}{self.pattern})"
 
