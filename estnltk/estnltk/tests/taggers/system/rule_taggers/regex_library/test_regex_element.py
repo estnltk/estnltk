@@ -99,7 +99,9 @@ def test_regex_element_evaluate_extraction_examples():
 #    https://github.com/estnltk/estnltk/blob/303f96312ab5b8e625bf019e965e5a70a5c8e47f/estnltk/estnltk/taggers/system/rule_taggers/regex_library/base_patterns.py
 #
 
-def test_regex_element_symbols():
+def test_regex_element_base_patterns():
+    # Symbols
+    
     GAP = RegexElement(r'([ \t]+)')
     GAP.full_match(' ')
     GAP.full_match('\t')
@@ -385,14 +387,9 @@ def test_regex_element_symbols():
     TEXTUAL_SCORE_RATIO.partial_match('(20/30) ','(20/30)')
     TEXTUAL_SCORE_RATIO.partial_match('saadud punkte 30-st 20 ','saadud punkte 30-st 20')
     TEXTUAL_SCORE_RATIO.test()
-
-
-def test_regex_element_name_extensions():
-    # Already tested in test_regex_element_symbols()
-    GAP = RegexElement(r'([ \t]+)')
-    DASH = RegexElement(r'([ \t]*-[ \t]*)')
+   
+    # Name extensions
     
-    # New tests
     LEFT_EXT_24H = RegexElement(r'24( |\t)*h( |\t)*$')
     LEFT_EXT_24H.full_match('24h')
     LEFT_EXT_24H.full_match('24 h')
@@ -465,3 +462,255 @@ def test_regex_element_name_extensions():
     RIGHT_MMSE_COMPLETED_EXT.partial_match(', kus', ', kus')
     RIGHT_MMSE_COMPLETED_EXT.test()
 
+
+    # Payloads
+
+    PAYLOAD_END_1 = RegexElement(r'([\r\n,.;\(\)\t ]|->|$)')
+    PAYLOAD_END_1.partial_match('','')
+    PAYLOAD_END_1.partial_match('\n','\n')
+    PAYLOAD_END_1.partial_match('.','.')
+    PAYLOAD_END_1.partial_match(';',';')
+    PAYLOAD_END_1.partial_match(')',')')
+    PAYLOAD_END_1.partial_match(') ',')')
+    PAYLOAD_END_1.partial_match('(1','(')
+    PAYLOAD_END_1.partial_match('  ',' ')
+    PAYLOAD_END_1.partial_match('\t ','\t')
+    PAYLOAD_END_1.partial_match(' \t a',' ')
+    PAYLOAD_END_1.partial_match('-> x','->')
+    PAYLOAD_END_1.test()
+
+    # For some reason, matching '\r' or '\rx' does not work correctly 
+    # (at least on Windows platform)
+    PAYLOAD_END_1.partial_match(r'\r', r'\r')
+    PAYLOAD_END_1.partial_match(r'\rx', '\rx')
+    last_extraction_examples_results_dict = \
+        PAYLOAD_END_1.evaluate_extraction_examples().to_dict(orient='split', index=False)
+    last_extraction_examples_results_dict['data'] = \
+        last_extraction_examples_results_dict['data'][-2:]
+    #print(last_extraction_examples_results_dict)
+    assert last_extraction_examples_results_dict == \
+        {'columns': ['Example', 'Status'], 
+         'data': [['\\r', 'F'], ['\\rx', 'F']]}
+
+    # Quick fix for segmenting errors
+    PAYLOAD_END_2 = RegexElement(r'(CTA |CT-|CT |Patsien|Intensiiv|Vererõhk)')
+    PAYLOAD_END_2.partial_match('CTA ','CTA ')
+    PAYLOAD_END_2.partial_match('CT ','CT ')
+    PAYLOAD_END_2.partial_match('CT-','CT-')
+    PAYLOAD_END_2.partial_match('Patsient','Patsien')
+    PAYLOAD_END_2.partial_match('Intensiiv','Intensiiv')
+    PAYLOAD_END_2.partial_match('Vererõhk','Vererõhk')
+    PAYLOAD_END_2.test()
+
+    # Quick fix: Payloads are converted to lower letters
+    PAYLOAD_END = RegexElement(rf'({PAYLOAD_END_1}|{str(PAYLOAD_END_2).lower()})')
+    PAYLOAD_END.partial_match('','')
+    PAYLOAD_END.partial_match('vererõhk','vererõhk')
+    PAYLOAD_END.test()
+
+    PAYLOAD_END_IS_NEEDED = RegexElement(r'\(.*\)$')
+    PAYLOAD_END_IS_NEEDED.partial_match('(25)', '(25)')
+    #PAYLOAD_END_IS_NEEDED.no_partial_match(' 25)')
+    PAYLOAD_END_IS_NEEDED.test()
+
+    PAYLOAD_END_ELIMINATOR_1 = RegexElement(r'[\r\n,.;\(\)]$|[\t ]+$|->$|$')
+    PAYLOAD_END_ELIMINATOR_1.partial_match('','')
+    PAYLOAD_END_ELIMINATOR_1.partial_match('\n','\n')
+    PAYLOAD_END_ELIMINATOR_1.partial_match('\nabba\r','\r')
+    PAYLOAD_END_ELIMINATOR_1.partial_match('a.','.')
+    PAYLOAD_END_ELIMINATOR_1.partial_match('b;',';')
+    PAYLOAD_END_ELIMINATOR_1.partial_match('.)',')')
+    PAYLOAD_END_ELIMINATOR_1.partial_match(' (','(')
+    PAYLOAD_END_ELIMINATOR_1.partial_match(') ',' ')
+    PAYLOAD_END_ELIMINATOR_1.partial_match('a  ','  ')
+    PAYLOAD_END_ELIMINATOR_1.partial_match(' \t ',' \t ')
+    PAYLOAD_END_ELIMINATOR_1.partial_match(' \t a','')
+    PAYLOAD_END_ELIMINATOR_1.partial_match('xx->','->')
+    PAYLOAD_END_ELIMINATOR_1.test()
+
+    PAYLOAD_END_ELIMINATOR = RegexElement(rf'{PAYLOAD_END_ELIMINATOR_1}|({PAYLOAD_END_2}$)').compile()
+
+
+    DARROW_PAYLOAD = RegexElement(rf'^({DASH}|{GAP}){INITIAL_ENTRY}{ARROW}{MID_ENTRY}{ARROW}{FINAL_ENTRY}{PAYLOAD_END}')
+    DARROW_PAYLOAD.no_match(' 3')
+    DARROW_PAYLOAD.no_match(' 3->2')
+    DARROW_PAYLOAD.full_match(' 23 ->20 -> 12')
+    DARROW_PAYLOAD.full_match(' - 23p ->22 --> 5palli')
+    DARROW_PAYLOAD.full_match('-20 --> 2p --> 3p;')
+    DARROW_PAYLOAD.full_match(' 20>10>3p.')
+    DARROW_PAYLOAD.full_match(' 20 -> 12 -> 10,')
+    DARROW_PAYLOAD.full_match(' 20 -> 12 -> 10;')
+    DARROW_PAYLOAD.no_match('x 20 -> 12 -> 10;')
+    DARROW_PAYLOAD.test()
+
+    ARROW_ENTRY_1 = RegexElement(rf'({INITIAL_ENTRY}{ARROW}{FINAL_ENTRY})')
+    #ARROW_ENTRY_1.no_partial_match(' 3')
+    #ARROW_ENTRY_1.no_partial_match(' -3')
+    #ARROW_ENTRY_1.no_partial_match(' - 3')
+    ARROW_ENTRY_1.partial_match(' 23 ->2', '23 ->2')
+    ARROW_ENTRY_1.partial_match(' - 23p ->2', '23p ->2')
+    ARROW_ENTRY_1.partial_match('-20 --> 2p', '20 --> 2p')
+    ARROW_ENTRY_1.partial_match('-20 --> 2p.', '20 --> 2p')
+    ARROW_ENTRY_1.partial_match(' 20 --> 2p,', '20 --> 2p')
+    ARROW_ENTRY_1.partial_match(' 20 --> 2p;', '20 --> 2p')
+    #ARROW_ENTRY_1.no_partial_match('x 3 -> 2')
+    ARROW_ENTRY_1.test()
+
+    ARROW_ENTRY_2 = RegexElement(rf'((paranenud|tõusnud){GAP}{INITIAL_SCORE}(-lt|lt){GAP}{FINAL_SCORE}(-le|le))')
+    ARROW_ENTRY_2.partial_match('paranenud 22-lt 26-le.','paranenud 22-lt 26-le')
+    ARROW_ENTRY_2.partial_match('paranenud 22-lt 26-le.', {'initial_score': '22'})
+    ARROW_ENTRY_2.partial_match('paranenud 22-lt 26-le.', {'final_score': '26'})
+    ARROW_ENTRY_2.test()
+
+    ARROW_ENTRY_3 = RegexElement(rf'((saabudes){GAP}{INITIAL_ENTRY}{COMA}(lahkudes){GAP}{FINAL_ENTRY})')
+    ARROW_ENTRY_3.partial_match('saabudes 23 p, lahkudes 20p','saabudes 23 p, lahkudes 20p')
+    ARROW_ENTRY_3.partial_match('saabudes 23 p, lahkudes 20p', {'initial_score': '23'})
+    ARROW_ENTRY_3.partial_match('saabudes 23 p, lahkudes 20p', {'final_score':'20'})
+    ARROW_ENTRY_3.test()
+
+    ARROW_ENTRY_4 = RegexElement(rf'{INITIAL_ENTRY}{GAP}(saabumisel{GAP}>>|saabumisel){GAP}{FINAL_ENTRY}{GAP}(lahkumisel)')
+    ARROW_ENTRY_4.partial_match('3 palli saabumisel >> 1 palli lahkumisel','3 palli saabumisel >> 1 palli lahkumisel')
+    ARROW_ENTRY_4.partial_match('3 palli saabumisel >> 1 palli lahkumisel', {'initial_score':'3'})
+    ARROW_ENTRY_4.partial_match('3 palli saabumisel >> 1 palli lahkumisel', {'final_score':'1'})
+    ARROW_ENTRY_4.test()
+
+    ARROW_PAYLOAD = RegexElement(
+        rf'^(({DASH}|{GAP}){ARROW_ENTRY_1}|{GAP}({ARROW_ENTRY_2}|{ARROW_ENTRY_3}|{ARROW_ENTRY_4})){PAYLOAD_END}')
+    ARROW_PAYLOAD.no_match(' 3')
+    ARROW_PAYLOAD.no_match(' -3')
+    ARROW_PAYLOAD.no_match(' - 3')
+    ARROW_PAYLOAD.full_match(' 23 ->2')
+    ARROW_PAYLOAD.full_match(' - 23p ->2')
+    ARROW_PAYLOAD.full_match('-20 --> 2p')
+    ARROW_PAYLOAD.full_match(' 20 --> 2p.')
+    ARROW_PAYLOAD.full_match(' 20 --> 2p,')
+    ARROW_PAYLOAD.full_match(' 20 --> 2p;')
+    ARROW_PAYLOAD.no_match('x 3 -> 2')
+    ARROW_PAYLOAD.partial_match(' paranenud 22-lt 26-le.',' paranenud 22-lt 26-le.')
+    ARROW_PAYLOAD.partial_match(' saabudes 23 p, lahkudes 20p',' saabudes 23 p, lahkudes 20p')
+    ARROW_PAYLOAD.partial_match(' 3 palli saabumisel >> 1 palli lahkumisel',' 3 palli saabumisel >> 1 palli lahkumisel')
+    ARROW_PAYLOAD.test()
+
+
+    SHORT_PAYLOAD = RegexElement(rf'^({DASH}|{GAP}|{EQ}|{COLON})?{SCORE_ENTRY}{PAYLOAD_END}')
+    SHORT_PAYLOAD.full_match('3')
+    SHORT_PAYLOAD.full_match(' 3')
+    SHORT_PAYLOAD.full_match('  3')
+    SHORT_PAYLOAD.full_match('-3')
+    SHORT_PAYLOAD.full_match('=3')
+    SHORT_PAYLOAD.full_match(' - 5')
+    SHORT_PAYLOAD.full_match(' = 3')
+    SHORT_PAYLOAD.full_match('- 3')
+    SHORT_PAYLOAD.full_match(' -3')
+    SHORT_PAYLOAD.full_match(' 3p')
+    SHORT_PAYLOAD.full_match(' 3p.')
+    SHORT_PAYLOAD.full_match(' 3p,')
+    SHORT_PAYLOAD.full_match(' 3p;')
+    SHORT_PAYLOAD.full_match(': 3p')
+    SHORT_PAYLOAD.full_match(' : 3p')
+    SHORT_PAYLOAD.no_match('x 3')
+    SHORT_PAYLOAD.partial_match('3 pankreatiit','3 ')
+    SHORT_PAYLOAD.partial_match('3 p. ta','3 p.')
+    SHORT_PAYLOAD.partial_match('3.p. ta','3.p.')
+    SHORT_PAYLOAD.no_match(' 3p --> 1')
+    SHORT_PAYLOAD.partial_match(' 3p --> 1', ' 3p ')
+    SHORT_PAYLOAD.test()
+
+    SHORT_RANGE_PAYLOAD = RegexElement(rf'^({GAP}|{EQ}|{COLON}){SCORE_RANGE}{PAYLOAD_END}')
+    SHORT_RANGE_PAYLOAD.partial_match(' 3-4',' 3-4')
+    SHORT_RANGE_PAYLOAD.partial_match('  3 - 4 ','  3 - 4 ')
+    SHORT_RANGE_PAYLOAD.partial_match('= 3-4 panama','= 3-4 ')
+    SHORT_RANGE_PAYLOAD.partial_match(' = 3 -4',' = 3 -4')
+    SHORT_RANGE_PAYLOAD.partial_match(' 3 - 4p',' 3 - 4p')
+    SHORT_RANGE_PAYLOAD.partial_match(' 3-6p. ',' 3-6p.')
+    SHORT_RANGE_PAYLOAD.partial_match(' 3-7p,xx',' 3-7p,')
+    SHORT_RANGE_PAYLOAD.partial_match(' 3-4p;\nx',' 3-4p;')
+    SHORT_RANGE_PAYLOAD.partial_match(': 3-8p',': 3-8p')
+    SHORT_RANGE_PAYLOAD.partial_match(' : 3-4p',' : 3-4p')
+    SHORT_RANGE_PAYLOAD.partial_match(' 3p - 4p xx',' 3p - 4p ')
+    #SHORT_RANGE_PAYLOAD.no_partial_match('-3-4')
+    #SHORT_RANGE_PAYLOAD.no_partial_match('- 3-4')
+    #SHORT_RANGE_PAYLOAD.no_partial_match(' - 5-4')
+    #SHORT_RANGE_PAYLOAD.no_partial_match(' 3 palli - 4p')
+    #SHORT_RANGE_PAYLOAD.no_partial_match(' 3p --> 1')
+    #SHORT_RANGE_PAYLOAD.no_partial_match('x 3-4')
+    SHORT_RANGE_PAYLOAD.test()
+
+    SHORT_RATIO_PAYLOAD = RegexElement(rf'^({DASH}|{GAP}|{EQ}|{COLON})?{SCORE_RATIO}{PAYLOAD_END}')
+    SHORT_RATIO_PAYLOAD.partial_match('3/10','3/10')
+    SHORT_RATIO_PAYLOAD.partial_match(' 3/10',' 3/10')
+    SHORT_RATIO_PAYLOAD.partial_match('3/10p','3/10p')
+    SHORT_RATIO_PAYLOAD.partial_match('3/10 punkti','3/10 punkti')
+    SHORT_RATIO_PAYLOAD.partial_match(' 3/ 10',' 3/ 10')
+    SHORT_RATIO_PAYLOAD.partial_match('= 3/4\n','= 3/4\n')
+    SHORT_RATIO_PAYLOAD.partial_match('= 3 / 4','= 3 / 4')
+    SHORT_RATIO_PAYLOAD.partial_match('-3/4\tx','-3/4\t')
+    SHORT_RATIO_PAYLOAD.partial_match('- 3/4 x','- 3/4 ')
+    SHORT_RATIO_PAYLOAD.partial_match(': 3/8',': 3/8')
+    SHORT_RATIO_PAYLOAD.partial_match(' : 3/4',' : 3/4')
+    SHORT_RATIO_PAYLOAD.partial_match(' 3/6.x',' 3/6.')
+    SHORT_RATIO_PAYLOAD.partial_match(' 3/7, ',' 3/7,')
+    SHORT_RATIO_PAYLOAD.partial_match(' 3/4; x',' 3/4;')
+    SHORT_RATIO_PAYLOAD.partial_match(' 3/4) ',' 3/4)')
+    #SHORT_RATIO_PAYLOAD.no_partial_match('x 3/4')
+    SHORT_RATIO_PAYLOAD.test()
+    
+    # Potential payloads to be verified further
+
+    TEXT_PREFIX = rf'^({GAP}|{DASH}|{COLON})(?P<text>.+?){GAP}'
+
+    POTENTIAL_ARROW_PAYLOAD = RegexElement(
+        rf'^{TEXT_PREFIX}({DASH}?{ARROW_ENTRY_1}|{ARROW_ENTRY_2}|{ARROW_ENTRY_3}|{ARROW_ENTRY_4}){PAYLOAD_END}')
+    POTENTIAL_ARROW_PAYLOAD.partial_match(' dünaamika 20 --> 2p.',' dünaamika 20 --> 2p.')
+    POTENTIAL_ARROW_PAYLOAD.partial_match(' dünaamika 20 --> 2p.', {'text': 'dünaamika'})
+    POTENTIAL_ARROW_PAYLOAD.partial_match(' skoor paranenud 22-lt 26-le.',' skoor paranenud 22-lt 26-le.')
+    POTENTIAL_ARROW_PAYLOAD.partial_match(' skoor saabudes 23 p, lahkudes 20p',' skoor saabudes 23 p, lahkudes 20p')
+    POTENTIAL_ARROW_PAYLOAD.partial_match(' skoor 3 palli saabumisel >> 1 palli lahkumisel',' skoor 3 palli saabumisel >> 1 palli lahkumisel')
+
+
+    POTENTIAL_SHORT_SCORE_PAYLOAD = RegexElement(rf'{TEXT_PREFIX}(?P<iscore>{SCORE_ENTRY}){PAYLOAD_END}')
+    POTENTIAL_SHORT_SCORE_PAYLOAD.partial_match(' skoor 28', {'text': 'skoor'})
+    POTENTIAL_SHORT_SCORE_PAYLOAD.partial_match('- skoor 28', {'text': 'skoor'})
+    POTENTIAL_SHORT_SCORE_PAYLOAD.partial_match('- skoor 28 veel teksti ja 30', {'text': 'skoor'})
+    #POTENTIAL_SHORT_SCORE_PAYLOAD.no_partial_match(' tavatekst\n skoor 28')
+    POTENTIAL_SHORT_SCORE_PAYLOAD.test()
+
+    POTENTIAL_SHORT_SCORE_RANGE_PAYLOAD = RegexElement(rf'{TEXT_PREFIX}{TEXTUAL_SCORE_RANGE}{PAYLOAD_END}')
+    POTENTIAL_SHORT_SCORE_RANGE_PAYLOAD.partial_match(' skoor 20 - 25 ', {'text': 'skoor'})
+    POTENTIAL_SHORT_SCORE_RANGE_PAYLOAD.partial_match('- skoor 20 - 25)', {'text': 'skoor'})
+    POTENTIAL_SHORT_SCORE_RANGE_PAYLOAD.partial_match('- skoor 20 - 25 veel teksti ja 30', {'text': 'skoor'})
+    #POTENTIAL_SHORT_SCORE_RANGE_PAYLOAD.no_partial_match(' tavatekst\n skoor 28-29')
+    POTENTIAL_SHORT_SCORE_RANGE_PAYLOAD.test()
+
+    POTENTIAL_SHORT_SCORE_RATIO_PAYLOAD = RegexElement(rf'{TEXT_PREFIX}{TEXTUAL_SCORE_RATIO}{PAYLOAD_END}')
+    POTENTIAL_SHORT_SCORE_RATIO_PAYLOAD.partial_match(' sai 20/30 punkti;',' sai 20/30 punkti;')
+    POTENTIAL_SHORT_SCORE_RATIO_PAYLOAD.partial_match('- saab 20 punkti 30-st.','- saab 20 punkti 30-st.')
+    #POTENTIAL_SHORT_SCORE_RATIO_PAYLOAD.no_partial_match('(20/30)')
+    #POTENTIAL_SHORT_SCORE_RATIO_PAYLOAD.no_partial_match('  (20/30)')
+    POTENTIAL_SHORT_SCORE_RATIO_PAYLOAD.partial_match(' saab  (20/30) ',' saab  (20/30) ')
+    POTENTIAL_SHORT_SCORE_RATIO_PAYLOAD.test()
+
+    # Context validation
+
+    RIGHT_COMMENT = RegexElement(rf'->{GAP}?(?P<text>.*)\.|^{DASH}(?P<text>.*)\.|^\((?P<text>.*)\)')
+    RIGHT_COMMENT.partial_match('- word and word. Other text', {'text':'word and word'})
+    RIGHT_COMMENT.partial_match(' - word and word. Other text', {'text': 'word and word'})
+    RIGHT_COMMENT.partial_match('(word. word) Other text', {'text': 'word. word'})
+    RIGHT_COMMENT.partial_match('(word. word). Other text', {'text': 'word. word'})
+    RIGHT_COMMENT.test()
+    
+    SPURIOUS_NIH_SCORE_1 = RegexElement(rf'^NIH({DASH}|{GAP})?[0-9]{DASH}[0-9]{DASH}[0-9]')
+    SPURIOUS_NIH_SCORE_1.partial_match('NIH0-1-1-3', 'NIH0-1-1')
+    SPURIOUS_NIH_SCORE_1.partial_match('NIH-0-1-1-3', 'NIH-0-1-1')
+    SPURIOUS_NIH_SCORE_1.partial_match('NIH 0-1-1-3', 'NIH 0-1-1')
+    SPURIOUS_NIH_SCORE_1.partial_match('NIH 0 - 1 - 1 - 3', 'NIH 0 - 1 - 1')
+    #SPURIOUS_NIH_SCORE_1.no_partial_match('NIH 2-3 palli', 'NIH 2-3')
+    SPURIOUS_NIH_SCORE_1.test()
+    
+    SPURIOUS_NIH_SCORE_2 = RegexElement(rf'^N[iI]H({DASH}|{GAP})?[0-9]({GAP})?\(({GAP})?[0-9]({DASH})?[a-z],')
+    SPURIOUS_NIH_SCORE_2.partial_match('NiH - 5(1 - c, 3 - 2, 4 - 2',   'NiH - 5(1 - c,')
+    SPURIOUS_NIH_SCORE_2.partial_match('NiH - 5 (1 - c, 3 - 2, 4 - 2',  'NiH - 5 (1 - c,')
+    SPURIOUS_NIH_SCORE_2.partial_match('NiH - 5 ( 1 - c, 3 - 2, 4 - 2', 'NiH - 5 ( 1 - c,')
+    SPURIOUS_NIH_SCORE_2.partial_match('NiH-7(1b, 3-2, 4-4)', 'NiH-7(1b,')
+    SPURIOUS_NIH_SCORE_2.partial_match('NiH - 7 (1b, 3-2, 4-4)', 'NiH - 7 (1b,')
+    SPURIOUS_NIH_SCORE_2.test()
