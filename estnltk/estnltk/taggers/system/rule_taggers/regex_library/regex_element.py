@@ -1,5 +1,6 @@
 from typing import Dict, Union
 
+import html
 import regex
 
 from pandas import DataFrame
@@ -77,8 +78,8 @@ class RegexElement:
         TODO: Make a nice representation which also shows if the regex confirms to test cases
         """
         # regex & description
-        regex_str = truncate_middle_text(self.pattern, self.MAX_STRING_WIDTH)
-        regex_str = f'<b>regex:</b> {regex_str}<br/>'
+        regex_str = truncate_middle_text(str(self), self.MAX_STRING_WIDTH)
+        regex_str = f'<b>regex:</b> {html.escape(regex_str)}<br/>'
         if isinstance(self.description, str):
             description_str = f'<b>description:</b> <p>{self.description}</p></br>'
         else:
@@ -180,11 +181,10 @@ class RegexElement:
 
         for text, target, desc in self.extraction_tests:
             case = [text]
-            match = regex.search(self.pattern, text)
+            match = regex.search(str(self), text)
             assert match is not None, \
                 f'pattern {self.pattern!r} was not found in extraction example {text!r}'
             if isinstance(target, str):
-                # TODO: top level group versus named group: which one to prefer?
                 if self.group_name is None:
                     assert match.group(0) == target, \
                         f'top level group of pattern {self.pattern!r} did not match {target!r}'
@@ -232,10 +232,9 @@ class RegexElement:
         test_data = []
         for text, target, _ in self.extraction_tests:
             case = [text]
-            match = regex.search(self.pattern, text)
+            match = regex.search(str(self), text)
             if match:
                 if isinstance(target, str):
-                    # TODO: top level group versus named group: which one to prefer?
                     if self.group_name is None:
                         final_outcome = '+' if match.group(0) == target else 'F'
                     else:
