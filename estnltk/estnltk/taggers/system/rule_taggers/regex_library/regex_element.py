@@ -5,13 +5,6 @@ import regex
 
 from pandas import DataFrame
 
-def truncate_middle_text(text, max_length):
-    """ Truncates text in the middle if text length exceeds max_length """
-    if len(text) <= max_length or max_length <= 3:
-        return text
-    k = int(max_length/2) - 1
-    return f'{text[:k]}...{text[-k:]}'
-
 
 class RegexElement:
     """
@@ -30,6 +23,17 @@ class RegexElement:
     several invocations of regex.sub.(..., count=1) to see if there are some differences.
     """
     
+    """
+    Whether strings and patterns longer than MAX_STRING_WIDTH will be truncated in the DataFrame and 
+    HTML output, and in test error messages. Default: False.
+    """
+    TRUNCATE = False
+    
+    """
+    Maximum length for strings and patterns. If TRUNCATE == True, then all strings and patterns longer 
+    than MAX_STRING_WIDTH will be truncated in the DataFrame and HTML output, and in test error messages. 
+    Default: 50.
+    """
     MAX_STRING_WIDTH = 50
     
     def __init__(self, pattern: str, group_name: str = None, description: str = None):
@@ -84,7 +88,7 @@ class RegexElement:
         testing.
         """
         # regex & description
-        regex_str = truncate_middle_text(str(self), self.MAX_STRING_WIDTH)
+        regex_str = RegexElement.trunc_text( str(self) )
         regex_str = f'<b>regex:</b> {html.escape(regex_str)}<br/>'
         if isinstance(self.description, str):
             description_str = f'<b>description:</b> <p>{self.description}</p></br>'
@@ -119,9 +123,12 @@ class RegexElement:
             if example_desc is None:
                 example_desc = ''
             if has_descriptions:
-                examples_data.append( (example_str, example_desc, example_status) )
+                examples_data.append( (RegexElement.trunc_text(example_str), 
+                                       RegexElement.trunc_text(example_desc), 
+                                       example_status) )
             else:
-                examples_data.append( (example_str, example_status) )
+                examples_data.append( (RegexElement.trunc_text(example_str), 
+                                       example_status) )
         examples_df_columns = \
             ['Example', 'Description', 'Status'] if has_descriptions else ['Example', 'Status']
         examples_df = DataFrame(columns=examples_df_columns, data=examples_data)
@@ -181,35 +188,42 @@ class RegexElement:
     def test(self):
         for example, desc in self.positive_tests:
             assert regex.fullmatch(self.pattern, example) is not None, \
-                f'pattern {self.pattern!r} did not match positive example {example!r}'
+                f'pattern {RegexElement.trunc_text(self.pattern)!r} did not match positive example '+\
+                f'{RegexElement.trunc_text(example)!r}'
 
         for example, desc in self.negative_tests:
             assert regex.fullmatch(self.pattern, example) is None, \
-                f'pattern {self.pattern!r} matched with the negative example {example!r}'
+                f'pattern {RegexElement.trunc_text(self.pattern)!r} matched with the negative example '+\
+                f'{RegexElement.trunc_text(example)!r}'
 
         for text, target, desc in self.extraction_tests:
             case = [text]
             match = regex.search(str(self), text)
             assert match is not None, \
-                f'pattern {self.pattern!r} was not found in extraction example {text!r}'
+                f'pattern {RegexElement.trunc_text(self.pattern)!r} was not found in extraction example '+\
+                f'{RegexElement.trunc_text(text)!r}'
             if isinstance(target, str):
                 if self.group_name is None:
                     group_match = match.group(0)
                     assert group_match == target, \
-                        f'top level group of pattern {self.pattern!r} did not match {target!r} in {text!r} '+\
+                        f'top level group of pattern {RegexElement.trunc_text(self.pattern)!r} did not match '+\
+                        f'{RegexElement.trunc_text(target)!r} in {RegexElement.trunc_text(text)!r} '+\
                         f'(the group returned {group_match!r} instead)'
                 else:
                     group_match = match.group(self.group_name)
                     assert group_match == target, \
-                        f'group {self.group_name!r} of pattern {str(self)!r} did not match {target!r} in {text!r} '+\
+                        f'group {self.group_name!r} of pattern {RegexElement.trunc_text(str(self))!r} did not '+\
+                        f'match {RegexElement.trunc_text(target)!r} in {RegexElement.trunc_text(text)!r} '+\
                         f'(the group returned {group_match!r} instead)'
             elif isinstance(target, dict):
                 for (group_name, target_val) in target.items():
                     assert group_name in (match.groupdict()).keys(), \
-                        f'group {group_name!r} of pattern {self.pattern!r} is missing from match of {text!r}'
+                        f'group {group_name!r} of pattern {RegexElement.trunc_text(self.pattern)!r} is missing '+\
+                        f'from match of {RegexElement.trunc_text(text)!r}'
                     group_match = match.group(group_name)
                     assert group_match == target_val, \
-                        f'group {group_name!r} of pattern {self.pattern!r} did not match {target_val!r} in {text!r} '+\
+                        f'group {group_name!r} of pattern {RegexElement.trunc_text(self.pattern)!r} did not match '+\
+                        f'{RegexElement.trunc_text(target_val)!r} in {RegexElement.trunc_text(text)!r} '+\
                         f'(the group returned {group_match!r} instead)'
 
     def evaluate_negative_examples(self):
@@ -221,7 +235,8 @@ class RegexElement:
         """
         return DataFrame(
             columns=['Example', 'Status'],
-            data=[[example, '+' if regex.fullmatch(self.pattern, example) is None else 'F']
+            data=[[RegexElement.trunc_text(example), 
+                   '+' if regex.fullmatch(self.pattern, example) is None else 'F']
                   for example, _ in self.negative_tests])
 
     def evaluate_positive_examples(self):
@@ -233,7 +248,8 @@ class RegexElement:
         """
         return DataFrame(
             columns=['Example', 'Status'],
-            data=[[example, '+' if regex.fullmatch(self.pattern, example) else 'F']
+            data=[[RegexElement.trunc_text(example), \
+                   '+' if regex.fullmatch(self.pattern, example) else 'F']
                   for example, _ in self.positive_tests])
 
     def evaluate_extraction_examples(self):
@@ -245,7 +261,7 @@ class RegexElement:
         """
         test_data = []
         for text, target, _ in self.extraction_tests:
-            case = [text]
+            case = [ RegexElement.trunc_text(text) ]
             match = regex.search(str(self), text)
             if match:
                 if isinstance(target, str):
@@ -267,3 +283,24 @@ class RegexElement:
                 case.append('F')
             test_data.append( case )
         return DataFrame(columns=['Example', 'Status'], data=test_data)
+
+
+    @staticmethod
+    def trunc_text(text: str):
+        '''
+        Returns input text truncated to size RegexElement.MAX_STRING_WIDTH if RegexElement.TRUNCATE == True.
+        Otherwise, returns unaltered input text.
+        '''
+        assert RegexElement.MAX_STRING_WIDTH > 0, \
+            f'(!) Unexpected RegexElement.MAX_STRING_WIDTH non-positive value {RegexElement.MAX_STRING_WIDTH}'
+        return truncate_middle_text(text, RegexElement.MAX_STRING_WIDTH) if RegexElement.TRUNCATE else text
+
+
+
+def truncate_middle_text(text, max_length):
+    """ Truncates text in the middle if text length exceeds max_length """
+    if len(text) <= max_length or max_length <= 3:
+        return text
+    k = int(max_length/2) - 1
+    return f'{text[:k]}...{text[-k:]}'
+
