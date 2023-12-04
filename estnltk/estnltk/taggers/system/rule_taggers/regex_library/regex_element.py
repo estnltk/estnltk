@@ -133,7 +133,8 @@ class RegexElement:
 
     def no_match(self, negative_example: str, description: str = None):
         """
-        Adds a negative test case for the regular expression.
+        Adds a negative test case for the regular expression. 
+        This test will be passed if the full match with the pattern fails. 
         The correctness of these test cases will be tested during validation.
         These examples will not be included to the html representation of the regex in Jupyter notebooks.
         """
@@ -141,7 +142,8 @@ class RegexElement:
 
     def example(self, positive_example: str, description: str = None):
         """
-        Adds a distinct example that describes the essence of the regular expression.
+        Adds a distinct example that describes the essence of the regular expression. 
+        This test will be passed if the full match with the pattern succeeds. 
         These examples will be included to the html representation of the regex in Jupyter notebooks.
         The example will be also added to the set of full matches.
         """
@@ -150,8 +152,8 @@ class RegexElement:
 
     def full_match(self, positive_example: str, description: str = None):
         """
-        Adds a positive test case for the regular expression.
-        The correctness of these test cases will be tested during validation.
+        Adds a positive test case for the regular expression. 
+        The correctness of these test cases will be tested during validation. 
         These examples will not be included to the html representation of the regex in Jupyter notebooks.
         """
         self.positive_tests.append( (positive_example, description) )
@@ -190,7 +192,7 @@ class RegexElement:
                         f'top level group of pattern {self.pattern!r} did not match {target!r}'
                 else:
                     assert match.group(self.group_name) == target, \
-                        f'group {self.group_name!r} of pattern {self.pattern!r} did not match {target!r}'
+                        f'group {self.group_name!r} of pattern {str(self)!r} did not match {target!r}'
             elif isinstance(target, dict):
                 for (group_name, target_val) in target.items():
                     assert group_name in (match.groupdict()).keys(), \
