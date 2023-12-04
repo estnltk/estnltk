@@ -188,17 +188,23 @@ class RegexElement:
                 f'pattern {self.pattern!r} was not found in extraction example {text!r}'
             if isinstance(target, str):
                 if self.group_name is None:
-                    assert match.group(0) == target, \
-                        f'top level group of pattern {self.pattern!r} did not match {target!r} in {text!r}'
+                    group_match = match.group(0)
+                    assert group_match == target, \
+                        f'top level group of pattern {self.pattern!r} did not match {target!r} in {text!r} '+\
+                        f'(the group returned {group_match!r} instead)'
                 else:
-                    assert match.group(self.group_name) == target, \
-                        f'group {self.group_name!r} of pattern {str(self)!r} did not match {target!r} in {text!r}'
+                    group_match = match.group(self.group_name)
+                    assert group_match == target, \
+                        f'group {self.group_name!r} of pattern {str(self)!r} did not match {target!r} in {text!r} '+\
+                        f'(the group returned {group_match!r} instead)'
             elif isinstance(target, dict):
                 for (group_name, target_val) in target.items():
                     assert group_name in (match.groupdict()).keys(), \
                         f'group {group_name!r} of pattern {self.pattern!r} is missing from match of {text!r}'
-                    assert match.group(group_name) == target_val, \
-                        f'group {group_name!r} of pattern {self.pattern!r} did not match {target_val!r} in {text!r}'
+                    group_match = match.group(group_name)
+                    assert group_match == target_val, \
+                        f'group {group_name!r} of pattern {self.pattern!r} did not match {target_val!r} in {text!r} '+\
+                        f'(the group returned {group_match!r} instead)'
 
     def evaluate_negative_examples(self):
         """
