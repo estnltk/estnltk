@@ -1,6 +1,5 @@
 from typing import Dict, Union
 
-import re
 import regex
 
 from pandas import DataFrame
@@ -15,7 +14,8 @@ def truncate_middle_text(text, max_length):
 
 class RegexElement:
     """
-    Wrapper class around Python regex library that simplifies documenting and testing regex patterns.
+    Wrapper class around Python regex library (https://pypi.org/project/regex/) that simplifies 
+    documenting and testing regex patterns.
     Adds positive and negative test cases as way to document and automatically test regex patterns.
     Its subclasses add a structured way to construct regular expressions in an hierarchical manner
     together with test synthesis, which automatically combines existing tests of sub-expression.
@@ -25,8 +25,8 @@ class RegexElement:
     but it still has limitations. First, one cannot specify additional consistency constraints inside
     the hierarchical definition nor aggregate the contents of capture groups. If you need such features
     use grammar rules instead. Second, self-overlapping can cause subtle errors. This is particularly
-    true in case of string replacement. One way to diagnose is to compare re.sub(..., count=-1) and
-    several invocations of re.sub.(..., count=1) to see if there are some differences.
+    true in case of string replacement. One way to diagnose is to compare regex.sub(..., count=-1) and
+    several invocations of regex.sub.(..., count=1) to see if there are some differences.
     """
     
     MAX_STRING_WIDTH = 50
@@ -34,8 +34,9 @@ class RegexElement:
     def __init__(self, pattern: str, group_name: str = None, description: str = None):
         """
         Encapsulates a regular expression, so it can be safely combined with other regular expressions.
-        Adds a named capture group around the regex if `group_name` is provided.
-        Otherwise, the regex is placed inside a non-capture group.
+        Adds a named capture group around the regex if `group_name` is provided. Note that the regular 
+        expression pattern itself must not contain the `group_name`.
+        Otherwise, if `group_name` is not provided, then the regex is placed inside a non-capture group.
 
         The description is used in the display and should concisely describe the intent behind the pattern.
         Additional information about the intent can be specified through examples which are also used in the display.
@@ -43,13 +44,13 @@ class RegexElement:
         The function checks only the validity of the regular expression, everything else is your responsibility.
         """
         try:
-            temp_regex = re.compile(pattern)
+            temp_regex = regex.compile(pattern)
         except Exception:
             raise ValueError(f"Invalid regular expression: '{pattern}'")
 
         if isinstance(group_name, str):
-            if group_name not in temp_regex.groupindex.keys():
-                raise ValueError(f'(!) group_name {group_name!r} not found in pattern {pattern!r}')
+            if group_name in temp_regex.groupindex.keys():
+                raise ValueError(f'(!) pattern {pattern!r} must not contain group_name {group_name!r}.')
 
         self.pattern = pattern
         self.group_name = group_name
@@ -68,7 +69,6 @@ class RegexElement:
         """
         Compiles regex. All arguments are passed to regex.compile() function.
         """
-        # TODO: re.compile() vs regex.compile() -- which one to prefer?
         # TODO: shouldn't all testing and validation methods compile via this method?
         return regex.compile(self.pattern, **kwargs)
 
@@ -171,17 +171,17 @@ class RegexElement:
 
     def test(self):
         for example, desc in self.positive_tests:
-            assert re.match(self.pattern, example) is not None, \
+            assert regex.match(self.pattern, example) is not None, \
                 f'pattern {self.pattern!r} did not match positive example {example!r}'
 
         for example, desc in self.negative_tests:
             # TODO: search(...) or match(...)?
-            assert re.search(self.pattern, example) is None, \
+            assert regex.search(self.pattern, example) is None, \
                 f'pattern {self.pattern!r} was found in negative example {example!r}'
 
         for text, target, desc in self.extraction_tests:
             case = [text]
-            match = re.search(self.pattern, text)
+            match = regex.search(self.pattern, text)
             assert match is not None, \
                 f'pattern {self.pattern!r} was not found in extraction example {text!r}'
             if isinstance(target, str):
@@ -209,7 +209,7 @@ class RegexElement:
         # TODO: why search(...) instead of match(...)?
         return DataFrame(
             columns=['Example', 'Status'],
-            data=[[example, '+' if re.search(self.pattern, example) is None else 'F']
+            data=[[example, '+' if regex.search(self.pattern, example) is None else 'F']
                   for example, _ in self.negative_tests])
 
     def evaluate_positive_examples(self):
@@ -221,7 +221,7 @@ class RegexElement:
         """
         return DataFrame(
             columns=['Example', 'Status'],
-            data=[[example, '+' if re.match(self.pattern, example) else 'F']
+            data=[[example, '+' if regex.match(self.pattern, example) else 'F']
                   for example, _ in self.positive_tests])
 
     def evaluate_extraction_examples(self):
@@ -234,7 +234,7 @@ class RegexElement:
         test_data = []
         for text, target, _ in self.extraction_tests:
             case = [text]
-            match = re.search(self.pattern, text)
+            match = regex.search(self.pattern, text)
             if match:
                 if isinstance(target, str):
                     # TODO: top level group versus named group: which one to prefer?
