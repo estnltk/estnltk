@@ -19,8 +19,9 @@ def test_regex_element_evaluate_positive_examples():
     # fully matching examples
     GAP.full_match(' ')
     GAP.full_match('\t')
-    GAP.full_match('  ')
-    GAP.full_match(' \t')
+    # displayable examples (same as full_match)
+    GAP.example('  ')
+    GAP.example(' \t')
     eval_pos_results_dict = \
         GAP.evaluate_positive_examples().to_dict(orient='split', index=False)
     assert eval_pos_results_dict == \
