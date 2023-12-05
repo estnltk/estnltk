@@ -41,21 +41,24 @@ def test_regex_element_evaluate_negative_examples():
     GAP = RegexElement(r'([ \t]+)')
     # fully (mis)matching examples
     GAP.no_match(r'\n')
-    GAP.no_match(r'\n ')
-    GAP.no_match(r' \n')
-    GAP.no_match(r' \n ')
+    GAP.no_match(r'\n-')
+    GAP.no_match(r'-\n')
+    GAP.no_match(r'-\n-')
     eval_neg_results_dict = \
         GAP.evaluate_negative_examples().to_dict(orient='split', index=False)
     assert eval_neg_results_dict == \
         {'columns': ['Example', 'Status'], 
-         'data': [[r'\n', '+'], [r'\n ', '+'], [r' \n', '+'], [r' \n ', '+']]}
+         'data': [[r'\n', '+'], [r'\n-', '+'], [r'-\n', '+'], [r'-\n-', '+']]}
     # add mismatch
-    GAP.no_match('  ')
+    # note: negative example fails even 
+    # if the pattern is partially found 
+    # inside the example
+    GAP.no_match('\n ')
     eval_neg_results_dict2 = \
         GAP.evaluate_negative_examples().to_dict(orient='split', index=False)
     assert eval_neg_results_dict2 == \
         {'columns': ['Example', 'Status'], 
-         'data': [[r'\n', '+'], [r'\n ', '+'], [r' \n', '+'], [r' \n ', '+'], ['  ', 'F']]}
+         'data': [[r'\n', '+'], [r'\n-', '+'], [r'-\n', '+'], [r'-\n-', '+'], ['\n ', 'F']]}
 
 
 def test_regex_element_evaluate_extraction_examples():
@@ -128,6 +131,7 @@ def test_regex_element_truncate_string():
     with pytest.raises(AssertionError) as assertion_err2:
         FULL_ID_NUMBER.test()
     assert r"pattern '(?P<...9]))' did not match positive example '7810...0799'" in str(assertion_err2.value)
+    RegexElement.TRUNCATE = False
 
 
 
@@ -145,7 +149,7 @@ def test_regex_element_base_patterns():
     GAP.no_match('\n')
     GAP.full_match('  ')
     GAP.full_match(' \t')
-    GAP.no_match('\n ')
+    GAP.no_match('\n-')
     GAP.test()
 
     DASH = RegexElement(r'([ \t]*-[ \t]*)')
@@ -156,8 +160,10 @@ def test_regex_element_base_patterns():
     DASH.full_match('  -')
     DASH.full_match('\t-')
     DASH.full_match('-\t')
-    DASH.no_match('\n-')
-    DASH.no_match('-\n')
+    DASH.partial_match('\n-', '-')
+    DASH.partial_match('-\n', '-')
+    DASH.no_match('  ')
+    DASH.no_match('\t\t')
     DASH.test()
 
     DIV = RegexElement(r'([ \t]*/[ \t]*)')
@@ -168,8 +174,10 @@ def test_regex_element_base_patterns():
     DIV.full_match('  /')
     DIV.full_match('\t/')
     DIV.full_match('/\t')
-    DIV.no_match('\n/')
-    DIV.no_match('/\n')
+    DIV.partial_match('\n/', '/')
+    DIV.partial_match('/\n', '/')
+    DIV.no_match('  ')
+    DIV.no_match('\n\n')
     DIV.test()
 
     EQ = RegexElement(r'([ \t]*=[ \t]*)')
@@ -177,8 +185,10 @@ def test_regex_element_base_patterns():
     EQ.full_match('\t=')
     EQ.full_match(' = ')
     EQ.full_match('\t=')
-    EQ.no_match('=\n')
-    EQ.no_match('\n=')
+    EQ.partial_match('=\n', '=')
+    EQ.partial_match('\n=', '=')
+    EQ.no_match('  ')
+    EQ.no_match('\t\t')
     EQ.test()
 
     COLON = RegexElement(r'([ \t]*:[ \t]*)')
@@ -186,8 +196,10 @@ def test_regex_element_base_patterns():
     COLON.full_match(' : ')
     COLON.full_match(':')
     COLON.full_match('\t:')
-    COLON.no_match(':\n')
-    COLON.no_match('\n:')
+    COLON.partial_match(':\n', ':')
+    COLON.partial_match('\n:', ':')
+    COLON.no_match('  ')
+    COLON.no_match('\t\t')
     COLON.test()
 
     COMA = RegexElement(r'([ \t]*,[ \t]*)')
@@ -195,8 +207,10 @@ def test_regex_element_base_patterns():
     COMA.full_match('\t,')
     COMA.full_match(' , ')
     COMA.full_match('\t,')
-    COMA.no_match(',\n')
-    COMA.no_match('\n,')
+    COMA.partial_match(',\n', ',')
+    COMA.partial_match('\n,', ',')
+    COMA.no_match('  ')
+    COMA.no_match('\t\t')
     COMA.test()
 
     ARROW = RegexElement(r'([ \t]*(-*>)[ \t]*)')
@@ -206,7 +220,9 @@ def test_regex_element_base_patterns():
     ARROW.full_match('--->')
     ARROW.full_match(' -> ')
     ARROW.full_match('\t-> ')
-    ARROW.no_match(' ->\n')
+    ARROW.partial_match(' ->\n', ' ->')
+    ARROW.no_match('  ')
+    ARROW.no_match('\t\t')
     ARROW.test()
 
     ELLIPSE = RegexElement(r'([ \t]*(\.{2,4})[ \t]*)')
@@ -216,8 +232,10 @@ def test_regex_element_base_patterns():
     SCORE_VALUE.full_match('1')
     SCORE_VALUE.full_match('03')
     SCORE_VALUE.full_match('43')
-    SCORE_VALUE.no_match('24 ')
-    SCORE_VALUE.no_match('24p')
+    SCORE_VALUE.partial_match('24 ', '24')
+    SCORE_VALUE.partial_match('24p', '24')
+    SCORE_VALUE.no_match('  ')
+    SCORE_VALUE.no_match('Xp')
     SCORE_VALUE.test()
 
     SCORE = RegexElement(rf'{SCORE_VALUE}', group_name='score')
@@ -337,15 +355,17 @@ def test_regex_element_base_patterns():
     SCORE_RANGE.partial_match('3 - 4','3 - 4')
     SCORE_RANGE.partial_match('3 -4 ','3 -4')
     SCORE_RANGE.partial_match('3- 4 ','3- 4')
-    SCORE_RANGE.no_match(' 3-4')
-    SCORE_RANGE.no_match('3-4 ')
+    SCORE_RANGE.partial_match(' 3-4', '3-4')
+    SCORE_RANGE.partial_match('3-4 ', '3-4')
     SCORE_RANGE.partial_match('3 - 4p','3 - 4p')
     SCORE_RANGE.partial_match('3p-8p','3p-8p')
     SCORE_RANGE.partial_match('3 p - 4 p ','3 p - 4 p')
     SCORE_RANGE.partial_match('4 .... 10 ', '4 .... 10')
+    SCORE_RANGE.partial_match('3-6p.', '3-6p')
+    SCORE_RANGE.partial_match('3-7p ', '3-7p')
     SCORE_RANGE.no_match('3 palli - 4p')
-    SCORE_RANGE.no_match('3-6p.')
-    SCORE_RANGE.no_match('3-7p ')
+    SCORE_RANGE.no_match('3 palli - 4 palli')
+    SCORE_RANGE.no_match('3 pallikest - 7palli')
     SCORE_RANGE.test()
 
     TEXTUAL_SCORE_RANGE = SCORE_RANGE
@@ -367,13 +387,15 @@ def test_regex_element_base_patterns():
 
     SCORE_RATIO_1 = RegexElement(rf'({GAINED_SCORE}{DIV}{NOMINAL_SCORE}({GAP}?{SCORE_RATIO_UNIT})?)')
     SCORE_RATIO_1.partial_match('7/10','7/10')
-    SCORE_RATIO_1.no_match(' 7/10 ')
+    SCORE_RATIO_1.partial_match(' 7/10 ','7/10')
     SCORE_RATIO_1.partial_match('7/ 10','7/ 10')
     SCORE_RATIO_1.partial_match('7 / 10','7 / 10')
     SCORE_RATIO_1.partial_match('7/10p','7/10p')
     SCORE_RATIO_1.partial_match('7/10 ','7/10')
     SCORE_RATIO_1.partial_match('7/10-st','7/10-st')
     SCORE_RATIO_1.partial_match('7/10 -st','7/10 -st')
+    SCORE_RATIO_1.no_match('kaks kolme-st')
+    SCORE_RATIO_1.no_match('viis kaheksast')
     SCORE_RATIO_1.test()
 
     SCORE_RATIO_2 = RegexElement(rf'({GAINED_SCORE}{GAP}?(palli|punki|punkti){GAP}?{NOMINAL_SCORE}(-st|st))')
@@ -413,8 +435,9 @@ def test_regex_element_base_patterns():
     SCORE_RATIO = RegexElement(rf'({SCORE_RATIO_1}|{SCORE_RATIO_2}|{SCORE_RATIO_4}|{SCORE_RATIO_5}|{SCORE_RATIO_5})')
     SCORE_RATIO.partial_match('20/30 punkti','20/30 punkti')
     SCORE_RATIO.partial_match('20 punkti 30-st.','20 punkti 30-st')
-    SCORE_RATIO.no_match('(20/30)')
+    SCORE_RATIO.partial_match('(20/30)', '20/30')
     SCORE_RATIO.partial_match('saadud punkte 30-st 20 ','saadud punkte 30-st 20')
+    SCORE_RATIO.no_match('kakskümmend kolmekümbnest')
     SCORE_RATIO.test()
 
     TEXTUAL_SCORE_RATIO = RegexElement(rf'({SCORE_RATIO_1}|{SCORE_RATIO_2}|{SCORE_RATIO_3}' \
@@ -432,7 +455,9 @@ def test_regex_element_base_patterns():
     LEFT_EXT_24H.full_match('24 h')
     LEFT_EXT_24H.full_match('24h ')
     LEFT_EXT_24H.full_match('24 h ')
-    LEFT_EXT_24H.no_match(' 24 h ')
+    LEFT_EXT_24H.partial_match(' 24 h ', '24 h ')
+    LEFT_EXT_24H.no_match('48h ')
+    LEFT_EXT_24H.no_match('kakskümmend neli h')
     LEFT_EXT_24H.test()
 
     RIGHT_EXT_24H = RegexElement(r'^:?( |\t)*24( |\t)*h')
@@ -442,7 +467,9 @@ def test_regex_element_base_patterns():
     RIGHT_EXT_24H.full_match(' 24 h')
     RIGHT_EXT_24H.full_match(': 24 h')
     RIGHT_EXT_24H.full_match(':24h')
-    RIGHT_EXT_24H.no_match(' 24 h ')
+    RIGHT_EXT_24H.partial_match(' 24 h ', ' 24 h')
+    RIGHT_EXT_24H.no_match(' 48h')
+    RIGHT_EXT_24H.no_match(' kakskümmend-neli-h')
     RIGHT_EXT_24H.test()
 
     RIGHT_EXT_SCORE = RegexElement(r'^( |\t)*(skoor|skaala)')
@@ -481,8 +508,8 @@ def test_regex_element_base_patterns():
     RIGHT_MMSE_NAME_EXT.partial_match(' (VMU)',' (VMU)')
     RIGHT_MMSE_NAME_EXT.partial_match(' (vaimse seisundi miniuuring)',' (vaimse seisundi miniuuring)')
     RIGHT_MMSE_NAME_EXT.partial_match(' - Mini-Mental State Examination',' - Mini-Mental State Examination')
-    #RIGHT_MMSE_NAME_EXT.no_partial_match(' something else ... Mini - mental test')
-    #RIGHT_MMSE_NAME_EXT.no_partial_match(' something else ... - Mini-Mental State Examination')
+    RIGHT_MMSE_NAME_EXT.no_match(' something else ... Mini - mental test')
+    RIGHT_MMSE_NAME_EXT.no_match(' something else ... - Mini-Mental State Examination')
     RIGHT_MMSE_NAME_EXT.test()
 
     MMSE_COMPLETED = r'([Tt]einud|[Tt]eostatud|[Tt]ehtud|[Tt]egin)'
@@ -547,7 +574,7 @@ def test_regex_element_base_patterns():
 
     PAYLOAD_END_IS_NEEDED = RegexElement(r'\(.*\)$')
     PAYLOAD_END_IS_NEEDED.partial_match('(25)', '(25)')
-    #PAYLOAD_END_IS_NEEDED.no_partial_match(' 25)')
+    PAYLOAD_END_IS_NEEDED.no_match(' 25)')
     PAYLOAD_END_IS_NEEDED.test()
 
     PAYLOAD_END_ELIMINATOR_1 = RegexElement(r'[\r\n,.;\(\)]$|[\t ]+$|->$|$')
@@ -581,16 +608,18 @@ def test_regex_element_base_patterns():
     DARROW_PAYLOAD.test()
 
     ARROW_ENTRY_1 = RegexElement(rf'({INITIAL_ENTRY}{ARROW}{FINAL_ENTRY})')
-    #ARROW_ENTRY_1.no_partial_match(' 3')
-    #ARROW_ENTRY_1.no_partial_match(' -3')
-    #ARROW_ENTRY_1.no_partial_match(' - 3')
+    ARROW_ENTRY_1.no_match(' 3')
+    ARROW_ENTRY_1.no_match(' -3')
+    ARROW_ENTRY_1.no_match(' - 3')
     ARROW_ENTRY_1.partial_match(' 23 ->2', '23 ->2')
     ARROW_ENTRY_1.partial_match(' - 23p ->2', '23p ->2')
     ARROW_ENTRY_1.partial_match('-20 --> 2p', '20 --> 2p')
     ARROW_ENTRY_1.partial_match('-20 --> 2p.', '20 --> 2p')
     ARROW_ENTRY_1.partial_match(' 20 --> 2p,', '20 --> 2p')
     ARROW_ENTRY_1.partial_match(' 20 --> 2p;', '20 --> 2p')
-    #ARROW_ENTRY_1.no_partial_match('x 3 -> 2')
+    ARROW_ENTRY_1.partial_match('x 3 -> 2', '3 -> 2')
+    ARROW_ENTRY_1.no_match('3 ==> 2')
+    ARROW_ENTRY_1.no_match('3 ~~> 2')
     ARROW_ENTRY_1.test()
 
     ARROW_ENTRY_2 = RegexElement(rf'((paranenud|tõusnud){GAP}{INITIAL_SCORE}(-lt|lt){GAP}{FINAL_SCORE}(-le|le))')
@@ -649,7 +678,7 @@ def test_regex_element_base_patterns():
     SHORT_PAYLOAD.partial_match('3 pankreatiit','3 ')
     SHORT_PAYLOAD.partial_match('3 p. ta','3 p.')
     SHORT_PAYLOAD.partial_match('3.p. ta','3.p.')
-    SHORT_PAYLOAD.no_match(' 3p --> 1')
+    SHORT_PAYLOAD.no_match('x 3 --> 1')
     SHORT_PAYLOAD.partial_match(' 3p --> 1', ' 3p ')
     SHORT_PAYLOAD.test()
 
@@ -665,12 +694,12 @@ def test_regex_element_base_patterns():
     SHORT_RANGE_PAYLOAD.partial_match(': 3-8p',': 3-8p')
     SHORT_RANGE_PAYLOAD.partial_match(' : 3-4p',' : 3-4p')
     SHORT_RANGE_PAYLOAD.partial_match(' 3p - 4p xx',' 3p - 4p ')
-    #SHORT_RANGE_PAYLOAD.no_partial_match('-3-4')
-    #SHORT_RANGE_PAYLOAD.no_partial_match('- 3-4')
-    #SHORT_RANGE_PAYLOAD.no_partial_match(' - 5-4')
-    #SHORT_RANGE_PAYLOAD.no_partial_match(' 3 palli - 4p')
-    #SHORT_RANGE_PAYLOAD.no_partial_match(' 3p --> 1')
-    #SHORT_RANGE_PAYLOAD.no_partial_match('x 3-4')
+    SHORT_RANGE_PAYLOAD.no_match('-3-4')
+    SHORT_RANGE_PAYLOAD.no_match('- 3-4')
+    SHORT_RANGE_PAYLOAD.no_match(' - 5-4')
+    SHORT_RANGE_PAYLOAD.no_match(' 3 palli - 4p')
+    SHORT_RANGE_PAYLOAD.no_match(' 3p --> 1')
+    SHORT_RANGE_PAYLOAD.no_match('x 3-4')
     SHORT_RANGE_PAYLOAD.test()
 
     SHORT_RATIO_PAYLOAD = RegexElement(rf'^({DASH}|{GAP}|{EQ}|{COLON})?{SCORE_RATIO}{PAYLOAD_END}')
@@ -689,7 +718,7 @@ def test_regex_element_base_patterns():
     SHORT_RATIO_PAYLOAD.partial_match(' 3/7, ',' 3/7,')
     SHORT_RATIO_PAYLOAD.partial_match(' 3/4; x',' 3/4;')
     SHORT_RATIO_PAYLOAD.partial_match(' 3/4) ',' 3/4)')
-    #SHORT_RATIO_PAYLOAD.no_partial_match('x 3/4')
+    SHORT_RATIO_PAYLOAD.no_match('x 3/4')
     SHORT_RATIO_PAYLOAD.test()
     
     # Potential payloads to be verified further
@@ -709,21 +738,21 @@ def test_regex_element_base_patterns():
     POTENTIAL_SHORT_SCORE_PAYLOAD.partial_match(' skoor 28', {'text': 'skoor'})
     POTENTIAL_SHORT_SCORE_PAYLOAD.partial_match('- skoor 28', {'text': 'skoor'})
     POTENTIAL_SHORT_SCORE_PAYLOAD.partial_match('- skoor 28 veel teksti ja 30', {'text': 'skoor'})
-    #POTENTIAL_SHORT_SCORE_PAYLOAD.no_partial_match(' tavatekst\n skoor 28')
+    POTENTIAL_SHORT_SCORE_PAYLOAD.no_match(' tavatekst\n skoor 28')
     POTENTIAL_SHORT_SCORE_PAYLOAD.test()
 
     POTENTIAL_SHORT_SCORE_RANGE_PAYLOAD = RegexElement(rf'{TEXT_PREFIX}{TEXTUAL_SCORE_RANGE}{PAYLOAD_END}')
     POTENTIAL_SHORT_SCORE_RANGE_PAYLOAD.partial_match(' skoor 20 - 25 ', {'text': 'skoor'})
     POTENTIAL_SHORT_SCORE_RANGE_PAYLOAD.partial_match('- skoor 20 - 25)', {'text': 'skoor'})
     POTENTIAL_SHORT_SCORE_RANGE_PAYLOAD.partial_match('- skoor 20 - 25 veel teksti ja 30', {'text': 'skoor'})
-    #POTENTIAL_SHORT_SCORE_RANGE_PAYLOAD.no_partial_match(' tavatekst\n skoor 28-29')
+    POTENTIAL_SHORT_SCORE_RANGE_PAYLOAD.no_match(' tavatekst\n skoor 28-29')
     POTENTIAL_SHORT_SCORE_RANGE_PAYLOAD.test()
 
     POTENTIAL_SHORT_SCORE_RATIO_PAYLOAD = RegexElement(rf'{TEXT_PREFIX}{TEXTUAL_SCORE_RATIO}{PAYLOAD_END}')
     POTENTIAL_SHORT_SCORE_RATIO_PAYLOAD.partial_match(' sai 20/30 punkti;',' sai 20/30 punkti;')
     POTENTIAL_SHORT_SCORE_RATIO_PAYLOAD.partial_match('- saab 20 punkti 30-st.','- saab 20 punkti 30-st.')
-    #POTENTIAL_SHORT_SCORE_RATIO_PAYLOAD.no_partial_match('(20/30)')
-    #POTENTIAL_SHORT_SCORE_RATIO_PAYLOAD.no_partial_match('  (20/30)')
+    POTENTIAL_SHORT_SCORE_RATIO_PAYLOAD.no_match('(20/30)')
+    POTENTIAL_SHORT_SCORE_RATIO_PAYLOAD.no_match('  (20/30)')
     POTENTIAL_SHORT_SCORE_RATIO_PAYLOAD.partial_match(' saab  (20/30) ',' saab  (20/30) ')
     POTENTIAL_SHORT_SCORE_RATIO_PAYLOAD.test()
 
@@ -741,7 +770,7 @@ def test_regex_element_base_patterns():
     SPURIOUS_NIH_SCORE_1.partial_match('NIH-0-1-1-3', 'NIH-0-1-1')
     SPURIOUS_NIH_SCORE_1.partial_match('NIH 0-1-1-3', 'NIH 0-1-1')
     SPURIOUS_NIH_SCORE_1.partial_match('NIH 0 - 1 - 1 - 3', 'NIH 0 - 1 - 1')
-    #SPURIOUS_NIH_SCORE_1.no_partial_match('NIH 2-3 palli', 'NIH 2-3')
+    SPURIOUS_NIH_SCORE_1.no_match('NIH 2-3 palli', 'NIH 2-3')
     SPURIOUS_NIH_SCORE_1.test()
     
     SPURIOUS_NIH_SCORE_2 = RegexElement(rf'^N[iI]H({DASH}|{GAP})?[0-9]({GAP})?\(({GAP})?[0-9]({DASH})?[a-z],')

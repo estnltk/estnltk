@@ -147,7 +147,7 @@ class RegexElement:
     def no_match(self, negative_example: str, description: str = None):
         """
         Adds a negative test case for the regular expression. 
-        This test will be passed if the full match with the pattern fails. 
+        This test will be passed if the pattern could not be found in the negative_example. 
         The correctness of these test cases will be tested during validation.
         These examples will not be included to the html representation of the regex in Jupyter notebooks.
         """
@@ -192,8 +192,8 @@ class RegexElement:
                 f'{RegexElement.trunc_text(example)!r}'
 
         for example, desc in self.negative_tests:
-            assert regex.fullmatch(self.pattern, example) is None, \
-                f'pattern {RegexElement.trunc_text(self.pattern)!r} matched with the negative example '+\
+            assert regex.search(self.pattern, example) is None, \
+                f'pattern {RegexElement.trunc_text(self.pattern)!r} found inside the negative example '+\
                 f'{RegexElement.trunc_text(example)!r}'
 
         for text, target, desc in self.extraction_tests:
@@ -230,13 +230,13 @@ class RegexElement:
         """
         Returns a dataframe where each row describes the status of the corresponding test.
         There are two potential outcomes for each test:
-        - outcome (+) means that the regex did not match the entire test string;
-        - outcome (F) means that the regex matched the entire test string.
+        - outcome (+) means that the regex was not found in the example;
+        - outcome (F) means that the regex was found at least once in the example.
         """
         return DataFrame(
             columns=['Example', 'Status'],
             data=[[RegexElement.trunc_text(example), 
-                   '+' if regex.fullmatch(self.pattern, example) is None else 'F']
+                   '+' if regex.search(self.pattern, example) is None else 'F']
                   for example, _ in self.negative_tests])
 
     def evaluate_positive_examples(self):
