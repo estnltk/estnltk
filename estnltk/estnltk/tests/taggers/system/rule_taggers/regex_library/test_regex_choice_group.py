@@ -5,6 +5,8 @@ import tempfile
 import pytest
 
 from estnltk.taggers.system.rule_taggers.regex_library.string_list import StringList
+from estnltk.taggers.system.rule_taggers.regex_library.choice_group import ChoiceGroup
+from estnltk.taggers.system.rule_taggers.regex_library.regex_element import RegexElement
 
 #===================================
 #   StringList
@@ -117,6 +119,51 @@ def test_regex_string_list_csv_writing_and_reading():
     # assert clean up
     assert not os.path.exists(fpath)
 
-        
-        
+
+#===================================
+#   ChoiceGroup
+#===================================
+
+def test_choice_group_smoke():
+    # Various numeric expressions
+    INTEGER = RegexElement('[0-9]+')
+    INTEGER.full_match('123')
+    INTEGER.full_match('012')
+    INTEGER.test()
+
+    SPACED_INTEGER = RegexElement('[0-9]+(?: 000)*')
+    SPACED_INTEGER.full_match('1234')
+    SPACED_INTEGER.full_match('123 000')
+    SPACED_INTEGER.full_match('123 000 000')
+    SPACED_INTEGER.test()
+
+    DECIMAL_FRACTION = RegexElement(r'(?:[0-9]+\s*(?:,|\.)\s*)?[0-9]+')
+    DECIMAL_FRACTION.full_match('123')
+    DECIMAL_FRACTION.full_match('012')
+    DECIMAL_FRACTION.full_match('1.2')
+    DECIMAL_FRACTION.full_match('1,2')
+    DECIMAL_FRACTION.full_match('0.12')
+    DECIMAL_FRACTION.full_match('0,12')
+    DECIMAL_FRACTION.full_match('1, 3')
+    DECIMAL_FRACTION.full_match('1. 3')
+    DECIMAL_FRACTION.full_match('1 , 3')
+    DECIMAL_FRACTION.full_match('1 . 3')
+    DECIMAL_FRACTION.test()
+
+    INTEGER_ABBREVIATION = StringList(['milj.', 'milj'])
+    SEMI_WORD_INTEGER = RegexElement(fr'{DECIMAL_FRACTION}\s*{INTEGER_ABBREVIATION}')
+    SEMI_WORD_INTEGER.full_match('10 milj.')
+    SEMI_WORD_INTEGER.full_match('1,5 milj.')
+    SEMI_WORD_INTEGER.full_match('1 , 5milj.')
+    SEMI_WORD_INTEGER.test()
+
+    NUMBER_EXPRESSION = ChoiceGroup([SEMI_WORD_INTEGER, SPACED_INTEGER, DECIMAL_FRACTION])
+    NUMBER_EXPRESSION.full_match('123 000')
+    NUMBER_EXPRESSION.full_match('123')
+    NUMBER_EXPRESSION.full_match('12.35')
+    NUMBER_EXPRESSION.full_match('12.35 milj.')
+    NUMBER_EXPRESSION.test()
+    #print(str(NUMBER_EXPRESSION))
+    assert str(NUMBER_EXPRESSION) == \
+        r'(?:(?:(?:(?:[0-9]+\s*(?:,|\.)\s*)?[0-9]+)\s*(?:milj\.|milj))|(?:[0-9]+(?: 000)*)|(?:(?:[0-9]+\s*(?:,|\.)\s*)?[0-9]+))'
 
