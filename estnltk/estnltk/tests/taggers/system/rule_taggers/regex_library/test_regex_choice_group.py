@@ -1,4 +1,7 @@
 import re
+import os
+import os.path 
+import tempfile
 import pytest
 
 from estnltk.taggers.system.rule_taggers.regex_library.string_list import StringList
@@ -80,4 +83,40 @@ def test_regex_string_list_evaluation():
         {'columns': ['Example', 'Status'], 
          'data': [['pallile', '+'], ['pallist', '+'], ['pallile', 'F']]}
 
+
+def test_regex_string_list_csv_writing_and_reading():
+    PALLITUS = StringList([' p', ' pall', ' punkt', ' palli_', ' punkti_'], \
+                           replacements={' ':r'\s*', 'p': '[Pp]', '_': '.?'})
+    PALLITUS.full_match(' palli')
+    PALLITUS.full_match('pall')
+    PALLITUS.full_match('  punkt')
+    PALLITUS.full_match(' punkti')
+    PALLITUS.partial_match(' pallile', ' pallil')
+    PALLITUS.partial_match('pallist', 'pallis')
+    PALLITUS.test()
+    #print(str(PALLITUS))
+    with tempfile.TemporaryDirectory(suffix='csv_') as tmp_dir:
+        # Export to CSV
+        fpath = os.path.join(tmp_dir, 'string_list_1.csv')
+        PALLITUS.to_csv(fpath)
+        # Read from CSV (must use the same replacements)
+        PALLITUS2 = StringList.from_file(fpath,
+                        replacements={' ':r'\s*', 'p': '[Pp]', '_': '.?'})
+        # Check that string representations of both StringList-s match
+        assert str(PALLITUS) == str(PALLITUS2)
+        # Check tests
+        PALLITUS2.full_match(' palli')
+        PALLITUS2.full_match('pall')
+        PALLITUS2.full_match('  punkt')
+        PALLITUS2.full_match(' punkti')
+        PALLITUS2.partial_match(' pallile', ' pallil')
+        PALLITUS2.partial_match('pallist', 'pallis')
+        PALLITUS2.test()
+        #print(str(PALLITUS2))
+
+    # assert clean up
+    assert not os.path.exists(fpath)
+
+        
+        
 

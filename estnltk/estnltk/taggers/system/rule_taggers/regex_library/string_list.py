@@ -1,6 +1,7 @@
 import regex
 from copy import copy
 from pandas import read_csv
+from pandas import DataFrame
 
 from typing import Dict
 from typing import List
@@ -81,12 +82,17 @@ class StringList(RegexElement):
         """
         return regex.compile(str(self), **kwargs)
 
-    def to_csv(self, file: str):
+    def to_csv(self, file: str, column: str = None):
         """
-        Exports to file
-        TODO: Complete this
+        Exports strings of this StringList to a CSV file. 
+        Note that this method saves plain strings, without any post-processing 
+        (that is: no sorting, removal of duplicates, nor applying replacements).
         """
-        pass
+        assert isinstance(file, str), \
+            f'(!) Unexpected file argument type {type(file)}, expected str'
+        # Save strings into csv file
+        df = DataFrame({(column if column is not None else 'string_list'): self.strings})
+        df.to_csv(file, index=False, header=True)
 
     @staticmethod
     def from_file(file: Union[str, List[str]],
