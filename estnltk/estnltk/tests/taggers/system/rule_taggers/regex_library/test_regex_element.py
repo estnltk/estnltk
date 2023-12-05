@@ -1,3 +1,4 @@
+import re
 import pytest
 
 from estnltk.taggers.system.rule_taggers.regex_library.regex_element import RegexElement
@@ -93,6 +94,41 @@ def test_regex_element_evaluate_extraction_examples():
                   ['+2', '+'], 
                   ['skoor suurenes +22 võrra', '+'],
                   ['skoor langes -2 võrra', 'F']]}
+
+
+def test_regex_element_truncate_string():
+    ID_BIRTH_GENDER = RegexElement(r'([1-6])', group_name='birth_century_gender')
+    ID_BIRTH_YEAR   = RegexElement(r'([0-9][0-9])', group_name='birth_year_last_numbers')
+    ID_BIRTH_MONTH  = RegexElement(r'(0[1-9]|1[0-2])', group_name='birth_month')
+    ID_BIRTH_DAY    = RegexElement(r'(0[1-9]|[12][0-9]|3[0-1])', group_name='birth_day')
+    ID_BIRTH_ORDER  = RegexElement(r'([0-9][0-9][0-9])', group_name='birth_order')
+    ID_CONTROL      = RegexElement(r'([0-9])', group_name='control_number')
+    FULL_ID_NUMBER = RegexElement(fr'{ID_BIRTH_GENDER}{ID_BIRTH_YEAR}{ID_BIRTH_MONTH}{ID_BIRTH_DAY}{ID_BIRTH_ORDER}{ID_CONTROL}')
+    # Add valid cases
+    FULL_ID_NUMBER.full_match('34501234215')
+    FULL_ID_NUMBER.full_match('49403136526')
+    FULL_ID_NUMBER.full_match('61107121760')
+    # Add an invalid case
+    FULL_ID_NUMBER.full_match('78107320799')
+    # Assert untruncated
+    assert not RegexElement.TRUNCATE
+    assert FULL_ID_NUMBER.evaluate_positive_examples().to_dict(orient='split', index=False) == \
+        {'columns': ['Example', 'Status'], 
+         'data': [['34501234215', '+'], ['49403136526', '+'], ['61107121760', '+'], ['78107320799', 'F']]}
+    with pytest.raises(AssertionError) as assertion_err:
+        FULL_ID_NUMBER.test()
+    stripped_str_repr = ((fr"{str(FULL_ID_NUMBER)}")[3:])[:-1]
+    assert fr"pattern {stripped_str_repr!r} did not match positive example '78107320799'" in str(assertion_err.value)
+    # Assert truncated
+    RegexElement.TRUNCATE = True
+    RegexElement.MAX_STRING_WIDTH = 10
+    assert FULL_ID_NUMBER.evaluate_positive_examples().to_dict(orient='split', index=False) == \
+        {'columns': ['Example', 'Status'], 
+         'data': [['3450...4215', '+'], ['4940...6526', '+'], ['6110...1760', '+'], ['7810...0799', 'F']]}
+    with pytest.raises(AssertionError) as assertion_err2:
+        FULL_ID_NUMBER.test()
+    assert r"pattern '(?P<...9]))' did not match positive example '7810...0799'" in str(assertion_err2.value)
+
 
 
 #

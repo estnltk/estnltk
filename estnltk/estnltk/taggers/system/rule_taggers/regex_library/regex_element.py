@@ -291,14 +291,17 @@ class RegexElement:
         Returns input text truncated to size RegexElement.MAX_STRING_WIDTH if RegexElement.TRUNCATE == True.
         Otherwise, returns unaltered input text.
         '''
-        assert RegexElement.MAX_STRING_WIDTH > 0, \
-            f'(!) Unexpected RegexElement.MAX_STRING_WIDTH non-positive value {RegexElement.MAX_STRING_WIDTH}'
+        assert RegexElement.MAX_STRING_WIDTH > 3, \
+            f'(!) Unexpected RegexElement.MAX_STRING_WIDTH value {RegexElement.MAX_STRING_WIDTH}. Value must be > 3.'
         return truncate_middle_text(text, RegexElement.MAX_STRING_WIDTH) if RegexElement.TRUNCATE else text
 
 
 
-def truncate_middle_text(text, max_length):
-    """ Truncates text in the middle if text length exceeds max_length """
+def truncate_middle_text(text: str, max_length: int):
+    """
+    Truncates text in the middle if text length exceeds max_length. 
+    Note that max_length must be <= 3.
+    """
     if len(text) <= max_length or max_length <= 3:
         return text
     k = int(max_length/2) - 1
