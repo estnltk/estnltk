@@ -1,15 +1,16 @@
-import re
+import regex
 from copy import copy
-from regex_library.regex_element import RegexElement
 from pandas import read_csv
 
 from typing import Dict
 from typing import List
 from typing import Union
 
+from estnltk.taggers.system.rule_taggers.regex_library.regex_element import RegexElement
+
 
 class StringList(RegexElement):
-    """
+    r"""
     A `RegexElement` meant for defining a choice between the list of strings.
     Guarantees that the resulting regular expression matches the longest matching string in the list.
     All special characters are escaped and each string matches its literal representation.
@@ -29,14 +30,20 @@ class StringList(RegexElement):
                  group_name: str = None,
                  description: str = None,
                  replacements: Dict[str, str] = None):
+        object.__setattr__(self, '_initialized', False)
         self.strings = list(strings)
-        self.group_name = group_name
-        self.description = description
         self.replacements = {} if replacements is None else copy(replacements)
+        super().__init__(pattern=self.__make_choice_group(), group_name=group_name, description=description)
+        object.__setattr__(self, '_initialized', True)
 
     def __setattr__(self, key, value):
-        # Validate the right-hand side expression for replacement attribute
+        # Do not allow changing system variables after the initialization
+        if key in ['_initialized', 'pattern', 'strings', 'replacements']:
+            if self._initialized:
+                raise AttributeError('changing of the attribute {} after initialization not allowed in {}'.format(
+                            key, self.__class__.__name__))
         if key == 'replacements':
+            # [During the initialization]: Validate the right-hand side expression for replacement attribute
             if not isinstance(value, dict):
                 raise ValueError('Expecting a dictionary of substitutions of type dict[str, str]')
             for k, v in value.items():
@@ -45,33 +52,34 @@ class StringList(RegexElement):
                 if len(k) != 1:
                     raise ValueError(f"Left-hand side of a substitution '{k}' --> '{v}' must be a single character")
                 try:
-                    re.compile(v)
+                    regex.compile(v)
                 except Exception:
                     raise ValueError(f"Right-hand side of a substitution '{k}' --> '{v}' is invalid regular expression")
-
         super().__setattr__(key, value)
 
-    def __str__(self):
-        name_prefix = '?:' if self.group_name is None else f'?P<{self.group_name}>'
-
+    def __make_choice_group(self):
+        '''Creates and returns unparenthesized choice group corresponding to this string list. 
+           Drops duplicates and sorts original strings according to the length, escapes special characters.
+           If self.replacements is defined, then applies character to regex replacements to all strings. 
+           Only for internal usage. 
+        '''
         # Drop duplicates and sort original strings according to the length and escape special characters
-        choices = map(lambda x: re.escape(x), sorted(set(self.strings), key=lambda x: (-len(x), x)))
+        choices = map(lambda x: regex.escape(x), sorted(set(self.strings), key=lambda x: (-len(x), x)))
         if len(self.replacements) == 0:
-            return f"({name_prefix}{'|'.join(choices)})"
-
+            return f"{'|'.join(choices)}"
         # Build a replacement dictionary that contains escaped characters as we first escape and then replace
-        replacement_dict = {re.escape(k): f'(?:{v})' for k, v in self.replacements.items()}
+        replacement_dict = {regex.escape(k): f'(?:{v})' for k, v in self.replacements.items()}
         # Build a compound regex to match all escaped replacement characters. We need double escaped characters
-        loc_regex = re.compile('|'.join(re.escape(re.escape(k)) for k in self.replacements.keys()), flags=re.UNICODE)
+        loc_regex = regex.compile('|'.join(regex.escape(regex.escape(k)) for k in self.replacements.keys()), flags=regex.UNICODE)
         # Perform all substitutions. The order of strings still guarantees that maximal match is chosen
         choices = map(lambda x: loc_regex.sub(lambda mo: replacement_dict[mo.group()], x), choices)
-        return f"({name_prefix}{'|'.join(choices)})"
+        return f"{'|'.join(choices)}"
 
     def compile(self, **kwargs):
         """
-        Compiles regex. All arguments are passed to re.compile() function.
+        Compiles regex. All arguments are passed to regex.compile() function.
         """
-        return re.compile(str(self), **kwargs)
+        return regex.compile(str(self), **kwargs)
 
     def to_csv(self, file: str):
         """
