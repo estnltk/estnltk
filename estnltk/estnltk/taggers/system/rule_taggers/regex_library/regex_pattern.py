@@ -1,5 +1,5 @@
 from typing import Dict
-from regex_library.regex_element import RegexElement
+from estnltk.taggers.system.rule_taggers.regex_library.regex_element import RegexElement
 
 
 class RegexPattern(RegexElement):

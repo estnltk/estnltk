@@ -2,7 +2,11 @@ import re
 import pytest
 
 from estnltk.taggers.system.rule_taggers.regex_library.regex_element import RegexElement
+from estnltk.taggers.system.rule_taggers.regex_library.regex_pattern import RegexPattern
 
+#===================================
+#   RegexElement
+#===================================
 
 def test_regex_element_to_str():
     GAP = RegexElement(r'([ \t]+)')
@@ -780,3 +784,56 @@ def test_regex_element_base_patterns():
     SPURIOUS_NIH_SCORE_2.partial_match('NiH-7(1b, 3-2, 4-4)', 'NiH-7(1b,')
     SPURIOUS_NIH_SCORE_2.partial_match('NiH - 7 (1b, 3-2, 4-4)', 'NiH - 7 (1b,')
     SPURIOUS_NIH_SCORE_2.test()
+
+
+#===================================
+#   RegexPattern
+#===================================
+
+def test_regex_pattern_smoke():
+    # Smoke tests for RegexPattern
+    DECIMAL_FRACTION = RegexElement(r'(?:[0-9]+\s*(?:,|\.)\s*)?[0-9]+')
+    DECIMAL_FRACTION.full_match('123')
+    DECIMAL_FRACTION.full_match('012')
+    DECIMAL_FRACTION.full_match('1.2')
+    DECIMAL_FRACTION.full_match('1,2')
+    DECIMAL_FRACTION.full_match('0.12')
+    DECIMAL_FRACTION.full_match('0,12')
+    DECIMAL_FRACTION.full_match('1, 3')
+    DECIMAL_FRACTION.full_match('1. 3')
+    DECIMAL_FRACTION.full_match('1 , 3')
+    DECIMAL_FRACTION.full_match('1 . 3')
+    DECIMAL_FRACTION.no_match('XI.I')
+    DECIMAL_FRACTION.no_match(',')
+    DECIMAL_FRACTION.test()
+
+    INTEGER_ABBREVIATION = RegexElement(r'(milj\.|milj)')
+    SEMI_WORD_INTEGER = RegexPattern(r'{NUMBER}\s*{TEXT}').format(NUMBER=DECIMAL_FRACTION, TEXT=INTEGER_ABBREVIATION)
+    SEMI_WORD_INTEGER.full_match('10 milj.')
+    SEMI_WORD_INTEGER.full_match('1,5 milj.')
+    SEMI_WORD_INTEGER.full_match('1 , 5milj.')
+    SEMI_WORD_INTEGER.test()
+    assert str(SEMI_WORD_INTEGER) == \
+        r'(?:(?:(?:[0-9]+\s*(?:,|\.)\s*)?[0-9]+)\s*(?:(milj\.|milj)))'
+        
+    NUMBER_SLASH_NUMBER = RegexPattern(r'{NUMBER}\s*/\S*{NUMBER}').format(NUMBER=DECIMAL_FRACTION)
+    NUMBER_SLASH_NUMBER.full_match('185/300')
+    NUMBER_SLASH_NUMBER.full_match('18,5/30')
+    NUMBER_SLASH_NUMBER.full_match('185/30.3')
+    NUMBER_SLASH_NUMBER.test()
+    assert str(NUMBER_SLASH_NUMBER) == \
+        r'(?:(?:(?:[0-9]+\s*(?:,|\.)\s*)?[0-9]+)\s*/\S*(?:(?:[0-9]+\s*(?:,|\.)\s*)?[0-9]+))'
+
+    INTEGER = RegexElement('[0-9]+')
+    INTEGER.full_match('123')
+    INTEGER.full_match('012')
+    INTEGER.no_match('II')
+    INTEGER.test()
+
+    NUMERIC_SUM = RegexPattern(r'\(\s*{NUMBER}\s*\+\s*{NUMBER}\s*\)').format(NUMBER=INTEGER)
+    NUMERIC_SUM.full_match('(20+5)')
+    NUMERIC_SUM.no_match('20-5')
+    NUMERIC_SUM.test()
+    assert str(NUMERIC_SUM) == \
+        r'(?:\(\s*(?:[0-9]+)\s*\+\s*(?:[0-9]+)\s*\))'
+
