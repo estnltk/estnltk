@@ -79,7 +79,7 @@ class RegexElement:
         you've arrived at the final pattern, call this method to compile the 
         regular expression. 
         """
-        return regex.compile(self.pattern, **kwargs)
+        return regex.compile(str(self), **kwargs)
 
     def _repr_html_(self):
         """
