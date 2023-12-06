@@ -47,19 +47,17 @@ def test_regex_string_list_to_str_with_replacements():
 
 def test_regex_string_list_evaluation():
     # StringList as choice group
-    PALLITUS = StringList(['p', 'pall', 'punkt', 'palli', 'punkti', 'st', '-st', 'palli'])
+    PALLITUS = StringList(['p', 'pall', 'punkt', 'palli', 'punkti', 'st', '-st', 'palli'], \
+                           autogenerate_tests=True)
+    # Note: with autogenerate_tests, unique input strings will be added as positive 
+    # tests automatically, so we only need to add partial matches and negative tests
+    assert len(PALLITUS.positive_tests) == 7
     # Passing tests
-    PALLITUS.full_match('p')
-    PALLITUS.full_match('st')
-    PALLITUS.full_match('-st')
-    PALLITUS.full_match('palli')
-    PALLITUS.full_match('pall')
-    PALLITUS.full_match('punkt')
-    PALLITUS.full_match('punkti')
     PALLITUS.partial_match('pallile','palli')
     PALLITUS.partial_match('pallist','palli')
-    PALLITUS.no_match('boonust')
+    PALLITUS.no_match('boonus')
     PALLITUS.no_match('skoor')
+    PALLITUS.test()
     # Failing tests
     PALLITUS.full_match('punni')
     PALLITUS.no_match('punni')
@@ -70,14 +68,14 @@ def test_regex_string_list_evaluation():
     #print( eval_pos_results_dict )
     assert eval_pos_results_dict == \
         {'columns': ['Example', 'Status'], 
-         'data': [['p', '+'], ['st', '+'], ['-st', '+'], ['palli', '+'], 
-                  ['pall', '+'], ['punkt', '+'], ['punkti', '+'], ['punni', 'F']]}
+         'data': [['p', '+'], ['pall', '+'], ['punkt', '+'], ['palli', '+'], 
+                  ['punkti', '+'], ['st', '+'], ['-st', '+'], ['punni', 'F']]}
     eval_neg_results_dict = \
         PALLITUS.evaluate_negative_examples().to_dict(orient='split', index=False)
     #print( eval_neg_results_dict )
     assert eval_neg_results_dict == \
         {'columns': ['Example', 'Status'], 
-         'data': [['boonust', 'F'], ['skoor', '+'], ['punni', 'F']]}
+         'data': [['boonus', '+'], ['skoor', '+'], ['punni', 'F']]}
     eval_extract_results_dict = \
         PALLITUS.evaluate_extraction_examples().to_dict(orient='split', index=False)
     #print( eval_extract_results_dict )
@@ -88,11 +86,12 @@ def test_regex_string_list_evaluation():
 
 def test_regex_string_list_csv_writing_and_reading():
     PALLITUS = StringList([' p', ' pall', ' punkt', ' palli_', ' punkti_'], \
-                           replacements={' ':r'\s*', 'p': '[Pp]', '_': '.?'})
+                           replacements={' ':r'\s*', 'p': '[Pp]', '_': '.?'}, \
+                           autogenerate_tests=True)
     PALLITUS.full_match(' palli')
-    PALLITUS.full_match('pall')
     PALLITUS.full_match('  punkt')
-    PALLITUS.full_match(' punkti')
+    PALLITUS.full_match('    punkti')
+    assert len(PALLITUS.positive_tests) == 8
     PALLITUS.partial_match(' pallile', ' pallil')
     PALLITUS.partial_match('pallist', 'pallis')
     PALLITUS.test()
@@ -103,14 +102,15 @@ def test_regex_string_list_csv_writing_and_reading():
         PALLITUS.to_csv(fpath)
         # Read from CSV (must use the same replacements)
         PALLITUS2 = StringList.from_file(fpath,
-                        replacements={' ':r'\s*', 'p': '[Pp]', '_': '.?'})
+                        replacements={' ':r'\s*', 'p': '[Pp]', '_': '.?'},
+                        autogenerate_tests=True)
         # Check that string representations of both StringList-s match
         assert str(PALLITUS) == str(PALLITUS2)
         # Check tests
         PALLITUS2.full_match(' palli')
-        PALLITUS2.full_match('pall')
         PALLITUS2.full_match('  punkt')
-        PALLITUS2.full_match(' punkti')
+        PALLITUS2.full_match('    punkti')
+        assert len(PALLITUS2.positive_tests) == 8
         PALLITUS2.partial_match(' pallile', ' pallil')
         PALLITUS2.partial_match('pallist', 'pallis')
         PALLITUS2.test()

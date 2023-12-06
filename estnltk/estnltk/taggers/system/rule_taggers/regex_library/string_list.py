@@ -30,11 +30,14 @@ class StringList(RegexElement):
                  strings: List[str],
                  group_name: str = None,
                  description: str = None,
-                 replacements: Dict[str, str] = None):
+                 replacements: Dict[str, str] = None,
+                 autogenerate_tests: bool = False):
         object.__setattr__(self, '_initialized', False)
         self.strings = list(strings)
         self.replacements = {} if replacements is None else copy(replacements)
         super().__init__(pattern=self.__make_choice_group(), group_name=group_name, description=description)
+        if autogenerate_tests:
+            self.__autogenerate_tests()
         object.__setattr__(self, '_initialized', True)
 
     def __setattr__(self, key, value):
@@ -76,11 +79,21 @@ class StringList(RegexElement):
         choices = map(lambda x: loc_regex.sub(lambda mo: replacement_dict[mo.group()], x), choices)
         return f"{'|'.join(choices)}"
 
-    def compile(self, **kwargs):
-        """
-        Compiles regex. All arguments are passed to regex.compile() function.
-        """
-        return regex.compile(str(self), **kwargs)
+    def __autogenerate_tests(self):
+        '''
+        Automatically generates positive test examples from the input strings. 
+        This method can be called only once, during the initialization of the 
+        StringList, as later calling could result in duplicate tests.
+        '''
+        if self._initialized:
+            raise Exception('(!) Cannot autogenerate tests after the initialization.')
+        seen_examples = set()
+        for string in self.strings:
+            if string in seen_examples:
+                # Avoid duplicates
+                continue
+            self.full_match(string)
+            seen_examples.add(string)
 
     def to_csv(self, file: str, column: str = None):
         """
@@ -100,6 +113,7 @@ class StringList(RegexElement):
                   group_name: str = None,
                   description: str = None,
                   replacements: Dict[str, str] = None,
+                  autogenerate_tests: bool = False,
                   **kwargs):
         """
         Given a list of string in a file or list of files generates a corresponding regular expression.
@@ -118,12 +132,14 @@ class StringList(RegexElement):
             column = df.columns[0] if column is None else column
             if column not in df.columns:
                 raise ValueError(f'Csv file {file} does not contain column {column}')
-            return StringList(df[column], group_name=group_name, description=description, replacements=replacements)
+            return StringList(df[column], group_name=group_name, description=description, 
+                              replacements=replacements, autogenerate_tests=autogenerate_tests)
 
         if isinstance(file, str) and file[-4:] == '.txt':
             with open(file, "rt") as ifile:
                 return StringList([line.rstrip('\n') for line in ifile],
-                                  group_name=group_name, description=description, replacements=replacements)
+                                  group_name=group_name, description=description, 
+                                  replacements=replacements, autogenerate_tests=autogenerate_tests)
 
         if not isinstance(file, list):
             raise ValueError(f'Invalid file argument {file}')
@@ -148,4 +164,5 @@ class StringList(RegexElement):
             raise ValueError(f'Invalid input file {input_file}')
 
         return StringList(sum(string_lists, []), group_name=group_name,
-                          description=description, replacements=replacements)
+                          description=description, replacements=replacements,
+                          autogenerate_tests=autogenerate_tests)
