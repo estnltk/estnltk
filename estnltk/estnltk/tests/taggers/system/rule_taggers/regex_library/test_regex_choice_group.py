@@ -125,16 +125,16 @@ def test_regex_string_list_csv_writing_and_reading():
 #===================================
 
 def test_choice_group_smoke():
+    # Test composing a ChoiceGroup from various sub-expressions
     # Various numeric expressions
-    INTEGER = RegexElement('[0-9]+')
-    INTEGER.full_match('123')
-    INTEGER.full_match('012')
-    INTEGER.test()
-
     SPACED_INTEGER = RegexElement('[0-9]+(?: 000)*')
     SPACED_INTEGER.full_match('1234')
     SPACED_INTEGER.full_match('123 000')
     SPACED_INTEGER.full_match('123 000 000')
+    SPACED_INTEGER.full_match('123 000 000')
+    SPACED_INTEGER.no_match('paarteist')
+    SPACED_INTEGER.no_match('kolmteist tuhat')
+    SPACED_INTEGER.partial_match('umbes 1 000 000 aastat tagasi', '1 000 000')
     SPACED_INTEGER.test()
 
     DECIMAL_FRACTION = RegexElement(r'(?:[0-9]+\s*(?:,|\.)\s*)?[0-9]+')
@@ -148,6 +148,10 @@ def test_choice_group_smoke():
     DECIMAL_FRACTION.full_match('1. 3')
     DECIMAL_FRACTION.full_match('1 , 3')
     DECIMAL_FRACTION.full_match('1 . 3')
+    DECIMAL_FRACTION.no_match('üks koma kolm')
+    DECIMAL_FRACTION.no_match('kaks koma viis')
+    DECIMAL_FRACTION.partial_match('tõusis 5%', '5')
+    DECIMAL_FRACTION.partial_match('vähenes 0.25 kg', '0.25')
     DECIMAL_FRACTION.test()
 
     INTEGER_ABBREVIATION = StringList(['milj.', 'milj'])
@@ -155,9 +159,16 @@ def test_choice_group_smoke():
     SEMI_WORD_INTEGER.full_match('10 milj.')
     SEMI_WORD_INTEGER.full_match('1,5 milj.')
     SEMI_WORD_INTEGER.full_match('1 , 5milj.')
+    SEMI_WORD_INTEGER.no_match('viis milj.')
+    SEMI_WORD_INTEGER.no_match('kaheks miljonit')
+    SEMI_WORD_INTEGER.partial_match('mahus 10 milj. tonni', '10 milj.')
+    SEMI_WORD_INTEGER.partial_match('see teeb 2 miljonit tonni rohkem', '2 milj')
     SEMI_WORD_INTEGER.test()
 
-    NUMBER_EXPRESSION = ChoiceGroup([SEMI_WORD_INTEGER, SPACED_INTEGER, DECIMAL_FRACTION])
+    NUMBER_EXPRESSION = ChoiceGroup([SEMI_WORD_INTEGER, SPACED_INTEGER, DECIMAL_FRACTION],
+                                    merge_positive_tests=False,
+                                    merge_negative_tests=False,
+                                    merge_extraction_tests=False)
     NUMBER_EXPRESSION.full_match('123 000')
     NUMBER_EXPRESSION.full_match('123')
     NUMBER_EXPRESSION.full_match('12.35')
@@ -166,4 +177,16 @@ def test_choice_group_smoke():
     #print(str(NUMBER_EXPRESSION))
     assert str(NUMBER_EXPRESSION) == \
         r'(?:(?:(?:(?:[0-9]+\s*(?:,|\.)\s*)?[0-9]+)\s*(?:milj\.|milj))|(?:[0-9]+(?: 000)*)|(?:(?:[0-9]+\s*(?:,|\.)\s*)?[0-9]+))'
+
+    # Test merging tests
+    # Note that we cannot merge partial_match tests as these are incompatible with the whole ChoiceGroup's pattern
+    NUMBER_EXPRESSION2 = ChoiceGroup([SEMI_WORD_INTEGER, SPACED_INTEGER, DECIMAL_FRACTION], 
+                                     merge_positive_tests=True,
+                                     merge_negative_tests=True,
+                                     merge_extraction_tests=False)
+    assert len(NUMBER_EXPRESSION2.positive_tests) == 16
+    assert len(NUMBER_EXPRESSION2.negative_tests) == 6
+    assert len(NUMBER_EXPRESSION2.extraction_tests) == 0
+    NUMBER_EXPRESSION2.test()
+
 
