@@ -32,6 +32,38 @@ class StringList(RegexElement):
                  description: str = None,
                  replacements: Dict[str, str] = None,
                  autogenerate_tests: bool = False):
+        '''
+        Initializes new StringList based on the given list of strings.
+        
+        Parameters
+        ----------
+        strings: List[str]
+            The list of strings for the choice group. Strings in the 
+            list will processed so that the matching with the special 
+            characters and with the the longest string is guaranteed. 
+        group_name: str
+            Name for the capturing group. The group_name appears in 
+            string representation of this expression, but it is not 
+            encoded into pattern of this expression (self.pattern).
+        description: str
+            Description for this regular expression (optional).
+        replacements: Dict[str, str]
+            Optional. A dictionary of character to regex replacements 
+            that is applied to all strings. For instance, you can 
+            specify a substitution `{' ' : '\s+'}` to cover possible 
+            variations of white space symbols. The left hand of the 
+            rule can be only a single character that is interpreted 
+            as a plain character, not regex meta character. Proper 
+            escaping of special symbols on the right-hand side of 
+            the rule is a responsibility of the user.
+            By default, `replacements` is set to `None`.
+        autogenerate_tests: bool
+            Optional. If set, then adds input strings as positive test 
+            examples of this StringList. Use this to test that pattern 
+            modifications from `replacements` do not mess up matching 
+            with the original strings.
+            By default, `autogenerate_tests` is set to `False`.
+        '''
         object.__setattr__(self, '_initialized', False)
         self.strings = list(strings)
         self.replacements = {} if replacements is None else copy(replacements)

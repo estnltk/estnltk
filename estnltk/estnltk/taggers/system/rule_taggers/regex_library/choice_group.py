@@ -1,7 +1,5 @@
 from typing import List
 
-import warnings
-
 from estnltk.taggers.system.rule_taggers.regex_library.regex_element import RegexElement
 from estnltk.taggers.system.rule_taggers.regex_library.string_list import StringList
 
