@@ -100,7 +100,7 @@ class StringList(RegexElement):
                 ignore_case_flags = [False for i in range(len(self.strings))]
         else:
             # Validate given ignore_case_flags
-            assert ininstance(ignore_case_flags, list), \
+            assert isinstance(ignore_case_flags, list), \
                 '(!) ignore_case_flags should be a list of bool, '+\
                 f'not {type(ignore_case_flags)}.'
         assert len(ignore_case_flags) == len(self.strings), \
@@ -115,7 +115,7 @@ class StringList(RegexElement):
 
     def __setattr__(self, key, value):
         # Do not allow changing system variables after the initialization
-        if key in ['_initialized', 'pattern', 'strings', 'replacements']:
+        if key in ['_initialized', 'pattern', 'strings', 'replacements', 'ignore_case_flags']:
             if self._initialized:
                 raise AttributeError('changing of the attribute {} after initialization not allowed in {}'.format(
                             key, self.__class__.__name__))
