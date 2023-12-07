@@ -28,7 +28,7 @@ def test_regex_string_list_to_str():
     assert str(PALLITUS) == r'(?:punkti|palli|punkt|pall|\-st|st|p)'
 
 
-def test_regex_string_list_to_str_with_replacements():
+def test_regex_string_list_to_str_with_extras():
     # Regular StringList with (simple) replacement:  'p' -> '[Pp]'
     PALLITUS2 = StringList(['p', 'pall', 'punkt', 'palli', 'punkti'], \
                             replacements={'p':'[Pp]'})
@@ -43,10 +43,16 @@ def test_regex_string_list_to_str_with_replacements():
                             replacements={' ':r'\s+'})
     assert str(PALLITUS3) == \
         r'(?:(?:\s+)punkti|(?:\s+)palli|(?:\s+)punkt|(?:\s+)pall|(?:\s+)p)'
+    # Regular StringList with a replacement and full case insensitivity
+    PALLITUS4 = StringList([' p', ' pall', ' punkt', ' palli', ' punkti'], \
+                            replacements={' ':r'\s+'}, ignore_case=True)
+    assert str(PALLITUS4) == \
+        r'(?:(?:\s+)[Pp][Uu][Nn][Kk][Tt][Ii]|(?:\s+)[Pp][Aa][Ll][Ll][Ii]|'+\
+        r'(?:\s+)[Pp][Uu][Nn][Kk][Tt]|(?:\s+)[Pp][Aa][Ll][Ll]|(?:\s+)[Pp])'
 
 
 def test_regex_string_list_evaluation():
-    # StringList as choice group
+    # A) StringList as a choice group, case sensitive
     PALLITUS = StringList(['p', 'pall', 'punkt', 'palli', 'punkti', 'st', '-st', 'palli'], \
                            autogenerate_tests=True)
     # Note: with autogenerate_tests, unique input strings will be added as positive 
@@ -57,11 +63,13 @@ def test_regex_string_list_evaluation():
     PALLITUS.partial_match('pallist','palli')
     PALLITUS.no_match('boonus')
     PALLITUS.no_match('skoor')
+    PALLITUS.no_match('P')
     PALLITUS.test()
     # Failing tests
     PALLITUS.full_match('punni')
     PALLITUS.no_match('punni')
     PALLITUS.partial_match('pallile', 'pallile')
+    PALLITUS.partial_match(' PALLI ', 'PALLI')
     # Validate
     eval_pos_results_dict = \
         PALLITUS.evaluate_positive_examples().to_dict(orient='split', index=False)
@@ -75,13 +83,51 @@ def test_regex_string_list_evaluation():
     #print( eval_neg_results_dict )
     assert eval_neg_results_dict == \
         {'columns': ['Example', 'Status'], 
-         'data': [['boonus', '+'], ['skoor', '+'], ['punni', 'F']]}
+         'data': [['boonus', '+'], ['skoor', '+'], ['P', '+'], ['punni', 'F']]}
     eval_extract_results_dict = \
         PALLITUS.evaluate_extraction_examples().to_dict(orient='split', index=False)
     #print( eval_extract_results_dict )
     assert eval_extract_results_dict == \
         {'columns': ['Example', 'Status'], 
-         'data': [['pallile', '+'], ['pallist', '+'], ['pallile', 'F']]}
+         'data': [['pallile', '+'], ['pallist', '+'], ['pallile', 'F'], [' PALLI ', 'F']]}
+    # B) StringList as a choice group, case insensitive
+    PALLITUS2 = StringList(['p', 'pall', 'punkt', 'palli', 'punkti', 'palli'], \
+                           ignore_case=True, autogenerate_tests=True)
+    assert len(PALLITUS2.positive_tests) == 5
+    # Passing tests
+    PALLITUS2.full_match('PUNKTI')
+    PALLITUS2.full_match('pALLi')
+    PALLITUS2.full_match('P')
+    PALLITUS2.partial_match('PALLIST', 'PALLI')
+    PALLITUS2.partial_match('PalLile', 'PalLi')
+    PALLITUS2.no_match('bOoNus')
+    PALLITUS2.no_match('SkooR')
+    PALLITUS2.test()
+    # Failing tests
+    PALLITUS2.full_match('Points')
+    PALLITUS2.no_match('Punni')
+    PALLITUS2.partial_match('PalliLE', 'PalliLE')
+    # Validate
+    eval_pos_results_dict = \
+        PALLITUS2.evaluate_positive_examples().to_dict(orient='split', index=False)
+    #print( eval_pos_results_dict )
+    assert eval_pos_results_dict == \
+        {'columns': ['Example', 'Status'], 
+         'data': [['p', '+'], ['pall', '+'], ['punkt', '+'], ['palli', '+'], 
+                  ['punkti', '+'], ['PUNKTI', '+'], ['pALLi', '+'], ['P', '+'], 
+                  ['Points', 'F']]}
+    eval_neg_results_dict = \
+        PALLITUS2.evaluate_negative_examples().to_dict(orient='split', index=False)
+    #print( eval_neg_results_dict )
+    assert eval_neg_results_dict == \
+        {'columns': ['Example', 'Status'], 
+         'data': [['bOoNus', '+'], ['SkooR', '+'], ['Punni', 'F']]}
+    eval_extract_results_dict = \
+        PALLITUS2.evaluate_extraction_examples().to_dict(orient='split', index=False)
+    #print( eval_extract_results_dict )
+    assert eval_extract_results_dict == \
+        {'columns': ['Example', 'Status'], 
+         'data': [['PALLIST', '+'], ['PalLile', '+'], ['PalliLE', 'F']]}
 
 
 def test_regex_string_list_csv_writing_and_reading():

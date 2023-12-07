@@ -31,6 +31,8 @@ class StringList(RegexElement):
                  group_name: str = None,
                  description: str = None,
                  replacements: Dict[str, str] = None,
+                 ignore_case: bool = False,
+                 ignore_case_flags: List[bool] = None, 
                  autogenerate_tests: bool = False):
         '''
         Initializes new StringList based on the given list of strings.
@@ -57,6 +59,29 @@ class StringList(RegexElement):
             escaping of special symbols on the right-hand side of 
             the rule is a responsibility of the user.
             By default, `replacements` is set to `None`.
+        ignore_case: bool
+            Optional. Converts all strings to case-insensitive 
+            format, that is, replaces all alphabetic characters 
+            with a set of characters containing an uppercase 
+            and a lowercase variant of the character. 
+            Note that this only works if `replacements` do not 
+            introduce any regexes containing letters with non-
+            literal meanings, such as named choice groups, sets 
+            of characters or flag letters, which could break the 
+            logic. Avoiding conflicts between the ignore_case 
+            conversion and `replacements` is a responsibility 
+            of the user. 
+            Note that the effect of `ignore_case` will be overridden 
+            by `ignore_case_flags` if provided. 
+            By default, `ignore_case` is set to `False`.
+        ignore_case_flags: List[bool]
+            Optional. Individual ignore_case flags for each string. 
+            Allows to selectively control, which of the strings should 
+            be case sensitive (`False`) and which should be converted 
+            to case in-sensitive format (`True`).
+            If `ignore_case_flags` are provided, then they will 
+            override the effect of flag `ignore_case`. 
+            By default, `ignore_case_flags` is set to `None`.
         autogenerate_tests: bool
             Optional. If set, then adds input strings as positive test 
             examples of this StringList. Use this to test that pattern 
@@ -67,7 +92,23 @@ class StringList(RegexElement):
         object.__setattr__(self, '_initialized', False)
         self.strings = list(strings)
         self.replacements = {} if replacements is None else copy(replacements)
-        super().__init__(pattern=self.__make_choice_group(), group_name=group_name, description=description)
+        if ignore_case_flags is None:
+            # Create default ignore_case_flags
+            if ignore_case:
+                ignore_case_flags = [True for i in range(len(self.strings))]
+            else:
+                ignore_case_flags = [False for i in range(len(self.strings))]
+        else:
+            # Validate given ignore_case_flags
+            assert ininstance(ignore_case_flags, list), \
+                '(!) ignore_case_flags should be a list of bool, '+\
+                f'not {type(ignore_case_flags)}.'
+        assert len(ignore_case_flags) == len(self.strings), \
+            '(!) ignore_case_flags should have the same length as strings.'
+        self.ignore_case_flags = ignore_case_flags
+        super().__init__(pattern=self.__make_choice_group(), 
+                         group_name=group_name, 
+                         description=description)
         if autogenerate_tests:
             self.__autogenerate_tests()
         object.__setattr__(self, '_initialized', True)
@@ -93,14 +134,51 @@ class StringList(RegexElement):
                     raise ValueError(f"Right-hand side of a substitution '{k}' --> '{v}' is invalid regular expression")
         super().__setattr__(key, value)
 
+    @staticmethod
+    def make_case_insensitive(pattern: str):
+        '''Converts given pattern to a case insensitive pattern. 
+           For that, replaces all alphabet letters with a set of characters 
+           containing an uppercase and a lowercase variant of the character. 
+           Exceptions are letters preceded by '\\', which will be ignored.
+           Note that for this to work, pattern needs to be restricted so 
+           that is does not contain: sets of characters, flag letters and 
+           named capturing groups.
+        '''
+        new_pattern = []
+        prev_char = ''
+        for c in pattern:
+            if c.isalpha() and prev_char != '\\':
+                new_pattern.append(f'[{c.upper()}{c.lower()}]')
+            else:
+                new_pattern.append(c)
+            prev_char = c
+        return ''.join(new_pattern)
+
     def __make_choice_group(self):
         '''Creates and returns unparenthesized choice group corresponding to this string list. 
-           Drops duplicates and sorts original strings according to the length, escapes special characters.
-           If self.replacements is defined, then applies character to regex replacements to all strings. 
+           Drops duplicates and sorts original strings according to the length, escapes special 
+           characters. 
+           Depending on the `self.ignore_case_flags`, each string is either converted to a 
+           case-insensitive pattern or preserves its case-sensitivity. 
+           If self.replacements is defined, then applies character to regex replacements to all 
+           strings. 
            Only for internal usage. 
         '''
-        # Drop duplicates and sort original strings according to the length and escape special characters
-        choices = map(lambda x: regex.escape(x), sorted(set(self.strings), key=lambda x: (-len(x), x)))
+        # Sort original strings according to the length
+        choices = []
+        seen_strings = set()
+        for str_id, string in sorted(list(enumerate(self.strings)), key=lambda x: (-len(x[1]), x[1])):
+            original_string = string
+            # Skip duplicate string
+            if original_string in seen_strings:
+                continue
+            # Escape meta symbols
+            string = regex.escape(string)
+            # Convert to a case insensitive format (if required)
+            if self.ignore_case_flags[str_id]:
+                string = StringList.make_case_insensitive(string)
+            choices.append(string)
+            seen_strings.add(original_string)
         if len(self.replacements) == 0:
             return f"{'|'.join(choices)}"
         # Build a replacement dictionary that contains escaped characters as we first escape and then replace
@@ -145,6 +223,8 @@ class StringList(RegexElement):
                   group_name: str = None,
                   description: str = None,
                   replacements: Dict[str, str] = None,
+                  ignore_case: bool = False,
+                  ignore_case_flags: List[bool] = None, 
                   autogenerate_tests: bool = False,
                   **kwargs):
         """
@@ -165,13 +245,17 @@ class StringList(RegexElement):
             if column not in df.columns:
                 raise ValueError(f'Csv file {file} does not contain column {column}')
             return StringList(df[column], group_name=group_name, description=description, 
-                              replacements=replacements, autogenerate_tests=autogenerate_tests)
+                              replacements=replacements, ignore_case=ignore_case, 
+                              ignore_case_flags=ignore_case_flags,
+                              autogenerate_tests=autogenerate_tests)
 
         if isinstance(file, str) and file[-4:] == '.txt':
             with open(file, "rt") as ifile:
                 return StringList([line.rstrip('\n') for line in ifile],
                                   group_name=group_name, description=description, 
-                                  replacements=replacements, autogenerate_tests=autogenerate_tests)
+                                  replacements=replacements, ignore_case=ignore_case, 
+                                  ignore_case_flags=ignore_case_flags, 
+                                  autogenerate_tests=autogenerate_tests )
 
         if not isinstance(file, list):
             raise ValueError(f'Invalid file argument {file}')
@@ -195,6 +279,8 @@ class StringList(RegexElement):
 
             raise ValueError(f'Invalid input file {input_file}')
 
-        return StringList(sum(string_lists, []), group_name=group_name,
-                          description=description, replacements=replacements,
+        return StringList(sum(string_lists, []), group_name=group_name, 
+                          description=description, replacements=replacements, 
+                          ignore_case=ignore_case, 
+                          ignore_case_flags=ignore_case_flags, 
                           autogenerate_tests=autogenerate_tests)
