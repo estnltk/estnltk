@@ -236,3 +236,22 @@ def test_choice_group_smoke():
     NUMBER_EXPRESSION2.test()
 
 
+def test_choice_group_of_string_lists():
+    # Test that ChoiceGroup uses safe and clever ways to join StringList-s
+    ADJECTIVES = StringList(['pehmed', 'karvased', 'kohevad', 'oma'], ignore_case=True)
+    PROPER_NOUNS = StringList(['Jacques Chirac', 'Piilupart Donald', 'Vegas', 'Om'], ignore_case=False)
+    ADJ_AND_NAMES = ChoiceGroup([ADJECTIVES, PROPER_NOUNS])
+    ADJ_AND_NAMES.full_match('Jacques Chirac')
+    ADJ_AND_NAMES.full_match('Piilupart Donald')
+    ADJ_AND_NAMES.full_match('KARVASED')
+    ADJ_AND_NAMES.full_match('Pehmed')
+    ADJ_AND_NAMES.full_match('koheVAD')
+    ADJ_AND_NAMES.no_match('piilupart')
+    ADJ_AND_NAMES.no_match('om')
+    ADJ_AND_NAMES.no_match('vegas')
+    ADJ_AND_NAMES.partial_match('uued PehmeD poognad', 'PehmeD')
+    ADJ_AND_NAMES.partial_match('OMA TEEMA', 'OMA')
+    ADJ_AND_NAMES.partial_match('kontsert Aigu Om ', 'Om')
+    ADJ_AND_NAMES.test()
+    #print(str(ADJ_AND_NAMES))
+    

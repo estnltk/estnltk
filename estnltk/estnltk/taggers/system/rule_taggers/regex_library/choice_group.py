@@ -84,9 +84,16 @@ class ChoiceGroup(RegexElement):
         '''
         if self.patterns_are_compatible_string_lists():
             # Safe union exists for compatible string lists
-            return StringList(
-                       strings=sum([pattern.strings for pattern in self.patterns], []),
-                       replacements=self.patterns[0].replacements).pattern
+            # Collect strings and ignore_case_flags
+            all_strings = []
+            all_ignore_case_flags = []
+            for pattern in self.patterns:
+                all_strings.extend( pattern.strings )
+                all_ignore_case_flags.extend( pattern.ignore_case_flags )
+            # Create new StringList
+            return StringList( strings=all_strings, 
+                               ignore_case_flags=all_ignore_case_flags, 
+                               replacements=self.patterns[0].replacements).pattern
         
         # All patterns are RegexElement-s
         return f"{'|'.join(str(pattern) for pattern in self.patterns)}"
