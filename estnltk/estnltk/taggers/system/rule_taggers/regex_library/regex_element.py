@@ -232,12 +232,20 @@ class RegexElement:
         There are two potential outcomes for each test:
         - outcome (+) means that the regex was not found in the example;
         - outcome (F) means that the regex was found at least once in the example.
+        The column 'Description' is added only if at least one example has a description. 
         """
-        return DataFrame(
-            columns=['Example', 'Status'],
-            data=[[RegexElement.trunc_text(example), 
-                   '+' if regex.search(self.pattern, example) is None else 'F']
-                  for example, _ in self.negative_tests])
+        has_descriptions = any([isinstance(desc, str) for (_, desc) in self.negative_tests])
+        columns=['Example', 'Status'] if not has_descriptions else ['Example', 'Description', 'Status']
+        data=[]
+        for example, desc in self.negative_tests:
+            item = [RegexElement.trunc_text(example), \
+                    '+' if regex.search(self.pattern, example) is None else 'F']
+            if has_descriptions:
+                if desc is None:
+                    desc = ''
+                item = [item[0], desc, item[1]]
+            data.append(item)
+        return DataFrame(columns=columns, data=data)
 
     def evaluate_positive_examples(self):
         """
@@ -245,12 +253,20 @@ class RegexElement:
         There are two potential outcomes for each test:
         - outcome (+) means that the regex matched the entire test string;
         - outcome (F) means that the regex did not match the entire test string.
+        The column 'Description' is added only if at least one example has a description. 
         """
-        return DataFrame(
-            columns=['Example', 'Status'],
-            data=[[RegexElement.trunc_text(example), \
-                   '+' if regex.fullmatch(self.pattern, example) else 'F']
-                  for example, _ in self.positive_tests])
+        has_descriptions = any([isinstance(desc, str) for (_, desc) in self.positive_tests])
+        columns=['Example', 'Status'] if not has_descriptions else ['Example', 'Description', 'Status']
+        data=[]
+        for example, desc in self.positive_tests:
+            item = [RegexElement.trunc_text(example), \
+                    '+' if regex.fullmatch(self.pattern, example) else 'F']
+            if has_descriptions:
+                if desc is None:
+                    desc = ''
+                item = [item[0], desc, item[1]]
+            data.append(item)
+        return DataFrame(columns=columns, data=data)
 
     def evaluate_extraction_examples(self):
         """
@@ -258,9 +274,12 @@ class RegexElement:
         There are two potential outcomes for each test:
         - outcome (+) means that the desired outputs are extracted by specified capture groups;
         - outcome (F) means that some capture groups did not return the desired outcomes.
+        The column 'Description' is added only if at least one example has a description. 
         """
+        has_descriptions = any([isinstance(desc, str) for (_, _, desc) in self.extraction_tests])
+        columns=['Example', 'Status'] if not has_descriptions else ['Example', 'Description', 'Status']
         test_data = []
-        for text, target, _ in self.extraction_tests:
+        for text, target, desc in self.extraction_tests:
             case = [ RegexElement.trunc_text(text) ]
             match = regex.search(str(self), text)
             if match:
@@ -281,8 +300,12 @@ class RegexElement:
                 case.append(final_outcome)
             else:
                 case.append('F')
+            if has_descriptions:
+                if desc is None:
+                    desc = ''
+                case = [case[0], desc, case[1]]
             test_data.append( case )
-        return DataFrame(columns=['Example', 'Status'], data=test_data)
+        return DataFrame(columns=columns, data=test_data)
 
 
     @staticmethod
