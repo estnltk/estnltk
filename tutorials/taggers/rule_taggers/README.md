@@ -1,7 +1,8 @@
 🛠️ How to get started?:
 
-* [Getting started A: How to build rule taggers with decorator](A_decorator_development.ipynb)
-* [Getting started B: How to create rulesets and extraction rules](B_rulesets_and_extraction_rules.ipynb)
+* [Getting started A: How to develop regular expression patterns](A_regex_development.ipynb)
+* [Getting started B: How to build rule taggers with decorator](B_decorator_development.ipynb)
+* [Getting started C: How to create rulesets and extraction rules](C_rulesets_and_extraction_rules.ipynb)
 
 🛠️ How to use different types of rule-based taggers?:
 
