@@ -22,11 +22,16 @@ class NamedSpanVisualiser:
         return True
     
     def default_span_names_formatting(self, span_names):
-        # add covered span names as a super-script, approx 75% size of the regular text
         output=[]
-        output.append('<sup style="font-size:75%">')
+        # *) If the browser supports ruby annotations (https://www.w3schools.com/tags/tag_ruby.asp), 
+        #    then add span-names as ruby annotations on top of the main text (<rt> ... </rt>);
+        # *) Otherwise, if the browser does not support ruby annotations, format covered span names 
+        #    as a super-script, approx 75% size of the regular text (<rp> ... </rp>).
+        output.append('<rp><sup style="font-size:75%"></rp>')
+        output.append('<rt style="font-size:75%">')
         output.append(', '.join(span_names))
-        output.append('</sup>')
+        output.append('</rt>')
+        output.append('<rp></sup></rp>')
         return ''.join(output)
 
     def _extract_covering_span_names_and_indexes(self, covering_named_span_indexes, all_spans):
@@ -64,8 +69,8 @@ class NamedSpanVisualiser:
         if self.mapping_dict is None:
             return segment[0]
 
-        # There is a span to decorate
-        output = ['<span style="']
+        # There is a span to decorate: start span and a ruby annotation
+        output = ['<ruby>', '<span style="']
         # copy to make it readable for mappers
         mapping_segment = copy.deepcopy(segment)
         [span_text, covering_named_span_indexes] = mapping_segment
@@ -98,5 +103,7 @@ class NamedSpanVisualiser:
         # Add covering span names as a super-script
         if covering_span_names:
             output.append(self.span_names_formatting(covering_span_names))
+        # Finish ruby annotation
+        output.append('</ruby>')
         return "".join(output)
 
