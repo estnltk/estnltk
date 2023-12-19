@@ -216,6 +216,9 @@ class BaseText:
                 assert layer.text_object is self, \
                     "can't add relation layer {!r}, this layer is already bound to another {} object".format(name, self.__class__.__name__)
 
+            if layer.enveloping:
+                assert layer.enveloping in self._layers, "can't add an enveloping layer before adding the layer it envelops"
+
             self._relation_layers[name] = layer
         else:
             raise AssertionError('BaseLayer or RelationLayer expected, got {!r}'.format(type(layer)))
@@ -240,16 +243,25 @@ class BaseText:
                 return self._layers.pop(name, None)
 
             # Find layer's descendant layers
-            to_delete = sorted(find_layer_dependencies(self, name, reverse=True))
+            to_delete = sorted(find_layer_dependencies(self, name, reverse=True, include_relation_layers=True))
             
             result = self._layers.pop(name, None)
             for name in to_delete:
-                self._layers.pop(name, None)
+                if name in self._layers:
+                    # span layer
+                    self._layers.pop(name, None)
+                else:
+                    # relation layer
+                    self._relation_layers.pop(name, None)
 
             return result
         elif name in self.relation_layers:
             # remove relation layer
             result = self._relation_layers.pop(name, None)
+            
+            # Note: at the current stage, we do not expect relation layers to 
+            # have any descendant layers, so nothing more to do 
+            
             return result
         else:
             if default is Ellipsis:

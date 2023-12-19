@@ -1,16 +1,20 @@
 import networkx as nx
 
 def find_layer_dependencies(text:'Text', layer:str, include_enveloping:bool =True, 
-                                                       include_parents:bool =True, 
-                                                       reverse:bool= False,
-                                                       add_bidirectional_parents:bool=False):
+                                                    include_parents:bool =True, 
+                                                    include_relation_layers:bool =False, 
+                                                    reverse:bool= False,
+                                                    add_bidirectional_parents:bool=False):
     '''Finds all layers that the given layer depends on. 
        Returns set of dependency layer names. 
        If include_enveloping=True (default), then finds dependency layers over 
           enveloping relations. 
        If include_parents=True (default), then finds dependency layers over 
           parent relations.
-       
+       If include_relation_layers=False (default), then finds only dependency 
+          layers among span layers and skips relation layers. Otherwise, relation
+          layers will be included.
+
        Optionally, if reverse=True, then searches for reverse relations: given 
        a (parent) layer, find all layers that are depending on it (descendant
        layers).
@@ -36,5 +40,11 @@ def find_layer_dependencies(text:'Text', layer:str, include_enveloping:bool =Tru
                 graph.add_edge( layer_name, layer_object.parent )
             else:
                 graph.add_edge( layer_object.parent, layer_name )
+    if include_relation_layers:
+        for layer_name in text.relation_layers:
+            graph.add_node( layer_name )
+            layer_object = text[layer_name]
+            if include_enveloping and layer_object.enveloping:
+                graph.add_edge( layer_object.enveloping, layer_name )
     return nx.ancestors(graph,layer) if not reverse else nx.descendants(graph,layer)
 
