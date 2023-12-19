@@ -67,6 +67,10 @@ class RelationLayer:
       (but not all) can be empty/unassigned;
     * ordering of span names and attribute names in the HTML output can be customized 
       via parameter display_order;
+    * if relation_layer is enveloping around some other layer, then named spans need 
+      to contain EnvelopingBaseSpan-s instead of ElementaryBaseSpan-s and span levels of 
+      EnvelopingBaseSpan-s need to be matching. if relation_layer is not enveloping, 
+      then named spans can only contain ElementaryBaseSpan-s.
     
     Example usage:
     
@@ -86,7 +90,8 @@ class RelationLayer:
     """
 
     __slots__ = ['name', 'span_names', 'attributes', 'secondary_attributes', 'display_order',
-                 'ambiguous', 'text_object', 'serialisation_module', 'meta', '_relation_list']
+                 'enveloping', 'ambiguous', 'text_object', 'serialisation_module', 'meta', 
+                 '_relation_list']
     
     def __init__(self,
                  name: str,
@@ -95,6 +100,7 @@ class RelationLayer:
                  secondary_attributes: Sequence[str] = (),
                  display_order: Sequence[str] = (),
                  text_object: Union['BaseText','Text']=None,
+                 enveloping: str = None,
                  ambiguous: bool = False,
                  serialisation_module: str="relations_v1"
                  ) -> None:
@@ -110,12 +116,20 @@ class RelationLayer:
         display_order is a list with customized order of span_names and 
         attributes that is used only in displaying contents of the relation 
         layer. Defaults to span_names + attributes.
+        
+        If relation_layer is not enveloping (default), then named spans 
+        can only contain ElementaryBaseSpan-s.
+        If relation_layer is enveloping around some other layer, then 
+        its named spans need to contain EnvelopingBaseSpan-s instead of 
+        ElementaryBaseSpan-s and span levels of EnvelopingBaseSpan-s 
+        need to be matching. 
         """
         # name of the layer
         self.name = name
         self._relation_list = []
         self.ambiguous = ambiguous
         self.text_object = text_object
+        self.enveloping = enveloping
         self.serialisation_module = serialisation_module
         self.meta = {}
         # pre-initialize variables
@@ -182,6 +196,15 @@ class RelationLayer:
             span_value = relation_dict_merged.get(span_name, None)
             if span_value is not None:
                 base_span = to_relation_base_span(span_value)
+                # Validate span level: base level vs enveloping level
+                if self.enveloping is not None:
+                    if base_span.level == 0:
+                        raise ValueError( ('(!) Cannot assign flat named span {}={!r} to an enveloping layer: '+\
+                                           'span level needs to be > 0.').format( span_name, span_value ) )
+                else:
+                    if base_span.level != 0:
+                        raise ValueError( ('(!) Cannot assign enveloping named span {}={!r} to a flat layer: '+\
+                                           'span level needs to be == 0.').format( span_name, span_value ) )
                 spans_list.append( (span_name, base_span) )
             else:
                 spans_list.append( (span_name, None) )
@@ -195,6 +218,7 @@ class RelationLayer:
             raise ValueError(('Cannot add annotation: no named spans in {}, '+\
                               'at least one of {} must be defined').format(relation_dict_merged, 
                                                                            self.span_names))
+            
         # Try to get existing relation
         relation = self.get( existing_spans_list )
         if relation is None:
@@ -259,12 +283,13 @@ class RelationLayer:
         rec = [{'layer name': self.name,
                 'span_names': ', '.join(self.span_names),
                 'attributes': ', '.join(self.attributes),
+                'enveloping': str(self.enveloping),
                 'ambiguous' : str(self.ambiguous),
                 'relation count': str(len(self._relation_list))}]
         return pandas.DataFrame.from_records(rec,
                                              columns=['layer name', 'span_names',
-                                                      'attributes', 'ambiguous', 
-                                                      'relation count'])
+                                                      'attributes', 'enveloping',
+                                                      'ambiguous', 'relation count'])
 
     def diff(self, other) -> Optional[str]:
         """Finds differences between this relations layer and the other relations layer.
@@ -272,6 +297,7 @@ class RelationLayer:
             * are instances of RelationLayer;
             * have same layer names, span names and attributes;
             * are correspondingly ambiguous or unambiguous;
+            * are enveloping around same the layers;
             * have same serialisation_module;
             * have same spans (and annotations);
            Returns None if no differences were detected (both layers are the 
@@ -296,6 +322,9 @@ class RelationLayer:
         if tuple(self.display_order) != tuple(other.display_order):
             return ("{self.name} layer display_order values differ: {self.display_order} != {other.display_order}"+\
                     "").format(self=self, other=other)
+        if self.enveloping != other.enveloping:
+            return "{self.name} layer enveloping differs: {self.enveloping} != {other.enveloping}".format(self=self,
+                                                                                                          other=other)
         if self.ambiguous != other.ambiguous:
             return "{self.name} layer ambiguous differs: {self.ambiguous} != {other.ambiguous}".format(self=self,
                                                                                                        other=other)
@@ -309,6 +338,7 @@ class RelationLayer:
     def __getstate__(self):
         return dict(name=self.name, 
                     ambiguous=self.ambiguous, 
+                    enveloping=self.enveloping,
                     text_object=self.text_object,
                     serialisation_module=self.serialisation_module,
                     meta=self.meta,
@@ -320,6 +350,7 @@ class RelationLayer:
 
     def __setstate__(self, state):
         super().__setattr__('ambiguous', state['ambiguous'])
+        super().__setattr__('enveloping', state['enveloping'])
         super().__setattr__('text_object', state['text_object'])
         super().__setattr__('serialisation_module', state['serialisation_module'])
         super().__setattr__('meta', state['meta'])
@@ -352,6 +383,7 @@ class RelationLayer:
                                  secondary_attributes=deepcopy(self.secondary_attributes, memo),
                                  display_order=deepcopy(self.display_order, memo),
                                  text_object=None,
+                                 enveloping=self.enveloping,
                                  ambiguous=self.ambiguous,
                                  serialisation_module=self.serialisation_module )
         memo[id(self)] = result
@@ -646,7 +678,17 @@ class Relation:
 
     def set_span(self, name: str, base_span: BaseSpan ):
         assert isinstance(name, str)
-        assert isinstance(base_span, BaseSpan) 
+        assert isinstance(base_span, BaseSpan)
+        # Check span level with respect to parent layer
+        if self.relation_layer is not None:
+            if self.relation_layer.enveloping is not None:
+                if base_span.level == 0:
+                    raise ValueError( ('(!) Cannot assign flat named span {}={!r} to an enveloping layer: '+\
+                                       'span level needs to be > 0.').format( name, base_span ) )
+            else:
+                if base_span.level != 0:
+                    raise ValueError( ('(!) Cannot assign enveloping named span {}={!r} to a flat layer: '+\
+                                       'span level needs to be == 0.').format( name, base_span ) )
         # Check span level
         if self.span_level is not None:
             if base_span.level != self.span_level:

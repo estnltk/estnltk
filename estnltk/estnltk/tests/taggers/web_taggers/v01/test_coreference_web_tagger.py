@@ -49,6 +49,7 @@ def test_coreference_web_tagger_smoke(httpserver):
         {'ambiguous': False,
          'attributes': (),
          'meta': {},
+         'enveloping': None,
          'name': 'coreference_v1',
          'relations': [{'annotations': [{}],
                         'named_spans': {'mention': (10, 16), 'pronoun': (18, 21)}},

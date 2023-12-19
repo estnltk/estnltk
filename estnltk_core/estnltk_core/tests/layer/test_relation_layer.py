@@ -21,6 +21,7 @@ def test_relation_layer_basic():
     assert layer.ambiguous == False
     assert len(layer) == 0
     assert layer.span_level is None
+    assert layer.enveloping is None
     
     with pytest.raises(AssertionError):
         # error: layer name cannot consist of whitespace
@@ -69,7 +70,7 @@ def test_relation_layer_basic():
         # error: named span(s) cannot be missing
         layer.add_annotation( {'attr1': 4, 'attr2': 4} )
     with pytest.raises(ValueError):
-        # error: layer has different span level than newly addable spans
+        # error: layer is not enveloping, but tries to add enveloping spans
         layer.add_annotation( {'arg0': [(50, 54), (56, 64)], 'attr1': 4} )
     with pytest.raises(TypeError):
         # error: wrong type for named span
@@ -80,6 +81,33 @@ def test_relation_layer_basic():
     with pytest.raises(Exception):
         # error: cannot add more than one annotation to unambiguous layer
         layer.add_annotation( arg0=(20, 24), arg1=(26, 32), attr1=4, attr2=4 )
+
+
+def test_relation_layer_basic_enveloping():
+    # Test basic API of the relations layer that is enveloping (w/o Text object)
+    
+    # Test creating layer:
+    layer = RelationLayer('test', span_names=['arg0', 'arg1'], 
+                                  attributes=['attr1', 'attr2'],
+                                  enveloping='words')
+    assert layer.span_names == ('arg0', 'arg1')
+    assert layer.attributes == ('attr1', 'attr2')
+    assert layer.ambiguous == False
+    assert len(layer) == 0
+    assert layer.span_level is None
+    assert layer.enveloping == 'words'
+
+    with pytest.raises(ValueError):
+        # error: layer is enveloping, but tries to add flat spans
+        layer.add_annotation( {'arg0': (0, 4), 'arg1': (6, 12), 'attr1': 1})
+    
+    layer.add_annotation( {'arg0': [(0, 4), (4, 6)], 'arg1': [(6, 12)], 'attr1': 1})
+    
+    assert layer.span_level is 1
+    
+    with pytest.raises(ValueError):
+        # error: layer is enveloping, but tries to add enveloping spans with wrong level
+        layer.add_annotation( {'arg0': [((50, 54), (56, 64))], 'attr1': 4} )
 
 
 def test_relation_layer_basic_with_text_obj():

@@ -50,6 +50,7 @@ def test_relation_tagger_smoke():
     expected_layer_dict = \
         {'ambiguous': False,
          'attributes': ('attr',),
+         'enveloping': None,
          'meta': {},
          'name': 'my_relations',
          'relations': [{'annotations': [{'attr': None}],

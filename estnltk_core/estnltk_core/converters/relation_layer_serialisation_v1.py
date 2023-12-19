@@ -13,6 +13,7 @@ def layer_to_dict(layer: RelationLayer) -> dict:
         'attributes': layer.attributes,
         'secondary_attributes': layer.secondary_attributes,
         'display_order': layer.display_order,
+        'enveloping': layer.enveloping,
         'ambiguous': layer.ambiguous,
         'serialisation_module': __version__,
         'meta': layer.meta,
@@ -29,6 +30,7 @@ def dict_to_layer(layer_dict: dict, text: Union['BaseText', 'Text']) -> Relation
                           attributes=layer_dict['attributes'],
                           secondary_attributes=layer_dict['secondary_attributes'],
                           display_order=layer_dict.get('display_order', ()),
+                          enveloping=layer_dict.get('enveloping', None),
                           ambiguous=layer_dict['ambiguous'],
                           text_object=text)
     layer.meta.update(layer_dict['meta'])
