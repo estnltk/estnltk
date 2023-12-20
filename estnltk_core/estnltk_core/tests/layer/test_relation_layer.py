@@ -82,6 +82,28 @@ def test_relation_layer_basic():
         # error: cannot add more than one annotation to unambiguous layer
         layer.add_annotation( arg0=(20, 24), arg1=(26, 32), attr1=4, attr2=4 )
 
+    # Test display_order
+    layer3 = RelationLayer('test2', span_names=['arg0', 'arg1'], 
+                                    attributes=['attr1', 'attr2'])
+    
+    # Validate default display order
+    assert layer3.display_order == ('arg0', 'arg1', 'attr1', 'attr2')
+    assert layer3.display_order == layer3.default_display_order
+    
+    with pytest.raises(ValueError):
+        # error: cannot change display order without specifying all the attributes
+        layer3.display_order = ['arg0', 'arg1', 'attr2']
+    with pytest.raises(ValueError):
+        # error: cannot add non-existent attribute/span_name
+        layer3.display_order = ['arg0', 'arg1', 'attr2', 'attr1', 'attr5']
+    
+    # Validate that changing span_names & attributes changes display_order
+    layer3.span_names = ['arg0']
+    layer3.attributes = ['attr1', 'attr3', 'attr2']
+    assert layer3.display_order == ('arg0', 'attr1', 'attr3', 'attr2')
+    assert layer3.display_order == layer3.default_display_order
+
+
 
 def test_relation_layer_basic_enveloping():
     # Test basic API of the relations layer that is enveloping (w/o Text object)
@@ -486,7 +508,9 @@ def test_relation_layer_deep_copy():
     assert layer == layer_deepcopy
     assert layer.span_names == layer_deepcopy.span_names
     assert layer.attributes == layer_deepcopy.attributes
+    assert layer.enveloping == layer_deepcopy.enveloping
     assert layer.ambiguous  == layer_deepcopy.ambiguous
+    assert layer.display_order == layer_deepcopy.display_order
     assert layer is not layer_deepcopy
     assert layer.meta is not layer_deepcopy.meta
 
