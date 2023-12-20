@@ -862,7 +862,9 @@ class Relation:
                 return self._named_spans.get(item, None)
             # note: only named spans can be retrieved this way,
             # attributes are not guaranteed to be valid identifiers
-        raise KeyError(item)
+        # Note: we need to raise AttributeError here instead of KeyError, 
+        # otherwise _repr_html_ does not work in Jupyter Notebook / Lab.
+        raise AttributeError('attribute {} cannot be accessed in {}'.format(item, self.__class__.__name__))
 
     def __iter__(self):
         # TODO: is it a good idea? this returns unsorted spans
@@ -893,10 +895,43 @@ class Relation:
         except:
             annotations = None
         return '{class_name}({named_spans!r}, {annotations})'.format(class_name=self.__class__.__name__, 
-                                                                     named_spans=self.spans,
+                                                                     named_spans=self.spans, 
                                                                      annotations=annotations)
 
-    # TODO: add HTML representation
+    def _repr_html_(self):
+        try:        
+            columns = self.relation_layer.display_order
+            relation_table_content = []
+            for i in range( len(self.annotations) ):
+                values = []
+                for column in columns:
+                    if column in self.legal_span_names:
+                        if i == 0:
+                            span_repr = None
+                            if self[column] is not None:
+                                span_repr = self[column].text
+                                if span_repr is None:
+                                    # This means that no Text object is attached. 
+                                    # Then use base_span value instead of text
+                                    span_repr = str(self[column].base_span.raw())
+                            values.append( span_repr )
+                        else:
+                            # the second annotation of an ambiguous span:
+                            # display only annotations, skip span representations
+                            values.append( '' )
+                    elif column in self.legal_attribute_names:
+                        val = self[column]
+                        if not self.relation_layer.ambiguous:
+                            values.append( self[column] )
+                        else:
+                            values.append( self[column][i] )
+                assert len(values)==len(self.legal_span_names)+len(self.legal_attribute_names)
+                relation_table_content.append( values )
+            df = pandas.DataFrame.from_records(relation_table_content, columns=columns)
+            annotations_table = df.to_html(index=False, escape=False)
+        except:
+            annotations_table = None
+        return '<b>{}</b>\n{}'.format(self.__class__.__name__, annotations_table)
 
 
 class NamedSpan:
