@@ -93,6 +93,14 @@ class RelationLayer:
                  'enveloping', 'ambiguous', 'text_object', 'serialisation_module', 'meta', 
                  '_relation_list']
     
+    '''
+    Whether named spans and attributes with None values will be marked with translucent 
+    font (text opacity: 20%) in the HTML output. 
+    This can be useful for better visualizing sparse relation layers that have a lot of 
+    None values.
+    '''
+    TRANSLUCENT_NONE = True
+    
     def __init__(self,
                  name: str,
                  span_names: Sequence[str] = (),
@@ -586,6 +594,8 @@ class RelationLayer:
                 assert len(values)==len(self.span_names)+len(self.attributes)
                 layer_table_content.append( values )
         df = pandas.DataFrame.from_records(layer_table_content, columns=columns)
+        if bool(RelationLayer.TRANSLUCENT_NONE):
+            df = df.style.applymap(lambda x: 'opacity: 20%;' if x is None else None)
         table_2 = df.to_html(index=False, escape=True)
         return '\n'.join(('<h4>{}</h4>'.format(self.__class__.__name__), meta, text_object_msg, table_1, table_2))
 
@@ -928,6 +938,8 @@ class Relation:
                 assert len(values)==len(self.legal_span_names)+len(self.legal_attribute_names)
                 relation_table_content.append( values )
             df = pandas.DataFrame.from_records(relation_table_content, columns=columns)
+            if bool(RelationLayer.TRANSLUCENT_NONE):
+                df = df.style.applymap(lambda x: 'opacity: 20%;' if x is None else None)
             annotations_table = df.to_html(index=False, escape=False)
         except:
             annotations_table = None
