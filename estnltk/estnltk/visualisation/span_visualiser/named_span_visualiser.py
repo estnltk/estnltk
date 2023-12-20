@@ -95,7 +95,13 @@ class NamedSpanVisualiser:
         if len(covering_span_indexes) > 1:
             rows = []
             for i in covering_span_indexes:
-                rows.append(spans[i].text)
+                span_text = spans[i].text
+                if isinstance(span_text, str):
+                    # ElementaryBaseSpan
+                    rows.append( span_text )
+                else:
+                    # EnvelopingBaseSpan (level 1)
+                    rows.extend( span_text )
             output.append(' span_info=' + ','.join(rows))  # text of spans for javascript
         output.append('>')
         output.append(segment[0])
