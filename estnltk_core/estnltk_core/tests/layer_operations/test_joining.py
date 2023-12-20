@@ -345,7 +345,7 @@ def test_join_relation_layers():
         {'ambiguous': False,
          'attributes': ('rel_index', 'str_a', 'str_b'),
          'span_names': ('arg_a', 'arg_b'),
-         'display_order': ('arg_a', 'arg_b', 'rel_index', 'str_a', 'str_b'), 
+         'display_order': (), 
          'enveloping': None,
          'meta': {},
          'name': 'relation_layer',
@@ -387,7 +387,7 @@ def test_join_relation_layers():
     expected_relation_layer = \
         {'ambiguous': False,
          'attributes': ('rel_index', 'str_a', 'str_b'),
-         'display_order': ('arg_a', 'arg_b', 'rel_index', 'str_a', 'str_b'), 
+         'display_order': (), 
          'enveloping': None,
          'meta': {},
          'name': 'relation_layer',

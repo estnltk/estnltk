@@ -168,6 +168,10 @@ class RelationLayer:
     def relations(self):
         return self._relation_list
 
+    @property
+    def default_display_order(self):
+        return tuple(self.span_names + self.attributes)
+
     def add_annotation(self, relation_dict: Dict[str, Any]={}, **relation_kwargs) -> 'RelationAnnotation':
         '''
         Adds new relation annotation based on the dictionary.

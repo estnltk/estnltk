@@ -12,7 +12,8 @@ def layer_to_dict(layer: RelationLayer) -> dict:
         'span_names': layer.span_names,
         'attributes': layer.attributes,
         'secondary_attributes': layer.secondary_attributes,
-        'display_order': layer.display_order,
+         # optimization: display_order will be saved only if it differs from the default_display_order
+        'display_order': layer.display_order if layer.display_order != layer.default_display_order else (),
         'enveloping': layer.enveloping,
         'ambiguous': layer.ambiguous,
         'serialisation_module': __version__,

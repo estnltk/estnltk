@@ -58,7 +58,7 @@ def test_relation_tagger_smoke():
                        {'annotations': [{'attr': 43}],
                         'named_spans': {'arg0': (2, 3), 'arg1': (1, 2)}}],
          'secondary_attributes': (),
-         'display_order': ('arg0', 'arg1', 'attr'), 
+         'display_order': (), 
          'serialisation_module': 'relations_v1',
          'span_names': ('arg0', 'arg1')}
     assert layer_to_dict(outcome_layer) == expected_layer_dict

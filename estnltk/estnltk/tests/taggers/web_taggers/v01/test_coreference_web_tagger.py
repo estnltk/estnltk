@@ -58,7 +58,7 @@ def test_coreference_web_tagger_smoke(httpserver):
                        {'annotations': [{}],
                         'named_spans': {'mention': (10, 16), 'pronoun': (133, 135)}}],
          'secondary_attributes': (),
-         'display_order': ('pronoun', 'mention'), 
+         'display_order': (), 
          'serialisation_module': 'relations_v1',
          'span_names': ('pronoun', 'mention')}
     assert layer_to_dict( text[tagger.output_layer] ) == expected_response_layer_dict

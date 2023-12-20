@@ -103,7 +103,7 @@ def test_convert_enveloping_relations_layer_to_dict():
         {'ambiguous': False,
          'attributes': ('rel_id',),
          'secondary_attributes': (),
-         'display_order': ('mention', 'entity', 'rel_id'),
+         'display_order': (),
          'enveloping': 'words',
          'meta': {},
          'name': 'coreference',
@@ -131,7 +131,7 @@ def test_convert_relations_dict_to_enveloping_layer():
         {'ambiguous': False,
          'attributes': ('rel_id',),
          'secondary_attributes': (),
-         'display_order': ('mention', 'entity', 'rel_id'),
+         'display_order': (),
          'enveloping': 'words',
          'meta': {},
          'name': 'coreference',
@@ -157,6 +157,7 @@ def test_convert_relations_dict_to_enveloping_layer():
     assert coref_layer.attributes == ('rel_id',)
     assert coref_layer.secondary_attributes == ()
     assert coref_layer.span_names == ('mention', 'entity')
+    assert coref_layer.display_order == coref_layer.default_display_order
     assert coref_layer.enveloping == 'words'
     assert coref_layer.meta == {}
     assert len(coref_layer) == 4
@@ -184,6 +185,7 @@ def test_convert_text_with_enveloping_relation_layers_to_dict():
     coref_layer1.add_annotation( {'mention': [(61, 63)], 'entity': [(0, 4)]}, rel_id=2 )
     coref_layer2 = RelationLayer('coreference_b', span_names=['entity', 'mention'], 
                                                   attributes=['rel_id'], 
+                                                  display_order=['rel_id', 'entity', 'mention'],
                                                   text_object=text_obj,
                                                   enveloping='words',
                                                   serialisation_module='relations_v1' )
@@ -207,7 +209,7 @@ def test_convert_text_with_enveloping_relation_layers_to_dict():
          'relation_layers': [{'ambiguous': False,
                               'attributes': ('rel_id',),
                               'meta': {},
-                              'display_order': ('mention', 'entity', 'rel_id'),
+                              'display_order': (),
                               'enveloping': 'words',
                               'name': 'coreference_a',
                               'relations': [{'annotations': [{'rel_id': 1}],
@@ -222,7 +224,7 @@ def test_convert_text_with_enveloping_relation_layers_to_dict():
                              {'ambiguous': False,
                               'attributes': ('rel_id',),
                               'meta': {},
-                              'display_order': ('entity', 'mention', 'rel_id'),
+                              'display_order': ('rel_id', 'entity', 'mention'),
                               'enveloping': 'words',
                               'name': 'coreference_b',
                               'relations': [{'annotations': [{'rel_id': 3}],
@@ -256,7 +258,7 @@ def test_convert_dict_to_text_with_enveloping_relation_layers():
          'relation_layers': [{'ambiguous': False,
                               'attributes': ('rel_id',),
                               'meta': {},
-                              'display_order': ('mention', 'entity', 'rel_id'),
+                              'display_order': ('rel_id', 'mention', 'entity'),
                               'enveloping': 'words',
                               'name': 'coreference_a',
                               'relations': [{'annotations': [{'rel_id': 1}],
@@ -271,7 +273,7 @@ def test_convert_dict_to_text_with_enveloping_relation_layers():
                              {'ambiguous': False,
                               'attributes': ('rel_id',),
                               'meta': {},
-                              'display_order': ('entity', 'mention', 'rel_id'),
+                              'display_order': (),
                               'enveloping': 'words',
                               'name': 'coreference_b',
                               'relations': [{'annotations': [{'rel_id': 3}],
@@ -291,6 +293,8 @@ def test_convert_dict_to_text_with_enveloping_relation_layers():
     assert text_obj.relation_layers == {'coreference_a', 'coreference_b'}
     assert isinstance(text_obj['coreference_a'], RelationLayer)
     assert isinstance(text_obj['coreference_b'], RelationLayer)
+    assert text_obj['coreference_a'].display_order != text_obj['coreference_a'].default_display_order
+    assert text_obj['coreference_b'].display_order == text_obj['coreference_b'].default_display_order
     layer_a = []
     for rel in text_obj['coreference_a']:
         assert isinstance(rel, Relation)
@@ -303,5 +307,4 @@ def test_convert_dict_to_text_with_enveloping_relation_layers():
         layer_b.append( (rel['rel_id'], rel['mention'].text, rel['entity'].text) )
     assert layer_b == [ (3, ['seda', 'raamatut'], ['"', 'Sipsikut', '"']), \
                         (4, ['see'], ['"', 'Sipsikut', '"']) ]
-    # It's a miracle! We can still get 'words' spans even if the 'words' layer is empty
-    # TODO: is it a legal behaviour, or should we do something about it?
+
