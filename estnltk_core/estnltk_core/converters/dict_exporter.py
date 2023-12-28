@@ -17,9 +17,11 @@ def text_to_dict(text: Union['BaseText', 'Text']) -> dict:
                  'meta': text.meta,
                  'layers': [],
                  'relation_layers': []}
-    for layer in text.sorted_layers():
-        text_dict['layers'].append(layer_dict_converter.layer_to_dict(layer))
-    for layer in text.sorted_relation_layers():
+    for layer in text.sorted_layers(span_layers=True, relation_layers=False):
+        text_dict['layers'].append( \
+            layer_dict_converter.layer_to_dict(layer)
+        )
+    for layer in text.sorted_layers(span_layers=False, relation_layers=True):
         text_dict['relation_layers'].append( \
             layer_dict_converter.layer_to_dict(layer)
         )

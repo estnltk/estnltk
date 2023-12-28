@@ -58,23 +58,25 @@ class BaseText:
         memo[id(text)] = text
         result.meta = deepcopy(self.meta, memo)
         # Layers must be created in the topological order
-        for span_layer in self.sorted_layers():
-            layer = deepcopy(span_layer, memo)
-            layer.text_object = None
-            memo[id(layer)] = layer
-            result.add_layer(layer)
-        for relation_layer in self.sorted_relation_layers():
-            layer = deepcopy(relation_layer, memo)
-            layer.text_object = None
-            memo[id(layer)] = layer
+        # Collect all layer objects
+        layer_objects = {}
+        for layer in self.sorted_layers(span_layers=True, relation_layers=True):
+            layer_copy = deepcopy(layer, memo)
+            layer_copy.text_object = None
+            memo[id(layer_copy)] = layer_copy
+            layer_objects[layer_copy.name] = layer_copy
+        # Add layers in the topological order
+        for layer in BaseText.topological_sort(layer_objects):
             result.add_layer(layer)
         return result
 
     def __getstate__(self):
         # No copying is allowed or we cannot properly restore text object with recursive references.
         return dict(text=self.text, meta=self.meta, 
-                    layers=[layer for layer in self.sorted_layers()],
-                    relation_layers=[layer for layer in self.sorted_relation_layers()])
+                    layers=[layer for layer in self.sorted_layers(span_layers=True, \
+                                                                  relation_layers=False)],
+                    relation_layers=[layer for layer in self.sorted_layers(span_layers=False, \
+                                                                           relation_layers=True)])
 
     def __setstate__(self, state):
         # Initialisation is not guaranteed! Bypass the text protection mechanism
@@ -85,16 +87,22 @@ class BaseText:
         super().__setattr__('_relation_layers', {})
         # Layer.text_object is already set! Bypass the add_layer protection mechanism
         # By wonders of pickling this resolves all recursive references including references to the text object itself
+        # -------
+        # Collect all layer objects
+        layer_objects = {}
         for layer in state['layers']:
             assert id(layer.text_object) == id(self), '\'layer.text_object\' must reference caller'
             layer.text_object = None
-            self.add_layer(layer)
+            layer_objects[layer.name] = layer
         if 'relation_layers' in state:
             # Restore relation layers (available starting from version 1.7.2+)
             for rel_layer in state['relation_layers']:
                 assert id(rel_layer.text_object) == id(self), '\'relation_layer.text_object\' must reference caller'
                 rel_layer.text_object = None
-                self.add_layer(rel_layer)
+                layer_objects[rel_layer.name] = rel_layer
+        # Add layers in the topological order
+        for layer in BaseText.topological_sort(layer_objects):
+            self.add_layer(layer)
 
     def __setattr__(self, name, value):
         # Resolve meta attribute
@@ -276,13 +284,13 @@ class BaseText:
         raise NotImplementedError('(!) The NLP pipeline is not available in estnltk-core. Please use the full EstNLTK package for the pipeline.')
 
     @staticmethod
-    def topological_sort(layers: Mapping[str, Union[BaseLayer, 'Layer']]) -> List[Union[BaseLayer, 'Layer']]:
+    def topological_sort(layers: Mapping[str, Union[BaseLayer, 'Layer', 'RelationLayer']]) -> List[Union[BaseLayer, 'Layer', 'RelationLayer']]:
         """
-        Returns a list of span layers of the given dict of layers in order of dependencies and layer names.
+        Returns a list of layers of the given dict of layers in order of dependencies and layer names.
         The order is uniquely determined.
 
-        layers: Mapping[str, Union[BaseLayer, Layer]]
-            maps layer name to layer
+        layers: Mapping[str, Union[BaseLayer, Layer, RelationLayer]]
+            Maps layer name to layer. Both span layers and relation layers are supported.
         """
         layer_list = sorted(layers.values(), key=lambda l: l.name)
         layer_name_set = set([l.name for l in layer_list])
@@ -291,8 +299,13 @@ class BaseText:
         while layer_list:
             success = False
             for layer in layer_list:
-                if (layer.parent is None or layer.parent in sorted_layer_names) and \
-                        (layer.enveloping is None or layer.enveloping in sorted_layer_names):
+                # parent: only span layer
+                layer_parent = layer.parent if isinstance(layer, BaseLayer) else None
+                # enveloping: span layer or relation layer
+                layer_enveloping = layer.enveloping
+                # check dependencies
+                if (layer_parent is None or layer_parent in sorted_layer_names) and \
+                        (layer_enveloping is None or layer_enveloping in sorted_layer_names):
                     sorted_layers.append(layer)
                     sorted_layer_names.add(layer.name)
                     layer_list.remove(layer)
@@ -303,29 +316,41 @@ class BaseText:
                 # is malformed: contains unknown dependencies. 
                 # Add layers with unknown dependencies to the end of the sorted list.
                 for layer in layer_list:
-                    if (layer.parent is not None and layer.parent not in layer_name_set) or \
-                         (layer.enveloping is not None and layer.enveloping not in layer_name_set):
+                    # parent: only span layer
+                    layer_parent = layer.parent if isinstance(layer, BaseLayer) else None
+                    # enveloping: span layer or relation layer
+                    layer_enveloping = layer.enveloping
+                    # check dependencies
+                    if (layer_parent is not None and layer_parent not in layer_name_set) or \
+                         (layer_enveloping is not None and layer_enveloping not in layer_name_set):
                         sorted_layers.append(layer)
                         sorted_layer_names.add(layer.name)
                         layer_list.remove(layer)
                         break
         return sorted_layers
 
-    def sorted_layers(self) -> List[Union[BaseLayer, 'Layer']]:
+    def sorted_layers(self, span_layers:bool=True, relation_layers:bool=False) -> \
+                            List[Union[BaseLayer, 'Layer', 'RelationLayer']]:
         """
-        Returns a list of span layers of this text object in order of dependencies and layer names.
-        The order is uniquely determined.
-        """
-        return self.topological_sort(self._layers)
+        Returns a list of layers of this text object in order of dependencies and 
+        layer names. The order is uniquely determined.
+        By default, returns only sorted span layers (for backwards compatibility). 
+        Set flag relation_layers=True to include relation layers. 
 
-    def sorted_relation_layers(self) -> List[RelationLayer]:
-        """
-        Returns a list of relation layers of this text object in alphabetical order of layer names.
+        span_layers: bool
+            Whether span layers will be included in the sorted list of layers.
+            Default: True
         
-        Note: the default ordering returned by this method is subject to change in future versions, 
-        if we add dependencies between relation layers.
+        relation_layers: bool
+            Whether relation layers will be included in the sorted list of layers.
+            Default: False
         """
-        return [self._relation_layers[layer] for layer in sorted(self.relation_layers)]
+        input_layers = {}
+        if span_layers:
+            input_layers.update(self._layers)
+        if relation_layers:
+            input_layers.update(self._relation_layers)
+        return self.topological_sort(input_layers)
 
     def diff(self, other):
         """
