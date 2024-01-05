@@ -830,6 +830,9 @@ def syllable_as_tuple(syllable):
 
 
 def syllabify_word(word, as_dict=True, split_compounds=True, tolerance=2):
+    if word is None or len(word) == 0:
+        # Nothing to do in case of an empty string
+        return []
     # Split word by special symbols
     word_tokens = _split_word_for_syllabification(word)
     raw_syllables = []
