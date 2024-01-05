@@ -38,7 +38,7 @@ class RegexTagger(Tagger):
                  'lowercase_text']
 
     def __init__(self,
-                 ruleset: Union[str, dict, list, Ruleset],
+                 ruleset: Ruleset,
                  output_layer: str = 'regexes',
                  output_attributes: Sequence = None,
                  conflict_resolver: str = 'KEEP_MAXIMAL',
@@ -58,8 +58,8 @@ class RegexTagger(Tagger):
 
         Parameters
         ----------
-        ruleset: list of dicts or pandas.DataFrame or csv file name
-            regexes and output_attributes to annotate
+        ruleset: Ruleset
+            Ruleset with regexes to annotate.
         output_layer: str (Default: 'regexes')
             The name of the new layer.
         output_attributes: Sequence[str]
