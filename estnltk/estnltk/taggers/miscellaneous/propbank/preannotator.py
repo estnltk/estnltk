@@ -1,6 +1,6 @@
 #
 # Pre-annotates Estonian PropBank semantic roles based on a (manually-crafted) lexicon mapping 
-# morph/syntactic features to their respecitve arguments.
+# morph/syntactic features to their respective arguments.
 #
 
 import re
@@ -553,7 +553,10 @@ class PropBankPreannotator(RelationTagger):
         '''
         Adds extracted frames to the given layer based on the current configuration of the tagger.
         
-        If check_arg_spans is True (default), then argument spans are checked 
+        If check_arg_spans is True (default), then argument spans are checked for meeting the 
+        text bounds, and if any of the spans falls out of the text bounds (probably due to the 
+        incorrect assignment of 'parent_span' and 'children' attributes in the input syntax layer), 
+        then a warning will be raised. 
         '''
         text = layer.text_object.text
         if not self.output_flat_layer:
