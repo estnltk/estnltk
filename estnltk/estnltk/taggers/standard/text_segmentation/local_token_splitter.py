@@ -64,7 +64,7 @@ class LocalTokenSplitter(Retagger):
 
         # Assert that all patterns are in the valid format
         if not isinstance(split_rules, list):
-            raise TypeError('(!) patterns should be a list of compiled regular expressions.')
+            raise TypeError('(!) patterns should be a list of tuples (regex pattern, callable).')
         # Validate split_rules
         for rule in split_rules:
             if len(rule) != 2:
