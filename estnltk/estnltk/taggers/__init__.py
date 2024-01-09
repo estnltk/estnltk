@@ -21,6 +21,7 @@ from estnltk.taggers.system.grammar_taggers.grammar_parsing_tagger import Gramma
 
 from estnltk.taggers.standard.text_segmentation.tokens_tagger import TokensTagger
 from estnltk.taggers.standard.text_segmentation.token_splitter import TokenSplitter
+from estnltk.taggers.standard.text_segmentation.local_token_splitter import LocalTokenSplitter
 from estnltk.taggers.standard.text_segmentation.word_tagger import WordTagger
 from estnltk.taggers.standard.text_segmentation.sentence_tokenizer import SentenceTokenizer
 from estnltk.taggers.standard.text_segmentation.paragraph_tokenizer import ParagraphTokenizer

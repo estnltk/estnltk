@@ -45,7 +45,7 @@ class TokensTagger(Tagger):
             punctuation symbol.
         apply_quotes_postfixes: boolean (default: True)
             If True, then post-fixes will be applied to WordPunctTokenizer's 
-            tokenization results: a quotation mark like characters appearing  
+            tokenization results: quotation mark like characters appearing  
             at the start or at the end of a token will be separated from 
             the token. 
         """
