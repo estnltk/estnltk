@@ -63,7 +63,7 @@ class TokensTagger(Tagger):
         #  Patterns for quotation mark like characters that should 
         #  be separated from tokens 
         quote_symbols = '"\u00AB\u00BB\u02EE\u030B\u201C\u201D\u201E\u201F'
-        self._quotes_split_patterns = re.compile( f'[{quote_symbols}]'+'{1,}' )
+        self._quotes_split_patterns = re.compile( f'[{quote_symbols}]+' )
         self.output_attributes = ()
 
     def _make_layer_template(self):

@@ -14,7 +14,11 @@ from estnltk.taggers import Retagger
 
 
 class TokenSplitter( Retagger ):
-    """Splits tokens into smaller tokens based on regular expression patterns."""
+    """Splits tokens into smaller tokens based on regular expression patterns.
+       One token can be split only once. No recursive splitting strategies are supported.
+       If several patterns match then the first in the pattern list is applied.
+       Decisions to split or not can depend only on the token itself and not general context.
+    """
     output_layer      = 'tokens'
     input_layers      = ['tokens']
     output_attributes = ()
