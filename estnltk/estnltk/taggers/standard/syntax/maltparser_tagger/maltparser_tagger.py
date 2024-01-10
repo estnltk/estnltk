@@ -69,7 +69,7 @@ class MaltParserTagger(Tagger):
 
         self.add_parent_and_children = add_parent_and_children
         if self.add_parent_and_children:
-            self.syntax_dependency_retagger = SyntaxDependencyRetagger(conll_syntax_layer=output_layer)
+            self.syntax_dependency_retagger = SyntaxDependencyRetagger(syntax_layer=output_layer)
             self.output_attributes += ('parent_span', 'children')
         else:
             self.syntax_dependency_retagger = None

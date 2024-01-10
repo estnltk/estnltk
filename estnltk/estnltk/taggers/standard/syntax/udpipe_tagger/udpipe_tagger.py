@@ -86,7 +86,7 @@ class UDPipeTagger(Tagger):
         self.output_attributes = (
             'id', 'form', 'lemma', 'upostag', 'xpostag', 'feats', 'head', 'deprel', 'deps', 'misc')
         if self.add_parent_and_children:
-            self.syntax_dependency_retagger = SyntaxDependencyRetagger(conll_syntax_layer=output_layer)
+            self.syntax_dependency_retagger = SyntaxDependencyRetagger(syntax_layer=output_layer)
             self.output_attributes += ('parent_span', 'children')
         else:
             self.syntax_dependency_retagger = None

@@ -655,7 +655,7 @@ class PropBankPreannotator(RelationTagger):
         if 'children' not in syntax_layer.attributes or \
            'parent_span' not in syntax_layer.attributes:
             dep_retagger = \
-                SyntaxDependencyRetagger(conll_syntax_layer=syntax_layer.name)
+                SyntaxDependencyRetagger(syntax_layer=syntax_layer.name)
             dep_retagger.retag(text)
         i = 0
         sentence_syntax = []
