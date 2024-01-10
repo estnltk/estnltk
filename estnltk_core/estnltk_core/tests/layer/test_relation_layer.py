@@ -82,6 +82,28 @@ def test_relation_layer_basic():
         # error: cannot add more than one annotation to unambiguous layer
         layer.add_annotation( arg0=(20, 24), arg1=(26, 32), attr1=4, attr2=4 )
 
+    # Test creating ambiguous layer
+    layer2a = RelationLayer('test_amb', span_names=['arg0', 'arg1'], 
+                                        attributes=['attr1', 'attr2'], 
+                                        ambiguous=True)
+    assert layer2a.ambiguous == True
+    # Add multiple relation annotations with same span locations
+    layer2a.add_annotation( {'arg0': (0, 4), 'attr1': 1})
+    layer2a.add_annotation( {'arg0': (0, 4), 'arg1': (6, 12), 'attr1': 1})
+    layer2a.add_annotation( {'arg0': (0, 4), 'arg1': (6, 12), 'attr2': 2})
+    layer2a.add_annotation( {'arg0': (0, 4), 'arg1': (6, 12), 'attr1': 1, 'attr2': None})
+    layer2a.add_annotation( arg0=(20, 24), arg1=(26, 32), attr1=2, attr2=2 )
+    layer2a.add_annotation( arg0=(20, 24), arg1=(26, 32) )
+    layer2a.add_annotation( arg0=(20, 24), arg1=(26, 32) )
+    layer2a.add_annotation( arg0=(20, 24), arg1=(26, 32) )
+    # Validate 
+    assert len(layer2a) == 3
+    assert [dict(a) for a in layer2a[0].annotations] == [{'attr1': 1, 'attr2': None}]
+    assert [dict(a) for a in layer2a[1].annotations] == [{'attr1': 1, 'attr2': None}, \
+                                                         {'attr1': None, 'attr2': 2}]
+    assert [dict(a) for a in layer2a[2].annotations] == [{'attr1': 2, 'attr2': 2}, \
+                                                         {'attr1': None, 'attr2': None}]
+
     # Test display_order
     layer3 = RelationLayer('test2', span_names=['arg0', 'arg1'], 
                                     attributes=['attr1', 'attr2'])

@@ -97,8 +97,9 @@ def test_convert_enveloping_relations_layer_to_dict():
     # Or add relation by keyword arguments
     coref_layer.add_annotation( mention=[(75, 79), (80, 88)], 
                                 entity=[(42, 43), (43, 51), (51, 52)], rel_id=3 )
+    # Add relation with unspecified attribute value
     coref_layer.add_annotation( mention=[(133, 136)], 
-                                entity=[(42, 43), (43, 51), (51, 52)], rel_id=4 )
+                                entity=[(42, 43), (43, 51), (51, 52)] )
     expected_relations_layer_dict = \
         {'ambiguous': False,
          'attributes': ('rel_id',),
@@ -116,7 +117,7 @@ def test_convert_enveloping_relations_layer_to_dict():
                        {'annotations': [{'rel_id': 3}],
                         'named_spans': {'entity':  ((42, 43), (43, 51), (51, 52)), 
                                         'mention': ((75, 79), (80, 88))}},
-                       {'annotations': [{'rel_id': 4}],
+                       {'annotations': [{}],
                         'named_spans': {'entity':  ((42, 43), (43, 51), (51, 52)), 
                                         'mention': ((133, 136),)}} ],
          'serialisation_module': 'relations_v1',
@@ -144,7 +145,7 @@ def test_convert_relations_dict_to_enveloping_layer():
                        {'annotations': [{'rel_id': 3}],
                         'named_spans': {'entity':  ((42, 43), (43, 51), (51, 52)), 
                                         'mention': ((75, 79), (80, 88))}},
-                       {'annotations': [{'rel_id': 4}],
+                       {'annotations': [{}],
                         'named_spans': {'entity':  ((42, 43), (43, 51), (51, 52)), 
                                         'mention': ((133, 136),)}} ],
          'serialisation_module': 'relations_v1',
@@ -169,7 +170,7 @@ def test_convert_relations_dict_to_enveloping_layer():
         [ (1, ['ta'], ['Mari']), \
           (2, ['Ma'], ['Mari']), \
           (3, ['seda', 'raamatut'], ['"', 'Sipsikut', '"']), \
-          (4, ['see'], ['"', 'Sipsikut', '"']) ]
+          (None, ['see'], ['"', 'Sipsikut', '"']) ]
 
 
 def test_convert_text_with_enveloping_relation_layers_to_dict():

@@ -53,7 +53,7 @@ def test_relation_tagger_smoke():
          'enveloping': None,
          'meta': {},
          'name': 'my_relations',
-         'relations': [{'annotations': [{'attr': None}],
+         'relations': [{'annotations': [{}],
                         'named_spans': {'arg0': (0, 1), 'arg1': (1, 2)}},
                        {'annotations': [{'attr': 43}],
                         'named_spans': {'arg0': (2, 3), 'arg1': (1, 2)}}],

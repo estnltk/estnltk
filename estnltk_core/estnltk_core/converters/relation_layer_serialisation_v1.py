@@ -5,6 +5,10 @@ __version__ = 'relations_v1'
 from estnltk_core.layer.relation_layer import to_relation_base_span
 from estnltk_core.layer.relation_layer import RelationLayer
 
+def dict_without_none_attribs(annotation: 'RelationAnnotation') -> dict:
+    rel_dict = dict(annotation)
+    # optimization: leave out attributes with None values
+    return {k:v for k,v in rel_dict.items() if v is not None}
 
 def layer_to_dict(layer: RelationLayer) -> dict:
     return {
@@ -20,7 +24,8 @@ def layer_to_dict(layer: RelationLayer) -> dict:
         'meta': layer.meta,
         'relations': [{'named_spans': {named_span.name: named_span.base_span.raw() \
                                                         for named_span in relation.spans},
-                       'annotations': [dict(annotation) for annotation in relation.annotations]}
+                       'annotations': [dict_without_none_attribs(annotation) \
+                                                        for annotation in relation.annotations]}
                        for relation in layer]
     }
 
