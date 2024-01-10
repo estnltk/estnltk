@@ -37,7 +37,8 @@ def test_coreference_tagger_smoke():
     expected_coref_layer_dict = \
         {'ambiguous': False,
          'attributes': ('chain_id',),
-         'display_order': ('pronoun', 'mention', 'chain_id'),
+         'display_order': (),
+         'enveloping': None,
          'meta': {},
          'name': 'coreference',
          'relations': [{'annotations': [{'chain_id': 0}],
@@ -68,7 +69,8 @@ def test_coreference_tagger_multisentence_text():
     expected_coref_layer_dict_1 = \
         {'ambiguous': False,
          'attributes': ('chain_id',),
-         'display_order': ('pronoun', 'mention', 'chain_id'),
+         'display_order': (),
+         'enveloping': None,
          'meta': {},
          'name': 'coreference',
          'relations': [{'annotations': [{'chain_id': 0}],
@@ -83,7 +85,8 @@ def test_coreference_tagger_multisentence_text():
     expected_coref_layer_dict_2 = \
         {'ambiguous': False,
          'attributes': ('chain_id',),
-         'display_order': ('pronoun', 'mention', 'chain_id'),
+         'display_order': (),
+         'enveloping': None,
          'meta': {},
          'name': 'coreference',
          'relations': [{'annotations': [{'chain_id': 0}],
@@ -181,7 +184,8 @@ def test_coreference_tagger_with_named_entities_layer():
     expected_coref_layer_dict_1 = \
         {'ambiguous': False,
          'attributes': ('chain_id',),
-         'display_order': ('pronoun', 'mention', 'chain_id'),
+         'display_order': (),
+         'enveloping': None,
          'meta': {},
          'name': 'coreference',
          'relations': [{'annotations': [{'chain_id': 0}],
@@ -196,7 +200,8 @@ def test_coreference_tagger_with_named_entities_layer():
     expected_coref_layer_dict_2 = \
         {'ambiguous': False,
          'attributes': ('chain_id',),
-         'display_order': ('pronoun', 'mention', 'chain_id'),
+         'display_order': (),
+         'enveloping': None,
          'meta': {},
          'name': 'coreference',
          'relations': [{'annotations': [{'chain_id': 0}],
