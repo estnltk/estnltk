@@ -1,11 +1,11 @@
 #
-#  Module for converting Estonian National Corpus (ENC) 2017, 2019 and 
-#  2021 documents to EstNLTK Text objects.
+#  Module for converting Estonian National Corpus (ENC) 2017, 2019, 2021  
+#  and 2023 documents to EstNLTK Text objects.
 #
-#  The Estonian National Corpus (ENC) 2017, 2019 & 2021 contain variety of 
-#  corpora, including documents crawled from web (Estonian Web 2013, 2017,
-#  2019 & 2021), documents from the National Corpus (e.g. Estonian Reference 
-#  Corpus), and articles from Estonian Wikipedia.
+#  The Estonian National Corpus (ENC) 2017, 2019, 2021, 2023 contain variety 
+#  of corpora, including documents crawled from web (Estonian Web 2013, 2017,
+#  2019, 2021 & 2023), documents from the National Corpus (e.g. Estonian 
+#  Reference Corpus), and articles from Estonian Wikipedia.
 #
 #  Documents are in an XML-like format, contain metadata (e.g  document 
 #  source and title), and have been split into subdocuments and sentences, 
@@ -232,8 +232,8 @@ class ENCTextReconstructor:
                Note that this only succeeds if VertXMLFileParser was 
                configured to preserve lingustic analyses.
                Note also that syntactic analyses can only be read from 
-               the ENC 2021 corpus, as there were no syntactic annotations 
-               in ENC 2019 and 2017 corpora.
+               the ENC 2021 corpus, as there are no syntactic annotations 
+               in other versions of ENC corpora.
                (default: False)
            replace_broken_analysis_with_none: boolean
                If set, then malformed/broken morphological and/or syntactic 
@@ -772,6 +772,26 @@ class ENCTextReconstructor:
                 assert analysis_dict['syn_head'].isnumeric(), \
                     "(!) Unexpected non-numeric syntactic head {!r} at line {!r}".format(items[14], raw_ling_analysis)
                 analysis_dict['syn_rel'] = items[15]
+            elif len(items) == 13:
+                #
+                # Full morph-extended analysis in ENC 2023, for instance:
+                #   Nüüd	D	nüüd-d		nüüd	nüüd	0						
+                #   kostis	V.s	kostma-v	s	kost	kost	is		mod_indic_impf_ps3_sg_ps_af			fin	Intr
+                #   tasane	A.sg.n	tasane-a	sg_n	tasane	tasane	0		pos_sg_nom				
+                #   naerukihin	S.sg.n	naerukihin-s	sg_n	naeru kihin	naeru_kihin	0		com_sg_nom			
+                #
+                analysis_dict['root'] = items[5]
+                analysis_dict['form'] = items[3].replace('_', ' ')
+                analysis_dict['ending'] = items[6].replace('_', ' ')
+                analysis_dict['partofspeech'] = items[1][0]
+                assert analysis_dict['partofspeech'].isupper(), \
+                   "(!) Unexpected lowercase 'partofspeech' in {!r} at line {!r}".format(items[1], raw_ling_analysis)
+                pos_ending = '-'+analysis_dict['partofspeech'].lower()
+                assert items[2].endswith(pos_ending), \
+                   "(!) Unexpected pos-ending in {!r} at line {!r}".format(items[2], raw_ling_analysis)
+                analysis_dict['lemma'] = items[2].replace(pos_ending, '')
+                analysis_dict['root_tokens'] = items[4].split()
+                analysis_dict['clitic'] = items[7]
             else:
                 # Unexpected format for linguistic analysis
                 status_str = 'critical'
@@ -853,9 +873,9 @@ class ENCTextReconstructor:
 
 
 
-# =================================================
-#   Parsing ENC 2017 & 2019 & 2021 corpus files
-# =================================================
+# =======================================================
+#   Parsing ENC 2017 & 2019, 2021 & 2023 corpus files
+# =======================================================
 
 class VertXMLFileParser:
     """ A very simple XMLParser that allows line by line parsing of vert type 
@@ -867,8 +887,8 @@ class VertXMLFileParser:
         files: all XML tags are on separate lines, so the line by line parsing 
         is actually the most straightforward approach.
         
-        * VertXMLFileParser is made for parsing vert files of ENC 2017, 2019 & 
-          2021; 
+        * VertXMLFileParser is made for parsing vert files of ENC 2017, 2019, 
+          2021 & 2023;
           the implementation is loosely based on earlier EtTenTenXMLParser;
         * vert / prevert is an output file type used by the SpiderLing web 
           crawler, see http://corpus.tools/wiki/SpiderLing for details; 
@@ -1617,8 +1637,8 @@ def parse_enc_file_iterator( in_file:str,
            created based on the syntactic annotations in the input 
            document.
            Note that syntactic analyses can only be read from the 
-           ENC 2021 corpus, as there were no syntactic annotations 
-           in ENC 2019 and ENC 2017 corpora.
+           ENC 2021 corpus, as there are no syntactic annotations 
+           in other versions of ENC corpora.
            (default: False)
 
        vertParser: VertXMLFileParser
@@ -1703,7 +1723,7 @@ def parse_enc_file_content_iterator( content,
        content: str
            ENC corpus file's content (or a subset of the content) as 
            a string. It is assumed that the data is in the vert format. 
-           Supported corpus versions: ENC 2017, ENC 2019, ENC 2021. 
+           Supported corpus versions: ENC 2017, 2019, 2021 & 2023. 
        
        focus_doc_ids: set of str
            Set of document id-s corresponding to the documents which 
@@ -1782,8 +1802,8 @@ def parse_enc_file_content_iterator( content,
            created based on the syntactic annotations in the input 
            document.
            Note that syntactic analyses can only be read from the 
-           ENC 2021 corpus, as there were no syntactic annotations 
-           in ENC 2019 and ENC 2017 corpora.
+           ENC 2021 corpus, as there are no syntactic annotations 
+           in other versions of the corpora.
            (default: False)
        
        vertParser: VertXMLFileParser
