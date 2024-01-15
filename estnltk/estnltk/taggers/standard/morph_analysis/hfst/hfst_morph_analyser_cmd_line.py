@@ -465,13 +465,62 @@ class HfstClMorphAnalyser(Tagger):
         return new_layer
 
 
-    def lookup(self, input_word:str):
-        """ Analyses a singe word with the transducer. Note: this functionality 
-            is not available for command line based HFST analyser. 
-            Instead of analysing words one by one via lookup, please analyse texts 
-            as a whole via make_layer.
+    def analyze_token(self, input_token:str):
+        """Analyzes a single word token with HFST analyser. 
+           Uses the current configuration of the tagger. 
+           
+           Parameters
+           ----------
+           input_token:str
+              Word token to be analyzed. Must be a single word.
+           
+           Returns
+           -------
+           list of dict
+              list with resulting analyses. Exact format of the 
+              dict depends on output_format parameter of the 
+              tagger.
         """
-        raise NotImplementedError("Single-word lookup functionality is not available for command line based HFST analyser.")
+        if self.use_stream:
+            # Check the stream
+            assert self._hfst_process is not None, \
+               '(!) hfst process stream is not initialized in '+\
+               'this tagger.'
+            assert self._hfst_process.poll() is None, \
+               '(!) The tagger cannot be used anymore, '+\
+               'because its hfst process has been terminated.'
+            # Do nothing for an empty string, non-string or a space token
+            if not isinstance(input_token, str) or len(input_token) == 0 or input_token.isspace():
+                return []
+            try:
+                all_raw_analyses = []
+                self._hfst_process.stdin.write(as_binary(input_token.rstrip('\n\r')))
+                self._hfst_process.stdin.write(as_binary('\n'))
+                self._hfst_process.stdin.flush()
+                # Collect all analyses
+                while self._hfst_process.stdout.readable():
+                    line = as_unicode( self._hfst_process.stdout.readline() )
+                    result = line.rstrip()
+                    if len(result) > 0:
+                        # Reformat content line
+                        line_clean = self._reformat_xerox_output_content_line(result)
+                        #print('{!r}'.format(line_clean))
+                        all_raw_analyses.append( line_clean )
+                    else:
+                        break
+            except Exception:
+                stderr = as_unicode( self._hfst_process.stderr.read() )
+                print('(!) Streaming exception. Stderr is {!r}'.format(stderr))
+                self.close()
+                raise
+            # Clean analyses and extract records
+            cleaned_analyses = self.filter_flags( '\n'.join(all_raw_analyses) )
+            return self.output_extractor.extract_annotation_records( cleaned_analyses, \
+                                                 remove_guesses = self.remove_guesses )
+        else:
+            raise NotImplementedError("Single-word lookup functionality is not available "+\
+                                      "in file based HFST analyser. Please use stream based "+\
+                                      "HFST analyser instead.")
 
 
     def filter_flags(self, o_str):
