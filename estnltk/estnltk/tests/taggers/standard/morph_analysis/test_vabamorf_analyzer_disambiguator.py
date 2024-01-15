@@ -103,6 +103,60 @@ def test_morph_analyzer_1():
     _sort_morph_analysis_records( expected_records )
     # Check results
     assert expected_records == results_dict
+    
+    # Test analyze_token() functionality
+    assert analyzer2.analyze_token('auruvedurivilele') == \
+         [{'clitic': '',
+          'ending': 'le',
+          'form': 'sg all',
+          'lemma': 'auruvedurivile',
+          'partofspeech': 'S',
+          'root': 'auru_veduri_vile',
+          'root_tokens': ['auru', 'veduri', 'vile']}]
+    assert analyzer2.analyze_token('kohale') == \
+         [{'clitic': '',
+          'ending': '0',
+          'form': '',
+          'lemma': 'kohale',
+          'partofspeech': 'D',
+          'root': 'kohale',
+          'root_tokens': ['kohale']},
+         {'clitic': '',
+          'ending': '0',
+          'form': '',
+          'lemma': 'kohale',
+          'partofspeech': 'K',
+          'root': 'kohale',
+          'root_tokens': ['kohale']},
+         {'clitic': '',
+          'ending': 'le',
+          'form': 'sg all',
+          'lemma': 'koha',
+          'partofspeech': 'S',
+          'root': 'koha',
+          'root_tokens': ['koha']},
+         {'clitic': '',
+          'ending': 'le',
+          'form': 'sg all',
+          'lemma': 'koht',
+          'partofspeech': 'S',
+          'root': 'koht',
+          'root_tokens': ['koht']}]
+    assert analyzer2.analyze_token('ühed') == \
+        [{'clitic': '',
+          'ending': 'd',
+          'form': 'pl n',
+          'lemma': 'üks',
+          'partofspeech': 'N',
+          'root': 'üks',
+          'root_tokens': ['üks']},
+         {'clitic': '',
+          'ending': 'd',
+          'form': 'pl n',
+          'lemma': 'üks',
+          'partofspeech': 'P',
+          'root': 'üks',
+          'root_tokens': ['üks']}]
 
 
 # ----------------------------------
@@ -131,7 +185,12 @@ def test_morph_analyzer_without_guessing():
         if partofspeech[0] is None:
             unknown_words.append(word)
     assert ['Mulll', 'yks'] == unknown_words
-
+    
+    # Test analyze_token() functionality
+    assert analyzer2x.analyze_token('Mulll') == []
+    assert analyzer2x.analyze_token('yks') == []
+    assert analyzer2x.analyze_token('.') == []
+    assert analyzer2x.analyze_token('?') == []
 
 
 # ----------------------------------

@@ -652,6 +652,44 @@ class VabamorfAnalyzer(Tagger):
         return morph_layer
 
 
+    def analyze_token(self, input_token:str, sort_analyses:bool=True):
+        """Analyzes a single word token with Vabamorf. 
+           Uses the current configuration of the tagger. 
+        
+           Parameters
+           ----------
+           input_token:str
+              Word token to be analyzed. Must be a single word.
+           
+           sort_analyses:bool
+              Whether analyses will be sorted to ensure a fixed order. 
+              Note: whether sorting is used or not, the order of analyses 
+              does not represent their likelihood. Word context is required 
+              for determining the likelihood. 
+              Default: True
+           
+           Returns
+           -------
+           list of dict
+              list with resulting analyses. Each analysis item is dict 
+              with keys 'clitic', 'ending', 'form', 'lemma', 'partofspeech', 
+              'root', 'root_tokens'.
+        """
+        # Fetch parameters of the analysis
+        analysis_kwargs = {}
+        analysis_kwargs["disambiguate"] = False # perform analysis without disambiguation
+        analysis_kwargs["guess"]      = self.guess
+        analysis_kwargs["propername"] = self.propername
+        analysis_kwargs["compound"]   = self.compound
+        analysis_kwargs["phonetic"]   = self.phonetic
+        res = self._vm_instance.analyze(words=[input_token], **analysis_kwargs)
+        if len(res) > 0 and sort_analyses:
+            res[0]['analysis'] = sorted(res[0]['analysis'],
+                    key=lambda x: x['root']+x['ending']+x['clitic']+x['partofspeech']+x['form'],
+                    reverse=False )
+        return res[0]['analysis'] if len(res) > 0 else []
+
+
     def _perform_vm_analysis( self, sentence_words, analysis_kwargs ):
         """Analyses given list of words with Vabamorf. (Only for internal usage) """
         # Flatten the input list
