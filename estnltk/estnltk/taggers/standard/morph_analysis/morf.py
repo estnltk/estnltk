@@ -675,6 +675,9 @@ class VabamorfAnalyzer(Tagger):
               with keys 'clitic', 'ending', 'form', 'lemma', 'partofspeech', 
               'root', 'root_tokens'.
         """
+        # Do nothing for an empty string, non-string or a space token
+        if not isinstance(input_token, str) or len(input_token) == 0 or input_token.isspace():
+            return []
         # Fetch parameters of the analysis
         analysis_kwargs = {}
         analysis_kwargs["disambiguate"] = False # perform analysis without disambiguation

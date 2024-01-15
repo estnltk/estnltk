@@ -157,6 +157,10 @@ def test_morph_analyzer_1():
           'partofspeech': 'P',
           'root': 'üks',
           'root_tokens': ['üks']}]
+    # Test analyze_token() exceptions
+    assert analyzer2.analyze_token(None) == []
+    assert analyzer2.analyze_token('') == []
+    assert analyzer2.analyze_token(' \n ') == []
 
 
 # ----------------------------------
