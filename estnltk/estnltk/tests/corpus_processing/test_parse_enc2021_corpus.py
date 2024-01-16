@@ -193,6 +193,77 @@ def test_parse_enc2021_file_iterator_w_original_morph_and_syntax():
         #from pprint import pprint
         #pprint( layer_to_dict(texts[1]['original_morph_analysis']) )
         assert texts[1]['original_morph_analysis'] == dict_to_layer(expected_doc2_morph_dict)
+        #
+        # Restore morph with morph extended form
+        #
+        texts = []
+        for text in parse_enc_file_iterator( fp.name, encoding='utf-8',\
+                                             tokenization='preserve',
+                                             restore_morph_analysis=True,
+                                             extended_morph_form=True ):
+            assert 'original_morph_analysis' in text.layers
+            assert 'original_syntax' not in text.layers
+            texts.append(text)
+        assert len(texts) == 2
+        #from pprint import pprint
+        #pprint( layer_to_dict(texts[1]['original_morph_analysis']) )
+        # Check morph layer content
+        expected_doc2_morph_dict = \
+            {'ambiguous': True,
+             'attributes': ('lemma',
+                            'root',
+                            'root_tokens',
+                            'ending',
+                            'clitic',
+                            'form',
+                            'partofspeech'),
+             'enveloping': None,
+             'meta': {},
+             'name': 'original_morph_analysis',
+             'parent': 'original_words',
+             'secondary_attributes': (),
+             'serialisation_module': None,
+             'spans': [{'annotations': [{'clitic': '',
+                                         'ending': '0',
+                                         'form': 'com sg nom',
+                                         'lemma': 'küsimus',
+                                         'partofspeech': 'S',
+                                         'root': 'küsimus',
+                                         'root_tokens': ('küsimus',)}],
+                        'base_span': (0, 7)},
+                       {'annotations': [{'clitic': 'gi',
+                                         'ending': 'i',
+                                         'form': 'mod indic impf ps3 sg ps af',
+                                         'lemma': 'olema',
+                                         'partofspeech': 'V',
+                                         'root': 'ole',
+                                         'root_tokens': ('ole',)}],
+                        'base_span': (8, 13)},
+                       {'annotations': [{'clitic': '',
+                                         'ending': 'le',
+                                         'form': 'comp sg all',
+                                         'lemma': 'laiem',
+                                         'partofspeech': 'C',
+                                         'root': 'laiem',
+                                         'root_tokens': ('laiem',)}],
+                        'base_span': (14, 22)},
+                       {'annotations': [{'clitic': '',
+                                         'ending': 'le',
+                                         'form': 'com sg all',
+                                         'lemma': 'avalikkus',
+                                         'partofspeech': 'S',
+                                         'root': 'avalikkus',
+                                         'root_tokens': ('avalikkus',)}],
+                        'base_span': (23, 35)},
+                       {'annotations': [{'clitic': '',
+                                         'ending': '',
+                                         'form': '',
+                                         'lemma': '.',
+                                         'partofspeech': 'Z',
+                                         'root': '.',
+                                         'root_tokens': ('.',)}],
+                        'base_span': (35, 36)}]}
+        assert texts[1]['original_morph_analysis'] == dict_to_layer(expected_doc2_morph_dict)
     finally:
         # clean up: remove temporary file
         os.remove(fp.name)

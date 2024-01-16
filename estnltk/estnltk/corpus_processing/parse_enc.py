@@ -165,6 +165,7 @@ class ENCTextReconstructor:
                        word_separator:str=' ', \
                        layer_name_prefix:str='',\
                        restore_morph_analysis:bool=False,\
+                       extended_morph_form:bool=False,\
                        restore_syntax:bool=False,\
                        replace_broken_analysis_with_none:bool=True,\
                        logger:Logger=None ):
@@ -216,7 +217,7 @@ class ENCTextReconstructor:
                in the reconstructed text if original tokenization is
                preserved (tokenization == 'preserve');
                Default: ''
-           restore_morph_analysis: boolean
+           restore_morph_analysis: bool
                If set, then morphological analysis layer is also created 
                based on the morphological annotations in the input 
                document.
@@ -225,7 +226,15 @@ class ENCTextReconstructor:
                If not set, then morphological analyses will be discarded 
                and only tokenization layers will be created.
                (default: False)
-           restore_syntax: boolean
+           extended_morph_form: bool
+               Whether morph_analysis 'form' field will be overwritten 
+               by corresponding 'morph_extended' 'form' field. This is 
+               possible only in ENC 2021 and ENC 2023 corpora which have 
+               both 'morph_analysis' and 'morph_extended' annotations. 
+               Has no effect if the corpus is missing 'morph_extended' 
+               annotations.
+               (default: False)
+           restore_syntax: bool
                If set, then dependency syntactic analysis layer is also 
                created based on the syntactic annotations in the input 
                document.
@@ -235,7 +244,7 @@ class ENCTextReconstructor:
                the ENC 2021 corpus, as there are no syntactic annotations 
                in other versions of ENC corpora.
                (default: False)
-           replace_broken_analysis_with_none: boolean
+           replace_broken_analysis_with_none: bool
                If set, then malformed/broken morphological and/or syntactic 
                analysis will have all their attribute values set to None.
                Otherwise, the processing will halted with raising an 
@@ -271,6 +280,12 @@ class ENCTextReconstructor:
                 raise Exception('(!) Conflicting configuration: cannot restore original '+\
                                 "morphological analysis with estnltk's tokenization. Please "+\
                                 "use original tokenization instead.")
+        else:
+            if extended_morph_form:
+                raise Exception('(!) Conflicting configuration: cannot restore extended '+\
+                                "morphological form (extended_morph_form) if restoring "+\
+                                "morphological analysis (restore_morph_analysis) has been "+\
+                                "switched off.")
         if restore_syntax:
             if tokenization == 'none':
                 raise Exception('(!) Conflicting configuration: cannot restore syntactic '+\
@@ -280,6 +295,7 @@ class ENCTextReconstructor:
                                 "syntactic analysis with estnltk's tokenization. Please "+\
                                 "use original tokenization instead.")
         self.restore_original_morph  = restore_morph_analysis
+        self.extended_morph_form     = extended_morph_form
         self.restore_original_syntax = restore_syntax
         self.replace_broken_analysis_with_none = replace_broken_analysis_with_none
 
@@ -647,7 +663,8 @@ class ENCTextReconstructor:
             if self.restore_original_morph or self.restore_original_syntax:
                 orig_morph_analysis, original_syntax = \
                   self._create_original_linguistic_analysis_layers( text_obj, word_locations,
-                                                                    orig_words, linguistic_analyses )
+                                                                    orig_words, linguistic_analyses,
+                                                                    extended_morph_form=self.extended_morph_form)
         # Collect results
         created_layers = [orig_word_chunks, orig_tokens, orig_compound_tokens, 
                           orig_words, orig_sentences, orig_paragraphs]
@@ -665,10 +682,16 @@ class ENCTextReconstructor:
     def _create_original_linguistic_analysis_layers(self, text_obj: Text,
                                                           word_locations: list,
                                                           orig_words_layer: Layer,
-                                                          raw_lingustic_analyses: list):
+                                                          raw_lingustic_analyses: list,
+                                                          extended_morph_form: bool=False):
         """ Creates linguistic analysis (morph / syntax) layers 
             from raw_lingustic_analyses extracted from the 
             vert / prevert content.
+            If extended_morph_form is True, then morph_analysis 
+            'form' field will be overwritten by corresponding 
+            'morph_extended' 'form' field. This is possible only 
+            in ENC 2021 and ENC 2023 corpora which have 
+            'morph_extended' annotations. 
             Returns tuple: (morph_layer, syntax_layer).
         """
         assert len(raw_lingustic_analyses) == len(orig_words_layer)
@@ -691,6 +714,10 @@ class ENCTextReconstructor:
             if self.restore_original_morph:
                 # Normalize and add morph attributes
                 attributes = {attr: analysis_dict.get(attr) for attr in layer_attributes}
+                if extended_morph_form:
+                    extended_feat = analysis_dict.get('extended_feat', None)
+                    if extended_feat is not None:
+                        attributes['form'] = extended_feat
                 if 'root_tokens' in attributes:
                     if attributes['root_tokens'] is not None:
                         attributes['root_tokens'] = tuple(attributes['root_tokens'])
@@ -763,8 +790,8 @@ class ENCTextReconstructor:
                 analysis_dict['lemma'] = items[2].replace(pos_ending, '')
                 analysis_dict['root_tokens'] = items[4].split()
                 analysis_dict['clitic'] = items[7]
-                # syntactic analyses
                 analysis_dict['extended_feat'] = items[8].replace('_', ' ')
+                # syntactic analyses
                 analysis_dict['syn_id'] = items[13]
                 assert analysis_dict['syn_id'].isnumeric(), \
                     "(!) Unexpected non-numeric syntactic id {!r} at line {!r}".format(items[13], raw_ling_analysis)
@@ -792,6 +819,7 @@ class ENCTextReconstructor:
                 analysis_dict['lemma'] = items[2].replace(pos_ending, '')
                 analysis_dict['root_tokens'] = items[4].split()
                 analysis_dict['clitic'] = items[7]
+                analysis_dict['extended_feat'] = items[8].replace('_', ' ')
             else:
                 # Unexpected format for linguistic analysis
                 status_str = 'critical'
@@ -1530,6 +1558,7 @@ def parse_enc_file_iterator( in_file:str,
                              tokenization:str='preserve', \
                              original_layer_prefix:str='original_',\
                              restore_morph_analysis:bool=False, \
+                             extended_morph_form:bool=False, \
                              restore_syntax:bool=False, \
                              vertParser:VertXMLFileParser=None, \
                              textReconstructor:ENCTextReconstructor=None, \
@@ -1632,6 +1661,15 @@ def parse_enc_file_iterator( in_file:str,
            and only tokenization layers will be created.
            (default: False)
 
+       extended_morph_form: bool
+           Whether morphological analysis 'form' field will be 
+           overwritten by corresponding morph_extended 'form' field. 
+           This is possible only in ENC 2021 and ENC 2023 corpora 
+           which have both regular 'morph_analysis' and 'morph_extended' 
+           annotations available. The setting has no effect if the 
+           corpus is missing 'morph_extended' annotations.
+           (default: False)
+
        restore_syntax: boolean
            If set, then dependency syntactic analysis layer is 
            created based on the syntactic annotations in the input 
@@ -1668,6 +1706,7 @@ def parse_enc_file_iterator( in_file:str,
         reconstructor = ENCTextReconstructor(tokenization=tokenization,\
                                              layer_name_prefix=original_layer_prefix,\
                                              restore_morph_analysis=restore_morph_analysis,\
+                                             extended_morph_form=extended_morph_form, \
                                              restore_syntax=restore_syntax,\
                                              logger=logger)
     if vertParser:
@@ -1697,6 +1736,7 @@ def parse_enc_file_content_iterator( content,
                                      tokenization:str='preserve', \
                                      original_layer_prefix:str='original_',\
                                      restore_morph_analysis:bool=False, \
+                                     extended_morph_form:bool=False, \
                                      restore_syntax:bool=False, \
                                      vertParser:VertXMLFileParser=None, \
                                      textReconstructor:ENCTextReconstructor=None, \
@@ -1797,6 +1837,15 @@ def parse_enc_file_content_iterator( content,
            and only tokenization layers will be created.
            (default: False)
 
+       extended_morph_form: bool
+           Whether morphological analysis 'form' field will be 
+           overwritten by corresponding morph_extended 'form' field. 
+           This is possible only in ENC 2021 and ENC 2023 corpora 
+           which have both regular 'morph_analysis' and 'morph_extended' 
+           annotations available. The setting has no effect if the 
+           corpus is missing 'morph_extended' annotations.
+           (default: False)
+
        restore_syntax: boolean
            If set, then dependency syntactic analysis layer is 
            created based on the syntactic annotations in the input 
@@ -1834,6 +1883,7 @@ def parse_enc_file_content_iterator( content,
         reconstructor = ENCTextReconstructor(tokenization=tokenization,\
                                              layer_name_prefix=original_layer_prefix,\
                                              restore_morph_analysis=restore_morph_analysis,\
+                                             extended_morph_form=extended_morph_form, \
                                              restore_syntax=restore_syntax,\
                                              logger=logger)
     if vertParser:

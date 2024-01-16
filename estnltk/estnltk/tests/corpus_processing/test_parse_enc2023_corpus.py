@@ -144,10 +144,9 @@ def test_parse_enc2023_file_iterator_w_original_morph():
         assert word_count == 36
         word_count = 0
         #from pprint import pprint
-        #pprint( layer_to_dict(texts[0]['original_morph_analysis']) )
-        
+        #pprint( layer_to_dict(texts[0]['original_morph_analysis'][:5]) )
         # Check morph layer content
-        expected_doc1_morph_dict = \
+        expected_doc1_morph_dict_first_5_words = \
             {'ambiguous': True,
              'attributes': ('lemma',
                             'root',
@@ -202,102 +201,71 @@ def test_parse_enc2023_file_iterator_w_original_morph():
                                          'root': '.',
                                          'root_tokens': ('.',)}],
                         'base_span': (29, 30)},
-                       {'annotations': [{'clitic': '',
-                                         'ending': '',
-                                         'form': '',
-                                         'lemma': '"',
-                                         'partofspeech': 'Z',
-                                         'root': '"',
-                                         'root_tokens': ('"',)}],
-                        'base_span': (32, 33)},
-                       {'annotations': [{'clitic': '',
+             ]}
+        # Validate content
+        assert texts[0]['original_morph_analysis'][:5] == \
+            dict_to_layer(expected_doc1_morph_dict_first_5_words)
+        #
+        # Parse ENC and restore morph extended
+        #
+        texts = []
+        for text in parse_enc_file_iterator( fp.name, encoding='utf-8',\
+                                             tokenization='preserve',
+                                             restore_morph_analysis=True,
+                                             extended_morph_form=True ):
+            assert 'original_morph_analysis' in text.layers
+            assert 'original_syntax' not in text.layers
+            texts.append(text)
+        #from pprint import pprint
+        #pprint( layer_to_dict(texts[0]['original_morph_analysis'][:5]) )
+        # Check morph layer content
+        expected_doc1_morph_dict_first_5_words = \
+            {'ambiguous': True,
+             'attributes': ('lemma',
+                            'root',
+                            'root_tokens',
+                            'ending',
+                            'clitic',
+                            'form',
+                            'partofspeech'),
+             'enveloping': None,
+             'meta': {},
+             'name': 'original_morph_analysis',
+             'parent': 'original_words',
+             'secondary_attributes': (),
+             'serialisation_module': None,
+             'spans': [{'annotations': [{'clitic': '',
                                          'ending': '0',
                                          'form': '',
-                                         'lemma': 'ah',
-                                         'partofspeech': 'I',
-                                         'root': 'ah',
-                                         'root_tokens': ('ah',)}],
-                        'base_span': (33, 35)},
+                                         'lemma': 'nüüd',
+                                         'partofspeech': 'D',
+                                         'root': 'nüüd',
+                                         'root_tokens': ('nüüd',)}],
+                        'base_span': (0, 4)},
                        {'annotations': [{'clitic': '',
-                                         'ending': 'd',
-                                         'form': 'sg p',
-                                         'lemma': 'sina',
-                                         'partofspeech': 'P',
-                                         'root': 'sina',
-                                         'root_tokens': ('sina',)}],
-                        'base_span': (36, 40)},
-                       {'annotations': [{'clitic': '',
-                                         'ending': '0',
-                                         'form': 'adt',
-                                         'lemma': 'wõrukael',
-                                         'partofspeech': 'S',
-                                         'root': 'wõru_kael',
-                                         'root_tokens': ('wõru', 'kael')}],
-                        'base_span': (41, 50)},
-                       {'annotations': [{'clitic': '',
-                                         'ending': '',
-                                         'form': '',
-                                         'lemma': '!',
-                                         'partofspeech': 'Z',
-                                         'root': '!',
-                                         'root_tokens': ('!',)}],
-                        'base_span': (50, 51)},
-                       {'annotations': [{'clitic': '',
-                                         'ending': '0',
-                                         'form': 'sg n',
-                                         'lemma': 'mina',
-                                         'partofspeech': 'P',
-                                         'root': 'mina',
-                                         'root_tokens': ('mina',)}],
-                        'base_span': (52, 56)},
-                       {'annotations': [{'clitic': '',
-                                         'ending': 'n',
-                                         'form': 'n',
-                                         'lemma': 'tundma',
+                                         'ending': 'is',
+                                         'form': 'mod indic impf ps3 sg ps af',
+                                         'lemma': 'kostma',
                                          'partofspeech': 'V',
-                                         'root': 'tund',
-                                         'root_tokens': ('tund',)}],
-                        'base_span': (57, 63)},
-                       {'annotations': [{'clitic': '',
-                                         'ending': '',
-                                         'form': '',
-                                         'lemma': ',',
-                                         'partofspeech': 'Z',
-                                         'root': ',',
-                                         'root_tokens': (',',)}],
-                        'base_span': (63, 64)},
+                                         'root': 'kost',
+                                         'root_tokens': ('kost',)}],
+                        'base_span': (5, 11)},
                        {'annotations': [{'clitic': '',
                                          'ending': '0',
-                                         'form': '',
-                                         'lemma': 'et',
-                                         'partofspeech': 'J',
-                                         'root': 'et',
-                                         'root_tokens': ('et',)}],
-                        'base_span': (65, 67)},
-                       {'annotations': [{'clitic': '',
-                                         'ending': '0',
-                                         'form': 'sg n',
-                                         'lemma': 'õhk',
-                                         'partofspeech': 'S',
-                                         'root': 'õhk',
-                                         'root_tokens': ('õhk',)}],
-                        'base_span': (68, 71)},
-                       {'annotations': [{'clitic': '',
-                                         'ending': '0',
-                                         'form': 'neg o',
-                                         'lemma': 'olema',
-                                         'partofspeech': 'V',
-                                         'root': 'ole',
-                                         'root_tokens': ('ole',)}],
-                        'base_span': (72, 76)},
-                       {'annotations': [{'clitic': '',
-                                         'ending': '0',
-                                         'form': 'sg n',
-                                         'lemma': 'puhas',
+                                         'form': 'pos sg nom',
+                                         'lemma': 'tasane',
                                          'partofspeech': 'A',
-                                         'root': 'puhas',
-                                         'root_tokens': ('puhas',)}],
-                        'base_span': (77, 82)},
+                                         'root': 'tasane',
+                                         'root_tokens': ('tasane',)}],
+                        'base_span': (12, 18)},
+                       {'annotations': [{'clitic': '',
+                                         'ending': '0',
+                                         'form': 'com sg nom',
+                                         'lemma': 'naerukihin',
+                                         'partofspeech': 'S',
+                                         'root': 'naeru_kihin',
+                                         'root_tokens': ('naeru', 'kihin')}],
+                        'base_span': (19, 29)},
                        {'annotations': [{'clitic': '',
                                          'ending': '',
                                          'form': '',
@@ -305,17 +273,10 @@ def test_parse_enc2023_file_iterator_w_original_morph():
                                          'partofspeech': 'Z',
                                          'root': '.',
                                          'root_tokens': ('.',)}],
-                        'base_span': (82, 83)},
-                       {'annotations': [{'clitic': '',
-                                         'ending': '',
-                                         'form': '',
-                                         'lemma': '"',
-                                         'partofspeech': 'Z',
-                                         'root': '"',
-                                         'root_tokens': ('"',)}],
-                        'base_span': (83, 84)}]}
-
-        assert texts[0]['original_morph_analysis'] == dict_to_layer(expected_doc1_morph_dict)
+                        'base_span': (29, 30)}]}
+        # Validate content
+        assert texts[0]['original_morph_analysis'][:5] == \
+                dict_to_layer(expected_doc1_morph_dict_first_5_words)
     finally:
         # clean up: remove temporary file
         os.remove(fp.name)
