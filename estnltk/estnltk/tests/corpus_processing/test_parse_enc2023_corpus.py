@@ -281,3 +281,46 @@ def test_parse_enc2023_file_iterator_w_original_morph():
         # clean up: remove temporary file
         os.remove(fp.name)
 
+
+enc_2023_excerpt_2_error_case = \
+'''
+<doc src="Timestamped 2014–2023" feed_hostname="xn--snumid-pxa.ee" feed_country="Estonia" feed_latitude="59.0" feed_longitude="26.0" tags='Arvamus|“Terevisioon"' feed="http://newsfeed.ijs.si/feedns/1295563" url="https://xn--snumid-pxa.ee/2019/09/hea-voimalus-oma-kodu-ule-uhke-olla/" timestamp_year="2019" timestamp_month="2019-09" timestamp_quarter="2019q3" timestamp_date="2019-09-04" crawl_date="2019-09-04" dmoz_categories="Top/Society/Government/Defense_Ministries|Top/Business/Food_and_Related_Products/Marketing_and_Advertising|Top/Reference/Quotations/Wisdom|Top/Society/Genealogy/By_Ethnic_Group|Top/Shopping/Home_and_Garden/Swimming_Pools_and_Spas" dmoz_keywords="Society|Defense_Ministries|Government|Marketing_and_Advertising|Food_and_Related_Products|Business">
+<p heading="1">
+<s>
+Hea	A.sg.n	hea-a	sg_n	hea	hea	0		pos_sg_nom				
+võimalus	S.sg.n	võimalus-s	sg_n	võimalus	võimalus	0		com_sg_nom				
+oma	P.sg.g	oma-p	sg_g	oma	oma	0		sg_gen		pos_det_refl		
+kodu	S.sg.g	kodu-s	sg_g	kodu	kodu	0		com_sg_gen				
+üle	K	üle-k		üle	üle	0		post				gen
+uhke	A.sg.n	uhke-a	sg_n	uhke	uhke	0		pos_sg_nom				
+olla	V.da	olema-v	da	ole	ole	a		mod_inf			inf	Intr
+</s>
+</p>
+</doc>
+'''
+
+def test_parse_enc2023_file_iterator_error_case():
+    # Set up: Create an example file from the enc_2023_excerpt_2_error_case
+    fp = tempfile.NamedTemporaryFile(mode='w', encoding='utf-8', 
+                                     prefix='enc_2023_excerpt_',
+                                     suffix='.vert', delete=False)
+    fp.write( enc_2023_excerpt_2_error_case )
+    fp.close()
+    try:
+        # Parse ENC and restore only morph
+        texts = []
+        text_count = 0
+        word_count = 0
+        for text in parse_enc_file_iterator( fp.name, encoding='utf-8',\
+                                             tokenization='preserve',
+                                             restore_morph_analysis=True ):
+            assert 'original_morph_analysis' in text.layers
+            text_count += 1
+            word_count += len(text['original_morph_analysis'])
+            texts.append(text)
+        assert text_count == 1
+        assert word_count == 7
+    finally:
+        # clean up: remove temporary file
+        os.remove(fp.name)
+

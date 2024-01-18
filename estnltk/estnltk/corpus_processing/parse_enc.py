@@ -1113,8 +1113,10 @@ class VertXMLFileParser:
                 stripped_line = stripped_line.replace('&lt;', '<')
             if gt_escaped:
                 stripped_line = stripped_line.replace('&gt;', '>')
-            # Special hack to fix a broken doc tag in 'nc21_Feeds.vert'
-            if 'src="Feeds 2014–2021"' in stripped_line and \
+            # Special hack to fix a broken doc tag in 'nc21_Feeds.vert' & 'nc23_Timestamped.vert'
+            # (Fixes AssertionError: (!) Uneven number of quotation marks in <doc src=...)
+            if ('src="Feeds 2014–2021"' in stripped_line or \
+                'src="Timestamped 2014–2023"' in stripped_line) and \
                'feed_hostname="xn--snumid-pxa.ee"' in stripped_line:
                 stripped_line = stripped_line.replace("tags='Arvamus|“Terevisioon\"'", \
                                                       'tags="Arvamus|“Terevisioon”"' )
@@ -1138,7 +1140,7 @@ class VertXMLFileParser:
                     self.document['id'] = self.document['ISBN']
                 elif 'url' in self.document and \
                      'src' in self.document and \
-                     self.document['src'] in ['Feeds 2014–2021']:
+                     self.document['src'] in ['Feeds 2014–2021', 'Timestamped 2014–2023']:
                     # Use "url"+"line number" instead of "id" (Fix for 'nc21_Feeds.vert')
                     # ("url" itself is not enough, as there can be duplicate urls)
                     self.document['id'] = self.document['url']+('(doc@line:{})'.format(self.lines))
