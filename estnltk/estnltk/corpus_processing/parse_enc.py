@@ -82,6 +82,26 @@ def parse_tag_attributes( tag_str:str, logger:Logger=None,
        dict
            a dictionary with attribute-value pairs;
     """
+    quotes_fixed = False
+    if tag_str.count('"') % 2 != 0:
+        # Attempt to fix quotations: consider that only legal attribute 
+        # quotation start is '="' and legal attribute quotation ends are 
+        # '" ' and '">'. Replace illegal quotations with '&quot'
+        new_tag_str = []
+        for cid, ch in enumerate(list(tag_str)):
+            if ch == '"':
+                last_ch = tag_str[cid-1] if cid-1 > -1 else ''
+                next_ch = tag_str[cid+1] if cid+1 < len(tag_str) else ''
+                # Check if we have a legal quotation
+                if last_ch+ch == '="' or ch+next_ch in ['" ', '">']:
+                    new_tag_str.append(ch)
+                else:
+                    # Replace illegal quotation with '&quot';
+                    new_tag_str.append('&quot;')
+                    quotes_fixed = True
+            else:
+                new_tag_str.append(ch)
+        tag_str = ''.join(new_tag_str)
     assert tag_str.count('"') % 2 == 0, \
         '(!) Uneven number of quotation marks in: '+str(tag_str)
     attribs = {}
@@ -104,6 +124,8 @@ def parse_tag_attributes( tag_str:str, logger:Logger=None,
                     new_key_id += 1
                     new_key = key+str(new_key_id)
                 key = new_key
+        if quotes_fixed and '&quot;' in value:
+            value = value.replace('&quot;', '"')
         attribs[key] = value
     return attribs
 
