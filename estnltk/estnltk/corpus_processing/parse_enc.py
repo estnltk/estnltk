@@ -95,7 +95,7 @@ def parse_tag_attributes( tag_str:str, logger:Logger=None,
                 # Check if we have a legal quotation
                 if (last_ch+ch == '="') or \
                    (ch+next_ch == '">') or \
-                   (ch+next_ch == '" ' and re.match('" ([^= ]+)="', tag_str[cid:])):
+                   (ch+next_ch == '" ' and re.match('" ([^= ]+)=["\']', tag_str[cid:])):
                     new_tag_str.append(ch)
                 else:
                     # Replace illegal quotation with '&quot';
@@ -1137,13 +1137,6 @@ class VertXMLFileParser:
                 stripped_line = stripped_line.replace('&lt;', '<')
             if gt_escaped:
                 stripped_line = stripped_line.replace('&gt;', '>')
-            # Special hack to fix a broken doc tag in 'nc21_Feeds.vert' & 'nc23_Timestamped.vert'
-            # (Fixes AssertionError: (!) Uneven number of quotation marks in <doc src=...)
-            if ('src="Feeds 2014–2021"' in stripped_line or \
-                'src="Timestamped 2014–2023"' in stripped_line) and \
-               'feed_hostname="xn--snumid-pxa.ee"' in stripped_line:
-                stripped_line = stripped_line.replace("tags='Arvamus|“Terevisioon\"'", \
-                                                      'tags="Arvamus|“Terevisioon”"' )
             # Clear old doc content
             self.document.clear()
             self.content.clear()

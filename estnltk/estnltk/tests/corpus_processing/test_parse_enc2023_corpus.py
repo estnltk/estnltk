@@ -369,6 +369,14 @@ def test_parse_enc2023_file_iterator_error_cases():
             texts.append(text)
         assert text_count == 3
         assert word_count == 7 + 14 + 16
+        assert texts[0].meta == \
+            {'src': 'Timestamped 2014–2023', 'feed_hostname': 'xn--snumid-pxa.ee', 'feed_country': 'Estonia', 'feed_latitude': '59.0', 
+             'feed_longitude': '26.0', 'feed': 'http://newsfeed.ijs.si/feedns/1295563', 
+             'url': 'https://xn--snumid-pxa.ee/2019/09/hea-voimalus-oma-kodu-ule-uhke-olla/', 'timestamp_year': '2019', 
+             'timestamp_month': '2019-09', 'timestamp_quarter': '2019q3', 'timestamp_date': '2019-09-04', 
+             'crawl_date': '2019-09-04', 
+             'dmoz_categories': 'Top/Society/Government/Defense_Ministries|Top/Business/Food_and_Related_Products/Marketing_and_Advertising|Top/Reference/Quotations/Wisdom|Top/Society/Genealogy/By_Ethnic_Group|Top/Shopping/Home_and_Garden/Swimming_Pools_and_Spas', 'dmoz_keywords': 'Society|Defense_Ministries|Government|Marketing_and_Advertising|Food_and_Related_Products|Business', 
+             'id': 'https://xn--snumid-pxa.ee/2019/09/hea-voimalus-oma-kodu-ule-uhke-olla/(doc@line:1)', 'autocorrected_paragraphs': False}
         assert texts[1].meta == \
             {'src': 'Timestamped 2014–2023', 'genre': 'periodicals', 'genre_src': 'site list', 
              'title': 'Ivi Eenmaa: "Rahu, ainult rahu! Kõik, mis on tulnud Hiinast, ei kesta kaua!', 
