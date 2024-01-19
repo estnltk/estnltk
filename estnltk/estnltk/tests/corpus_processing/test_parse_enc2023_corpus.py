@@ -319,11 +319,37 @@ tulles	V.des	tulema-v	des	tule	tule	es		mod_ger			inf	Intr
 </s>
 </p>
 </doc>
+<doc src="Timestamped 2014–2023" topic="culture & entertainment" genre="periodicals" topic_src="site list" genre_src="site list" title="Plekktrummi\" saatekülaline tuleval nädalal on Liisa Pakosta" url="https://kultuur.err.ee/1608130063/plekktrummi-saatekulaline-tuleval-nadalal-on-liisa-pakosta" feed="https://kultuur.err.ee/rss" timestamp_year="2021" timestamp_month="2021-03" timestamp_quarter="2021q1" timestamp_date="2021-03-04" feed_fetched="2021-03-04" crawled_date="2021-03-04">
+</s>
+<p heading="0">
+<s>
+Esmaspäeval	S.sg.ad	esmaspäev-s	sg_ad	esmas päev	esmas_päev	l		com_sg_ad				
+<g/>
+,	Z	,-z		,	,				Com			
+8.	O.?	8.-o	?	8.	8.	0		ord_<?>_roman				
+märtsil	S.sg.ad	märts-s	sg_ad	märts	märts	l		com_sg_ad				
+on	V.b	olema-v	b	ole	ole	0		mod_indic_pres_ps3_sg_ps_af			fin	Intr
+ETV2	Y.?	ETV2-y	?	ETV2	ETV2	0		nominal				
+saate	S.sg.g	saade-s	sg_g	saade	saade	0		com_sg_gen				
+"	Z	"-z		"	"				Quo			
+<g/>
+Plekktrumm	S.sg.n	plekktrumm-s	sg_n	plekk trumm	plekk_trumm	0		com_sg_nom				
+<g/>
+"	Z	"-z		"	"				Quo			
+saatekülaline	S.sg.n	saatekülaline-s	sg_n	saate külaline	saate_külaline	0		com_sg_nom				
+võrdsete	A.pl.g	võrdne-a	pl_g	võrdne	võrdne	te		pos_pl_gen				
+võimaluste	S.pl.g	võimalus-s	pl_g	võimalus	võimalus	te		com_pl_gen				
+volinik	S.sg.n	volinik-s	sg_n	volinik	volinik	0		com_sg_nom				
+Liisa	H.sg.n	Liisa-h	sg_n	Liisa	Liisa	0		prop_sg_nom				
+Pakosta	H.sg.n	Pakosta-h	sg_n	Pakosta	Pakosta	0		prop_sg_nom				
+</s>
+</p>
+</doc>
 '''
 
 def test_parse_enc2023_file_iterator_error_cases():
     # Test that fixed parse_enc can resolve error cases
-    # Set up: Create an example file from the enc_2023_excerpt_2_error_case
+    # Set up: Create an example file from the enc_2023_excerpt_2_error_cases
     fp = tempfile.NamedTemporaryFile(mode='w', encoding='utf-8', 
                                      prefix='enc_2023_excerpt_',
                                      suffix='.vert', delete=False)
@@ -341,8 +367,8 @@ def test_parse_enc2023_file_iterator_error_cases():
             text_count += 1
             word_count += len(text['original_morph_analysis'])
             texts.append(text)
-        assert text_count == 2
-        assert word_count == 7 + 14
+        assert text_count == 3
+        assert word_count == 7 + 14 + 16
         assert texts[1].meta == \
             {'src': 'Timestamped 2014–2023', 'genre': 'periodicals', 'genre_src': 'site list', 
              'title': 'Ivi Eenmaa: "Rahu, ainult rahu! Kõik, mis on tulnud Hiinast, ei kesta kaua!', 
@@ -350,6 +376,16 @@ def test_parse_enc2023_file_iterator_error_cases():
              'feed': 'https://www.ohtuleht.ee/rss', 'timestamp_year': '2020', 'timestamp_month': '2020-03', 
              'timestamp_quarter': '2020q1', 'timestamp_date': '2020-03-14', 'feed_fetched': '2020-03-14', 
              'crawled_date': '2020-03-14', 'id': 'https://elu.ohtuleht.ee/995275/ivi-eenmaa-rahu-ainult-rahu-koik-mis-on-tulnud-hiinast-ei-kesta-kaua(doc@line:14)', 
+             'autocorrected_paragraphs': False}
+        assert texts[2].meta == \
+            {'src': 'Timestamped 2014–2023', 'topic': 'culture & entertainment', 'genre': 'periodicals', 
+             'topic_src': 'site list', 'genre_src': 'site list', 
+             'title': 'Plekktrummi" saatekülaline tuleval nädalal on Liisa Pakosta', 
+             'url': 'https://kultuur.err.ee/1608130063/plekktrummi-saatekulaline-tuleval-nadalal-on-liisa-pakosta', 
+             'feed': 'https://kultuur.err.ee/rss', 'timestamp_year': '2021', 'timestamp_month': '2021-03', 
+             'timestamp_quarter': '2021q1', 'timestamp_date': '2021-03-04', 'feed_fetched': '2021-03-04', 
+             'crawled_date': '2021-03-04', 
+             'id': 'https://kultuur.err.ee/1608130063/plekktrummi-saatekulaline-tuleval-nadalal-on-liisa-pakosta(doc@line:36)', 
              'autocorrected_paragraphs': False}
     finally:
         # clean up: remove temporary file

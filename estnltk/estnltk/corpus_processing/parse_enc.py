@@ -93,7 +93,9 @@ def parse_tag_attributes( tag_str:str, logger:Logger=None,
                 last_ch = tag_str[cid-1] if cid-1 > -1 else ''
                 next_ch = tag_str[cid+1] if cid+1 < len(tag_str) else ''
                 # Check if we have a legal quotation
-                if last_ch+ch == '="' or ch+next_ch in ['" ', '">']:
+                if (last_ch+ch == '="') or \
+                   (ch+next_ch == '">') or \
+                   (ch+next_ch == '" ' and re.match('" ([^= ]+)="', tag_str[cid:])):
                     new_tag_str.append(ch)
                 else:
                     # Replace illegal quotation with '&quot';
