@@ -1,5 +1,6 @@
 import os
 import unittest
+import pkgutil
 from collections import OrderedDict
 
 from estnltk import Text
@@ -13,6 +14,7 @@ STANZA_SYNTAX_MODELS_PATH = get_resource_paths("stanzasyntaxensembletagger", onl
 skip_message_missing_models = \
   "StanzaSyntaxEnsembleTagger's resources have not been downloaded. Use estnltk.download('stanzasyntaxensembletagger') to fetch the missing resources."
 
+skip_message_missing_scipy = "Package scipy is required for running this test."
 
 # Check if the ensemble models exist @ STANZA_SYNTAX_MODELS_PATH and can be tested
 def ensemble_models_exist():
@@ -25,8 +27,11 @@ def ensemble_models_exist():
     for model in os.listdir(ensemble_path):
         models_count += 1 if model.endswith('.pt') else 0
     return models_count > 0
-    
- 
+
+# Checks whether the scipy package exists (required only for find_entropy settings)
+def scipy_exists():
+    return (pkgutil.find_loader('scipy') is not None)
+
 @unittest.skipIf(STANZA_SYNTAX_MODELS_PATH is None, skip_message_missing_models)
 @unittest.skipIf( not ensemble_models_exist(), skip_message_missing_models )
 def test_stanza_syntax_ensemble_tagger():
@@ -511,6 +516,7 @@ def _normalize_entropy_values( layer_dict ):
 
 
 @unittest.skipIf(STANZA_SYNTAX_MODELS_PATH is None, skip_message_missing_models)
+@unittest.skipIf( not scipy_exists(), skip_message_missing_scipy )
 @unittest.skipIf( not ensemble_models_exist(), skip_message_missing_models )
 def test_stanza_syntax_ensemble_tagger_with_find_entropy():
     # Test StanzaSyntaxEnsembleTagger's find_entropy functionality
