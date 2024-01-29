@@ -276,15 +276,15 @@ def test_stanza_syntax_tagger_smoke():
 def test_stanza_syntax_tagger_sentences():
     text = Text('Väike jänes jooksis metsa! Mina ei jookse.')
     text.tag_layer('sentences')
-    # Apply stanza's original et_depparse pipeline (on tokenized unambigous input)
+    # Apply stanza's original et pipeline (on tokenized unambigous input)
     stanza_tagger = StanzaSyntaxTagger(input_type='sentences',
                                        random_pick_seed=4,
                                        resources_path=STANZA_SYNTAX_MODELS_PATH,
                                        depparse_path=os.path.join(STANZA_SYNTAX_MODELS_PATH,
                                                                   'et', 'depparse', 'stanza_depparse.pt'))
     stanza_tagger.tag(text)
-    # Note: when stanza updates the et_depparse model, there 
-    # can be disparencies from the original stanza's output. 
+    # Note: when stanza updates the et pipeline, there can 
+    # be disparencies from the original stanza's output. 
     # Therefore, use fine-grained comparsion and account for 
     # expected differences
     new_stanza_syntax_sentences = layer_to_dict(text.stanza_syntax)

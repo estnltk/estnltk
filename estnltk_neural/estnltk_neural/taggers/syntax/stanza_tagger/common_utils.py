@@ -71,7 +71,7 @@ def prepare_input_doc(layers: MutableMapping[str, 'Layer'], sentences:str, morph
                     'xpos': annotation['partofspeech'],
                     'feats': feats,
                     'misc': '_',
-                    'deps': '_',
+                    'deps': None,
                 }
                 # Replace or remove specific fields (optional)
                 if remove_fields is not None:
