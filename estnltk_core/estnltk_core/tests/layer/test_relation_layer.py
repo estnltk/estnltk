@@ -147,7 +147,7 @@ def test_relation_layer_basic_enveloping():
     
     layer.add_annotation( {'arg0': [(0, 4), (4, 6)], 'arg1': [(6, 12)], 'attr1': 1})
     
-    assert layer.span_level is 1
+    assert layer.span_level == 1
     
     with pytest.raises(ValueError):
         # error: layer is enveloping, but tries to add enveloping spans with wrong level
