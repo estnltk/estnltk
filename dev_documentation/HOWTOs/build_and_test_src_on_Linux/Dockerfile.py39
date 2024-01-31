@@ -1,5 +1,6 @@
 #
 # Docker file for Ubuntu 22.04 based EstNLTK 1.7 devel building, installing and testing
+# (Python 3.9)
 #
 # ================================
 #   Set up OS
@@ -63,20 +64,30 @@ RUN conda config --set always_yes yes && \
     conda info -a
 
 # ================================
-#   Python 3.10
+#   Python 3.9
 # ================================
-RUN echo " Python 3.10 " | figlet 
-RUN conda create -n py310 python=3.10
+RUN echo " Python 3.9 " | figlet 
+RUN conda create -n py39 python=3.9
 #
 # Make RUN commands to use the new environment (https://pythonspeed.com/articles/activate-conda-dockerfile/)
 #
-SHELL ["conda", "run", "-n", "py310", "/bin/bash", "-c"]
+SHELL ["conda", "run", "-n", "py39", "/bin/bash", "-c"]
 RUN python --version
+
+#
+# Install legacy versions of dependency packages. 
+# Note: these package versions may be outdated, but 
+# they are required to get EstNLTK's installation 
+# working on Python 3.9
+#
+RUN pip install ipython==8.18.1
+
 #
 # Install packages required for testing
 #
 RUN conda install pytest
 RUN conda install -c conda-forge pytest-httpserver
+
 
 # ================================
 #   Get EstNLTK's devel source
@@ -145,6 +156,6 @@ RUN pytest --pyargs estnltk.tests
 #RUN rm -r dist
 #WORKDIR /
 # Remove the environment
-#RUN conda remove --name py310 --all
+#RUN conda remove --name py39 --all
 
 #ENTRYPOINT ["/bin/bash"]
