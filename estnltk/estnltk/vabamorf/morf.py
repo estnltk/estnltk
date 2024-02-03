@@ -178,6 +178,8 @@ class Vabamorf(object):
 
         Parameters
         ----------
+        stem: boolean (default: False)  # TV-2024.02.03 ???
+            asenda lemma tüvega         # TV-2024.02.03 ???        
         words: list of str or str
             Either a list of pretokenized words or a string. In case of a string, it will be splitted using
             default behaviour of string.split() function.
@@ -209,7 +211,8 @@ class Vabamorf(object):
             kwargs.get('disambiguate', True),
             kwargs.get('guess', True),
             True, # add phonetic and compound information by default
-            kwargs.get('propername', True))
+            kwargs.get('propername', True),
+            kwargs.get('stem', False)) # TV-2024.02.03 ???
         preserve_phonetic = kwargs.get('phonetic', False)
         preserve_compound = kwargs.get('compound', True)
 
