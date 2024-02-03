@@ -123,7 +123,9 @@ public:
         const bool disambiguate,
         const bool guess,
         const bool phonetic,
-        const bool propername);
+        const bool propername,
+        const bool stem = false  // TV-2024.02.03    
+        );
 
     /**
      * Disambiguate a sentence that is already analyzed.
