@@ -54,6 +54,7 @@ DEFAULT_PARAM_GUESS        = True
 DEFAULT_PARAM_PROPERNAME   = True
 DEFAULT_PARAM_PHONETIC     = False
 DEFAULT_PARAM_COMPOUND     = True
+DEFAULT_PARAM_STEM         = False # TV-2024.02.04 ???
 
 # Morphological analysis attributes used by Vabamorf
 VABAMORF_ATTRIBUTES = ('root', 'ending', 'clitic', 'form', 'partofspeech')

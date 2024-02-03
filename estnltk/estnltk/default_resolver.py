@@ -12,8 +12,10 @@ from estnltk.common import DEFAULT_PARAM_COMPOUND
 from estnltk.common import ESTNLTK_MORPH_ATTRIBUTES
 from estnltk.common import NORMALIZED_TEXT
 from estnltk.common import IGNORE_ATTR
+from estnltk.common import DEFAULT_PARAM_STEM # TV-2024.02.04 ???
 
 def make_resolver(
+                 stem        =DEFAULT_PARAM_STEM, # TV-2024.02.04 ???        
                  disambiguate=DEFAULT_PARAM_DISAMBIGUATE,
                  guess       =DEFAULT_PARAM_GUESS,
                  propername  =DEFAULT_PARAM_PROPERNAME,
@@ -37,6 +39,8 @@ def make_resolver(
 
     Parameters
     ----------
+    stem: boolean (default: False)  # TV-2024.02.03 ???
+        asenda lemma tüvega         # TV-2024.02.03 ???
     guess: boolean (default: True)
         Use guessing in case of unknown words (Vabamorf's parameter).
     propername: boolean (default: True)
@@ -76,6 +80,7 @@ def make_resolver(
 
     """
     vabamorf_tagger_parameters = { \
+        'stem': stem,   # TV-2024.02.04 ???        
         'disambiguate': disambiguate,
         'guess': guess,
         'propername': propername,
