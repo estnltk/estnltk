@@ -2,7 +2,7 @@
 This package provides tools to conveniently store and search `estnltk` Text objects in a sqlite3 database.
 ( https://docs.python.org/3/library/sqlite3.html )
 
-Currently, we assume that SqliteCollection (one document collection) corresponds to a single db file. 
+Currently, we assume that SqliteCollection (a document collection) corresponds to a single db file. 
 
 An open question: since sqlite is optimized for handling multiple tables in a single file (but see also:
 https://stackoverflow.com/a/50281741 ), we could, in principle, also store multiple (small?) collections 

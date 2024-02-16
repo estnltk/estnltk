@@ -2,6 +2,10 @@ import sqlite3
 from contextlib import contextmanager
 
 
+class SqliteCollectionException(Exception):
+    pass
+
+
 __version__ = '0.0'
 
 class SqliteCollection:
@@ -9,8 +13,8 @@ class SqliteCollection:
     Collection of Text objects and their metadata in an sqlite3 database.
     
     Allows to:
-    * insert Text objects along with metadata and attached layers;
-    * query/iterate over Text objects and their layers and metadata;
+    * insert Text objects (along with attached layers and metadata);
+    * query/iterate over Text objects (along with attached layers and metadata);
 
 
     Creating/accessing a collection
@@ -33,6 +37,7 @@ class SqliteCollection:
     Example. Insert Text objects with words layers:
 
         # Insert into the collection
+        # Note: all texts must have same layers
         with collection.insert() as collection_insert:
             collection_insert( Text( ... ).tag_layer('words') )
             collection_insert( Text( ... ).tag_layer('words') )
@@ -76,10 +81,16 @@ class SqliteCollection:
 
     Closing connection
     ====================
-    After you've done the work, close the connection:
+    After the work is done, close the connection:
 
         collection.close()
 
+
+    Removing db from disk
+    ========================
+    For removing database from disk, call:
+
+        collection.delete()
     """
 
 
@@ -91,7 +102,7 @@ class SqliteCollection:
         then connects to an existing collection. Otherwise, creates a new 
         collection. 
         
-        Raises SqliteStorageException if a collection (file) already 
+        Raises SqliteCollectionException if a collection (file) already 
         exists and its version does not match with the __version__.
         
         Parameters
@@ -112,6 +123,9 @@ class SqliteCollection:
         SqliteCollection
             an instance of the created collection
         """
+        # TODO: if the collection does not exist, create a new database with a 
+        # minimal structure table that stores __version__ of this collection
+        # TODO: if the collection/database exists, check that the versions are matching
         pass
 
 
@@ -128,7 +142,7 @@ class SqliteCollection:
 
 
     @contextmanager
-    def insert(self, buffer_size=10000):
+    def insert(self):
         """
         Context manager for inserting of Text objects into the collection. 
         Ensures that all insertions will be properly commited to the database. 
@@ -142,25 +156,20 @@ class SqliteCollection:
         If inserted Text objects contain layers, then these layers become "attached
         layers", meaning that they are stored in the same table as Text objects,
         and these layers will always be retrieved with Text objects.
+        
         After the first Text object has been inserted, the attached layers of the
         collection are frozen. Which means that other insertable Text objects must
-        have exactly the same layers (and attached layers cannot be changed after
-        the first insertion).
-        
-        Parameters
-        -----------
-        :param buffer_size: int
-            Maximum buffer size (in table rows) for the insert query. 
-            If the size is met or exceeded, the insert buffer will be flushed.
-            (Default: 10000)
+        have exactly the same layers and attached layers cannot be changed after
+        the first insertion.
         """
         
         # TODO: if this collection is empty, then the structure must be initialized: 
-        # a table for storing Text objects (and, optionally, metadata) must be created 
+        # a table for storing Text objects (and, optionally, metadata columns) must 
+        # be created 
         
         # TODO: if this collection already has documents, then check that inserted 
-        # Text objects have same layers as the collection. 
-        # Raise a SqliteStorageException is one tries to insert documents with different 
+        # Text objects have same the layers as the collection. 
+        # Raise a SqliteCollectionException is one tries to insert documents with different 
         # layers.
         
         # TODO: How to define context managers, see:
@@ -177,7 +186,7 @@ class SqliteCollection:
         """
         Iterates over text objects of the collection. 
 
-        Raises SqliteStorageException if indexes start/end do not meet 
+        Raises SqliteCollectionException if indexes start/end do not meet 
         limits of this collection.
 
         Parameters
@@ -207,6 +216,14 @@ class SqliteCollection:
 
     def close(self):
         """Closes connection to the database."""
+        pass
+
+    def delete(self):
+        """
+        Closes the connection (optional) and deletes this database from disk. 
+        Note: after the deletion, calling insert()/select() etc methods 
+        should result in an SqliteCollectionException.
+        """
         pass
 
     def __len__(self):
