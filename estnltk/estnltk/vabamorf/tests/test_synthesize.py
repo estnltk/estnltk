@@ -1,9 +1,10 @@
-# -*- coding: utf-8 -*-
 from __future__ import unicode_literals, print_function
 
-from ..morf import synthesize
+from estnltk.vabamorf.morf_extra import synthesize
 import unittest
 
+
+# noinspection SpellCheckingInspection
 class TestSynthesize(unittest.TestCase):
     
     def test_pood(self):
