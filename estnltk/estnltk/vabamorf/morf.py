@@ -33,7 +33,7 @@ import operator
 from functools import reduce
 
 # path listings
-PACKAGE_PATH   = os.path.dirname(__file__)
+PACKAGE_PATH = os.path.dirname(__file__)
 DICT_ROOT_PATH = os.path.join(PACKAGE_PATH, 'dct')
 
 # =============================================================================
@@ -44,6 +44,7 @@ DICT_ROOT_PATH = os.path.join(PACKAGE_PATH, 'dct')
 phonetic_markers = frozenset('~?]<')
 compound_markers = frozenset('_+=')
 all_markers = phonetic_markers | compound_markers
+
 
 def regex_from_markers(markers):
     """Given a string of characters, construct a regex that matches them.
@@ -60,18 +61,20 @@ def regex_from_markers(markers):
     """
     return re.compile('|'.join([re.escape(c) for c in markers]))
 
+
 phonetic_regex = \
     regex_from_markers(phonetic_markers)
 phonetic_marker_repetition_regex = \
-    re.compile( '^('+('|'.join([re.escape(c) for c in phonetic_markers]))+')+$' )
+    re.compile('^('+('|'.join([re.escape(c) for c in phonetic_markers]))+')+$')
 compound_regex = regex_from_markers(compound_markers)
 
 
 def convert(word):
-    """This method converts given `word` to UTF-8 encoding and `bytes` type for the
-       SWIG wrapper."""
+    """
+    This method converts given `word` to UTF-8 encoding and `bytes` type for the SWIG wrapper.
+    """
     if isinstance(word, bytes):
-        return word.decode('utf-8') # bytes must be in utf8
+        return word.decode('utf-8')  # bytes must be in utf8
     return word
 
 
@@ -80,27 +83,29 @@ def convert(word):
 # =============================================================================
 
 # All Vabamorf's lexicons available in EstNLTK
-VM_LEXICONS = [item for item in sorted(os.listdir(DICT_ROOT_PATH),reverse=False) if os.path.isdir(os.path.join(DICT_ROOT_PATH,item))]
+VM_LEXICONS = [item for item in sorted(os.listdir(DICT_ROOT_PATH), reverse=False) if os.path.isdir(os.path.join(DICT_ROOT_PATH, item))]
 
-def get_vm_lexicon_files( vm_lexicon_dir, dict_path=DICT_ROOT_PATH ):
-    '''Given EstNLTK's directory that contains Vabamorf\'s lexicons, 
-       creates names of the lexicon files, checks for their existence 
-       and returns a tuple of lexicon file paths:
-          ( path to analyser's lexicon, 
-            path to disambiguator's lexicon ).
-       If vm_lexicon_dir is a directory name without path, and 
-       dict_path is provided, then first constructs the full path 
-       to Vabamorf\'s lexicon directory by joining dict_path and 
-       vm_lexicon_dir;
-    '''
+
+def get_vm_lexicon_files(vm_lexicon_dir, dict_path=DICT_ROOT_PATH):
+    """
+    Given EstNLTK's directory that contains Vabamorf\'s lexicons,
+    creates names of the lexicon files, checks for their existence
+    and returns a tuple of lexicon file paths:
+      ( path to analyser's lexicon,
+        path to disambiguator's lexicon ).
+    If vm_lexicon_dir is a directory name without path, and
+    dict_path is provided, then first constructs the full path
+    to Vabamorf\'s lexicon directory by joining dict_path and
+    vm_lexicon_dir;
+    """
     if not os.path.isdir(vm_lexicon_dir) and dict_path is not None:
         vm_lexicon_dir = os.path.join(dict_path, vm_lexicon_dir)
     assert os.path.isdir(vm_lexicon_dir), '(!) Unexpected Vabamorf\'s lexicon directory {!r}'.format(vm_lexicon_dir)
-    et_file  = os.path.join(vm_lexicon_dir, 'et.dct')
+    et_file = os.path.join(vm_lexicon_dir, 'et.dct')
     et3_file = os.path.join(vm_lexicon_dir, 'et3.dct')
     assert os.path.isfile(et_file), '(!) Unable to find Vabamorf analyser\'s lexicon file: {!r}'.format(et_file)
     assert os.path.isfile(et3_file), '(!) Unable to find Vabamorf disambiguator\'s lexicon file: {!r}'.format(et3_file)
-    return (et_file, et3_file)
+    return et_file, et3_file
 
 
 # =============================================================================
@@ -108,7 +113,11 @@ def get_vm_lexicon_files( vm_lexicon_dir, dict_path=DICT_ROOT_PATH ):
 # =============================================================================
 
 class Vabamorf(object):
-    """Class for performing main tasks of morphological analysis.
+    """
+    Class for performing main tasks of morphological analysis.
+
+    TODO: Force one instance per process
+    TODO: Find out why there can be only one vabamorf instance per process
 
     Attributes
     ----------
@@ -202,9 +211,9 @@ class Vabamorf(object):
             vm.StringVector(words),
             kwargs.get('disambiguate', True),
             kwargs.get('guess', True),
-            True, # add phonetic and compound information by default
+            True,  # add phonetic and compound information by default
             kwargs.get('propername', True),
-            kwargs.get('stem', False)) # TV-2024.02.03 ???
+            kwargs.get('stem', False))  # TV-2024.02.03 ???
         preserve_phonetic = kwargs.get('phonetic', False)
         preserve_compound = kwargs.get('compound', True)
 
@@ -455,7 +464,7 @@ def get_group_tokens(root):
         List of grouped root tokens.
     """
     global all_markers
-    if root in all_markers or root in ['-', '_']: # special case
+    if root in all_markers or root in ['-', '_']:  # special case
         return [[root]]
     groups = []
     for group in root.split('-'):
