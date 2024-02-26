@@ -1,11 +1,9 @@
-# -*- coding: utf-8 -*-
-
-from ..morf import analyze
+from estnltk.vabamorf.morf_extra import analyze
 from multiprocessing import Pool
 import unittest
-import os
 
 
+# noinspection SpellCheckingInspection
 class MultithreadingTest(unittest.TestCase):
     
     def test_multi(self):
@@ -17,7 +15,7 @@ class MultithreadingTest(unittest.TestCase):
     def compute_multi(self):
         pool = Pool(3)
         return pool.map(analyze, self.indata())
-    
+
     def indata(self):
         return [
             '«Olen saatnud klubile paberi, et homseni (tänaseni – toim) on neil aega ära maksta kõik võlgnevused, mida on 4,5 kuu palga jagu. Lisaks peaksid nad mind taas kaasama esindusmeeskonna tegemistesse,» rääkis Pareiko Volgale esitatud nõudmistest ning avaldas, mis juhtub, kui neid ei täideta: «Siis katkestan teisipäeval omalt poolt meeskonnaga lepingu ning tulen kolmapäeval Tallinna. Kogu juhtum läheb seejärel edasi UEFAsse.»',
