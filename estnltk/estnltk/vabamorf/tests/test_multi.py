@@ -1,4 +1,4 @@
-from estnltk.vabamorf.morf_extra import analyze
+from estnltk.vabamorf.tests.morph_extra import analyze
 from multiprocessing import Pool
 import unittest
 

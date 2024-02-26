@@ -1,5 +1,5 @@
 import unittest
-from estnltk.vabamorf.morf_extra import analyze, disambiguate
+from estnltk.vabamorf.tests.morph_extra import analyze, disambiguate
 
 
 # noinspection SpellCheckingInspection

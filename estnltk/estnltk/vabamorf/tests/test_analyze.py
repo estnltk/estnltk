@@ -3,7 +3,7 @@ import operator
 
 from functools import reduce
 from estnltk.vabamorf.morf import trim_phonetics, get_group_tokens, postprocess_analysis, convert
-from estnltk.vabamorf.morf_extra import analyze
+from estnltk.vabamorf.tests.morph_extra import analyze
 
 # noinspection PyUnresolvedReferences
 from estnltk.vabamorf.vabamorf import Analysis
