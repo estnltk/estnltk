@@ -7,6 +7,7 @@ from estnltk.vabamorf.morf import convert
 # Analysing these characters alone causes syllabifier to crash, so
 # we should refrain from analysing them and only analyse strings and
 # symbols around them.
+# TODO: There is only one place where it is used inline its usage there
 _SPECIAL_SYMBOL_SYLLABLES = {
     '-': {'syllable': '-', 'quantity': 3, 'accent': 1},
     '/': {'syllable': '/', 'quantity': 3, 'accent': 1}
@@ -61,17 +62,15 @@ def syllable_as_tuple(syllable):
     return syllable.syllable, syllable.quantity, syllable.accent
 
 
-# Heuristic: attempts to split the input word by its
-# compound word boundaries. Only succeeds if:
-#  a) the input word is unambiguously a compound word;
-#  b) lemma and the surface form of the input word
-#     match by prefix (to extent of compound word
-#     boundaries);
-# If tolerance is defined (default: tolerance=2), then
-# allows the given amount of characters to be mismatched
-# at the end of a sub word of the compound if the
-# mismatch is followed by at least 2 matching characters
 def _split_compound_word_heuristically(word_text, tolerance=2):
+    """
+    Attempts to split the input word by its compound word boundaries. Only succeeds if:
+    a) the input word is unambiguously a compound word;
+    b) lemma and the surface form of the input word match by prefix (to extent of compound word boundaries);
+
+    If tolerance is defined (default: tolerance=2), then allows the given amount of characters to be mismatched
+    at the end of a sub word of the compound if the mismatch is followed by at least 2 matching characters
+    """
     # Discard unanalysable inputs
     if word_text is None or len(word_text) == 0 or word_text.isspace():
         return [word_text]
@@ -108,10 +107,13 @@ def _split_compound_word_heuristically(word_text, tolerance=2):
                     if next_j >= len(root_tokens[next_i]):
                         next_j = 0
                         next_i += 1
+
+                    # TODO: remove this variable by inlining this code into if statement
                     next_is_also_match = (next_c < len(word) and
                                           next_i < len(root_tokens) and
                                           next_j < len(root_tokens[next_i]) and
                                           word[next_c] == all_root_tokens[next_i][next_j])
+
                     if next_is_also_match:
                         # Return a matching position only if
                         # the next position also matched
@@ -224,9 +226,10 @@ def _split_compound_word_heuristically(word_text, tolerance=2):
     return [word_text]
 
 
-# Prepares word for syllabification: tokenizes word in a way
-# that dash and slash are separate symbols
 def _split_word_for_syllabification(word_text):
+    """
+    Prepares word for syllabification. Tokenizes word in a way that dash and slash are separate symbols.
+    """
     split_word = [[]]
     for cid, c in enumerate(word_text):
         if c not in ['-', '/']:
