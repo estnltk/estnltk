@@ -1,8 +1,6 @@
 from estnltk.vabamorf.morf import Vabamorf
 
 
-
-
 def synthesize(lemma, form, partofspeech='', hint='', guess=True, phonetic=False):
     """Synthesize a single word based on given morphological attributes.
 

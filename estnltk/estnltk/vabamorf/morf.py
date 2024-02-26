@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Morphoanalysis/synthesis functionality of estnltk vabamorf package.
 
@@ -76,13 +75,6 @@ def convert(word):
     return word
 
 
-def deconvert(word):
-    """This method converts back the output from wrapper.
-       Result should be `unicode` for Python2 and `str` for Python3"""
-    # TODO: Is this method required at all? Nothing to do here in Python 3
-    return word
-
-
 # =============================================================================
 #   Handling Vabamorf's lexicons
 # =============================================================================
@@ -144,7 +136,7 @@ class Vabamorf(object):
     def __init__(self, lexicon_dir=VM_LEXICONS[-1], lex_path=None, disamb_lex_path=None):
         """Initialize Vabamorf class.
 
-        NB! Do not use this class directly. Instead use Vabamorf.instance() to obtain access to one.
+        NB! Do not use this class directly. Instead, use Vabamorf.instance() to obtain access to one.
         Use this only when you want to define custom paths to lexicons / dictionaries.
 
         Parameters
@@ -181,7 +173,7 @@ class Vabamorf(object):
         stem: boolean (default: False)  # TV-2024.02.03 ???
             asenda lemma tüvega         # TV-2024.02.03 ???        
         words: list of str or str
-            Either a list of pretokenized words or a string. In case of a string, it will be splitted using
+            Either a list of pretokenized words or a string. In case of a string, it will be split using
             default behaviour of string.split() function.
         disambiguate: boolean (default: True)
             Disambiguate the output and remove incosistent analysis.
@@ -255,7 +247,7 @@ class Vabamorf(object):
         Parameters
         ----------
         words: list of str or str
-            Either a list of pretokenized words or a string. In case of a string, it will be splitted using
+            Either a list of pretokenized words or a string. In case of a string, it will be split using
             default behaviour of string.split() function.
         suggestions: boolean (default: True)
             Add spell suggestions to result.
@@ -277,9 +269,9 @@ class Vabamorf(object):
         spellresults = self._morf.spellcheck(words, suggestions)
         results = []
         for spellresult in spellresults:
-            suggestions = [deconvert(s) for s in spellresult.suggestions]
+            suggestions = list(spellresult.suggestions)
             result = {
-                'text': deconvert(spellresult.word),
+                'text': spellresult.word,
                 'spelling': spellresult.spelling,
                 'suggestions': suggestions
             }
@@ -292,7 +284,7 @@ class Vabamorf(object):
         Parameters
         ----------
         words: list of str or str
-            Either a list of pretokenized words or a string. In case of a string, it will be splitted using
+            Either a list of pretokenized words or a string. In case of a string, it will be split using
             default behaviour of string.split() function.
         join: boolean (default: True)
             Should we join the list of words into a single string.
@@ -321,7 +313,6 @@ class Vabamorf(object):
             return joinstring.join(fixed_words)
         else:
             return fixed_words
-
 
     def synthesize(self, lemma, form, partofspeech='', hint='', guess=True, phonetic=False):
         """Synthesize a single word based on given morphological attributes.
@@ -357,20 +348,20 @@ class Vabamorf(object):
             guess,
             phonetic
         )
-        return [deconvert(w) for w in words]
+        return list(words)
 
 
 def postprocess_result(morphresult, preserve_phonetic, preserve_compound):
     """Postprocess vabamorf wrapper output."""
     word, analysis = morphresult
     return {
-        'text': deconvert(word),
+        'text': word,
         'analysis': [postprocess_analysis(a, preserve_phonetic, preserve_compound) for a in analysis]
     }
 
 
 def postprocess_analysis(analysis, preserve_phonetic, preserve_compound):
-    root = deconvert(analysis.root)
+    root = analysis.root
 
     # extract tokens and construct lemma
     grouptoks = get_group_tokens(root)
@@ -380,10 +371,10 @@ def postprocess_analysis(analysis, preserve_phonetic, preserve_compound):
     return {
         'root': get_root(root, preserve_phonetic, preserve_compound),
         'root_tokens': toks,
-        'ending': deconvert(analysis.ending),
-        'clitic': deconvert(analysis.clitic),
-        'partofspeech': deconvert(analysis.partofspeech),
-        'form': deconvert(analysis.form),
+        'ending': analysis.ending,
+        'clitic': analysis.clitic,
+        'partofspeech': analysis.partofspeech,
+        'form': analysis.form,
         'lemma': lemma
         }
 
@@ -493,11 +484,6 @@ def as_analysis(analysis):
 def as_wordanalysis(word):
     analysis = vm.AnalysisVector([as_analysis(a) for a in word['analysis']])
     return vm.WordAnalysis(convert(word['text']), analysis)
-
-
-######################################################
-# SHORTCUT FUNCTIONS
-######################################################
 
 
 

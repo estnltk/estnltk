@@ -1,6 +1,6 @@
 from __future__ import unicode_literals, print_function
 
-from estnltk.vabamorf.morf_extra import synthesize
+from estnltk.vabamorf.synthesize import synthesize
 import unittest
 
 
