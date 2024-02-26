@@ -1,5 +1,5 @@
 from estnltk.taggers import Retagger
-from estnltk.vabamorf.morf import syllabify_word
+from estnltk.vabamorf.syllabify import syllabify_word
 from estnltk.taggers.miscellaneous import flesch
 
 

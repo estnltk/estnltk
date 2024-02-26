@@ -1,12 +1,15 @@
-# -*- coding: utf-8 -*-
-
 import unittest
 import operator
-from ..morf import trim_phonetics, get_group_tokens, postprocess_analysis, convert, analyze
-from ..vabamorf import Analysis
+
 from functools import reduce
+from estnltk.vabamorf.morf import trim_phonetics, get_group_tokens, postprocess_analysis, convert
+from estnltk.vabamorf.morf_extra import analyze
+
+# noinspection PyUnresolvedReferences
+from estnltk.vabamorf.vabamorf import Analysis
 
 
+# noinspection SpellCheckingInspection
 class TrimPhoneticsTest(unittest.TestCase):
     
     def test_tilde(self):
@@ -32,8 +35,9 @@ class TrimPhoneticsTest(unittest.TestCase):
         
     def test_phonetics(self):
         self.assertEqual(trim_phonetics('~~???ab]c<d'), 'abcd')
-        
 
+
+# noinspection SpellCheckingInspection
 class TokensTest(unittest.TestCase):
 
     def get_tokens(self, root):
@@ -70,8 +74,9 @@ class TokensTest(unittest.TestCase):
     def test_hyphen(self):
         tokens = self.get_tokens('-')
         self.assertListEqual(tokens, ['-'])
-        
 
+
+# noinspection SpellCheckingInspection
 class AnalysisAsDictTest(unittest.TestCase):
     
     def test_verb_phonetic_compound(self):
@@ -193,21 +198,21 @@ class AnalysisAsDictTest(unittest.TestCase):
                 'root': 'lennukikandja'}
                 
 
-# http://luuletused.ee/1005/elu/hetke-volu  (by Seebivaht)
-SAMPLE_TEXT = '''Ma tahaks suudelda päikesekiiri
-vat nii ihalevad mu huuled päikese suule..
-Ma tahaks tantsida kesksuvises vihmas
-vat nii tunglevad minu tunded südames suures
-
-Keegi kord ütles, et ära karda
-armastus saab aja jooksul ainult kasvada
-Võta kõik vastu, mis sulle pakutakse,
-sest see, mis sulle antakse
-on sinu jaoks loodud'''
-
-
+# noinspection SpellCheckingInspection
 class TextIsSameAsListTest(unittest.TestCase):
+
+    # http://luuletused.ee/1005/elu/hetke-volu  (by Seebivaht)
+    SAMPLE_TEXT = '''Ma tahaks suudelda päikesekiiri
+    vat nii ihalevad mu huuled päikese suule..
+    Ma tahaks tantsida kesksuvises vihmas
+    vat nii tunglevad minu tunded südames suures
     
+    Keegi kord ütles, et ära karda
+    armastus saab aja jooksul ainult kasvada
+    Võta kõik vastu, mis sulle pakutakse,
+    sest see, mis sulle antakse
+    on sinu jaoks loodud'''
+
     def test_same(self):
         self.run_test(False, False, False)
         
@@ -233,22 +238,35 @@ class TextIsSameAsListTest(unittest.TestCase):
         text_output = analyze(self.text(),
                               guess=guess,
                               phonetic=phonetic,
-                              compound=compound )
+                              compound=compound)
         list_output = analyze(self.text().split(),
                               guess=guess,
                               phonetic=phonetic,
-                              compound=compound )
+                              compound=compound)
         self.assertListEqual(text_output, list_output)
     
     def text(self):
-        return SAMPLE_TEXT
+        return self.SAMPLE_TEXT
 
 
+# noinspection SpellCheckingInspection
 class DisambiguationTest(unittest.TestCase):
 
+    # http://luuletused.ee/1005/elu/hetke-volu  (by Seebivaht)
+    SAMPLE_TEXT = '''Ma tahaks suudelda päikesekiiri
+    vat nii ihalevad mu huuled päikese suule..
+    Ma tahaks tantsida kesksuvises vihmas
+    vat nii tunglevad minu tunded südames suures
+    
+    Keegi kord ütles, et ära karda
+    armastus saab aja jooksul ainult kasvada
+    Võta kõik vastu, mis sulle pakutakse,
+    sest see, mis sulle antakse
+    on sinu jaoks loodud'''
+
     def test_disambiguation(self):
-        yes = analyze(SAMPLE_TEXT, disambiguate=True)
-        no = analyze(SAMPLE_TEXT, disambiguate=False)
+        yes = analyze(self.SAMPLE_TEXT, disambiguate=True)
+        no = analyze(self.SAMPLE_TEXT, disambiguate=False)
 
         self.assertEqual(len(yes), len(no))
         for first, second in zip(yes, no):
@@ -258,9 +276,10 @@ class DisambiguationTest(unittest.TestCase):
 
 
 class NameGroupingTest(unittest.TestCase):
-    """vabamorf used to concatenate cases like "New York" etc as
-    a single token in previous versions, which was a unexpected feature.
-    It should not happen any more."""
+    """
+    The C++ module vabamorf used to concatenate cases like "New York" a sa single token
+    in previous versions, which was an unexpected feature. It should not happen anymore.
+    """
 
     def test_grouping(self):
         analysis = analyze('See on New York')

@@ -52,6 +52,7 @@ class VabamorfTagger(Tagger):
                   "compound",
                   "phonetic",
                   "slang_lex",
+                  "stem",
                   # postanalysis tagger
                   'postanalysis_tagger',
                   'use_postanalysis',
@@ -89,7 +90,8 @@ class VabamorfTagger(Tagger):
                  disambiguate=DEFAULT_PARAM_DISAMBIGUATE,
                  compound=DEFAULT_PARAM_COMPOUND,
                  phonetic=DEFAULT_PARAM_PHONETIC,
-                 slang_lex=False ):
+                 slang_lex=False,
+                 stem=False):
         """Initialize VabamorfTagger class.
 
         Note: Keyword arguments 'disambiguate', 'guess', 'propername',
@@ -162,6 +164,9 @@ class VabamorfTagger(Tagger):
             that "the slang lexicon" is not switched on by default;
             Note: this only works if you leave the parameter vm_instance 
             unspecified;
+        stem: boolean (default: False)
+            If True, then the analysis returns stem attribute instead
+             TODO: <mis see lipp teeb> Remove this option
         use_postanalysis: boolean (default: True)
             Whether postanalysis_tagger will be applied for post-correcting 
             morph layer. Post-corrections will be applied after morph analysis 
@@ -189,6 +194,7 @@ class VabamorfTagger(Tagger):
         self.compound     = compound
         self.phonetic     = phonetic
         self.slang_lex    = slang_lex
+        self.stem         = stem
         self.use_postanalysis = use_postanalysis
         self.use_reorderer    = use_reorderer
         self.predisambiguate  = predisambiguate

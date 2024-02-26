@@ -1,7 +1,7 @@
 from typing import List, Tuple, Generator
 
 from estnltk_core import ElementaryBaseSpan
-from estnltk.vabamorf.morf import synthesize
+from estnltk.vabamorf.morf_extra import synthesize
 
 
 
