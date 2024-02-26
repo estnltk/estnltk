@@ -1,5 +1,5 @@
 from estnltk.vabamorf import vabamorf as vm
-from estnltk.vabamorf.morf_extra import analyze
+from estnltk.vabamorf.morf import Vabamorf
 from estnltk.vabamorf.morf import convert
 
 # Note: dash and slash are special symbols for Vabamorf's syllabifier
@@ -75,7 +75,7 @@ def _split_compound_word_heuristically(word_text, tolerance=2):
     if word_text is None or len(word_text) == 0 or word_text.isspace():
         return [word_text]
     # Apply morph analysis to determine if we have a compound
-    analyses_of_word = analyze(word_text, guess=True, propername=True, disambiguate=False)
+    analyses_of_word = Vabamorf.instance().analyze(word_text, guess=True, propername=True, disambiguate=False)
 
     all_root_tokens = []
     for a in analyses_of_word[0]['analysis']:
