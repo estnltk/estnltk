@@ -113,7 +113,8 @@ class Vabamorf(object):
         assert disamb_lex_path is not None, '(!) disamb_lex_path unspecified. Please use the parameter disamb_lex_path to specify Vabamorf disambiguator\'s lexicon file.'
         self._morf = vm.Vabamorf(convert(lex_path), convert(disamb_lex_path))
 
-    def analyze(self, words, **kwargs):
+    def analyze(self, words, stem: bool=False, disambiguate: bool=True, guess: bool=True, propername: bool=True,
+                compound: bool=True, phonetic: bool=False, **kwargs):
         """Perform morphological analysis and disambiguation of given text.
 
         Parameters
@@ -146,15 +147,16 @@ class Vabamorf(object):
         # convert words to native strings
         words = [convert(w) for w in words]
 
+        # TODO: Clarify what does the hardwired True flag mean
         morfresults = self._morf.analyze(
             vm.StringVector(words),
-            kwargs.get('disambiguate', True),
-            kwargs.get('guess', True),
-            True,  # add phonetic and compound information by default
-            kwargs.get('propername', True),
-            kwargs.get('stem', False))  # TV-2024.02.03 ???
-        preserve_phonetic = kwargs.get('phonetic', False)
-        preserve_compound = kwargs.get('compound', True)
+            disambiguate,
+            guess,
+            True,  #  Should be phonetic but it is True as it has always been,  # add phonetic and compound information by default
+            propername,
+            stem)
+        preserve_phonetic = phonetic
+        preserve_compound = compound
 
         return [postprocess_result(mr, preserve_phonetic, preserve_compound) for mr in morfresults]
 

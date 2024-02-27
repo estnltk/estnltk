@@ -83,10 +83,11 @@ class MorphAnalyzedToken():
 
     @property
     def _analysis(self):
-        return MorphAnalyzedToken._analyze([self.text],
-                             guess=False,
-                             propername=False,
-                             disambiguate=False)[0]['analysis']
+        return MorphAnalyzedToken._analyze(
+            [self.text],
+            guess=False,
+            propername=False,
+            disambiguate=False)[0]['analysis']
 
     @property
     def _part_of_speeches(self):

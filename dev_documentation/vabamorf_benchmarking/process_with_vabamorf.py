@@ -107,11 +107,7 @@ for i in range(iterations):
             text_obj = json_to_text(file=fpath)
             input_words = [w.text for w in text_obj['words']]
             start_time = datetime.now()
-            results = \
-                    vm_instance.analyze(words=input_words, 
-                                             disambiguate=False, 
-                                             propername=True,
-                                             guess=True )
+            results = vm_instance.analyze(words=input_words, disambiguate=False, propername=True, guess=True)
             time_deltas.append( datetime.now() - start_time )
             assert len(results) == len(input_words)
             word_count += len(text_obj['words'])
@@ -151,11 +147,7 @@ for i in range(iterations):
             text_obj = json_to_text(file=fpath)
             input_words = [w.text for w in text_obj['words']]
             start_time = datetime.now()
-            results = \
-                    vm_instance.analyze(words=input_words, 
-                                             disambiguate=True, 
-                                             propername=True,
-                                             guess=True )
+            results = vm_instance.analyze(words=input_words, disambiguate=True, propername=True, guess=True)
             time_deltas.append( datetime.now() - start_time )
             assert len(results) == len(input_words)
             word_count += len(text_obj['words'])
