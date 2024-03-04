@@ -120,6 +120,40 @@ def test_parse_enc2023_file_iterator_w_original_tokenization():
                                                'otsima', '.']
 
 
+def test_parse_enc2023_file_iterator_w_document_index():
+    # Set up: Create an example file from the enc_2023_excerpt_1
+    fp = tempfile.NamedTemporaryFile(mode='w', encoding='utf-8', 
+                                     prefix='enc_2023_excerpt_',
+                                     suffix='.vert', delete=False)
+    fp.write( enc_2023_excerpt_1 )
+    fp.close()
+    # Attempt to parse enc 2023 file
+    try:
+        texts = []
+        for text_obj in parse_enc_file_iterator( fp.name, encoding='utf-8',\
+                                                 tokenization='preserve',
+                                                 add_document_index=True):
+            texts.append( text_obj )
+    finally:
+        # clean up: remove temporary file
+        os.remove(fp.name)
+    # Make assertions
+    assert len(texts) == 2
+    # Check document metadata (must contain indexing attributes '_doc_id', '_doc_start_line', '_doc_end_line'
+    assert texts[0].meta == \
+        {'src': 'Literature Old 1864–1945', 'filename': 'b10500790', 'original_author': 'Anton Hansen Tammsaare', 
+         'original_title': 'Kärbes', 'title': 'Kärbes', 'publisher': 'Maa', 'original_year': '1917*', 'published_year': '1917*', 
+         'genre': 'fiction:Short story|fiction', 'genre_src': 'source', 'translated': 'no', 'isbn': 'Unknown', 'id': '(doc@line:1)', 
+         'autocorrected_paragraphs': False, '_doc_id': 0, '_doc_start_line': 2, '_doc_end_line': 38}
+    assert texts[1].meta == \
+        {'src': 'Literature Old 1864–1945', 'filename': 'b11422737', 'original_author': 'Eduard Bornhöhe', 
+         'original_title': 'Tallinna narrid ja narrikesed', 'title': 'Tallinna narrid ja narrikesed', 'publisher': 'K. Busch', 
+         'original_year': '1892*', 'published_year': '1892*', 'genre': 'fiction:Set of stories|fiction', 
+         'genre_src': 'source', 'translated': 'no', 'isbn': 'Unknown', 'id': '(doc@line:38)', 'autocorrected_paragraphs': False, 
+         '_doc_id': 1, '_doc_start_line': 39, '_doc_end_line': 65}
+
+
+
 def test_parse_enc2023_file_iterator_w_original_morph():
     # Set up: Create an example file from the enc_2023_excerpt_1
     fp = tempfile.NamedTemporaryFile(mode='w', encoding='utf-8', 
@@ -398,4 +432,35 @@ def test_parse_enc2023_file_iterator_error_cases():
     finally:
         # clean up: remove temporary file
         os.remove(fp.name)
+    
+    # Parse error cases with document indexing
+    fp2 = tempfile.NamedTemporaryFile(mode='w', encoding='utf-8', 
+                                     prefix='enc_2023_excerpt_',
+                                     suffix='.vert', delete=False)
+    fp2.write( enc_2023_excerpt_2_error_cases )
+    fp2.close()
+    try:
+        # Parse ENC and restore only morph
+        texts = []
+        text_count = 0
+        word_count = 0
+        for text in parse_enc_file_iterator( fp2.name, encoding='utf-8',\
+                                             tokenization='preserve',
+                                             restore_morph_analysis=True,
+                                             add_document_index=True ):
+            assert 'original_morph_analysis' in text.layers
+            text_count += 1
+            word_count += len(text['original_morph_analysis'])
+            texts.append(text)
+        assert text_count == 3
+        assert word_count == 7 + 14 + 16
+        doc_indexing_fields = ['_doc_id', '_doc_start_line', '_doc_end_line']
+        filtered_meta = [dict((k, text.meta[k]) for k in doc_indexing_fields if k in text.meta) for text in texts]
+        # Check document metadata (must contain correct indexing attributes '_doc_id', '_doc_start_line', '_doc_end_line'
+        assert filtered_meta[0] == {'_doc_id': 0, '_doc_start_line': 2, '_doc_end_line': 14}
+        assert filtered_meta[1] == {'_doc_id': 1, '_doc_start_line': 15, '_doc_end_line': 36}
+        assert filtered_meta[2] == {'_doc_id': 2, '_doc_start_line': 37, '_doc_end_line': 62}
+    finally:
+        # clean up: remove temporary file
+        os.remove(fp2.name)
 

@@ -959,6 +959,7 @@ class VertXMLFileParser:
                        add_unexpected_tags_to_words:bool=False, \
                        record_linguistic_analysis:bool=False,\
                        always_create_paragraphs:bool=True,\
+                       add_document_index:bool=False,\
                        textReconstructor:ENCTextReconstructor=None,\
                        logger:Logger=None ):
         '''Initializes the parser.
@@ -972,7 +973,11 @@ class VertXMLFileParser:
                parsed, and all other documents will be skipped.
                If None or empty, then all documents in the content will 
                be parsed.
-               Important note: ids must be given as strings, not as 
+               Important note #1: these must be values of id attributes 
+               in <doc> tags of the XML content, not to be confused with 
+               _doc_id values used by VertXMLFileParser for indexing this 
+               specific .vert file. 
+               Important note #2: ids must be given as strings, not as 
                integers.
            focus_srcs: set of str
                Set of document src-s corresponding to subcorpora from 
@@ -1022,6 +1027,17 @@ class VertXMLFileParser:
                paragraphs, but forces adding paragraph annotations to all 
                documents (even to those that actually do not have paragraphs).
                (default: True)
+           add_document_index: boolean
+               If set, then collects indexing information about documents inside 
+               the vert XML file and records in Text meta. More specifically, 
+               adds additional metadata entries: 
+               * _doc_id -- index of the document in the vert file, starting from 0; 
+               * _doc_start_line -- line number on which the document started in 
+               the vert file, starting from 0; 
+               * _doc_start_end -- line number on which the document ended in the 
+               vert file; 
+               If not set, then no indexing information is added to Text meta. 
+               (default: False) 
            textReconstructor: ENCTextReconstructor
                ENCTextReconstructor instance that can be used for reconstructing
                the Text object based on extracted document content;
@@ -1032,10 +1048,13 @@ class VertXMLFileParser:
         assert not logger or isinstance(logger, Logger)
         assert not textReconstructor or isinstance(textReconstructor, ENCTextReconstructor)
         # Initialize the state of parsing
-        self.lines            = 0
-        self.inside_focus_doc = False
-        self.document         = {} # metadata of the document
-        self.content          = {} # content of the document or subdocument
+        self.lines               = 0
+        self.inside_focus_doc    = False
+        self.document            = {} # metadata of the document
+        self.content             = {} # content of the document or subdocument
+        self.document_id         = -1 # index of the document in the vert file, starting from 0
+        self.document_start_line = -1 # line on which the document started
+        self.document_end_line   = -1 # line on which the document ended
         self.fixed_paragraphs = 0  # how many <p> tags have been autocorrected
         self.last_was_glue    = False
         self.last_was_doc_end = False
@@ -1065,6 +1084,7 @@ class VertXMLFileParser:
         self.add_unexpected_tags_to_words = add_unexpected_tags_to_words
         self.record_linguistic_analysis   = record_linguistic_analysis
         self.always_create_paragraphs     = always_create_paragraphs
+        self.add_document_index           = add_document_index
         self.logger                       = logger
         self.textreconstructor            = textReconstructor
         if self.textreconstructor:
@@ -1085,7 +1105,8 @@ class VertXMLFileParser:
         # Patterns for detecting tags
         self.enc_doc_tag_start  = re.compile(r"^<doc[^<>]+>\s*$")
         self.enc_doc_tag_end    = re.compile(r"^</doc>\s*$")
-        # Info tags: used for marking subdocuments inside documents
+        # Info tags: used for marking subdocuments inside documents 
+        # (note: not used anymore in newer versions of the corpus)
         self.enc_info_tag_start = re.compile(r"^<info[^<>]+>\s*$")
         self.enc_info_tag_end   = re.compile(r"^</info>\s*$")
         self.enc_p_tag_start    = re.compile(r"^<p( [^<>]+)?>\s*$")
@@ -1141,6 +1162,11 @@ class VertXMLFileParser:
             self.document.clear()
             self.content.clear()
             self.fixed_paragraphs = 0
+            # Advance doc index, reset start & end
+            self.document_id += 1
+            assert self.document_id > -1
+            self.document_start_line = (self.lines + 1)
+            self.document_end_line   = -1
             # Carry over attributes
             attribs = parse_tag_attributes( stripped_line, logger=self.logger )
             for key, value in attribs.items():
@@ -1187,6 +1213,7 @@ class VertXMLFileParser:
             self.last_was_doc_end = True
         if m_doc_end and self.inside_focus_doc:
             self.inside_focus_doc = False
+            self.document_end_line = (self.lines + 1)
             if 'subdoc' in self.content:
                 # If document consisted of subdocuments, then we are finished
                 self.lines += 1
@@ -1214,6 +1241,11 @@ class VertXMLFileParser:
                 if self.textreconstructor:
                     # create Text object
                     text_obj = self.textreconstructor.reconstruct_text( self.content )
+                    if self.add_document_index:
+                        # Add vert file indexing information
+                        text_obj.meta['_doc_id'] = self.document_id
+                        text_obj.meta['_doc_start_line'] = self.document_start_line
+                        text_obj.meta['_doc_end_line'] = self.document_end_line
                     return text_obj
                 else:
                     return self.content
@@ -1238,7 +1270,7 @@ class VertXMLFileParser:
         m_glue        = self.enc_glue_tag.match(stripped_line)
         m_unk_tag     = self.enc_unknown_tag.match(stripped_line)
         # *** New subdocument (info)
-        if m_info_start:
+        if m_info_start and '<info ' in stripped_line:  # Match, but exclude: <info> & <infoitem>
             # Assert that some content from the doc tag has already been read
             assert 'id' in self.document
             info_attribs = parse_tag_attributes( stripped_line, logger=self.logger )
@@ -1579,6 +1611,7 @@ def parse_enc_file_iterator( in_file:str,
                              restore_morph_analysis:bool=False, \
                              extended_morph_form:bool=False, \
                              restore_syntax:bool=False, \
+                             add_document_index:bool=False, \
                              vertParser:VertXMLFileParser=None, \
                              textReconstructor:ENCTextReconstructor=None, \
                              line_progressbar:str=None, \
@@ -1615,7 +1648,11 @@ def parse_enc_file_iterator( in_file:str,
            parsed, and all other documents will be skipped.
            If None or empty, then all documents in the content will 
            be parsed.
-           Important note: ids must be given as strings, not as 
+           Important note #1: these must be values of id attributes 
+           in <doc> tags of the XML content, not to be confused with 
+           _doc_id values used by VertXMLFileParser for indexing this 
+           specific .vert file. 
+           Important note #2: ids must be given as strings, not as 
            integers.
        
        focus_srcs: set of str
@@ -1697,7 +1734,19 @@ def parse_enc_file_iterator( in_file:str,
            ENC 2021 corpus, as there are no syntactic annotations 
            in other versions of ENC corpora.
            (default: False)
-
+       
+       add_document_index: boolean
+           If set, then collects indexing information about documents inside 
+           the vert XML file and records in Text meta. More specifically, 
+           adds additional metadata entries: 
+           * _doc_id -- index of the document in the vert file, starting from 0; 
+           * _doc_start_line -- line number on which the document started in 
+           the vert file, starting from 0; 
+           * _doc_start_end -- line number on which the document ended in the 
+           vert file; 
+           If not set, then no indexing information is added to Text meta. 
+           (default: False) 
+       
        vertParser: VertXMLFileParser
            If set, then overrides the default VertXMLFileParser with the 
            given vertParser.
@@ -1737,6 +1786,7 @@ def parse_enc_file_iterator( in_file:str,
                    focus_lang=focus_lang, \
                    textReconstructor=reconstructor,\
                    record_linguistic_analysis=restore_morph_analysis or restore_syntax,\
+                   add_document_index=add_document_index, \
                    logger=logger )
     with open( in_file, mode='r', encoding=encoding ) as f:
         for line in _get_iterable_content_w_tqdm( f, line_progressbar ):
@@ -1757,6 +1807,7 @@ def parse_enc_file_content_iterator( content,
                                      restore_morph_analysis:bool=False, \
                                      extended_morph_form:bool=False, \
                                      restore_syntax:bool=False, \
+                                     add_document_index:bool=False, \
                                      vertParser:VertXMLFileParser=None, \
                                      textReconstructor:ENCTextReconstructor=None, \
                                      line_progressbar:str=None, \
@@ -1791,7 +1842,11 @@ def parse_enc_file_content_iterator( content,
            parsed, and all other documents will be skipped.
            If None or empty, then all documents in the content will 
            be parsed.
-           Important note: ids must be given as strings, not as 
+           Important note #1: these must be values of id attributes 
+           in <doc> tags of the XML content, not to be confused with 
+           _doc_id values used by VertXMLFileParser for indexing this 
+           specific .vert file. 
+           Important note #2: ids must be given as strings, not as 
            integers.
        
        focus_srcs: set of str
@@ -1874,6 +1929,18 @@ def parse_enc_file_content_iterator( content,
            in other versions of the corpora.
            (default: False)
        
+       add_document_index: boolean
+           If set, then collects indexing information about documents inside 
+           the vert XML file and records in Text meta. More specifically, 
+           adds additional metadata entries: 
+           * _doc_id -- index of the document in the vert file, starting from 0; 
+           * _doc_start_line -- line number on which the document started in 
+           the vert file, starting from 0; 
+           * _doc_start_end -- line number on which the document ended in the 
+           vert file; 
+           If not set, then no indexing information is added to Text meta. 
+           (default: False) 
+       
        vertParser: VertXMLFileParser
            If set, then overrides the default VertXMLFileParser with the 
            given vertParser.
@@ -1914,6 +1981,7 @@ def parse_enc_file_content_iterator( content,
                        focus_lang=focus_lang, \
                        textReconstructor=reconstructor,\
                        record_lingustic_analysis=restore_morph_analysis or restore_syntax,\
+                       add_document_index=add_document_index,\
                        logger=logger)
     # Process the content line by line
     for line in _get_iterable_content_w_tqdm( content.splitlines( keepends=True ), \
