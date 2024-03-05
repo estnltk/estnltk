@@ -18,7 +18,7 @@
 
 import re
 from io import TextIOWrapper
-from typing import Iterable
+from typing import Iterable, Tuple
 from itertools import takewhile
 
 from logging import Logger
@@ -954,6 +954,7 @@ class VertXMLFileParser:
     def __init__(self, focus_ids:set=None,\
                        focus_srcs:set=None,\
                        focus_lang:set=None,\
+                       focus_block:Tuple[int, int]=None, \
                        discard_empty_fragments:bool=True, \
                        store_fragment_attributes:bool=True, \
                        add_unexpected_tags_to_words:bool=False, \
@@ -996,6 +997,12 @@ class VertXMLFileParser:
                skipped;
                If None or empty, then all documents in the content will 
                be parsed.
+           focus_block: (divisor, reminder)
+               If set, then only documents with `_doc_id % divisor == remainder` 
+               will be extracted, and all other documents will be skipped. 
+               Use this to control data parallelization: divide processing 
+               into `divisor` distinct blocks. 
+               Defaults to `None`, which means no division into blocks. 
            discard_empty_fragments: boolean
                If set, then empty text fragments -- documents, paragraphs and 
                sentences -- will be discarded.
@@ -1078,6 +1085,20 @@ class VertXMLFileParser:
             assert isinstance(focus_lang, set)
             if len(focus_lang) == 0:
                 focus_lang = None
+        if focus_block is not None:
+            if not isinstance(focus_block, Iterable) or len(focus_block) != 2:
+                raise ValueError('(!) Bad focus_block value {!r}: focus_block should be in the format (divisor, reminder).'.format(focus_block))
+            divisor = focus_block[0]
+            remainder = focus_block[1]
+            if not isinstance(divisor, int):
+                raise ValueError('(!) Invalid focus_block {}: divisor should be int, not {}.'.format(focus_block, type(divisor)))
+            if not isinstance(remainder, int):
+                raise ValueError('(!) Invalid focus_block {}: remainder should be int, not {}.'.format(focus_block, type(remainder)))
+            assert divisor > 0
+            assert remainder < divisor
+            self.focus_block = (divisor, remainder)
+        else:
+            self.focus_block = None
         self.focus_lang                = focus_lang
         self.store_fragment_attributes = store_fragment_attributes
         self.discard_empty_fragments   = discard_empty_fragments
@@ -1193,7 +1214,7 @@ class VertXMLFileParser:
                     self._log('WARNING', '(!) doc-tag misses id attribute: {!r}'.format(stripped_line))
             if 'src' not in self.document and 'id' in self.document:
                 self._log( 'WARNING', 'Document with id={} misses src attribute'.format(self.document['id']))
-            # Check if the document passes filters: id, src, lang
+            # Check if the document passes filters: id, src, lang, block
             doc_filters_passed = []
             if self.focus_doc_ids is not None:
                 doc_filters_passed.append( self.document['id'] in self.focus_doc_ids )
@@ -1203,6 +1224,9 @@ class VertXMLFileParser:
             if self.focus_lang is not None:
                 doc_filters_passed.append( 'lang' in self.document and \
                                            self.document['lang'] in self.focus_lang )
+            if self.focus_block is not None:
+                (divisor, reminder) = self.focus_block
+                doc_filters_passed.append( self.document_id % divisor == reminder )
             # Include document to processing only if there were no filters or
             # if all filters were successfully passed 
             if not doc_filters_passed or all( doc_filters_passed ):
@@ -1606,6 +1630,7 @@ def parse_enc_file_iterator( in_file:str,
                              focus_doc_ids:set=None, \
                              focus_srcs:set=None, \
                              focus_lang:set=None, \
+                             focus_block:Tuple[int, int]=None, \
                              tokenization:str='preserve', \
                              original_layer_prefix:str='original_',\
                              restore_morph_analysis:bool=False, \
@@ -1673,7 +1698,14 @@ def parse_enc_file_iterator( in_file:str,
            skipped;
            If None or empty, then all documents in the content will 
            be parsed.
-       
+
+       focus_block: (divisor, reminder)
+           If set, then only documents with `_doc_id % divisor == remainder` 
+           will be extracted, and all other documents will be skipped. 
+           Use this to control data parallelization: divide processing 
+           into `divisor` distinct blocks. 
+           Defaults to `None`, which means no division into blocks.
+
        tokenization: ['none', 'preserve', 'estnltk']
             Specifies if tokenization will be added to created Texts, 
             and if so, then how it will be added. 
@@ -1784,6 +1816,7 @@ def parse_enc_file_iterator( in_file:str,
                    focus_ids=focus_doc_ids, \
                    focus_srcs=focus_srcs, \
                    focus_lang=focus_lang, \
+                   focus_block=focus_block, \
                    textReconstructor=reconstructor,\
                    record_linguistic_analysis=restore_morph_analysis or restore_syntax,\
                    add_document_index=add_document_index, \
@@ -1802,6 +1835,7 @@ def parse_enc_file_content_iterator( content,
                                      focus_doc_ids:set=None, \
                                      focus_srcs:set=None, \
                                      focus_lang:set=None, \
+                                     focus_block:Tuple[int, int]=None, \
                                      tokenization:str='preserve', \
                                      original_layer_prefix:str='original_',\
                                      restore_morph_analysis:bool=False, \
@@ -1867,7 +1901,14 @@ def parse_enc_file_content_iterator( content,
            skipped;
            If None or empty, then all documents in the content will 
            be parsed.
-       
+
+       focus_block: (divisor, reminder)
+           If set, then only documents with `_doc_id % divisor == remainder` 
+           will be extracted, and all other documents will be skipped. 
+           Use this to control data parallelization: divide processing 
+           into `divisor` distinct blocks. 
+           Defaults to `None`, which means no division into blocks. 
+
        tokenization: ['none', 'preserve', 'estnltk']
             Specifies if tokenization will be added to created Texts, 
             and if so, then how it will be added. 
@@ -1979,6 +2020,7 @@ def parse_enc_file_content_iterator( content,
                        focus_ids=focus_doc_ids, \
                        focus_srcs=focus_srcs, \
                        focus_lang=focus_lang, \
+                       focus_block=focus_block, \
                        textReconstructor=reconstructor,\
                        record_lingustic_analysis=restore_morph_analysis or restore_syntax,\
                        add_document_index=add_document_index,\

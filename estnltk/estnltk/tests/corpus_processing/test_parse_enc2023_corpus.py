@@ -464,3 +464,49 @@ def test_parse_enc2023_file_iterator_error_cases():
         # clean up: remove temporary file
         os.remove(fp2.name)
 
+
+
+def test_parse_enc2023_file_iterator_block_by_block():
+    # Test that parse_enc can parse vert file block by block (for data parallelization)
+    # Set up: Create an example file from the enc_2023_excerpt_2_error_cases
+    fp = tempfile.NamedTemporaryFile(mode='w', encoding='utf-8', 
+                                     prefix='enc_2023_excerpt_',
+                                     suffix='.vert', delete=False)
+    fp.write( enc_2023_excerpt_2_error_cases )
+    fp.close()
+    doc_indexing_fields = ['_doc_id', '_doc_start_line', '_doc_end_line']
+    try:
+        # 2 blocks: parse block (2, 0)
+        texts = []
+        for text in parse_enc_file_iterator( fp.name, encoding='utf-8', 
+                                             tokenization='preserve',
+                                             focus_block=(2, 0), 
+                                             add_document_index=True ):
+            texts.append(text)
+        filtered_meta = [dict((k, text.meta[k]) for k in doc_indexing_fields if k in text.meta) for text in texts]
+        assert len(filtered_meta) == 2
+        assert filtered_meta[0] == {'_doc_id': 0, '_doc_start_line': 2, '_doc_end_line': 14}
+        assert filtered_meta[1] == {'_doc_id': 2, '_doc_start_line': 37, '_doc_end_line': 62}
+        # 2 blocks: parse block (2, 1)
+        texts = []
+        for text in parse_enc_file_iterator( fp.name, encoding='utf-8', 
+                                             tokenization='preserve',
+                                             focus_block=(2, 1), 
+                                             add_document_index=True ):
+            texts.append(text)
+        filtered_meta = [dict((k, text.meta[k]) for k in doc_indexing_fields if k in text.meta) for text in texts]
+        assert len(filtered_meta) == 1
+        assert filtered_meta[0] == {'_doc_id': 1, '_doc_start_line': 15, '_doc_end_line': 36}
+        # 3 blocks: parse last block
+        texts = []
+        for text in parse_enc_file_iterator( fp.name, encoding='utf-8', 
+                                             tokenization='preserve',
+                                             focus_block=(3, 2), 
+                                             add_document_index=True ):
+            texts.append(text)
+        filtered_meta = [dict((k, text.meta[k]) for k in doc_indexing_fields if k in text.meta) for text in texts]
+        assert len(filtered_meta) == 1
+        assert filtered_meta[0] == {'_doc_id': 2, '_doc_start_line': 37, '_doc_end_line': 62}
+    finally:
+        # clean up: remove temporary file
+        os.remove(fp.name)
