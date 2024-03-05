@@ -1033,7 +1033,7 @@ class VertXMLFileParser:
                adds additional metadata entries: 
                * _doc_id -- index of the document in the vert file, starting from 0; 
                * _doc_start_line -- line number on which the document started in 
-               the vert file, starting from 0; 
+               the vert file, starting from 1; 
                * _doc_start_end -- line number on which the document ended in the 
                vert file; 
                If not set, then no indexing information is added to Text meta. 
@@ -1053,8 +1053,8 @@ class VertXMLFileParser:
         self.document            = {} # metadata of the document
         self.content             = {} # content of the document or subdocument
         self.document_id         = -1 # index of the document in the vert file, starting from 0
-        self.document_start_line = -1 # line on which the document started
-        self.document_end_line   = -1 # line on which the document ended
+        self.document_start_line = -1 # line on which the document started, starting from 1
+        self.document_end_line   = -1 # line on which the document ended, starting from 1
         self.fixed_paragraphs = 0  # how many <p> tags have been autocorrected
         self.last_was_glue    = False
         self.last_was_doc_end = False
@@ -1741,7 +1741,7 @@ def parse_enc_file_iterator( in_file:str,
            adds additional metadata entries: 
            * _doc_id -- index of the document in the vert file, starting from 0; 
            * _doc_start_line -- line number on which the document started in 
-           the vert file, starting from 0; 
+           the vert file, starting from 1; 
            * _doc_start_end -- line number on which the document ended in the 
            vert file; 
            If not set, then no indexing information is added to Text meta. 
@@ -1935,7 +1935,7 @@ def parse_enc_file_content_iterator( content,
            adds additional metadata entries: 
            * _doc_id -- index of the document in the vert file, starting from 0; 
            * _doc_start_line -- line number on which the document started in 
-           the vert file, starting from 0; 
+           the vert file, starting from 1; 
            * _doc_start_end -- line number on which the document ended in the 
            vert file; 
            If not set, then no indexing information is added to Text meta. 
