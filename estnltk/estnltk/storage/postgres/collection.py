@@ -1048,6 +1048,7 @@ class PgCollection:
         self.add_layer(layer_template, layer_type='fragmented', meta=meta, create_index=create_index, 
                        ngram_index=ngram_index, sparse=False)
 
+        no_errors = True
         conn = self.storage.conn
         with conn.cursor() as c:
             text_id = None
@@ -1099,6 +1100,7 @@ class PgCollection:
                                 buffered_inserter.insert( values )
                                 fragment_id += 1
             except Exception:
+                no_errors = False
                 if text_id is not None:
                     layer_creation_error_msg = ('Layer creation failed at document with id {} '+\
                                                 'due to an error: {}.').format(text_id, layer_creation_error)
@@ -1113,8 +1115,9 @@ class PgCollection:
                     # no exception, transaction in progress
                     conn.commit()
 
-        logger.info('fragmented layer created: {!r}'.format(layer_name))
-        logger.debug('inserted {!r} layers into {!r}.'.format(fragment_id, layer_name))
+        if no_errors:
+            logger.info('fragmented layer created: {!r}'.format(layer_name))
+            logger.debug('inserted {!r} layers into {!r}.'.format(fragment_id, layer_name))
 
 
     def create_layer(self, layer_template=None, data_iterator=None, row_mapper=None, tagger=None,
@@ -1256,6 +1259,7 @@ class PgCollection:
         conn.commit()
         conn.autocommit = False
 
+        no_errors = True
         with conn.cursor() as c:
             collection_text_id = None
             try:
@@ -1284,6 +1288,7 @@ class PgCollection:
 
                         buffered_inserter.insert(layer, collection_text_id, key=collection_text_id, extra_data=extra_values)
             except Exception as layer_creation_error:
+                no_errors = False
                 if collection_text_id is not None:
                     layer_creation_error_msg = ('Layer creation failed at document with id {} '+\
                                                 'due to an error: {}.').format(collection_text_id, \
@@ -1298,8 +1303,9 @@ class PgCollection:
                 if conn.status == STATUS_BEGIN:
                     # no exception, transaction in progress
                     conn.commit()
-
-        logger.info('layer created: {!r}'.format(layer_name))
+        
+        if no_errors:
+            logger.info('layer created: {!r}'.format(layer_name))
 
     def create_layer_block(self, tagger, block, data_iterator=None, meta=None, query_length_limit=5000000, mode=None):
         """Creates a layer block.
@@ -1400,6 +1406,7 @@ class PgCollection:
                 block_query &= MissingLayerQuery( missing_layer = tagger.output_layer )
             data_iterator = self.select(query=block_query, layers=tagger.input_layers)
 
+        no_errors = True
         collection_text_id = None
         try:
             with CollectionDetachedLayerInserter( self, layer_name, extra_columns=meta_columns, 
@@ -1412,6 +1419,7 @@ class PgCollection:
                     layer_structure_from_tagger = (layer.name, layer.attributes, layer.ambiguous,
                                                    layer.parent, layer.enveloping)
                     if layer_structure != layer_structure_from_tagger:
+                        no_errors = False
                         raise ValueError( ('(!) Mismatching layer structures: '+
                                            'structure in database: {!r} and '+
                                            'structure created by tagger: {!r}').format(layer_structure,
@@ -1423,6 +1431,7 @@ class PgCollection:
                     
                     buffered_inserter.insert(layer, collection_text_id, key=collection_text_id, extra_data=extra_values)
         except Exception as layer_creation_error:
+            no_errors = False
             if collection_text_id is not None:
                 layer_creation_error_msg = ('Layer creation failed at document with id {} '+\
                                             'due to an error: {}.').format(collection_text_id, \
@@ -1432,8 +1441,9 @@ class PgCollection:
                                             '').format(layer_creation_error)
             logger.error(layer_creation_error_msg)
             raise
-
-        logger.info('block {} of {!r} layer created'.format(block, layer_name))
+        
+        if no_errors:
+            logger.info('block {} of {!r} layer created'.format(block, layer_name))
 
 
     def delete_layer(self, layer_name, cascade=False):
