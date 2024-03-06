@@ -116,6 +116,14 @@ class CollectionStructure(pg.CollectionStructureBase):
                                      'serialisation_module': row[8],
                                      'layer_template_dict': row[9]
                                      }
+                # Validate that 'layer_template_dict' was automatically converted to dict. 
+                # If it is still a string, something went wrong with the data conversion in 
+                # SQL fetching (or at the initial insertion into the database)
+                layer_template_dict = structure[row[0]]['layer_template_dict']
+                if layer_template_dict is not None:
+                    if not isinstance( layer_template_dict, dict ):
+                        raise TypeError( ('(!) Failed loading layer {!r} structure: layer_template_dict '+\
+                                          'should be dict, not {}.').format( row[0], type(layer_template_dict) ) )
         if update_structure:
             self._structure = structure
             self._modified = False
