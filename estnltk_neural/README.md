@@ -5,7 +5,7 @@ This package contains EstNLTK's linguistic analysis tools that use neural models
 
 * neural morphological tagger ( disambiguator );
 * bert embeddings tagger;
-* bert NER tagger;
+* bert-based named entity recognition;
 * stanza syntax tagger and stanza ensemble syntax tagger;
 * pronominal coreference tagger v1 (relies on stanza for input preprocessing);
 
