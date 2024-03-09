@@ -939,7 +939,7 @@ class Relation:
                 relation_table_content.append( values )
             df = pandas.DataFrame.from_records(relation_table_content, columns=columns)
             if bool(RelationLayer.TRANSLUCENT_NONE_VALUES):
-                df = df.style.applymap(lambda x: 'opacity: 20%;' if x is None else None)
+                df = df.style.applymap(lambda x: 'opacity: 20%;' if x is None else None).hide(axis="index")
             annotations_table = df.to_html(index=False, escape=False)
         except:
             annotations_table = None
