@@ -800,6 +800,18 @@ class BaseLayer:
                                                       'parent', 'enveloping',
                                                       'ambiguous', 'span count'])
 
+    '''
+    Whether annotations' None attribute values will be marked with translucent font 
+    (text opacity: 20%) in the HTML output of the layer. 
+    This is useful for better visualizing sparse attribute tables that have a lot of 
+    None values. Default: True.
+    '''
+    TRANSLUCENT_NONE_VALUES = True
+
+    '''
+    Whether annotation spans will be augmented with start and end indexes in the 
+    HTML output of the layer. Default: False.
+    '''
     print_start_end = False
 
     def _repr_html_(self):
@@ -825,5 +837,11 @@ class BaseLayer:
         table_1 = self.get_overview_dataframe().to_html(index=False, escape=False)
         table_2 = ''
         if attributes or index_attributes:
-            table_2 = self.attribute_values(attributes, index_attributes=index_attributes).to_html(index='text')
+            table_2 = self.attribute_values(attributes, index_attributes=index_attributes)
+            if bool(self.TRANSLUCENT_NONE_VALUES):
+                table_2_df = table_2.as_dataframe(index='text')
+                table_2_df = table_2_df.style.applymap(lambda x: 'opacity: 20%;' if x == str(None) else None).hide(axis="index")
+                table_2 = table_2_df.to_html(index=False, escape=True)
+            else:
+                table_2 = table_2.to_html(index='text')
         return '\n'.join(('<h4>{}</h4>'.format(self.__class__.__name__), meta, text_object, table_1, table_2))
