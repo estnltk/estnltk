@@ -189,7 +189,7 @@ class AmbiguousAttributeTupleList:
     def __str__(self):
         return str(list(self))
 
-    def to_html(self, index=True):
+    def as_dataframe(self, index:Union[str,bool]=True):
         if index is True:
             columns = ['']
             columns.extend(self.attribute_names)
@@ -207,7 +207,10 @@ class AmbiguousAttributeTupleList:
                 records.append(record)
                 first = False
         df = pandas.DataFrame.from_records(records, columns=columns)
-        return df.to_html(index=False, escape=True)
+        return df
+
+    def to_html(self, index:Union[str,bool]=True):
+        return (self.as_dataframe(index=index)).to_html(index=False, escape=True)
 
     def _repr_html_(self):
         return '\n'.join(('<h4>' + self.__class__.__name__ + ' ('+self.index_type+')</h4>',
