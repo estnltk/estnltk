@@ -62,7 +62,7 @@ class CollectionTextObjectInserter(object):
         elif not isinstance(collection, pg.PgCollection):
             raise TypeError('collection must be an instance of PgCollection')
         self.collection = collection
-        self.metadata_start_index = len(pg.COLLECTION_BASE_COLUMNS())
+        self.metadata_start_index = len( collection.base_column_names )
         self.table_identifier = collection_table_identifier( self.collection.storage, self.collection.name )
         self.buffer_size = buffer_size
         self.query_length_limit = query_length_limit
