@@ -112,6 +112,7 @@ class CollectionTextObjectInserter(object):
         """
         assert isinstance(text, Text)
         assert self.buffered_inserter is not None
+        metadata_start_index = len(pg.COLLECTION_BASE_COLUMNS())
         # 1) Empty collection
         if self.collection._is_empty:
             self.collection._is_empty = False
@@ -120,7 +121,8 @@ class CollectionTextObjectInserter(object):
                 if key is None:
                     key = 0
                 row = [ key, text_to_json(text) ]
-                for k in self.collection.column_names[2:]:
+                
+                for k in self.collection.column_names[metadata_start_index:]:
                     if meta_data is None:
                         raise ValueError(('(!) Metadata columns exist, but meta_data is None. '+\
                                           'Please use meta_data={} if you want to leave metadata columns empty.'))
@@ -156,7 +158,7 @@ class CollectionTextObjectInserter(object):
         if key is None:
             key = DEFAULT
         row = [key, text_to_json(text)]
-        for k in self.collection.column_names[2:]:
+        for k in self.collection.column_names[metadata_start_index:]:
             if meta_data is None:
                 raise ValueError(('(!) Metadata columns exist, but meta_data is None. '+\
                                   'Please use meta_data={} if you want to leave metadata columns empty.'))

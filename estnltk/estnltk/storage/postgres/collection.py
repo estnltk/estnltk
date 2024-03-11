@@ -303,7 +303,7 @@ class PgCollection:
     @property
     def column_names(self):
         if self._column_names is None:
-            self._column_names = ['id', 'data'] + self.meta.columns
+            self._column_names = pg.COLLECTION_BASE_COLUMNS() + self.meta.columns
         return self._column_names
 
     @property
