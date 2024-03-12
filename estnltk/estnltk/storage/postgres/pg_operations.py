@@ -18,6 +18,7 @@ pytype2dbtype = {
 
 """
 Constant: list with base columns of Postgres collection table.
+TODO: this should depend on the collection.structure.version.
 """
 def COLLECTION_BASE_COLUMNS():
     return ['id', 'data']

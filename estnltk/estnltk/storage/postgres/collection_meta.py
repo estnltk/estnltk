@@ -56,7 +56,9 @@ class PgCollectionMeta:
             if column_meta is not None:
                 # Remove base columns, keep only meta columns
                 for base_col in pg.COLLECTION_BASE_COLUMNS():
-                    column_meta.pop( base_col )
+                    # TODO: this should depend on the collection.structure.version
+                    if base_col in column_meta.keys():
+                        column_meta.pop( base_col )
                 self._column_types = column_meta
         return self._column_types
 
