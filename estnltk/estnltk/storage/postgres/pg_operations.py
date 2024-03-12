@@ -21,7 +21,8 @@ Constant: list with base columns of Postgres collection table.
 TODO: this should depend on the collection.structure.version.
 """
 def COLLECTION_BASE_COLUMNS():
-    return ['id', 'data']
+    #return ['id', 'data']
+    return ['id', 'data', 'hidden']
 
 
 def create_schema(storage):
@@ -198,19 +199,26 @@ def create_collection_table(storage, collection_name, meta_columns=None, descrip
 
         CREATE TABLE table(
             id serial PRIMARY KEY,
-            data jsonb
+            data jsonb,
+            hidden BOOLEAN DEFAULT FALSE
         );
 
     and automatically adds a GIN index for the jsonb column:
 
         CREATE INDEX idx_table_data ON table USING gin ((data -> 'layers') jsonb_path_ops);
     
+    The column/flag `hidden` can be used to mark that the document is hidden from queries. 
+    Note: a row-level security policy must be defined for the hiding to take effect. 
+    
     The types for meta columns can be int, bigint, float, str and datetime. For more information consult the source code. 
     """
     assert storage.conn.autocommit == False
 
     columns = [SQL('id BIGSERIAL PRIMARY KEY'),
-               SQL('data jsonb')]
+               SQL('data jsonb'),
+               SQL('hidden BOOLEAN DEFAULT FALSE')]
+    #columns = [SQL('id BIGSERIAL PRIMARY KEY'),
+    #           SQL('data jsonb')]
     assert len(columns) == len(COLLECTION_BASE_COLUMNS())
     if meta_columns is not None:
         for col_name, col_type in meta_columns.items():

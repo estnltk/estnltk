@@ -120,7 +120,7 @@ class CollectionTextObjectInserter(object):
                 # Insert the first row
                 if key is None:
                     key = 0
-                row = [ key, text_to_json(text) ]
+                row = [ key, text_to_json(text), False ]
                 
                 for k in self.collection.column_names[self.metadata_start_index:]:
                     if meta_data is None:
@@ -157,7 +157,7 @@ class CollectionTextObjectInserter(object):
         # Insert the next row
         if key is None:
             key = DEFAULT
-        row = [key, text_to_json(text)]
+        row = [key, text_to_json(text), False]
         for k in self.collection.column_names[self.metadata_start_index:]:
             if meta_data is None:
                 raise ValueError(('(!) Metadata columns exist, but meta_data is None. '+\
