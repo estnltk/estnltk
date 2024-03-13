@@ -94,16 +94,18 @@ class CollectionStructureBase:
                     # no exception, transaction in progress
                     storage.conn.commit()
 
-    def create_table(self):
+    def create_layer_info_table(self):
         """Creates table which contains information about collection's layers. 
            Note that this table does not store actual layers, but only decribes layers. 
         """
         raise NotImplementedError
 
     def insert(self, layer, layer_type: str, meta: dict = None, loader: str = None, is_sparse: bool = False):
+        """Inserts new layer description into the layer information table."""
         raise NotImplementedError
 
     def delete_layer(self, layer_name: str, omit_commit: bool=False):
+        """Removes the layer from the layer information table."""
         self._modified = True
         with self.collection.storage.conn.cursor() as c:
             try:
@@ -123,6 +125,7 @@ class CollectionStructureBase:
                     logger.debug(c.query.decode())
 
     def load(self, update_structure:bool =False, omit_commit: bool=False, omit_rollback: bool=False) -> dict:
+        """Loads information about all layers from the layer information table."""
         raise NotImplementedError
 
     @property

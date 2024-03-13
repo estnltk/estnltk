@@ -224,7 +224,7 @@ class PostgresStorage:
         self._collections[collection.name] = collection
         try:
             # Create structure table (contains information about collection's layers)
-            collection.structure.create_table()
+            collection.structure.create_layer_info_table()
             if description is None:
                 description = 'created by {} on {}'.format(self.user, time.asctime())
             # Create collection table (stores Text objects with attached layers and metadata columns)

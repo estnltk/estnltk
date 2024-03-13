@@ -16,7 +16,7 @@ class CollectionStructure(pg.CollectionStructureBase):
     def __init__(self, collection):
         super().__init__(collection, __version__)
 
-    def create_table(self):
+    def create_layer_info_table(self):
         storage = self.collection.storage
         table = pg.table_identifier(storage, pg.structure_table_name(self.collection.name))
         temporary = SQL('TEMPORARY') if storage.temporary else SQL('')
@@ -42,7 +42,6 @@ class CollectionStructure(pg.CollectionStructureBase):
                     # no exception, transaction in progress
                     storage.conn.commit()
                     logger.debug(c.query.decode())
-            
 
     def _remove_spans_from_layer_template_json( self, layer_json: str ):
         '''
