@@ -55,10 +55,11 @@ class PgCollectionMeta:
             column_meta = self._collection_table_meta()
             if column_meta is not None:
                 # Remove base columns, keep only meta columns
-                for base_col in pg.COLLECTION_BASE_COLUMNS():
-                    # TODO: this should depend on the collection.structure.version
+                for base_col in self.collection.structure.collection_base_columns:
                     if base_col in column_meta.keys():
                         column_meta.pop( base_col )
+                    else:
+                        raise Exception('(!) Corrupt collection structure: missing base column {}'.format(base_col))
                 self._column_types = column_meta
         return self._column_types
 

@@ -62,7 +62,8 @@ class CollectionTextObjectInserter(object):
         elif not isinstance(collection, pg.PgCollection):
             raise TypeError('collection must be an instance of PgCollection')
         self.collection = collection
-        self.metadata_start_index = len( collection.base_column_names )
+        self.metadata_start_index = len( self.collection.structure.collection_base_columns )
+        self._has_hidden_column = ('hidden' in self.collection.structure.collection_base_columns)
         self.table_identifier = collection_table_identifier( self.collection.storage, self.collection.name )
         self.buffer_size = buffer_size
         self.query_length_limit = query_length_limit
@@ -120,7 +121,9 @@ class CollectionTextObjectInserter(object):
                 # Insert the first row
                 if key is None:
                     key = 0
-                row = [ key, text_to_json(text), False ]
+                row = [ key, text_to_json(text) ]
+                if self._has_hidden_column:
+                    row.append( False )
                 
                 for k in self.collection.column_names[self.metadata_start_index:]:
                     if meta_data is None:
@@ -157,7 +160,9 @@ class CollectionTextObjectInserter(object):
         # Insert the next row
         if key is None:
             key = DEFAULT
-        row = [key, text_to_json(text), False]
+        row = [key, text_to_json(text)]
+        if self._has_hidden_column:
+            row.append( False )
         for k in self.collection.column_names[self.metadata_start_index:]:
             if meta_data is None:
                 raise ValueError(('(!) Metadata columns exist, but meta_data is None. '+\

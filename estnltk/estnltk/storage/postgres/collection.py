@@ -303,29 +303,8 @@ class PgCollection:
     @property
     def column_names(self):
         if self._column_names is None:
-            if not self.exists():
-                # Collection hasn't been created yet: initialize column names from defaults
-                self._column_names = pg.COLLECTION_BASE_COLUMNS() + self.meta.columns
-            else:
-                # Retrieve column name information from the information_schema.columns table. 
-                # We need to do this to properly handle older versions of PgCollection, which 
-                # may have not have the same columns as defined in pg.COLLECTION_BASE_COLUMNS().
-                column_names_types = []
-                with self.storage.conn:
-                    with self.storage.conn.cursor() as c:
-                        c.execute(SQL('SELECT column_name, data_type from information_schema.columns '
-                                      'WHERE table_schema={} and table_name={} '
-                                      'ORDER BY ordinal_position'
-                                 ).format(Literal(self.storage.schema), 
-                                          Literal(self.name)))
-                        column_names_types = collections.OrderedDict(c.fetchall()).items()
-                self._column_names = [name for (name, col_type) in column_names_types]
+            self._column_names = self._structure.collection_base_columns + self.meta.columns
         return self._column_names
-
-    @property
-    def base_column_names(self):
-        '''Returns names of base columns of this collection (the non-meta columns).'''
-        return [col for col in self.column_names if col not in self.meta.columns]
 
     @property
     def selected_layers(self):

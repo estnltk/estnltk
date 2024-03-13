@@ -17,7 +17,6 @@ from estnltk.storage.postgres import PgCollectionException
 from estnltk.storage.postgres import PgStorageException
 from estnltk.storage.postgres import PostgresStorage
 from estnltk.storage.postgres import collection_table_exists
-from estnltk.storage.postgres import create_collection_table
 from estnltk.storage.postgres import delete_schema
 from estnltk.storage.postgres import drop_collection_table
 from estnltk.storage.postgres import table_exists
@@ -372,28 +371,34 @@ class TestPgCollection(unittest.TestCase):
         
         self.storage.delete_collection(collection.name)
 
+    def test_collection_base_columns(self):
+        collection_name = get_random_collection_name()
+        collection = PgCollection(collection_name, self.storage, version='3.0')
+        self.assertEqual( collection.structure.collection_base_columns, ['id', 'data'])
+
     def test_create_and_drop_collection_table(self):
         collection_name = get_random_collection_name()
-
-        create_collection_table(self.storage, collection_name)
-        assert collection_table_exists(self.storage, collection_name)
-        assert table_exists(self.storage, collection_name)
+        collection = PgCollection(collection_name, self.storage)
+        collection.structure.create_collection_table()
+        self.assertTrue( collection_table_exists(self.storage, collection_name) )
+        self.assertTrue( table_exists(self.storage, collection_name) )
         drop_collection_table(self.storage, collection_name)
-        assert not collection_table_exists(self.storage, collection_name)
-        assert not table_exists(self.storage, collection_name)
+        self.assertFalse( collection_table_exists(self.storage, collection_name) )
+        self.assertFalse( table_exists(self.storage, collection_name) )
 
     def test_sql_injection(self):
         normal_collection_name = get_random_collection_name()
-        create_collection_table(self.storage, normal_collection_name)
+        collection = PgCollection(normal_collection_name, self.storage)
+        collection.structure.create_collection_table()
         self.assertTrue(collection_table_exists(self.storage, normal_collection_name))
-
         injected_collection_name = "%a; drop table %s;" % (get_random_collection_name(), normal_collection_name)
-        create_collection_table(self.storage, injected_collection_name)
-        self.assertTrue(collection_table_exists(self.storage, injected_collection_name))
+        with self.assertRaises(AssertionError):
+            injected_collection = PgCollection(injected_collection_name, self.storage)
+            injected_collection.structure.create_collection_table()
+        if collection_table_exists(self.storage, injected_collection_name):
+            drop_collection_table(self.storage, injected_collection_name)
         self.assertTrue(collection_table_exists(self.storage, normal_collection_name))
-
         drop_collection_table(self.storage, normal_collection_name)
-        drop_collection_table(self.storage, injected_collection_name)
 
     def test_select(self):
         # Test error case: try to select on non-existing collection

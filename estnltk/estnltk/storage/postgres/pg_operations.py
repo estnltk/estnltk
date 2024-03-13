@@ -1,6 +1,8 @@
 from psycopg2.sql import SQL, Identifier, Literal
 from psycopg2.extensions import STATUS_BEGIN, TRANSACTION_STATUS_INERROR
 
+import warnings
+
 from estnltk import logger
 from estnltk.storage.postgres import structure_table_name
 from estnltk.storage.postgres import collection_table_name
@@ -15,14 +17,6 @@ pytype2dbtype = {
     'datetime': 'timestamp'
 }
 
-
-"""
-Constant: list with base columns of Postgres collection table.
-TODO: this should depend on the collection.structure.version.
-"""
-def COLLECTION_BASE_COLUMNS():
-    #return ['id', 'data']
-    return ['id', 'data', 'hidden']
 
 
 def create_schema(storage):
@@ -200,32 +194,27 @@ def create_collection_table(storage, collection_name, meta_columns=None, descrip
         CREATE TABLE table(
             id serial PRIMARY KEY,
             data jsonb,
-            hidden BOOLEAN DEFAULT FALSE
         );
 
     and automatically adds a GIN index for the jsonb column:
 
         CREATE INDEX idx_table_data ON table USING gin ((data -> 'layers') jsonb_path_ops);
     
-    The column/flag `hidden` can be used to mark that the document is hidden from queries. 
-    Note: a row-level security policy must be defined for the hiding to take effect. 
-    
-    The types for meta columns can be int, bigint, float, str and datetime. For more information consult the source code. 
+    The types for meta columns can be int, bigint, float, str and datetime. For more information 
+    consult the source code. 
     """
+    warnings.simplefilter("always", DeprecationWarning)
+    warnings.warn('Function create_collection_table is deprecated and will be removed in future versions. '+\
+                  'Please use collection.structure.create_collection_table(...) instead.', 
+                  DeprecationWarning)
+    warnings.simplefilter("ignore", DeprecationWarning)
+    
     assert storage.conn.autocommit == False
 
     columns = [SQL('id BIGSERIAL PRIMARY KEY'),
-               SQL('data jsonb'),
-               SQL('hidden BOOLEAN DEFAULT FALSE')]
-    #columns = [SQL('id BIGSERIAL PRIMARY KEY'),
-    #           SQL('data jsonb')]
-    assert len(columns) == len(COLLECTION_BASE_COLUMNS())
+               SQL('data jsonb')]
     if meta_columns is not None:
         for col_name, col_type in meta_columns.items():
-            if col_name in COLLECTION_BASE_COLUMNS():
-                raise ValueError( ('(!) Invalid metadata column name {!r}: '+\
-                                   'cannot use column names overlapping with '+\
-                                   'base column names {!r}.').format(col_name, COLLECTION_BASE_COLUMNS()) )
             columns.append(SQL('{} {}').format(Identifier(col_name), SQL(pytype2dbtype[col_type])))
 
     temp = SQL('TEMPORARY') if storage.temporary else SQL('')

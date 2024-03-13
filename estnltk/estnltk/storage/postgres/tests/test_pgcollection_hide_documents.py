@@ -1,7 +1,8 @@
 """Test pgcollection's hide documents functionality.
 
 Requires ~/.pgpass file with database connection settings to `test_db` database.
-Schema/table creation and read/write rights are required.
+Schema/table creation and read/write rights are required. 
+The admin user must also have rights to create/drop roles and change permissions. 
 
 """
 import os
@@ -176,8 +177,8 @@ class TestHiddenDocumentsBase(unittest.TestCase):
 
     # ==============================================================================
 
-    @unittest.skipIf('hidden' not in pg.COLLECTION_BASE_COLUMNS(), 
-                     "collection base columns do not have 'hidden' column required for this test")
+    #@unittest.skipIf('hidden' not in pg.COLLECTION_BASE_COLUMNS(), 
+    #                 "collection base columns do not have 'hidden' column required for this test")
     @unittest.skipIf(PG_ADMIN_USER is None, 
                      "role name of a Postgres admin user is required. "+\
                      "set environment variable PG_ADMIN_USER to enable this test." )
