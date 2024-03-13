@@ -189,7 +189,8 @@ def layer_table_identifier(storage, collection_name, layer_name, layer_type='det
 
 
 def create_collection_table(storage, collection_name, meta_columns=None, description=None):
-    """Creates a new table to store jsonb data:
+    """
+    Creates a new table to store jsonb data:
 
         CREATE TABLE table(
             id serial PRIMARY KEY,
@@ -202,6 +203,9 @@ def create_collection_table(storage, collection_name, meta_columns=None, descrip
     
     The types for meta columns can be int, bigint, float, str and datetime. For more information 
     consult the source code. 
+    
+    Deprecated: this method is deprecated and will be removed in future versions. 
+    Please use collection.structure.create_collection_table(...) instead.
     """
     warnings.simplefilter("always", DeprecationWarning)
     warnings.warn('Function create_collection_table is deprecated and will be removed in future versions. '+\

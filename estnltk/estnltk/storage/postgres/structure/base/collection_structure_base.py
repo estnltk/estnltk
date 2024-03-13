@@ -12,7 +12,7 @@ class CollectionStructureBase:
         self.collection = collection
 
         self._structure = None
-        self._modified = True
+        self._modified  = True
         self._base_columns = ['id', 'data']
         self.load()
         self.version = version
@@ -96,7 +96,7 @@ class CollectionStructureBase:
 
     def create_layer_info_table(self):
         """Creates table which contains information about collection's layers. 
-           Note that this table does not store actual layers, but only decribes layers. 
+           Note that this table does not store actual layers, but only describes layers. 
         """
         raise NotImplementedError
 
