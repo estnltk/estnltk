@@ -2,32 +2,40 @@
 
 Example usage:
 
-    # connect to database, create a new table
-    storage = PostgresStorage(dbname='estnltk', user='***', password='***')
-    table = 'tmp'
-    storage.create_table(table)
+    # connect to database, create a new schema (if the schema does not exist)
+    storage = PostgresStorage(dbname='estnltk', pgpass_file='~/.pgpass',
+                              schema='my_schema')
+    
+    # create a new collection
+    collection = storage.add_collection('my_collection')
 
     # insert some data
-    text = Text('ööbik laulab.').analyse('morphology')
-    key = storage.insert(table, text)
+    with collection.insert() as collection_insert:
+        text1 = Text('ööbik laulab.').tag_layer()
+        collection_insert( text1 )
+        text2 = Text('öökull huikab.').tag_layer()
+        collection_insert( text2 )
 
     # select all data in the table
-    for key, text in storage.select(table):
+    for key, text in collection.select():
         print(key, text)
 
     # search by key
-    txt = storage.select_by_key(table, key=key)
+    txt = collection[key]
 
     # search using layer attributes
-    q = JsonbQuery('morph_analysis', lemma='laulma')
-    for key, txt in storage.select(table, query=q):
+    q = LayerQuery('morph_analysis', lemma='laulma')
+    for key, txt in collection.select(table, query=q):
         print(key, txt)
 
     # search using composite query
-    q = (JsonbQuery('morph_analysis', lemma='ööbik') | JsonbQuery('morph_analysis', lemma='öökull')) &
-        JsonbQuery('morph_analysis', lemma='laulma')
-    for key, txt in storage.select(table, query=q):
+    q = (LayerQuery('morph_analysis', lemma='ööbik') | LayerQuery('morph_analysis', lemma='öökull')) &
+         LayerQuery('morph_analysis', lemma='laulma')
+    for key, txt in collection.select(table, query=q):
         print(key, txt)
+    
+    # close connection
+    storage.close()
 
 """
 from estnltk.storage.postgres.sql_composition.sql_table_naming import collection_table_name
