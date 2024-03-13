@@ -87,6 +87,7 @@ from .structure import v00
 from .structure import v10
 from .structure import v20
 from .structure import v30
+from .structure import v40
 
 from .collection import RowMapperRecord
 from .collection import PgCollection

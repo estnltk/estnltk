@@ -261,8 +261,10 @@ class PgCollection:
             self._structure = pg.v20.CollectionStructure(self)
         elif version == '3.0':
             self._structure = pg.v30.CollectionStructure(self)
+        elif version == '4.0':
+            self._structure = pg.v40.CollectionStructure(self)
         else:
-            raise ValueError("version must be '0.0', '1.0', '2.0' or '3.0'")
+            raise ValueError("version must be '0.0', '1.0', '2.0', '3.0' or '4.0'")
         self.version = version
 
         self._meta = None

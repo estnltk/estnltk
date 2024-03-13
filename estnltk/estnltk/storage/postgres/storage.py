@@ -196,7 +196,7 @@ class PostgresStorage:
                     # Note: we need to make insertion before creating PgCollection, 
                     # because creating PgCollection involves db queries with commits, 
                     # which would release the lock
-                    version = '3.0'
+                    version = '4.0'
                     c.execute(SQL(
                             "INSERT INTO {} (collection, version) "
                             "VALUES ({}, {});").format(

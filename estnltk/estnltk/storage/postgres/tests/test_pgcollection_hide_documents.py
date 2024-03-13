@@ -186,6 +186,8 @@ class TestHiddenDocumentsBase(unittest.TestCase):
         self._switch_to_role( self.admin_role )
         collection_name = get_random_collection_name()
         collection = self.storage.add_collection(collection_name)
+        # hidden columns require collection version 4.0
+        self.assertEqual( collection.version, '4.0' )
 
         # Create role of normal_user (has SELECT privileges)
         self._create_role( self.schema, role_name=self.user_role )

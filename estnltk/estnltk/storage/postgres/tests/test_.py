@@ -375,6 +375,9 @@ class TestPgCollection(unittest.TestCase):
         collection_name = get_random_collection_name()
         collection = PgCollection(collection_name, self.storage, version='3.0')
         self.assertEqual( collection.structure.collection_base_columns, ['id', 'data'])
+        collection_name_2 = get_random_collection_name()
+        collection_2 = PgCollection(collection_name_2, self.storage, version='4.0')
+        self.assertEqual( collection_2.structure.collection_base_columns, ['id', 'data', 'hidden'])
 
     def test_create_and_drop_collection_table(self):
         collection_name = get_random_collection_name()
