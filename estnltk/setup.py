@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from setuptools import setup, Extension
 from setuptools import find_namespace_packages
+from setuptools.command.build_py import build_py
 import os, os.path
 import sys
 
@@ -142,6 +143,16 @@ if not is_source_dist:
     create_number_analysis_rules_cache()
 
 
+# Build extensions before python modules,
+# or the generated SWIG python files will be missing.
+# Based on source: 
+#   https://github.com/yanqd0/swig-python-demo/blob/master/setup.py
+class BuildPy(build_py):
+    def run(self):
+        self.run_command('build_ext')
+        super(build_py, self).run()
+
+
 setup(
     name="estnltk",
     version=get_version(),
@@ -198,6 +209,11 @@ setup(
                   swig_opts=swig_opts,
                   include_dirs=include_dirs)
     ],
+    # Based on source: 
+    #   https://github.com/yanqd0/swig-python-demo/blob/master/setup.py
+    cmdclass={
+        'build_py': BuildPy,
+    },
     # we have fixed dependency versions to guarantee, what works
     # however, you can probably safely install newer versions of the dependencies
     install_requires=[
