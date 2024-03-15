@@ -28,17 +28,19 @@ def test_regex_element_evaluate_positive_examples():
     GAP.example('  ')
     GAP.example(' \t')
     eval_pos_results_dict = \
-        GAP.evaluate_positive_examples().to_dict(orient='split', index=False)
+        GAP.evaluate_positive_examples().to_dict(orient='split')
     assert eval_pos_results_dict == \
         {'columns': ['Example', 'Status'], 
-         'data': [[' ', '+'], ['\t', '+'], ['  ', '+'], [' \t', '+']]}
+         'data': [[' ', '+'], ['\t', '+'], ['  ', '+'], [' \t', '+']],
+         'index': [0, 1, 2, 3] }
     # add mismatch
     GAP.full_match('\n')
     eval_pos_results_dict2 = \
-        GAP.evaluate_positive_examples().to_dict(orient='split', index=False)
+        GAP.evaluate_positive_examples().to_dict(orient='split')
     assert eval_pos_results_dict2 == \
         {'columns': ['Example', 'Status'], 
-         'data': [[' ', '+'], ['\t', '+'], ['  ', '+'], [' \t', '+'], ['\n', 'F']]}
+         'data': [[' ', '+'], ['\t', '+'], ['  ', '+'], [' \t', '+'], ['\n', 'F']],
+         'index': [0, 1, 2, 3, 4] }
 
 
 def test_regex_element_evaluate_negative_examples():
@@ -49,20 +51,22 @@ def test_regex_element_evaluate_negative_examples():
     GAP.no_match(r'-\n')
     GAP.no_match(r'-\n-')
     eval_neg_results_dict = \
-        GAP.evaluate_negative_examples().to_dict(orient='split', index=False)
+        GAP.evaluate_negative_examples().to_dict(orient='split')
     assert eval_neg_results_dict == \
         {'columns': ['Example', 'Status'], 
-         'data': [[r'\n', '+'], [r'\n-', '+'], [r'-\n', '+'], [r'-\n-', '+']]}
+         'data': [[r'\n', '+'], [r'\n-', '+'], [r'-\n', '+'], [r'-\n-', '+']],
+         'index': [0, 1, 2, 3] }
     # add mismatch
     # note: negative example fails even 
     # if the pattern is partially found 
     # inside the example
     GAP.no_match('\n ')
     eval_neg_results_dict2 = \
-        GAP.evaluate_negative_examples().to_dict(orient='split', index=False)
+        GAP.evaluate_negative_examples().to_dict(orient='split')
     assert eval_neg_results_dict2 == \
         {'columns': ['Example', 'Status'], 
-         'data': [[r'\n', '+'], [r'\n-', '+'], [r'-\n', '+'], [r'-\n-', '+'], ['\n ', 'F']]}
+         'data': [[r'\n', '+'], [r'\n-', '+'], [r'-\n', '+'], [r'-\n-', '+'], ['\n ', 'F']],
+         'index': [0, 1, 2, 3, 4]}
 
 
 def test_regex_element_evaluate_extraction_examples():
@@ -76,31 +80,35 @@ def test_regex_element_evaluate_extraction_examples():
     POS_SCORE.partial_match('+1', '+1')
     POS_SCORE.partial_match('+2', {'pos_score':'+2'})
     POS_SCORE.partial_match('skoor suurenes +22 võrra', {'pos_score':'+22'})
-    assert NEG_SCORE.evaluate_extraction_examples().to_dict(orient='split', index=False) == \
+    assert NEG_SCORE.evaluate_extraction_examples().to_dict(orient='split') == \
         {'columns': ['Example', 'Status'], 
          'data': [['-1', '+'], 
                   ['-2', '+'], 
-                  ['skoor langes -3 võrra', '+']]}
-    assert POS_SCORE.evaluate_extraction_examples().to_dict(orient='split', index=False) == \
+                  ['skoor langes -3 võrra', '+']],
+         'index': [0, 1, 2]}
+    assert POS_SCORE.evaluate_extraction_examples().to_dict(orient='split') == \
         {'columns': ['Example', 'Status'], 
          'data': [['+1', '+'], 
                   ['+2', '+'], 
-                  ['skoor suurenes +22 võrra', '+']]}
+                  ['skoor suurenes +22 võrra', '+']],
+         'index': [0, 1, 2]}
     # add partial mismatches
     NEG_SCORE.partial_match('skoor suurenes +3 võrra', {'neg_score':'-3'})
     POS_SCORE.partial_match('skoor langes -2 võrra', {'pos_score':'+2'})
-    assert NEG_SCORE.evaluate_extraction_examples().to_dict(orient='split', index=False) == \
+    assert NEG_SCORE.evaluate_extraction_examples().to_dict(orient='split') == \
         {'columns': ['Example', 'Status'], 
          'data': [['-1', '+'], 
                   ['-2', '+'], 
                   ['skoor langes -3 võrra', '+'],
-                  ['skoor suurenes +3 võrra', 'F']]}
-    assert POS_SCORE.evaluate_extraction_examples().to_dict(orient='split', index=False) == \
+                  ['skoor suurenes +3 võrra', 'F']],
+         'index': [0, 1, 2, 3]}
+    assert POS_SCORE.evaluate_extraction_examples().to_dict(orient='split') == \
         {'columns': ['Example', 'Status'], 
          'data': [['+1', '+'], 
                   ['+2', '+'], 
                   ['skoor suurenes +22 võrra', '+'],
-                  ['skoor langes -2 võrra', 'F']]}
+                  ['skoor langes -2 võrra', 'F']],
+         'index': [0, 1, 2, 3]}
 
 
 def test_regex_element_truncate_string():
@@ -119,9 +127,10 @@ def test_regex_element_truncate_string():
     FULL_ID_NUMBER.full_match('78107320799')
     # Assert untruncated
     assert not RegexElement.TRUNCATE
-    assert FULL_ID_NUMBER.evaluate_positive_examples().to_dict(orient='split', index=False) == \
+    assert FULL_ID_NUMBER.evaluate_positive_examples().to_dict(orient='split') == \
         {'columns': ['Example', 'Status'], 
-         'data': [['34501234215', '+'], ['49403136526', '+'], ['61107121760', '+'], ['78107320799', 'F']]}
+         'data': [['34501234215', '+'], ['49403136526', '+'], ['61107121760', '+'], ['78107320799', 'F']],
+         'index': [0, 1, 2, 3]}
     with pytest.raises(AssertionError) as assertion_err:
         FULL_ID_NUMBER.test()
     stripped_str_repr = ((fr"{str(FULL_ID_NUMBER)}")[3:])[:-1]
@@ -129,9 +138,10 @@ def test_regex_element_truncate_string():
     # Assert truncated
     RegexElement.TRUNCATE = True
     RegexElement.MAX_STRING_WIDTH = 10
-    assert FULL_ID_NUMBER.evaluate_positive_examples().to_dict(orient='split', index=False) == \
+    assert FULL_ID_NUMBER.evaluate_positive_examples().to_dict(orient='split') == \
         {'columns': ['Example', 'Status'], 
-         'data': [['3450...4215', '+'], ['4940...6526', '+'], ['6110...1760', '+'], ['7810...0799', 'F']]}
+         'data': [['3450...4215', '+'], ['4940...6526', '+'], ['6110...1760', '+'], ['7810...0799', 'F']],
+         'index': [0, 1, 2, 3]}
     with pytest.raises(AssertionError) as assertion_err2:
         FULL_ID_NUMBER.test()
     assert r"pattern '(?P<...9]))' did not match positive example '7810...0799'" in str(assertion_err2.value)
@@ -552,9 +562,10 @@ def test_regex_element_base_patterns():
     PAYLOAD_END_1.partial_match(r'\r', r'\r')
     PAYLOAD_END_1.partial_match(r'\rx', '\rx')
     last_extraction_examples_results_dict = \
-        PAYLOAD_END_1.evaluate_extraction_examples().to_dict(orient='split', index=False)
+        PAYLOAD_END_1.evaluate_extraction_examples().to_dict(orient='split')
     last_extraction_examples_results_dict['data'] = \
         last_extraction_examples_results_dict['data'][-2:]
+    del last_extraction_examples_results_dict['index']
     #print(last_extraction_examples_results_dict)
     assert last_extraction_examples_results_dict == \
         {'columns': ['Example', 'Status'], 
