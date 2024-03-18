@@ -5,6 +5,7 @@ from psycopg2.sql import DEFAULT
 from estnltk import logger
 from estnltk.converters import layer_to_json
 from estnltk_core import Layer
+from estnltk_core import RelationLayer
 from estnltk.storage import postgres as pg
 from estnltk.storage.postgres import BufferedTableInsert
 from estnltk.storage.postgres.pg_operations import layer_table_identifier
@@ -100,7 +101,7 @@ class CollectionDetachedLayerInserter(object):
            extra columns can be provided. 
         """
         assert self.buffered_inserter is not None
-        assert isinstance(layer, Layer)
+        assert isinstance(layer, (Layer, RelationLayer))
         assert isinstance(text_id, int), '(!) id of the Text object associated with the layer must be an integer.'
         assert key is None or key is DEFAULT or isinstance(key, int)
         assert extra_data is None or isinstance(extra_data, list)

@@ -3,7 +3,7 @@ import json
 import re
 import time
 from contextlib import contextmanager
-from typing import Sequence, Dict
+from typing import Sequence, Dict, Union
 import warnings
 
 import pandas
@@ -13,6 +13,8 @@ from psycopg2.sql import SQL, Identifier, Literal, DEFAULT
 
 from estnltk import logger
 from estnltk_core import Layer
+from estnltk_core import RelationLayer
+from estnltk_core.taggers import RelationTagger
 from estnltk.converters import dict_to_layer
 from estnltk.converters import dict_to_text
 from estnltk.converters import layer_to_dict
@@ -741,7 +743,7 @@ class PgCollection:
             counter.update(t[layer].count_values(attr))
         return counter
 
-    def add_layer(self, layer_template: Layer,
+    def add_layer(self, layer_template: Union[Layer, RelationLayer],
                         layer_type: str = 'detached',
                         fragmented_layer: bool = False,
                         meta: Dict[str, str] = None,
@@ -766,8 +768,10 @@ class PgCollection:
         This is useful when one uses phase grammars.
 
         Args:
-            layer_template: Layer
-                A template which is used as a basis on creating the new layer
+            layer_template: Union[Layer, RelationLayer]
+                A template which is used as a basis on creating the new layer.
+                Note that collection version 4.0 is required for adding relation 
+                layers.
             layer_type: str
                 Must be one of the following: {'detached', 'fragmented', 'multi'}.
                 See also: PostgresStorage.TABLED_LAYER_TYPES
@@ -795,11 +799,16 @@ class PgCollection:
             raise PgCollectionException("collection {!r} does not exist, can't add layer".format(self.name))
 
         # Check input arguments
-        if not isinstance( layer_template, Layer ):
-            raise TypeError('(!) layer_template must be an instance of Layer')
+        if isinstance( layer_template, RelationLayer ) and self.version < '4.0':
+            raise PgCollectionException( ("Relation layers cannot be added in collection version {!r}. "+\
+                                          "Version 4.0+ is required.").format(self.version) )
+            
+        if not isinstance( layer_template, (Layer, RelationLayer) ):
+            raise TypeError('(!) layer_template must be an instance of Layer or RelationLayer')
 
         if sparse and self.version < '3.0':
-            raise PgCollectionException("Sparse tables are not supported in collection version {!r}.".format(self.version))
+            raise PgCollectionException( ("Sparse tables are not supported in collection version {!r}. "+\
+                                          "Version 3.0+ is required.").format(self.version) )
 
         if layer_type not in pg.PostgresStorage.TABLED_LAYER_TYPES:
             raise PgCollectionException("Unexpected layer type {!r}. Supported layer types are: {!r}".format(layer_type, \
@@ -966,7 +975,7 @@ class PgCollection:
         collection.
 
         Args:
-            tagger: Tagger
+            tagger:  Union[Tagger, RelationTagger]
                 tagger.get_layer_template method is called for creating the 
                 template of the new layer. 
                 tagger.make_layer method is called to create fragmented layer 
@@ -1024,6 +1033,13 @@ class PgCollection:
         if not self.exists():
             raise PgCollectionException("collection {!r} does not exist, can't create layer {!r}".format(
                                         self.name, layer_name))
+        create_relation_layer = \
+            isinstance(layer_template, RelationLayer) or isinstance(tagger, RelationTagger)
+        if create_relation_layer and self.version < '4.0':
+            raise PgCollectionException("Creating relation layers is not supported in collection version {!r}.".format(self.version))
+        if create_relation_layer and ngram_index:
+            raise NotImplementedError("Creating relation layers with ngram_index not implemented.")
+        
         logger.info('collection: {!r}'.format(self.name))
         if self._is_empty:
             raise PgCollectionException("can't add fragmented layer {!r}, the collection is empty".format(layer_name))
@@ -1134,7 +1150,7 @@ class PgCollection:
 
         Args:
 
-            layer_template: Layer
+            layer_template: Union[Layer, RelationLayer]
                 Layer template from which the layer is added to the structure 
                 of the collection. 
                 Layer template is an empty layer that contains all the proper 
@@ -1147,7 +1163,7 @@ class PgCollection:
             row_mapper: function
                 For each record produced by `data_iterator` return a list
                 of `RowMapperRecord` objects.
-            tagger: Tagger
+            tagger: Union[Tagger, RelationTagger]
                 tagger.get_layer_template method is called for creating the 
                 template of the new layer. 
                 tagger.make_layer method is called to create layer instances 
@@ -1197,6 +1213,14 @@ class PgCollection:
         assert (layer_template is None and data_iterator is None and row_mapper is None) is not (tagger is None),\
                'either tagger ({}) must be None or layer_template ({}), data_iterator ({}) and row_mapper ({}) must be None'.format(tagger, layer_template, data_iterator, row_mapper)
 
+        create_relation_layer = \
+            isinstance(layer_template, RelationLayer) or isinstance(tagger, RelationTagger)
+        if create_relation_layer and self.version < '4.0':
+            raise PgCollectionException("Creating relation layers is not supported in collection version {!r}.".format(self.version))
+        
+        if create_relation_layer and ngram_index:
+            raise NotImplementedError("Creating relation layers with ngram_index not implemented.")
+        
         # TODO: remove overwrite parameter
         assert overwrite is False or mode is None, (overwrite, mode)
         if overwrite:
@@ -1319,7 +1343,7 @@ class PgCollection:
         the collection has been finished. Once you create a detached layer, new Text objects
         cannot be inserted into the collection.
 
-        :param tagger: Tagger
+        :param tagger: Union[Tagger, RelationTagger]
             tagger to be applied on collection's texts.
             Note: tagger's input_layers will be selected automatically, 
             but the collection must have all the input layers. 
@@ -1372,6 +1396,8 @@ class PgCollection:
                                          "on 'detached' layers.").format(struct['layer_type']))
         layer_structure = (layer_name, struct['attributes'], struct['ambiguous'],
                            struct['parent'], struct['enveloping'])
+        if 'span_names' in struct:
+            layer_structure += ( struct['span_names'], )
         sparse = struct['sparse'] if 'sparse' in struct else False
 
         if data_iterator is not None:
@@ -1420,6 +1446,10 @@ class PgCollection:
                     # Check layer structure
                     layer_structure_from_tagger = (layer.name, layer.attributes, layer.ambiguous,
                                                    layer.parent, layer.enveloping)
+                    if 'span_names' in struct:
+                        layer_structure_from_tagger += \
+                            ( (layer.span_names if isinstance(layer, RelationLayer) else None), )
+                    assert len(layer_structure) == len(layer_structure_from_tagger)
                     if layer_structure != layer_structure_from_tagger:
                         no_errors = False
                         raise ValueError( ('(!) Mismatching layer structures: '+
@@ -1693,7 +1723,10 @@ class PgCollection:
         if not isinstance(mode, str) or mode.upper() not in ['NEW', 'APPEND']:
             raise ValueError('(!) Mode {!r} not supported. Use {!r} or {!r}.'.format( mode, 'NEW', 'APPEND' ))
         mode = mode.upper()
-        
+
+        if layer in self._structure and (self._structure[layer]).get('is_relation_layer', False):
+            raise NotImplementedError("Exporting relation layers not implemented.")
+
         if collection_meta is None:
             collection_meta = []
 
@@ -1784,8 +1817,11 @@ class PgCollection:
         
         if self.version < '3.0':
             structure_columns = ['layer_type', 'attributes', 'ambiguous', 'parent', 'enveloping', 'meta']
-        else:
+        elif self.version < '4.0':
             structure_columns = ['layer_type', 'attributes', 'ambiguous', 'sparse', 'parent', 'enveloping', 'meta']
+        else:
+            structure_columns = ['layer_type', 'is_relation_layer', 'attributes', 'span_names', 'ambiguous', \
+                                 'sparse', 'parent', 'enveloping', 'meta']
         if self._is_empty:
             structure_html = '<br/>unknown'
         else:

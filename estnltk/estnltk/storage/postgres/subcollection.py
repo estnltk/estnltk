@@ -131,6 +131,7 @@ class PgSubCollection:
         self._sample_from_layer_auto_seed   = None  # an automatically assigned seed (for repeatability with the progressbar)
         self._sample_from_layer_alpha       = None
         self._sample_from_layer_is_attached = None
+        self._sample_from_relation_layer    = None
         # use left outer join for all required sparse layers
         # if False, then inner join is used instead
         self._left_join_sparse_layers = keep_all_texts
@@ -754,6 +755,9 @@ class PgSubCollection:
         self._sample_from_layer_seed        = seed
         self._sample_from_layer_alpha       = alpha
         self._sample_from_layer_is_attached = (self.collection.structure[layer]['layer_type'] == 'attached')
+        self._sample_from_relation_layer    = self.collection.structure[layer].get('is_relation_layer', False)
+        if self._sample_from_relation_layer:
+            raise NotImplementedError("Sampling from relation layers not implemented")
         if seed is None and self.progressbar is not None:
             # generate seed automatically (because we need matching results between the counting
             # query and the actual query)
@@ -1208,7 +1212,15 @@ class PgSubCollection:
         text = Text(text_dict['text'])
         text.meta = text_dict['meta']
 
-        # Collections with structure versions < 2.0 are used same old serialisation module for all layers
+        # Separate selected span layers & relation layers
+        selected_relation_layers = []
+        if structure is not None and structure.version >= '4.0':
+            for s_layer in structure:
+                if s_layer in selected_layers and (structure[s_layer]).get('is_relation_layer', False):
+                    selected_relation_layers.append(s_layer)
+                    selected_layers.remove(s_layer)
+
+        # Collections with structure versions < 2.0 used same old serialisation module for all layers
         if structure is None or structure.version in {'0.0', '1.0'}:
 
             dict_to_layer = legacy_serialisation.dict_to_layer
@@ -1224,23 +1236,29 @@ class PgSubCollection:
         # the precise way they will be iterated
         text_layer_names = \
             [layer_dict['name'] for layer_dict in text_dict['layers']]
+        text_relation_layer_names = \
+            [layer_dict['name'] for layer_dict in text_dict.get('relation_layers', [])]
         reordered_selected_layers = []
         # 1) not all attached layers are selected: pick the selected ones
         for layer_name in text_layer_names:
             if layer_name in selected_layers:
                 reordered_selected_layers.append( layer_name )
+        for relation_layer_name in text_relation_layer_names:
+            if relation_layer_name in selected_relation_layers:
+                reordered_selected_layers.append( relation_layer_name )
         # 2) remaining layer names belong to detached (selected) layers
         for layer_name in selected_layers:
-            if layer_name not in text_layer_names:
+            if (layer_name not in text_layer_names and \
+                layer_name not in text_relation_layer_names):
                 reordered_selected_layers.append( layer_name )
-        assert len(reordered_selected_layers) == len(selected_layers)
+        assert len(reordered_selected_layers) == len(selected_layers) + len(selected_relation_layers)
         # While iterating results, keep track of the selected layers
         # (sparse layers can have None values which need to
         #  be replaced by layer templates)
         layer_index = 0
         cur_selected_layer = \
             reordered_selected_layers[layer_index] if layer_index < len(reordered_selected_layers) else None
-        for layer_element in chain(text_dict['layers'], layer_dicts):
+        for layer_element in chain(text_dict['layers'], text_dict.get('relation_layers', []), layer_dicts):
             if layer_element is None:
                 # Handle sparse layers from LEFT JOIN query
                 assert structure is not None
