@@ -136,25 +136,43 @@ class CollectionTextObjectInserter(object):
                     row.append(m)
                 self.buffered_inserter.insert( row )
                 self.insert_counter += 1
-                # set attached layers of the collection
+                # set attached span layers of the collection
                 for layer in text.layers:
                     # TODO: meta = ???
                     self.collection.structure.insert(layer=text[layer], layer_type='attached', meta={}, is_sparse=False)
+                # set attached relation layers of the collection
+                for rel_layer in text.relation_layers:
+                    # TODO: meta = ???
+                    self.collection.structure.insert(layer=text[rel_layer], layer_type='attached', meta={}, is_sparse=False)
                 return
             self.collection.storage.conn.commit()
             self.collection.structure.load()
         # 2) Non-empty collection
         # Validate that insertable Text object has appropriate structure
-        assert set(text.layers) == set(self.collection.structure), '{} != {}'.format(set(text.layers),
-                                                                                     set(self.collection.structure))
+        assert (set(text.layers)).union(set(text.relation_layers)) == \
+                                        set(self.collection.structure), '{} != {}'.format(set(text.layers),
+                                                                                          set(self.collection.structure))
         for layer_name in text.layers:
             layer = text[layer_name]
             layer_struct = self.collection.structure[layer_name]
             assert layer_struct['layer_type'] == 'attached'
             assert layer_struct['attributes'] == layer.attributes, '{} != {}'.format(
                     layer_struct['attributes'], layer.attributes)
+            assert layer_struct.get('span_names', None) == None
             assert layer_struct['ambiguous'] == layer.ambiguous
             assert layer_struct['parent'] == layer.parent
+            assert layer_struct['enveloping'] == layer.enveloping
+            assert layer_struct['serialisation_module'] == layer.serialisation_module
+        for rel_layer_name in text.relation_layers:
+            layer = text[rel_layer_name]
+            layer_struct = self.collection.structure[rel_layer_name]
+            assert layer_struct['layer_type'] == 'attached'
+            assert layer_struct['span_names'] == layer.span_names, '{} != {}'.format(
+                    layer_struct['span_names'], layer.span_names)
+            assert layer_struct['attributes'] == layer.attributes, '{} != {}'.format(
+                    layer_struct['attributes'], layer.attributes)
+            assert layer_struct['ambiguous'] == layer.ambiguous
+            assert layer_struct['parent'] == None
             assert layer_struct['enveloping'] == layer.enveloping
             assert layer_struct['serialisation_module'] == layer.serialisation_module
         # Insert the next row
