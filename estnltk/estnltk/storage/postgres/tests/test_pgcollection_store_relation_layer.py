@@ -46,7 +46,7 @@ class NumberComparisonRelationsTagger(RelationTagger):
     def __init__(self,
                  output_layer='number_pair_comparison',
                  output_span_names=('number_a', 'number_b'),
-                 output_attributes=('comp_relation',),
+                 output_attributes=('a', 'comp_relation', 'b'),
                  input_layers=()           
                 ):
         self.output_layer = output_layer
@@ -81,7 +81,7 @@ class NumberComparisonRelationsTagger(RelationTagger):
             elif a_val < b_val:
                 relation = 'less_than'
             layer.add_annotation({ 'number_a':(a[0], a[1]), 'number_b':(b[0], b[1]), 
-                                   'comp_relation': relation } )
+                                   'a' : a_val, 'comp_relation': relation, 'b': b_val } )
         return layer
 
 # ========================================================================================
@@ -120,15 +120,12 @@ class TestRelationLayerCreation(unittest.TestCase):
         self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db', \
                                        create_schema_if_missing=True)
 
-        self.maxDiff = None
-
     def tearDown(self):
         delete_schema(self.storage)
         self.storage.close()
 
-    def test_create_relation_layer_insertion(self):
+    def test_create_relation_layer(self):
         # Note: this is a smoke test about relation layer insertion
-        # PostgresStorage does not fully support relation layers yet
         collection_name = get_random_collection_name()
         collection = self.storage.add_collection(collection_name)
         
@@ -145,21 +142,30 @@ class TestRelationLayerCreation(unittest.TestCase):
                 text.meta['number'] = i
                 collection_insert( text )
 
-        # Annotate relation layer
+        # Create non-sparse relation layer
         rel_tagger = NumberComparisonRelationsTagger(output_layer='number_pair_comparison')
         self.assertFalse( rel_tagger.output_layer in collection.structure )
-        
-        collection.create_layer( tagger=rel_tagger, sparse=True )
+        collection.create_layer( tagger=rel_tagger, sparse=False )
         # Assert results (structure)
         self.assertTrue( rel_tagger.output_layer in collection.structure )
-        self.assertTrue( collection.structure[rel_tagger.output_layer].get('is_relation_layer') )
-        self.assertTrue( collection.is_sparse( rel_tagger.output_layer ) )
-        
-        # Assert 
+        self.assertTrue( collection.is_relation_layer( rel_tagger.output_layer ) )
+        self.assertFalse( collection.is_sparse( rel_tagger.output_layer ) )
+        # Assert that all layers exist (even empty ones)
         self.assertEqual( _make_count_query( self.storage, collection_name, 
-                                             rel_tagger.output_layer ), 
-                          13 )
+                                             rel_tagger.output_layer ), 15 )
 
+        # Create sparse relation layer via batch-processing
+        rel_tagger_2 = NumberComparisonRelationsTagger(output_layer='number_pair_comparison_2')
+        collection.add_layer( rel_tagger_2.get_layer_template(), sparse=True )
+        collection.create_layer_block( tagger=rel_tagger_2, block=(2,0) )
+        collection.create_layer_block( tagger=rel_tagger_2, block=(2,1) )
+        # Assert results (structure)
+        self.assertTrue( rel_tagger_2.output_layer in collection.structure )
+        self.assertTrue( collection.is_relation_layer( rel_tagger_2.output_layer ) )
+        self.assertTrue( collection.is_sparse( rel_tagger_2.output_layer ) )
+        # Assert that all layers exist except empty ones
+        self.assertEqual( _make_count_query( self.storage, collection_name, 
+                                             rel_tagger_2.output_layer ), 13 )
 
         self.storage.delete_collection(collection.name)
 

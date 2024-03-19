@@ -1445,8 +1445,9 @@ class PgCollection:
                 for collection_text_id, text in data_iterator:
                     layer = tagger.make_layer(text=text, status=None)
                     # Check layer structure
-                    layer_structure_from_tagger = (layer.name, layer.attributes, layer.ambiguous,
-                                                   layer.parent, layer.enveloping)
+                    layer_structure_from_tagger = (layer.name, layer.attributes, layer.ambiguous, 
+                                                   layer.parent if isinstance(layer, Layer) else None, 
+                                                   layer.enveloping)
                     if 'span_names' in struct:
                         layer_structure_from_tagger += \
                             ( (layer.span_names if isinstance(layer, RelationLayer) else None), )
