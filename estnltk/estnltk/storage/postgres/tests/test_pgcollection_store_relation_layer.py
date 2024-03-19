@@ -12,6 +12,7 @@ from psycopg2.sql import SQL, Identifier
 
 from estnltk_core import RelationLayer
 from estnltk_core.taggers import RelationTagger
+from estnltk.taggers import SentenceTokenizer
 
 from estnltk import logger
 from estnltk import Text
@@ -41,24 +42,29 @@ def pairwise(iterable):
 class NumberComparisonRelationsTagger(RelationTagger):
     """Tags all numbers in text and annotates relations (equal, less than, greater than) between pairs of numbers."""
 
-    conf_param = ['regex']
+    conf_param = ['regex', 'enveloping']
 
     def __init__(self,
                  output_layer='number_pair_comparison',
                  output_span_names=('number_a', 'number_b'),
                  output_attributes=('a', 'comp_relation', 'b'),
-                 input_layers=()           
+                 enveloping=None,
+                 input_layers=()
                 ):
         self.output_layer = output_layer
         self.output_span_names = output_span_names
         self.output_attributes = output_attributes
+        self.enveloping = enveloping
+        if isinstance(enveloping, str) and enveloping not in input_layers:
+            input_layers += (enveloping, )
         self.input_layers = input_layers
         self.regex = re.compile(r'-?\d+')
 
     def _make_layer_template(self):
         return RelationLayer(name=self.output_layer, 
-                             span_names=self.output_span_names,
-                             attributes=self.output_attributes,
+                             span_names=self.output_span_names, 
+                             attributes=self.output_attributes, 
+                             enveloping=self.enveloping, 
                              text_object=None)
 
     def _make_layer(self, text, layers, status=None):
@@ -80,7 +86,12 @@ class NumberComparisonRelationsTagger(RelationTagger):
                 relation = 'greater_than'
             elif a_val < b_val:
                 relation = 'less_than'
-            layer.add_annotation({ 'number_a':(a[0], a[1]), 'number_b':(b[0], b[1]), 
+            span_a = (a[0], a[1])
+            span_b = (b[0], b[1])
+            if isinstance(self.enveloping, str) and self.enveloping == 'words':
+                span_a = [span_a]
+                span_b = [span_b]
+            layer.add_annotation({ 'number_a':span_a, 'number_b':span_b, 
                                    'a' : a_val, 'comp_relation': relation, 'b': b_val } )
         return layer
 
@@ -114,7 +125,7 @@ def _make_count_query( storage, collection, layer_name ):
 # ========================================================================================
 
 
-class TestRelationLayerCreation(unittest.TestCase):
+class TestRelationLayerStorage(unittest.TestCase):
     def setUp(self):
         schema = "test_schema"
         self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db', \
@@ -171,7 +182,7 @@ class TestRelationLayerCreation(unittest.TestCase):
 
 
     def test_access_relation_layer(self):
-        # Note: this is a smoke test about relation layer access
+        # Note: this is a test about relation layer simple access
         collection_name = get_random_collection_name()
         collection = self.storage.add_collection(collection_name)
         
@@ -323,6 +334,80 @@ class TestRelationLayerCreation(unittest.TestCase):
              'span_names': ('number_a', 'number_b')}
         )
         
+        self.storage.delete_collection(collection.name)
+
+
+    def test_select_relation_layer(self):
+        # Note: this is a test about relation layer select / iteration
+        collection_name = get_random_collection_name()
+        collection = self.storage.add_collection(collection_name)
+        
+        # Collection version >= '4.0' is required for storing relation layers
+        self.assertTrue( collection.version >= '4.0' )
+        
+        # Create collection with attached layers
+        rel_tagger_0 = NumberComparisonRelationsTagger(output_layer='number_pair_comparison_0')
+        with collection.insert() as collection_insert:
+            for i in range(15):
+                # Create text with regular (span) layers
+                if i not in [8, 10]:
+                    text = Text('See on tekst number {}. Eelnes tekst number {} ja järgneb tekst {}'.format(i, i-1, i+1)).tag_layer('words')
+                else:
+                    text = Text('See on tekst number {}'.format(i)).tag_layer('words')
+                # Add attached relation layer
+                rel_tagger_0.tag( text )
+                assert rel_tagger_0.output_layer in text.relation_layers
+                text.meta['number'] = i
+                collection_insert( text )
+        self.assertTrue( rel_tagger_0.output_layer in collection.structure )
+        
+        # Create detached non-sparse relation layer enveloping 'words'
+        rel_tagger_1 = NumberComparisonRelationsTagger(output_layer='number_pair_comparison_1',\
+                                                       enveloping='words')
+        self.assertFalse( rel_tagger_1.output_layer in collection.structure )
+        collection.create_layer( tagger=rel_tagger_1, sparse=False )
+        self.assertTrue( rel_tagger_1.output_layer in collection.structure )
+        
+        # Create detached sparse relation layer enveloping 'words'
+        rel_tagger_2 = NumberComparisonRelationsTagger(output_layer='number_pair_comparison_2',\
+                                                       enveloping='words')
+        self.assertFalse( rel_tagger_2.output_layer in collection.structure )
+        collection.create_layer( tagger=rel_tagger_2, sparse=True )
+        self.assertTrue( rel_tagger_2.output_layer in collection.structure )
+
+        # Create detached sentences layer
+        sent_tagger = SentenceTokenizer()
+        collection.create_layer( tagger=sent_tagger )
+        
+        # Select attached relation layer
+        for text_id, text_obj in collection.select(layers=('words', rel_tagger_0.output_layer)):
+            self.assertEqual( text_obj.layers, { 'words' } )
+            self.assertEqual( text_obj.relation_layers, { rel_tagger_0.output_layer } )
+            if text_id not in [8, 10]:
+                self.assertEqual( len(text_obj[rel_tagger_0.output_layer]), 2 )
+            else:
+                self.assertEqual( len(text_obj[rel_tagger_0.output_layer]), 0 )
+
+        # Select detached non-sparse relation layer
+        for text_id, text_obj in collection.select(layers=(rel_tagger_1.output_layer, 'sentences')):
+            self.assertEqual( text_obj.layers, { 'words', 'sentences' } )
+            self.assertEqual( text_obj.relation_layers, { rel_tagger_1.output_layer } )
+            self.assertEqual( text_obj[rel_tagger_1.output_layer].enveloping, 'words' )
+            if text_id not in [8, 10]:
+                self.assertEqual( len(text_obj[rel_tagger_1.output_layer]), 2 )
+            else:
+                self.assertEqual( len(text_obj[rel_tagger_1.output_layer]), 0 )
+
+        # Select detached sparse relation layer
+        for text_id, text_obj in collection.select(layers=(rel_tagger_2.output_layer, 'sentences')):
+            self.assertEqual( text_obj.layers, { 'words', 'sentences' } )
+            self.assertEqual( text_obj.relation_layers, { rel_tagger_2.output_layer } )
+            self.assertEqual( text_obj[rel_tagger_2.output_layer].enveloping, 'words' )
+            if text_id not in [8, 10]:
+                self.assertEqual( len(text_obj[rel_tagger_2.output_layer]), 2 )
+            else:
+                self.assertEqual( len(text_obj[rel_tagger_2.output_layer]), 0 )
+
         self.storage.delete_collection(collection.name)
 
 if __name__ == '__main__':

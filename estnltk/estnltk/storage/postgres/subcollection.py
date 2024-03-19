@@ -1212,24 +1212,24 @@ class PgSubCollection:
         text = Text(text_dict['text'])
         text.meta = text_dict['meta']
 
-        # Make a copy of selected layers (do not change it directly)
-        selected_layers = selected_layers[:]
-        # Separate selected span layers & relation layers
+        # Determine which of the selected layers are relation layers
         selected_relation_layers = []
+        selected_non_relation_layers = []
         if structure is not None and structure.version >= '4.0':
-            for s_layer in structure:
-                if s_layer in selected_layers and (structure[s_layer]).get('is_relation_layer', False):
+            for s_id, s_layer in enumerate( selected_layers ):
+                if s_layer in structure and (structure[s_layer]).get('is_relation_layer', False):
                     selected_relation_layers.append(s_layer)
-                    selected_layers.remove(s_layer)
+                else:
+                    selected_non_relation_layers.append(s_layer)
+        else:
+            selected_non_relation_layers = selected_layers
 
         # Collections with structure versions < 2.0 used same old serialisation module for all layers
         if structure is None or structure.version in {'0.0', '1.0'}:
-
             dict_to_layer = legacy_serialisation.dict_to_layer
             for layer_element in chain(text_dict['layers'], layer_dicts):
                 if layer_element['name'] in selected_layers:
                     text.add_layer(dict_to_layer(layer_element, text))
-
             return text
 
         # Otherwise each layer can be serialised differently
@@ -1249,11 +1249,11 @@ class PgSubCollection:
             if relation_layer_name in selected_relation_layers:
                 reordered_selected_layers.append( relation_layer_name )
         # 2) remaining layer names belong to detached (selected) layers
-        for layer_name in chain(selected_layers, selected_relation_layers):
+        for layer_name in selected_layers:
             if (layer_name not in text_layer_names and \
                 layer_name not in text_relation_layer_names):
                 reordered_selected_layers.append( layer_name )
-        assert len(reordered_selected_layers) == len(selected_layers) + len(selected_relation_layers)
+        assert len(reordered_selected_layers) == len(selected_non_relation_layers) + len(selected_relation_layers)
         # While iterating results, keep track of the selected layers
         # (sparse layers can have None values which need to
         #  be replaced by layer templates)
