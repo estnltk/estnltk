@@ -78,13 +78,16 @@ class CollectionStructure(pg.CollectionStructureBase):
                 layer_template_json = self._remove_spans_from_layer_template_json( layer_template_json )
         # Meta attributes
         meta = list(meta or [])
+        # Note: currently, span_names encodes layer class. 
+        # If span_names is None, then we have Layer, otherwise we have RelationLayer;
+        if isinstance(layer, RelationLayer) and len(layer.span_names) == 0:
+            # Sanity guard: relation layer cannot have zero-length span_names
+            raise ValueError('(!) Unexpectedly relation layer {!r} has no named spans'.format(layer.name))
+        span_names = list(layer.span_names) if isinstance(layer, RelationLayer) else None
         with self.collection.storage.conn.cursor() as c:
             try:
                 # Attribute parent is not available for RelationLayer
                 parent = layer.parent if isinstance(layer, Layer) else None
-                # Note: currently, span_names encodes layer class. 
-                # If span_names is None, then we have Layer, otherwise we have RelationLayer;
-                span_names = list(layer.span_names) if isinstance(layer, RelationLayer) else None
                 c.execute(SQL("INSERT INTO {} (layer_name, attributes, span_names, ambiguous, sparse, parent, enveloping, meta, layer_type, serialisation_module, layer_template) "
                               "VALUES ({}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {});").format(
                     pg.structure_table_identifier(self.collection.storage, self.collection.name),
