@@ -158,7 +158,7 @@ class CollectionTextObjectInserter(object):
             assert layer_struct['layer_type'] == 'attached'
             assert layer_struct['attributes'] == layer.attributes, '{} != {}'.format(
                     layer_struct['attributes'], layer.attributes)
-            assert layer_struct.get('span_names', None) == None
+            assert layer_struct.get('span_names', None) is None
             assert layer_struct['ambiguous'] == layer.ambiguous
             assert layer_struct['parent'] == layer.parent
             assert layer_struct['enveloping'] == layer.enveloping
@@ -172,7 +172,7 @@ class CollectionTextObjectInserter(object):
             assert layer_struct['attributes'] == layer.attributes, '{} != {}'.format(
                     layer_struct['attributes'], layer.attributes)
             assert layer_struct['ambiguous'] == layer.ambiguous
-            assert layer_struct['parent'] == None
+            assert layer_struct['parent'] is None
             assert layer_struct['enveloping'] == layer.enveloping
             assert layer_struct['serialisation_module'] == layer.serialisation_module
         # Insert the next row
