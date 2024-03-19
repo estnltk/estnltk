@@ -170,6 +170,68 @@ class TestRelationLayerCreation(unittest.TestCase):
         self.storage.delete_collection(collection.name)
 
 
+    def test_access_relation_layer(self):
+        # Note: this is a smoke test about relation layer access
+        collection_name = get_random_collection_name()
+        collection = self.storage.add_collection(collection_name)
+        
+        # Collection version >= '4.0' is required for storing relation layers
+        self.assertTrue( collection.version >= '4.0' )
+        
+        # Add regular (span) layers
+        with collection.insert() as collection_insert:
+            for i in range(15):
+                if i not in [8, 10]:
+                    text = Text('See on tekst number {}. Eelnes tekst number {} ja järgneb tekst {}'.format(i, i-1, i+1)).tag_layer('words')
+                else:
+                    text = Text('See on tekst number {}'.format(i)).tag_layer('words')
+                text.meta['number'] = i
+                collection_insert( text )
+        
+        # Create non-sparse relation layer
+        rel_tagger = NumberComparisonRelationsTagger(output_layer='number_pair_comparison')
+        self.assertFalse( rel_tagger.output_layer in collection.structure )
+        collection.create_layer( tagger=rel_tagger, sparse=False )
+        self.assertTrue( rel_tagger.output_layer in collection.structure )
+
+        # Simple document access
+        collection.selected_layers = ['words', rel_tagger.output_layer ]
+        text_obj = collection[5]
+        self.assertEqual( text_obj.layers, { 'words' } )
+        self.assertEqual( text_obj.relation_layers, { rel_tagger.output_layer } )
+        self.assertEqual( layer_to_dict( text_obj[rel_tagger.output_layer] ), \
+            {'ambiguous': False,
+             'attributes': ('a', 'comp_relation', 'b'),
+             'display_order': (),
+             'enveloping': None,
+             'meta': {},
+             'name': 'number_pair_comparison',
+             'relations': [{'annotations': [{'a': 5, 'b': 4, 'comp_relation': 'greater_than'}],
+                            'named_spans': {'number_a': (20, 21), 'number_b': (43, 44)}},
+                           {'annotations': [{'a': 4, 'b': 6, 'comp_relation': 'less_than'}],
+                            'named_spans': {'number_a': (43, 44), 'number_b': (62, 63)}}],
+             'secondary_attributes': (),
+             'serialisation_module': 'relations_v1',
+             'span_names': ('number_a', 'number_b')}
+        )
+        text_obj_2 = collection[10]
+        self.assertEqual( collection.selected_layers, ['words', rel_tagger.output_layer ] )
+        self.assertEqual( text_obj_2.layers, { 'words' } )
+        self.assertEqual( text_obj_2.relation_layers, { rel_tagger.output_layer } )
+        self.assertEqual( layer_to_dict( text_obj_2[rel_tagger.output_layer] ), \
+            {'ambiguous': False,
+             'attributes': ('a', 'comp_relation', 'b'),
+             'display_order': (),
+             'enveloping': None,
+             'meta': {},
+             'name': 'number_pair_comparison',
+             'relations': [],
+             'secondary_attributes': (),
+             'serialisation_module': 'relations_v1',
+             'span_names': ('number_a', 'number_b')}
+        )
+
+        self.storage.delete_collection(collection.name)
 
 if __name__ == '__main__':
     unittest.main()

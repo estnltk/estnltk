@@ -1212,6 +1212,8 @@ class PgSubCollection:
         text = Text(text_dict['text'])
         text.meta = text_dict['meta']
 
+        # Make a copy of selected layers (do not change it directly)
+        selected_layers = selected_layers[:]
         # Separate selected span layers & relation layers
         selected_relation_layers = []
         if structure is not None and structure.version >= '4.0':
@@ -1247,7 +1249,7 @@ class PgSubCollection:
             if relation_layer_name in selected_relation_layers:
                 reordered_selected_layers.append( relation_layer_name )
         # 2) remaining layer names belong to detached (selected) layers
-        for layer_name in selected_layers:
+        for layer_name in chain(selected_layers, selected_relation_layers):
             if (layer_name not in text_layer_names and \
                 layer_name not in text_relation_layer_names):
                 reordered_selected_layers.append( layer_name )
