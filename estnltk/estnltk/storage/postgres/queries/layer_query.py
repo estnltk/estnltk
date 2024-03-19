@@ -37,13 +37,24 @@ class LayerQuery(Query):
         if not collection.has_layer( self.layer_name ):
             raise ValueError('Collection {!r} does not have the layer {!r}'.format(collection_name, self.layer_name))
         is_attached = (collection.structure[self.layer_name]['layer_type'] == 'attached')
+        is_relation_layer = collection.is_relation_layer(self.layer_name)
         if is_attached:
             # attached layer
             table = collection_table_identifier(storage, collection_name)
-            pat = SQL("""{table}."data"->'layers' @> '[{{"name": {layer}, "spans": [{{"annotations": [{condition}]}}]}}]'""")
+            if not is_relation_layer:
+                # span layer
+                pat = SQL("""{table}."data"->'layers' @> '[{{"name": {layer}, "spans": [{{"annotations": [{condition}]}}]}}]'""")
+            else:
+                # relation layer
+                pat = SQL("""{table}."data"->'relation_layers' @> '[{{"name": {layer}, "relations": [{{"annotations": [{condition}]}}]}}]'""")
             return pat.format(table=table, layer=Identifier(self.layer_name), condition=SQL(json.dumps(self.kwargs)))
         else:
             # detached layer
             table = layer_table_identifier(storage, collection_name, self.layer_name)
-            pat = SQL("""{table}.data @> '{{"spans": [{{"annotations": [{condition}]}}]}}'""")
+            if not is_relation_layer:
+                # span layer
+                pat = SQL("""{table}.data @> '{{"spans": [{{"annotations": [{condition}]}}]}}'""")
+            else:
+                # relation layer
+                pat = SQL("""{table}.data @> '{{"relations": [{{"annotations": [{condition}]}}]}}'""")
             return pat.format(table=table, condition=SQL(json.dumps(self.kwargs)))

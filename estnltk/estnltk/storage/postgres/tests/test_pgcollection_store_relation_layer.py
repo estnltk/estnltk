@@ -22,6 +22,7 @@ from estnltk.storage.postgres import PostgresStorage
 from estnltk.storage.postgres import delete_schema
 from estnltk.storage.postgres import layer_table_name
 from estnltk.storage.postgres import count_rows
+from estnltk.storage.postgres import LayerQuery
 
 
 logger.setLevel('DEBUG')
@@ -380,6 +381,7 @@ class TestRelationLayerStorage(unittest.TestCase):
         collection.create_layer( tagger=sent_tagger )
         
         # Select attached relation layer
+        text_count = 0
         for text_id, text_obj in collection.select(layers=('words', rel_tagger_0.output_layer)):
             self.assertEqual( text_obj.layers, { 'words' } )
             self.assertEqual( text_obj.relation_layers, { rel_tagger_0.output_layer } )
@@ -387,8 +389,11 @@ class TestRelationLayerStorage(unittest.TestCase):
                 self.assertEqual( len(text_obj[rel_tagger_0.output_layer]), 2 )
             else:
                 self.assertEqual( len(text_obj[rel_tagger_0.output_layer]), 0 )
+            text_count += 1
+        self.assertEqual( text_count, 15 )
 
         # Select detached non-sparse relation layer
+        text_count = 0
         for text_id, text_obj in collection.select(layers=(rel_tagger_1.output_layer, 'sentences')):
             self.assertEqual( text_obj.layers, { 'words', 'sentences' } )
             self.assertEqual( text_obj.relation_layers, { rel_tagger_1.output_layer } )
@@ -397,8 +402,11 @@ class TestRelationLayerStorage(unittest.TestCase):
                 self.assertEqual( len(text_obj[rel_tagger_1.output_layer]), 2 )
             else:
                 self.assertEqual( len(text_obj[rel_tagger_1.output_layer]), 0 )
+            text_count += 1
+        self.assertEqual( text_count, 15 )
 
         # Select detached sparse relation layer
+        text_count = 0
         for text_id, text_obj in collection.select(layers=(rel_tagger_2.output_layer, 'sentences')):
             self.assertEqual( text_obj.layers, { 'words', 'sentences' } )
             self.assertEqual( text_obj.relation_layers, { rel_tagger_2.output_layer } )
@@ -407,8 +415,101 @@ class TestRelationLayerStorage(unittest.TestCase):
                 self.assertEqual( len(text_obj[rel_tagger_2.output_layer]), 2 )
             else:
                 self.assertEqual( len(text_obj[rel_tagger_2.output_layer]), 0 )
+            text_count += 1
+        self.assertEqual( text_count, 15 )
+
+        # Select detached sparse relation layer, skip text objects with empty layers
+        text_count = 0
+        for text_id, text_obj in collection.select(layers=(rel_tagger_2.output_layer, 'sentences'), \
+                                                           keep_all_texts=False):
+            self.assertTrue( text_id not in [8, 10] )
+            self.assertEqual( text_obj.layers, { 'words', 'sentences' } )
+            self.assertEqual( text_obj.relation_layers, { rel_tagger_2.output_layer } )
+            self.assertEqual( text_obj[rel_tagger_2.output_layer].enveloping, 'words' )
+            self.assertEqual( len(text_obj[rel_tagger_2.output_layer]), 2 )
+            text_count += 1
+        self.assertEqual( text_count, 13 )
 
         self.storage.delete_collection(collection.name)
+
+
+    def test_select_relation_layer_with_layer_query(self):
+        # Note: this is a test about relation layer selection with layer query
+        collection_name = get_random_collection_name()
+        collection = self.storage.add_collection(collection_name)
+        
+        # Collection version >= '4.0' is required for storing relation layers
+        self.assertTrue( collection.version >= '4.0' )
+        
+        # Create collection with attached layers
+        rel_tagger_0 = NumberComparisonRelationsTagger(output_layer='number_pair_comparison_0')
+        with collection.insert() as collection_insert:
+            for i in range(15):
+                # Create text with regular (span) layers
+                if i not in [8, 10]:
+                    text = Text('See on tekst number {}. Eelnes tekst number {} ja järgneb tekst {}'.format(i, i-1, i+1)).tag_layer('words')
+                else:
+                    text = Text('See on tekst number {}'.format(i)).tag_layer('words')
+                # Add attached relation layer
+                rel_tagger_0.tag( text )
+                assert rel_tagger_0.output_layer in text.relation_layers
+                text.meta['number'] = i
+                collection_insert( text )
+        self.assertTrue( rel_tagger_0.output_layer in collection.structure )
+
+        # Create detached non-sparse relation layer enveloping 'words'
+        rel_tagger_1 = NumberComparisonRelationsTagger(output_layer='number_pair_comparison_1',\
+                                                       enveloping='words')
+        self.assertFalse( rel_tagger_1.output_layer in collection.structure )
+        collection.create_layer( tagger=rel_tagger_1, sparse=False )
+        self.assertTrue( rel_tagger_1.output_layer in collection.structure )
+
+        # Select attached relation layer
+        text_count = 0
+        for text_id, text_obj in collection.select(layers=('words', rel_tagger_0.output_layer),
+                                                   query=LayerQuery(rel_tagger_0.output_layer, a=1) |
+                                                         LayerQuery(rel_tagger_0.output_layer, b=1) ):
+            self.assertEqual( text_obj.layers, { 'words' } )
+            self.assertEqual( text_obj.relation_layers, { rel_tagger_0.output_layer } )
+            self.assertEqual( len(text_obj[rel_tagger_0.output_layer]), 2 )
+            text_count += 1
+        self.assertEqual( text_count, 3 )
+        text_count = 0
+        for text_id, text_obj in collection.select(layers=('words', rel_tagger_0.output_layer),
+                                                   query=LayerQuery(rel_tagger_0.output_layer, a=10) |
+                                                         LayerQuery(rel_tagger_0.output_layer, b=10) ):
+            self.assertEqual( text_obj.layers, { 'words' } )
+            self.assertEqual( text_obj.relation_layers, { rel_tagger_0.output_layer } )
+            self.assertEqual( len(text_obj[rel_tagger_0.output_layer]), 2 )
+            text_count += 1
+        self.assertEqual( text_count, 2 )
+
+        # Create detached sentences layer
+        sent_tagger = SentenceTokenizer()
+        collection.create_layer( tagger=sent_tagger )
+
+        # Select detached non-sparse relation layer
+        text_count = 0
+        for text_id, text_obj in collection.select(layers=(rel_tagger_1.output_layer, 'sentences'),
+                                                   query=LayerQuery(rel_tagger_1.output_layer, a=1) |
+                                                         LayerQuery(rel_tagger_1.output_layer, b=1) ):
+            self.assertEqual( text_obj.layers, { 'words', 'sentences' } )
+            self.assertEqual( text_obj.relation_layers, { rel_tagger_1.output_layer } )
+            self.assertEqual( len(text_obj[rel_tagger_1.output_layer]), 2 )
+            text_count += 1
+        self.assertEqual( text_count, 3 )
+        text_count = 0
+        for text_id, text_obj in collection.select(layers=('words', rel_tagger_1.output_layer, 'sentences'),
+                                                   query=LayerQuery(rel_tagger_1.output_layer, a=8) |
+                                                         LayerQuery(rel_tagger_1.output_layer, b=8) ):
+            self.assertEqual( text_obj.layers, { 'words', 'sentences' } )
+            self.assertEqual( text_obj.relation_layers, { rel_tagger_1.output_layer } )
+            self.assertEqual( len(text_obj[rel_tagger_1.output_layer]), 2 )
+            text_count += 1
+        self.assertEqual( text_count, 2 )
+        
+        self.storage.delete_collection(collection.name)
+
 
 if __name__ == '__main__':
     unittest.main()

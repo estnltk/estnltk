@@ -1039,7 +1039,7 @@ class PgSubCollection:
         """
         Creates a sparse layer based on this subcollection.
 
-        :param tagger: Tagger
+        :param tagger: Union[Tagger, RelationTagger]
             Tagger to be used for creating the layer. 
             tagger.get_layer_template method is called for creating the 
             template of the new layer. 
@@ -1130,7 +1130,7 @@ class PgSubCollection:
         
         Note 2: only sparse layers can be tagged with this method.
 
-        :param tagger: Tagger
+        :param tagger: Union[Tagger, RelationTagger]
             tagger to be applied on collection's texts.
             Note: tagger's input_layers will be selected automatically, 
             but the collection must have all the input layers. 
