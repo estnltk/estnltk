@@ -1225,7 +1225,7 @@ class PgSubCollection:
         selected_span_layers = []
         if structure is not None and structure.version >= '4.0':
             for s_id, s_layer in enumerate( selected_layers ):
-                if s_layer in structure and (structure[s_layer]).get('is_relation_layer', False):
+                if s_layer in structure and (structure[s_layer]).get('relation_layer', False):
                     selected_relation_layers.append(s_layer)
                 else:
                     selected_span_layers.append(s_layer)

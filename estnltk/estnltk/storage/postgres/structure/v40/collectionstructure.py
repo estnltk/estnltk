@@ -80,7 +80,7 @@ class CollectionStructure(pg.CollectionStructureBase):
         meta = list(meta or [])
         # Note: currently, span_names encodes layer class. 
         # If span_names is None, then we have Layer, otherwise we have RelationLayer;
-        if isinstance(layer, RelationLayer) and len(layer.span_names) == 0:
+        if isinstance(layer, RelationLayer) and (layer.span_names is None or len(layer.span_names) == 0):
             # Sanity guard: relation layer cannot have zero-length span_names
             raise ValueError('(!) Unexpectedly relation layer {!r} has no named spans'.format(layer.name))
         span_names = list(layer.span_names) if isinstance(layer, RelationLayer) else None
@@ -133,7 +133,7 @@ class CollectionStructure(pg.CollectionStructureBase):
                                      'layer_type': row[8],
                                      'serialisation_module': row[9],
                                      'layer_template_dict': row[10],
-                                     'is_relation_layer': row[2] is not None
+                                     'relation_layer': row[2] is not None
                                      }
                 # Validate that 'layer_template_dict' was automatically converted to dict. 
                 # If it is still a string, something went wrong with the data conversion in 

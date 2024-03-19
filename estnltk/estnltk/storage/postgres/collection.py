@@ -1595,12 +1595,11 @@ class PgCollection:
             raise PgCollectionException("collection {!r} does not exist".format( self.name ))
         if not self.has_layer(layer_name):
             raise ValueError('collection does not have layer {!r}'.format(layer_name))
-        return (self._structure[layer_name]).get('is_relation_layer', False)
+        return (self._structure[layer_name]).get('relation_layer', False)
 
     def get_fragment_names(self):
         warnings.simplefilter("always", DeprecationWarning)
-        warnings.warn('collection.get_fragment_tables(...) is deprecated. '+\
-                      'Use collection.get_layer_names_by_type(layer_type="fragmented") instead. ', 
+        warnings.warn('collection.get_fragment_names(...) is deprecated. ', 
                       DeprecationWarning)
         warnings.simplefilter("ignore", DeprecationWarning)
         if not self.exists():
@@ -1832,7 +1831,7 @@ class PgCollection:
         elif self.version < '4.0':
             structure_columns = ['layer_type', 'attributes', 'ambiguous', 'sparse', 'parent', 'enveloping', 'meta']
         else:
-            structure_columns = ['layer_type', 'is_relation_layer', 'attributes', 'span_names', 'ambiguous', \
+            structure_columns = ['layer_type', 'relation_layer', 'attributes', 'span_names', 'ambiguous', \
                                  'sparse', 'parent', 'enveloping', 'meta']
         if self._is_empty:
             structure_html = '<br/>unknown'
