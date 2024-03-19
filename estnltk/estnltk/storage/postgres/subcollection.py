@@ -755,7 +755,7 @@ class PgSubCollection:
         self._sample_from_layer_seed        = seed
         self._sample_from_layer_alpha       = alpha
         self._sample_from_layer_is_attached = (self.collection.structure[layer]['layer_type'] == 'attached')
-        self._sample_from_relation_layer    = self.collection.structure[layer].get('is_relation_layer', False)
+        self._sample_from_relation_layer    = self.collection.is_relation_layer(layer)
         if self._sample_from_relation_layer:
             raise NotImplementedError("Sampling from relation layers not implemented")
         if seed is None and self.progressbar is not None:

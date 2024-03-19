@@ -742,6 +742,7 @@ class PgCollection:
         for i, t in self.select(layers=[layer], **kwargs):
             counter.update(t[layer].count_values(attr))
         return counter
+        
 
     def add_layer(self, layer_template: Union[Layer, RelationLayer],
                         layer_type: str = 'detached',
@@ -1588,6 +1589,13 @@ class PgCollection:
             raise ValueError('collection does not have layer {!r}'.format(layer_name))
         return self._structure[layer_name]['sparse'] if 'sparse' in self._structure[layer_name] else False
 
+    def is_relation_layer(self, layer_name):
+        if not self.exists():
+            raise PgCollectionException("collection {!r} does not exist".format( self.name ))
+        if not self.has_layer(layer_name):
+            raise ValueError('collection does not have layer {!r}'.format(layer_name))
+        return (self._structure[layer_name]).get('is_relation_layer', False)
+
     def get_fragment_names(self):
         warnings.simplefilter("always", DeprecationWarning)
         warnings.warn('collection.get_fragment_tables(...) is deprecated. '+\
@@ -1724,7 +1732,10 @@ class PgCollection:
             raise ValueError('(!) Mode {!r} not supported. Use {!r} or {!r}.'.format( mode, 'NEW', 'APPEND' ))
         mode = mode.upper()
 
-        if layer in self._structure and (self._structure[layer]).get('is_relation_layer', False):
+        if not self.has_layer(layer):
+            raise ValueError("collection {!r} does not have layer {!r}".format(self.name, layer))
+
+        if self.is_relation_layer(layer):
             raise NotImplementedError("Exporting relation layers not implemented.")
 
         if collection_meta is None:
