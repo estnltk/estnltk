@@ -391,8 +391,13 @@ class PgCollection:
             try:
                 c.execute(
                     SQL("CREATE INDEX {index} ON {table} USING gin ((data->'layers') jsonb_path_ops)").format(
-                        index=Identifier('idx_%s_data' % self.name),
+                        index=Identifier('idx_%s_layer_data' % self.name),
                         table=pg.collection_table_identifier(self.storage, self.name)))
+                if self.version >= '4.0':
+                    c.execute(
+                        SQL("CREATE INDEX {index} ON {table} USING gin ((data->'relation_layers') jsonb_path_ops)").format(
+                            index=Identifier('idx_%s_relation_layer_data' % self.name),
+                            table=pg.collection_table_identifier(self.storage, self.name)))
             except Exception:
                 self.storage.conn.rollback()
                 raise
@@ -412,7 +417,12 @@ class PgCollection:
                 c.execute(
                     SQL("DROP INDEX {schema}.{index}").format(
                         schema=Identifier(self.storage.schema),
-                        index=Identifier('idx_%s_data' % self.name)))
+                        index=Identifier('idx_%s_layer_data' % self.name)))
+                if self.version >= '4.0':
+                    c.execute(
+                        SQL("DROP INDEX {schema}.{index}").format(
+                            schema=Identifier(self.storage.schema),
+                            index=Identifier('idx_%s_relation_layer_data' % self.name)))
             except Exception:
                 self.storage.conn.rollback()
                 raise
@@ -916,12 +926,20 @@ class PgCollection:
 
                 # create jsonb index
                 if create_index is True:
-                    cur.execute(SQL(
-                        "CREATE INDEX {index} ON {schema}.{table} USING gin ((data->'layers') jsonb_path_ops);").format(
-                        schema=Identifier(self.storage.schema),
-                        index=Identifier('idx_%s_data' % layer_table),
-                        table=Identifier(layer_table)))
-                    logger.debug(cur.query.decode())
+                    if isinstance( layer_template, Layer ):
+                        cur.execute(SQL(
+                            "CREATE INDEX {index} ON {schema}.{table} USING gin ((data->'spans') jsonb_path_ops);").format(
+                            schema=Identifier(self.storage.schema),
+                            index=Identifier('idx_%s_spans' % layer_table),
+                            table=Identifier(layer_table)))
+                        logger.debug(cur.query.decode())
+                    elif isinstance( layer_template, RelationLayer ):
+                        cur.execute(SQL(
+                            "CREATE INDEX {index} ON {schema}.{table} USING gin ((data->'relations') jsonb_path_ops);").format(
+                            schema=Identifier(self.storage.schema),
+                            index=Identifier('idx_%s_relations' % layer_table),
+                            table=Identifier(layer_table)))
+                        logger.debug(cur.query.decode())
 
                 # create ngram array index
                 if ngram_index is not None:

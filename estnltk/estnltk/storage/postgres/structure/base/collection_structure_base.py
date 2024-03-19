@@ -79,8 +79,11 @@ class CollectionStructureBase:
                 logger.debug(c.query.decode())
                 c.execute(
                     SQL("CREATE INDEX {index} ON {table} USING gin ((data->'layers') jsonb_path_ops);").format(
-                        index=Identifier('idx_%s_data' % table_name),
-                        table=table))
+                        index=Identifier('idx_%s_layer_data' % table_name), table=table))
+                if self.version >= '4.0':
+                    c.execute(
+                        SQL("CREATE INDEX {index} ON {table} USING gin ((data->'relation_layers') jsonb_path_ops);").format(
+                            index=Identifier('idx_%s_relation_layer_data' % table_name), table=table) )
                 logger.debug(c.query.decode())
                 if isinstance(description, str):
                     c.execute(SQL("COMMENT ON TABLE {} IS {}").format(
