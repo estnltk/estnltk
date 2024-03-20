@@ -69,6 +69,7 @@ class CollectionTextObjectInserter(object):
         self.query_length_limit = query_length_limit
         self.buffered_inserter = None
         self.insert_counter = 0
+        self.relation_layer_data_losses = 0
 
 
     def __enter__(self):
@@ -101,7 +102,9 @@ class CollectionTextObjectInserter(object):
         if self.buffered_inserter is not None:
             self.buffered_inserter.close()
             logger.info('inserted {} texts into the collection {!r}'.format(self.insert_counter, self.collection.name))
-
+            if self.relation_layer_data_losses > 0:
+                logger.warning( '(!) {} documents lost relation layers during the insertion'.format( \
+                                    self.relation_layer_data_losses ) )
 
     def __call__(self, text, key=None, meta_data=None): 
         self.insert(text, key=key, meta_data=meta_data)
@@ -140,10 +143,16 @@ class CollectionTextObjectInserter(object):
                 for layer in text.layers:
                     # TODO: meta = ???
                     self.collection.structure.insert(layer=text[layer], layer_type='attached', meta={}, is_sparse=False)
-                # set attached relation layers of the collection
-                for rel_layer in text.relation_layers:
-                    # TODO: meta = ???
-                    self.collection.structure.insert(layer=text[rel_layer], layer_type='attached', meta={}, is_sparse=False)
+                if len(text.relation_layers) > 0:
+                    if self.collection.version >= '4.0':
+                        # set attached relation layers of the collection
+                        for rel_layer in text.relation_layers:
+                            # TODO: meta = ???
+                            self.collection.structure.insert(layer=text[rel_layer], layer_type='attached', meta={}, is_sparse=False)
+                    else:
+                        # older collection versions: report data loss
+                        logger.warning( ('possible data loss: skipped insertion of relation layers {!r}. collection version '+\
+                                         '>= 4.0 is required for storing relation layers.').format( text.relation_layers ) )
                 return
             self.collection.storage.conn.commit()
             self.collection.structure.load()
@@ -163,18 +172,26 @@ class CollectionTextObjectInserter(object):
             assert layer_struct['parent'] == layer.parent
             assert layer_struct['enveloping'] == layer.enveloping
             assert layer_struct['serialisation_module'] == layer.serialisation_module
-        for rel_layer_name in text.relation_layers:
-            layer = text[rel_layer_name]
-            layer_struct = self.collection.structure[rel_layer_name]
-            assert layer_struct['layer_type'] == 'attached'
-            assert layer_struct['span_names'] == layer.span_names, '{} != {}'.format(
-                    layer_struct['span_names'], layer.span_names)
-            assert layer_struct['attributes'] == layer.attributes, '{} != {}'.format(
-                    layer_struct['attributes'], layer.attributes)
-            assert layer_struct['ambiguous'] == layer.ambiguous
-            assert layer_struct['parent'] is None
-            assert layer_struct['enveloping'] == layer.enveloping
-            assert layer_struct['serialisation_module'] == layer.serialisation_module
+        if len(text.relation_layers) > 0:
+            if self.collection.version >= '4.0': # relation layers require collection version >= 4.0
+                for rel_layer_name in text.relation_layers:
+                    layer = text[rel_layer_name]
+                    layer_struct = self.collection.structure[rel_layer_name]
+                    assert layer_struct['layer_type'] == 'attached'
+                    assert layer_struct['span_names'] == layer.span_names, '{} != {}'.format(
+                            layer_struct['span_names'], layer.span_names)
+                    assert layer_struct['attributes'] == layer.attributes, '{} != {}'.format(
+                            layer_struct['attributes'], layer.attributes)
+                    assert layer_struct['ambiguous'] == layer.ambiguous
+                    assert layer_struct['parent'] is None
+                    assert layer_struct['enveloping'] == layer.enveloping
+                    assert layer_struct['serialisation_module'] == layer.serialisation_module
+            else:
+                # older collection versions: report data loss
+                self.relation_layer_data_losses += 1
+                if self.relation_layer_data_losses < 5:
+                    logger.warning( ('possible data loss: skipped insertion of relation layers {!r}. collection version '+\
+                                     '>= 4.0 is required for storing relation layers.').format( text.relation_layers ) )
         # Insert the next row
         if key is None:
             key = DEFAULT
