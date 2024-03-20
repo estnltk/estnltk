@@ -797,8 +797,8 @@ class PgCollection:
             create_index: bool
                 Whether to create an index on json column (default: False)
             ngram_index: list
-                A list of attributes for which to create an ngram index (default: None)
-                :param sparse:
+                A list of attributes for which to create an ngram index (default: None).
+                
             sparse: bool
                 Whether the layer table is created as a sparse tabel which means
                 that empty layers are not stored in the table.
@@ -813,7 +813,10 @@ class PgCollection:
         if isinstance( layer_template, RelationLayer ) and self.version < '4.0':
             raise PgCollectionException( ("Relation layers cannot be added in collection version {!r}. "+\
                                           "Version 4.0+ is required.").format(self.version) )
-            
+
+        if isinstance( layer_template, RelationLayer ) and ngram_index is not None:
+            raise NotImplementedError("Adding relation layer with ngram_index not implemented.")
+
         if not isinstance( layer_template, (Layer, RelationLayer) ):
             raise TypeError('(!) layer_template must be an instance of Layer or RelationLayer')
 
