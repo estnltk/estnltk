@@ -24,6 +24,8 @@ from estnltk.storage.postgres import delete_schema
 from estnltk.storage.postgres import layer_table_name
 from estnltk.storage.postgres import count_rows
 from estnltk.storage.postgres import LayerQuery
+from estnltk.storage.postgres import table_exists
+from estnltk.storage.postgres import table_identifier
 
 
 logger.setLevel('DEBUG')
@@ -559,6 +561,91 @@ class TestRelationLayerStorage(unittest.TestCase):
         collection.delete_layer( words_tagger.output_layer, cascade=True )
         self.assertFalse( rel_tagger_2.output_layer in collection.structure )
         self.assertFalse( words_tagger.output_layer in collection.structure )
+        
+        self.storage.delete_collection(collection.name)
+
+
+    def test_export_relation_layer(self):
+        # Note: this is a test about exporting relation layer's relations into a separate table
+        collection_name = get_random_collection_name()
+        collection = self.storage.add_collection(collection_name)
+        
+        # Collection version >= '4.0' is required for storing relation layers
+        self.assertTrue( collection.version >= '4.0' )
+        
+        # Create collection with attached layers
+        rel_tagger_0 = NumberComparisonRelationsTagger(output_layer='number_pair_comparison_0')
+        with collection.insert() as collection_insert:
+            for i in range(15):
+                # Create text with regular (span) layers
+                if i not in [8, 10]:
+                    text = Text('See on tekst number {}. Eelnes tekst number {} ja järgneb tekst {}'.format(i, i-1, i+1)).tag_layer('words')
+                else:
+                    text = Text('See on tekst number {}'.format(i)).tag_layer('words')
+                # Add attached relation layer
+                rel_tagger_0.tag( text )
+                assert rel_tagger_0.output_layer in text.relation_layers
+                text.meta['number'] = i
+                collection_insert( text )
+        self.assertTrue( rel_tagger_0.output_layer in collection.structure )
+
+        # Create detached non-sparse relation layer enveloping 'words'
+        rel_tagger_1 = NumberComparisonRelationsTagger(output_layer='number_pair_comparison_1',\
+                                                       enveloping='words')
+        self.assertFalse( rel_tagger_1.output_layer in collection.structure )
+        collection.create_layer( tagger=rel_tagger_1, sparse=False )
+        self.assertTrue( rel_tagger_1.output_layer in collection.structure )
+        
+        #
+        # 1) Export attached rel_tagger_0.output_layer with all the attributes
+        #
+        collection.export_layer( rel_tagger_0.output_layer, attributes=['a', 'comp_relation', 'b'] )
+        table_name='{}__{}__export'.format(collection_name, rel_tagger_0.output_layer)
+        assert table_exists(self.storage, table_name)
+        # Validate exported annotations
+        exported_table_identifier = \
+            table_identifier(storage=self.storage, table_name=table_name)
+        table_entries = _make_simple_query_on_table( self.storage, exported_table_identifier )
+        expected_entries = \
+            [(1, 0, 0, 20, 21, 43, 45, '0', 'greater_than', '-1'),
+             (2, 0, 1, 43, 45, 63, 64, '-1', 'less_than', '1'),
+             (3, 1, 0, 20, 21, 43, 44, '1', 'greater_than', '0'),
+             (4, 1, 1, 43, 44, 62, 63, '0', 'less_than', '2'),
+             (5, 2, 0, 20, 21, 43, 44, '2', 'greater_than', '1'),
+             (6, 2, 1, 43, 44, 62, 63, '1', 'less_than', '3'),
+             (7, 3, 0, 20, 21, 43, 44, '3', 'greater_than', '2'),
+             (8, 3, 1, 43, 44, 62, 63, '2', 'less_than', '4'),
+             (9, 4, 0, 20, 21, 43, 44, '4', 'greater_than', '3'),
+             (10, 4, 1, 43, 44, 62, 63, '3', 'less_than', '5'),
+             (11, 5, 0, 20, 21, 43, 44, '5', 'greater_than', '4'),
+             (12, 5, 1, 43, 44, 62, 63, '4', 'less_than', '6'),
+             (13, 6, 0, 20, 21, 43, 44, '6', 'greater_than', '5'),
+             (14, 6, 1, 43, 44, 62, 63, '5', 'less_than', '7'),
+             (15, 7, 0, 20, 21, 43, 44, '7', 'greater_than', '6'),
+             (16, 7, 1, 43, 44, 62, 63, '6', 'less_than', '8'),
+             (17, 9, 0, 20, 21, 43, 44, '9', 'greater_than', '8'),
+             (18, 9, 1, 43, 44, 62, 64, '8', 'less_than', '10'),
+             (19, 11, 0, 20, 22, 44, 46, '11', 'greater_than', '10'),
+             (20, 11, 1, 44, 46, 64, 66, '10', 'less_than', '12'),
+             (21, 12, 0, 20, 22, 44, 46, '12', 'greater_than', '11'),
+             (22, 12, 1, 44, 46, 64, 66, '11', 'less_than', '13'),
+             (23, 13, 0, 20, 22, 44, 46, '13', 'greater_than', '12'),
+             (24, 13, 1, 44, 46, 64, 66, '12', 'less_than', '14'),
+             (25, 14, 0, 20, 22, 44, 46, '14', 'greater_than', '13'),
+             (26, 14, 1, 44, 46, 64, 66, '13', 'less_than', '15')]
+        assert table_entries == expected_entries 
+        
+        #
+        # 2) Export attached rel_tagger_1.output_layer with all the attributes
+        #
+        collection.export_layer( rel_tagger_1.output_layer, attributes=['a', 'comp_relation', 'b'] )
+        table_name='{}__{}__export'.format(collection_name, rel_tagger_1.output_layer)
+        assert table_exists(self.storage, table_name)
+        # Validate exported annotations
+        exported_table_identifier_2 = \
+            table_identifier(storage=self.storage, table_name=table_name)
+        table_entries_2 = _make_simple_query_on_table( self.storage, exported_table_identifier_2 )
+        assert table_entries_2 == expected_entries 
         
         self.storage.delete_collection(collection.name)
 

@@ -1695,12 +1695,18 @@ class PgCollection:
         """
         Exports annotations from the given layer to a separate table.
         
-        At minimum, the exported layer table has the following columns:
+        At minimum, the exported span layer table has the following columns:
         * id -- annotation id (unique in the whole collection);
         * text_id -- text's id in the collection;
         * span_nr -- span's index in the layer;
         * span_start -- span's start index in the text;
         * span_end   -- span's end index in the text;
+        and the exported relation layer table has the columns:
+        * id -- annotation id (unique in the whole collection);
+        * text_id -- text's id in the collection;
+        * relation_nr -- relation's index in the layer;
+        * f'{span_name}_start' and f'{span_name}_end' columns for each named span;
+        
         Optionally, if attributes is set, then there will be a separate 
         column for each layer attribute. And if collection_meta is set, 
         then there will be an additional column for each metadata field.
@@ -1756,8 +1762,7 @@ class PgCollection:
         if not self.has_layer(layer):
             raise ValueError("collection {!r} does not have layer {!r}".format(self.name, layer))
 
-        if self.is_relation_layer(layer):
-            raise NotImplementedError("Exporting relation layers not implemented.")
+        export_relation_layer = self.is_relation_layer(layer)
 
         if collection_meta is None:
             collection_meta = []
@@ -1768,15 +1773,29 @@ class PgCollection:
 
         logger.info('preparing to export {!r} layer with attributes {!r}'.format(layer, attributes))
 
-        columns = [
-            ('id', 'serial PRIMARY KEY'),
-            ('text_id', 'int NOT NULL'),
-            ('span_nr', 'int NOT NULL'),
-            ('span_start', 'int NOT NULL'),
-            ('span_end', 'int NOT NULL'),
-        ]
-        columns.extend((attr, 'text') for attr in attributes)
-        columns.extend((attr, 'text') for attr in collection_meta)
+        if not export_relation_layer:
+            # span layer
+            columns = [
+                ('id', 'serial PRIMARY KEY'),
+                ('text_id', 'int NOT NULL'),
+                ('span_nr', 'int NOT NULL'),
+                ('span_start', 'int NOT NULL'),
+                ('span_end', 'int NOT NULL'),
+            ]
+            columns.extend((attr, 'text') for attr in attributes)
+            columns.extend((attr, 'text') for attr in collection_meta)
+        else:
+            # relation layer
+            columns = [
+                ('id', 'serial PRIMARY KEY'),
+                ('text_id', 'int NOT NULL'),
+                ('relation_nr', 'int NOT NULL'),
+            ]
+            for span_name in self.structure[layer]['span_names']:
+                columns.append( ('{}_start'.format(span_name), 'int') )
+                columns.append( ('{}_end'.format(span_name), 'int') )
+            columns.extend((attr, 'text') for attr in attributes)
+            columns.extend((attr, 'text') for attr in collection_meta)
 
         # Check for the existence of the table
         create_table = True
@@ -1829,15 +1848,34 @@ class PgCollection:
             for entry in texts:
                 if len( collection_meta ) > 0:
                     text_id, text, meta = entry
-                else: 
+                else:
                     text_id, text = entry
-                for span_nr, span in enumerate(text[layer]):
-                    for annotation in span.annotations:
-                        i += 1
-                        values = [ i, text_id, span_nr, span.start, span.end ]
-                        values.extend( [annotation[attr] for attr in attributes] )
-                        values.extend( [meta[k] for k in collection_meta] )
-                        buffered_inserter.insert( values )
+                if not export_relation_layer:
+                    # export span layer
+                    for span_nr, span in enumerate( text[layer] ):
+                        for annotation in span.annotations:
+                            i += 1
+                            values = [ i, text_id, span_nr, span.start, span.end ]
+                            values.extend( [annotation[attr] for attr in attributes] )
+                            values.extend( [meta[k] for k in collection_meta] )
+                            buffered_inserter.insert( values )
+                else:
+                    # export relation layer
+                    for relation_nr, relation in enumerate(text[layer]):
+                        for annotation in relation.annotations:
+                            i += 1
+                            values = [ i, text_id, relation_nr ]
+                            for span_name in self.structure[layer]['span_names']:
+                                named_span = relation[span_name]
+                                if named_span is not None:
+                                    values.append(named_span.start)
+                                    values.append(named_span.end)
+                                else:
+                                    values.append(None)
+                                    values.append(None)
+                            values.extend( [annotation[attr] for attr in attributes] )
+                            values.extend( [meta[k] for k in collection_meta] )
+                            buffered_inserter.insert( values )
 
         logger.info('{} annotations exported to "{}"."{}"'.format(i-initial_rows, self.storage.schema, table_name))
 
