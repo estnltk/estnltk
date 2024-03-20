@@ -12,6 +12,7 @@ from psycopg2.sql import SQL, Identifier
 
 from estnltk_core import RelationLayer
 from estnltk_core.taggers import RelationTagger
+from estnltk.taggers import WordTagger
 from estnltk.taggers import SentenceTokenizer
 
 from estnltk import logger
@@ -507,6 +508,57 @@ class TestRelationLayerStorage(unittest.TestCase):
             self.assertEqual( len(text_obj[rel_tagger_1.output_layer]), 2 )
             text_count += 1
         self.assertEqual( text_count, 2 )
+        
+        self.storage.delete_collection(collection.name)
+
+
+    def test_delete_relation_layer(self):
+        # Note: this is a test about deletion of detached relation layer
+        collection_name = get_random_collection_name()
+        collection = self.storage.add_collection(collection_name)
+        
+        # Collection version >= '4.0' is required for storing relation layers
+        self.assertTrue( collection.version >= '4.0' )
+        
+        # Create collection with attached layers
+        with collection.insert() as collection_insert:
+            for i in range(15):
+                # Create text with regular (span) layers
+                if i not in [8, 10]:
+                    text = Text('See on tekst number {}. Eelnes tekst number {} ja järgneb tekst {}'.format(i, i-1, i+1)).tag_layer('compound_tokens')
+                else:
+                    text = Text('See on tekst number {}'.format(i)).tag_layer('compound_tokens')
+                text.meta['number'] = i
+                collection_insert( text )
+
+        # Create detached words layer
+        words_tagger = WordTagger()
+        collection.create_layer( tagger=words_tagger )
+        
+        # Create detached non-sparse relation layer
+        rel_tagger_1 = NumberComparisonRelationsTagger(output_layer='number_pair_comparison_1')
+        self.assertFalse( rel_tagger_1.output_layer in collection.structure )
+        collection.create_layer( tagger=rel_tagger_1, sparse=False )
+        self.assertTrue( rel_tagger_1.output_layer in collection.structure )
+        
+        # Create detached sparse relation layer enveloping 'words'
+        rel_tagger_2 = NumberComparisonRelationsTagger(output_layer='number_pair_comparison_2',\
+                                                       enveloping='words')
+        self.assertFalse( rel_tagger_2.output_layer in collection.structure )
+        collection.create_layer( tagger=rel_tagger_2, sparse=True )
+        self.assertTrue( rel_tagger_2.output_layer in collection.structure )
+        
+        # Remove layer created by rel_tagger_1
+        self.assertTrue( rel_tagger_1.output_layer in collection.structure )
+        collection.delete_layer( rel_tagger_1.output_layer, cascade=False )
+        self.assertFalse( rel_tagger_1.output_layer in collection.structure )
+        
+        # Remove layers created by words_tagger & rel_tagger_2
+        self.assertTrue( rel_tagger_2.output_layer in collection.structure )
+        self.assertTrue( words_tagger.output_layer in collection.structure )
+        collection.delete_layer( words_tagger.output_layer, cascade=True )
+        self.assertFalse( rel_tagger_2.output_layer in collection.structure )
+        self.assertFalse( words_tagger.output_layer in collection.structure )
         
         self.storage.delete_collection(collection.name)
 
