@@ -158,9 +158,13 @@ class CollectionTextObjectInserter(object):
             self.collection.structure.load()
         # 2) Non-empty collection
         # Validate that insertable Text object has appropriate structure
-        text_obj_all_layers = (set(text.layers)).union(set(text.relation_layers))
-        assert text_obj_all_layers == set(self.collection.structure), '{} != {}'.format(text_obj_all_layers,
-                                                                                        set(self.collection.structure))
+        text_obj_all_layers = set(text.layers)
+        if self.collection.version >= '4.0':
+            text_obj_all_layers = text_obj_all_layers.union(set(text.relation_layers))
+        if not text_obj_all_layers == set(self.collection.structure):
+            raise AssertionError( \
+                "collection's attached layers {!r} do not match text object's layers {!r}".format( set(self.collection.structure), \
+                                                                                                   text_obj_all_layers ) )
         for layer_name in text.layers:
             layer = text[layer_name]
             layer_struct = self.collection.structure[layer_name]
