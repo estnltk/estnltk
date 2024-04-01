@@ -251,12 +251,12 @@ class ENCTextReconstructor:
                and only tokenization layers will be created.
                (default: False)
            extended_morph_form: bool
-               Whether morph_analysis 'form' field will be overwritten 
-               by corresponding 'morph_extended' 'form' field. This is 
-               possible only in ENC 2021 and ENC 2023 corpora which have 
-               both 'morph_analysis' and 'morph_extended' annotations. 
-               Has no effect if the corpus is missing 'morph_extended' 
-               annotations.
+               If set, then an additional field 'extended_form' will be 
+               added to the morph_analysis layer, containing form information 
+               in CG categories. This is possible only in ENC 2021 and ENC 2023 
+               corpora which have both regular 'morph_analysis' and 'morph_extended' 
+               annotations available. The setting has no effect if the corpus 
+               is missing 'morph_extended' annotations.
                (default: False)
            restore_syntax: bool
                If set, then dependency syntactic analysis layer is also 
@@ -712,21 +712,28 @@ class ENCTextReconstructor:
             from raw_lingustic_analyses extracted from the 
             vert / prevert content.
             If extended_morph_form is True, then morph_analysis 
-            'form' field will be overwritten by corresponding 
-            'morph_extended' 'form' field. This is possible only 
-            in ENC 2021 and ENC 2023 corpora which have 
-            'morph_extended' annotations. 
+            layer will have additional attribute 'extended_form', 
+            which contains CG format morphological information 
+            (that is, morphological information from 'morph_extended' 
+            'form' field). This is possible only in ENC 2021 and ENC 
+            2023 corpora which have 'morph_extended' annotations. 
             Returns tuple: (morph_layer, syntax_layer).
         """
         assert len(raw_lingustic_analyses) == len(orig_words_layer)
         assert len(raw_lingustic_analyses) == len(word_locations)
 
-        layer_attributes = ESTNLTK_MORPH_ATTRIBUTES
+        if not extended_morph_form:
+            morph_layer_attributes = ESTNLTK_MORPH_ATTRIBUTES
+        else:
+            assert len(ESTNLTK_MORPH_ATTRIBUTES) == 7
+            morph_layer_attributes = \
+                ESTNLTK_MORPH_ATTRIBUTES[:6] + ('extended_form',)  + (ESTNLTK_MORPH_ATTRIBUTES[6],)
+            assert len(morph_layer_attributes) == 8
         morph_layer = Layer(name=self.layer_name_prefix+'morph_analysis',
                             parent=orig_words_layer.name,
                             ambiguous=True,
                             text_object=text_obj,
-                            attributes=layer_attributes)
+                            attributes=morph_layer_attributes)
         syntax_layer = Layer(name=self.layer_name_prefix+'syntax',
                             parent=orig_words_layer.name,
                             ambiguous=True,
@@ -737,11 +744,13 @@ class ENCTextReconstructor:
             analysis_dict = self._create_lingustic_analysis_dict(raw_analysis)
             if self.restore_original_morph:
                 # Normalize and add morph attributes
-                attributes = {attr: analysis_dict.get(attr) for attr in layer_attributes}
+                attributes = {attr: analysis_dict.get(attr) for attr in morph_layer_attributes if attr != 'extended_form'}
                 if extended_morph_form:
                     extended_feat = analysis_dict.get('extended_feat', None)
                     if extended_feat is not None:
-                        attributes['form'] = extended_feat
+                        attributes['extended_form'] = extended_feat
+                    else:
+                        attributes['extended_form'] = ''
                 if 'root_tokens' in attributes:
                     if attributes['root_tokens'] is not None:
                         attributes['root_tokens'] = tuple(attributes['root_tokens'])
@@ -1750,12 +1759,12 @@ def parse_enc_file_iterator( in_file:str,
            (default: False)
 
        extended_morph_form: bool
-           Whether morphological analysis 'form' field will be 
-           overwritten by corresponding morph_extended 'form' field. 
-           This is possible only in ENC 2021 and ENC 2023 corpora 
-           which have both regular 'morph_analysis' and 'morph_extended' 
-           annotations available. The setting has no effect if the 
-           corpus is missing 'morph_extended' annotations.
+           If set, then an additional field 'extended_form' will be 
+           added to the morph_analysis layer, containing form information 
+           in CG categories. This is possible only in ENC 2021 and ENC 2023 
+           corpora which have both regular 'morph_analysis' and 'morph_extended' 
+           annotations available. The setting has no effect if the corpus 
+           is missing 'morph_extended' annotations.
            (default: False)
 
        restore_syntax: boolean
@@ -1953,12 +1962,12 @@ def parse_enc_file_content_iterator( content,
            (default: False)
 
        extended_morph_form: bool
-           Whether morphological analysis 'form' field will be 
-           overwritten by corresponding morph_extended 'form' field. 
-           This is possible only in ENC 2021 and ENC 2023 corpora 
-           which have both regular 'morph_analysis' and 'morph_extended' 
-           annotations available. The setting has no effect if the 
-           corpus is missing 'morph_extended' annotations.
+           If set, then an additional field 'extended_form' will be 
+           added to the morph_analysis layer, containing form information 
+           in CG categories. This is possible only in ENC 2021 and ENC 2023 
+           corpora which have both regular 'morph_analysis' and 'morph_extended' 
+           annotations available. The setting has no effect if the corpus 
+           is missing 'morph_extended' annotations.
            (default: False)
 
        restore_syntax: boolean
