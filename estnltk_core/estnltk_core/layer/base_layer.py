@@ -296,6 +296,7 @@ class BaseLayer:
                                parent=self.parent,
                                enveloping=self.enveloping,
                                ambiguous=self.ambiguous,
+                               serialisation_module=self.serialisation_module, 
                                default_values=self.default_values)
         # keep the span level same
         layer._span_list = SpanList(span_level=self.span_level)
@@ -363,6 +364,7 @@ class BaseLayer:
                                    parent=self.parent,
                                    enveloping=self.enveloping,
                                    ambiguous=self.ambiguous,
+                                   serialisation_module=self.serialisation_module,
                                    default_values=self.default_values)
             # keep the span level same
             layer._span_list = SpanList(span_level=self.span_level)
