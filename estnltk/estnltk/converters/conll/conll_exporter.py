@@ -19,9 +19,10 @@ def layer_to_conll(text, layer, sentences_layer='sentences', validate_layer=True
     ----------
     text: EstNLTK Text object
         The text which layer is converted to CONLL-format.
-    layer: Layer
-        Convertable layer. The layer must have CONLL fields/attributes.
-        Layer (or one of its parents) must be enveloped by sentences layer.
+    layer: str
+        Name of the convertable layer. The layer must attached to the given 
+        Text object and it must have CONLL fields/attributes.
+        Layer (or one of its parents) must be enveloped by sentences layer. 
     sentences_layer: str
         Name of the sentences layer. 
         Spans enveloped by sentences layer must correspond to base spans of the 
@@ -97,8 +98,98 @@ def layer_to_conll(text, layer, sentences_layer='sentences', validate_layer=True
                 if aid == 0 and not preserve_ambiguity:
                     # Take only first annotation
                     break
-        # Empty line separaters two sentences
+        # Empty line separates two sentences
         text_conll_str.append( '' )
+    # Double newline at the end
+    text_conll_str.append( '' )
+    return '\n'.join( text_conll_str )
+
+
+def enc_layer_to_conll(text, enc_layer, extended_feats=True, separate_feats=False):
+    '''
+    Converts ENC morphosyntactic layer to CONLLU format string. 
+    Assumes that the convertable layer has ENC morphosyntactic attributes: ('id', 'lemma', 
+    'xpostag', 'feats', 'extended_feats', 'head', 'deprel'). 
+
+    Parameters
+    ----------
+    text: EstNLTK Text object
+        The text which layer is converted to CONLL-format. 
+    layer: str
+        Name of the convertable layer. The layer must attached to the given 
+        Text object and it must have ENC morphosyntactic attributes.
+    extended_feats: boolean
+        If True, then the CONLL 'feats' field will be filled in with 
+        values of layer's 'extended_feats' attribute. Layer's 'extended_feats' 
+        contains CG morphosyntactic categories. 
+        Otherwise, the CONLL 'feats' field will be filled in with 
+        layer's 'feats' attribute. Layer's 'feats' contains Vabamorf's  
+        morphological categories.
+        (Default: True)
+    separate_feats: boolean
+        If True, then CONLL 'feats' field will contain morphosyntactic 
+        categories separated by '|'. 
+        Otherwise, CONLL 'feats' field will contain morphosyntactic 
+        categories separated by whitespace. 
+        (Default: False)
+
+    Returns
+    -------
+    Convertable layer as CONLL-format string.
+    '''
+    if enc_layer not in text.layers:
+        raise ValueError('(!) Input Text object misses required layer {!r}.'.format(enc_layer))
+    convertable_layer = text[enc_layer]
+    missing_attributes = []
+    for attr in ('id', 'lemma', 'xpostag', 'feats', 'extended_feats', 'head', 'deprel'):
+        if attr not in convertable_layer.attributes:
+            missing_attributes.append(attr)
+        if missing_attributes:
+            raise ValueError('(!) Input ENC layer {!r} is missing attributes: {!r}'.format(enc_layer, missing_attributes) )
+    CONLL_ATTRIBUTES = \
+        ['id', 'form', 'lemma', 'upostag', 'xpostag', 'feats', 'head', 'deprel', 'deps', 'misc']
+    i = 0
+    text_conll_str = []
+    starts_new_sentence = False
+    while i < len(convertable_layer):
+        syntax_span = convertable_layer[i]
+        annotation = syntax_span.annotations[0]
+        # Check if this spans starts a new sentence
+        if str(annotation['id']) == '1':
+            starts_new_sentence = True
+        else:
+            starts_new_sentence = False
+        # Fetch attribute values. Serialize if required
+        attribute_values = []
+        for conll_attr in CONLL_ATTRIBUTES:
+            attr_value = None
+            if conll_attr == 'form':
+                attr_value = syntax_span.text
+            elif conll_attr == 'upostag':
+                attr_value = annotation['xpostag']
+            elif conll_attr == 'feats':
+                if extended_feats:
+                    attr_value = annotation['extended_feats']
+                else:
+                    attr_value = annotation['feats']
+            elif conll_attr in ['deps', 'misc']:
+                attr_value = ''
+            else:
+                attr_value = annotation[conll_attr]
+            attr_value = serialize_field( attr_value )
+            if conll_attr == 'feats':
+                if separate_feats and isinstance(attr_value, str):
+                    # Split str feats into subparts and separate by '|'
+                    attr_value = '|'.join( attr_value.split(' ') )
+            attribute_values.append( attr_value )
+        # Construct conllu line
+        assert len(attribute_values) == 10
+        conll_line = '\t'.join( attribute_values )
+        if starts_new_sentence and len(text_conll_str) > 0:
+            # Empty line separates two sentences
+            text_conll_str.append( '' )
+        text_conll_str.append( conll_line )
+        i += 1
     # Double newline at the end
     text_conll_str.append( '' )
     return '\n'.join( text_conll_str )
