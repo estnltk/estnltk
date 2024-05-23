@@ -18,9 +18,9 @@
 
 from typing import Any, Mapping, Sequence, Dict, List, Tuple, Union, Optional
 
-import pkgutil
 from copy import deepcopy
 from reprlib import recursive_repr
+from importlib.util import find_spec
 
 import pandas
 
@@ -28,7 +28,7 @@ from estnltk_core import BaseSpan, ElementaryBaseSpan, EnvelopingBaseSpan, Span
 from estnltk_core.common import _create_attr_val_repr
 
 def check_if_estnltk_is_available():
-    return pkgutil.find_loader("estnltk") is not None
+    return find_spec("estnltk") is not None
 
 def to_relation_base_span(x) -> BaseSpan:
     """Reduces estnltk's relation annotation structure to BaseSpan or creates BaseSpan from raw location.

@@ -1,15 +1,15 @@
 from collections import OrderedDict
-import pkgutil
 import pytest
 import tempfile
 import os, os.path
+from importlib.util import find_spec
 
 from estnltk.common import abs_path
 from estnltk.converters import text_to_dict
 
 def check_if_conllu_is_available():
     # Check if conllu is available
-    return pkgutil.find_loader("conllu") is not None
+    return find_spec("conllu") is not None
 
 
 text_dict = {

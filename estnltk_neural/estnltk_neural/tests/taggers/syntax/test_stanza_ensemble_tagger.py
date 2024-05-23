@@ -1,6 +1,6 @@
 import os
 import unittest
-import pkgutil
+from importlib.util import find_spec
 from collections import OrderedDict
 
 from estnltk import Text
@@ -30,7 +30,7 @@ def ensemble_models_exist():
 
 # Checks whether the scipy package exists (required only for find_entropy settings)
 def scipy_exists():
-    return (pkgutil.find_loader('scipy') is not None)
+    return (find_spec('scipy') is not None)
 
 @unittest.skipIf(STANZA_SYNTAX_MODELS_PATH is None, skip_message_missing_models)
 @unittest.skipIf( not ensemble_models_exist(), skip_message_missing_models )

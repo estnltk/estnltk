@@ -1,6 +1,6 @@
-import pkgutil
 import pytest
 from collections import OrderedDict
+from importlib.util import find_spec
 
 from estnltk import Text
 from estnltk.common import abs_path
@@ -10,7 +10,7 @@ from estnltk.converters import dict_to_layer
 
 def check_if_conllu_is_available():
     # Check if conllu is available
-    return pkgutil.find_loader("conllu") is not None
+    return find_spec("conllu") is not None
 
 
 @pytest.mark.skipif(not check_if_conllu_is_available(),

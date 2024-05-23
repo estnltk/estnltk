@@ -1,7 +1,7 @@
-import pkgutil
 import unittest
 import os, os.path
 from collections import OrderedDict
+from importlib.util import find_spec
 
 from estnltk import Text
 from estnltk_core import Span
@@ -18,7 +18,7 @@ WORDNET_PATH = get_resource_paths("wordnet", only_latest=True, download_missing=
 STANZA_SYNTAX_MODELS_PATH = get_resource_paths("stanzasyntaxtagger", only_latest=True, download_missing=False)
 
 def check_if_estnltk_neural_is_available():
-    return pkgutil.find_loader("estnltk_neural") is not None
+    return find_spec("estnltk_neural") is not None
 
 # Example inputs
 example_input_1_dict = \

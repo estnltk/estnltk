@@ -1,6 +1,6 @@
-import os, os.path
 import networkx
-import pkgutil
+import os, os.path
+from importlib.util import find_spec
 
 from estnltk_core import RelationLayer, Relation
 from estnltk_core.taggers import RelationTagger
@@ -15,7 +15,7 @@ def check_tagger_dependencies():
     '''
     missing_libraries = []
     for tagger_dependency in ['stanza', 'sklearn', 'xgboost', 'gensim', 'pandas']:
-        pkg_exists = pkgutil.find_loader(tagger_dependency) is not None
+        pkg_exists = find_spec(tagger_dependency) is not None
         if not pkg_exists:
             if tagger_dependency == 'sklearn':
                 tagger_dependency = 'scikit-learn'

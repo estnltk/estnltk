@@ -1,6 +1,6 @@
 import os
 from collections import OrderedDict
-import pkgutil
+from importlib.util import find_spec
 
 import pytest
 
@@ -17,7 +17,7 @@ MALTPARSER_SYNTAX_MODELS_PATH = get_resource_paths("maltparsertagger", only_late
 
 def check_if_conllu_is_available():
     # Check if conllu is available
-    return pkgutil.find_loader("conllu") is not None
+    return find_spec("conllu") is not None
 
 def simplify_syntax_layer( layer ):
     simpler = []

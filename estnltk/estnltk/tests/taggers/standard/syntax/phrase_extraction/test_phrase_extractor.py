@@ -1,6 +1,6 @@
 import os, os.path
 import unittest
-import pkgutil
+from importlib.util import find_spec
 
 from estnltk import Text
 from estnltk_core import Span
@@ -14,7 +14,7 @@ from estnltk.taggers.standard.syntax.phrase_extraction.phrase_extractor import P
 STANZA_SYNTAX_MODELS_PATH = get_resource_paths("stanzasyntaxtagger", only_latest=True, download_missing=False)
 
 def check_if_estnltk_neural_is_available():
-    return pkgutil.find_loader("estnltk_neural") is not None
+    return find_spec("estnltk_neural") is not None
 
 # Example inputs
 example_sentence_1_dict = \
@@ -445,11 +445,18 @@ def test_syntax_phrase_extractor_on_stanza_syntax():
     assert len(txt1.obl_phrases[1]) == 2, len(txt1.obl_phrases[1])
     assert list(txt1.obl_phrases[1].text) == ['meie', 'teadvusesse'], list(txt1.obl_phrases[1].text)
     txt2 = split_sentences[1]
-    assert len(txt2.obl_phrases) == 2, len(txt2.obl_phrases)
-    assert list(txt2.obl_phrases[0].text) == ['sellest'], list(txt2.obl_phrases[0].text)
-    assert len(txt2.obl_phrases[0]) == 1, len(txt2.obl_phrases[0])
-    assert len(txt2.obl_phrases[1]) == 1, len(txt2.obl_phrases[1])
-    assert list(txt2.obl_phrases[1].text) == ['nõiaringist'], list(txt2.obl_phrases[1].text)
+    # Note: restult depends on stanza's version/implementation
+    assert len(txt2.obl_phrases) in [1, 2], len(txt2.obl_phrases)
+    if len(txt2.obl_phrases) == 2:
+        # Result with stanza version < 1.8.2,  model version stanza_syntax_2023-01-21
+        assert list(txt2.obl_phrases[0].text) == ['sellest'], list(txt2.obl_phrases[0].text)
+        assert len(txt2.obl_phrases[0]) == 1, len(txt2.obl_phrases[0])
+        assert len(txt2.obl_phrases[1]) == 1, len(txt2.obl_phrases[1])
+        assert list(txt2.obl_phrases[1].text) == ['nõiaringist'], list(txt2.obl_phrases[1].text)
+    elif len(txt2.obl_phrases) == 1:
+        # Result with stanza version 1.8.2,  model version stanza_syntax_2023-01-21
+        assert list(txt2.obl_phrases[0].text) == ['nõiaringist'], list(txt2.obl_phrases[0].text)
+        assert len(txt2.obl_phrases[0]) == 1, len(txt2.obl_phrases[0])
     txt3 = split_sentences[2]
     assert len(txt3.obl_phrases) == 1, len(txt3.obl_phrases)
     assert list(txt3.obl_phrases[0].text) == ['vangi'], list(txt3.obl_phrases[0].text)

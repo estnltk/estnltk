@@ -1,14 +1,16 @@
-import pkgutil
+from importlib.util import find_spec
 import pytest
-from estnltk import Text
 import os
+
+from estnltk import Text
+
 
 
 def check_if_transformers_is_available():
-    return pkgutil.find_loader("transformers") is not None
+    return find_spec("transformers") is not None
 
 def check_if_pytorch_is_available():
-    return pkgutil.find_loader("torch") is not None
+    return find_spec("torch") is not None
 
 ESTROBERTA_PATH = os.environ.get('ESTROBERTA_PATH', None)
 

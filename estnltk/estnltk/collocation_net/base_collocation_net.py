@@ -1,10 +1,11 @@
 import os
 import sqlite3
-import pkgutil
 import pandas as pd
 import numpy as np
 from typing import List
 from collections import defaultdict
+from importlib.util import find_spec
+
 from estnltk import get_resource_paths
 
 class BaseCollocationNet:
@@ -37,7 +38,7 @@ class BaseCollocationNet:
         Checks if the package sklearn has been installed.
         This package is required for the similar words functions.
         """
-        return pkgutil.find_loader(module) is not None
+        return find_spec(module) is not None
 
     def row_index(self, word: str) -> int:
         """

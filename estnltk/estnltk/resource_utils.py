@@ -533,8 +533,8 @@ def _check_version(resource_name: str, package: str, version_specifier: str,
                 result = _is_version_satisfied( __version__, cmp_op, ver )
                 all_chk_results &= result
             elif package.lower() == 'estnltk_neural':
-                import pkgutil
-                if pkgutil.find_loader('estnltk_neural') is not None:
+                from importlib.util import find_spec
+                if find_spec('estnltk_neural') is not None:
                     from estnltk_neural import __version__
                     result = _is_version_satisfied( __version__, cmp_op, ver )
                     all_chk_results &= result

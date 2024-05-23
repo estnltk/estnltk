@@ -6,8 +6,8 @@ Schema/table creation and read/write rights are required.
 """
 import unittest
 import random
-import pkgutil
 from collections import OrderedDict
+from importlib.util import find_spec
 
 from estnltk import logger
 from estnltk import Text
@@ -28,7 +28,7 @@ def is_package_installed(module: str) -> bool:
     """
     Checks if the given package has been installed. 
     """
-    return pkgutil.find_loader(module) is not None
+    return find_spec(module) is not None
 
 
 class TestPgSubCollection(unittest.TestCase):

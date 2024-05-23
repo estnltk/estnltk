@@ -1,8 +1,8 @@
-import pkgutil
+from importlib.util import find_spec
 import pytest
-from estnltk import Text
 import os
 
+from estnltk import Text
 from estnltk.downloader import get_resource_paths
 
 # Try to get the resources path for BertTagger. If missing, do nothing. It's up for the user to download the missing resources
@@ -10,11 +10,11 @@ MODEL_PATH = get_resource_paths("berttagger", only_latest=True, download_missing
 
 
 def check_if_transformers_is_available():
-    return pkgutil.find_loader("transformers") is not None
+    return find_spec("transformers") is not None
 
 
 def check_if_pytorch_is_available():
-    return pkgutil.find_loader("torch") is not None
+    return find_spec("torch") is not None
 
 
 def check_if_model_present():
