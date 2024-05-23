@@ -21,6 +21,8 @@ All notable changes to this project will be documented in this file.
    * adapted to processing ENC 2023 .vert files;
    * added `add_document_index` option to parse_enc (saves document's original locations in the vert file) for processing ENC 2023;
    * added `focus_block` parameter to enable and control data parallelization;
+   * added `extended_morph_form` parameter to enable importing of additional morphological form information in CG categories. This is possible only in ENC 2021 and ENC 2023 versions of the corpora which have both regular `morph_analysis` and `morph_extended` annotations available. 
+   * details in [the tutorial](https://github.com/estnltk/estnltk/blob/592a1689b9e07822d821d5b7bfa18f5981ec8f6d/tutorials/corpus_processing/importing_text_objects_from_corpora.ipynb);
 * Updated `PhraseTagger`, `RegexTagger`, `SpanTagger`, `SubstringTagger` with `get_decorator_inputs` method, which can be used for debugging while creating rules, see [this tutorial](https://github.com/estnltk/estnltk/blob/caa53bc4cda8198a93fc07a8a3146a23287dab5f/tutorials/taggers/rule_taggers/B_decorator_development.ipynb) for examples;
 * Renamed `NerWebTagger`'s parameter `ner_output_layer` to `output_layer`;
 * Renamed `SyntaxDependencyRetagger`'s parameter `conll_syntax_layer` to `syntax_layer`;
@@ -56,6 +58,7 @@ All notable changes to this project will be documented in this file.
 * Added `PropBankPreannotator` which tags Estonian PropBank semantic roles based on a (manually-crafted) lexicon; Note that  this is a preliminary version of the tagger;
 * Added `RegexElement`, `StringList` and `ChoiceGroup` classes that wrap around [regex library](https://pypi.org/project/regex/) and allow to systematically document and test regular expressions. For usage details, please see [this tutorial](https://github.com/estnltk/estnltk/blob/caa53bc4cda8198a93fc07a8a3146a23287dab5f/tutorials/taggers/rule_taggers/A_regex_development.ipynb);
 * Added a [tutorial](https://github.com/estnltk/estnltk/blob/caa53bc4cda8198a93fc07a8a3146a23287dab5f/tutorials/taggers/rule_taggers/B_decorator_development.ipynb) about rule_tagger's decorator development (by swenlaur);
+* Added `enc_layer_to_conll` for converting ENC morphosyntactic layer to CONLLU string (importing: `from estnltk.converters.conll.conll_exporter import enc_layer_to_conll`); 
 * Added `syntax_phrases_v0` serialization module (used by `PhraseExtractor`);
 * Updated `StanzaSyntaxEnsembleTagger`: added calculation of predictions' entropy (optional); For usage details, see [this tutorial](https://github.com/estnltk/estnltk/blob/caa53bc4cda8198a93fc07a8a3146a23287dab5f/tutorials/nlp_pipeline/C_syntax/03_syntactic_analysis_with_stanza.ipynb);
 * Updated `PgCollection`'s create layer functions: if layer creation fails, document id-s will be logged;
@@ -67,6 +70,7 @@ All notable changes to this project will be documented in this file.
 
 ## Fixed
 
+* Fixed `BaseLayer` `__getitem__` & `get` methods: preserve `serialisation_module` while extracting a sub-layer;
 * Fixed `UserDictTagger`: `morph_layer`'s spans are now properly changed so that old values would not reappear after retagging;
 * Fixed DeprecationWarning in NER `model_storage_util`;
 * Fixed `syllabify_word`: do not crash on empty input;
