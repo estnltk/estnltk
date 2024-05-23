@@ -628,8 +628,7 @@ def _download_and_install_hf_resource( resource_description, resources_dir,
     download_path = \
         snapshot_download(repo_id=repo_id, revision=revision, 
                           cache_dir=resources_dir,
-                          local_dir=full_target_path,
-                          local_dir_use_symlinks=False)
+                          local_dir=full_target_path)
     assert os.path.isdir( download_path )
     # During the downloading process, huggingface_hub creates 
     # a new cache dirs. Detect those
