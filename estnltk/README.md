@@ -25,7 +25,7 @@ This package contains EstNLTK's basic linguistic analysis, system and database t
 
 ### Installation
 
-EstNLTK is available for osx, windows-64, and linux-64, and for python versions 3.8 to 3.11. 
+EstNLTK is available for osx, windows-64, and linux-64, and for python versions 3.9 to 3.12. 
 You can install the latest version via PyPI:
 
 ```
@@ -34,14 +34,14 @@ pip install estnltk==1.7.3
 
 Alternatively, you can install EstNLTK via [Anaconda](https://www.anaconda.com/download). Installation steps with conda:
 
-1. [create a conda environment](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#creating-an-environment-with-commands) with python 3.9, for instance:
+1. [create a conda environment](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#creating-an-environment-with-commands) with python 3.10, for instance:
 ```
-conda create -n py39 python=3.9
+conda create -n py310 python=3.10
 ```
 
 2. [activate the environment](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#activating-an-environment), for instance:
 ```
-conda activate py39
+conda activate py310
 ```
 
 3. install EstNLTK with the command:

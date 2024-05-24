@@ -27,7 +27,7 @@ And as an Anaconda package:
 conda install -c estnltk -c conda-forge estnltk_neural
 ```
 
-Supported Python versions: 3.8+
+Supported Python versions: 3.9+
 
 ### Neural models
 
