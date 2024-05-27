@@ -1183,6 +1183,11 @@ class VertXMLFileParser:
         m_doc_end   = self.enc_doc_tag_end.match(stripped_line)
         # *** Start of a new document
         if m_doc_start and stripped_line.startswith('<doc '): 
+            # Finish the old document
+            if self.inside_focus_doc:
+                finished_document = self._reconstruct_document()
+            else:
+                finished_document = None
             # Replace back &lt; and &gt;
             if lt_escaped:
                 stripped_line = stripped_line.replace('&lt;', '<')
@@ -1240,54 +1245,30 @@ class VertXMLFileParser:
             # if all filters were successfully passed 
             if not doc_filters_passed or all( doc_filters_passed ):
                 self.inside_focus_doc = True
+            else:
+                self.inside_focus_doc = False
             self.last_was_doc_end = False
+            # Return the old document
+            if finished_document is not None:
+                self.lines += 1
+                return finished_document
         # *** End of a document
         if m_doc_end:
-            self.last_was_doc_end = True
-        if m_doc_end and self.inside_focus_doc:
-            self.inside_focus_doc = False
+            # If at the end of a document, then remember doc ending index. 
+            # Document will be completed once a new document starts, 
+            # or, alternatively, if self._finish_parsing() is called at the 
+            # very end.
             self.document_end_line = (self.lines + 1)
-            if 'subdoc' in self.content:
-                # If document consisted of subdocuments, then we are finished
-                self.lines += 1
-                return None
-            else:
-                if self.discard_empty_fragments:
-                    # Check that the document is not empty
-                    if '_sentences' not in self.content and \
-                       '_paragraphs' not in self.content:
-                        # if the document had no content, discard it ...
-                        self._log( 'WARNING', 'Discarding empty document with id={}'.format(self.document['id']) )
-                        self.lines += 1
-                        return None
-                # Carry over metadata attributes
-                for key, value in self.document.items():
-                    assert key not in self.content, \
-                        ('(!) Key {!r} already in {!r}.').format( key, self.content.keys() )
-                    self.content[key] = value
-                # Use metadata key to indicate whether paragraph annotations
-                # have been automatically adjusted/corrected
-                if self.always_create_paragraphs:
-                    self.content['autocorrected_paragraphs'] = \
-                        self.fixed_paragraphs > 0 
-                self.lines += 1
-                if self.textreconstructor:
-                    # create Text object
-                    text_obj = self.textreconstructor.reconstruct_text( self.content )
-                    if self.add_document_index:
-                        # Add vert file indexing information
-                        text_obj.meta['_doc_id'] = self.document_id
-                        text_obj.meta['_doc_start_line'] = self.document_start_line
-                        text_obj.meta['_doc_end_line'] = self.document_end_line
-                    return text_obj
-                else:
-                    return self.content
+            self.last_was_doc_end = True
+            self.lines += 1
+            return None
         # Sanity check : is there an unexpected continuation after document ending?
         if self.last_was_doc_end:
             if not m_doc_end and not m_doc_start:
                 # Note: this problem is frequent to 'etnc19_doaj.vert'
                 self._log( 'WARNING', ('Unexpected content line {}:{!r} after document '+\
                                        'ending tag. Content outside documents will be skipped.').format(self.lines, stripped_line))
+                self.document_end_line = (self.lines + 1)
             self.last_was_doc_end = False
         # Skip document if it is not one of the focus documents
         if not self.inside_focus_doc:
@@ -1304,6 +1285,11 @@ class VertXMLFileParser:
         m_unk_tag     = self.enc_unknown_tag.match(stripped_line)
         # *** New subdocument (info)
         if m_info_start and '<info ' in stripped_line:  # Match, but exclude: <info> & <infoitem>
+            # ---------------------
+            # TODO: this is a deprecated branch of parsing -- 
+            #       <info> tags for marking sub documents are no longer used
+            #       in newest versions of ENC
+            # ---------------------
             # Assert that some content from the doc tag has already been read
             assert 'id' in self.document
             info_attribs = parse_tag_attributes( stripped_line, logger=self.logger )
@@ -1328,6 +1314,11 @@ class VertXMLFileParser:
             self.fixed_paragraphs = 0
         # *** End of a subdocument (info)
         if m_info_end:
+            # ---------------------
+            # TODO: this is a deprecated branch of parsing -- 
+            #       <info> tags for marking sub documents are no longer used
+            #       in newest versions of ENC
+            # ---------------------
             if 'subdoc' in self.content:
                 parent = self.content['subdoc']
                 # Use metadata key to indicate whether paragraph annotations
@@ -1495,6 +1486,69 @@ class VertXMLFileParser:
         self.lines += 1
         return None
 
+
+    def _finish_parsing( self ):
+        '''Finishes the vert file parsing and returns document's Text object 
+           or line content.
+           Call this method after reaching to the end of the file. 
+        '''
+        if len( self.content.keys() ) > 0:
+            if self.inside_focus_doc:
+                finished_document = self._reconstruct_document()
+            else:
+                finished_document = None
+            # Clear old doc content
+            self.document.clear()
+            self.content.clear()
+            self.fixed_paragraphs = 0
+            # Reset doc index, reset start & end
+            self.document_id = -1
+            self.document_start_line = -1
+            self.document_end_line   = -1
+            self.inside_focus_doc    = False
+            return finished_document
+        return None
+
+
+    def _reconstruct_document( self ):
+        '''Reconstructs and returns document's Text object or line content.
+           If self.discard_empty_fragments is True and the document is empty, 
+           then returns None.
+        '''
+        if self.document_end_line == -1:
+            self.document_end_line = self.lines + 1
+        if 'subdoc' in self.content:
+            # If document consisted of subdocuments, then we are finished
+            return None
+        else:
+            if self.discard_empty_fragments:
+                # Check that the document is not empty
+                if '_sentences' not in self.content and \
+                   '_paragraphs' not in self.content:
+                    # if the document had no content, discard it ...
+                    self._log( 'WARNING', 'Discarding empty document with id={}'.format(self.document['id']) )
+                    return None
+            # Carry over metadata attributes
+            for key, value in self.document.items():
+                assert key not in self.content, \
+                    ('(!) Key {!r} already in {!r}.').format( key, self.content.keys() )
+                self.content[key] = value
+            # Use metadata key to indicate whether paragraph annotations
+            # have been automatically adjusted/corrected
+            if self.always_create_paragraphs:
+                self.content['autocorrected_paragraphs'] = \
+                    self.fixed_paragraphs > 0 
+            if self.textreconstructor:
+                # create Text object
+                text_obj = self.textreconstructor.reconstruct_text( self.content )
+                if self.add_document_index:
+                    # Add vert file indexing information
+                    text_obj.meta['_doc_id'] = self.document_id
+                    text_obj.meta['_doc_start_line'] = self.document_start_line
+                    text_obj.meta['_doc_end_line'] = self.document_end_line
+                return text_obj
+            else:
+                return self.content.copy()
 
 
     def _add_new_word_token( self, word_str: str, whole_line: str ):
@@ -1837,6 +1891,10 @@ def parse_enc_file_iterator( in_file:str,
                 # If the parser completed a document and created a 
                 # Text object, yield it gracefully
                 yield result
+    # Finish the last document
+    last_doc = xmlParser._finish_parsing()
+    if last_doc:
+        yield last_doc
 
 
 
@@ -2042,4 +2100,8 @@ def parse_enc_file_content_iterator( content,
             # If the parser completed a document and created a 
             # Text object, yield it gracefully
             yield result
+    # Finish the last document
+    last_doc = xmlParser._finish_parsing()
+    if last_doc:
+        yield last_doc
 

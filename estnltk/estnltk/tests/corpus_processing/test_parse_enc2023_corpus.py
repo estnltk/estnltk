@@ -516,3 +516,87 @@ def test_parse_enc2023_file_iterator_block_by_block():
     finally:
         # clean up: remove temporary file
         os.remove(fp.name)
+
+
+enc_2023_excerpt_3_error_case_incomplete_doc = \
+'''
+<doc id="739539" src="Literature Contemporary 2000–2023" filename="978-9985-3-1860-7" original_author="Bernard Beckett" original_title="Genesis" title="Loomine" publisher="Varrak" original_year="2009" published_year="2009" genre="fiction:Novel|fiction" genre_src="source" translated="yes" translation_source="EN" translation_target="ET" translator="Kristjan Jaak Kangur" isbn="978-9985-3-1860-7">
+<s>
+Anax	H.sg.n	Anax-h	sg_n	Anax	Anax	0		prop_sg_nom				
+sammus	V.s	sammuma-v	s	sammu	sammu	s		mod_indic_impf_ps3_sg_ps_af			fin	Intr
+mööda	K	mööda-k	mööda	mööda	0		post				part
+pikka	A.sg.p	pikk-a	sg_p	pikk	pikk	0		pos_sg_part				
+koridori	S.sg.p	koridor-s	sg_p	koridor	koridor	0		com_sg_part				
+<g/>
+.	Z	.-z		.	.				Fst			
+</s>
+<doc src="Timestamped 2014–2023" feed_hostname="xn--snumid-pxa.ee" feed_country="Estonia" feed_latitude="59.0" feed_longitude="26.0" tags='Arvamus|“Terevisioon"' feed="http://newsfeed.ijs.si/feedns/1295563" url="https://xn--snumid-pxa.ee/2019/09/hea-voimalus-oma-kodu-ule-uhke-olla/" timestamp_year="2019" timestamp_month="2019-09" timestamp_quarter="2019q3" timestamp_date="2019-09-04" crawl_date="2019-09-04" dmoz_categories="Top/Society/Government/Defense_Ministries|Top/Business/Food_and_Related_Products/Marketing_and_Advertising|Top/Reference/Quotations/Wisdom|Top/Society/Genealogy/By_Ethnic_Group|Top/Shopping/Home_and_Garden/Swimming_Pools_and_Spas" dmoz_keywords="Society|Defense_Ministries|Government|Marketing_and_Advertising|Food_and_Related_Products|Business">
+<p heading="1">
+<s>
+Hea	A.sg.n	hea-a	sg_n	hea	hea	0		pos_sg_nom				
+võimalus	S.sg.n	võimalus-s	sg_n	võimalus	võimalus	0		com_sg_nom				
+oma	P.sg.g	oma-p	sg_g	oma	oma	0		sg_gen		pos_det_refl		
+kodu	S.sg.g	kodu-s	sg_g	kodu	kodu	0		com_sg_gen				
+üle	K	üle-k		üle	üle	0		post				gen
+uhke	A.sg.n	uhke-a	sg_n	uhke	uhke	0		pos_sg_nom				
+olla	V.da	olema-v	da	ole	ole	a		mod_inf			inf	Intr
+</s>
+</p>
+</doc>
+<doc src="Timestamped 2014–2023" genre="periodicals" genre_src="site list" title="Ivi Eenmaa: \"Rahu, ainult rahu! Kõik, mis on tulnud Hiinast, ei kesta kaua!" url="https://elu.ohtuleht.ee/995275/ivi-eenmaa-rahu-ainult-rahu-koik-mis-on-tulnud-hiinast-ei-kesta-kaua" feed="https://www.ohtuleht.ee/rss" timestamp_year="2020" timestamp_month="2020-03" timestamp_quarter="2020q1" timestamp_date="2020-03-14" feed_fetched="2020-03-14" crawled_date="2020-03-14">
+</s>
+<p heading="0">
+<s>
+Eile	D	eile-d		eile	eile	0						
+õhtul	S.sg.ad	õhtu-s	sg_ad	õhtu	õhtu	l		com_sg_ad				
+lõppes	V.s	lõppema-v	s	lõppe	lõppe	s		mod_indic_impf_ps3_sg_ps_af			fin	Intr_Kom
+meil	P.pl.ad	mina-p	pl_ad	mina	mina	l		pl_ad		ps1		
+WC	Y.?	wc-y	?	wc	wc	0		nominal				
+paber	S.sg.n	paber-s	sg_n	paber	paber	0		com_sg_nom				
+-	Z	--z		-	-				Dsh			
+poodides	S.pl.in	pood-s	pl_in	pood	pood	des		com_pl_in				
+pole	V.neg.o	olema-v	neg_o	ole	ole	0		aux_imper_pres_ps2_sg_ps_neg			fin	Intr
+ja	J	ja-j		ja	ja	0		sub_crd				
+nr2	Y.?	nr2-y	?	nr2	nr2	0		nominal				
+hüüab	V.b	hüüdma-v	b	hüüd	hüüd	b		mod_indic_pres_ps3_sg_ps_af			fin	NGP-P_All_Tr
+tulles	V.des	tulema-v	des	tule	tule	es		mod_ger			inf	Intr
+<g/>
+.	Z	.-z		.	.				Fst			
+</s>
+</p>
+</doc>
+'''
+
+
+def test_parse_enc2023_file_iterator_error_cases_2():
+    # Test that fixed parse_enc can resolve error cases 2: incomplete document
+    # Set up: Create an example file from the enc_2023_excerpt_2_error_cases
+    fp = tempfile.NamedTemporaryFile(mode='w', encoding='utf-8', 
+                                     prefix='enc_2023_excerpt_',
+                                     suffix='.vert', delete=False)
+    fp.write( enc_2023_excerpt_3_error_case_incomplete_doc )
+    fp.close()
+    try:
+        # Parse ENC and restore only morph
+        texts = []
+        text_count = 0
+        word_count = 0
+        for text in parse_enc_file_iterator( fp.name, encoding='utf-8',\
+                                             tokenization='preserve',
+                                             restore_morph_analysis=True,
+                                             add_document_index=True ):
+            assert 'original_morph_analysis' in text.layers
+            text_count += 1
+            word_count += len(text['original_morph_analysis'])
+            texts.append(text)
+        assert text_count == 3
+        assert word_count == 6 + 7 + 14
+        doc_indexing_fields = ['_doc_id', '_doc_start_line', '_doc_end_line']
+        filtered_meta = [dict((k, text.meta[k]) for k in doc_indexing_fields if k in text.meta) for text in texts]
+        # Check document metadata (must contain correct indexing attributes '_doc_id', '_doc_start_line', '_doc_end_line'
+        assert filtered_meta[0] == {'_doc_id': 0, '_doc_start_line': 2, '_doc_end_line': 12}
+        assert filtered_meta[1] == {'_doc_id': 1, '_doc_start_line': 12, '_doc_end_line': 24}
+        assert filtered_meta[2] == {'_doc_id': 2, '_doc_start_line': 25, '_doc_end_line': 46}
+    finally:
+        # clean up: remove temporary file
+        os.remove(fp.name)
