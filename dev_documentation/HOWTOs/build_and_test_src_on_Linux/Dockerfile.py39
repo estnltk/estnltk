@@ -82,12 +82,22 @@ RUN python --version
 #
 RUN pip install ipython==8.18.1
 
+# ================================
+#   Tools required for building 
+#   Python package
+# ================================
+# 
+# Updgrade pip, setuptools, and install build
+# 
+RUN pip install --no-cache-dir --upgrade pip
+RUN pip install --no-cache-dir --upgrade setuptools
+RUN pip install --no-cache-dir build
+
 #
 # Install packages required for testing
 #
 RUN conda install pytest
 RUN conda install -c conda-forge pytest-httpserver
-
 
 # ================================
 #   Get EstNLTK's devel source
@@ -103,7 +113,8 @@ WORKDIR /estnltk_devel/estnltk_core
 #
 # Build and install EstNLTK-core
 #
-RUN python setup.py install
+RUN pip install .
+
 #
 # Run estnltk-core's tests
 #
@@ -120,10 +131,14 @@ WORKDIR /estnltk_devel/estnltk
 #
 # Build and install EstNLTK
 #
-RUN python setup.py build_ext install
+RUN pip install .
 WORKDIR /
 RUN conda list estnltk
 
+#
+# Download wordnet resources (optional)
+#
+RUN python -c "import estnltk; estnltk.download('wordnet')"
 #
 # Download syntax resources (optional)
 #
@@ -133,7 +148,7 @@ RUN python -c "import estnltk; estnltk.download('maltparsertagger')"
 #
 # Enable testing of EstNLTK's downloader (optional)
 #
-#ENV TEST_ESTNLTK_DOWNLOADER=1
+ENV TEST_ESTNLTK_DOWNLOADER=1
 
 #
 # Run estnltk's tests
@@ -144,7 +159,7 @@ RUN pytest --pyargs estnltk.tests
 #
 # Clean-up: Delete downloaded the resources
 #
-#RUN python -c "from estnltk.resource_utils import delete_all_resources; delete_all_resources()"
+RUN python -c "from estnltk.resource_utils import delete_all_resources; delete_all_resources()"
 
 #
 # Clean-up: Delete installed package
