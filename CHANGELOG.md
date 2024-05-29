@@ -3,7 +3,7 @@
 
 All notable changes to this project will be documented in this file.
 
-# [1.7.3] - 2024-XX-XX
+# [1.7.3] - 2024-06-XX
 
 ## Changed
 
@@ -58,7 +58,7 @@ All notable changes to this project will be documented in this file.
 * Added `PropBankPreannotator` which tags Estonian PropBank semantic roles based on a (manually-crafted) lexicon; Note that  this is a preliminary version of the tagger;
 * Added `RegexElement`, `StringList` and `ChoiceGroup` classes that wrap around [regex library](https://pypi.org/project/regex/) and allow to systematically document and test regular expressions. For usage details, please see [this tutorial](https://github.com/estnltk/estnltk/blob/caa53bc4cda8198a93fc07a8a3146a23287dab5f/tutorials/taggers/rule_taggers/A_regex_development.ipynb);
 * Added a [tutorial](https://github.com/estnltk/estnltk/blob/caa53bc4cda8198a93fc07a8a3146a23287dab5f/tutorials/taggers/rule_taggers/B_decorator_development.ipynb) about rule_tagger's decorator development (by swenlaur);
-* Added `enc_layer_to_conll` for converting ENC morphosyntactic layer to CONLLU string (importing: `from estnltk.converters.conll.conll_exporter import enc_layer_to_conll`); 
+* Added `enc_layer_to_conll` for converting ENC morphosyntactic layer to CONLLU string. See details in the [tutorial](https://github.com/estnltk/estnltk/blob/38a50d30c938aed8c811b9ef0b296d0e4f01fcc0/tutorials/converters/conll_exporter.ipynb); 
 * Added `syntax_phrases_v0` serialization module (used by `PhraseExtractor`);
 * Updated `StanzaSyntaxEnsembleTagger`: added calculation of predictions' entropy (optional); For usage details, see [this tutorial](https://github.com/estnltk/estnltk/blob/caa53bc4cda8198a93fc07a8a3146a23287dab5f/tutorials/nlp_pipeline/C_syntax/03_syntactic_analysis_with_stanza.ipynb);
 * Updated `PgCollection`'s create layer functions: if layer creation fails, document id-s will be logged;
