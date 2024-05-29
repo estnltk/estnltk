@@ -595,7 +595,10 @@ class RelationLayer:
                 layer_table_content.append( values )
         df = pandas.DataFrame.from_records(layer_table_content, columns=columns)
         if bool(RelationLayer.TRANSLUCENT_NONE_VALUES):
-            df = df.style.applymap(lambda x: 'opacity: 20%;' if x is None else None)
+            if pandas.__version__ < '2.1.0':
+                df = df.style.applymap(lambda x: 'opacity: 20%;' if x is None else None)
+            else:
+                df = df.style.map(lambda x: 'opacity: 20%;' if x is None else None)
         table_2 = df.to_html(index=False, escape=True)
         return '\n'.join(('<h4>{}</h4>'.format(self.__class__.__name__), meta, text_object_msg, table_1, table_2))
 
@@ -939,7 +942,10 @@ class Relation:
                 relation_table_content.append( values )
             df = pandas.DataFrame.from_records(relation_table_content, columns=columns)
             if bool(RelationLayer.TRANSLUCENT_NONE_VALUES):
-                df = df.style.applymap(lambda x: 'opacity: 20%;' if x is None else None).hide(axis="index")
+                if pandas.__version__ < '2.1.0':
+                    df = df.style.applymap(lambda x: 'opacity: 20%;' if x is None else None).hide(axis="index")
+                else:
+                    df = df.style.map(lambda x: 'opacity: 20%;' if x is None else None).hide(axis="index")
             annotations_table = df.to_html(index=False, escape=False)
         except:
             annotations_table = None

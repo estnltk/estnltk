@@ -842,7 +842,10 @@ class BaseLayer:
             table_2 = self.attribute_values(attributes, index_attributes=index_attributes)
             if bool(self.TRANSLUCENT_NONE_VALUES):
                 table_2_df = table_2.as_dataframe(index='text')
-                table_2_df = table_2_df.style.applymap(lambda x: 'opacity: 20%;' if x == str(None) else None).hide(axis="index")
+                if pandas.__version__ < '2.1.0':
+                    table_2_df = table_2_df.style.applymap(lambda x: 'opacity: 20%;' if x == str(None) else None).hide(axis="index")
+                else:
+                    table_2_df = table_2_df.style.map(lambda x: 'opacity: 20%;' if x == str(None) else None).hide(axis="index")
                 table_2 = table_2_df.to_html(index=False, escape=True)
             else:
                 table_2 = table_2.to_html(index='text')
