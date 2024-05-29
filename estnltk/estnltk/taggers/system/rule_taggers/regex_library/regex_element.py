@@ -4,6 +4,7 @@ import html
 import regex
 
 from pandas import DataFrame
+from pandas import __version__ as pandas_version
 
 
 class RegexElement:
@@ -107,11 +108,18 @@ class RegexElement:
             failed = results_df['Status'].value_counts().get('F', 0)
             eval_results.append( [test_group_name, passed, failed] )
         eval_summary_df = DataFrame(columns=['Test group', 'passed', 'failed'], data=eval_results)
-        eval_summary_df = (eval_summary_df.style
-            .hide(axis='index')
-            .set_caption('Testing results')
-            .applymap(lambda x: 'color: green' if x > 0 else 'color: black', subset='passed')
-            .applymap(lambda x: 'color: red' if x > 0 else 'color: black', subset='failed'))
+        if pandas_version < '2.1.0':
+            eval_summary_df = (eval_summary_df.style
+                .hide(axis='index')
+                .set_caption('Testing results')
+                .applymap(lambda x: 'color: green' if x > 0 else 'color: black', subset='passed')
+                .applymap(lambda x: 'color: red' if x > 0 else 'color: black', subset='failed'))
+        else:
+            eval_summary_df = (eval_summary_df.style
+                .hide(axis='index')
+                .set_caption('Testing results')
+                .map(lambda x: 'color: green' if x > 0 else 'color: black', subset='passed')
+                .map(lambda x: 'color: red' if x > 0 else 'color: black', subset='failed'))
 
         # examples
         examples_data = []
@@ -132,10 +140,16 @@ class RegexElement:
         examples_df_columns = \
             ['Example', 'Description', 'Status'] if has_descriptions else ['Example', 'Status']
         examples_df = DataFrame(columns=examples_df_columns, data=examples_data)
-        examples_df = (examples_df.style
-            .hide(axis='index')
-            .set_caption('Examples')
-            .applymap(lambda x: 'color: red' if x == 'F' else 'color: green', subset='Status'))
+        if pandas_version < '2.1.0':
+            examples_df = (examples_df.style
+                .hide(axis='index')
+                .set_caption('Examples')
+                .applymap(lambda x: 'color: red' if x == 'F' else 'color: green', subset='Status'))
+        else:
+            examples_df = (examples_df.style
+                .hide(axis='index')
+                .set_caption('Examples')
+                .map(lambda x: 'color: red' if x == 'F' else 'color: green', subset='Status'))
         examples_str = examples_df.to_html(index=False) if len(examples_data) > 0 else ''
 
         return ('{regex}{description}{examples}{evaluation_summary}').format( \
