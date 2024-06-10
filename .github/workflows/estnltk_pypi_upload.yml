@@ -10,7 +10,7 @@ on:
   # Manual run (works only in the default branch)
   #workflow_dispatch:
 
-
+jobs:
   upload_pypi:
     name: Push to PyPI
     runs-on: ubuntu-latest
