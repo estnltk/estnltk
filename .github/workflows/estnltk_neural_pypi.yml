@@ -20,9 +20,9 @@ jobs:
         os: [ubuntu-latest]
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         name: Install Python
         with:
           python-version: '3.10'
@@ -32,25 +32,20 @@ jobs:
           python -m pip install build --user
 
       - name: Build estnltk
-        uses: pypa/cibuildwheel@v2.15.0
+        uses: pypa/cibuildwheel@v2.18.1
         with:
           package-dir: ./estnltk
           output-dir:  ./estnltk/wheelhouse
         env:
           # Before build:
+          # 0) Install legacy versions of dependency packages (only for py39);
           # 1) install estnltk_core, because the package is not yet 
           #    available from the pypi;
-          # 2) run `build_ext` before creating the wheel, because `pip wheel`
-          #    runs `build_ext` as the last command and then the package will
-          #    be missing auto-generated `vabamorf.py`;
           CIBW_BEFORE_BUILD:  >
             cd estnltk_core && 
-            python setup.py install && 
-            echo --- estntlk_core completed --- && 
-            cd .. && 
-            cd estnltk && 
-            python setup.py build_ext && 
-            echo --- build_ext completed ---
+            pip install . && 
+            cd .. &&
+            echo --- estntlk_core completed ---
 
           # List of available platforms: 
           # https://cibuildwheel.readthedocs.io/en/stable/options/#build-skip 
@@ -76,27 +71,30 @@ jobs:
           ls dist
           echo --- ls dist completed --- 
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: estnltk-neural-pypi-packages
           path: |
             ./estnltk_neural/dist/*.whl
             ./estnltk_neural/dist/*.tar.gz
           retention-days: 14
+          overwrite: true
 
   upload_pypi:
     name: Push to PyPI
     needs: [build_estnltk_neural_and_sdist]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
-          name: estnltk-neural-pypi-packages
-          path: dist
+          path: estnltk-neural-pypi-packages
+          pattern: estnltk-neural-pypi-packages
+          merge-multiple: true
 
       - uses: pypa/gh-action-pypi-publish@release/v1
         with:
           user: __token__
-          password: ${{ secrets.pypi_token }}
+          password: ${{ secrets.test_pypi_token }}
           # Use https://test.pypi.org instead of the default pypi:
-          #repository_url: https://test.pypi.org/legacy/
+          repository-url: https://test.pypi.org/legacy/
+          packages-dir: estnltk-neural-pypi-packages
