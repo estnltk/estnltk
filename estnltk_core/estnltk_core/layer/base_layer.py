@@ -842,6 +842,7 @@ class BaseLayer:
             table_2 = self.attribute_values(attributes, index_attributes=index_attributes)
             if bool(self.TRANSLUCENT_NONE_VALUES):
                 table_2_df = table_2.as_dataframe(index='text')
+                # TODO: Add packaging dependency and use packaging.version.Version
                 if pandas.__version__ < '2.1.0':
                     table_2_df = table_2_df.style.applymap(lambda x: 'opacity: 20%;' if x == str(None) else None).hide(axis="index")
                 else:

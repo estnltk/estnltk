@@ -595,6 +595,7 @@ class RelationLayer:
                 layer_table_content.append( values )
         df = pandas.DataFrame.from_records(layer_table_content, columns=columns)
         if bool(RelationLayer.TRANSLUCENT_NONE_VALUES):
+            # TODO: Add packaging dependency and use packaging.version.Version
             if pandas.__version__ < '2.1.0':
                 df = df.style.applymap(lambda x: 'opacity: 20%;' if x is None else None)
             else:
@@ -942,6 +943,7 @@ class Relation:
                 relation_table_content.append( values )
             df = pandas.DataFrame.from_records(relation_table_content, columns=columns)
             if bool(RelationLayer.TRANSLUCENT_NONE_VALUES):
+                # TODO: Add packaging dependency and use packaging.version.Version
                 if pandas.__version__ < '2.1.0':
                     df = df.style.applymap(lambda x: 'opacity: 20%;' if x is None else None).hide(axis="index")
                 else:

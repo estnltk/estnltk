@@ -108,6 +108,7 @@ class RegexElement:
             failed = results_df['Status'].value_counts().get('F', 0)
             eval_results.append( [test_group_name, passed, failed] )
         eval_summary_df = DataFrame(columns=['Test group', 'passed', 'failed'], data=eval_results)
+        # TODO: Add packaging dependency and use packaging.version.Version
         if pandas_version < '2.1.0':
             eval_summary_df = (eval_summary_df.style
                 .hide(axis='index')
@@ -140,6 +141,7 @@ class RegexElement:
         examples_df_columns = \
             ['Example', 'Description', 'Status'] if has_descriptions else ['Example', 'Status']
         examples_df = DataFrame(columns=examples_df_columns, data=examples_data)
+        # TODO: Add packaging dependency and use packaging.version.Version
         if pandas_version < '2.1.0':
             examples_df = (examples_df.style
                 .hide(axis='index')
