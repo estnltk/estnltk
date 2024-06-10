@@ -63,6 +63,18 @@ jobs:
           package-dir: ./estnltk
           output-dir:  ./estnltk/wheelhouse
         env:
+          # configure cibuildwheel to build native archs ('auto'), and some
+          # emulated ones
+          # https://cibuildwheel.pypa.io/en/stable/faq/#emulation
+          CIBW_ARCHS_LINUX: auto aarch64
+
+          # Cross-compile x86_64 wheels on arm64 runners.
+          # Note: although we could make universal2 wheel, 
+          # which provides both x86_64 and arm64 in a single
+          # wheel, it can take up to twice the size of the 
+          # separate wheels -- this is to be avoided
+          CIBW_ARCHS_MACOS: x86_64 arm64
+
           # Before build:
           # 0) Install legacy versions of dependency packages (only for py39);
           # 1) install estnltk_core, because the package is not yet 
@@ -80,8 +92,7 @@ jobs:
 
           # Disable building PyPy wheels on all platforms.
           # Enable if you get it working.
-          # TODO: only skip *win_arm64, not *macosx_arm64
-          CIBW_SKIP: pp* *arm64 *musllinux_x86_64 *musllinux_aarch64
+          CIBW_SKIP: pp* *win_arm64 *musllinux_x86_64 *musllinux_aarch64
 
       - uses: actions/upload-artifact@v4
         with:
