@@ -67,16 +67,18 @@ jobs:
           # configure cibuildwheel to build native archs, and some
           # emulated ones
           # https://cibuildwheel.pypa.io/en/stable/faq/#emulation
-          #CIBW_ARCHS_LINUX: x86_64 aarch64
-          CIBW_ARCHS_LINUX: x86_64
+          #CIBW_ARCHS_LINUX: x86_64
+          CIBW_ARCHS_LINUX: x86_64 aarch64
+
 
           # Cross-compile x86_64 wheels on arm64 runners.
           # Note: although we could make universal2 wheel, 
           # which provides both x86_64 and arm64 in a single
           # wheel, it can take up to twice the size of the 
           # separate wheels -- this is to be avoided
-          #CIBW_ARCHS_MACOS: x86_64 arm64
-          CIBW_ARCHS_MACOS: x86_64
+          #CIBW_ARCHS_MACOS: x86_64
+          CIBW_ARCHS_MACOS: x86_64 arm64
+
 
           # Before build:
           # 0) Install legacy versions of dependency packages (only for py39);
@@ -90,8 +92,8 @@ jobs:
 
           # List of available platforms: 
           # https://cibuildwheel.readthedocs.io/en/stable/options/#build-skip 
-          CIBW_BUILD: cp39-*64
-          #CIBW_BUILD:  cp39-*64  cp310-*64  cp311-*64  cp312-*64
+          #CIBW_BUILD: cp39-*64
+          CIBW_BUILD:  cp310-*64  cp311-*64  cp312-*64
 
           # Disable building PyPy wheels on all platforms.
           # Enable if you get it working.
@@ -106,7 +108,8 @@ jobs:
 
   upload_pypi:
     name: Push to PyPI
-    needs: [build_estnltk_wheels, build_estnltk_sdist]
+    #needs: [build_estnltk_wheels, build_estnltk_sdist] # TODO
+    needs: [build_estnltk_wheels] 
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
