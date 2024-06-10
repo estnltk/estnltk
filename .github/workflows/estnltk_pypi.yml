@@ -108,8 +108,8 @@ jobs:
 
   upload_pypi:
     name: Push to PyPI
-    #needs: [build_estnltk_wheels, build_estnltk_sdist] # TODO
-    needs: [build_estnltk_wheels] 
+    needs: [build_estnltk_wheels, build_estnltk_sdist]
+    #needs: [build_estnltk_wheels] 
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
