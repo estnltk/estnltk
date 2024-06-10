@@ -1,0 +1,92 @@
+name: Build estnltk and upload to PyPI (Linux aarch64)
+
+on: 
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/estnltk_pypi_linux_aarch64.yml'
+      
+  # Manual run (works only in the default branch)
+  #workflow_dispatch:
+
+
+jobs:
+  build_estnltk_wheels:
+    name: Build estnltk wheels on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        name: Install Python
+        with:
+          python-version: '3.10'
+
+      - name: Install pypa/build
+        run: |
+          python -m pip install build --user
+
+      - name: Build wheels
+        # Check the latest version from: https://github.com/pypa/cibuildwheel
+        uses: pypa/cibuildwheel@v2.18.1
+        with:
+          package-dir: ./estnltk
+          output-dir:  ./estnltk/wheelhouse
+        env:
+          # configure cibuildwheel to build native archs, and some
+          # emulated ones
+          # https://cibuildwheel.pypa.io/en/stable/faq/#emulation
+          #CIBW_ARCHS_LINUX: x86_64
+          CIBW_ARCHS_LINUX: aarch64
+          #CIBW_ARCHS_LINUX: x86_64 aarch64
+
+
+          # Before build:
+          # 0) Install legacy versions of dependency packages (only for py39);
+          # 1) install estnltk_core, because the package is not yet 
+          #    available from the pypi;
+          CIBW_BEFORE_BUILD:  >
+            cd estnltk_core && 
+            pip install . && 
+            cd .. &&
+            echo --- estntlk_core completed ---
+
+          # List of available platforms: 
+          # https://cibuildwheel.readthedocs.io/en/stable/options/#build-skip 
+          CIBW_BUILD: cp39-*64
+          #CIBW_BUILD:  cp310-*64  cp311-*64  cp312-*64
+
+          # Disable building PyPy wheels on all platforms.
+          # Enable if you get it working.
+          CIBW_SKIP: pp* *win_arm64 *musllinux_x86_64 *musllinux_aarch64
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: estnltk-pypi-packages-linux-aarch64-${{ matrix.os }}
+          path: ./estnltk/wheelhouse/*.whl
+          retention-days: 14
+          overwrite: true
+
+  upload_pypi:
+    name: Push to PyPI
+    needs: [build_estnltk_wheels] 
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: estnltk-pypi-packages-linux-aarch64-
+          pattern: estnltk-pypi-packages-linux-aarch64-*
+          merge-multiple: true
+
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          user: __token__
+          password: ${{ secrets.pypi_token }}
+          packages-dir: estnltk-pypi-packages
+          # Use https://test.pypi.org instead of the default pypi:
+          #repository-url: https://test.pypi.org/legacy/
