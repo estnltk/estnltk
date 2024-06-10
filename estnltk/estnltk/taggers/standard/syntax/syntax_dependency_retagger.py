@@ -23,9 +23,9 @@ class SyntaxDependencyRetagger(Retagger):
     """
     conf_param = []
 
-    def __init__(self, conll_syntax_layer='conll_syntax'):
-        self.input_layers = [conll_syntax_layer]
-        self.output_layer = conll_syntax_layer
+    def __init__(self, syntax_layer: str='conll_syntax'):
+        self.input_layers = [syntax_layer]
+        self.output_layer = syntax_layer
         self.output_attributes = ()
 
     def _change_layer(self, raw_text: str, layers: MutableMapping[str, Layer], status: dict):

@@ -81,37 +81,40 @@ def test_hfst_morph_analyser_raw_output():
         {'raw_analysis': 'saama+V+Der/nu+N+Pl+Nom', 'end': 32, 'weight': 13.0, 'start': 26}], \
        [{'raw_analysis': 'suusk+N+Sg+Gen#riik+N+Sg+Tra', 'end': 45, 'weight': 56.0, 'start': 33}] ]
     assert results == expected_results
-    #         
-    # *** Test lookup method
-    
+    #
+    # Test analyze_token() functionality
+    #
     # Case 3
-    with pytest.raises(NotImplementedError):
-        records = hfstAnalyser.lookup('alpimajakene')
-        #print(records)
-        expected_records = [ \
-           {'raw_analysis': 'alpi+Pref#majake+N+Sg+Nom+Use/Rare', 'weight': 84.0}, \
-           {'raw_analysis': 'alpi+Pref#maja+N+Dim/ke+Sg+Nom+Use/Rare', 'weight': 90.0}, \
-           {'raw_analysis': 'alpi+N+Sg+Gen#maja+N+Dim/ke+Sg+Nom+Use/Rare', 'weight': 92.0}, \
-           {'raw_analysis': 'alp+A+Sg+Nom#imama+V+Der/ja+N+Dim/ke+Sg+Nom+Use/Rare', 'weight': 110.0}, \
-           {'raw_analysis': 'alpi+Guess#majake+N+Sg+Nom+Use/Rare', 'weight': 269.0}, \
-           {'raw_analysis': 'alpi+Guess#maja+N+Dim/ke+Sg+Nom+Use/Rare', 'weight': 275.0} \
-        ]
-        #assert records == expected_records
+    records = hfstAnalyser.analyze_token('alpimajakene')
+    #print(records)
+    expected_records = [ \
+       {'raw_analysis': 'alpi+Pref#majake+N+Sg+Nom+Use/Rare', 'weight': 84.0}, \
+       {'raw_analysis': 'alpi+Pref#maja+N+Dim/ke+Sg+Nom+Use/Rare', 'weight': 90.0}, \
+       {'raw_analysis': 'alpi+N+Sg+Gen#maja+N+Dim/ke+Sg+Nom+Use/Rare', 'weight': 92.0}, \
+       {'raw_analysis': 'alp+A+Sg+Nom#imama+V+Der/ja+N+Dim/ke+Sg+Nom+Use/Rare', 'weight': 110.0}, \
+       {'raw_analysis': 'alpi+Guess#majake+N+Sg+Nom+Use/Rare', 'weight': 269.0}, \
+       {'raw_analysis': 'alpi+Guess#maja+N+Dim/ke+Sg+Nom+Use/Rare', 'weight': 275.0} \
+    ]
+    assert records == expected_records
     
     # Case 4
-    with pytest.raises(NotImplementedError):
-        records = hfstAnalyser.lookup('äraguugeldatud') # as in: "Kui Sul on äraguugeldatud, võid tulla kohvi jooma."
-        #print(records)
-        expected_records = [ \
-           {'raw_analysis': 'ära+Adv#guugeldama+V+Der/tud+A', 'weight': 65.0}, \
-           {'raw_analysis': 'ära+Adv#guugeldama+V+Der/tu+A+Pl+Nom', 'weight': 66.0} \
-        ]
-        #assert records == expected_records
+    records = hfstAnalyser.analyze_token('äraguugeldatud') # as in: "Kui Sul on äraguugeldatud, võid tulla kohvi jooma."
+    #print(records)
+    expected_records = [ \
+       {'raw_analysis': 'ära+Adv#guugeldama+V+Der/tud+A', 'weight': 65.0}, \
+       {'raw_analysis': 'ära+Adv#guugeldama+V+Der/tu+A+Pl+Nom', 'weight': 66.0} \
+    ]
+    assert records == expected_records
 
     # Case 5
-    with pytest.raises(NotImplementedError):
-        records = hfstAnalyser.lookup('xyxrjxxf3tg5') # totally unknown word
-        #assert records == []
+    records = hfstAnalyser.analyze_token('xyxrjxxf3tg5') # totally unknown word
+    #print(records)
+    assert records == []
+
+    # Case 6 : analyze_token() exceptions
+    assert hfstAnalyser.analyze_token(None) == []
+    assert hfstAnalyser.analyze_token('') == []
+    assert hfstAnalyser.analyze_token(' \n ') == []
 
 
 @pytest.mark.skipif(not check_if_hfst_is_in_path(),
@@ -178,12 +181,12 @@ def test_hfst_morph_analyser_raw_output_file_based_io():
         {'raw_analysis': 'saama+V+Der/nu+N+Pl+Nom', 'end': 32, 'weight': 13.0, 'start': 26}], \
        [{'raw_analysis': 'suusk+N+Sg+Gen#riik+N+Sg+Tra', 'end': 45, 'weight': 56.0, 'start': 33}] ]
     assert results == expected_results
-    #         
-    # *** Test lookup method
+    #
+    # *** Test analyze_token method (not available in file-based io)
     
     # Case 3
     with pytest.raises(NotImplementedError):
-        records = hfstAnalyser.lookup('alpimajakene')
+        records = hfstAnalyser.analyze_token('alpimajakene')
         #print(records)
         expected_records = [ \
            {'raw_analysis': 'alpi+Pref#majake+N+Sg+Nom+Use/Rare', 'weight': 84.0}, \
@@ -323,34 +326,32 @@ def test_hfst_morph_analyser_morphemes_lemmas_output():
     ]
     assert results == expected_results
 
-    # *** Test lookup method
+    # *** Test analyze_token method
     
     # Case 3
-    with pytest.raises(NotImplementedError):
-        records = hfstAnalyser.lookup('alpikannike')
-        #print(records)
-        expected_records = [ \
-            {'has_clitic': False, 'morphemes_lemmas': ('alpikann', 'ke'), 'forms': ('Dim', 'Sg+Nom'), 'weight': 51.0, 'postags': ('N', ''), 'usage': (), 'is_guessed': False}, \
-            {'has_clitic': False, 'morphemes_lemmas': ('alpi', 'kannike'), 'forms': ('', 'Sg+Nom'), 'weight': 56.0, 'postags': ('Pref', 'N'), 'usage': (), 'is_guessed': False}, \
-            {'has_clitic': False, 'morphemes_lemmas': ('alpi', 'kann', 'ke'), 'forms': ('', 'Dim', 'Sg+Nom'), 'weight': 63.0, 'postags': ('Pref', 'N', ''), 'usage': (), 'is_guessed': False}, \
-            {'has_clitic': False, 'morphemes_lemmas': ('alpi', 'kann', 'ike'), 'forms': ('', 'Sg+Nom', 'Sg+Nom'), 'weight': 106.0, 'postags': ('Pref', 'N', 'N'), 'usage': (), 'is_guessed': False}, \
-            {'has_clitic': False, 'morphemes_lemmas': ('alpi', 'kannike'), 'forms': ('', 'Sg+Nom'), 'weight': 241.0, 'postags': ('', 'N'), 'usage': (), 'is_guessed': True} \
-        ]
-        #{'has_clitic': False, 'morphemes_lemmas': ('alpi', 'kannike'), 'forms': ('', 'Sg+Nom'), 'weight': 240.0, 'postags': ('', 'N'), 'usage': (), 'is_guessed': True}, \
-        #{'has_clitic': False, 'morphemes_lemmas': ('alpi', 'kann', 'ke'), 'forms': ('', 'Dim', 'Sg+Nom'), 'weight': 250.0, 'postags': ('', 'N', ''), 'usage': (), 'is_guessed': True} \
-        #assert records == expected_records
+    records = hfstAnalyser.analyze_token('alpikannike')
+    #print(records)
+    expected_records = [ \
+        {'has_clitic': False, 'morphemes_lemmas': ('alpikann', 'ke'), 'forms': ('Dim', 'Sg+Nom'), 'weight': 51.0, 'postags': ('N', ''), 'usage': (), 'is_guessed': False}, \
+        {'has_clitic': False, 'morphemes_lemmas': ('alpi', 'kannike'), 'forms': ('', 'Sg+Nom'), 'weight': 56.0, 'postags': ('Pref', 'N'), 'usage': (), 'is_guessed': False}, \
+        {'has_clitic': False, 'morphemes_lemmas': ('alpi', 'kann', 'ke'), 'forms': ('', 'Dim', 'Sg+Nom'), 'weight': 63.0, 'postags': ('Pref', 'N', ''), 'usage': (), 'is_guessed': False}, \
+        {'has_clitic': False, 'morphemes_lemmas': ('alpi', 'kann', 'ike'), 'forms': ('', 'Sg+Nom', 'Sg+Nom'), 'weight': 106.0, 'postags': ('Pref', 'N', 'N'), 'usage': (), 'is_guessed': False}, \
+        {'has_clitic': False, 'morphemes_lemmas': ('alpi', 'kannike'), 'forms': ('', 'Sg+Nom'), 'weight': 241.0, 'postags': ('', 'N'), 'usage': (), 'is_guessed': True} \
+    ]
+    #{'has_clitic': False, 'morphemes_lemmas': ('alpi', 'kannike'), 'forms': ('', 'Sg+Nom'), 'weight': 240.0, 'postags': ('', 'N'), 'usage': (), 'is_guessed': True}, \
+    #{'has_clitic': False, 'morphemes_lemmas': ('alpi', 'kann', 'ke'), 'forms': ('', 'Dim', 'Sg+Nom'), 'weight': 250.0, 'postags': ('', 'N', ''), 'usage': (), 'is_guessed': True} \
+    assert records == expected_records
     
     # Case 4
-    with pytest.raises(NotImplementedError):
-        records = hfstAnalyser.lookup('üleguugeldanud') # as in: "Oled ennast täitsa üleguugeldanud!"
-        #print(records)
-        expected_records = [ \
-            {'weight': 64.0, 'is_guessed': False, 'postags': ('Adv', 'V', 'A'), 'forms': ('', 'Der', ''), 'usage': (), 'morphemes_lemmas': ('üle', 'guugeldama', 'nud'), 'has_clitic': False}, \
-            {'weight': 64.0, 'is_guessed': False, 'postags': ('Adv', 'V', 'A'), 'forms': ('', 'Der', 'Sg+Nom'), 'usage': (), 'morphemes_lemmas': ('üle', 'guugeldama', 'nud'), 'has_clitic': False}, \
-            {'weight': 65.0, 'is_guessed': False, 'postags': ('Adv', 'V', 'A'), 'forms': ('', 'Der', 'Pl+Nom'), 'usage': (), 'morphemes_lemmas': ('üle', 'guugeldama', 'nud'), 'has_clitic': False}, \
-            {'weight': 65.0, 'is_guessed': False, 'postags': ('Adv', 'V', 'N'), 'forms': ('', 'Der', 'Pl+Nom'), 'usage': (), 'morphemes_lemmas': ('üle', 'guugeldama', 'nu'), 'has_clitic': False} \
-        ]
-        #assert records == expected_records
+    records = hfstAnalyser.analyze_token('üleguugeldanud') # as in: "Oled ennast täitsa üleguugeldanud!"
+    #print(records)
+    expected_records = [ \
+        {'weight': 64.0, 'is_guessed': False, 'postags': ('Adv', 'V', 'A'), 'forms': ('', 'Der', ''), 'usage': (), 'morphemes_lemmas': ('üle', 'guugeldama', 'nud'), 'has_clitic': False}, \
+        {'weight': 64.0, 'is_guessed': False, 'postags': ('Adv', 'V', 'A'), 'forms': ('', 'Der', 'Sg+Nom'), 'usage': (), 'morphemes_lemmas': ('üle', 'guugeldama', 'nud'), 'has_clitic': False}, \
+        {'weight': 65.0, 'is_guessed': False, 'postags': ('Adv', 'V', 'A'), 'forms': ('', 'Der', 'Pl+Nom'), 'usage': (), 'morphemes_lemmas': ('üle', 'guugeldama', 'nud'), 'has_clitic': False}, \
+        {'weight': 65.0, 'is_guessed': False, 'postags': ('Adv', 'V', 'N'), 'forms': ('', 'Der', 'Pl+Nom'), 'usage': (), 'morphemes_lemmas': ('üle', 'guugeldama', 'nu'), 'has_clitic': False} \
+    ]
+    assert records == expected_records
 
 
 
@@ -363,11 +364,12 @@ def test_hfst_morph_analyser_with_guessing_switched_on_and_off():
     # Case 1: lookup
     hfstAnalyser = HfstClMorphAnalyser( output_format='raw', remove_guesses=True )
     hfstAnalyserGuesser = HfstClMorphAnalyser( output_format='raw' )
-    with pytest.raises(NotImplementedError):
-        records1 = hfstAnalyser.lookup('kiwikübarad')
-        #assert records1 == []
-        records2 = hfstAnalyserGuesser.lookup('kiwikübarad')
-        #assert records2 == [{'raw_analysis': 'kiwi+Guess#kübar+N+Pl+Nom', 'weight': 239.0}]
+
+    # Test analyze_token method
+    records1 = hfstAnalyser.analyze_token('kiwikübarad')
+    assert records1 == []
+    records2 = hfstAnalyserGuesser.analyze_token('kiwikübarad')
+    assert records2 == [{'raw_analysis': 'kiwi+Guess#kübar+N+Pl+Nom', 'weight': 239.0}]
     
     # Case 2: tagging
     text = Text('bronzemehikesed')

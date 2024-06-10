@@ -1,10 +1,10 @@
 #
-# Docker file for Ubuntu 20.04 based EstNLTK 1.7 devel building, installing and testing
+# Docker file for Ubuntu 22.04 based EstNLTK 1.7 devel building, installing and testing
 #
 # ================================
 #   Set up OS
 # ================================
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 
 RUN apt-get update && apt-get upgrade -y && apt-get install -y wget && \
     apt-get install -y g++ libpcre3 libpcre3-dev swig && \
@@ -63,15 +63,27 @@ RUN conda config --set always_yes yes && \
     conda info -a
 
 # ================================
-#   Python 3.9
+#   Python 3.10
 # ================================
-RUN echo " Python 3.9 " | figlet 
-RUN conda create -n py39 python=3.9
+RUN echo " Python 3.10 " | figlet 
+RUN conda create -n py310 python=3.10
 #
 # Make RUN commands to use the new environment (https://pythonspeed.com/articles/activate-conda-dockerfile/)
 #
-SHELL ["conda", "run", "-n", "py39", "/bin/bash", "-c"]
+SHELL ["conda", "run", "-n", "py310", "/bin/bash", "-c"]
 RUN python --version
+
+# ================================
+#   Tools required for building 
+#   Python package
+# ================================
+# 
+# Updgrade pip, setuptools, and install build
+# 
+RUN pip install --no-cache-dir --upgrade pip
+RUN pip install --no-cache-dir --upgrade setuptools
+RUN pip install --no-cache-dir build
+
 #
 # Install packages required for testing
 #
@@ -90,9 +102,16 @@ RUN git clone --depth=25 --branch=devel_1.7 https://github.com/estnltk/estnltk.g
 RUN echo " EstNLTK-core " | figlet 
 WORKDIR /estnltk_devel/estnltk_core
 #
-# Build and install EstNLTK-core
+# Build EstNLTK-core
 #
-RUN python setup.py install
+RUN python -m build --sdist --wheel --outdir dist/ .
+#
+# Install EstNLTK-core
+#
+WORKDIR /estnltk_devel/estnltk_core/dist
+RUN ls -lah
+RUN pip install $(ls -1 estnltk_core*.whl)
+
 #
 # Run estnltk-core's tests
 #
@@ -107,12 +126,23 @@ RUN echo " EstNLTK " | figlet
 WORKDIR /estnltk_devel/estnltk
 
 #
-# Build and install EstNLTK
+# Build EstNLTK
 #
-RUN python setup.py build_ext install
+RUN python -m build --sdist --wheel --outdir dist/ .
+#
+# Install EstNLTK
+#
+WORKDIR /estnltk_devel/estnltk/dist
+RUN ls -lah
+RUN pip install $(ls -1 estnltk*.whl)
+
 WORKDIR /
 RUN conda list estnltk
 
+#
+# Download wordnet resources (optional)
+#
+RUN python -c "import estnltk; estnltk.download('wordnet')"
 #
 # Download syntax resources (optional)
 #
@@ -122,7 +152,7 @@ RUN python -c "import estnltk; estnltk.download('maltparsertagger')"
 #
 # Enable testing of EstNLTK's downloader (optional)
 #
-#ENV TEST_ESTNLTK_DOWNLOADER=1
+ENV TEST_ESTNLTK_DOWNLOADER=1
 
 #
 # Run estnltk's tests
@@ -133,7 +163,7 @@ RUN pytest --pyargs estnltk.tests
 #
 # Clean-up: Delete downloaded the resources
 #
-#RUN python -c "from estnltk.resource_utils import delete_all_resources; delete_all_resources()"
+RUN python -c "from estnltk.resource_utils import delete_all_resources; delete_all_resources()"
 
 #
 # Clean-up: Delete installed package
@@ -145,6 +175,6 @@ RUN pytest --pyargs estnltk.tests
 #RUN rm -r dist
 #WORKDIR /
 # Remove the environment
-#RUN conda remove --name py39 --all
+#RUN conda remove --name py310 --all
 
 #ENTRYPOINT ["/bin/bash"]

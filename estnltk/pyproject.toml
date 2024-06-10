@@ -12,7 +12,7 @@ authors = [
 ]
 description = "EstNLTK — open source tools for Estonian natural language processing"
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 keywords = ["Estonian natural language processing", "Estonian linguistic processing"]
 license = {text = "GPLv2"}
 classifiers = [
@@ -21,10 +21,10 @@ classifiers = [
     "Intended Audience :: Science/Research",
     "Intended Audience :: Information Technology",
     "Operating System :: OS Independent",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "Topic :: Scientific/Engineering",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
     "Topic :: Scientific/Engineering :: Information Analysis",
@@ -32,7 +32,7 @@ classifiers = [
     "Topic :: Text Processing :: Linguistic"
 ]
 dependencies = [
-    'estnltk-core >= 1.7.2',   # EstNLTK's basic datastructures and conversion methods
+    'estnltk-core >= 1.7.3',   # EstNLTK's basic datastructures and conversion methods
     'nltk>=3.4.1',             # NLTK - mainly required for tokenization
     'regex>=2015.07.19',       # improved Python regular expressions
     'python-crfsuite>=0.8.3',  # Conditional random fields library for NER
@@ -42,7 +42,7 @@ dependencies = [
     'lxml',                    # required for importing/exporting TCF format data
     'networkx',                # building graphs: required for layers, WordNet and grammars
     'matplotlib',              # required for visualizing layer graph
-    'requests',                # required by WebTaggers
+    'requests',                # required by the resource downloader & WebTaggers
     'tqdm',                    # progressbar: for showing progress on time-hungry operations
     'ipython',                 # required for integration with Jupyter Notebook-s
     'conllu',                  # CONLLU for syntax

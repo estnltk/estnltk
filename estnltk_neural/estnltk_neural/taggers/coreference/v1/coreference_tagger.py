@@ -1,6 +1,6 @@
-import os, os.path
 import networkx
-import pkgutil
+import os, os.path
+from importlib.util import find_spec
 
 from estnltk_core import RelationLayer, Relation
 from estnltk_core.taggers import RelationTagger
@@ -15,7 +15,7 @@ def check_tagger_dependencies():
     '''
     missing_libraries = []
     for tagger_dependency in ['stanza', 'sklearn', 'xgboost', 'gensim', 'pandas']:
-        pkg_exists = pkgutil.find_loader(tagger_dependency) is not None
+        pkg_exists = find_spec(tagger_dependency) is not None
         if not pkg_exists:
             if tagger_dependency == 'sklearn':
                 tagger_dependency = 'scikit-learn'
@@ -110,7 +110,7 @@ class CoreferenceTagger(RelationTagger):
                   '_predict']
     
     def __init__(self, output_layer='coreference', resources_dir=None, stanza_models_dir=None, 
-                       ner_layer=None, add_chain_ids=True, logger=None):
+                       ner_layer=None, add_chain_ids=True, logger=None, xgb_tree_method=None):
         """Initializes pronominal coreference relation tagger.
         
         Parameters
@@ -142,7 +142,14 @@ class CoreferenceTagger(RelationTagger):
             assigns a "chain_id" (integer starting from 0) to each relation. 
         
         logger (default: None)
+            Optional. A customized logger that is used for recording messages 
+            of the coreference system (mostly during the initialization phase).
             
+        xgb_tree_method: str (default: None)
+            An optional parameter passed to the XGBClassifier. Since xgboost 
+            version 2.0, the default tree_method has been changed, so changing 
+            this parameter allows to restore to the old behaviour of the model. 
+            More details: https://xgboost.readthedocs.io/en/stable/treemethod.html
         """
         self.output_layer = output_layer
         self.input_layers = ()
@@ -206,7 +213,8 @@ class CoreferenceTagger(RelationTagger):
                                               training_file, 
                                               train_feature_names_file, 
                                               embedding_locations=embedding_locations,
-                                              logger=logger)
+                                              logger=logger,
+                                              xgb_tree_method=xgb_tree_method)
         self.stanza_nlp = stanza_nlp
         self._dict_background_res = dict_background_res
         self.coref_model = model
@@ -239,8 +247,18 @@ class CoreferenceTagger(RelationTagger):
 
 
 def expand_mentions_to_named_entities(relations, ner_layer):
-    '''Expands mentions (in results) to full extend named entity phrases,
-       using the phrases from given ner_layer.'''
+    '''Expands mentions (in results) to full extend named entity phrases, 
+       using the phrases from given ner_layer. 
+       
+       Note: due to the expansion, we may end up with coreference relation 
+       duplicates. E.g. a pronoun may refer to the first name, and, in 
+       another relation, to the last name. If we join the first name and 
+       the last name into one named entity, then we get two identical 
+       relations. 
+       This method automatically removes such duplicate relations. 
+    '''
+    seen_relations = []
+    removable_duplicates = []
     for relation in relations:
         mention_start = relation['mention'][0]
         mention_end   = relation['mention'][1]
@@ -250,9 +268,19 @@ def expand_mentions_to_named_entities(relations, ner_layer):
                mention_end <= ner_phrase.end:
                 # Check that mention is shorter than the NER phrase
                 if mention_end-mention_start<ner_phrase.end-ner_phrase.start:
-                    # Update mention location from NER phrase
-                    relation['mention'] = (ner_phrase.start, ner_phrase.end)
+                    # Check for duplicates 
+                    key = (relation['pronoun'][0], relation['pronoun'][1],
+                           ner_phrase.start, ner_phrase.end)
+                    if key in seen_relations:
+                        # Remove this relation altogether
+                        removable_duplicates.append(relation)
+                    else:
+                        # Update mention location from NER phrase
+                        relation['mention'] = (ner_phrase.start, ner_phrase.end)
+                        seen_relations.append( key )
                     break
+    for duplicate in removable_duplicates:
+        relations.remove(duplicate)
     return relations
 
 

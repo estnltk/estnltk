@@ -1,4 +1,4 @@
-import pkgutil
+from importlib.util import find_spec
 import pytest
 import os
 
@@ -6,10 +6,10 @@ from estnltk import Text
 from estnltk.downloader import get_resource_paths
 
 def check_if_transformers_is_available():
-    return pkgutil.find_loader("transformers") is not None
+    return find_spec("transformers") is not None
 
 def check_if_pytorch_is_available():
-    return pkgutil.find_loader("torch") is not None
+    return find_spec("torch") is not None
 
 # Try to get the resources path for EstBERTNERTagger model v1. If missing, do nothing. It's up for the user to download the missing resources
 ESTBERTNER_V1_PATH = get_resource_paths("estbertner", only_latest=True, download_missing=False)
@@ -84,6 +84,29 @@ def test_estbertner_v2_smoke():
          (176, 188, 'Tiit Rammuli', 'PER'), 
          (195, 209, 'Tiina Vilbergi', 'PER'), 
          (221, 231, '"Loomaaed"', 'PROD')]
+
+
+@pytest.mark.skipif(not check_if_transformers_is_available(),
+                    reason="package tranformers is required for this test")
+@pytest.mark.skipif(not check_if_pytorch_is_available(),
+                    reason="package pytorch is required for this test")
+@pytest.mark.skipif(ESTBERTNER_V2_PATH is None,
+                    reason="EstBERTNERTagger's model location not known. "+\
+                           "Use estnltk.download('estbertner_v2') to get the missing resources.")
+def test_estbertner_v2_tokenization_fail():
+    # Test EstBERTNERTagger on texts that contain rare unicode symbols. 
+    # Previous versions of the tagger crashed on these symbols. 
+    from estnltk_neural.taggers import EstBERTNERTagger
+    neural_ner_tagger = EstBERTNERTagger( model_location=ESTBERTNER_V2_PATH )
+    text = Text('Gröönimaa - Magssanguaq Qujaukitsoq ; Island - Žórarinn Eldjárn ; Soome - Joni Pyysalo ; '+\
+                'Läti - Kārlis Vērdiņš ; Laïta jõe suudme vaheline rannikuala ; Yangi­Millsi kalibratsioonivälja ; '+\
+                'arbitrio sobre la productión y sobre las importaciones').tag_layer('words')
+    neural_ner_tagger.tag(text)
+    output_layer = neural_ner_tagger.output_layers[0]
+    assert len(text[output_layer]) > 0
+    # Note: although the model does not detect all the entities, at least 
+    # it does not crash on the input
+    #print( _ner_spans_as_tuples( text[output_layer] ) )
 
 
 # ========================================================================

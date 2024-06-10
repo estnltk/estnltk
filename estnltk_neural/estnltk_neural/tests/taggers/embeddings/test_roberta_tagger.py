@@ -1,14 +1,16 @@
-import pkgutil
+from importlib.util import find_spec
 import pytest
-from estnltk import Text
 import os
+
+from estnltk import Text
+
 
 
 def check_if_transformers_is_available():
-    return pkgutil.find_loader("transformers") is not None
+    return find_spec("transformers") is not None
 
 def check_if_pytorch_is_available():
-    return pkgutil.find_loader("torch") is not None
+    return find_spec("torch") is not None
 
 ESTROBERTA_PATH = os.environ.get('ESTROBERTA_PATH', None)
 
@@ -29,9 +31,10 @@ def test_roberta_tagger_out_of_the_box():
     text.tag_layer('sentences')
     roberta_tagger.tag(text)
     assert 'roberta_embeddings' in text.layers
+    assert not text.roberta_embeddings.ambiguous
 
     for embedding_span in text.roberta_embeddings:
-        assert len(embedding_span.bert_embedding[0]) == 3072  # 768 * 4 
+        assert len(embedding_span.bert_embedding) == 3072  # 768 * 4 
 
     assert len(text.words) < len(text.roberta_embeddings)
 
@@ -52,12 +55,19 @@ def test_roberta_tagger_word_level_smoke():
     text.tag_layer('sentences')
     roberta_tagger.tag(text)
     assert 'roberta_embeddings' in text.layers
+    assert not text.roberta_embeddings.ambiguous
 
     for embedding_span in text.roberta_embeddings:
-        assert len(embedding_span.bert_embedding[0]) == 3072  # 768 * 4 
+        assert len(embedding_span.bert_embedding) == 3072  # 768 * 4 
 
     assert text.roberta_embeddings.text == text.words.text
 
+# Fetches pairs (word, bert_tokens) from RobertaTagger's output
+def _get_bert_tokens(text_obj, bert_layer='roberta_word_embeddings'):
+    results = []
+    for bert_span in text_obj[bert_layer]:
+        results.append( (bert_span.text, list(bert_span.token)))
+    return results
 
 @pytest.mark.skipif(not check_if_transformers_is_available(),
                     reason="package tranformers is required for this test")
@@ -77,7 +87,7 @@ def test_roberta_tagger_tokens_and_word_span_misaligment_bugfix():
     roberta_tagger_1.tag(text)
     assert 'roberta_embeddings' in text.layers
     for embedding_span in text.roberta_embeddings:
-        assert len(embedding_span.bert_embedding[0]) == 3072  # 768 * 4 
+        assert len(embedding_span.bert_embedding) == 3072  # 768 * 4 
 
     # word level
     roberta_tagger_2 = RobertaTagger(output_layer='roberta_word_embeddings',
@@ -85,7 +95,7 @@ def test_roberta_tagger_tokens_and_word_span_misaligment_bugfix():
     roberta_tagger_2.tag(text)
     assert 'roberta_word_embeddings' in text.layers
     for embedding_span in text.roberta_word_embeddings:
-        assert len(embedding_span.bert_embedding[0]) == 3072  # 768 * 4 
+        assert len(embedding_span.bert_embedding) == 3072  # 768 * 4 
     assert text.roberta_word_embeddings.text == text.words.text
     
     # 2) Test RobertaTagger for handling … and ... replacements
@@ -94,7 +104,7 @@ def test_roberta_tagger_tokens_and_word_span_misaligment_bugfix():
     roberta_tagger_2.tag(text)
     assert 'roberta_word_embeddings' in text.layers
     for embedding_span in text.roberta_word_embeddings:
-        assert len(embedding_span.bert_embedding[0]) == 3072  # 768 * 4 
+        assert len(embedding_span.bert_embedding) == 3072  # 768 * 4 
     assert text.roberta_word_embeddings.text == text.words.text
     
     # 3) Test RobertaTagger for handling tokens where starting ▁ is separated from
@@ -105,5 +115,27 @@ def test_roberta_tagger_tokens_and_word_span_misaligment_bugfix():
     roberta_tagger_2.tag(text)
     assert 'roberta_word_embeddings' in text.layers
     for embedding_span in text.roberta_word_embeddings:
-        assert len(embedding_span.bert_embedding[0]) == 3072  # 768 * 4 
+        assert len(embedding_span.bert_embedding) == 3072  # 768 * 4 
     assert text.roberta_word_embeddings.text == text.words.text
+
+    # 4) Test handling inputs that have '\xad' and/or '…' symbol.
+    partial_overlap1 = Text('Yangi­Millsi kalibratsioonivälja kvantteooria …?').tag_layer('sentences')
+    roberta_tagger_2.tag(partial_overlap1)
+    words_and_bert_tokens = _get_bert_tokens(partial_overlap1, bert_layer=roberta_tagger_2.output_layer)
+    assert words_and_bert_tokens == \
+        [('Yangi', ['▁Y', 'angi']), 
+         ('\xad', ['\xad']), 
+         ('Millsi', ['M', 'ill', 'si']), 
+         ('kalibratsioonivälja', ['▁kal', 'ib', 'ratsiooni', 'välja']), 
+         ('kvantteooria', ['▁kvant', 'teooria']), 
+         ('…?', ['▁...', '?'])]
+    partial_overlap2 = Text('Ning Källeni­Lehmanni teoreem').tag_layer('sentences')
+    roberta_tagger_2.tag(partial_overlap2)
+    words_and_bert_tokens = _get_bert_tokens(partial_overlap2, bert_layer=roberta_tagger_2.output_layer)
+    assert words_and_bert_tokens == \
+        [('Ning', ['▁Ning']), 
+         ('Källeni', ['▁Kä', 'lle', 'ni']), 
+         ('\xad', ['\xad']), 
+         ('Lehmanni', ['Le', 'hma', 'nni']), 
+         ('teoreem', ['▁te', 'or', 'eem'])]
+

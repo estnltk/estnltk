@@ -14,32 +14,34 @@ As of version 1.7, the EstNLTK library is split into 3 Python packages:
 
 Source code of packages is available at the [EstNLTK's monorepository](https://github.com/estnltk/estnltk/tree/main).  
 
+* **NB!** 🚧🚧🚧 Building EstNLTK version **1.7.3** is currently **work in progress**  🚧🚧🚧. Before the build is completed, we recommend to use [the previous version of the library.](https://github.com/estnltk/estnltk/tree/4236f2033110d2bf20fc7f565950c0a2170f8573) 
+
 ## EstNLTK
 
 ### Installation
 
-EstNLTK is available for osx, windows-64, and linux-64, and for python versions 3.8 to 3.11. 
+EstNLTK is available for osx, windows-64, and linux-64, and for python versions 3.9 to 3.12. 
 You can install the latest version via PyPI:
 
 ```
-pip install estnltk==1.7.2
+pip install estnltk==1.7.3
 ```
 
 Alternatively, you can install EstNLTK via [Anaconda](https://www.anaconda.com/download). Installation steps with conda:
 
-1. [create a conda environment](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#creating-an-environment-with-commands) with python 3.9, for instance:
+1. [create a conda environment](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#creating-an-environment-with-commands) with python 3.10, for instance:
 ```
-conda create -n py39 python=3.9
+conda create -n py310 python=3.10
 ```
 
 2. [activate the environment](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#activating-an-environment), for instance:
 ```
-conda activate py39
+conda activate py310
 ```
 
 3. install EstNLTK with the command:
 ```
-conda install -c estnltk -c conda-forge estnltk=1.7.2
+conda install -c estnltk -c conda-forge estnltk=1.7.3
 ```
 
 _Remark about conda installations:_ As our platform coverage is wider on pip, we encourage installing EstNLTK inside conda environment through pip if the default conda installation fails.  
@@ -53,7 +55,7 @@ _Note_: for using some of the tools in estnltk, you also need to have Java insta
 You can install EstNLTK on [Google Colab](https://colab.research.google.com) environment via command:
 
 ```
-!pip install estnltk==1.7.2
+!pip install estnltk==1.7.3
 ```
 
 ### Documentation

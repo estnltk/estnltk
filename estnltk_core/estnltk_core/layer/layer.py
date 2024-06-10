@@ -3,7 +3,7 @@ from typing import Union, List, Sequence
 import pandas
 import collections
 import warnings
-import pkgutil
+from importlib.util import find_spec
 
 from copy import deepcopy
 
@@ -16,7 +16,7 @@ from estnltk_core.layer_operations.aggregators import GroupBy
 from estnltk_core.layer_operations.aggregators import Rolling
 
 def check_if_estnltk_is_available():
-    return pkgutil.find_loader("estnltk") is not None
+    return find_spec("estnltk") is not None
 
 
 class Layer(BaseLayer):

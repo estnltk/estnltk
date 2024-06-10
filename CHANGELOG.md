@@ -3,6 +3,91 @@
 
 All notable changes to this project will be documented in this file.
 
+# [1.7.3] - 2024-06-10
+
+## Changed
+
+* Updated `BaseText`:
+	* `BaseText.sorted_layers` covers both span layers and relation layers now. however, for backwards compatibility, it returns only sorted span layers by default. set flag `relation_layers=True` to include relation layers;
+	* removed `BaseText.sorted_relation_layers`; 
+	* updated `Text` import/export functions to take account of dependencies between span and relation layers;
+* Updated `Layer` and `RelationLayer`:
+	* `None` values will appear translucent by default in the HTML representation;
+* Updated `json_to_layer`: added possibility to load a single layer instead of a list of layers. Examples in [tutorial](https://github.com/estnltk/estnltk/blob/caa53bc4cda8198a93fc07a8a3146a23287dab5f/tutorials/converters/json_exporter_importer.ipynb); 
+* Removed deprecated module `estnltk.resolve_layer_dag` (use `estnltk.default_resolver` instead); 
+* Updated `UserDictTagger`: made `add_word` & `add_words_from_csv_file` non-public methods, which should no longer be used directly. Instead, `UserDictTagger`'s constructor should be used for adding all words; 
+* Added [deprecation warning](https://github.com/estnltk/estnltk/blob/caa53bc4cda8198a93fc07a8a3146a23287dab5f/tutorials/nlp_pipeline/B_morphology/syllabification.ipynb) about `Vabamorf`'s syllabifier. Instead of using `Vabamorf`'s syllabifier, please use [the finite state transducer based syllabifier](https://gitlab.com/tilluteenused/docker_elg_syllabifier) which provides a complete syllabification functionality of Estonian;
+* Update `parse_enc`:
+   * adapted to processing ENC 2023 .vert files;
+   * added `add_document_index` option to parse_enc (saves document's original locations in the vert file) for processing ENC 2023;
+   * added `focus_block` parameter to enable and control data parallelization;
+   * added `extended_morph_form` parameter to enable importing of additional morphological form information in CG categories. This is possible only in ENC 2021 and ENC 2023 versions of the corpora which have both regular `morph_analysis` and `morph_extended` annotations available. 
+   * details in [the tutorial](https://github.com/estnltk/estnltk/blob/592a1689b9e07822d821d5b7bfa18f5981ec8f6d/tutorials/corpus_processing/importing_text_objects_from_corpora.ipynb);
+* Updated `PhraseTagger`, `RegexTagger`, `SpanTagger`, `SubstringTagger` with `get_decorator_inputs` method, which can be used for debugging while creating rules, see [this tutorial](https://github.com/estnltk/estnltk/blob/caa53bc4cda8198a93fc07a8a3146a23287dab5f/tutorials/taggers/rule_taggers/B_decorator_development.ipynb) for examples;
+* Renamed `NerWebTagger`'s parameter `ner_output_layer` to `output_layer`;
+* Renamed `SyntaxDependencyRetagger`'s parameter `conll_syntax_layer` to `syntax_layer`;
+* Renamed `HfstClMorphAnalyser`'s method `lookup` to `analyze_token` and added corresponding implementation;
+* Refactored & simplified `PhraseExtractor` interface;
+* Removed `legacy.dict_taggers`;
+* Updated `estnltk/setup.py`: customised build_py to build swig extensions before python modules;
+* Updated `StanzaSyntaxEnsembleTagger`'s `majority_voting` algorithm: added Chu–Liu/Edmonds' post-processing to assure a valid tree structure;
+* Updated `CoreferenceTagger`: added parameter `xgb_tree_method` which allows to set a `tree_method` training parameter in `xgboost` (since `xgboost` version 2.0, the default `tree_method` has been changed, so this parameter allows to roll back to the previous `tree_method` to restore the old behaviour of the model);
+* Refactored `BertTagger` & `RobertaTagger`:
+	* create unambiguous layers by default, avoid unnecessary nested lists in the output; Examples in [this tutorial](https://github.com/estnltk/estnltk/blob/caa53bc4cda8198a93fc07a8a3146a23287dab5f/tutorials/nlp_pipeline/E_embeddings/bert_embeddings_tagger.ipynb);
+* Optimized `PgCollection` initialization: do not count all rows during the initialization. This should make initialization relatively fast even for large tables;
+* Removed `PostgresStorage` from short import path `estnltk.storage`. Please use long import path: `from estnltk.storage.postgres import PostgresStorage`;
+* Refactored `PgCollection`: moved `create_collection_table` to `CollectionStructureBase` as creating collection table now depends on the collection structure version; stand-alone function `create_collection_table` is deprecated;
+* Renamed `CollectionStructureBase.create_table` -> `create_layer_info_table`;
+
+
+## Added
+
+* Updated `RelationLayer`:
+	* added possibility to define enveloping `RelationLayer`; 
+	* added `display_order`, which can be used for specifying the order of `span_names` & `attributes` in the HTML representation of the layer;
+	* added `display()` method to `RelationLayer` for showing relation (named span) annotations in text;
+	* added `relations_v1` serialization module for serializing updated version of the layer;
+	* For examples about the updated relation layer, please see [this tutorial](https://github.com/estnltk/estnltk/blob/caa53bc4cda8198a93fc07a8a3146a23287dab5f/tutorials/system/relation_layer.ipynb);
+* Added `DisplayNamedSpans` & `NamedSpanVisualiser` classes that support `RelationLayer` visualisation;
+* Updated `Relation`: added HTML representation;
+* Updated `NamedSpan`: added `resolve_attribute` method, which allows to get an access to foreign attributes; Examples in [this tutorial](https://github.com/estnltk/estnltk/blob/caa53bc4cda8198a93fc07a8a3146a23287dab5f/tutorials/system/relation_layer.ipynb);
+* Updated `TokensTagger`: added quotation marks postfixes (flag `apply_quotes_postfixes`);
+* Added `LocalTokenSplitter` that splits tokens into smaller tokens based on regular expression patterns and user-defined functions for determining the split point; For details, see [the tutorial](https://github.com/estnltk/estnltk/blob/caa53bc4cda8198a93fc07a8a3146a23287dab5f/tutorials/nlp_pipeline/A_text_segmentation/01_tokens.ipynb); 
+* Updated `VabamorfAnalyzer`: added function `analyze_token` for analysing a single word; Usage details in [the tutorial](https://github.com/estnltk/estnltk/blob/caa53bc4cda8198a93fc07a8a3146a23287dab5f/tutorials/nlp_pipeline/B_morphology/01_morphological_analysis.ipynb);
+* Added `TimeLocTagger` which tags time/location OBL phrases based on UD syntax layer;
+* Added `PropBankPreannotator` which tags Estonian PropBank semantic roles based on a (manually-crafted) lexicon; Note that  this is a preliminary version of the tagger;
+* Added `RegexElement`, `StringList` and `ChoiceGroup` classes that wrap around [regex library](https://pypi.org/project/regex/) and allow to systematically document and test regular expressions. For usage details, please see [this tutorial](https://github.com/estnltk/estnltk/blob/caa53bc4cda8198a93fc07a8a3146a23287dab5f/tutorials/taggers/rule_taggers/A_regex_development.ipynb);
+* Added a [tutorial](https://github.com/estnltk/estnltk/blob/caa53bc4cda8198a93fc07a8a3146a23287dab5f/tutorials/taggers/rule_taggers/B_decorator_development.ipynb) about rule_tagger's decorator development (by swenlaur);
+* Added `enc_layer_to_conll` for converting ENC morphosyntactic layer to CONLLU string. See details in the [tutorial](https://github.com/estnltk/estnltk/blob/38a50d30c938aed8c811b9ef0b296d0e4f01fcc0/tutorials/converters/conll_exporter.ipynb); 
+* Added `syntax_phrases_v0` serialization module (used by `PhraseExtractor`);
+* Updated `StanzaSyntaxEnsembleTagger`: added calculation of predictions' entropy (optional); For usage details, see [this tutorial](https://github.com/estnltk/estnltk/blob/caa53bc4cda8198a93fc07a8a3146a23287dab5f/tutorials/nlp_pipeline/C_syntax/03_syntactic_analysis_with_stanza.ipynb);
+* Updated `PgCollection`'s create layer functions: if layer creation fails, document id-s will be logged;
+* Updated `PgCollection` default version to V4:
+	* Introduced new collection structure `postgres/structure/v40/collectionstructure.py`;
+	* Added possibility to hide documents in pg collection. Note: a row-level security policy must be defined for the hiding to take effect;
+	* Enable storing relation layers;
+	* Added `pg_collection.is_relation_layer` method;
+
+## Fixed
+
+* Fixed `BaseLayer` `__getitem__` & `get` methods: preserve `serialisation_module` while extracting a sub-layer;
+* Fixed `UserDictTagger`: `morph_layer`'s spans are now properly changed so that old values would not reappear after retagging;
+* Fixed DeprecationWarning in NER `model_storage_util`;
+* Fixed `syllabify_word`: do not crash on empty input;
+* Fixed `RegexTagger` & `SpanTagger`: drop annotations if global decorator insists;
+* Fixed `TimeLocDecorator`:
+    * proper reading of lemmas list from file;
+    * avoid circular wordnet import;
+* Fixed matplotlib's imports (use internal imports to avoid occasional importing errors in Windows conda packages);
+* Fixed `Wordnet.__del__` error (before closing database, assure it is open);
+* Fixed `CoreferenceTagger`.`expand_mentions_to_named_entities`: remove any duplicate relations;
+* Fixed `StanzaSyntaxTagger`/`StanzaSyntaxEnsembleTagger` a preprocessing bug introduced in stanza version update to 1.7.0+;
+* Fixed `EstBERTNERTagger`: added proper input tokenization that does not fail on rare unicode symbols;
+* Fixed `BertTagger` & `RobertaTagger`:
+	* added proper tokenization processing that does not fail on rare unicode symbols;
+	* do not use deprecated `tokenizer.encode_plus`;
+
+
 # [1.7.2] - 2023-08-10
 
 ## Changed

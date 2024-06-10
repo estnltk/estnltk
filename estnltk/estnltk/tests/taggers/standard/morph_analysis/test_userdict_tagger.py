@@ -576,3 +576,171 @@ def test_userdict_tagger_words_with_skip_existing_analyses():
                                ['vai', ('vai', 'S', 'sg n')], ['läbistand', ('läbista', 'V', 'nud')] ]
 
 
+
+def test_userdict_tagger_bug_changed_span_shows_old_value():
+    # UserDictTagger's bug: changed span still shows an old value [fixed]
+    text = Text("Kaheteistkümne aastane. Kolmteistkümmend.")
+    words_dict = \
+        {'ambiguous': True,
+         'attributes': ('normalized_form',),
+         'enveloping': None,
+         'meta': {},
+         'name': 'words',
+         'parent': None,
+         'secondary_attributes': (),
+         'serialisation_module': None,
+         'spans': [{'annotations': [{'normalized_form': None}], 'base_span': (0, 14)},
+                   {'annotations': [{'normalized_form': None}], 'base_span': (15, 22)},
+                   {'annotations': [{'normalized_form': None}], 'base_span': (22, 23)},
+                   {'annotations': [{'normalized_form': None}], 'base_span': (24, 40)},
+                   {'annotations': [{'normalized_form': None}], 'base_span': (40, 41)}]}
+    text.add_layer(dict_to_layer(words_dict))
+    morph_dict = \
+        {'ambiguous': True,
+         'attributes': ('normalized_text',
+                        'lemma',
+                        'root',
+                        'root_tokens',
+                        'ending',
+                        'clitic',
+                        'form',
+                        'partofspeech'),
+         'enveloping': None,
+         'meta': {},
+         'name': 'morph_analysis',
+         'parent': 'words',
+         'secondary_attributes': (),
+         'serialisation_module': None,
+         'spans': [{'annotations': [{'clitic': '',
+                                     'ending': '0',
+                                     'form': 'sg g',
+                                     'lemma': 'kaksteist',
+                                     'normalized_text': 'Kaheteistkümne',
+                                     'partofspeech': 'N',
+                                     'root': 'kaks_teist',
+                                     'root_tokens': ['kaks', 'teist']}],
+                    'base_span': (0, 14)},
+                   {'annotations': [{'clitic': '',
+                                     'ending': '0',
+                                     'form': 'sg n',
+                                     'lemma': 'aastane',
+                                     'normalized_text': 'aastane',
+                                     'partofspeech': 'A',
+                                     'root': 'aastane',
+                                     'root_tokens': ['aastane']}],
+                    'base_span': (15, 22)},
+                   {'annotations': [{'clitic': '',
+                                     'ending': '',
+                                     'form': '',
+                                     'lemma': '.',
+                                     'normalized_text': '.',
+                                     'partofspeech': 'Z',
+                                     'root': '.',
+                                     'root_tokens': ['.']}],
+                    'base_span': (22, 23)},
+                   {'annotations': [{'clitic': '',
+                                     'ending': '0',
+                                     'form': 'sg n',
+                                     'lemma': 'kolmteist',
+                                     'normalized_text': 'Kolmteistkümmend',
+                                     'partofspeech': 'N',
+                                     'root': 'kolm_teist',
+                                     'root_tokens': ['kolm', 'teist']}],
+                    'base_span': (24, 40)},
+                   {'annotations': [{'clitic': '',
+                                     'ending': '',
+                                     'form': '',
+                                     'lemma': '.',
+                                     'normalized_text': '.',
+                                     'partofspeech': 'Z',
+                                     'root': '.',
+                                     'root_tokens': ['.']}],
+                    'base_span': (40, 41)}]}
+    text.add_layer(dict_to_layer(morph_dict))
+    # Apply corrections
+    my_corrections = {
+        'kaheteistkümne': {'root': 'kaks_teist_kümmend', 'lemma': 'kaksteistkümmend', 
+                           'partofspeech': 'N'},
+        'kolmteistkümmend': {'root': 'kolm_teist_kümmend', 'lemma': 'kolmteistkümmend', 
+                             'partofspeech': 'N'}
+    }
+    userdict = UserDictTagger(words_dict = my_corrections, ignore_case=True )
+    userdict.retag(text)
+
+    # Check results
+    # A) if we access morph span by index, then we get the correct/changed value
+    assert list(text['morph_analysis'][0]['root']) == ['kaks_teist_kümmend']
+    assert list(text['morph_analysis'][3]['root']) == ['kolm_teist_kümmend']
+
+    # B) if we access morph span by corresponding word span, then we should also get 
+    #    the correct value (after the bugfix)
+    assert list(text['morph_analysis'].get(text['words'][0])['root']) == ['kaks_teist_kümmend']
+    assert list(text['morph_analysis'].get(text['words'][3])['root']) == ['kolm_teist_kümmend']
+
+    # Both ways of accessing should give the same spans! (after the bugfix)
+    assert text['morph_analysis'].get(text['words'][0]) is text['morph_analysis'][0]
+    assert text['morph_analysis'].get(text['words'][3]) is text['morph_analysis'][3]
+
+    # Assert whole morph analysis layer
+    assert layer_to_dict(text['morph_analysis']) == \
+        {'ambiguous': True,
+         'attributes': ('normalized_text',
+                        'lemma',
+                        'root',
+                        'root_tokens',
+                        'ending',
+                        'clitic',
+                        'form',
+                        'partofspeech'),
+         'enveloping': None,
+         'meta': {},
+         'name': 'morph_analysis',
+         'parent': 'words',
+         'secondary_attributes': (),
+         'serialisation_module': None,
+         'spans': [{'annotations': [{'clitic': '',
+                                     'ending': '0',
+                                     'form': 'sg g',
+                                     'lemma': 'kaksteistkümmend',
+                                     'normalized_text': 'Kaheteistkümne',
+                                     'partofspeech': 'N',
+                                     'root': 'kaks_teist_kümmend',
+                                     'root_tokens': ['kaks', 'teist', 'kümmend']}],
+                    'base_span': (0, 14)},
+                   {'annotations': [{'clitic': '',
+                                     'ending': '0',
+                                     'form': 'sg n',
+                                     'lemma': 'aastane',
+                                     'normalized_text': 'aastane',
+                                     'partofspeech': 'A',
+                                     'root': 'aastane',
+                                     'root_tokens': ['aastane']}],
+                    'base_span': (15, 22)},
+                   {'annotations': [{'clitic': '',
+                                     'ending': '',
+                                     'form': '',
+                                     'lemma': '.',
+                                     'normalized_text': '.',
+                                     'partofspeech': 'Z',
+                                     'root': '.',
+                                     'root_tokens': ['.']}],
+                    'base_span': (22, 23)},
+                   {'annotations': [{'clitic': '',
+                                     'ending': '0',
+                                     'form': 'sg n',
+                                     'lemma': 'kolmteistkümmend',
+                                     'normalized_text': 'Kolmteistkümmend',
+                                     'partofspeech': 'N',
+                                     'root': 'kolm_teist_kümmend',
+                                     'root_tokens': ['kolm', 'teist', 'kümmend']}],
+                    'base_span': (24, 40)},
+                   {'annotations': [{'clitic': '',
+                                     'ending': '',
+                                     'form': '',
+                                     'lemma': '.',
+                                     'normalized_text': '.',
+                                     'partofspeech': 'Z',
+                                     'root': '.',
+                                     'root_tokens': ['.']}],
+                    'base_span': (40, 41)}]}
+

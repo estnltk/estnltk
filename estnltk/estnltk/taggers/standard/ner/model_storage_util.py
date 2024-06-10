@@ -35,6 +35,10 @@ class ModelStorageUtil(object):
         """Load settings module from the model_dir directory."""
         mname = 'loaded_module'
         import importlib.machinery
+        import importlib.util
         loader = importlib.machinery.SourceFileLoader(mname, self.settings_filename)
-        return loader.load_module(mname)
+        spec = importlib.util.spec_from_loader(loader.name, loader)
+        mod = importlib.util.module_from_spec(spec)
+        loader.exec_module(mod)
+        return mod
 

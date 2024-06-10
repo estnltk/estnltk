@@ -2,32 +2,40 @@
 
 Example usage:
 
-    # connect to database, create a new table
-    storage = PostgresStorage(dbname='estnltk', user='***', password='***')
-    table = 'tmp'
-    storage.create_table(table)
+    # connect to database, create a new schema (if the schema does not exist)
+    storage = PostgresStorage(dbname='estnltk', pgpass_file='~/.pgpass',
+                              schema='my_schema')
+    
+    # create a new collection
+    collection = storage.add_collection('my_collection')
 
     # insert some data
-    text = Text('ööbik laulab.').analyse('morphology')
-    key = storage.insert(table, text)
+    with collection.insert() as collection_insert:
+        text1 = Text('ööbik laulab.').tag_layer()
+        collection_insert( text1 )
+        text2 = Text('öökull huikab.').tag_layer()
+        collection_insert( text2 )
 
     # select all data in the table
-    for key, text in storage.select(table):
+    for key, text in collection.select():
         print(key, text)
 
     # search by key
-    txt = storage.select_by_key(table, key=key)
+    txt = collection[key]
 
     # search using layer attributes
-    q = JsonbQuery('morph_analysis', lemma='laulma')
-    for key, txt in storage.select(table, query=q):
+    q = LayerQuery('morph_analysis', lemma='laulma')
+    for key, txt in collection.select(table, query=q):
         print(key, txt)
 
     # search using composite query
-    q = (JsonbQuery('morph_analysis', lemma='ööbik') | JsonbQuery('morph_analysis', lemma='öökull')) &
-        JsonbQuery('morph_analysis', lemma='laulma')
-    for key, txt in storage.select(table, query=q):
+    q = (LayerQuery('morph_analysis', lemma='ööbik') | LayerQuery('morph_analysis', lemma='öökull')) &
+         LayerQuery('morph_analysis', lemma='laulma')
+    for key, txt in collection.select(table, query=q):
         print(key, txt)
+    
+    # close connection
+    storage.close()
 
 """
 from estnltk.storage.postgres.sql_composition.sql_table_naming import collection_table_name
@@ -42,7 +50,7 @@ from .pg_operations import structure_table_identifier
 from .pg_operations import layer_table_identifier
 
 from .pg_operations import create_schema
-from .pg_operations import create_collection_table
+from .pg_operations import create_collection_table  # Deprecated: use collection.structure.create_collection_table(...) instead
 
 from .pg_operations import table_exists
 from .pg_operations import table_identifier
@@ -59,6 +67,7 @@ from .pg_operations import drop_collection_table
 from .pg_operations import drop_structure_table
 from .pg_operations import drop_layer_table
 
+from .pg_operations import is_empty
 from .pg_operations import count_rows
 
 from estnltk.storage.postgres.queries.layer_query import LayerQuery
@@ -78,6 +87,7 @@ from .structure import v00
 from .structure import v10
 from .structure import v20
 from .structure import v30
+from .structure import v40
 
 from .collection import RowMapperRecord
 from .collection import PgCollection

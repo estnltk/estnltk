@@ -16,7 +16,7 @@ def test_coreference_web_tagger_smoke(httpserver):
                 'Ta kärkis ja paukus, kuni muusika vaikis ja pasadoobel seiskus. '+\
                 'Mis sa tühja lällad, küsis rahvas.')
     text.tag_layer('morph_analysis')
-    # Mock response
+    # Mock response (use an old serialisation_module)
     response_layer_dict = \
         {'ambiguous': False,
          'attributes': (),
@@ -38,10 +38,27 @@ def test_coreference_web_tagger_smoke(httpserver):
     # Check results
     assert tagger.output_layer in text.relation_layers
     assert tagger.output_layer not in text.layers
-    assert layer_to_dict( text[tagger.output_layer] ) == response_layer_dict
     assert text[tagger.output_layer][0]['mention'].text == 'Donald'
     assert text[tagger.output_layer][1]['mention'].text == 'Donald'
     assert text[tagger.output_layer][2]['mention'].text == 'Donald'
     assert text[tagger.output_layer][0]['pronoun'].text == 'kes'
     assert text[tagger.output_layer][1]['pronoun'].text == 'Ta'
     assert text[tagger.output_layer][2]['pronoun'].text == 'sa'
+    # Check full layer (serialisation_module gets updated to 'relations_v1')
+    expected_response_layer_dict = \
+        {'ambiguous': False,
+         'attributes': (),
+         'meta': {},
+         'enveloping': None,
+         'name': 'coreference_v1',
+         'relations': [{'annotations': [{}],
+                        'named_spans': {'mention': (10, 16), 'pronoun': (18, 21)}},
+                       {'annotations': [{}],
+                        'named_spans': {'mention': (10, 16), 'pronoun': (65, 67)}},
+                       {'annotations': [{}],
+                        'named_spans': {'mention': (10, 16), 'pronoun': (133, 135)}}],
+         'secondary_attributes': (),
+         'display_order': (), 
+         'serialisation_module': 'relations_v1',
+         'span_names': ('pronoun', 'mention')}
+    assert layer_to_dict( text[tagger.output_layer] ) == expected_response_layer_dict

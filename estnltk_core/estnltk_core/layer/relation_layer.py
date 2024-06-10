@@ -1,5 +1,5 @@
 #
-#  RelationsLayer is a special layer for holding Relation annotations.
+#  RelationLayer is a special layer for holding Relation annotations.
 #  Relation consists of named BaseSpans (NamedSpan objects) and a list of RelationAnnotations.
 #
 #  Example usage:
@@ -20,12 +20,15 @@ from typing import Any, Mapping, Sequence, Dict, List, Tuple, Union, Optional
 
 from copy import deepcopy
 from reprlib import recursive_repr
+from importlib.util import find_spec
 
 import pandas
 
 from estnltk_core import BaseSpan, ElementaryBaseSpan, EnvelopingBaseSpan, Span
 from estnltk_core.common import _create_attr_val_repr
 
+def check_if_estnltk_is_available():
+    return find_spec("estnltk") is not None
 
 def to_relation_base_span(x) -> BaseSpan:
     """Reduces estnltk's relation annotation structure to BaseSpan or creates BaseSpan from raw location.
@@ -62,6 +65,12 @@ class RelationLayer:
     * each relation must have at least one NamedSpan, and at least one RelationAnnotation;
     * a relation does not need to have all spans defined by the layer, some spans 
       (but not all) can be empty/unassigned;
+    * ordering of span names and attribute names in the HTML output can be customized 
+      via parameter display_order;
+    * if relation_layer is enveloping around some other layer, then named spans need 
+      to contain EnvelopingBaseSpan-s instead of ElementaryBaseSpan-s and span levels of 
+      EnvelopingBaseSpan-s need to be matching. if relation_layer is not enveloping, 
+      then named spans can only contain ElementaryBaseSpan-s.
     
     Example usage:
     
@@ -80,17 +89,28 @@ class RelationLayer:
     
     """
 
-    __slots__ = ['name', 'span_names', 'attributes', 'secondary_attributes', 'ambiguous', 
-                 'text_object', 'serialisation_module', 'meta', '_relation_list']
+    __slots__ = ['name', 'span_names', 'attributes', 'secondary_attributes', 'display_order',
+                 'enveloping', 'ambiguous', 'text_object', 'serialisation_module', 'meta', 
+                 '_relation_list']
+    
+    '''
+    Whether named spans and attributes with None values will be marked with translucent 
+    font (text opacity: 20%) in the HTML output. 
+    This can be useful for better visualizing sparse relation layers that have a lot of 
+    None values. Default: True.
+    '''
+    TRANSLUCENT_NONE_VALUES = True
     
     def __init__(self,
                  name: str,
                  span_names: Sequence[str] = (),
                  attributes: Sequence[str] = (),
                  secondary_attributes: Sequence[str] = (),
+                 display_order: Sequence[str] = (),
                  text_object: Union['BaseText','Text']=None,
+                 enveloping: str = None,
                  ambiguous: bool = False,
-                 serialisation_module: str="relations_v0"
+                 serialisation_module: str="relations_v1"
                  ) -> None:
         """
         Initializes a new RelationLayer object based on given configuration.
@@ -99,24 +119,41 @@ class RelationLayer:
         * span_names must contain at least one name;
         * span_names must be valid identifiers;
         * span_names and attributes cannot have overlap;
-        * secondary_attribute must be a subset of attributes;
+        * secondary_attributes must be a subset of attributes;
+        
+        display_order is a list with customized order of span_names and 
+        attributes that is used only in displaying contents of the relation 
+        layer. Defaults to span_names + attributes.
+        
+        If relation_layer is not enveloping (default), then named spans 
+        can only contain ElementaryBaseSpan-s.
+        If relation_layer is enveloping around some other layer, then 
+        its named spans need to contain EnvelopingBaseSpan-s instead of 
+        ElementaryBaseSpan-s and span levels of EnvelopingBaseSpan-s 
+        need to be matching. 
         """
         # name of the layer
         self.name = name
         self._relation_list = []
         self.ambiguous = ambiguous
         self.text_object = text_object
+        self.enveloping = enveloping
         self.serialisation_module = serialisation_module
         self.meta = {}
         # pre-initialize variables
         object.__setattr__(self, 'span_names', ())
         object.__setattr__(self, 'attributes', ())
         object.__setattr__(self, 'secondary_attributes', ())
+        object.__setattr__(self, 'display_order', ())
         # set variables (with validation done inside __setattr__)
         self.span_names = span_names
         self.attributes = attributes
         self.secondary_attributes = secondary_attributes
-
+        if len(display_order) > 0:
+            # Only set display_order if it's defined by the user. 
+            # Otherwise, display_order will be set automatically 
+            # inside the setter function.
+            self.display_order = display_order
 
     @property
     def span_level(self):
@@ -138,6 +175,10 @@ class RelationLayer:
     @property
     def relations(self):
         return self._relation_list
+
+    @property
+    def default_display_order(self):
+        return tuple(self.span_names + self.attributes)
 
     def add_annotation(self, relation_dict: Dict[str, Any]={}, **relation_kwargs) -> 'RelationAnnotation':
         '''
@@ -167,6 +208,15 @@ class RelationLayer:
             span_value = relation_dict_merged.get(span_name, None)
             if span_value is not None:
                 base_span = to_relation_base_span(span_value)
+                # Validate span level: base level vs enveloping level
+                if self.enveloping is not None:
+                    if base_span.level == 0:
+                        raise ValueError( ('(!) Cannot assign flat named span {}={!r} to an enveloping layer: '+\
+                                           'span level needs to be > 0.').format( span_name, span_value ) )
+                else:
+                    if base_span.level != 0:
+                        raise ValueError( ('(!) Cannot assign enveloping named span {}={!r} to a flat layer: '+\
+                                           'span level needs to be == 0.').format( span_name, span_value ) )
                 spans_list.append( (span_name, base_span) )
             else:
                 spans_list.append( (span_name, None) )
@@ -180,6 +230,7 @@ class RelationLayer:
             raise ValueError(('Cannot add annotation: no named spans in {}, '+\
                               'at least one of {} must be defined').format(relation_dict_merged, 
                                                                            self.span_names))
+            
         # Try to get existing relation
         relation = self.get( existing_spans_list )
         if relation is None:
@@ -244,12 +295,13 @@ class RelationLayer:
         rec = [{'layer name': self.name,
                 'span_names': ', '.join(self.span_names),
                 'attributes': ', '.join(self.attributes),
+                'enveloping': str(self.enveloping),
                 'ambiguous' : str(self.ambiguous),
                 'relation count': str(len(self._relation_list))}]
         return pandas.DataFrame.from_records(rec,
                                              columns=['layer name', 'span_names',
-                                                      'attributes', 'ambiguous', 
-                                                      'relation count'])
+                                                      'attributes', 'enveloping',
+                                                      'ambiguous', 'relation count'])
 
     def diff(self, other) -> Optional[str]:
         """Finds differences between this relations layer and the other relations layer.
@@ -257,6 +309,7 @@ class RelationLayer:
             * are instances of RelationLayer;
             * have same layer names, span names and attributes;
             * are correspondingly ambiguous or unambiguous;
+            * are enveloping around same the layers;
             * have same serialisation_module;
             * have same spans (and annotations);
            Returns None if no differences were detected (both layers are the 
@@ -278,6 +331,12 @@ class RelationLayer:
         if tuple(self.secondary_attributes) != tuple(other.secondary_attributes):
             return ("{self.name} layer secondary_attributes differ: {self.secondary_attributes} != {other.secondary_attributes}"+\
                     "").format(self=self, other=other)
+        if tuple(self.display_order) != tuple(other.display_order):
+            return ("{self.name} layer display_order values differ: {self.display_order} != {other.display_order}"+\
+                    "").format(self=self, other=other)
+        if self.enveloping != other.enveloping:
+            return "{self.name} layer enveloping differs: {self.enveloping} != {other.enveloping}".format(self=self,
+                                                                                                          other=other)
         if self.ambiguous != other.ambiguous:
             return "{self.name} layer ambiguous differs: {self.ambiguous} != {other.ambiguous}".format(self=self,
                                                                                                        other=other)
@@ -291,16 +350,19 @@ class RelationLayer:
     def __getstate__(self):
         return dict(name=self.name, 
                     ambiguous=self.ambiguous, 
+                    enveloping=self.enveloping,
                     text_object=self.text_object,
                     serialisation_module=self.serialisation_module,
                     meta=self.meta,
                     span_names=self.span_names,
                     attributes=self.attributes,
+                    display_order=self.display_order,
                     secondary_attributes=self.secondary_attributes,
                     _relation_list=self._relation_list)
 
     def __setstate__(self, state):
         super().__setattr__('ambiguous', state['ambiguous'])
+        super().__setattr__('enveloping', state['enveloping'])
         super().__setattr__('text_object', state['text_object'])
         super().__setattr__('serialisation_module', state['serialisation_module'])
         super().__setattr__('meta', state['meta'])
@@ -309,11 +371,13 @@ class RelationLayer:
         object.__setattr__(self, 'span_names', ())
         object.__setattr__(self, 'attributes', ())
         object.__setattr__(self, 'secondary_attributes', ())
+        object.__setattr__(self, 'display_order', ())
         # set variables (with validation done inside __setattr__)
         self.name = state['name']
         self.span_names = state['span_names']
         self.attributes = state['attributes']
         self.secondary_attributes = state['secondary_attributes']
+        self.display_order = state['display_order']
         # add relations
         for relation in state['_relation_list']:
             assert id(relation.relation_layer) == id(self), \
@@ -329,7 +393,9 @@ class RelationLayer:
                                  span_names=deepcopy(self.span_names, memo),
                                  attributes=deepcopy(self.attributes, memo),
                                  secondary_attributes=deepcopy(self.secondary_attributes, memo),
+                                 display_order=deepcopy(self.display_order, memo),
                                  text_object=None,
+                                 enveloping=self.enveloping,
                                  ambiguous=self.ambiguous,
                                  serialisation_module=self.serialisation_module )
         memo[id(self)] = result
@@ -396,6 +462,8 @@ class RelationLayer:
                 'span_names cannot have overlapping values with attributes: {}'.format(list(common))
             # set span_names
             super().__setattr__('span_names', span_names)
+            # reset display_order
+            object.__setattr__(self, 'display_order', span_names+(self.attributes if self.attributes is not None else ()) )
             return
         elif key == 'attributes':
             # check attributes
@@ -418,6 +486,8 @@ class RelationLayer:
                 if sec_attrib in self.attributes:
                     new_secondary_attributes.append(sec_attrib)
             object.__setattr__(self, 'secondary_attributes', tuple(new_secondary_attributes))
+            # reset display_order
+            object.__setattr__(self, 'display_order', (self.span_names if self.span_names is not None else ())+attributes ) 
             return 
         elif key == 'secondary_attributes':
             # check secondary_attributes
@@ -432,6 +502,28 @@ class RelationLayer:
             # set secondary_attributes
             secondary_attributes = tuple(secondary_attributes)
             super().__setattr__('secondary_attributes', secondary_attributes)
+            return
+        elif key == 'display_order':
+            # check display_order
+            display_order = value
+            assert not isinstance(display_order, str), \
+                'display_order must be a list or tuple of strings, not a single string {!r}'.format(display_order)
+            display_order = tuple(display_order)
+            # validate that display_order only contains elements from span_names and attributes
+            for disp_attr in display_order:
+                if not (disp_attr in self.span_names or disp_attr in self.attributes):
+                    raise ValueError( \
+                        'display_order element {!r} not listed in span_names {!r} nor in attributes {!r}.'.format( \
+                            disp_attr, self.span_names, self.attributes))
+            # validate that all elements of span_names and attributes are inside display_order
+            for sp in self.span_names:
+                if sp not in display_order:
+                    raise ValueError('span_name {!r} missing from display_order {!r}'.format(sp, display_order))
+            for attr in self.attributes:
+                if attr not in display_order:
+                    raise ValueError('attribute {!r} missing from display_order {!r}'.format(attr, display_order))
+            # we're good to go: set display_order
+            super().__setattr__('display_order', display_order)
             return
         super().__setattr__(key, value)
 
@@ -472,35 +564,56 @@ class RelationLayer:
         table_1 = self.get_overview_dataframe().to_html(index=False, escape=False)
         # Construct layer table
         table_2 = ''
-        columns = self.span_names + self.attributes
+        # Follow the display order (which can be customized)
+        columns = self.display_order
         layer_table_content = []
         for relation in self:
-            spans = []
-            for sp in self.span_names:
-                span_repr = None
-                if relation[sp] is not None:
-                    span_repr = relation[sp].text
-                    if span_repr is None:
-                        # This means that no Text object is attached. 
-                        # Then use base_span value instead of text
-                        span_repr = str(relation[sp].base_span.raw())
-                spans.append( span_repr )
-            attrib_values = relation[self.attributes]
-            if not self.ambiguous:
-                layer_table_content.append(spans + attrib_values)
-            else:
-                # attrib_values is a list of lists
-                empty_spans = ['' for i in range(len(self.span_names))]
-                first = True
-                for values in attrib_values:
-                    if first:
-                        layer_table_content.append(spans + values)
-                    else:
-                        layer_table_content.append(empty_spans + values)
-                    first = False
+            for i in range( len(relation.annotations) ):
+                values = []
+                for column in self.display_order:
+                    if column in self.span_names:
+                        if i == 0:
+                            span_repr = None
+                            if relation[column] is not None:
+                                span_repr = relation[column].text
+                                if span_repr is None:
+                                    # This means that no Text object is attached. 
+                                    # Then use base_span value instead of text
+                                    span_repr = str(relation[column].base_span.raw())
+                            values.append( span_repr )
+                        else:
+                            # the second annotation of an ambiguous span:
+                            # display only annotations, skip span representations
+                            values.append( '' )
+                    elif column in self.attributes:
+                        val = relation[column]
+                        if not self.ambiguous:
+                            values.append( relation[column] )
+                        else:
+                            values.append( relation[column][i] )
+                assert len(values)==len(self.span_names)+len(self.attributes)
+                layer_table_content.append( values )
         df = pandas.DataFrame.from_records(layer_table_content, columns=columns)
+        if bool(RelationLayer.TRANSLUCENT_NONE_VALUES):
+            # TODO: Add packaging dependency and use packaging.version.Version
+            if pandas.__version__ < '2.1.0':
+                df = df.style.applymap(lambda x: 'opacity: 20%;' if x is None else None)
+            else:
+                df = df.style.map(lambda x: 'opacity: 20%;' if x is None else None)
         table_2 = df.to_html(index=False, escape=True)
         return '\n'.join(('<h4>{}</h4>'.format(self.__class__.__name__), meta, text_object_msg, table_1, table_2))
+
+    def display(self, **kwargs):
+        if check_if_estnltk_is_available():
+            # This requires estnltk version 1.7.3+
+            from estnltk.visualisation import DisplayNamedSpans
+            # By default, display relation id-s
+            if 'add_relation_ids' not in kwargs.keys():
+                kwargs['add_relation_ids'] = True
+            display_spans = DisplayNamedSpans(**kwargs)
+            display_spans(self)
+        else:
+            raise NotImplementedError("RelationLayer display is not available in estnltk-core. Please use the full EstNLTK package for that.")
 
 
 class Relation:
@@ -583,7 +696,17 @@ class Relation:
 
     def set_span(self, name: str, base_span: BaseSpan ):
         assert isinstance(name, str)
-        assert isinstance(base_span, BaseSpan) 
+        assert isinstance(base_span, BaseSpan)
+        # Check span level with respect to parent layer
+        if self.relation_layer is not None:
+            if self.relation_layer.enveloping is not None:
+                if base_span.level == 0:
+                    raise ValueError( ('(!) Cannot assign flat named span {}={!r} to an enveloping layer: '+\
+                                       'span level needs to be > 0.').format( name, base_span ) )
+            else:
+                if base_span.level != 0:
+                    raise ValueError( ('(!) Cannot assign enveloping named span {}={!r} to a flat layer: '+\
+                                       'span level needs to be == 0.').format( name, base_span ) )
         # Check span level
         if self.span_level is not None:
             if base_span.level != self.span_level:
@@ -753,7 +876,9 @@ class Relation:
                 return self._named_spans.get(item, None)
             # note: only named spans can be retrieved this way,
             # attributes are not guaranteed to be valid identifiers
-        raise KeyError(item)
+        # Note: we need to raise AttributeError here instead of KeyError, 
+        # otherwise _repr_html_ does not work in Jupyter Notebook / Lab.
+        raise AttributeError('attribute {} cannot be accessed in {}'.format(item, self.__class__.__name__))
 
     def __iter__(self):
         # TODO: is it a good idea? this returns unsorted spans
@@ -784,10 +909,49 @@ class Relation:
         except:
             annotations = None
         return '{class_name}({named_spans!r}, {annotations})'.format(class_name=self.__class__.__name__, 
-                                                                     named_spans=self.spans,
+                                                                     named_spans=self.spans, 
                                                                      annotations=annotations)
 
-    # TODO: add HTML representation
+    def _repr_html_(self):
+        try:        
+            columns = self.relation_layer.display_order
+            relation_table_content = []
+            for i in range( len(self.annotations) ):
+                values = []
+                for column in columns:
+                    if column in self.legal_span_names:
+                        if i == 0:
+                            span_repr = None
+                            if self[column] is not None:
+                                span_repr = self[column].text
+                                if span_repr is None:
+                                    # This means that no Text object is attached. 
+                                    # Then use base_span value instead of text
+                                    span_repr = str(self[column].base_span.raw())
+                            values.append( span_repr )
+                        else:
+                            # the second annotation of an ambiguous span:
+                            # display only annotations, skip span representations
+                            values.append( '' )
+                    elif column in self.legal_attribute_names:
+                        val = self[column]
+                        if not self.relation_layer.ambiguous:
+                            values.append( self[column] )
+                        else:
+                            values.append( self[column][i] )
+                assert len(values)==len(self.legal_span_names)+len(self.legal_attribute_names)
+                relation_table_content.append( values )
+            df = pandas.DataFrame.from_records(relation_table_content, columns=columns)
+            if bool(RelationLayer.TRANSLUCENT_NONE_VALUES):
+                # TODO: Add packaging dependency and use packaging.version.Version
+                if pandas.__version__ < '2.1.0':
+                    df = df.style.applymap(lambda x: 'opacity: 20%;' if x is None else None).hide(axis="index")
+                else:
+                    df = df.style.map(lambda x: 'opacity: 20%;' if x is None else None).hide(axis="index")
+            annotations_table = df.to_html(index=False, escape=False)
+        except:
+            annotations_table = None
+        return '<b>{}</b>\n{}'.format(self.__class__.__name__, annotations_table)
 
 
 class NamedSpan:
@@ -865,6 +1029,16 @@ class NamedSpan:
     def raw_text(self):
         return self.text_object.text
 
+    def __getstate__(self):
+        return dict(name=self._name, 
+                    base_span=self._base_span, 
+                    relation=self._relation)
+
+    def __setstate__(self, state):
+        super().__setattr__('_name', state['name'])
+        super().__setattr__('_base_span', state['base_span'])
+        super().__setattr__('_relation', state['relation'])
+
     def __copy__(self):
         raise NotImplementedError
 
@@ -888,8 +1062,53 @@ class NamedSpan:
         else:
             raise AttributeError(key)
 
+    def resolve_attribute(self, item):
+        """Resolves and returns values of foreign attribute `item`, 
+           or resolves and returns a foreign span from layer `item`.
+           
+           More specifically:
+           1) If `item` is a name of a foreign attribute which 
+              is listed in the mapping from attribute names to 
+              foreign layer names 
+              (`attribute_mapping_for_elementary_layers`),
+              attempts to find foreign span with the same base 
+              span as this span from the foreign layer & returns 
+              value(s) of the attribute `item` from that foreign 
+              span. 
+              (raises KeyError if base span is missing in the 
+               foreign layer);
+              Note: this is only available when this span belongs to 
+              estnltk's `Text` object. The step will be skipped if 
+              the span belongs to `BaseText`;
+           
+           2) If `item` is a layer attached to span's text_object,
+              attempts to get & return span with the same base span 
+              from that layer (raises KeyError if base span is missing);
+        """
+        if self.text_object is not None:
+            if hasattr(self.text_object, 'attribute_mapping_for_elementary_layers'):
+                # Attempt to get the foreign attribute of 
+                # the same base span of a different attached 
+                # layer, based on the mapping of attributes-layers
+                # (only available if we have estnltk.text.Text object)
+                attribute_mapping = self.text_object.attribute_mapping_for_elementary_layers
+                if item in attribute_mapping:
+                    return self.text_object[attribute_mapping[item]].get(self.base_span)[item]
+            if item in self.text_object.layers:
+                # Attempt to get the same base span from 
+                # a different attached layer 
+                # (e.g parent or child span)
+                return self.text_object[item].get(self.base_span)
+        else:
+            raise AttributeError(("Unable to resolve foreign attribute {!r}: "+\
+                                  "the layer is not attached to Text object.").format(item))
+        raise AttributeError("Unable to resolve foreign attribute {!r}.".format(item))
+
     def __getattr__(self, item):
-        raise AttributeError('Getting attribute {!r} not implemented.'.format(item))
+        try:
+            return self.resolve_attribute(item)
+        except KeyError as key_error:
+            raise AttributeError(key_error.args[0]) from key_error
 
     def __lt__(self, other: Any) -> bool:
         return self.base_span < other.base_span

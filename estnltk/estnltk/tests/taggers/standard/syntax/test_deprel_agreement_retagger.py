@@ -162,7 +162,7 @@ def test_deprel_agreement_retagger():
                  'deprel': 'punct', 'deps': '_', 'misc': '_'}]}]}]}
 
     text = dict_to_text(input_text)
-    dependency_retagger = SyntaxDependencyRetagger(conll_syntax_layer='stanza_syntax')
+    dependency_retagger = SyntaxDependencyRetagger(syntax_layer='stanza_syntax')
     agreement_retagger = DeprelAgreementRetagger(output_layer='stanza_syntax')
     dependency_retagger.retag(text)
     agreement_retagger.retag(text)

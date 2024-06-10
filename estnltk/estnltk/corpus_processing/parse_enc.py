@@ -1,11 +1,11 @@
 #
-#  Module for converting Estonian National Corpus (ENC) 2017, 2019 and 
-#  2021 documents to EstNLTK Text objects.
+#  Module for converting Estonian National Corpus (ENC) 2017, 2019, 2021  
+#  and 2023 documents to EstNLTK Text objects.
 #
-#  The Estonian National Corpus (ENC) 2017, 2019 & 2021 contain variety of 
-#  corpora, including documents crawled from web (Estonian Web 2013, 2017,
-#  2019 & 2021), documents from the National Corpus (e.g. Estonian Reference 
-#  Corpus), and articles from Estonian Wikipedia.
+#  The Estonian National Corpus (ENC) 2017, 2019, 2021, 2023 contain variety 
+#  of corpora, including documents crawled from web (Estonian Web 2013, 2017,
+#  2019, 2021 & 2023), documents from the National Corpus (e.g. Estonian 
+#  Reference Corpus), and articles from Estonian Wikipedia.
 #
 #  Documents are in an XML-like format, contain metadata (e.g  document 
 #  source and title), and have been split into subdocuments and sentences, 
@@ -18,7 +18,7 @@
 
 import re
 from io import TextIOWrapper
-from typing import Iterable
+from typing import Iterable, Tuple
 from itertools import takewhile
 
 from logging import Logger
@@ -82,6 +82,28 @@ def parse_tag_attributes( tag_str:str, logger:Logger=None,
        dict
            a dictionary with attribute-value pairs;
     """
+    quotes_fixed = False
+    if tag_str.count('"') % 2 != 0:
+        # Attempt to fix quotations: consider that only legal attribute 
+        # quotation start is '="' and legal attribute quotation ends are 
+        # '" ' and '">'. Replace illegal quotations with '&quot'
+        new_tag_str = []
+        for cid, ch in enumerate(list(tag_str)):
+            if ch == '"':
+                last_ch = tag_str[cid-1] if cid-1 > -1 else ''
+                next_ch = tag_str[cid+1] if cid+1 < len(tag_str) else ''
+                # Check if we have a legal quotation
+                if (last_ch+ch == '="') or \
+                   (ch+next_ch == '">') or \
+                   (ch+next_ch == '" ' and re.match('" ([^= ]+)=["\']', tag_str[cid:])):
+                    new_tag_str.append(ch)
+                else:
+                    # Replace illegal quotation with '&quot';
+                    new_tag_str.append('&quot;')
+                    quotes_fixed = True
+            else:
+                new_tag_str.append(ch)
+        tag_str = ''.join(new_tag_str)
     assert tag_str.count('"') % 2 == 0, \
         '(!) Uneven number of quotation marks in: '+str(tag_str)
     attribs = {}
@@ -104,6 +126,8 @@ def parse_tag_attributes( tag_str:str, logger:Logger=None,
                     new_key_id += 1
                     new_key = key+str(new_key_id)
                 key = new_key
+        if quotes_fixed and '&quot;' in value:
+            value = value.replace('&quot;', '"')
         attribs[key] = value
     return attribs
 
@@ -165,6 +189,7 @@ class ENCTextReconstructor:
                        word_separator:str=' ', \
                        layer_name_prefix:str='',\
                        restore_morph_analysis:bool=False,\
+                       extended_morph_form:bool=False,\
                        restore_syntax:bool=False,\
                        replace_broken_analysis_with_none:bool=True,\
                        logger:Logger=None ):
@@ -216,7 +241,7 @@ class ENCTextReconstructor:
                in the reconstructed text if original tokenization is
                preserved (tokenization == 'preserve');
                Default: ''
-           restore_morph_analysis: boolean
+           restore_morph_analysis: bool
                If set, then morphological analysis layer is also created 
                based on the morphological annotations in the input 
                document.
@@ -225,17 +250,25 @@ class ENCTextReconstructor:
                If not set, then morphological analyses will be discarded 
                and only tokenization layers will be created.
                (default: False)
-           restore_syntax: boolean
+           extended_morph_form: bool
+               If set, then an additional field 'extended_form' will be 
+               added to the morph_analysis layer, containing form information 
+               in CG categories. This is possible only in ENC 2021 and ENC 2023 
+               corpora which have both regular 'morph_analysis' and 'morph_extended' 
+               annotations available. The setting has no effect if the corpus 
+               is missing 'morph_extended' annotations.
+               (default: False)
+           restore_syntax: bool
                If set, then dependency syntactic analysis layer is also 
                created based on the syntactic annotations in the input 
                document.
                Note that this only succeeds if VertXMLFileParser was 
                configured to preserve lingustic analyses.
                Note also that syntactic analyses can only be read from 
-               the ENC 2021 corpus, as there were no syntactic annotations 
-               in ENC 2019 and 2017 corpora.
+               the ENC 2021 corpus, as there are no syntactic annotations 
+               in other versions of ENC corpora.
                (default: False)
-           replace_broken_analysis_with_none: boolean
+           replace_broken_analysis_with_none: bool
                If set, then malformed/broken morphological and/or syntactic 
                analysis will have all their attribute values set to None.
                Otherwise, the processing will halted with raising an 
@@ -271,6 +304,12 @@ class ENCTextReconstructor:
                 raise Exception('(!) Conflicting configuration: cannot restore original '+\
                                 "morphological analysis with estnltk's tokenization. Please "+\
                                 "use original tokenization instead.")
+        else:
+            if extended_morph_form:
+                raise Exception('(!) Conflicting configuration: cannot restore extended '+\
+                                "morphological form (extended_morph_form) if restoring "+\
+                                "morphological analysis (restore_morph_analysis) has been "+\
+                                "switched off.")
         if restore_syntax:
             if tokenization == 'none':
                 raise Exception('(!) Conflicting configuration: cannot restore syntactic '+\
@@ -280,6 +319,7 @@ class ENCTextReconstructor:
                                 "syntactic analysis with estnltk's tokenization. Please "+\
                                 "use original tokenization instead.")
         self.restore_original_morph  = restore_morph_analysis
+        self.extended_morph_form     = extended_morph_form
         self.restore_original_syntax = restore_syntax
         self.replace_broken_analysis_with_none = replace_broken_analysis_with_none
 
@@ -647,7 +687,8 @@ class ENCTextReconstructor:
             if self.restore_original_morph or self.restore_original_syntax:
                 orig_morph_analysis, original_syntax = \
                   self._create_original_linguistic_analysis_layers( text_obj, word_locations,
-                                                                    orig_words, linguistic_analyses )
+                                                                    orig_words, linguistic_analyses,
+                                                                    extended_morph_form=self.extended_morph_form)
         # Collect results
         created_layers = [orig_word_chunks, orig_tokens, orig_compound_tokens, 
                           orig_words, orig_sentences, orig_paragraphs]
@@ -665,21 +706,34 @@ class ENCTextReconstructor:
     def _create_original_linguistic_analysis_layers(self, text_obj: Text,
                                                           word_locations: list,
                                                           orig_words_layer: Layer,
-                                                          raw_lingustic_analyses: list):
+                                                          raw_lingustic_analyses: list,
+                                                          extended_morph_form: bool=False):
         """ Creates linguistic analysis (morph / syntax) layers 
             from raw_lingustic_analyses extracted from the 
             vert / prevert content.
+            If extended_morph_form is True, then morph_analysis 
+            layer will have additional attribute 'extended_form', 
+            which contains CG format morphological information 
+            (that is, morphological information from 'morph_extended' 
+            'form' field). This is possible only in ENC 2021 and ENC 
+            2023 corpora which have 'morph_extended' annotations. 
             Returns tuple: (morph_layer, syntax_layer).
         """
         assert len(raw_lingustic_analyses) == len(orig_words_layer)
         assert len(raw_lingustic_analyses) == len(word_locations)
 
-        layer_attributes = ESTNLTK_MORPH_ATTRIBUTES
+        if not extended_morph_form:
+            morph_layer_attributes = ESTNLTK_MORPH_ATTRIBUTES
+        else:
+            assert len(ESTNLTK_MORPH_ATTRIBUTES) == 7
+            morph_layer_attributes = \
+                ESTNLTK_MORPH_ATTRIBUTES[:6] + ('extended_form',)  + (ESTNLTK_MORPH_ATTRIBUTES[6],)
+            assert len(morph_layer_attributes) == 8
         morph_layer = Layer(name=self.layer_name_prefix+'morph_analysis',
                             parent=orig_words_layer.name,
                             ambiguous=True,
                             text_object=text_obj,
-                            attributes=layer_attributes)
+                            attributes=morph_layer_attributes)
         syntax_layer = Layer(name=self.layer_name_prefix+'syntax',
                             parent=orig_words_layer.name,
                             ambiguous=True,
@@ -690,7 +744,13 @@ class ENCTextReconstructor:
             analysis_dict = self._create_lingustic_analysis_dict(raw_analysis)
             if self.restore_original_morph:
                 # Normalize and add morph attributes
-                attributes = {attr: analysis_dict.get(attr) for attr in layer_attributes}
+                attributes = {attr: analysis_dict.get(attr) for attr in morph_layer_attributes if attr != 'extended_form'}
+                if extended_morph_form:
+                    extended_feat = analysis_dict.get('extended_feat', None)
+                    if extended_feat is not None:
+                        attributes['extended_form'] = extended_feat
+                    else:
+                        attributes['extended_form'] = ''
                 if 'root_tokens' in attributes:
                     if attributes['root_tokens'] is not None:
                         attributes['root_tokens'] = tuple(attributes['root_tokens'])
@@ -763,8 +823,8 @@ class ENCTextReconstructor:
                 analysis_dict['lemma'] = items[2].replace(pos_ending, '')
                 analysis_dict['root_tokens'] = items[4].split()
                 analysis_dict['clitic'] = items[7]
-                # syntactic analyses
                 analysis_dict['extended_feat'] = items[8].replace('_', ' ')
+                # syntactic analyses
                 analysis_dict['syn_id'] = items[13]
                 assert analysis_dict['syn_id'].isnumeric(), \
                     "(!) Unexpected non-numeric syntactic id {!r} at line {!r}".format(items[13], raw_ling_analysis)
@@ -772,6 +832,27 @@ class ENCTextReconstructor:
                 assert analysis_dict['syn_head'].isnumeric(), \
                     "(!) Unexpected non-numeric syntactic head {!r} at line {!r}".format(items[14], raw_ling_analysis)
                 analysis_dict['syn_rel'] = items[15]
+            elif len(items) == 13:
+                #
+                # Full morph-extended analysis in ENC 2023, for instance:
+                #   Nüüd	D	nüüd-d		nüüd	nüüd	0						
+                #   kostis	V.s	kostma-v	s	kost	kost	is		mod_indic_impf_ps3_sg_ps_af			fin	Intr
+                #   tasane	A.sg.n	tasane-a	sg_n	tasane	tasane	0		pos_sg_nom				
+                #   naerukihin	S.sg.n	naerukihin-s	sg_n	naeru kihin	naeru_kihin	0		com_sg_nom			
+                #
+                analysis_dict['root'] = items[5]
+                analysis_dict['form'] = items[3].replace('_', ' ')
+                analysis_dict['ending'] = items[6].replace('_', ' ')
+                analysis_dict['partofspeech'] = items[1][0]
+                assert analysis_dict['partofspeech'].isupper(), \
+                   "(!) Unexpected lowercase 'partofspeech' in {!r} at line {!r}".format(items[1], raw_ling_analysis)
+                pos_ending = '-'+analysis_dict['partofspeech'].lower()
+                assert items[2].endswith(pos_ending), \
+                   "(!) Unexpected pos-ending in {!r} at line {!r}".format(items[2], raw_ling_analysis)
+                analysis_dict['lemma'] = items[2].replace(pos_ending, '')
+                analysis_dict['root_tokens'] = items[4].split()
+                analysis_dict['clitic'] = items[7]
+                analysis_dict['extended_feat'] = items[8].replace('_', ' ')
             else:
                 # Unexpected format for linguistic analysis
                 status_str = 'critical'
@@ -853,9 +934,9 @@ class ENCTextReconstructor:
 
 
 
-# =================================================
-#   Parsing ENC 2017 & 2019 & 2021 corpus files
-# =================================================
+# =======================================================
+#   Parsing ENC 2017 & 2019, 2021 & 2023 corpus files
+# =======================================================
 
 class VertXMLFileParser:
     """ A very simple XMLParser that allows line by line parsing of vert type 
@@ -867,8 +948,8 @@ class VertXMLFileParser:
         files: all XML tags are on separate lines, so the line by line parsing 
         is actually the most straightforward approach.
         
-        * VertXMLFileParser is made for parsing vert files of ENC 2017, 2019 & 
-          2021; 
+        * VertXMLFileParser is made for parsing vert files of ENC 2017, 2019, 
+          2021 & 2023;
           the implementation is loosely based on earlier EtTenTenXMLParser;
         * vert / prevert is an output file type used by the SpiderLing web 
           crawler, see http://corpus.tools/wiki/SpiderLing for details; 
@@ -882,11 +963,13 @@ class VertXMLFileParser:
     def __init__(self, focus_ids:set=None,\
                        focus_srcs:set=None,\
                        focus_lang:set=None,\
+                       focus_block:Tuple[int, int]=None, \
                        discard_empty_fragments:bool=True, \
                        store_fragment_attributes:bool=True, \
                        add_unexpected_tags_to_words:bool=False, \
                        record_linguistic_analysis:bool=False,\
                        always_create_paragraphs:bool=True,\
+                       add_document_index:bool=False,\
                        textReconstructor:ENCTextReconstructor=None,\
                        logger:Logger=None ):
         '''Initializes the parser.
@@ -900,7 +983,11 @@ class VertXMLFileParser:
                parsed, and all other documents will be skipped.
                If None or empty, then all documents in the content will 
                be parsed.
-               Important note: ids must be given as strings, not as 
+               Important note #1: these must be values of id attributes 
+               in <doc> tags of the XML content, not to be confused with 
+               _doc_id values used by VertXMLFileParser for indexing this 
+               specific .vert file. 
+               Important note #2: ids must be given as strings, not as 
                integers.
            focus_srcs: set of str
                Set of document src-s corresponding to subcorpora from 
@@ -919,6 +1006,12 @@ class VertXMLFileParser:
                skipped;
                If None or empty, then all documents in the content will 
                be parsed.
+           focus_block: (divisor, reminder)
+               If set, then only documents with `_doc_id % divisor == remainder` 
+               will be extracted, and all other documents will be skipped. 
+               Use this to control data parallelization: divide processing 
+               into `divisor` distinct blocks. 
+               Defaults to `None`, which means no division into blocks. 
            discard_empty_fragments: boolean
                If set, then empty text fragments -- documents, paragraphs and 
                sentences -- will be discarded.
@@ -950,6 +1043,17 @@ class VertXMLFileParser:
                paragraphs, but forces adding paragraph annotations to all 
                documents (even to those that actually do not have paragraphs).
                (default: True)
+           add_document_index: boolean
+               If set, then collects indexing information about documents inside 
+               the vert XML file and records in Text meta. More specifically, 
+               adds additional metadata entries: 
+               * _doc_id -- index of the document in the vert file, starting from 0; 
+               * _doc_start_line -- line number on which the document started in 
+               the vert file, starting from 1; 
+               * _doc_start_end -- line number on which the document ended in the 
+               vert file; 
+               If not set, then no indexing information is added to Text meta. 
+               (default: False) 
            textReconstructor: ENCTextReconstructor
                ENCTextReconstructor instance that can be used for reconstructing
                the Text object based on extracted document content;
@@ -960,10 +1064,13 @@ class VertXMLFileParser:
         assert not logger or isinstance(logger, Logger)
         assert not textReconstructor or isinstance(textReconstructor, ENCTextReconstructor)
         # Initialize the state of parsing
-        self.lines            = 0
-        self.inside_focus_doc = False
-        self.document         = {} # metadata of the document
-        self.content          = {} # content of the document or subdocument
+        self.lines               = 0
+        self.inside_focus_doc    = False
+        self.document            = {} # metadata of the document
+        self.content             = {} # content of the document or subdocument
+        self.document_id         = -1 # index of the document in the vert file, starting from 0
+        self.document_start_line = -1 # line on which the document started, starting from 1
+        self.document_end_line   = -1 # line on which the document ended, starting from 1
         self.fixed_paragraphs = 0  # how many <p> tags have been autocorrected
         self.last_was_glue    = False
         self.last_was_doc_end = False
@@ -987,12 +1094,27 @@ class VertXMLFileParser:
             assert isinstance(focus_lang, set)
             if len(focus_lang) == 0:
                 focus_lang = None
+        if focus_block is not None:
+            if not isinstance(focus_block, Iterable) or len(focus_block) != 2:
+                raise ValueError('(!) Bad focus_block value {!r}: focus_block should be in the format (divisor, reminder).'.format(focus_block))
+            divisor = focus_block[0]
+            remainder = focus_block[1]
+            if not isinstance(divisor, int):
+                raise ValueError('(!) Invalid focus_block {}: divisor should be int, not {}.'.format(focus_block, type(divisor)))
+            if not isinstance(remainder, int):
+                raise ValueError('(!) Invalid focus_block {}: remainder should be int, not {}.'.format(focus_block, type(remainder)))
+            assert divisor > 0
+            assert remainder < divisor
+            self.focus_block = (divisor, remainder)
+        else:
+            self.focus_block = None
         self.focus_lang                = focus_lang
         self.store_fragment_attributes = store_fragment_attributes
         self.discard_empty_fragments   = discard_empty_fragments
         self.add_unexpected_tags_to_words = add_unexpected_tags_to_words
         self.record_linguistic_analysis   = record_linguistic_analysis
         self.always_create_paragraphs     = always_create_paragraphs
+        self.add_document_index           = add_document_index
         self.logger                       = logger
         self.textreconstructor            = textReconstructor
         if self.textreconstructor:
@@ -1013,7 +1135,8 @@ class VertXMLFileParser:
         # Patterns for detecting tags
         self.enc_doc_tag_start  = re.compile(r"^<doc[^<>]+>\s*$")
         self.enc_doc_tag_end    = re.compile(r"^</doc>\s*$")
-        # Info tags: used for marking subdocuments inside documents
+        # Info tags: used for marking subdocuments inside documents 
+        # (note: not used anymore in newer versions of the corpus)
         self.enc_info_tag_start = re.compile(r"^<info[^<>]+>\s*$")
         self.enc_info_tag_end   = re.compile(r"^</info>\s*$")
         self.enc_p_tag_start    = re.compile(r"^<p( [^<>]+)?>\s*$")
@@ -1060,20 +1183,25 @@ class VertXMLFileParser:
         m_doc_end   = self.enc_doc_tag_end.match(stripped_line)
         # *** Start of a new document
         if m_doc_start and stripped_line.startswith('<doc '): 
+            # Finish the old document
+            if self.inside_focus_doc:
+                finished_document = self._reconstruct_document()
+            else:
+                finished_document = None
             # Replace back &lt; and &gt;
             if lt_escaped:
                 stripped_line = stripped_line.replace('&lt;', '<')
             if gt_escaped:
                 stripped_line = stripped_line.replace('&gt;', '>')
-            # Special hack to fix a broken doc tag in 'nc21_Feeds.vert'
-            if 'src="Feeds 2014–2021"' in stripped_line and \
-               'feed_hostname="xn--snumid-pxa.ee"' in stripped_line:
-                stripped_line = stripped_line.replace("tags='Arvamus|“Terevisioon\"'", \
-                                                      'tags="Arvamus|“Terevisioon”"' )
             # Clear old doc content
             self.document.clear()
             self.content.clear()
             self.fixed_paragraphs = 0
+            # Advance doc index, reset start & end
+            self.document_id += 1
+            assert self.document_id > -1
+            self.document_start_line = (self.lines + 1)
+            self.document_end_line   = -1
             # Carry over attributes
             attribs = parse_tag_attributes( stripped_line, logger=self.logger )
             for key, value in attribs.items():
@@ -1090,7 +1218,7 @@ class VertXMLFileParser:
                     self.document['id'] = self.document['ISBN']
                 elif 'url' in self.document and \
                      'src' in self.document and \
-                     self.document['src'] in ['Feeds 2014–2021']:
+                     self.document['src'] in ['Feeds 2014–2021', 'Timestamped 2014–2023']:
                     # Use "url"+"line number" instead of "id" (Fix for 'nc21_Feeds.vert')
                     # ("url" itself is not enough, as there can be duplicate urls)
                     self.document['id'] = self.document['url']+('(doc@line:{})'.format(self.lines))
@@ -1100,7 +1228,7 @@ class VertXMLFileParser:
                     self._log('WARNING', '(!) doc-tag misses id attribute: {!r}'.format(stripped_line))
             if 'src' not in self.document and 'id' in self.document:
                 self._log( 'WARNING', 'Document with id={} misses src attribute'.format(self.document['id']))
-            # Check if the document passes filters: id, src, lang
+            # Check if the document passes filters: id, src, lang, block
             doc_filters_passed = []
             if self.focus_doc_ids is not None:
                 doc_filters_passed.append( self.document['id'] in self.focus_doc_ids )
@@ -1110,52 +1238,37 @@ class VertXMLFileParser:
             if self.focus_lang is not None:
                 doc_filters_passed.append( 'lang' in self.document and \
                                            self.document['lang'] in self.focus_lang )
+            if self.focus_block is not None:
+                (divisor, reminder) = self.focus_block
+                doc_filters_passed.append( self.document_id % divisor == reminder )
             # Include document to processing only if there were no filters or
             # if all filters were successfully passed 
             if not doc_filters_passed or all( doc_filters_passed ):
                 self.inside_focus_doc = True
+            else:
+                self.inside_focus_doc = False
             self.last_was_doc_end = False
+            # Return the old document
+            if finished_document is not None:
+                self.lines += 1
+                return finished_document
         # *** End of a document
         if m_doc_end:
+            # If at the end of a document, then remember doc ending index. 
+            # Document will be completed once a new document starts, 
+            # or, alternatively, if self._finish_parsing() is called at the 
+            # very end.
+            self.document_end_line = (self.lines + 1)
             self.last_was_doc_end = True
-        if m_doc_end and self.inside_focus_doc:
-            self.inside_focus_doc = False
-            if 'subdoc' in self.content:
-                # If document consisted of subdocuments, then we are finished
-                self.lines += 1
-                return None
-            else:
-                if self.discard_empty_fragments:
-                    # Check that the document is not empty
-                    if '_sentences' not in self.content and \
-                       '_paragraphs' not in self.content:
-                        # if the document had no content, discard it ...
-                        self._log( 'WARNING', 'Discarding empty document with id={}'.format(self.document['id']) )
-                        self.lines += 1
-                        return None
-                # Carry over metadata attributes
-                for key, value in self.document.items():
-                    assert key not in self.content, \
-                        ('(!) Key {!r} already in {!r}.').format( key, self.content.keys() )
-                    self.content[key] = value
-                # Use metadata key to indicate whether paragraph annotations
-                # have been automatically adjusted/corrected
-                if self.always_create_paragraphs:
-                    self.content['autocorrected_paragraphs'] = \
-                        self.fixed_paragraphs > 0 
-                self.lines += 1
-                if self.textreconstructor:
-                    # create Text object
-                    text_obj = self.textreconstructor.reconstruct_text( self.content )
-                    return text_obj
-                else:
-                    return self.content
+            self.lines += 1
+            return None
         # Sanity check : is there an unexpected continuation after document ending?
         if self.last_was_doc_end:
             if not m_doc_end and not m_doc_start:
                 # Note: this problem is frequent to 'etnc19_doaj.vert'
                 self._log( 'WARNING', ('Unexpected content line {}:{!r} after document '+\
                                        'ending tag. Content outside documents will be skipped.').format(self.lines, stripped_line))
+                self.document_end_line = (self.lines + 1)
             self.last_was_doc_end = False
         # Skip document if it is not one of the focus documents
         if not self.inside_focus_doc:
@@ -1171,7 +1284,12 @@ class VertXMLFileParser:
         m_glue        = self.enc_glue_tag.match(stripped_line)
         m_unk_tag     = self.enc_unknown_tag.match(stripped_line)
         # *** New subdocument (info)
-        if m_info_start:
+        if m_info_start and '<info ' in stripped_line:  # Match, but exclude: <info> & <infoitem>
+            # ---------------------
+            # TODO: this is a deprecated branch of parsing -- 
+            #       <info> tags for marking sub documents are no longer used
+            #       in newest versions of ENC
+            # ---------------------
             # Assert that some content from the doc tag has already been read
             assert 'id' in self.document
             info_attribs = parse_tag_attributes( stripped_line, logger=self.logger )
@@ -1196,6 +1314,11 @@ class VertXMLFileParser:
             self.fixed_paragraphs = 0
         # *** End of a subdocument (info)
         if m_info_end:
+            # ---------------------
+            # TODO: this is a deprecated branch of parsing -- 
+            #       <info> tags for marking sub documents are no longer used
+            #       in newest versions of ENC
+            # ---------------------
             if 'subdoc' in self.content:
                 parent = self.content['subdoc']
                 # Use metadata key to indicate whether paragraph annotations
@@ -1364,6 +1487,69 @@ class VertXMLFileParser:
         return None
 
 
+    def _finish_parsing( self ):
+        '''Finishes the vert file parsing and returns document's Text object 
+           or line content.
+           Call this method after reaching to the end of the file. 
+        '''
+        if len( self.content.keys() ) > 0:
+            if self.inside_focus_doc:
+                finished_document = self._reconstruct_document()
+            else:
+                finished_document = None
+            # Clear old doc content
+            self.document.clear()
+            self.content.clear()
+            self.fixed_paragraphs = 0
+            # Reset doc index, reset start & end
+            self.document_id = -1
+            self.document_start_line = -1
+            self.document_end_line   = -1
+            self.inside_focus_doc    = False
+            return finished_document
+        return None
+
+
+    def _reconstruct_document( self ):
+        '''Reconstructs and returns document's Text object or line content.
+           If self.discard_empty_fragments is True and the document is empty, 
+           then returns None.
+        '''
+        if self.document_end_line == -1:
+            self.document_end_line = self.lines + 1
+        if 'subdoc' in self.content:
+            # If document consisted of subdocuments, then we are finished
+            return None
+        else:
+            if self.discard_empty_fragments:
+                # Check that the document is not empty
+                if '_sentences' not in self.content and \
+                   '_paragraphs' not in self.content:
+                    # if the document had no content, discard it ...
+                    self._log( 'WARNING', 'Discarding empty document with id={}'.format(self.document['id']) )
+                    return None
+            # Carry over metadata attributes
+            for key, value in self.document.items():
+                assert key not in self.content, \
+                    ('(!) Key {!r} already in {!r}.').format( key, self.content.keys() )
+                self.content[key] = value
+            # Use metadata key to indicate whether paragraph annotations
+            # have been automatically adjusted/corrected
+            if self.always_create_paragraphs:
+                self.content['autocorrected_paragraphs'] = \
+                    self.fixed_paragraphs > 0 
+            if self.textreconstructor:
+                # create Text object
+                text_obj = self.textreconstructor.reconstruct_text( self.content )
+                if self.add_document_index:
+                    # Add vert file indexing information
+                    text_obj.meta['_doc_id'] = self.document_id
+                    text_obj.meta['_doc_start_line'] = self.document_start_line
+                    text_obj.meta['_doc_end_line'] = self.document_end_line
+                return text_obj
+            else:
+                return self.content.copy()
+
 
     def _add_new_word_token( self, word_str: str, whole_line: str ):
         '''Inserts given word_str into the document under reconstruction.
@@ -1507,10 +1693,13 @@ def parse_enc_file_iterator( in_file:str,
                              focus_doc_ids:set=None, \
                              focus_srcs:set=None, \
                              focus_lang:set=None, \
+                             focus_block:Tuple[int, int]=None, \
                              tokenization:str='preserve', \
                              original_layer_prefix:str='original_',\
                              restore_morph_analysis:bool=False, \
+                             extended_morph_form:bool=False, \
                              restore_syntax:bool=False, \
+                             add_document_index:bool=False, \
                              vertParser:VertXMLFileParser=None, \
                              textReconstructor:ENCTextReconstructor=None, \
                              line_progressbar:str=None, \
@@ -1547,7 +1736,11 @@ def parse_enc_file_iterator( in_file:str,
            parsed, and all other documents will be skipped.
            If None or empty, then all documents in the content will 
            be parsed.
-           Important note: ids must be given as strings, not as 
+           Important note #1: these must be values of id attributes 
+           in <doc> tags of the XML content, not to be confused with 
+           _doc_id values used by VertXMLFileParser for indexing this 
+           specific .vert file. 
+           Important note #2: ids must be given as strings, not as 
            integers.
        
        focus_srcs: set of str
@@ -1568,7 +1761,14 @@ def parse_enc_file_iterator( in_file:str,
            skipped;
            If None or empty, then all documents in the content will 
            be parsed.
-       
+
+       focus_block: (divisor, reminder)
+           If set, then only documents with `_doc_id % divisor == remainder` 
+           will be extracted, and all other documents will be skipped. 
+           Use this to control data parallelization: divide processing 
+           into `divisor` distinct blocks. 
+           Defaults to `None`, which means no division into blocks.
+
        tokenization: ['none', 'preserve', 'estnltk']
             Specifies if tokenization will be added to created Texts, 
             and if so, then how it will be added. 
@@ -1612,15 +1812,36 @@ def parse_enc_file_iterator( in_file:str,
            and only tokenization layers will be created.
            (default: False)
 
+       extended_morph_form: bool
+           If set, then an additional field 'extended_form' will be 
+           added to the morph_analysis layer, containing form information 
+           in CG categories. This is possible only in ENC 2021 and ENC 2023 
+           corpora which have both regular 'morph_analysis' and 'morph_extended' 
+           annotations available. The setting has no effect if the corpus 
+           is missing 'morph_extended' annotations.
+           (default: False)
+
        restore_syntax: boolean
            If set, then dependency syntactic analysis layer is 
            created based on the syntactic annotations in the input 
            document.
            Note that syntactic analyses can only be read from the 
-           ENC 2021 corpus, as there were no syntactic annotations 
-           in ENC 2019 and ENC 2017 corpora.
+           ENC 2021 corpus, as there are no syntactic annotations 
+           in other versions of ENC corpora.
            (default: False)
-
+       
+       add_document_index: boolean
+           If set, then collects indexing information about documents inside 
+           the vert XML file and records in Text meta. More specifically, 
+           adds additional metadata entries: 
+           * _doc_id -- index of the document in the vert file, starting from 0; 
+           * _doc_start_line -- line number on which the document started in 
+           the vert file, starting from 1; 
+           * _doc_start_end -- line number on which the document ended in the 
+           vert file; 
+           If not set, then no indexing information is added to Text meta. 
+           (default: False) 
+       
        vertParser: VertXMLFileParser
            If set, then overrides the default VertXMLFileParser with the 
            given vertParser.
@@ -1648,6 +1869,7 @@ def parse_enc_file_iterator( in_file:str,
         reconstructor = ENCTextReconstructor(tokenization=tokenization,\
                                              layer_name_prefix=original_layer_prefix,\
                                              restore_morph_analysis=restore_morph_analysis,\
+                                             extended_morph_form=extended_morph_form, \
                                              restore_syntax=restore_syntax,\
                                              logger=logger)
     if vertParser:
@@ -1657,8 +1879,10 @@ def parse_enc_file_iterator( in_file:str,
                    focus_ids=focus_doc_ids, \
                    focus_srcs=focus_srcs, \
                    focus_lang=focus_lang, \
+                   focus_block=focus_block, \
                    textReconstructor=reconstructor,\
                    record_linguistic_analysis=restore_morph_analysis or restore_syntax,\
+                   add_document_index=add_document_index, \
                    logger=logger )
     with open( in_file, mode='r', encoding=encoding ) as f:
         for line in _get_iterable_content_w_tqdm( f, line_progressbar ):
@@ -1667,6 +1891,10 @@ def parse_enc_file_iterator( in_file:str,
                 # If the parser completed a document and created a 
                 # Text object, yield it gracefully
                 yield result
+    # Finish the last document
+    last_doc = xmlParser._finish_parsing()
+    if last_doc:
+        yield last_doc
 
 
 
@@ -1674,10 +1902,13 @@ def parse_enc_file_content_iterator( content,
                                      focus_doc_ids:set=None, \
                                      focus_srcs:set=None, \
                                      focus_lang:set=None, \
+                                     focus_block:Tuple[int, int]=None, \
                                      tokenization:str='preserve', \
                                      original_layer_prefix:str='original_',\
                                      restore_morph_analysis:bool=False, \
+                                     extended_morph_form:bool=False, \
                                      restore_syntax:bool=False, \
+                                     add_document_index:bool=False, \
                                      vertParser:VertXMLFileParser=None, \
                                      textReconstructor:ENCTextReconstructor=None, \
                                      line_progressbar:str=None, \
@@ -1703,7 +1934,7 @@ def parse_enc_file_content_iterator( content,
        content: str
            ENC corpus file's content (or a subset of the content) as 
            a string. It is assumed that the data is in the vert format. 
-           Supported corpus versions: ENC 2017, ENC 2019, ENC 2021. 
+           Supported corpus versions: ENC 2017, 2019, 2021 & 2023. 
        
        focus_doc_ids: set of str
            Set of document id-s corresponding to the documents which 
@@ -1712,7 +1943,11 @@ def parse_enc_file_content_iterator( content,
            parsed, and all other documents will be skipped.
            If None or empty, then all documents in the content will 
            be parsed.
-           Important note: ids must be given as strings, not as 
+           Important note #1: these must be values of id attributes 
+           in <doc> tags of the XML content, not to be confused with 
+           _doc_id values used by VertXMLFileParser for indexing this 
+           specific .vert file. 
+           Important note #2: ids must be given as strings, not as 
            integers.
        
        focus_srcs: set of str
@@ -1733,7 +1968,14 @@ def parse_enc_file_content_iterator( content,
            skipped;
            If None or empty, then all documents in the content will 
            be parsed.
-       
+
+       focus_block: (divisor, reminder)
+           If set, then only documents with `_doc_id % divisor == remainder` 
+           will be extracted, and all other documents will be skipped. 
+           Use this to control data parallelization: divide processing 
+           into `divisor` distinct blocks. 
+           Defaults to `None`, which means no division into blocks. 
+
        tokenization: ['none', 'preserve', 'estnltk']
             Specifies if tokenization will be added to created Texts, 
             and if so, then how it will be added. 
@@ -1777,14 +2019,35 @@ def parse_enc_file_content_iterator( content,
            and only tokenization layers will be created.
            (default: False)
 
+       extended_morph_form: bool
+           If set, then an additional field 'extended_form' will be 
+           added to the morph_analysis layer, containing form information 
+           in CG categories. This is possible only in ENC 2021 and ENC 2023 
+           corpora which have both regular 'morph_analysis' and 'morph_extended' 
+           annotations available. The setting has no effect if the corpus 
+           is missing 'morph_extended' annotations.
+           (default: False)
+
        restore_syntax: boolean
            If set, then dependency syntactic analysis layer is 
            created based on the syntactic annotations in the input 
            document.
            Note that syntactic analyses can only be read from the 
-           ENC 2021 corpus, as there were no syntactic annotations 
-           in ENC 2019 and ENC 2017 corpora.
+           ENC 2021 corpus, as there are no syntactic annotations 
+           in other versions of the corpora.
            (default: False)
+       
+       add_document_index: boolean
+           If set, then collects indexing information about documents inside 
+           the vert XML file and records in Text meta. More specifically, 
+           adds additional metadata entries: 
+           * _doc_id -- index of the document in the vert file, starting from 0; 
+           * _doc_start_line -- line number on which the document started in 
+           the vert file, starting from 1; 
+           * _doc_start_end -- line number on which the document ended in the 
+           vert file; 
+           If not set, then no indexing information is added to Text meta. 
+           (default: False) 
        
        vertParser: VertXMLFileParser
            If set, then overrides the default VertXMLFileParser with the 
@@ -1814,6 +2077,7 @@ def parse_enc_file_content_iterator( content,
         reconstructor = ENCTextReconstructor(tokenization=tokenization,\
                                              layer_name_prefix=original_layer_prefix,\
                                              restore_morph_analysis=restore_morph_analysis,\
+                                             extended_morph_form=extended_morph_form, \
                                              restore_syntax=restore_syntax,\
                                              logger=logger)
     if vertParser:
@@ -1823,8 +2087,10 @@ def parse_enc_file_content_iterator( content,
                        focus_ids=focus_doc_ids, \
                        focus_srcs=focus_srcs, \
                        focus_lang=focus_lang, \
+                       focus_block=focus_block, \
                        textReconstructor=reconstructor,\
                        record_lingustic_analysis=restore_morph_analysis or restore_syntax,\
+                       add_document_index=add_document_index,\
                        logger=logger)
     # Process the content line by line
     for line in _get_iterable_content_w_tqdm( content.splitlines( keepends=True ), \
@@ -1834,4 +2100,8 @@ def parse_enc_file_content_iterator( content,
             # If the parser completed a document and created a 
             # Text object, yield it gracefully
             yield result
+    # Finish the last document
+    last_doc = xmlParser._finish_parsing()
+    if last_doc:
+        yield last_doc
 

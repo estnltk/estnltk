@@ -116,7 +116,7 @@ class StanzaSyntaxTagger(Tagger):
 
         self.syntax_dependency_retagger = None
         if add_parent_and_children:
-            self.syntax_dependency_retagger = SyntaxDependencyRetagger(conll_syntax_layer=output_layer)
+            self.syntax_dependency_retagger = SyntaxDependencyRetagger(syntax_layer=output_layer)
             self.output_attributes += ('parent_span', 'children')
 
         self.ud_validation_retagger = None

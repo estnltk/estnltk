@@ -1,13 +1,13 @@
-import pkgutil
 import pytest
 import tempfile, os
+from importlib.util import find_spec
 
 from estnltk.converters import dict_to_text
 from estnltk.converters import layer_to_dict
 
 def check_if_conllu_is_available():
     # Check if conllu is available
-    return pkgutil.find_loader("conllu") is not None
+    return find_spec("conllu") is not None
 
 input_conll_ner_str = \
 '''

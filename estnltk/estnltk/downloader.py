@@ -17,7 +17,7 @@ import hashlib
 import requests
 import tempfile
 import warnings
-import pkgutil
+from importlib.util import find_spec
 
 from zipfile import ZipFile
 import gzip
@@ -576,7 +576,7 @@ def is_huggingface_hub_installed():
     This package is required for downloading resources automatically
     from huggingface_hub.
     '''
-    return pkgutil.find_loader("huggingface_hub") is not None
+    return find_spec("huggingface_hub") is not None
 
 
 def _download_and_install_hf_resource( resource_description, resources_dir,
@@ -628,8 +628,7 @@ def _download_and_install_hf_resource( resource_description, resources_dir,
     download_path = \
         snapshot_download(repo_id=repo_id, revision=revision, 
                           cache_dir=resources_dir,
-                          local_dir=full_target_path,
-                          local_dir_use_symlinks=False)
+                          local_dir=full_target_path)
     assert os.path.isdir( download_path )
     # During the downloading process, huggingface_hub creates 
     # a new cache dirs. Detect those

@@ -2,6 +2,7 @@ import pytest
 
 from estnltk_core import Span, Layer, ElementaryBaseSpan
 from estnltk_core.converters import text_to_json, json_to_text, dict_to_layer
+from estnltk_core.converters import layer_to_json, json_to_layer
 from estnltk_core.converters import annotation_to_json, json_to_annotation
 from estnltk_core.tests import new_text
 
@@ -13,7 +14,7 @@ T_2 = '''Mis aias sa-das 2te sorti s-saia? Teine lause.
 Teine lõik.'''
 
 
-def test_json_export_import():
+def test_json_export_import_text_obj():
     # Load Text or BaseText class (depending on the available packages)
     Text = load_text_class()
 
@@ -1422,7 +1423,49 @@ def test_json_export_import():
     assert text == text_2
 
 
-def test_annotation_json_export_import():
+
+def test_json_export_import_layer_obj():
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
+
+    text = Text(T_1)
+    # json -> layer
+    word_layer_json = \
+        '{"name": "words", "attributes": ["normalized_form"], "secondary_attributes": [], "parent": null, "enveloping": null, "ambiguous": true, "serialisation_module": null, "meta": {}, "spans": [{"base_span": [0, 4], "annotations": [{"normalized_form": null}]}, {"base_span": [4, 5], "annotations": [{"normalized_form": null}]}, {"base_span": [6, 12], "annotations": [{"normalized_form": null}]}, {"base_span": [12, 13], "annotations": [{"normalized_form": null}]}]}'
+    words_layer = json_to_layer(text, json_str=word_layer_json)
+    text.add_layer(words_layer)
+    assert text.layers == {"words"}
+    # layer -> json
+    word_layer_json2 = layer_to_json(text['words'])
+    assert word_layer_json == word_layer_json2
+
+    text = Text(T_1)
+    # json -> layers
+    tokens_layer_json = \
+        '{"name": "tokens", "attributes": [], "secondary_attributes": [], "parent": null, "enveloping": null, "ambiguous": false, "serialisation_module": null, "meta": {}, "spans": [{"base_span": [0, 4], "annotations": [{}]}, {"base_span": [4, 5], "annotations": [{}]}, {"base_span": [6, 12], "annotations": [{}]}, {"base_span": [12, 13], "annotations": [{}]}]}'
+    tokens_and_words_json = \
+        '[{}, {}]'.format(tokens_layer_json, word_layer_json)
+    [tokens_layer, words_layer] = \
+        json_to_layer([text, text], json_str=tokens_and_words_json)
+    text.add_layer(tokens_layer)
+    text.add_layer(words_layer)
+    assert text.layers == {"tokens", "words"}
+    
+    # Test error cases
+    with pytest.raises(TypeError):
+        # incompatible input types
+        json_to_layer(text, json_str=tokens_and_words_json)
+
+    with pytest.raises(TypeError):
+        # incompatible input types
+        json_to_layer([text, text], json_str=tokens_layer_json)
+
+    with pytest.raises(ValueError):
+        # mismatching input list sizes
+        json_to_layer([text, text, text], json_str=tokens_and_words_json)
+
+
+def test_json_export_import_annotation_obj():
     layer = Layer('my_layer', attributes=['attr', 'attr_0'])
     span = Span(base_span=ElementaryBaseSpan(0, 1), layer=layer)
 

@@ -275,18 +275,41 @@ def test_stanza_syntax_tagger_smoke():
                  reason=skip_message_missing_models)
 def test_stanza_syntax_tagger_sentences():
     text = Text('Väike jänes jooksis metsa! Mina ei jookse.')
-
     text.tag_layer('sentences')
+    # Apply stanza's original et pipeline (on tokenized unambigous input)
     stanza_tagger = StanzaSyntaxTagger(input_type='sentences',
                                        random_pick_seed=4,
                                        resources_path=STANZA_SYNTAX_MODELS_PATH,
                                        depparse_path=os.path.join(STANZA_SYNTAX_MODELS_PATH,
                                                                   'et', 'depparse', 'stanza_depparse.pt'))
     stanza_tagger.tag(text)
-
-    # stanza pipeline (on tokenized unambigous input)
-    assert stanza_dict_sentences == layer_to_dict(text.stanza_syntax), text.stanza_syntax.diff(
-        dict_to_layer(stanza_dict_sentences))
+    # Note: when stanza updates the et pipeline, there can 
+    # be disparencies from the original stanza's output. 
+    # Therefore, use fine-grained comparsion and account for 
+    # expected differences
+    new_stanza_syntax_sentences = layer_to_dict(text.stanza_syntax)
+    # Check attributes
+    for attr in stanza_dict_sentences.keys():
+        if attr != 'spans':
+            assert stanza_dict_sentences[attr] == new_stanza_syntax_sentences[attr], \
+                f'(!) Mismatching {attr!r} values: {stanza_dict_sentences[attr]!r} != '+\
+                f'{new_stanza_syntax_sentences[attr]!r}.'
+    # Check spans
+    assert len(stanza_dict_sentences['spans']) == len(new_stanza_syntax_sentences['spans'])
+    for span_a, span_b in zip(stanza_dict_sentences['spans'], new_stanza_syntax_sentences['spans']):
+        assert span_a['base_span'] == span_b['base_span']
+        if span_a['annotations'] != span_b['annotations']:
+            # Known difference (as of stanza's version 1.5.1)
+            if span_a['base_span'] == (6, 11) and \
+               span_a['annotations'][0]['lemma'] == 'jänes' and \
+               span_b['annotations'][0]['lemma'] == 'jäni':
+                # Assert that other most important features match
+                assert span_a['annotations'][0]['id'] == span_b['annotations'][0]['id']
+                assert span_a['annotations'][0]['head'] == span_b['annotations'][0]['head']
+                assert span_a['annotations'][0]['deprel'] == span_b['annotations'][0]['deprel']
+                # Skip this difference (known error, from stanza's version 1.5.1)
+                continue
+        assert span_a['annotations'] == span_b['annotations']
 
 
 @unittest.skipIf(STANZA_SYNTAX_MODELS_PATH is None,

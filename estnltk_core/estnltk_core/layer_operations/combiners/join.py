@@ -269,6 +269,7 @@ def join_relation_layers( layers: Sequence[RelationLayer], separators: Sequence[
         attributes = layers[0].attributes
         secondary_attributes = layers[0].secondary_attributes
         ambiguous = layers[0].ambiguous
+        enveloping = layers[0].enveloping
         for layer in layers:
             if layer.name != name:
                 raise Exception( "Not all layers have the same name: " + str([l.name for l in layers] ) )
@@ -280,6 +281,8 @@ def join_relation_layers( layers: Sequence[RelationLayer], separators: Sequence[
                 raise Exception( "Not all layers have the same secondary_attributes: " + str([l.secondary_attributes for l in layers]) )
             if layer.ambiguous != ambiguous:
                 raise Exception( "Not all layers have the same state of ambiguity: " + str([l.ambiguous for l in layers]) )
+            if layer.enveloping != enveloping:
+                raise Exception( "Not all layers have the same enveloping layer: " + str([l.enveloping for l in layers]) )
         # 1) Make a new detached layer
         new_layer = layers[0].__class__( name=name,
                                          span_names=span_names, 
@@ -287,6 +290,7 @@ def join_relation_layers( layers: Sequence[RelationLayer], separators: Sequence[
                                          secondary_attributes=secondary_attributes,
                                          text_object=None,
                                          ambiguous=ambiguous,
+                                         enveloping=enveloping,
                                          serialisation_module=layers[0].serialisation_module )
         # 2) Add spans from the old list of layers to the new layer.
         last_shift = 0

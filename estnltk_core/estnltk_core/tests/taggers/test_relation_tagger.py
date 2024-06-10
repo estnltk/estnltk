@@ -50,14 +50,16 @@ def test_relation_tagger_smoke():
     expected_layer_dict = \
         {'ambiguous': False,
          'attributes': ('attr',),
+         'enveloping': None,
          'meta': {},
          'name': 'my_relations',
-         'relations': [{'annotations': [{'attr': None}],
+         'relations': [{'annotations': [{}],
                         'named_spans': {'arg0': (0, 1), 'arg1': (1, 2)}},
                        {'annotations': [{'attr': 43}],
                         'named_spans': {'arg0': (2, 3), 'arg1': (1, 2)}}],
          'secondary_attributes': (),
-         'serialisation_module': 'relations_v0',
+         'display_order': (), 
+         'serialisation_module': 'relations_v1',
          'span_names': ('arg0', 'arg1')}
     assert layer_to_dict(outcome_layer) == expected_layer_dict
     

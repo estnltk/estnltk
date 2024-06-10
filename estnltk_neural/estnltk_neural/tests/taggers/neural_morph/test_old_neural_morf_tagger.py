@@ -1,6 +1,6 @@
-import unittest
-import pkgutil
 import os
+import unittest
+from importlib.util import find_spec
 from unittest import TestCase
 
 from packaging.version import Version, parse
@@ -11,7 +11,7 @@ from estnltk_neural.taggers.neural_morph.old_neural_morph.general_utils import l
 
 def check_if_tensorflow_is_available():
     # 1) Check if tensorflow is available
-    tensorflow_available = pkgutil.find_loader("tensorflow") is not None
+    tensorflow_available = find_spec("tensorflow") is not None
     if tensorflow_available:
         # 2) Check that tensorflow has version < 2.x.x
         # (needs to have module tensorflow.contrib, 

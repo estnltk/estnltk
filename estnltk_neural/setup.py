@@ -35,8 +35,8 @@ setup(
     },
     url="https://github.com/estnltk/estnltk",
     install_requires=[
-        'estnltk-core >= 1.7.2', # EstNLTK's basic data structures and conversion methods
-        'estnltk >= 1.7.2',      # EstNLTK's NLP pipelines and database tools
+        'estnltk-core >= 1.7.3', # EstNLTK's basic data structures and conversion methods
+        'estnltk >= 1.7.3',      # EstNLTK's NLP pipelines and database tools
         'torch',
         'transformers',
         'stanza',
@@ -47,10 +47,10 @@ setup(
                  'Intended Audience :: Science/Research',
                  'Intended Audience :: Information Technology',
                  'Operating System :: OS Independent',
-                 'Programming Language :: Python :: 3.8',
                  'Programming Language :: Python :: 3.9',
                  'Programming Language :: Python :: 3.10',
                  'Programming Language :: Python :: 3.11',
+                 'Programming Language :: Python :: 3.12',
                  'Topic :: Scientific/Engineering',
                  'Topic :: Scientific/Engineering :: Artificial Intelligence',
                  'Topic :: Scientific/Engineering :: Information Analysis',

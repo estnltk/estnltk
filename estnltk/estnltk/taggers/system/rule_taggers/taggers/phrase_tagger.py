@@ -3,7 +3,7 @@ from typing import Sequence, List, Tuple, Iterator, Generator, Dict, Callable, A
 
 from estnltk import Annotation, EnvelopingBaseSpan
 from estnltk import EnvelopingSpan
-from estnltk import Layer
+from estnltk import Layer, Span
 from estnltk.taggers import Tagger
 from estnltk.taggers.system.rule_taggers.extraction_rules.ambiguous_ruleset import AmbiguousRuleset
 from estnltk.taggers.system.rule_taggers.extraction_rules.ruleset import Ruleset
@@ -77,6 +77,9 @@ class PhraseTagger(Tagger):
         pattern_attribute: str (Default: None)
             If not None, the final annotation contains the pattern attribute of the rule with the given name
         """
+        # TODO: It is impossible to determine the layer type based on the ruleset as input layer can be anbigious
+        # Thus, we should specify this explicitly during the initialisation
+
         self.conf_param = ('input_attribute', 'ruleset', 'decorator', '_heads','ignore_case',
                            'conflict_resolver', 'phrase_attribute', 'group_attribute', 'priority_attribute',
                            'pattern_attribute', 'static_ruleset_map', 'dynamic_ruleset_map')
@@ -173,13 +176,15 @@ class PhraseTagger(Tagger):
             self._heads[phrase[0]] = current_phrase
 
     def _make_layer_template(self):
+        # TODO: It is impossible to determine the layer type based on the ruleset as input layer can be anbigious
+        # Thus, we should specify this explicitly during the initialisation
         return Layer(name=self.output_layer,
                      attributes=self.output_attributes,
                      text_object=None,
                      enveloping=self.input_layers[0],
                      ambiguous=not isinstance(self.ruleset, Ruleset))
 
-    def _make_layer(self, text, layers: dict, status=None):
+    def _make_layer(self, text: 'Text', layers: dict, status=None):
         layer = self._make_layer_template()
         layer.text_object = text
         raw_text = text.text
@@ -213,7 +218,7 @@ class PhraseTagger(Tagger):
 
         return layer
 
-    def extract_annotations(self, text: str, layers: dict) -> List[Tuple[EnvelopingBaseSpan, str, Any]]:
+    def extract_annotations(self, text: 'Text', layers: dict) -> List[Tuple[EnvelopingBaseSpan, str, Any]]:
         """
         Returns a list of matches of the defined by the list of extraction rules that are canonically ordered:
             span[i].start <= span[i+1].start
@@ -257,24 +262,25 @@ class PhraseTagger(Tagger):
 
         return sorted(match_tuples, key=lambda x: (x[0].start, x[0].end))
 
-    def add_decorated_annotations_to_layer(
-            self,
-            layer: Layer,
-            sorted_tuples: Iterator[Tuple[ElementaryBaseSpan, str]]) -> Layer:
+    def get_decorator_inputs(self, text_obj, match_list, add_aux=False):
         """
-        Adds annotations to extracted matches and assembles them into a layer.
-        Annotations are added to extracted matches based on the right-hand-side of the matching extraction rule:
-        * First statical rules are applied to specify fixed attributes. No spans are dropped!
-        * Next the global decorator is applied to update the annotation.
-        * A span is dropped when the resulting annotation is not a dictionary of attribute values.
-        * Finally decorators from dynamical rules are applied to update the annotation.
-        * A span is dropped when the resulting annotation is not a dictionary of attribute values.
+        Converts all matches into decorator inputs. 
+        
+        The input match_list is expected to be the output of 
+        self.extract_annotations or keep_minimal_matches/
+        keep_maximal_matches. 
+        By default, yields a list of tuples (text_obj, base_span, annotation).
+        If add_aux==True, then adds auxiliary information and yields list 
+        of tuples (text_obj, base_span, annotation, phrase, group, priority), 
+        where phrase is extracted phrase from the match_list/match_tuples, 
+        and group & priority are attributes of the corresponding static 
+        extraction rule.
+        
+        This method is used in decorator development & debugging, 
+        and by methods add_decorated_annotations_to_layer & 
+        iterate_over_decorated_annotations. 
         """
-
-        text = layer.text_object
-
-        for base_span, _, phrase in sorted_tuples:
-            span = EnvelopingSpan(base_span=base_span, layer=layer)
+        for base_span, _, phrase in match_list:
             static_rulelist = self.static_ruleset_map.get(phrase, None)
             for group, priority, annotation in static_rulelist:
                 annotation = annotation.copy()
@@ -285,20 +291,45 @@ class PhraseTagger(Tagger):
                     annotation[self.priority_attribute] = priority
                 if self.pattern_attribute:
                     annotation[self.pattern_attribute] = phrase
-                if self.decorator is not None:
-                    annotation = self.decorator(text, base_span, annotation)
-                    if not isinstance(annotation, dict):
-                        continue
-                subindex = self.dynamic_ruleset_map.get(phrase, None)
-                decorator = subindex[(group, priority)] if subindex is not None else None
-                if decorator is None:
-                    layer.add_annotation(base_span, annotation)
-                    continue
-                annotation = decorator(text, span, annotation)
-                if annotation is not None:
-                    layer.add_annotation(base_span, annotation)
+                yield (text_obj, base_span, annotation) \
+                       if not add_aux else \
+                      (text_obj, base_span, annotation, phrase, group, priority)
 
+    def add_decorated_annotations_to_layer(
+            self,
+            layer: Layer,
+            sorted_tuples: Iterator[Tuple[ElementaryBaseSpan, str]]) -> Layer:
+        """
+        Adds annotations to extracted matches and assembles them into a layer.
+        Annotations are added to extracted matches based on the right-hand-side of the matching extraction rule:
+        * First statical rules are applied to specify fixed attributes. No spans are dropped!
+          (method self.get_decorator_inputs(...));
+        * Next the global decorator is applied to update the annotation.
+        * A span is dropped when the resulting annotation is not a dictionary of attribute values.
+        * Finally decorators from dynamical rules are applied to update the annotation.
+        * A span is dropped when the resulting annotation is not a dictionary of attribute values.
+        """
+
+        text = layer.text_object
+        for (_, base_span, annotation, phrase, group, priority) in self.get_decorator_inputs(text, 
+                                                                                             sorted_tuples, 
+                                                                                             add_aux=True):
+            # apply global decorator
+            # Drop annotations for which the global decorator fails
+            if self.decorator is not None:
+                annotation = self.decorator(text, base_span, annotation)
+                if not isinstance(annotation, dict):
+                    continue
+            # apply dynamic_decorator --- it must be unique or have matching 
+            # priority and group
+            subindex = self.dynamic_ruleset_map.get(phrase, None)
+            dynamic_decorator = subindex[(group, priority)] if subindex is not None else None
+            if dynamic_decorator is not None:
+                annotation = dynamic_decorator(text, base_span, annotation)
+            if annotation is not None:
+                layer.add_annotation(base_span, annotation)
         return layer
+
 
     def iterate_over_decorated_annotations(
             self,
@@ -313,35 +344,34 @@ class PhraseTagger(Tagger):
 
         Annotations are added to extracted matches based on the right-hand-side of the matching extraction rule:
         * First statical rules are applied to specify fixed attributes. No spans are dropped!
+          (method self.get_decorator_inputs(...));
         * Next the global decorator is applied to update the annotation.
         * A span is dropped when the resulting annotation is not a dictionary of attribute values.
         * Finally decorators from dynamical rules are applied to update the annotation.
         * A span is dropped when the resulting annotation is not a dictionary of attribute values.
         """
-
         text = layer.text_object
-
-        for base_span, _, phrase in sorted_tuples:
-            span = EnvelopingSpan(base_span=base_span, layer=layer)
-            static_rulelist = self.static_ruleset_map.get(phrase, None)
-            for group, priority, annotation in static_rulelist:
-                annotation = annotation.copy()
-                annotation[self.phrase_attribute] = phrase
-                if self.group_attribute:
-                    annotation[self.group_attribute] = group
-                if self.priority_attribute:
-                    annotation[self.priority_attribute] = priority
-                if self.pattern_attribute:
-                    annotation[self.pattern_attribute] = phrase
-                if self.decorator is not None:
-                    annotation = self.decorator(text, base_span, annotation)
-                    if not isinstance(annotation, dict):
-                        continue
-                subindex = self.dynamic_ruleset_map.get(phrase, None)
-                decorator = subindex[(group, priority)] if subindex is not None else None
-                if decorator is None:
-                    yield annotation, group, priority
+        cur_span = None # current span
+        for (_, base_span, annotation, phrase, group, priority) in self.get_decorator_inputs(text, 
+                                                                                             sorted_tuples, 
+                                                                                             add_aux=True):
+            if cur_span is None or cur_span.base_span != base_span:
+                # Create new Span
+                cur_span = Span(base_span=base_span, layer=layer)
+            # apply global decorator
+            # Drop annotations for which the global decorator fails
+            if self.decorator is not None:
+                annotation = self.decorator(text, base_span, annotation)
+                if not isinstance(annotation, dict):
                     continue
-                annotation = decorator(text, span, annotation)
-                if annotation is not None:
-                    yield annotation, group, priority
+            # apply dynamic_decorator --- it must be unique or have matching 
+            # priority and group
+            subindex = self.dynamic_ruleset_map.get(phrase, None)
+            dynamic_decorator = subindex[(group, priority)] if subindex is not None else None
+            if dynamic_decorator is not None:
+                annotation = dynamic_decorator(text, base_span, annotation)
+            if annotation is not None:
+                annotation_obj = Annotation(cur_span, annotation)
+                yield annotation_obj, group, priority   
+
+

@@ -20,8 +20,8 @@ class BertTagger(Tagger):
     """Tags BERT embeddings."""
 
     def __init__(self, bert_location: str = None, sentences_layer: str = 'sentences',
-                 token_level: bool = True,
-                 output_layer: str = 'bert_embeddings', bert_layers: List[int] = None, method='concatenate'):
+                 token_level: bool = True, output_layer: str = 'bert_embeddings', 
+                 bert_layers: List[int] = None, method='concatenate'):
 
         if bert_layers is None:
             bert_layers = [-4, -3, -2, -1]
@@ -59,30 +59,41 @@ class BertTagger(Tagger):
         self.token_level = token_level
         self.bert_layers = bert_layers
 
+    def tokenize_with_bert(self, text_str, include_spanless=True):
+        '''Tokenizes input text_str with self.tokenizer and returns a list of token spans.
+           Each token span is a triple (start, end, token). 
+           If include_spanless==True (default), then special "spanless" tokens (e.g. 
+           [CLS], [SEP]) will also be included with their respective start/end indexes 
+           set to None.
+        '''
+        tokens = []
+        batch_encoding = self.tokenizer(text_str)
+        for token_id, token in enumerate(batch_encoding.tokens()):
+            char_span = batch_encoding.token_to_chars(token_id)
+            if char_span is not None:
+                tokens.append( (char_span.start, char_span.end, token) )
+            elif include_spanless:
+                tokens.append( (None, None, token) )
+        return tokens
+
     def _make_layer(self, text: Text, layers: MutableMapping[str, Layer], status: dict) -> Layer:
         sentences_layer = layers[self.input_layers[0]]
-        embeddings_layer = Layer(name=self.output_layer, text_object=text, attributes=self.output_attributes,
-                                 ambiguous=True)
+        embeddings_layer = Layer(name=self.output_layer, text_object=text, 
+                                 attributes=self.output_attributes,
+                                 ambiguous=(not self.token_level and self.method == 'all'))
 
         for k, sentence in enumerate(sentences_layer):
-            word_spans = []
-
-            for word in sentence:
-                word_spans.append((word.start, word.end, word.text))
             sent_text = sentence.enclosing_text
-
-            start, i, end, word_span, word = word_spans[0][0], 0, word_spans[0][1], word_spans[0], word_spans[0][2]
-
-            embeddings = get_embeddings(sent_text, self.bert_model, self.tokenizer, self.method, self.bert_layers)[
-                         1:-1]  # first one is cls token, and last one is sep token
-            tokens = self.tokenizer.tokenize(sent_text)
-
+            embeddings = get_embeddings(sent_text, self.bert_model, self.tokenizer, self.method, self.bert_layers)
+            tokens = self.tokenize_with_bert(sent_text)
             assert len(tokens) == len(embeddings)
-            if self.token_level:  # annotates tokens
-
+            if self.token_level:
+                # annotates bert tokens
                 for j, packed in enumerate(zip(embeddings, tokens)):
-                    token_emb, token_init = packed[0], packed[1]
-
+                    token_emb, token_span = packed[0], packed[1]
+                    if token_span[0] is None and token_span[1] is None:
+                        # Skip special tokens (e.g. [CLS], [SEP])
+                        continue
                     if self.method == 'all':
                         embedding = []
                         for tok_emb in token_emb:
@@ -92,347 +103,210 @@ class BertTagger(Tagger):
                             embedding.append(emb)
                     else:
                         embedding = [float(t) for t in token_emb]
-
-                    attributes = {'token': token_init, 'bert_embedding': embedding}
-
-                    # Symbol '\xad' is invisible to bert tokenizer;
-                    # Remove it from the word span, otherwise alignment fails;
-                    if word.count('\xad') > 0:
-                        if word == '\xad':
-                            # Skip the whole word span
-                            if len(word_spans) > i+1:
-                                i += 1
-                                word_span = word_spans[i]
-                                start = word_span[0]
-                                end = word_span[1]
-                                word = word_span[2]
-                        elif len(word) > word.count('\xad'):
-                            # Skip inside word span
-                            removed_chars = word.count('\xad')
-                            word = word.replace('\xad', '')
-                            #end -= removed_chars
-                    shift_start = -1
-                    if token_init == '[UNK]':
-                        token_end = end  # if token was UNK, set the end to word end
-                        #
-                        # Guard: check if the next token and the next word span match?
-                        # If not, then there is a misalignment between tokens and word 
-                        # spans, for instance:
-                        #     word span:  '💁!💁💁?'
-                        #     tokens:     '[UNK]', '!', '[UNK]', '?'
-                        # or
-                        #     word span:  '☏???'
-                        #     tokens:     '[UNK]', '???'
-                        # In case of a misalignment, move incrementally inside word_span.
-                        #
-                        next_token = tokens[j+1].replace('#', '') if j+1 < len(tokens) else None
-                        next_word = word_spans[i+1][2] if i+1 < len(word_spans) else None
-                        if (next_token is not None and next_word is not None and \
-                            not startswith_relaxed(next_word, next_token)) or \
-                            next_word is None and next_token is not None:
-                            cur_word_chars = [c for c in word]
-                            if next_token[0] in cur_word_chars:
-                                # shift pointer inside word_span
-                                indx = cur_word_chars.index(next_token[0])
-                                token_end = start + indx
-                                shift_start = indx
-                            elif next_token == '[UNK]':
-                                # shift pointer inside word_span
-                                indx = 1
-                                token_end = start + indx
-                                shift_start = indx
-                    else:
-                        token = token_init.strip()  # if not, then len(token)
-                        token_end = start + len(token.replace('#', ''))
-                        # replace and keep the next part of word for later use
-                        word = replace_relaxed(word, token.replace('#', ''), replacement='', count=1)
-
-                    if len(word) != 0:
-                        if word[0] == ' ' and end > token_end + 1: # check if is multiword
-                            token_end += 1
-                            word = word[1:]
-                        elif len(token.replace('#', '')) > len(word) and \
-                             startswith_relaxed(token.replace('#', ''), word, remove_from_token=True): 
-                            # Check if tokenizations diverge, and there's an 
-                            # overflow, such as:
-                            #     word span:  'ni'
-                            #     tokens:     '##nile'
-                            # If so, then find next word span that starts within bert token
-                            token_cut = (token.replace('#', ''))[len(word):]
-                            invisible_tokens = []
-                            shift_i = i+1
-                            while shift_i < len(word_spans):
-                                next_word = word_spans[shift_i][2]
-                                if next_word == '\xad':
-                                    # Skip invisible token '\xad'
-                                    invisible_tokens.append(word_spans[shift_i])
-                                else:
-                                    # Ordinary token
-                                    if startswith_relaxed(next_word, token_cut):
-                                        i = shift_i
-                                        word_span = word_spans[i]
-                                        start = word_span[0] - len(token_cut)
-                                        if invisible_tokens:
-                                            # Skip invisible tokens
-                                            for invisible_token in invisible_tokens:
-                                                start -= len(invisible_token[2])
-                                        end = word_span[1]
-                                        word = word_span[2]
-                                        word = replace_relaxed(word, token_cut, replacement='', count=1)
-                                        token_end = word_span[0] + len(token_cut)
-                                    break
-                                shift_i += 1
-                    embeddings_layer.add_annotation((start, token_end), **attributes)
-                    if shift_start == -1:
-                        # shift the current pointer by full word_span length
-                        start = token_end
-                    else:
-                        # shift the current pointer incrementally inside word_span
-                        start = start + shift_start
-                        word = word[shift_start:]
-                    if start == end:  # new word starts
-                        i += 1
-                        if len(word_spans) > i:  # update the values for the next word
-                            word_span = word_spans[i]
-                            start = word_span[0]
-                            end = word_span[1]
-                            word = word_span[2]
-
-            else:  # annotates full words, adding the token level embeddings together
+                    attributes = {'token': token_span[2], 'bert_embedding': embedding}
+                    start = sentence.start + token_span[0]
+                    end   = sentence.start + token_span[1]
+                    embeddings_layer.add_annotation((start, end), **attributes)
+            else:
+                # annotates full words, adding the token level embeddings together
+                word_spans = []
+                for word in sentence:
+                    word_spans.append((word.start, word.end, word.text))
+                # Find locations of all bert tokens inside word spans
+                word_id = 0
                 collected_tokens = []
                 collected_embeddings = []
-                counter = word_spans[0][0]
-                word = word_spans[0][2]
                 for j, packed in enumerate(zip(embeddings, tokens)):
-                    token_emb, token_init = packed[0], packed[1]
-                    span = word_spans[i]
-                    length = span[1] - span[0]
-                    # Symbol '\xad' is invisible to bert tokenizer;
-                    # Remove it from the word span, otherwise alignment fails;
-                    if word.count('\xad') > 0 and len(word) > word.count('\xad'):
-                        removed_chars = word.count('\xad')
-                        word = word.replace('\xad', '')
-                        counter += removed_chars
-                        length -= removed_chars
-                    if length == len(
-                            token_init.replace('#', '')) or token_init == '[UNK]':  # Full word token or UNK token
-                        #
-                        # Guard: check if the next token and the next word span match?
-                        # If not, then there is a misalignment between tokens and word 
-                        # spans, for instance:
-                        #     word span:  '💁!💁💁?'
-                        #     tokens:     '[UNK]', '!', '[UNK]', '?'
-                        # or
-                        #     word span:  '☏???'
-                        #     tokens:     '[UNK]', '???'
-                        # In case of a misalignment, move incrementally inside word_span.
-                        #
-                        shift_inside_word_span = False
-                        next_token = (tokens[j+1]).replace('#', '') if j+1 < len(tokens) else None
-                        next_word = word_spans[i+1][2] if i+1 < len(word_spans) else None
-                        if (token_init == '[UNK]' and ((next_token is not None and 
-                            next_word is not None and not startswith_relaxed(next_word, next_token)) or \
-                            next_word is None and next_token is not None)):
-                            cur_word_chars = [c for c in word]
-                            if next_token[0] in cur_word_chars:
-                                # shift pointer inside word_span
-                                indx = cur_word_chars.index(next_token[0])
-                                counter += indx
-                                word = word[indx:]
-                                collected_embeddings.append(token_emb)
-                                collected_tokens.append(token_init)
-                                shift_inside_word_span = True
-                            elif next_token == '[UNK]' and length > 1:
-                                # shift pointer inside word_span
-                                indx = 1
-                                counter += indx
-                                word = word[indx:]
-                                collected_embeddings.append(token_emb)
-                                collected_tokens.append(token_init)
-                                shift_inside_word_span = True
-                        if not shift_inside_word_span:
+                    token_emb, token_span = packed[0], packed[1]
+                    if token_span[0] is None and token_span[1] is None:
+                        # Skip special tokens (e.g. [CLS], [SEP])
+                        continue
+                    start = sentence.start + token_span[0]
+                    end   = sentence.start + token_span[1]
+                    current_word = word_spans[word_id]
+                    if current_word[0] <= start and end <= current_word[1]:
+                        # if bert's token falls within the current word,
+                        # then simply record the embedding
+                        collected_tokens.append( token_span[2] )
+                        collected_embeddings.append( token_emb )
+                    elif current_word[1] <= start:
+                        # if bert's token begins after the word: 
+                        # 1) finish the previous word
+                        if collected_tokens and collected_embeddings:
+                            # add annotation
                             if self.method == 'all':
-                                embedding = [[float(e) for e in le] for le in token_emb]
-                            else:
-                                embedding = [float(e) for e in token_emb]
-                            attributes = {'token': token_init, 'bert_embedding': embedding}
-                            embeddings_layer.add_annotation((word_spans[i][0], word_spans[i][1]),
-                                                            **attributes)
-                            collected_tokens, collected_embeddings = [], []
-                            i += 1
-                            if len(word_spans) > i:
-                                counter = word_spans[i][0]
-                                word = word_spans[i][2]
-                            if len(word_spans) > i+1 and word == '\xad':
-                                # Symbol '\xad' seems to be invisible to 
-                                # bert tokenizer; skip it, but mark with
-                                # last embedding for layer consistency
-                                attributes2 = {'token': [], 'bert_embedding': embedding}
-                                embeddings_layer.add_annotation((word_spans[i][0], 
-                                                                 word_spans[i][1]),
-                                                                 **attributes2)
-                                i += 1
-                                counter = word_spans[i][0]
-                                word = word_spans[i][2]
-                    elif length > len(token_init) and not token_init.startswith('#') and counter == span[0]:
-                        # first in many tokens
-                        collected_embeddings.append(token_emb)
-                        collected_tokens.append(token_init)
-                        counter += len(token_init)
-                        word = word[len(token_init):]
-                    elif (length > len(token_init.replace('#', '')) and counter >= span[0]):
-                        # in the middle or at the end of the word span
-                        collected_embeddings.append(token_emb)
-                        collected_tokens.append(token_init)
-                        add_length = len(token_init.replace('#', ''))
-                        # Check if tokenizations diverge, so adding results 
-                        # in an overflow, such as:
-                        #     word span:  'ni'
-                        #     tokens:     '##nile'
-                        if counter + add_length > span[1]:
-                            # If so, then find next word span that starts within bert token
-                            token_cut = (token_init.replace('#', ''))[len(word):]
-                            shift_i = i+1
-                            invisible_tokens = []
-                            while shift_i < len(word_spans):
-                                next_word = word_spans[shift_i][2]
-                                if next_word == '\xad':
-                                    # Invisible token '\xad'
-                                    invisible_tokens.append( word_spans[shift_i] )
-                                else:  
-                                    # Ordinary token
-                                    if startswith_relaxed(next_word, token_cut):
-                                        # Add invisible tokens, if any
-                                        if invisible_tokens:
-                                            for invisible_token in invisible_tokens:
-                                                attributes2 = {'token': [], 'bert_embedding': embedding}
-                                                embeddings_layer.add_annotation((invisible_token[0], 
-                                                                                 invisible_token[1]),
-                                                                                 **attributes2)
-                                        # Add previously collected embeddings
-                                        if self.method == 'all':
-                                            embedding = []
-                                            for tok_embs in collected_embeddings:
-                                                token_embs = []
-                                                for embs in tok_embs:
-                                                    token_embs_emb = []
-                                                    for emb in embs:
-                                                        token_embs_emb.append(float(emb))
-                                                    token_embs.append(token_embs_emb)
-                                                embedding.append(token_embs)
-                                        else:
-                                            embedding = [float(t) for t in np.sum(collected_embeddings, 0)]
-
-                                        attributes = {'token': collected_tokens, 'bert_embedding': embedding}
-                                        embeddings_layer.add_annotation((word_spans[i][0], word_spans[i][1]),
-                                                                        **attributes)
-                                        # Keep last tokens and embeddings
-                                        collected_embeddings = collected_embeddings[-1:]
-                                        collected_tokens = collected_tokens[-1:]
-
-                                        i = shift_i
-                                        span = word_spans[i]
-                                        counter = word_spans[i][0] + len(token_cut)
-                                        word = word_spans[i][2]
-                                        word = replace_relaxed(word, token_cut, replacement='', count=1)
-
-                                    break
-                                shift_i += 1
-                        else:
-                            counter += add_length
-                            word = word[add_length:]
-                        if counter == span[1] or counter + span[2].count(' ') == span[1]:  # check if in the end of the word
-                            if self.method == 'all':
-                                embedding = []
-                                for tok_embs in collected_embeddings:
+                                assert embeddings_layer.ambiguous
+                                for cur_token, tok_embs in zip(collected_tokens, collected_embeddings):
                                     token_embs = []
                                     for embs in tok_embs:
                                         token_embs_emb = []
                                         for emb in embs:
                                             token_embs_emb.append(float(emb))
                                         token_embs.append(token_embs_emb)
-                                    embedding.append(token_embs)
+                                    attributes = {'token': cur_token, 'bert_embedding': token_embs}
+                                    embeddings_layer.add_annotation((current_word[0], current_word[1]),
+                                                                    **attributes)
                             else:
                                 embedding = [float(t) for t in np.sum(collected_embeddings, 0)]
-
-                            attributes = {'token': collected_tokens, 'bert_embedding': embedding}
-                            embeddings_layer.add_annotation((word_spans[i][0], word_spans[i][1]),
-                                                            **attributes)
-                            collected_embeddings = []
+                                attributes = {'token': collected_tokens, 'bert_embedding': embedding}
+                                embeddings_layer.add_annotation((current_word[0], current_word[1]),
+                                                                **attributes)
+                        collected_tokens = []
+                        collected_embeddings = []
+                        # 2) take the next word or words. 
+                        # note: in rare cases, the bert token overlaps and 
+                        # stretches beyond the next word, so we take all 
+                        # following words covered by the bert token.
+                        word_id += 1
+                        while word_id < len(word_spans):
+                            current_word = word_spans[word_id]
+                            collected_tokens.append( token_span[2] )
+                            collected_embeddings.append( token_emb )
+                            # Check the stopping criteria
+                            if end <= current_word[1]:
+                                # If the word ends with or after the bert token,
+                                # then end the cycle (pick the next bert token)
+                                break
+                            # If the stopping criteria was not met then:
+                            # Collect embedding and complete the given word
+                            if collected_tokens and collected_embeddings:
+                                # add annotation
+                                if self.method == 'all':
+                                    assert embeddings_layer.ambiguous
+                                    for cur_token, tok_embs in zip(collected_tokens, collected_embeddings):
+                                        token_embs = []
+                                        for embs in tok_embs:
+                                            token_embs_emb = []
+                                            for emb in embs:
+                                                token_embs_emb.append(float(emb))
+                                            token_embs.append(token_embs_emb)
+                                        attributes = {'token': cur_token, 'bert_embedding': token_embs}
+                                        embeddings_layer.add_annotation((current_word[0], current_word[1]),
+                                                                        **attributes)
+                                else:
+                                    embedding = [float(t) for t in np.sum(collected_embeddings, 0)]
+                                    attributes = {'token': collected_tokens, 'bert_embedding': embedding}
+                                    embeddings_layer.add_annotation((current_word[0], current_word[1]),
+                                                                    **attributes)
+                                collected_tokens = []
+                                collected_embeddings = []
+                            word_id += 1
+                    elif current_word[0] <= start and end > current_word[1]:
+                        # partial overlap #1: the bert token overlaps and stretches 
+                        # beyond the word token:
+                        #
+                        #    wwww
+                        #    bbbbbbb
+                        #
+                        #    wwww
+                        #      bbbbb
+                        #
+                        #    www ww ..
+                        #      bbbbbbbbb
+                        #
+                        # Strategy 'keep_all': add embedding to the current word and 
+                        # also to following words covered by the bert token
+                        while word_id < len(word_spans):
+                            current_word = word_spans[word_id]
+                            collected_tokens.append( token_span[2] )
+                            collected_embeddings.append( token_emb )
+                            # Check the stopping criteria
+                            if end < current_word[1]:
+                                # If the word stretches beyond the bert token,
+                                # then end the cycle (pick the next bert token)
+                                break
+                            # If the stopping criteria was not met then:
+                            # Collect embedding and complete the given word
+                            if collected_tokens and collected_embeddings:
+                                # add annotation
+                                if self.method == 'all':
+                                    assert embeddings_layer.ambiguous
+                                    for cur_token, tok_embs in zip(collected_tokens, collected_embeddings):
+                                        token_embs = []
+                                        for embs in tok_embs:
+                                            token_embs_emb = []
+                                            for emb in embs:
+                                                token_embs_emb.append(float(emb))
+                                            token_embs.append(token_embs_emb)
+                                        attributes = {'token': cur_token, 'bert_embedding': token_embs}
+                                        embeddings_layer.add_annotation((current_word[0], current_word[1]),
+                                                                        **attributes)
+                                else:
+                                    embedding = [float(t) for t in np.sum(collected_embeddings, 0)]
+                                    attributes = {'token': collected_tokens, 'bert_embedding': embedding}
+                                    embeddings_layer.add_annotation((current_word[0], current_word[1]),
+                                                                    **attributes)
+                                collected_tokens = []
+                                collected_embeddings = []
+                            word_id += 1
+                    elif start < current_word[0] and end <= current_word[1]:
+                        # partial overlap #2: the bert token starts before and 
+                        # overlaps the word token:
+                        #
+                        #       wwww
+                        #    bbbbbbb
+                        #
+                        #       wwww
+                        #  bbbbbbb
+                        #
+                        #  .. ww wwww  (covered by partial overlap #1)
+                        #  bbbbbbbb
+                        #
+                        # Strategy 'keep_all': add embedding to the current word, but
+                        # do not complete the word (unless it's end has been reached)
+                        collected_tokens.append( token_span[2] )
+                        collected_embeddings.append( token_emb )
+                        if end == current_word[1]:
+                            # add annotation
+                            if self.method == 'all':
+                                assert embeddings_layer.ambiguous
+                                for cur_token, tok_embs in zip(collected_tokens, collected_embeddings):
+                                    token_embs = []
+                                    for embs in tok_embs:
+                                        token_embs_emb = []
+                                        for emb in embs:
+                                            token_embs_emb.append(float(emb))
+                                        token_embs.append(token_embs_emb)
+                                    attributes = {'token': cur_token, 'bert_embedding': token_embs}
+                                    embeddings_layer.add_annotation((current_word[0], current_word[1]),
+                                                                    **attributes)
+                            else:
+                                embedding = [float(t) for t in np.sum(collected_embeddings, 0)]
+                                attributes = {'token': collected_tokens, 'bert_embedding': embedding}
+                                embeddings_layer.add_annotation((current_word[0], current_word[1]),
+                                                                **attributes)
                             collected_tokens = []
-
-                            i += 1
-                            if len(word_spans) > i:
-                                counter = word_spans[i][0]
-                                word = word_spans[i][2]
-                            if len(word_spans) > i+1 and word == '\xad':
-                                # Symbol '\xad' seems to be invisible to 
-                                # bert tokenizer; skip it, but mark with
-                                # last embedding for layer consistency
-                                attributes2 = {'token': [], 'bert_embedding': embedding}
-                                embeddings_layer.add_annotation((word_spans[i][0], 
-                                                                 word_spans[i][1]),
-                                                                 **attributes2)
-                                i += 1
-                                counter = word_spans[i][0]
-                                word = word_spans[i][2]
+                            collected_embeddings = []
+                
+                # Finish the last word
+                if collected_tokens and collected_embeddings:
+                    # add annotation
+                    if self.method == 'all':
+                        assert embeddings_layer.ambiguous
+                        for cur_token, tok_embs in zip(collected_tokens, collected_embeddings):
+                            token_embs = []
+                            for embs in tok_embs:
+                                token_embs_emb = []
+                                for emb in embs:
+                                    token_embs_emb.append(float(emb))
+                                token_embs.append(token_embs_emb)
+                            attributes = {'token': cur_token, 'bert_embedding': token_embs}
+                            embeddings_layer.add_annotation((current_word[0], current_word[1]),
+                                                            **attributes)
+                    else:
+                        embedding = [float(t) for t in np.sum(collected_embeddings, 0)]
+                        attributes = {'token': collected_tokens, 'bert_embedding': embedding}
+                        embeddings_layer.add_annotation((current_word[0], current_word[1]),
+                                                        **attributes)
+        if not self.token_level:
+            # Check that each word got an embedding
+            assert len(embeddings_layer) == sum([len(s) for s in sentences_layer])
         return embeddings_layer
 
 
-def startswith_relaxed(word_str: str, token_str: str, remove_from_token=False) -> bool:
-    '''
-    Relaxed version of string.startswith for determining 
-    if EstNLTK's word_str starts with EstBert's token_str. 
-    Before comparison, takes care of the required character 
-    normalization: converts word_str to lowercase and 
-    removes common diacritics/accents from letters.
-    '''
-    word_str = word_str.lower()
-    word_str = word_str.replace('ö', 'o')
-    word_str = word_str.replace('õ', 'o')
-    word_str = word_str.replace('ä', 'a')
-    word_str = word_str.replace('ü', 'u')
-    word_str = word_str.replace('š', 's')
-    word_str = word_str.replace('ž', 'z')
-    if remove_from_token:
-        token_str = token_str.lower()
-        token_str = token_str.replace('ö', 'o')
-        token_str = token_str.replace('õ', 'o')
-        token_str = token_str.replace('ä', 'a')
-        token_str = token_str.replace('ü', 'u')
-        token_str = token_str.replace('š', 's')
-        token_str = token_str.replace('ž', 'z')
-    return word_str.startswith(token_str)
-
-
-def replace_relaxed(word_str: str, token_str: str,
-                    replacement:str='', count=1) -> str:
-    '''
-    Relaxed version of str.replace for deleting 
-    EstBert's token_str inside EstNLTK's word_str.
-    Before the replacement, takes care of the required 
-    character normalization: converts word_str to 
-    lowercase and removes common diacritics/accents 
-    from letters.
-    '''
-    original_word_str = word_str
-    word_str = word_str.lower()
-    word_str = word_str.replace('ö', 'o')
-    word_str = word_str.replace('õ', 'o')
-    word_str = word_str.replace('ä', 'a')
-    word_str = word_str.replace('ü', 'u')
-    word_str = word_str.replace('š', 's')
-    word_str = word_str.replace('ž', 'z')
-    index = word_str.find(token_str)
-    if index > -1:
-        return original_word_str[:index] +\
-               original_word_str[index+len(token_str):]
-    else:
-        return original_word_str
-
 
 def get_embeddings(sentence: str, model, tokenizer, method, bert_layers):
-    input_data = tokenizer.encode_plus(sentence)
+    input_data = tokenizer(sentence)
     input_ids = input_data.get('input_ids')
     token_vecs_cat = []
     if len(input_ids) > 512:  # maximum sequence length can be 512

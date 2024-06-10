@@ -47,7 +47,7 @@ def test_neural_ner_web_tagger_smoke(httpserver):
     httpserver.expect_request('/estnltk/tagger/neural_estbertner_v1').respond_with_json(response_layer_dict)
     # Tag named entities (without custom words layer)
     tagger = NerWebTagger(url=httpserver.url_for('/estnltk/tagger/neural_estbertner_v1'), 
-                          ner_output_layer='webner', 
+                          output_layer='webner', 
                           custom_words_layer=None)
     tagger.tag(text)
     
@@ -242,7 +242,7 @@ def test_neural_ner_web_tagger_with_custom_words_layers(httpserver):
     
     # Tag named entities (with custom words layer)
     tagger = NerWebTagger(url=httpserver.url_for('/estnltk/tagger/neural_estbertner_v1'), 
-                          ner_output_layer='webner', 
+                          output_layer='webner', 
                           custom_words_layer='words')
     tagger.tag(text)
     

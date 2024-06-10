@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from setuptools import setup, Extension
 from setuptools import find_namespace_packages
+from setuptools.command.build_py import build_py
 import os, os.path
 import sys
 
@@ -142,6 +143,16 @@ if not is_source_dist:
     create_number_analysis_rules_cache()
 
 
+# Build extensions before python modules,
+# or the generated SWIG python files will be missing.
+# Based on source: 
+#   https://github.com/yanqd0/swig-python-demo/blob/master/setup.py
+class BuildPy(build_py):
+    def run(self):
+        self.run_command('build_ext')
+        super(build_py, self).run()
+
+
 setup(
     name="estnltk",
     version=get_version(),
@@ -162,6 +173,7 @@ setup(
                                             'maltparser_tagger/java-res/maltparser/morph_analysis_conllu.mco', 
                                             'maltparser_tagger/java-res/maltparser/lib/*.*', 
                                             'preprocessing/rules_files/*.*',
+                                            'phrase_extraction/resources/*.txt',
                                             'ud_validation/agreement_resources/*.*',
                                             'ud_validation/data/*.*'],
         'estnltk.taggers.standard.text_segmentation': ['*.csv'], 
@@ -197,10 +209,15 @@ setup(
                   swig_opts=swig_opts,
                   include_dirs=include_dirs)
     ],
+    # Based on source: 
+    #   https://github.com/yanqd0/swig-python-demo/blob/master/setup.py
+    cmdclass={
+        'build_py': BuildPy,
+    },
     # we have fixed dependency versions to guarantee, what works
     # however, you can probably safely install newer versions of the dependencies
     install_requires=[
-        'estnltk-core >= 1.7.2',   # EstNLTK's basic datastructures and conversion methods
+        'estnltk-core >= 1.7.3',   # EstNLTK's basic datastructures and conversion methods
         'nltk>=3.4.1',             # NLTK mainly required for tokenization
         'regex>=2015.07.19',       # improved Python regular expressions
         'python-crfsuite>=0.8.3',  # Conditional random fields library
@@ -210,7 +227,7 @@ setup(
         'lxml',                    # required for importing/exporting TCF format data
         'networkx',                # building graphs: required for layers, WordNet and grammars
         'matplotlib',              # required for visualizing layer graph
-        'requests',                # required for TextA export and WebTagger
+        'requests',                # required by the resource downloader & WebTaggers
         'tqdm',                    # progressbar: for showing progress on time-hungry operations
         'ipython',                 # required for integration with Jupyter Notebook-s
         'conllu',                  # CONLLU for syntax
@@ -222,10 +239,10 @@ setup(
                  'Intended Audience :: Science/Research',
                  'Intended Audience :: Information Technology',
                  'Operating System :: OS Independent',
-                 'Programming Language :: Python :: 3.8',
                  'Programming Language :: Python :: 3.9',
                  'Programming Language :: Python :: 3.10',
                  'Programming Language :: Python :: 3.11',
+                 'Programming Language :: Python :: 3.12',
                  'Topic :: Scientific/Engineering',
                  'Topic :: Scientific/Engineering :: Artificial Intelligence',
                  'Topic :: Scientific/Engineering :: Information Analysis',

@@ -1,6 +1,7 @@
 from typing import MutableMapping
 
-from transformers import BertTokenizer, BertForTokenClassification
+from transformers import AutoTokenizer
+from transformers import AutoModelForTokenClassification
 from transformers import pipeline
 
 from estnltk_core.taggers import MultiLayerTagger
@@ -97,8 +98,8 @@ class EstBERTNERTagger(MultiLayerTagger):
         else:
             self.model_location = model_location
 
-        tokenizer = BertTokenizer.from_pretrained(self.model_location, model_max_length=512)
-        bertner = BertForTokenClassification.from_pretrained(self.model_location)
+        tokenizer = AutoTokenizer.from_pretrained(self.model_location, model_max_length=512)
+        bertner = AutoModelForTokenClassification.from_pretrained(self.model_location)
 
         self.nlp = pipeline("ner", model=bertner, tokenizer=tokenizer)
         self.tokenizer = tokenizer
@@ -127,46 +128,22 @@ class EstBERTNERTagger(MultiLayerTagger):
         self.postfix_concat_same_type_entities = postfix_concat_same_type_entities
         self.postfix_remove_infix_matches = postfix_remove_infix_matches
 
-    def tokenize_with_bert(self, text):
-        '''Tokenizes input Text object with bert's tokenizer and returns list of start-end indexes of tokens.
-           Note: [UNK] tokens will obtain indexes (-1, -1).
+    def tokenize_with_bert(self, text, include_spanless=True):
+        '''Tokenizes input Text object with Bert's tokenizer and returns a list of token spans.
+           Each token span is a triple (start, end, token). 
+           If include_spanless==True (default), then Bert's special "spanless" tokens 
+           (e.g. [CLS], [SEP]) will also be included with their respective start/end indexes 
+           set to None.
         '''
-        token_indexes = []
-        current_idx = 0
-        bert_tokens = list( self.tokenizer.tokenize(text.text) )
-        for token_id, token in enumerate(bert_tokens):
-            if token.startswith('##'):
-                token = token[2:]
-            if token != "[UNK]":
-                last_idx = current_idx
-                while lowercase_no_diacritics(slice_wo_soft_hyphen(text.text, current_idx, current_idx + len(token))) != \
-                      lowercase_no_diacritics(token):
-                    current_idx += 1
-                    if current_idx == len(text.text):
-                        raise Exception(f"(!) Cannot find bert_token's {token!r} text location at {text.text[last_idx:]!r}.")
-                token_indexes.append( (current_idx, current_idx + len(token)) )
-                current_idx += len(token)
-            else:
-                # Mark UNK token with (-1, -1). It will be skipped later
-                token_indexes.append( (-1, -1) )
-                # Find the next matching token
-                next_idx = self._next_matching_token(text.text, current_idx, bert_tokens, token_id)
-                if next_idx is not None:
-                    current_idx = next_idx
-        return token_indexes
-
-    def _next_matching_token(self, text_str, text_pos, bert_tokens, token_id):
-        '''Finds next matching token text_pos after given text_pos/token_id that is not [UNK] token.'''
-        token = bert_tokens[token_id]
-        while token == "[UNK]" and token_id < len(bert_tokens):
-            token = bert_tokens[token_id]
-            token_id += 1
-        while text_pos < len(text_str):
-            if lowercase_no_diacritics(slice_wo_soft_hyphen(text_str, text_pos, text_pos+len(token))) == \
-               lowercase_no_diacritics(token):
-                return text_pos
-            text_pos += 1
-        return None
+        tokens = []
+        batch_encoding = self.tokenizer(text.text)
+        for token_id, token in enumerate(batch_encoding.tokens()):
+            char_span = batch_encoding.token_to_chars(token_id)
+            if char_span is not None:
+                tokens.append( (char_span.start, char_span.end, token) )
+            elif include_spanless:
+                tokens.append( (None, None, token) )
+        return tokens
 
     def _make_layers(self, text: Text, layers: MutableMapping[str, Layer], status: dict) -> Layer:
         # Create layers (and layer templates)
@@ -182,26 +159,24 @@ class EstBERTNERTagger(MultiLayerTagger):
         for text_chunk, (chunk_start, chunk_end) in zip(text_chunks, text_indexes):
             chunk_count += 1
             #logger.debug( f'Processing chunk {chunk_count} out of {len(text_chunks)} chunks.' )
-            response = self.nlp( text_chunk )
-            entity_spans = []
-            entity_type = None
-            #
-            # Create NE tokens layer on the fly, populate (temp) NER layer
-            #
-            bert_token_indexes = self.tokenize_with_bert( Text(text_chunk) )
-            for (start_span, end_span) in bert_token_indexes:
-                if (start_span, end_span) == (-1, -1):
-                    # Skip [UNK] tokens
+            # A) Create (possibly temporary) Bert tokens layer
+            bert_tokens = self.tokenize_with_bert(Text(text_chunk), include_spanless=True)
+            for (start_span, end_span, token) in bert_tokens:
+                if (start_span, end_span) == (None, None):
+                    # Skip special tokens (e.g. [CLS], [SEP])
                     continue
                 tokenslayer.add_annotation( ElementaryBaseSpan(chunk_start+start_span, chunk_start+end_span) )
-            labels = ['O'] * len(bert_token_indexes)
-            for word in response:
-                labels[word['index'] - 1] = word['entity']
-            for span, label in zip(bert_token_indexes, labels):
-                if span == (-1, -1):
-                    # Skip [UNK] tokens
-                    if label != 'O':
-                        logger.error( f'Skipping [UNK] token with tag {label!r} from annotations.' )
+            labels = ['O'] * len(bert_tokens)
+            # B) Annotate NE labels
+            response = self.nlp( text_chunk )
+            for detected_entity in response:
+                labels[detected_entity['index']] = detected_entity['entity']
+            # C) Combine NE labels with Bert tokens to get full NE annotations
+            entity_spans = []
+            entity_type = None
+            for span, label in zip(bert_tokens, labels):
+                if span[0] is None and span[1] is None:
+                    # Skip special tokens (e.g. [CLS], [SEP])
                     continue
                 if entity_type is None:
                     entity_type = label[2:]
@@ -428,52 +403,6 @@ def _split_text_into_smaller_texts(large_text: Text, max_size:int=1750, seek_end
     # Return extracted chunks
     return ( chunks, chunk_indexes )
 
-def lowercase_no_diacritics(word_str: str) -> str:
-    '''
-    Converts given word string to lowercase and removes 
-    common diacritics/accents from letters.
-    '''
-    word_str = word_str.lower()
-    # common letters w diacritics/accents:
-    word_str = word_str.replace('ö', 'o')
-    word_str = word_str.replace('õ', 'o')
-    word_str = word_str.replace('ä', 'a')
-    word_str = word_str.replace('ü', 'u')
-    word_str = word_str.replace('š', 's')
-    word_str = word_str.replace('ž', 'z')
-    # and some less common letters:
-    word_str = word_str.replace('è', 'e')
-    word_str = word_str.replace('é', 'e')
-    word_str = word_str.replace('à', 'a')
-    word_str = word_str.replace('á', 'a')
-    word_str = word_str.replace('â', 'a')
-    word_str = word_str.replace('å', 'a')
-    word_str = word_str.replace('ū', 'u')
-    word_str = word_str.replace('ú', 'u')
-    word_str = word_str.replace('ł', 'l')
-    # TODO: generalize this to all unicode letters with diacritics
-    return word_str
-
-def slice_wo_soft_hyphen(text_str:str, start:int, end:int) -> str:
-    '''
-    Takes a slice [start:end] from text_str, but leaves out soft hyphen.
-    Reason: soft hyphen '\xad' is invisible to bert tokenizer, and thus 
-    needs to be removed or otherwise matching with the original text 
-    fails.
-    '''
-    i = start
-    text_slice = []
-    while i < len(text_str):
-        c = text_str[i]
-        if c != '\xad':
-            text_slice.append(c)
-        else:
-            # Skip soft hyphen, advance the ending position
-            end += 1
-        i += 1
-        if i == end:
-            break
-    return ''.join(text_slice)
 
 def _text_snippet( text_obj:Text, start:int, end:int ) -> str:
     '''

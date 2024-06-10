@@ -21,6 +21,7 @@ from estnltk.taggers.system.grammar_taggers.grammar_parsing_tagger import Gramma
 
 from estnltk.taggers.standard.text_segmentation.tokens_tagger import TokensTagger
 from estnltk.taggers.standard.text_segmentation.token_splitter import TokenSplitter
+from estnltk.taggers.standard.text_segmentation.local_token_splitter import LocalTokenSplitter
 from estnltk.taggers.standard.text_segmentation.word_tagger import WordTagger
 from estnltk.taggers.standard.text_segmentation.sentence_tokenizer import SentenceTokenizer
 from estnltk.taggers.standard.text_segmentation.paragraph_tokenizer import ParagraphTokenizer
@@ -59,6 +60,8 @@ from estnltk.taggers.standard.syntax.maltparser_tagger.maltparser_tagger import 
 from estnltk.taggers.standard.syntax.syntax_diff_retagger import SyntaxDiffRetagger
 from estnltk.taggers.standard.syntax.scoring.syntax_las_tagger import SyntaxLasTagger
 from estnltk.taggers.standard.syntax.udpipe_tagger.udpipe_tagger import UDPipeTagger
+
+from estnltk.taggers.standard.syntax.phrase_extraction.time_loc_tagger import TimeLocTagger
 
 from estnltk.taggers.standard.ner.ner_tagger import NerTagger
 from estnltk.taggers.standard.ner.word_level_ner_tagger import WordLevelNerTagger

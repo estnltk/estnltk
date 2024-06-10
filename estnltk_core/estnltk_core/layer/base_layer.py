@@ -296,6 +296,7 @@ class BaseLayer:
                                parent=self.parent,
                                enveloping=self.enveloping,
                                ambiguous=self.ambiguous,
+                               serialisation_module=self.serialisation_module, 
                                default_values=self.default_values)
         # keep the span level same
         layer._span_list = SpanList(span_level=self.span_level)
@@ -363,6 +364,7 @@ class BaseLayer:
                                    parent=self.parent,
                                    enveloping=self.enveloping,
                                    ambiguous=self.ambiguous,
+                                   serialisation_module=self.serialisation_module,
                                    default_values=self.default_values)
             # keep the span level same
             layer._span_list = SpanList(span_level=self.span_level)
@@ -411,6 +413,19 @@ class BaseLayer:
 
     @property
     def spans(self):
+        """Returns the list of spans of this layer, sorted by 
+           start indexes.
+           
+           **Important**: Do not add, remove or rewrite spans 
+           in this list, as this creates inconsistencies in 
+           layer's data structures! 
+           You should only add spans via layer methods 
+           add_annotation/add_span, and remove spans via layer 
+           method remove_span (or clear_spans). 
+           For rewriting a span (changing its annotations), 
+           use a combination of span.clear_annotations() and 
+           span.add_annotation( annotation_dict ).
+        """
         return self._span_list.spans
 
     @property
@@ -787,6 +802,18 @@ class BaseLayer:
                                                       'parent', 'enveloping',
                                                       'ambiguous', 'span count'])
 
+    '''
+    Whether annotations' None attribute values will be marked with translucent font 
+    (text opacity: 20%) in the HTML output of the layer. 
+    This is useful for better visualizing sparse attribute tables that have a lot of 
+    None values. Default: True.
+    '''
+    TRANSLUCENT_NONE_VALUES = True
+
+    '''
+    Whether annotation spans will be augmented with start and end indexes in the 
+    HTML output of the layer. Default: False.
+    '''
     print_start_end = False
 
     def _repr_html_(self):
@@ -812,5 +839,15 @@ class BaseLayer:
         table_1 = self.get_overview_dataframe().to_html(index=False, escape=False)
         table_2 = ''
         if attributes or index_attributes:
-            table_2 = self.attribute_values(attributes, index_attributes=index_attributes).to_html(index='text')
+            table_2 = self.attribute_values(attributes, index_attributes=index_attributes)
+            if bool(self.TRANSLUCENT_NONE_VALUES):
+                table_2_df = table_2.as_dataframe(index='text')
+                # TODO: Add packaging dependency and use packaging.version.Version
+                if pandas.__version__ < '2.1.0':
+                    table_2_df = table_2_df.style.applymap(lambda x: 'opacity: 20%;' if x == str(None) else None).hide(axis="index")
+                else:
+                    table_2_df = table_2_df.style.map(lambda x: 'opacity: 20%;' if x == str(None) else None).hide(axis="index")
+                table_2 = table_2_df.to_html(index=False, escape=True)
+            else:
+                table_2 = table_2.to_html(index='text')
         return '\n'.join(('<h4>{}</h4>'.format(self.__class__.__name__), meta, text_object, table_1, table_2))

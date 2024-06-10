@@ -196,7 +196,7 @@ class PostgresStorage:
                     # Note: we need to make insertion before creating PgCollection, 
                     # because creating PgCollection involves db queries with commits, 
                     # which would release the lock
-                    version = '3.0'
+                    version = '4.0'
                     c.execute(SQL(
                             "INSERT INTO {} (collection, version) "
                             "VALUES ({}, {});").format(
@@ -224,14 +224,12 @@ class PostgresStorage:
         self._collections[collection.name] = collection
         try:
             # Create structure table (contains information about collection's layers)
-            collection.structure.create_table()
+            collection.structure.create_layer_info_table()
             if description is None:
                 description = 'created by {} on {}'.format(self.user, time.asctime())
             # Create collection table (stores Text objects with attached layers and metadata columns)
-            pg.create_collection_table(self,
-                                       collection_name=name,
-                                       meta_columns=meta,
-                                       description=description)
+            collection.structure.create_collection_table(meta_columns=meta,
+                                                         description=description)
             logger.info('new empty collection {!r} created'.format(name))
         except Exception as adding_error:
             raise PgStorageException(('(!) Cannot add new collection {!r} '+\

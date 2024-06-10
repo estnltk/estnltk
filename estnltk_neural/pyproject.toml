@@ -12,7 +12,7 @@ authors = [
 ]
 description = "EstNLTK neural -- EstNLTK's linguistic analysis based on neural models"
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 keywords = ["Estonian natural language processing", "Estonian linguistic processing"]
 license = {text = "GPLv2"}
 classifiers = [
@@ -21,10 +21,10 @@ classifiers = [
     "Intended Audience :: Science/Research",
     "Intended Audience :: Information Technology",
     "Operating System :: OS Independent",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "Topic :: Scientific/Engineering",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
     "Topic :: Scientific/Engineering :: Information Analysis",
@@ -32,8 +32,8 @@ classifiers = [
     "Topic :: Text Processing :: Linguistic"
 ]
 dependencies = [
-    'estnltk-core >= 1.7.2',   # EstNLTK's basic datastructures and conversion methods
-    'estnltk >= 1.7.2',        # EstNLTK's NLP pipelines and database tools
+    'estnltk-core >= 1.7.3',   # EstNLTK's basic datastructures and conversion methods
+    'estnltk >= 1.7.3',        # EstNLTK's NLP pipelines and database tools
     'torch',                   # Required by Stanza-based syntactic parsing and Bert embeddings tagger
     'transformers',            # Required by Bert embeddings tagger
     'stanza',                  # Required by Stanza-based syntactic parsing

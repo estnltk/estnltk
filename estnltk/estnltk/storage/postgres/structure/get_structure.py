@@ -10,5 +10,7 @@ def get_structure(collection, version):
         return pg.v20.CollectionStructure(collection)
     elif version == '3.0':
         return pg.v30.CollectionStructure(collection)
+    elif version == '4.0':
+        return pg.v40.CollectionStructure(collection)
     else:
-        raise ValueError("version must be '0.0', '1.0', '2.0' or '3.0'")
+        raise ValueError("version must be '0.0', '1.0', '2.0', '3.0' or '4.0'")

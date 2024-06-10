@@ -2,6 +2,7 @@ import pytest
 
 import itertools
 from estnltk_core import Layer
+from estnltk_core import RelationLayer
 from estnltk_core.common import load_text_class
 
 from estnltk_core.converters import dict_to_layer
@@ -539,6 +540,42 @@ def test_text_topological_sort_malformed_input():
     top_sorted_layer_names = [layer.name for layer in top_sorted_layers]
     assert top_sorted_layer_names == ['tokens', 'words', 'sentences', 'alt_entities', \
                                       'alt_words', 'alt_sentences', 'alt_paragraphs']
+
+
+def test_text_topological_sort_mixed_span_and_relation_layers():
+    # Test topological_sort on mixed dependencies between span and relation layers
+    # Load Text or BaseText class (depending on the available packages)
+    Text = load_text_class()
+    # Create input layers
+    layer_a = Layer(name='span_layer_a', parent=None, enveloping=None, text_object=None)
+    layer_b = RelationLayer(name='rel_layer_b', span_names=('sp1',), 
+                            enveloping='span_layer_a', text_object=None)
+    layer_c = Layer(name='span_layer_c', parent='rel_layer_b', enveloping=None, text_object=None)
+    layer_d = RelationLayer(name='rel_layer_d', span_names=('sp_a',), 
+                            enveloping='span_layer_c', text_object=None)
+    layer_e = Layer(name='span_layer_e', parent=None, enveloping='rel_layer_d', text_object=None)
+    layer_x = RelationLayer(name='rel_layer_x', span_names=('sp_x',), 
+                            enveloping=None, text_object=None)
+    layer_y = Layer(name='span_layer_y', parent=None, enveloping='rel_layer_x', text_object=None)
+    # Perform sorting
+    layers_dict = {layer.name: layer for layer in [ layer_y, layer_d, layer_b, layer_a, layer_e, 
+                                                    layer_c, layer_x ]}
+    top_sorted_layers = Text.topological_sort( layers_dict )
+    top_sorted_layer_names = [layer.name for layer in top_sorted_layers]
+    assert top_sorted_layer_names == ['rel_layer_x', 'span_layer_a', 'rel_layer_b', 'span_layer_c', 
+                                      'rel_layer_d', 'span_layer_e', 'span_layer_y']
+    # Test on malformed input: add layers with unknown dependencies
+    layer_alt1 = RelationLayer(name='rel_layer_broken', span_names=('sp_m',), 
+                               enveloping='span_layer_unk', text_object=None)
+    layer_alt2 = Layer(name='span_layer_broken', parent='rel_layer_unk', 
+                       enveloping=None, text_object=None)
+    layers_dict_2 = {layer.name: layer for layer in [ layer_y, layer_alt1, layer_d, layer_b, layer_a, 
+                                                      layer_e, layer_alt2, layer_c, layer_x ]}
+    top_sorted_layers_2 = Text.topological_sort( layers_dict_2 )
+    top_sorted_layer_names_2 = [layer.name for layer in top_sorted_layers_2]
+    assert top_sorted_layer_names_2 == ['rel_layer_x', 'span_layer_a', 'rel_layer_b', 'span_layer_c', 
+                                        'rel_layer_d', 'span_layer_e', 'span_layer_y', 'rel_layer_broken',
+                                        'span_layer_broken']
 
 
 def test_attribute_values_selection():

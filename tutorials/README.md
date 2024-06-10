@@ -41,7 +41,7 @@
 
 * System taggers and tools for rule-based language engineering:
 
-    * [rule_taggers](taggers/rule_taggers) -- Rule based taggers for text annotation using regular experssions, word listings and phrase patterns;
+    * [rule_taggers](taggers/rule_taggers) -- Rule based taggers for text annotation using regular experssions, word listings and phrase patterns; systematic development and testing of regular expression patterns; 
 
     * [finite_grammar](taggers/finite_grammar) -- grammar based fact extraction taggers;
 

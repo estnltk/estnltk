@@ -1,2 +1,3 @@
 from estnltk.visualisation.mappers.value_mapper import value_mapper_unique
 from estnltk.visualisation.span_visualiser.fancy_span_visualisation import DisplaySpans
+from estnltk.visualisation.span_visualiser.named_span_visualisation import DisplayNamedSpans

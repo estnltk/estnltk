@@ -3,7 +3,7 @@ import json
 import re
 import time
 from contextlib import contextmanager
-from typing import Sequence, Dict
+from typing import Sequence, Dict, Union
 import warnings
 
 import pandas
@@ -13,6 +13,8 @@ from psycopg2.sql import SQL, Identifier, Literal, DEFAULT
 
 from estnltk import logger
 from estnltk_core import Layer
+from estnltk_core import RelationLayer
+from estnltk_core.taggers import RelationTagger
 from estnltk.converters import dict_to_layer
 from estnltk.converters import dict_to_text
 from estnltk.converters import layer_to_dict
@@ -22,6 +24,7 @@ from estnltk.storage import postgres as pg
 from estnltk.storage.postgres import BufferedTableInsert
 from estnltk.storage.postgres import CollectionDetachedLayerInserter
 from estnltk.storage.postgres import CollectionTextObjectInserter
+from estnltk.storage.postgres import is_empty
 from estnltk.storage.postgres import count_rows
 from estnltk.storage.postgres import drop_layer_table
 from estnltk.storage.postgres import fragment_table_name
@@ -260,14 +263,16 @@ class PgCollection:
             self._structure = pg.v20.CollectionStructure(self)
         elif version == '3.0':
             self._structure = pg.v30.CollectionStructure(self)
+        elif version == '4.0':
+            self._structure = pg.v40.CollectionStructure(self)
         else:
-            raise ValueError("version must be '0.0', '1.0', '2.0' or '3.0'")
+            raise ValueError("version must be '0.0', '1.0', '2.0', '3.0' or '4.0'")
         self.version = version
 
         self._meta = None
         self._column_names = None
         self._selected_layers = None
-        self._is_empty = not self.exists() or len(self) == 0
+        self._is_empty = not self.exists() or is_empty(self.storage, self.name)
 
     def create(self, description=None, meta: dict = None, temporary=None):
         """Creates and adds new collection to the database. 
@@ -302,7 +307,7 @@ class PgCollection:
     @property
     def column_names(self):
         if self._column_names is None:
-            self._column_names = ['id', 'data'] + self.meta.columns
+            self._column_names = self._structure.collection_base_columns + self.meta.columns
         return self._column_names
 
     @property
@@ -386,8 +391,13 @@ class PgCollection:
             try:
                 c.execute(
                     SQL("CREATE INDEX {index} ON {table} USING gin ((data->'layers') jsonb_path_ops)").format(
-                        index=Identifier('idx_%s_data' % self.name),
+                        index=Identifier('idx_%s_layer_data' % self.name),
                         table=pg.collection_table_identifier(self.storage, self.name)))
+                if self.version >= '4.0':
+                    c.execute(
+                        SQL("CREATE INDEX {index} ON {table} USING gin ((data->'relation_layers') jsonb_path_ops)").format(
+                            index=Identifier('idx_%s_relation_layer_data' % self.name),
+                            table=pg.collection_table_identifier(self.storage, self.name)))
             except Exception:
                 self.storage.conn.rollback()
                 raise
@@ -407,7 +417,12 @@ class PgCollection:
                 c.execute(
                     SQL("DROP INDEX {schema}.{index}").format(
                         schema=Identifier(self.storage.schema),
-                        index=Identifier('idx_%s_data' % self.name)))
+                        index=Identifier('idx_%s_layer_data' % self.name)))
+                if self.version >= '4.0':
+                    c.execute(
+                        SQL("DROP INDEX {schema}.{index}").format(
+                            schema=Identifier(self.storage.schema),
+                            index=Identifier('idx_%s_relation_layer_data' % self.name)))
             except Exception:
                 self.storage.conn.rollback()
                 raise
@@ -737,8 +752,9 @@ class PgCollection:
         for i, t in self.select(layers=[layer], **kwargs):
             counter.update(t[layer].count_values(attr))
         return counter
+        
 
-    def add_layer(self, layer_template: Layer,
+    def add_layer(self, layer_template: Union[Layer, RelationLayer],
                         layer_type: str = 'detached',
                         fragmented_layer: bool = False,
                         meta: Dict[str, str] = None,
@@ -763,8 +779,10 @@ class PgCollection:
         This is useful when one uses phase grammars.
 
         Args:
-            layer_template: Layer
-                A template which is used as a basis on creating the new layer
+            layer_template: Union[Layer, RelationLayer]
+                A template which is used as a basis on creating the new layer.
+                Note that collection version 4.0 is required for adding relation 
+                layers.
             layer_type: str
                 Must be one of the following: {'detached', 'fragmented', 'multi'}.
                 See also: PostgresStorage.TABLED_LAYER_TYPES
@@ -779,8 +797,8 @@ class PgCollection:
             create_index: bool
                 Whether to create an index on json column (default: False)
             ngram_index: list
-                A list of attributes for which to create an ngram index (default: None)
-                :param sparse:
+                A list of attributes for which to create an ngram index (default: None).
+                
             sparse: bool
                 Whether the layer table is created as a sparse tabel which means
                 that empty layers are not stored in the table.
@@ -792,11 +810,19 @@ class PgCollection:
             raise PgCollectionException("collection {!r} does not exist, can't add layer".format(self.name))
 
         # Check input arguments
-        if not isinstance( layer_template, Layer ):
-            raise TypeError('(!) layer_template must be an instance of Layer')
+        if isinstance( layer_template, RelationLayer ) and self.version < '4.0':
+            raise PgCollectionException( ("Relation layers cannot be added in collection version {!r}. "+\
+                                          "Version 4.0+ is required.").format(self.version) )
+
+        if isinstance( layer_template, RelationLayer ) and ngram_index is not None:
+            raise NotImplementedError("Adding relation layer with ngram_index not implemented.")
+
+        if not isinstance( layer_template, (Layer, RelationLayer) ):
+            raise TypeError('(!) layer_template must be an instance of Layer or RelationLayer')
 
         if sparse and self.version < '3.0':
-            raise PgCollectionException("Sparse tables are not supported in collection version {!r}.".format(self.version))
+            raise PgCollectionException( ("Sparse tables are not supported in collection version {!r}. "+\
+                                          "Version 3.0+ is required.").format(self.version) )
 
         if layer_type not in pg.PostgresStorage.TABLED_LAYER_TYPES:
             raise PgCollectionException("Unexpected layer type {!r}. Supported layer types are: {!r}".format(layer_type, \
@@ -903,12 +929,20 @@ class PgCollection:
 
                 # create jsonb index
                 if create_index is True:
-                    cur.execute(SQL(
-                        "CREATE INDEX {index} ON {schema}.{table} USING gin ((data->'layers') jsonb_path_ops);").format(
-                        schema=Identifier(self.storage.schema),
-                        index=Identifier('idx_%s_data' % layer_table),
-                        table=Identifier(layer_table)))
-                    logger.debug(cur.query.decode())
+                    if isinstance( layer_template, Layer ):
+                        cur.execute(SQL(
+                            "CREATE INDEX {index} ON {schema}.{table} USING gin ((data->'spans') jsonb_path_ops);").format(
+                            schema=Identifier(self.storage.schema),
+                            index=Identifier('idx_%s_spans' % layer_table),
+                            table=Identifier(layer_table)))
+                        logger.debug(cur.query.decode())
+                    elif isinstance( layer_template, RelationLayer ):
+                        cur.execute(SQL(
+                            "CREATE INDEX {index} ON {schema}.{table} USING gin ((data->'relations') jsonb_path_ops);").format(
+                            schema=Identifier(self.storage.schema),
+                            index=Identifier('idx_%s_relations' % layer_table),
+                            table=Identifier(layer_table)))
+                        logger.debug(cur.query.decode())
 
                 # create ngram array index
                 if ngram_index is not None:
@@ -963,7 +997,7 @@ class PgCollection:
         collection.
 
         Args:
-            tagger: Tagger
+            tagger:  Union[Tagger, RelationTagger]
                 tagger.get_layer_template method is called for creating the 
                 template of the new layer. 
                 tagger.make_layer method is called to create fragmented layer 
@@ -1021,6 +1055,13 @@ class PgCollection:
         if not self.exists():
             raise PgCollectionException("collection {!r} does not exist, can't create layer {!r}".format(
                                         self.name, layer_name))
+        create_relation_layer = \
+            isinstance(layer_template, RelationLayer) or isinstance(tagger, RelationTagger)
+        if create_relation_layer and self.version < '4.0':
+            raise PgCollectionException("Creating relation layers is not supported in collection version {!r}.".format(self.version))
+        if create_relation_layer and ngram_index:
+            raise NotImplementedError("Creating relation layers with ngram_index not implemented.")
+        
         logger.info('collection: {!r}'.format(self.name))
         if self._is_empty:
             raise PgCollectionException("can't add fragmented layer {!r}, the collection is empty".format(layer_name))
@@ -1047,8 +1088,10 @@ class PgCollection:
         self.add_layer(layer_template, layer_type='fragmented', meta=meta, create_index=create_index, 
                        ngram_index=ngram_index, sparse=False)
 
+        no_errors = True
         conn = self.storage.conn
         with conn.cursor() as c:
+            text_id = None
             try:
                 conn.commit()
                 conn.autocommit = False
@@ -1097,6 +1140,14 @@ class PgCollection:
                                 buffered_inserter.insert( values )
                                 fragment_id += 1
             except Exception:
+                no_errors = False
+                if text_id is not None:
+                    layer_creation_error_msg = ('Layer creation failed at document with id {} '+\
+                                                'due to an error: {}.').format(text_id, layer_creation_error)
+                else:
+                    layer_creation_error_msg = ('Layer creation failed due to an error: {}.'+\
+                                                '').format(layer_creation_error)
+                logger.error(layer_creation_error_msg)
                 conn.rollback()
                 raise
             finally:
@@ -1104,8 +1155,9 @@ class PgCollection:
                     # no exception, transaction in progress
                     conn.commit()
 
-        logger.info('fragmented layer created: {!r}'.format(layer_name))
-        logger.debug('inserted {!r} layers into {!r}.'.format(fragment_id, layer_name))
+        if no_errors:
+            logger.info('fragmented layer created: {!r}'.format(layer_name))
+            logger.debug('inserted {!r} layers into {!r}.'.format(fragment_id, layer_name))
 
 
     def create_layer(self, layer_template=None, data_iterator=None, row_mapper=None, tagger=None,
@@ -1120,7 +1172,7 @@ class PgCollection:
 
         Args:
 
-            layer_template: Layer
+            layer_template: Union[Layer, RelationLayer]
                 Layer template from which the layer is added to the structure 
                 of the collection. 
                 Layer template is an empty layer that contains all the proper 
@@ -1133,7 +1185,7 @@ class PgCollection:
             row_mapper: function
                 For each record produced by `data_iterator` return a list
                 of `RowMapperRecord` objects.
-            tagger: Tagger
+            tagger: Union[Tagger, RelationTagger]
                 tagger.get_layer_template method is called for creating the 
                 template of the new layer. 
                 tagger.make_layer method is called to create layer instances 
@@ -1183,6 +1235,14 @@ class PgCollection:
         assert (layer_template is None and data_iterator is None and row_mapper is None) is not (tagger is None),\
                'either tagger ({}) must be None or layer_template ({}), data_iterator ({}) and row_mapper ({}) must be None'.format(tagger, layer_template, data_iterator, row_mapper)
 
+        create_relation_layer = \
+            isinstance(layer_template, RelationLayer) or isinstance(tagger, RelationTagger)
+        if create_relation_layer and self.version < '4.0':
+            raise PgCollectionException("Creating relation layers is not supported in collection version {!r}.".format(self.version))
+        
+        if create_relation_layer and ngram_index:
+            raise NotImplementedError("Creating relation layers with ngram_index not implemented.")
+        
         # TODO: remove overwrite parameter
         assert overwrite is False or mode is None, (overwrite, mode)
         if overwrite:
@@ -1247,7 +1307,9 @@ class PgCollection:
         conn.commit()
         conn.autocommit = False
 
+        no_errors = True
         with conn.cursor() as c:
+            collection_text_id = None
             try:
                 # insert data
                 logger.info('inserting data into the {!r} layer table'.format(layer_name))
@@ -1273,15 +1335,25 @@ class PgCollection:
                                           for attr in ngram_index_keys)
 
                         buffered_inserter.insert(layer, collection_text_id, key=collection_text_id, extra_data=extra_values)
-            except Exception:
+            except Exception as layer_creation_error:
+                no_errors = False
+                if collection_text_id is not None:
+                    layer_creation_error_msg = ('Layer creation failed at document with id {} '+\
+                                                'due to an error: {}.').format(collection_text_id, \
+                                                                               layer_creation_error)
+                else:
+                    layer_creation_error_msg = ('Layer creation failed due to an error: {}.'+\
+                                                '').format(layer_creation_error)
+                logger.error(layer_creation_error_msg)
                 conn.rollback()
                 raise
             finally:
                 if conn.status == STATUS_BEGIN:
                     # no exception, transaction in progress
                     conn.commit()
-
-        logger.info('layer created: {!r}'.format(layer_name))
+        
+        if no_errors:
+            logger.info('layer created: {!r}'.format(layer_name))
 
     def create_layer_block(self, tagger, block, data_iterator=None, meta=None, query_length_limit=5000000, mode=None):
         """Creates a layer block.
@@ -1293,7 +1365,7 @@ class PgCollection:
         the collection has been finished. Once you create a detached layer, new Text objects
         cannot be inserted into the collection.
 
-        :param tagger: Tagger
+        :param tagger: Union[Tagger, RelationTagger]
             tagger to be applied on collection's texts.
             Note: tagger's input_layers will be selected automatically, 
             but the collection must have all the input layers. 
@@ -1346,6 +1418,8 @@ class PgCollection:
                                          "on 'detached' layers.").format(struct['layer_type']))
         layer_structure = (layer_name, struct['attributes'], struct['ambiguous'],
                            struct['parent'], struct['enveloping'])
+        if 'span_names' in struct:
+            layer_structure += ( struct['span_names'], )
         sparse = struct['sparse'] if 'sparse' in struct else False
 
         if data_iterator is not None:
@@ -1381,29 +1455,50 @@ class PgCollection:
             if mode.lower() == 'append':
                 block_query &= MissingLayerQuery( missing_layer = tagger.output_layer )
             data_iterator = self.select(query=block_query, layers=tagger.input_layers)
+
+        no_errors = True
+        collection_text_id = None
+        try:
+            with CollectionDetachedLayerInserter( self, layer_name, extra_columns=meta_columns, 
+                                                  query_length_limit=query_length_limit,
+                                                  sparse=sparse) as buffered_inserter:
+
+                for collection_text_id, text in data_iterator:
+                    layer = tagger.make_layer(text=text, status=None)
+                    # Check layer structure
+                    layer_structure_from_tagger = (layer.name, layer.attributes, layer.ambiguous, 
+                                                   layer.parent if isinstance(layer, Layer) else None, 
+                                                   layer.enveloping)
+                    if 'span_names' in struct:
+                        layer_structure_from_tagger += \
+                            ( (layer.span_names if isinstance(layer, RelationLayer) else None), )
+                    assert len(layer_structure) == len(layer_structure_from_tagger)
+                    if layer_structure != layer_structure_from_tagger:
+                        no_errors = False
+                        raise ValueError( ('(!) Mismatching layer structures: '+
+                                           'structure in database: {!r} and '+
+                                           'structure created by tagger: {!r}').format(layer_structure,
+                                                                                       layer_structure_from_tagger) )
+
+                    extra_values = []
+                    if meta_columns:
+                        extra_values.extend( [layer.meta[k] for k in meta_columns] )
+                    
+                    buffered_inserter.insert(layer, collection_text_id, key=collection_text_id, extra_data=extra_values)
+        except Exception as layer_creation_error:
+            no_errors = False
+            if collection_text_id is not None:
+                layer_creation_error_msg = ('Layer creation failed at document with id {} '+\
+                                            'due to an error: {}.').format(collection_text_id, \
+                                                                           layer_creation_error)
+            else:
+                layer_creation_error_msg = ('Layer creation failed due to an error: {}.'+\
+                                            '').format(layer_creation_error)
+            logger.error(layer_creation_error_msg)
+            raise
         
-        with CollectionDetachedLayerInserter( self, layer_name, extra_columns=meta_columns, 
-                                              query_length_limit=query_length_limit,
-                                              sparse=sparse) as buffered_inserter:
-
-            for collection_text_id, text in data_iterator:
-                layer = tagger.make_layer(text=text, status=None)
-                # Check layer structure
-                layer_structure_from_tagger = (layer.name, layer.attributes, layer.ambiguous,
-                                               layer.parent, layer.enveloping)
-                if layer_structure != layer_structure_from_tagger:
-                    raise ValueError( ('(!) Mismatching layer structures: '+
-                                       'structure in database: {!r} and '+
-                                       'structure created by tagger: {!r}').format(layer_structure,
-                                                                                   layer_structure_from_tagger) )
-
-                extra_values = []
-                if meta_columns:
-                    extra_values.extend( [layer.meta[k] for k in meta_columns] )
-                
-                buffered_inserter.insert(layer, collection_text_id, key=collection_text_id, extra_data=extra_values)
-
-        logger.info('block {} of {!r} layer created'.format(block, layer_name))
+        if no_errors:
+            logger.info('block {} of {!r} layer created'.format(block, layer_name))
 
 
     def delete_layer(self, layer_name, cascade=False):
@@ -1516,10 +1611,16 @@ class PgCollection:
             raise ValueError('collection does not have layer {!r}'.format(layer_name))
         return self._structure[layer_name]['sparse'] if 'sparse' in self._structure[layer_name] else False
 
+    def is_relation_layer(self, layer_name):
+        if not self.exists():
+            raise PgCollectionException("collection {!r} does not exist".format( self.name ))
+        if not self.has_layer(layer_name):
+            raise ValueError('collection does not have layer {!r}'.format(layer_name))
+        return (self._structure[layer_name]).get('relation_layer', False)
+
     def get_fragment_names(self):
         warnings.simplefilter("always", DeprecationWarning)
-        warnings.warn('collection.get_fragment_tables(...) is deprecated. '+\
-                      'Use collection.get_layer_names_by_type(layer_type="fragmented") instead. ', 
+        warnings.warn('collection.get_fragment_names(...) is deprecated. ', 
                       DeprecationWarning)
         warnings.simplefilter("ignore", DeprecationWarning)
         if not self.exists():
@@ -1594,12 +1695,18 @@ class PgCollection:
         """
         Exports annotations from the given layer to a separate table.
         
-        At minimum, the exported layer table has the following columns:
+        At minimum, the exported span layer table has the following columns:
         * id -- annotation id (unique in the whole collection);
         * text_id -- text's id in the collection;
         * span_nr -- span's index in the layer;
         * span_start -- span's start index in the text;
         * span_end   -- span's end index in the text;
+        and the exported relation layer table has the columns:
+        * id -- annotation id (unique in the whole collection);
+        * text_id -- text's id in the collection;
+        * relation_nr -- relation's index in the layer;
+        * f'{span_name}_start' and f'{span_name}_end' columns for each named span;
+        
         Optionally, if attributes is set, then there will be a separate 
         column for each layer attribute. And if collection_meta is set, 
         then there will be an additional column for each metadata field.
@@ -1651,7 +1758,12 @@ class PgCollection:
         if not isinstance(mode, str) or mode.upper() not in ['NEW', 'APPEND']:
             raise ValueError('(!) Mode {!r} not supported. Use {!r} or {!r}.'.format( mode, 'NEW', 'APPEND' ))
         mode = mode.upper()
-        
+
+        if not self.has_layer(layer):
+            raise ValueError("collection {!r} does not have layer {!r}".format(self.name, layer))
+
+        export_relation_layer = self.is_relation_layer(layer)
+
         if collection_meta is None:
             collection_meta = []
 
@@ -1661,15 +1773,29 @@ class PgCollection:
 
         logger.info('preparing to export {!r} layer with attributes {!r}'.format(layer, attributes))
 
-        columns = [
-            ('id', 'serial PRIMARY KEY'),
-            ('text_id', 'int NOT NULL'),
-            ('span_nr', 'int NOT NULL'),
-            ('span_start', 'int NOT NULL'),
-            ('span_end', 'int NOT NULL'),
-        ]
-        columns.extend((attr, 'text') for attr in attributes)
-        columns.extend((attr, 'text') for attr in collection_meta)
+        if not export_relation_layer:
+            # span layer
+            columns = [
+                ('id', 'serial PRIMARY KEY'),
+                ('text_id', 'int NOT NULL'),
+                ('span_nr', 'int NOT NULL'),
+                ('span_start', 'int NOT NULL'),
+                ('span_end', 'int NOT NULL'),
+            ]
+            columns.extend((attr, 'text') for attr in attributes)
+            columns.extend((attr, 'text') for attr in collection_meta)
+        else:
+            # relation layer
+            columns = [
+                ('id', 'serial PRIMARY KEY'),
+                ('text_id', 'int NOT NULL'),
+                ('relation_nr', 'int NOT NULL'),
+            ]
+            for span_name in self.structure[layer]['span_names']:
+                columns.append( ('{}_start'.format(span_name), 'int') )
+                columns.append( ('{}_end'.format(span_name), 'int') )
+            columns.extend((attr, 'text') for attr in attributes)
+            columns.extend((attr, 'text') for attr in collection_meta)
 
         # Check for the existence of the table
         create_table = True
@@ -1722,15 +1848,34 @@ class PgCollection:
             for entry in texts:
                 if len( collection_meta ) > 0:
                     text_id, text, meta = entry
-                else: 
+                else:
                     text_id, text = entry
-                for span_nr, span in enumerate(text[layer]):
-                    for annotation in span.annotations:
-                        i += 1
-                        values = [ i, text_id, span_nr, span.start, span.end ]
-                        values.extend( [annotation[attr] for attr in attributes] )
-                        values.extend( [meta[k] for k in collection_meta] )
-                        buffered_inserter.insert( values )
+                if not export_relation_layer:
+                    # export span layer
+                    for span_nr, span in enumerate( text[layer] ):
+                        for annotation in span.annotations:
+                            i += 1
+                            values = [ i, text_id, span_nr, span.start, span.end ]
+                            values.extend( [annotation[attr] for attr in attributes] )
+                            values.extend( [meta[k] for k in collection_meta] )
+                            buffered_inserter.insert( values )
+                else:
+                    # export relation layer
+                    for relation_nr, relation in enumerate(text[layer]):
+                        for annotation in relation.annotations:
+                            i += 1
+                            values = [ i, text_id, relation_nr ]
+                            for span_name in self.structure[layer]['span_names']:
+                                named_span = relation[span_name]
+                                if named_span is not None:
+                                    values.append(named_span.start)
+                                    values.append(named_span.end)
+                                else:
+                                    values.append(None)
+                                    values.append(None)
+                            values.extend( [annotation[attr] for attr in attributes] )
+                            values.extend( [meta[k] for k in collection_meta] )
+                            buffered_inserter.insert( values )
 
         logger.info('{} annotations exported to "{}"."{}"'.format(i-initial_rows, self.storage.schema, table_name))
 
@@ -1742,8 +1887,11 @@ class PgCollection:
         
         if self.version < '3.0':
             structure_columns = ['layer_type', 'attributes', 'ambiguous', 'parent', 'enveloping', 'meta']
-        else:
+        elif self.version < '4.0':
             structure_columns = ['layer_type', 'attributes', 'ambiguous', 'sparse', 'parent', 'enveloping', 'meta']
+        else:
+            structure_columns = ['layer_type', 'relation_layer', 'attributes', 'span_names', 'ambiguous', \
+                                 'sparse', 'parent', 'enveloping', 'meta']
         if self._is_empty:
             structure_html = '<br/>unknown'
         else:

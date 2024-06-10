@@ -1,6 +1,6 @@
-import pkgutil
-import importlib
 import os
+import importlib
+from importlib.util import find_spec
 
 from estnltk import Layer
 from estnltk.taggers import Retagger
@@ -13,7 +13,7 @@ from estnltk_neural.taggers.neural_morph.new_neural_morph.neural_2_vabamorf impo
 
 def is_tensorflow_available():
     '''Checks if tensorflow package has been installed.'''
-    return pkgutil.find_loader('tensorflow') is not None
+    return find_spec('tensorflow') is not None
 
 
 MODEL_FILES = {"data": ["analysis.txt",

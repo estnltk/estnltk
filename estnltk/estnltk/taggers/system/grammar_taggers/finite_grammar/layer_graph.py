@@ -2,7 +2,6 @@ from collections import defaultdict
 from collections.abc import Hashable
 from typing import Sequence
 import networkx as nx
-import matplotlib.pyplot as plt
 import pandas
 
 from estnltk import Span
@@ -328,6 +327,13 @@ def layer_to_graph(layer, raw_text, name_attribute='grammar_symbol', attributes=
 
 
 def plot_graph(graph:LayerGraph, size=12, prog='dot'):
+    import matplotlib.pyplot as plt
+    # Why we have an internal matplotlib import here?
+    # Because matplotlib's windows conda package occasionally breaks due to conflicts 
+    # with the pillow package (can raise "ImportError: DLL load failed while importing 
+    # _imaging: The specified module could not be found."). As matplotlib is infrequently 
+    # used in EstNLTK, matplotlib's error should not be a show-stopper when using the 
+    # main functionality of EstNLTK. 
     labels = {node: node.name for node in graph.nodes}
     pos = nx.drawing.nx_pydot.pydot_layout(graph, prog=prog)
     plt.figure(figsize=(size,size))

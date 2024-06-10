@@ -1,0 +1,1 @@
+from .collectionstructure import CollectionStructure

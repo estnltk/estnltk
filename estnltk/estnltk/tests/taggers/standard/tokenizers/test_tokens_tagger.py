@@ -44,6 +44,21 @@ class TokensTaggerTest(unittest.TestCase):
         spans  = [(sp.start, sp.end) for sp in result['tokens']]
         tokens = [text.text[start:end] for (start, end) in spans]
         self.assertListEqual(expected_tokens, tokens)
+        
+        # Fixes from RT analysis
+        text = Text('ˮEuroopa ˮüks ’) .- 2020ˮ 5%')
+        expected_tokens = ['ˮ', 'Euroopa', 'ˮ', 'üks', '’', ')', '.', '-', '2020', 'ˮ', '5', '%']
+        result = tokenizer.tag(text)
+        spans  = [(sp.start, sp.end) for sp in result['tokens']]
+        tokens = [text.text[start:end] for (start, end) in spans]
+        self.assertListEqual(expected_tokens, tokens)
+
+        text = Text('„AB“ “C Dˮ "EF‟ ’G” ˮEuroopaˮ')
+        expected_tokens = ['„', 'AB', '“', '“', 'C', 'D', 'ˮ', '"', 'EF', '‟', '’', 'G', '”', 'ˮ', 'Euroopa', 'ˮ']
+        result = tokenizer.tag(text)
+        spans  = [(sp.start, sp.end) for sp in result['tokens']]
+        tokens = [text.text[start:end] for (start, end) in spans]
+        self.assertListEqual(expected_tokens, tokens)
 
     def test_separate_mistakenly_conjoined_sentences(self):
         text1 = Text('Iga päev teeme valikuid.Valime kõike.')

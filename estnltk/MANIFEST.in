@@ -17,6 +17,7 @@ include estnltk/taggers/standard/syntax/maltparser_tagger/java-res/maltparser/mo
 graft estnltk/taggers/standard/syntax/ud_validation/agreement_resources
 graft estnltk/taggers/standard/syntax/ud_validation/data
 graft estnltk/taggers/standard/syntax/preprocessing/rules_files
+graft estnltk/taggers/standard/syntax/phrase_extraction/resources
 graft estnltk/taggers/standard/text_segmentation
 graft estnltk/taggers/miscellaneous
 graft estnltk/vabamorf/dct

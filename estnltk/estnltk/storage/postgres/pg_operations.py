@@ -1,6 +1,8 @@
 from psycopg2.sql import SQL, Identifier, Literal
 from psycopg2.extensions import STATUS_BEGIN, TRANSACTION_STATUS_INERROR
 
+import warnings
+
 from estnltk import logger
 from estnltk.storage.postgres import structure_table_name
 from estnltk.storage.postgres import collection_table_name
@@ -14,6 +16,7 @@ pytype2dbtype = {
     "str": "text",
     'datetime': 'timestamp'
 }
+
 
 
 def create_schema(storage):
@@ -137,6 +140,19 @@ def drop_table(storage, table_name: str, cascade: bool = False):
                 logger.debug(c.query.decode())
 
 
+def is_empty(storage, table=None, table_identifier=None):
+    # An optimized function to quickly find out if a collection / table is empty
+    # (should work relatively fast even on large tables)
+    with storage.conn:
+        if table_identifier is not None:
+            with storage.conn.cursor() as c:
+                c.execute(SQL("SELECT NOT EXISTS (SELECT 1 FROM {} LIMIT 1)").format(table_identifier))
+                return c.fetchone()[0]
+        with storage.conn.cursor() as c:
+            c.execute(SQL("SELECT NOT EXISTS (SELECT 1 FROM {}.{} LIMIT 1)").format(Identifier(storage.schema), Identifier(table)))
+            return c.fetchone()[0]
+
+
 def count_rows(storage, table=None, table_identifier=None):
     # Convenient way of using connections and cursors as context managers:
     # https://www.psycopg.org/docs/usage.html#with-statement
@@ -173,19 +189,30 @@ def layer_table_identifier(storage, collection_name, layer_name, layer_type='det
 
 
 def create_collection_table(storage, collection_name, meta_columns=None, description=None):
-    """Creates a new table to store jsonb data:
+    """
+    Creates a new table to store jsonb data:
 
         CREATE TABLE table(
             id serial PRIMARY KEY,
-            data jsonb
+            data jsonb,
         );
 
     and automatically adds a GIN index for the jsonb column:
 
         CREATE INDEX idx_table_data ON table USING gin ((data -> 'layers') jsonb_path_ops);
-        
-    The types for meta columns can be int, bigint, float, str and datetime. For more information consult the source code. 
+    
+    The types for meta columns can be int, bigint, float, str and datetime. For more information 
+    consult the source code. 
+    
+    Deprecated: this method is deprecated and will be removed in future versions. 
+    Please use collection.structure.create_collection_table(...) instead.
     """
+    warnings.simplefilter("always", DeprecationWarning)
+    warnings.warn('Function create_collection_table is deprecated and will be removed in future versions. '+\
+                  'Please use collection.structure.create_collection_table(...) instead.', 
+                  DeprecationWarning)
+    warnings.simplefilter("ignore", DeprecationWarning)
+    
     assert storage.conn.autocommit == False
 
     columns = [SQL('id BIGSERIAL PRIMARY KEY'),

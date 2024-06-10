@@ -115,7 +115,6 @@ class Text( BaseText ):
         'layers',
         'relation_layers',
         'sorted_layers',
-        'sorted_relation_layers',
         'tag_layer',
         'topological_sort',
     } | {method for method in dir(object) if callable(getattr(object, method, None))}

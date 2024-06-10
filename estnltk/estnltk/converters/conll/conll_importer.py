@@ -53,7 +53,7 @@ def add_layer_from_conll(file: str, text: Text, syntax_layer: str):
 
     text.add_layer(syntax)
 
-    SyntaxDependencyRetagger(conll_syntax_layer=syntax_layer).retag(text)
+    SyntaxDependencyRetagger(syntax_layer=syntax_layer).retag(text)
 
     return text
 
@@ -127,7 +127,7 @@ def conll_to_text(file: str, syntax_layer: str = 'conll_syntax', remove_empty_no
     text.add_layer(sentences)
     text.add_layer(syntax)
 
-    SyntaxDependencyRetagger(conll_syntax_layer=syntax_layer).retag(text)
+    SyntaxDependencyRetagger(syntax_layer=syntax_layer).retag(text)
 
     return text
 
@@ -282,7 +282,7 @@ def conll_to_texts_list(file: str, syntax_layer: str = 'conll_syntax', postcorre
     texts[-1].add_layer(words_layers[-1])
     texts[-1].add_layer(sentences_layers[-1])
     texts[-1].add_layer(syntax_layers[-1])
-    SyntaxDependencyRetagger(conll_syntax_layer=syntax_layer).retag( texts[-1] )
+    SyntaxDependencyRetagger(syntax_layer=syntax_layer).retag( texts[-1] )
     
     return texts
 

@@ -9,6 +9,10 @@ from pprint import pprint
 
 class SyllabificationTest(unittest.TestCase):
 
+    def test_empty_string(self):
+        actual = syllabify_word('')
+        self.assertListEqual([], actual)
+
     def test_elagu(self):
         actual = syllabify_word('elagu')
         expected = [{'accent': 1, 'quantity': 1, 'syllable': 'e'},
