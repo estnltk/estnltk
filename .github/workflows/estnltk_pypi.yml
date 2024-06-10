@@ -32,7 +32,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: estnltk-test-pypi-packages-sdist
+          name: estnltk-pypi-packages-sdist
           path: |
             ./estnltk/dist/*.tar.gz
           retention-days: 14
@@ -90,8 +90,8 @@ jobs:
 
           # List of available platforms: 
           # https://cibuildwheel.readthedocs.io/en/stable/options/#build-skip 
-          CIBW_BUILD: cp310-*64
-          #CIBW_BUILD:  cp39-*64  cp310-*64  cp311-*64
+          CIBW_BUILD: cp39-*64
+          #CIBW_BUILD:  cp39-*64  cp310-*64  cp311-*64  cp312-*64
 
           # Disable building PyPy wheels on all platforms.
           # Enable if you get it working.
@@ -99,7 +99,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: estnltk-test-pypi-packages-${{ matrix.os }}
+          name: estnltk-pypi-packages-${{ matrix.os }}
           path: ./estnltk/wheelhouse/*.whl
           retention-days: 14
           overwrite: true
@@ -111,14 +111,14 @@ jobs:
     steps:
       - uses: actions/download-artifact@v4
         with:
-          path: estnltk-test-pypi-packages
-          pattern: estnltk-test-pypi-packages-*
+          path: estnltk-pypi-packages
+          pattern: estnltk-pypi-packages-*
           merge-multiple: true
 
       - uses: pypa/gh-action-pypi-publish@release/v1
         with:
           user: __token__
-          password: ${{ secrets.test_pypi_token }}
+          password: ${{ secrets.pypi_token }}
+          packages-dir: estnltk-pypi-packages
           # Use https://test.pypi.org instead of the default pypi:
-          repository-url: https://test.pypi.org/legacy/
-          packages-dir: estnltk-test-pypi-packages
+          #repository-url: https://test.pypi.org/legacy/
