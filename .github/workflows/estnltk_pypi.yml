@@ -36,6 +36,7 @@ jobs:
           path: |
             ./estnltk/dist/*.tar.gz
           retention-days: 14
+          overwrite: true
 
   build_estnltk_wheels:
     name: Build estnltk wheels on ${{ matrix.os }}
@@ -101,6 +102,7 @@ jobs:
           name: estnltk-test-pypi-packages-${{ matrix.os }}
           path: ./estnltk/wheelhouse/*.whl
           retention-days: 14
+          overwrite: true
 
   upload_pypi:
     name: Push to PyPI
@@ -118,4 +120,5 @@ jobs:
           user: __token__
           password: ${{ secrets.test_pypi_token }}
           # Use https://test.pypi.org instead of the default pypi:
-          repository_url: https://test.pypi.org/legacy/
+          repository-url: https://test.pypi.org/legacy/
+          packages-dir: estnltk-test-pypi-packages
