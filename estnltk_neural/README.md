@@ -33,7 +33,7 @@ Supported Python versions: 3.9+
 
 Models required by neural tools are large, and therefore cannot be distributed with this package. 
 However, our tagger classes are implemented in a way that once you create an instance of a neural tagger, you'll be asked  for a permission to download missing models, and if you give the permission, the model will be downloaded (and installed in a proper location) automatically. 
-If needed, you can also change the default location where downloaded models will be placed, see [this tutorial](https://github.com/estnltk/estnltk/blob/3a8eb8f6e675187ee07f92a30370dab807e62f12/tutorials/basics/estnltk_resources.ipynb) for details.
+If needed, you can also change the default location where downloaded models will be placed, see [this tutorial](https://github.com/estnltk/estnltk/blob/ce224214244bd903d71283a2f1db2e4697f20e84/tutorials/basics/estnltk_resources.ipynb) for details.
 
 ### Documentation
 
