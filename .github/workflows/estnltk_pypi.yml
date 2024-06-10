@@ -67,8 +67,8 @@ jobs:
           # configure cibuildwheel to build native archs, and some
           # emulated ones
           # https://cibuildwheel.pypa.io/en/stable/faq/#emulation
-          #CIBW_ARCHS_LINUX: x86_64
-          CIBW_ARCHS_LINUX: x86_64 aarch64
+          CIBW_ARCHS_LINUX: x86_64
+          #CIBW_ARCHS_LINUX: x86_64 aarch64
 
 
           # Cross-compile x86_64 wheels on arm64 runners.
