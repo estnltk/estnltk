@@ -41,6 +41,7 @@ jobs:
             ./estnltk_core/dist/*.whl
             ./estnltk_core/dist/*.tar.gz
           retention-days: 14
+          overwrite: true
 
   upload_pypi:
     name: Push to PyPI
@@ -55,6 +56,6 @@ jobs:
       - uses: pypa/gh-action-pypi-publish@release/v1
         with:
           user: __token__
-          password: ${{ secrets.test_pypi_token }}
+          password: ${{ secrets.pypi_token }}
           # Use https://test.pypi.org instead of the default pypi:
-          repository_url: https://test.pypi.org/legacy/
+          #repository-url: https://test.pypi.org/legacy/
