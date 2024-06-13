@@ -86,12 +86,12 @@ jobs:
       - name: Setup miniconda
         uses: conda-incubator/setup-miniconda@v3
         with:
+          auto-activate-base: true
+          activate-environment: true
           auto-update-conda: true
           python-version: "3.10"
           channels: anaconda, conda-forge
           miniconda-version: "latest"
-          auto-activate-base: true
-          activate-environment: ""
 
       - name: Install anaconda-client
         run: |
