@@ -68,7 +68,6 @@ jobs:
 
       - if: matrix.os == 'windows-latest'
         name: Configure Dev Command Prompt for MS Visual C++ (windows-only)
-        shell: cmd /C call {0}
         # https://github.com/ilammy/msvc-dev-cmd
         uses: ilammy/msvc-dev-cmd@v1
         with:
