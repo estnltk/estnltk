@@ -76,9 +76,10 @@ jobs:
         name: Build estnltk conda package (windows)
         run: |
           echo --------------------- 
-          dir ${{vars.GITHUB_WORKSPACE}}
+          echo ${{ github.workspace }} 
+          dir ${{ github.workspace }} 
           echo ---------------------
-          conda build -c conda-forge -c ${{vars.GITHUB_WORKSPACE}}/estnltk_core/ec_channel --output-folder estnltk/e_channel estnltk/conda-recipe/windows
+          conda build -c conda-forge -c ${{ github.workspace }}/estnltk_core/ec_channel --output-folder estnltk/e_channel estnltk/conda-recipe/windows
           echo --------------------- 
           dir estnltk\e_channel
           echo --------------------- 
@@ -105,9 +106,10 @@ jobs:
         name: Build estnltk conda package (linux or macos)
         run: |
           echo --------------------- 
-          ls -lah ${{vars.GITHUB_WORKSPACE}}
+          echo ${{ github.workspace }}
+          ls -lah ${{ github.workspace }}
           echo ---------------------
-          conda build -c conda-forge -c ${{vars.GITHUB_WORKSPACE}}/estnltk_core/ec_channel --output-folder estnltk/e_channel estnltk/conda-recipe/linux_and_osx
+          conda build -c conda-forge -c ${{ github.workspace }}/estnltk_core/ec_channel --output-folder estnltk/e_channel estnltk/conda-recipe/linux_and_osx
           echo --------------------- 
           ls estnltk/e_channel
           echo --------------------- 
