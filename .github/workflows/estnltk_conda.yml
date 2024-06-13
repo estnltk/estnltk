@@ -40,6 +40,7 @@ jobs:
           activate-environment: building
 
       - name: Install conda-build and building prerequisites
+        shell: bash -l {0}
         run: |
           conda install conda-build conda-verify swig cython
           conda update conda-build
@@ -67,6 +68,7 @@ jobs:
 
       - if: matrix.os == 'windows-latest'
         name: Configure Dev Command Prompt for MS Visual C++ (windows-only)
+        shell: cmd /C call {0}
         # https://github.com/ilammy/msvc-dev-cmd
         uses: ilammy/msvc-dev-cmd@v1
         with:
@@ -74,6 +76,7 @@ jobs:
 
       - if: matrix.os == 'windows-latest'
         name: Build estnltk conda package (windows)
+        shell: cmd /C call {0}
         run: |
           echo --------------------- 
           echo ${{ github.workspace }} 
@@ -104,6 +107,7 @@ jobs:
 
       - if: matrix.os != 'windows-latest'
         name: Build estnltk conda package (linux or macos)
+        shell: bash -l {0}
         run: |
           echo --------------------- 
           echo ${{ github.workspace }}
@@ -120,7 +124,7 @@ jobs:
           path: |
             ./estnltk/e_channel/win-64/*.tar.bz2
             ./estnltk/e_channel/linux-64/*.tar.bz2
-            ./estnltk/e_channel/osx-64/*.tar.bz2
+            ./estnltk/e_channel/osx-arm64/*.tar.bz2
           retention-days: 14
           overwrite: true
 
@@ -156,10 +160,10 @@ jobs:
           cd estnltk-conda-packages
           echo --------------------- 
           ls -lah linux-64
-          ls -lah osx-64
+          ls -lah osx-arm64
           ls -lah win-64
           echo --------------------- 
           linux_packages=$(ls -1 linux-64/*.tar.bz2)
           win_packages=$(ls -1 win-64/*.tar.bz2)
-          osx_packages=$(ls -1 osx-64/*.tar.bz2)
+          osx_packages=$(ls -1 osx-arm64/*.tar.bz2)
           anaconda -t ${{ secrets.conda_upload_token }} upload -l dev --force -u estnltk $linux_packages $win_packages $osx_packages
