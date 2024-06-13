@@ -50,10 +50,9 @@ jobs:
       - name: Upload estnltk_core conda package
         run: |
           echo --------------------- 
-          cd estnltk_core/ec_channel
+          cd estnltk_core/ec_channel/noarch
           echo --------------------- 
           ls -lah
-          ls -lah ..
           echo --------------------- 
           packagefile=$(ls -1 *.tar.bz2) 
           echo --------------------- 
