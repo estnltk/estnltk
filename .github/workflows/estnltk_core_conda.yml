@@ -20,17 +20,19 @@ jobs:
         os: [ubuntu-latest]
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         name: Install Python
 
-      - name: Setup conda
-        uses: s-weigand/setup-conda@v1
+      - name: Setup miniconda
+        uses: conda-incubator/setup-miniconda@v3
         with:
-          update-conda: true
-          python-version: '3.10'
-          conda-channels: anaconda, conda-forge
+          auto-update-conda: true
+          python-version: "3.10"
+          channels: anaconda, conda-forge
+          miniconda-version: "latest"
+          activate-environment: building
 
       - name: Install conda-build and conda-verify
         run: |
@@ -48,10 +50,10 @@ jobs:
       #  to store a new build)
       - name: Cache ec_channel
         id: cache-ec-channel
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: estnltk_core/ec_channel
-          key: estnltk-core-channel-2023-08-10-1
+          key: estnltk-core-channel-2024-06-13-1
 
       - name: Build estntlk_core conda package
         run: |
@@ -61,12 +63,13 @@ jobs:
           dir ec_channel
           echo --- dir completed --- 
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: estnltk-core-conda-package
           path: |
             ./estnltk_core/ec_channel/noarch/*.tar.bz2
           retention-days: 14
+          overwrite: true
 
 
   upload_to_conda:
@@ -74,17 +77,19 @@ jobs:
     needs: [build_estnltk_core_conda_package]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: estnltk-core-conda-package
           path: conda-packages
 
-      - name: Setup conda
-        uses: s-weigand/setup-conda@v1
+      - name: Setup miniconda
+        uses: conda-incubator/setup-miniconda@v3
         with:
-          update-conda: true
-          python-version: '3.10'
-          conda-channels: anaconda, conda-forge
+          auto-update-conda: true
+          python-version: "3.10"
+          channels: anaconda, conda-forge
+          miniconda-version: "latest"
+          activate-environment: uploading
 
       - name: Install anaconda-client
         run: |
