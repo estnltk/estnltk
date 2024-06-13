@@ -76,7 +76,7 @@ jobs:
         name: Build estnltk conda package (windows)
         run: |
           echo ---------------------
-          conda build -c conda-forge -c %CD%/estnltk_core/ec_channel --output-folder estnltk/e_channel estnltk/conda-recipe/windows
+          conda build -c conda-forge -c ${{GITHUB_WORKSPACE}}/estnltk_core/ec_channel --output-folder estnltk/e_channel estnltk/conda-recipe/windows
           echo --------------------- 
           dir estnltk\e_channel
           echo --------------------- 
