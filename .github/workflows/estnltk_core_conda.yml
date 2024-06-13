@@ -97,9 +97,12 @@ jobs:
 
       - name: Upload estnltk_core conda package
         run: |
+          conda install anaconda-client
+          echo --------------------- 
           cd conda-packages
           echo --------------------- 
           ls -lah
           echo --------------------- 
           packagefile=$(ls -1 *.tar.bz2) 
+          echo --------------------- 
           anaconda -t ${{ secrets.conda_upload_token }} upload -l dev --force -u estnltk $packagefile
