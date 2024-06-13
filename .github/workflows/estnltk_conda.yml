@@ -40,7 +40,6 @@ jobs:
           activate-environment: building
 
       - name: Install conda-build and building prerequisites
-        shell: bash -l {0}
         run: |
           conda install conda-build conda-verify swig cython
           conda update conda-build
@@ -59,6 +58,7 @@ jobs:
           key: estnltk-core-channel-2024-06-13-1
           enableCrossOsArchive: true
 
+      # TODO: distinguish windows and (linux or macos)
       - name: Build estnltk_core conda package
         if: steps.cache-ec-channel.outputs.cache-hit != 'true'
         run: |
