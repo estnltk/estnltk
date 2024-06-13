@@ -75,8 +75,10 @@ jobs:
       - if: matrix.os == 'windows-latest'
         name: Build estnltk conda package (windows)
         run: |
+          echo --------------------- 
+          dir ${{vars.GITHUB_WORKSPACE}}
           echo ---------------------
-          conda build -c conda-forge -c ${{GITHUB_WORKSPACE}}/estnltk_core/ec_channel --output-folder estnltk/e_channel estnltk/conda-recipe/windows
+          conda build -c conda-forge -c ${{vars.GITHUB_WORKSPACE}}/estnltk_core/ec_channel --output-folder estnltk/e_channel estnltk/conda-recipe/windows
           echo --------------------- 
           dir estnltk\e_channel
           echo --------------------- 
@@ -102,11 +104,10 @@ jobs:
       - if: matrix.os != 'windows-latest'
         name: Build estnltk conda package (linux or macos)
         run: |
-          full_ec_path=$( pwd )
           echo --------------------- 
-          echo ls -lah $full_ec_path
+          ls -lah ${{vars.GITHUB_WORKSPACE}}
           echo ---------------------
-          conda build -c conda-forge -c $full_ec_path/estnltk_core/ec_channel --output-folder estnltk/e_channel estnltk/conda-recipe/linux_and_osx
+          conda build -c conda-forge -c ${{vars.GITHUB_WORKSPACE}}/estnltk_core/ec_channel --output-folder estnltk/e_channel estnltk/conda-recipe/linux_and_osx
           echo --------------------- 
           ls estnltk/e_channel
           echo --------------------- 
