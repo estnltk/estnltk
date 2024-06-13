@@ -44,10 +44,12 @@ jobs:
           miniconda-version: "latest"
 
       - name: Install anaconda-client
+        shell: bash -l {0}
         run: |
           conda install anaconda-client
 
       - name: Upload estnltk_core conda package
+        shell: bash -l {0}
         run: |
           echo --------------------- 
           cd estnltk_core/ec_channel/noarch
