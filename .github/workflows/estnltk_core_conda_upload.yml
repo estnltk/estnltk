@@ -53,6 +53,7 @@ jobs:
           cd estnltk_core/ec_channel
           echo --------------------- 
           ls -lah
+          ls -lah ..
           echo --------------------- 
           packagefile=$(ls -1 *.tar.bz2) 
           echo --------------------- 
