@@ -54,6 +54,7 @@ jobs:
         with:
           path: estnltk_core/ec_channel
           key: estnltk-core-channel-2024-06-13-1
+          enableCrossOsArchive: true
 
       - name: Build estntlk_core conda package
         run: |
@@ -89,7 +90,8 @@ jobs:
           python-version: "3.10"
           channels: anaconda, conda-forge
           miniconda-version: "latest"
-          activate-environment: uploading
+          auto-activate-base: true
+          activate-environment: ""
 
       - name: Install anaconda-client
         run: |
@@ -97,7 +99,6 @@ jobs:
 
       - name: Upload estnltk_core conda package
         run: |
-          conda install anaconda-client
           echo --------------------- 
           cd conda-packages
           echo --------------------- 
