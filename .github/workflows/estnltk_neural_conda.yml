@@ -18,12 +18,12 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        python-version: ['3.8']
+        python-version: ['3.10']
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         name: Install Python
         with:
           python-version: ${{ matrix.python-version }}
@@ -51,7 +51,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: estnltk_core/ec_channel
-          key: estnltk-core-channel-2023-08-10-1
+          key: estnltk-core-channel-2024-06-13-1
 
       - name: Build estnltk_core conda package (noarch)
         if: steps.cache-ec-channel.outputs.cache-hit != 'true'
@@ -71,29 +71,38 @@ jobs:
         uses: actions/cache@v3
         with:
           path: estnltk/e_channel
-          key: estnltk-channel-2023-08-10-1
+          key: estnltk-channel-2024-06-13-1
 
       - name: Build estnltk conda package (${{ matrix.os }})
         if: steps.cache-e-channel.outputs.cache-hit != 'true'
         run: |
-          conda build -c conda-forge -c estnltk_core/ec_channel --output-folder estnltk/e_channel estnltk/conda-recipe/linux_and_osx
+          echo --------------------- 
+          echo ${{ github.workspace }}
+          ls -lah ${{ github.workspace }}
+          echo ---------------------
+          conda build -c conda-forge -c ${{ github.workspace }}/estnltk_core/ec_channel --output-folder estnltk/e_channel estnltk/conda-recipe/linux_and_osx
           echo --------------------- 
           ls estnltk/e_channel
           echo --------------------- 
           
       - name: Build estnltk_neural conda package (noarch)
         run: |
-          conda build -c conda-forge -c estnltk_core/ec_channel -c estnltk/e_channel --output-folder estnltk_neural/en_channel estnltk_neural/conda_recipe
+          echo --------------------- 
+          echo ${{ github.workspace }}
+          ls -lah ${{ github.workspace }}
+          echo ---------------------
+          conda build -c conda-forge -c ${{ github.workspace }}/estnltk_core/ec_channel -c ${{ github.workspace }}/estnltk/e_channel --output-folder estnltk_neural/en_channel estnltk_neural/conda_recipe
           echo --------------------- 
           ls estnltk_neural/en_channel
           echo ---------------------
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: estnltk-neural-conda-package
           path: |
             ./estnltk_neural/en_channel/noarch/*.tar.bz2
           retention-days: 14
+          overwrite: true
 
 
   upload_to_conda:
@@ -101,10 +110,11 @@ jobs:
     needs: [build_estnltk_neural_conda_package]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
-          name: estnltk-neural-conda-package
-          path: conda-packages
+          path: estnltk-neural-conda-package
+          pattern: estnltk-neural-conda-packag*
+          merge-multiple: true
 
       - name: Setup conda
         uses: s-weigand/setup-conda@v1
@@ -117,9 +127,9 @@ jobs:
         run: |
           conda install anaconda-client
 
-      - name: Upload estnltk_core conda package
+      - name: Upload estnltk_neural conda package
         run: |
-          cd conda-packages
+          cd estnltk-neural-conda-package
           echo --------------------- 
           ls -lah
           echo --------------------- 
