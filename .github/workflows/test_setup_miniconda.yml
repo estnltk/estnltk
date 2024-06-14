@@ -30,17 +30,8 @@ jobs:
           miniconda-version: "latest"
           activate-environment: building
 
-      - if: matrix.os != 'windows-latest'
-        name: Check python (bash)
+      - name: Check python (bash)
         shell: bash -el {0}
-        run: |
-          conda info
-          python --version
-          conda list python
-
-      - if: matrix.os == 'windows-latest'
-        name: Check python (cmd)
-        shell: cmd /C CALL {0}
         run: |
           conda info
           python --version
