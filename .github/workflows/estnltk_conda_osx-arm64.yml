@@ -1,0 +1,118 @@
+name: Build estnltk conda packages for osx-arm64 and upload to conda
+
+on: 
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/estnltk_conda_osx-arm64.yml'
+      
+  # Manual run (works only in the default branch)
+  #workflow_dispatch:
+
+
+jobs:
+  build_estnltk_conda_packages:
+    name: Build estnltk conda package on ${{ matrix.os }} (py ${{ matrix.python-version }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest]
+        python-version: ['3.11']
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup miniconda
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-update-conda: true
+          python-version: ${{ matrix.python-version }}
+          channels: anaconda, conda-forge
+          miniconda-version: "latest"
+          activate-environment: building
+
+      - name: Install conda-build and building prerequisites
+        shell: bash -el {0}
+        run: |
+          python --version
+          conda install conda-build conda-verify swig cython
+          conda update conda-build
+
+      # Use estnltk-core-channel cache
+      # load data from the cache if it exists.
+      # this enables to skip the building 
+      # step below.
+      # Look for the cache key in the workflow 
+      # of building estnltk_core conda package
+      - name: Cache ec_channel
+        id: cache-ec-channel
+        uses: actions/cache@v4
+        with:
+          path: estnltk_core/ec_channel
+          key: estnltk-core-channel-2024-06-13-1
+          enableCrossOsArchive: true
+
+      - name: Build estnltk_core conda package
+        if: steps.cache-ec-channel.outputs.cache-hit != 'true'
+        shell: bash -el {0}
+        run: |
+          cd estnltk_core
+          conda build -c conda-forge --output-folder ec_channel conda_recipe
+          echo --------------------- 
+
+
+      - name: Build estnltk conda package (macos)
+        run: |
+          echo --------------------- 
+          python --version
+          echo --------------------- 
+          echo ${{ github.workspace }}
+          ls -lah ${{ github.workspace }}
+          echo ---------------------
+          conda build -c conda-forge -c ${{ github.workspace }}/estnltk_core/ec_channel --output-folder estnltk/e_channel estnltk/conda-recipe/linux_and_osx
+          echo --------------------- 
+          ls estnltk/e_channel
+          echo --------------------- 
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: estnltk-conda-packages-${{ matrix.os }}-${{ matrix.python-version }}
+          path: |
+            ./estnltk/e_channel/win-64/*.tar.bz2
+            ./estnltk/e_channel/linux-64/*.tar.bz2
+            ./estnltk/e_channel/osx-arm64/*.tar.bz2
+          retention-days: 14
+          overwrite: true
+
+
+  upload_to_conda:
+    name: Upload estnltk packages to conda
+    needs: [build_estnltk_conda_packages]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: estnltk-conda-packages
+          pattern: estnltk-conda-packages-*
+          merge-multiple: true
+
+      - name: Setup conda
+        uses: s-weigand/setup-conda@v1
+        with:
+          update-conda: true
+          python-version: '3.10'
+          conda-channels: anaconda, conda-forge
+
+      - name: Install anaconda-client
+        run: |
+          conda install anaconda-client
+
+      - name: Upload estnltk conda packages
+        run: |
+          cd estnltk-conda-packages
+          echo --------------------- 
+          ls -lah osx-arm64
+          echo --------------------- 
+          osx_packages=$(ls -1 osx-arm64/*.tar.bz2)
+          anaconda -t ${{ secrets.conda_upload_token }} upload -l dev --force -u estnltk $osx_packages
