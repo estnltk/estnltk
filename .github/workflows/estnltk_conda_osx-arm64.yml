@@ -18,7 +18,7 @@ jobs:
     strategy:
       matrix:
         os: [macos-latest]
-        python-version: ['3.11']
+        python-version: ['3.9', '3.10', '3.11']
 
     steps:
       - uses: actions/checkout@v4
@@ -63,6 +63,7 @@ jobs:
 
 
       - name: Build estnltk conda package (macos)
+        shell: bash -el {0}
         run: |
           echo --------------------- 
           python --version
