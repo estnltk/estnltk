@@ -1,0 +1,45 @@
+name: Test setup-miniconda on different platforms
+
+on: 
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/test_setup_miniconda.yml'
+      
+  # Manual run (works only in the default branch)
+  #workflow_dispatch:
+
+
+jobs:
+  test_setup_conda:
+    name: Test setup-miniconda on ${{ matrix.os }} (py ${{ matrix.python-version }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ['3.10']
+
+    steps:
+      - name: Setup miniconda
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-update-conda: true
+          python-version: ${{ matrix.python-version }}
+          channels: anaconda, conda-forge
+          miniconda-version: "latest"
+          activate-environment: building
+
+      - name: Check python (bash)
+        shell: bash -el {0}
+        run: |
+          conda info
+          python --version
+          conda list python
+
+      - name: Check python (cmd)
+        shell: cmd /C CALL {0}
+        run: |
+          conda info
+          python --version
+          conda list python
