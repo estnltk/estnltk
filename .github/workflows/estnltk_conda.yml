@@ -118,6 +118,8 @@ jobs:
           name: estnltk-conda-packages-${{ matrix.os }}
           path: |
             ./estnltk/e_channel/win-64/*.tar.bz2
+            ./estnltk/e_channel/linux-64/*.tar.bz2
+            ./estnltk/e_channel/osx-arm64/*.tar.bz2
           retention-days: 14
           overwrite: true
 
