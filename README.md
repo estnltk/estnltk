@@ -49,6 +49,8 @@ _Remark on conda & Linux:_ if you are trying to run estnltk conda package on an 
 
 _Note_: for using some of the tools in estnltk, you also need to have Java installed in your system. We recommend using Oracle Java http://www.oracle.com/technetwork/java/javase/downloads/index.html, although alternatives such as OpenJDK (http://openjdk.java.net/) should also work.
 
+_NLTK troubleshooting:_ if you stumble upon `_pickle.UnpicklingError: global 'copy_reg._reconstructor' is forbidden`  (resulting from [this issue](https://github.com/estnltk/estnltk/issues/122)), then _a temporary solution_ is to roll back to NLTK version 3.8.1 (e.g. ```pip install nltk==3.8.1```). Though, be aware of [the vulnerability of the old NLTK version](https://www.vicarius.io/vsociety/posts/rce-in-python-nltk-cve-2024-39705-39706). A complete fix for this issue will be available in the next EstNLTK release. 
+
 ### Using on Google Colab
 
 You can install EstNLTK on [Google Colab](https://colab.research.google.com) environment via command:
