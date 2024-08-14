@@ -32,6 +32,7 @@ setup(
         'regex>=2015.07.19', # improved Python regular expressions
         'networkx',          # building graphs: required for layers
         'pandas',            # Panel Data Analysis library for Python
+        'packaging'          # Required for version checking
     ],
     classifiers=['Intended Audience :: Developers',
                  'Intended Audience :: Education',

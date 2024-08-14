@@ -27,6 +27,7 @@ requirements:
     - html5lib
     - networkx
     - lxml
+    - packaging
   run:
     - python
     - estnltk_core >=1.7.3
@@ -45,6 +46,7 @@ requirements:
     - requests
     - matplotlib
     - pyahocorasick
+    - packaging
 
 about:
   home: https://github.com/estnltk/estnltk

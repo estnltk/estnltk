@@ -233,6 +233,7 @@ setup(
         'conllu',                  # CONLLU for syntax
         'pandas',                  # Panel Data Analysis library for Python
         'pyahocorasick',           # Fast multi-pattern string search 
+        'packaging'                # Required for version checking
     ],
     classifiers=['Intended Audience :: Developers',
                  'Intended Audience :: Education',

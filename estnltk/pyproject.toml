@@ -48,6 +48,7 @@ dependencies = [
     'conllu',                  # CONLLU for syntax
     'pandas',                  # Panel Data Analysis library for Jupyter Notebook integration
     'pyahocorasick',           # Fast multi-pattern string search 
+    'packaging'                # Required for version checking
 ]
 dynamic = ["version"]
 

@@ -18,3 +18,4 @@ tqdm
 conllu
 pytest-httpserver
 pyahocorasick
+packaging
