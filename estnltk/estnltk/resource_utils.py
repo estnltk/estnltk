@@ -5,8 +5,8 @@
 #  * Normalizing resource descriptions;
 #  * Pinging downloadable resources;
 #  * Deleting downloaded resources;
-#  * Rudimentary checking of version constraints imposed 
-#    by resource descriptions;
+#  * Checking of version constraints imposed by 
+#    resource descriptions;
 #  * ResourceView for viewing EstNLTK's resources in 
 #    a prettyprinted table;
 #
@@ -23,6 +23,7 @@ from datetime import datetime
 
 import requests
 from tqdm import tqdm
+
 
 from estnltk.common import PACKAGE_PATH
 
@@ -409,85 +410,12 @@ def ping_resource(resource_dict: Dict[str, Any]) -> bool:
     return status_code_ok
 
 
-# a pattern for canonical version, as defined 
-# in PEP 440 ( https://peps.python.org/pep-0440/ )
-_canonical_version_pattern = \
-    re.compile(r'^([1-9][0-9]*!)?(0|[1-9][0-9]*)(\.(0|[1-9][0-9]*))*'+\
-               r'((a|b|rc)(0|[1-9][0-9]*))?'+\
-               r'(\.post(0|[1-9][0-9]*))?'+\
-               r'(\.dev(0|[1-9][0-9]*))?$')
-
-
-# a version comparison operator, as defined in 
-# in PEP 440 ( https://peps.python.org/pep-0440/ ).
-# Note: currently, we do not support all possible 
-# operators, but only a subset of operators: 
-# ==, <=, >=, <, >
-_version_cmp_operator_pattern = re.compile(r'^((==|<=|>=|<|>)\s*)')
-
-
-def _split_cmp_operator_and_version(version_specifier: str) -> Tuple[str, str]:
-    '''Attempts to split the given version_specifier into two parts:
-    comparison operator and canonical version. Note that the comparsion
-    operator must be from the subset ==, <=, >=, <, > and the version 
-    number must be exact and correspond to the canonical version format 
-    defined in PEP 440 ( https://peps.python.org/pep-0440/ ).
-    
-    Usage examples:
-
-    >>> from estnltk.resource_utils import _split_cmp_operator_and_version
-    >>> _split_cmp_operator_and_version(">= 1.0")
-    ('>=', '1.0')
-    >>> _split_cmp_operator_and_version("<1.7.0")
-    ('<', '1.7.0')
-    >> _split_cmp_operator_and_version("1.4.1.1b")
-    ('', '1.4.1.1b')
-    '''
-    operator_match =\
-        _version_cmp_operator_pattern.match(version_specifier)
-    if operator_match:
-        operator_str = operator_match.group(1)
-        version_wo_operator = version_specifier.replace(operator_str, '')
-        return operator_str.strip(), version_wo_operator
-    else:
-        return '', version_specifier
-
-
-def _is_version_satisfied(target_ver: str, cmp_operator: str, spec_ver: str) -> bool:
-    '''Checks heuristically if the target version satisfies the condition:
-       `target_ver  cmp_operator  spec_ver`. Returns boolean. 
-       Note that `target_ver` and `spec_ver` must both follow the canonical 
-       version format specified in https://peps.python.org/pep-0440/ , and 
-       `cmp_operator` (string) must be one of the following:
-       "==", "<=", ">=", "<", ">".
-       TODO: this is a temporary solution to support version checking. 
-       In future, a version handling library should be used instead, such 
-       as packaging https://packaging.pypa.io/en/latest/
-    '''
-    if cmp_operator == '==':
-        return target_ver == spec_ver
-    elif cmp_operator == '>=':
-        return target_ver >= spec_ver
-    elif cmp_operator == '<=':
-        return target_ver <= spec_ver
-    elif cmp_operator == '<':
-        return target_ver < spec_ver
-    elif cmp_operator == '>':
-        return target_ver > spec_ver
-    else:
-        raise Exception('(!) Unexpected version comparsion operator {}.'+\
-                        ' Currently supported operators are: ==, <=, >=, <, >')
-
-
 def _check_version(resource_name: str, package: str, version_specifier: str,
                    silent: bool= False) -> Optional[bool]:
-    '''Checks heuristically, if the given EstNLTK's package ('estnltk_core', 
-       'estnltk', or 'estnltk_neural') satisfies the given `version_specifier`. 
-       Note that the format of `version_specifier` is limited to formats 
-       that can be used as inputs of the function `_is_version_satisfied`. 
-       The comparison only operates on version numbers specified as final 
-       releases, e.g ">= 1.7.0" or "< 1.8.1" are valid specifiers; 
-       pre-releases, post-releases etc. may not be distinguished properly. 
+    '''Checks if the given EstNLTK's package ('estnltk_core', 'estnltk', or 
+       'estnltk_neural') satisfies the given `version_specifier`. 
+       Relies on version handling functionality from the _packaging_ 
+       library (https://packaging.pypa.io/en/latest/).
        
        `version_specifier` can consist of series of version clauses 
        separated by commas, e.g. "> 1.4.1, <1.7.1". Then all of the 
@@ -500,44 +428,38 @@ def _check_version(resource_name: str, package: str, version_specifier: str,
        If the flag `silent` is unset (the default setting), then outputs
        warnings in case of problems with the input arguments. Otherwise, 
        warnings will be silenced.
-       
-       TODO: this is a temporary solution for version checking. In future, 
-       a version handling library should be used instead, such as packaging
-       https://packaging.pypa.io/en/latest/
     '''
+    from packaging.specifiers import SpecifierSet, InvalidSpecifier
+    from packaging.version import parse as parse_version
     # Iterate over series of version clauses
     all_chk_results = True
     cancel_check = False
-    for sub_ver_specifier in version_specifier.split(','):
-        sub_ver_specifier = sub_ver_specifier.strip()
-        # Try to split cmp_operator and version
-        cmp_op, ver = \
-            _split_cmp_operator_and_version( sub_ver_specifier )
-        if len( cmp_op ) == 0:
-            warning_msg = ("(!) Error at parsing {}'s version specifier for "+\
-                           "{!r} : unable to extract a comparison operator from "+\
-                           "{!r}. Falling back to using the default "+\
-                           "operator ==.").format( \
-                                package, resource_name, sub_ver_specifier )
-            if not silent:
-                warnings.warn( UserWarning(warning_msg) )
-            cmp_op = '=='
-        m_canonical_ver = _canonical_version_pattern.match(ver)
-        if m_canonical_ver:
+    try:
+        spec_set = SpecifierSet(version_specifier)
+    except InvalidSpecifier as specifier_parsing_error:
+        warning_msg = ("(!) Error at parsing {}'s version specifier for "+\
+                       "{!r} : unable to extract a version string "+\
+                       "from {!r}.").format( \
+                            package, resource_name, version_specifier )
+        if not silent:
+            warnings.warn( UserWarning(warning_msg) )
+        cancel_check = True
+    if not cancel_check:
+        for sub_ver_specifier in spec_set:
             if package.lower() == 'estnltk':
                 from estnltk import __version__
-                result = _is_version_satisfied( __version__, cmp_op, ver )
-                all_chk_results &= result
+                version = parse_version( __version__ )
+                all_chk_results &= sub_ver_specifier.contains(version)
             elif package.lower() == 'estnltk_core':
                 from estnltk_core import __version__
-                result = _is_version_satisfied( __version__, cmp_op, ver )
-                all_chk_results &= result
+                version = parse_version( __version__ )
+                all_chk_results &= sub_ver_specifier.contains(version)
             elif package.lower() == 'estnltk_neural':
                 from importlib.util import find_spec
                 if find_spec('estnltk_neural') is not None:
                     from estnltk_neural import __version__
-                    result = _is_version_satisfied( __version__, cmp_op, ver )
-                    all_chk_results &= result
+                    version = parse_version( __version__ )
+                    all_chk_results &= sub_ver_specifier.contains(version)
                 else:
                     warning_msg = ("(!) Unable to check {}'s version for "+\
                                    "{!r} : the package {} is not installed."+\
@@ -554,14 +476,6 @@ def _check_version(resource_name: str, package: str, version_specifier: str,
                 if not silent:
                     warnings.warn( UserWarning(warning_msg) )
                 cancel_check = True
-        else:
-            warning_msg = ("(!) Error at parsing {}'s version specifier for "+\
-                           "{!r} : unable to extract a canonical version string "+\
-                           "from {!r}.").format( \
-                                package, resource_name, sub_ver_specifier )
-            if not silent:
-                warnings.warn( UserWarning(warning_msg) )
-            cancel_check = True
     if not cancel_check:
         return all_chk_results
     return None
