@@ -6,6 +6,9 @@ import warnings
 
 from copy import copy, deepcopy
 
+from packaging.version import Version as pkg_Version
+from packaging.version import parse as parse_version
+
 from estnltk_core import BaseSpan, ElementaryBaseSpan, EnvelopingBaseSpan
 from estnltk_core import Span, EnvelopingSpan, Annotation, SpanList
 from estnltk_core.layer import AmbiguousAttributeTupleList, AmbiguousAttributeList, AttributeTupleList, AttributeList
@@ -842,8 +845,7 @@ class BaseLayer:
             table_2 = self.attribute_values(attributes, index_attributes=index_attributes)
             if bool(self.TRANSLUCENT_NONE_VALUES):
                 table_2_df = table_2.as_dataframe(index='text')
-                # TODO: Add packaging dependency and use packaging.version.Version
-                if pandas.__version__ < '2.1.0':
+                if parse_version(pandas.__version__) < pkg_Version('2.1.0'):
                     table_2_df = table_2_df.style.applymap(lambda x: 'opacity: 20%;' if x == str(None) else None).hide(axis="index")
                 else:
                     table_2_df = table_2_df.style.map(lambda x: 'opacity: 20%;' if x == str(None) else None).hide(axis="index")

@@ -22,6 +22,9 @@ from copy import deepcopy
 from reprlib import recursive_repr
 from importlib.util import find_spec
 
+from packaging.version import Version as pkg_Version
+from packaging.version import parse as parse_version
+
 import pandas
 
 from estnltk_core import BaseSpan, ElementaryBaseSpan, EnvelopingBaseSpan, Span
@@ -595,8 +598,7 @@ class RelationLayer:
                 layer_table_content.append( values )
         df = pandas.DataFrame.from_records(layer_table_content, columns=columns)
         if bool(RelationLayer.TRANSLUCENT_NONE_VALUES):
-            # TODO: Add packaging dependency and use packaging.version.Version
-            if pandas.__version__ < '2.1.0':
+            if parse_version(pandas.__version__) < pkg_Version('2.1.0'):
                 df = df.style.applymap(lambda x: 'opacity: 20%;' if x is None else None)
             else:
                 df = df.style.map(lambda x: 'opacity: 20%;' if x is None else None)
@@ -943,8 +945,7 @@ class Relation:
                 relation_table_content.append( values )
             df = pandas.DataFrame.from_records(relation_table_content, columns=columns)
             if bool(RelationLayer.TRANSLUCENT_NONE_VALUES):
-                # TODO: Add packaging dependency and use packaging.version.Version
-                if pandas.__version__ < '2.1.0':
+                if parse_version(pandas.__version__) < pkg_Version('2.1.0'):
                     df = df.style.applymap(lambda x: 'opacity: 20%;' if x is None else None).hide(axis="index")
                 else:
                     df = df.style.map(lambda x: 'opacity: 20%;' if x is None else None).hide(axis="index")
