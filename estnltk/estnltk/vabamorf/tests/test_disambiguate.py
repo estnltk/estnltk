@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import unittest
-from ..morf import analyze, disambiguate
+
+from estnltk.vabamorf.tests.morph_extra import analyze, disambiguate
 
 # EINO SANTANEN. Muodon vanhimmat
 # http://luulet6lgendus.blogspot.com/

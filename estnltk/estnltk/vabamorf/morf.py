@@ -511,59 +511,14 @@ def as_wordanalysis(word):
 
 
 ######################################################
-# SHORTCUT FUNCTIONS
+# SHORTCUT FUNCTIONS                                 
 ######################################################
 
-
-def analyze(words, **kwargs):
-    """Perform morphological analysis and disambiguation of given text.
-
-    Parameters
-    ----------
-    words: list of str or str
-        Either a list of pretokenized words or a string. In case of a string, it will be splitted using
-        default behaviour of string.split() function.
-    disambiguate: boolean (default: True)
-        Disambiguate the output and remove incosistent analysis.
-    guess: boolean (default: True)
-        Use guessing in case of unknown words
-    propername: boolean (default: True)
-        Perform additional analysis of proper names.
-    compound: boolean (default: True)
-        Add compound word markers to root forms.
-    phonetic: boolean (default: False)
-        Add phonetic information to root forms.
-
-    Returns
-    -------
-    list of (list of dict)
-        List of analysis for each word in input.
-    """
-    return Vabamorf.instance().analyze(words, **kwargs)
-
-
-def disambiguate(words, **kwargs):
-    """Disambiguate previously analyzed words.
-
-    Parameters
-    ----------
-    words: list of dict
-        A sentence of words.
-    compound: boolean (default: True)
-        Preserve compound word markers in root forms.
-        Note: this has effect only if analysis has 
-        also preserved compound word markers.
-    phonetic: boolean (default: False)
-        Preserve phonetic information in root forms.
-        Note: this has effect only if analysis has 
-        also preserved phonetic markers.
-
-    Returns
-    -------
-    list of dict
-        Sentence of disambiguated words.
-    """
-    return Vabamorf.instance().disambiguate(words, **kwargs)
+# TODO: relocate the following methods spellcheck, fix_spelling, 
+#       synthesize and syllabify_word and their utility functions 
+#       to separate modules.
+#       Note: this will be a breaking change for users 
+#       importing these methods from estnltk.vabamorf.morf
 
 
 def spellcheck(words, suggestions=True):
@@ -685,7 +640,7 @@ def _split_compound_word_heuristically( word_text, tolerance=2 ):
         return [word_text]
     # Apply morph analysis to determine if we have a compound
     analyses_of_word = \
-        analyze(word_text,guess=True,propername=True,disambiguate=False)
+        Vabamorf.instance().analyze(word_text,guess=True,propername=True,disambiguate=False)
     
     all_root_tokens = []
     for a in analyses_of_word[0]['analysis']:

@@ -2,10 +2,9 @@
 
 import unittest
 import operator
-from ..morf import analyze
-
 from pprint import pprint
 
+from estnltk.vabamorf.tests.morph_extra import analyze
 
 class StemAnalysisTest(unittest.TestCase):
     

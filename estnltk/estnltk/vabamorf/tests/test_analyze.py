@@ -2,8 +2,9 @@
 
 import unittest
 import operator
-from ..morf import trim_phonetics, get_group_tokens, postprocess_analysis, convert, analyze
+from ..morf import trim_phonetics, get_group_tokens, postprocess_analysis, convert
 from ..vabamorf import Analysis
+from estnltk.vabamorf.tests.morph_extra import analyze
 from functools import reduce
 
 
