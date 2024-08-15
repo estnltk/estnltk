@@ -76,13 +76,6 @@ def convert(word):
     return word
 
 
-def deconvert(word):
-    """This method converts back the output from wrapper.
-       Result should be `unicode` for Python2 and `str` for Python3"""
-    # TODO: Is this method required at all? Nothing to do here in Python 3
-    return word
-
-
 # =============================================================================
 #   Handling Vabamorf's lexicons
 # =============================================================================
@@ -180,8 +173,8 @@ class Vabamorf(object):
         ----------
         words: list of str or str
             Either a list of pretokenized words or a string. In case of a 
-            string, it will be splitted using default behaviour of 
-            string.split() function.
+            string, it will be split using default behaviour of string.split() 
+            function.
         disambiguate: boolean (default: True)
             Disambiguate the output and remove incosistent analysis.
         guess: boolean (default: True)
@@ -274,8 +267,8 @@ class Vabamorf(object):
         Parameters
         ----------
         words: list of str or str
-            Either a list of pretokenized words or a string. In case of a string, it will be splitted using
-            default behaviour of string.split() function.
+            Either a list of pretokenized words or a string. In case of a string, it 
+            will be split using default behaviour of string.split() function.
         suggestions: boolean (default: True)
             Add spell suggestions to result.
 
@@ -296,9 +289,9 @@ class Vabamorf(object):
         spellresults = self._morf.spellcheck(words, suggestions)
         results = []
         for spellresult in spellresults:
-            suggestions = [deconvert(s) for s in spellresult.suggestions]
+            suggestions = list(spellresult.suggestions)
             result = {
-                'text': deconvert(spellresult.word),
+                'text': spellresult.word,
                 'spelling': spellresult.spelling,
                 'suggestions': suggestions
             }
@@ -376,21 +369,21 @@ class Vabamorf(object):
             guess,
             phonetic
         )
-        return [deconvert(w) for w in words]
+        return list(words)
 
 
 def postprocess_result(morphresult, preserve_phonetic, preserve_compound, remove_lemma=False):
     """Postprocess vabamorf wrapper output."""
     word, analysis = morphresult
     return {
-        'text': deconvert(word),
+        'text': word,
         'analysis': \
             [postprocess_analysis(a, preserve_phonetic, preserve_compound, remove_lemma=remove_lemma) for a in analysis]
     }
 
 
 def postprocess_analysis(analysis, preserve_phonetic, preserve_compound, remove_lemma=False):
-    root = deconvert(analysis.root)
+    root = analysis.root
 
     # extract token groups
     grouptoks = get_group_tokens(root)
@@ -399,10 +392,10 @@ def postprocess_analysis(analysis, preserve_phonetic, preserve_compound, remove_
     result_dict = \
         { 'root': get_root(root, preserve_phonetic, preserve_compound),
           'root_tokens': toks,
-          'ending': deconvert(analysis.ending),
-          'clitic': deconvert(analysis.clitic),
-          'partofspeech': deconvert(analysis.partofspeech),
-          'form': deconvert(analysis.form) }
+          'ending': analysis.ending,
+          'clitic': analysis.clitic,
+          'partofspeech': analysis.partofspeech,
+          'form': analysis.form }
     if not remove_lemma:
         # construct lemma
         lemma = get_lemma(grouptoks, analysis.partofspeech)
