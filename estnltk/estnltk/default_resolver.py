@@ -15,7 +15,7 @@ from estnltk.common import IGNORE_ATTR
 from estnltk.common import DEFAULT_PARAM_STEM # TV-2024.02.04 ???
 
 def make_resolver(
-                 stem        =DEFAULT_PARAM_STEM, # TV-2024.02.04 ???        
+                 stem        =DEFAULT_PARAM_STEM, # TV-2024.02.04 ???
                  disambiguate=DEFAULT_PARAM_DISAMBIGUATE,
                  guess       =DEFAULT_PARAM_GUESS,
                  propername  =DEFAULT_PARAM_PROPERNAME,
@@ -80,7 +80,6 @@ def make_resolver(
 
     """
     vabamorf_tagger_parameters = { \
-        'stem': stem,   # TV-2024.02.04 ???        
         'disambiguate': disambiguate,
         'guess': guess,
         'propername': propername,
@@ -91,6 +90,11 @@ def make_resolver(
         'predisambiguate': predisambiguate,
         'postdisambiguate': postdisambiguate
     }
+    
+    # TODO: if stem == True, then we should create a different kind of pipeline,
+    #       because downstream taggers depending on vabamorf do not support 
+    #       this setting ...
+    
     vabamorf_tagger_output_attributes = (NORMALIZED_TEXT,) + ESTNLTK_MORPH_ATTRIBUTES
     if not disambiguate:
         vabamorf_tagger_output_attributes += (IGNORE_ATTR,)
