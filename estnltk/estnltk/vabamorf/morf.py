@@ -178,11 +178,10 @@ class Vabamorf(object):
 
         Parameters
         ----------
-        stem: boolean (default: False)  # TV-2024.02.03 ???
-            asenda lemma tüvega         # TV-2024.02.03 ???        
         words: list of str or str
-            Either a list of pretokenized words or a string. In case of a string, it will be splitted using
-            default behaviour of string.split() function.
+            Either a list of pretokenized words or a string. In case of a 
+            string, it will be splitted using default behaviour of 
+            string.split() function.
         disambiguate: boolean (default: True)
             Disambiguate the output and remove incosistent analysis.
         guess: boolean (default: True)
@@ -193,6 +192,15 @@ class Vabamorf(object):
             Add compound word markers to root forms.
         phonetic: boolean (default: False)
             Add phonetic information to root forms.
+        stem: boolean (default: False)
+            Replaces lemma with word stem in the 'root' and 'root_tokens'
+            (so called stem-based analysis). 
+            For instance, with lemma-based analysis (default), the 
+            word 'läks' gets root='mine' (lemma='minema'); 
+            however, with the stem-based analysis, the word 'läks' 
+            gets root='läk' (with ending='s' and no lemma). 
+            Note that with stem-based analysis, there will be no 
+            lemmas in the output.
 
         Returns
         -------
@@ -216,7 +224,12 @@ class Vabamorf(object):
         preserve_phonetic = kwargs.get('phonetic', False)
         preserve_compound = kwargs.get('compound', True)
 
-        return [postprocess_result(mr, preserve_phonetic, preserve_compound) for mr in morfresults]
+        # if stem==True, then lemma cannot be constructed, so 
+        # remove lemma from the data structure
+        remove_lemma = kwargs.get('stem', False)
+
+        return [postprocess_result(mr, preserve_phonetic, preserve_compound, \
+                                       remove_lemma=remove_lemma) for mr in morfresults]
 
     def disambiguate(self, words, **kwargs):
         """Disambiguate previously analyzed words.
@@ -244,7 +257,13 @@ class Vabamorf(object):
         
         words = vm.SentenceAnalysis([as_wordanalysis(w) for w in words])
         disambiguated = self._morf.disambiguate(words)
-        return [postprocess_result(mr, preserve_phonetic, preserve_compound) for mr in disambiguated]
+
+        # if stem==True, then lemma cannot be constructed, so 
+        # remove lemma from the data structure
+        remove_lemma = kwargs.get('stem', False)
+
+        return [postprocess_result(mr, preserve_phonetic, preserve_compound, \
+                                       remove_lemma=remove_lemma) for mr in disambiguated]
 
     def spellcheck(self, words, suggestions=True):
         """Spellcheck given sentence.
@@ -360,32 +379,35 @@ class Vabamorf(object):
         return [deconvert(w) for w in words]
 
 
-def postprocess_result(morphresult, preserve_phonetic, preserve_compound):
+def postprocess_result(morphresult, preserve_phonetic, preserve_compound, remove_lemma=False):
     """Postprocess vabamorf wrapper output."""
     word, analysis = morphresult
     return {
         'text': deconvert(word),
-        'analysis': [postprocess_analysis(a, preserve_phonetic, preserve_compound) for a in analysis]
+        'analysis': \
+            [postprocess_analysis(a, preserve_phonetic, preserve_compound, remove_lemma=remove_lemma) for a in analysis]
     }
 
 
-def postprocess_analysis(analysis, preserve_phonetic, preserve_compound):
+def postprocess_analysis(analysis, preserve_phonetic, preserve_compound, remove_lemma=False):
     root = deconvert(analysis.root)
 
-    # extract tokens and construct lemma
+    # extract token groups
     grouptoks = get_group_tokens(root)
     toks = reduce(operator.add, grouptoks)
-    lemma = get_lemma(grouptoks, analysis.partofspeech)
 
-    return {
-        'root': get_root(root, preserve_phonetic, preserve_compound),
-        'root_tokens': toks,
-        'ending': deconvert(analysis.ending),
-        'clitic': deconvert(analysis.clitic),
-        'partofspeech': deconvert(analysis.partofspeech),
-        'form': deconvert(analysis.form),
-        'lemma': lemma
-        }
+    result_dict = \
+        { 'root': get_root(root, preserve_phonetic, preserve_compound),
+          'root_tokens': toks,
+          'ending': deconvert(analysis.ending),
+          'clitic': deconvert(analysis.clitic),
+          'partofspeech': deconvert(analysis.partofspeech),
+          'form': deconvert(analysis.form) }
+    if not remove_lemma:
+        # construct lemma
+        lemma = get_lemma(grouptoks, analysis.partofspeech)
+        result_dict['lemma'] = lemma
+    return result_dict
 
 
 def trim_phonetics(root):

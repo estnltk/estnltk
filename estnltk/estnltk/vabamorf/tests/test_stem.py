@@ -7,9 +7,10 @@ from ..morf import analyze
 from pprint import pprint
 
 
-class AnalysisTest(unittest.TestCase):
+class StemAnalysisTest(unittest.TestCase):
     
     def test_analyse_with_stem(self):
+        # Smoke test for stem=True setting
         # Example text
         example_text = ['läks', 'omastega', 'rappa']
         # Result without stem (default)
@@ -43,7 +44,6 @@ class AnalysisTest(unittest.TestCase):
              [{'analysis': [{'clitic': '',
                              'ending': 's',
                              'form': 's',
-                             'lemma': 'läkma',
                              'partofspeech': 'V',
                              'root': 'läk',
                              'root_tokens': ['läk']}],
@@ -51,7 +51,6 @@ class AnalysisTest(unittest.TestCase):
              {'analysis': [{'clitic': '',
                             'ending': 'tega',
                             'form': 'pl kom',
-                            'lemma': 'omas',
                             'partofspeech': 'S',
                             'root': 'omas',
                             'root_tokens': ['omas']}],
@@ -59,7 +58,6 @@ class AnalysisTest(unittest.TestCase):
              {'analysis': [{'clitic': '',
                             'ending': '0',
                             'form': 'adt',
-                            'lemma': 'rappa',
                             'partofspeech': 'S',
                             'root': 'rappa',
                             'root_tokens': ['rappa']}],
@@ -80,4 +78,61 @@ class AnalysisTest(unittest.TestCase):
         result = analyze(example_text, guess=True, propername=True, disambiguate=True)
         self.assertEqual( result, result_wo_stem )
 
+
+    def test_analyse_compounds_with_stem(self):
+        # Example text
+        example_text = ['läksid', 'omastehoolekandega', 'rappa']
+        result = analyze(example_text, guess=True, propername=True, disambiguate=True, stem=True)
+        #pprint(result)
+        self.assertEqual( result, \
+             [{'analysis': [{'clitic': '',
+                            'ending': 'sid',
+                            'form': 'sid',
+                            'partofspeech': 'V',
+                            'root': 'läk',
+                            'root_tokens': ['läk']}],
+                            'text': 'läksid'},
+              {'analysis': [{'clitic': '',
+                            'ending': 'ga',
+                            'form': 'sg kom',
+                            'partofspeech': 'S',
+                            'root': 'omas+te_hoole_kande',
+                            'root_tokens': ['omaste', 'hoole', 'kande']}],
+                            'text': 'omastehoolekandega'},
+              {'analysis': [{'clitic': '',
+                            'ending': '0',
+                            'form': 'adt',
+                            'partofspeech': 'S',
+                            'root': 'rappa',
+                            'root_tokens': ['rappa']}],
+                            'text': 'rappa'}] )
+
+
+    def test_analyse_clitic_with_stem(self):
+        # Example text
+        example_text = ['automaatjaamgi', 'polnud', 'valmis']
+        result = analyze(example_text, guess=True, propername=True, disambiguate=True, stem=True)
+        #pprint(result)
+        self.assertEqual( result, \
+            [{'analysis': [{'clitic': 'gi',
+                            'ending': '0',
+                            'form': 'sg n',
+                            'partofspeech': 'S',
+                            'root': 'automaat_jaam',
+                            'root_tokens': ['automaat', 'jaam']}],
+                            'text': 'automaatjaamgi'},
+             {'analysis': [{'clitic': '',
+                            'ending': 'nud',
+                            'form': 'neg nud',
+                            'partofspeech': 'V',
+                            'root': 'pol',
+                            'root_tokens': ['pol']}],
+                            'text': 'polnud'},
+             {'analysis': [{'clitic': '',
+                            'ending': '0',
+                            'form': '',
+                            'partofspeech': 'A',
+                            'root': 'valmis',
+                            'root_tokens': ['valmis']}],
+                            'text': 'valmis'}] )
 
