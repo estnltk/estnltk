@@ -54,13 +54,16 @@ DEFAULT_PARAM_GUESS        = True
 DEFAULT_PARAM_PROPERNAME   = True
 DEFAULT_PARAM_PHONETIC     = False
 DEFAULT_PARAM_COMPOUND     = True
-DEFAULT_PARAM_STEM         = False # TV-2024.02.04 ???
+DEFAULT_PARAM_STEM         = False # TV-2024.02.04
 
 # Morphological analysis attributes used by Vabamorf
 VABAMORF_ATTRIBUTES = ('root', 'ending', 'clitic', 'form', 'partofspeech')
 
-# Morphological analysis attributes used by ESTNLTK's Vabamorf
+# Morphological analysis attributes used by ESTNLTK's Vabamorf (lemma-based analysis)
 ESTNLTK_MORPH_ATTRIBUTES = ('lemma', 'root', 'root_tokens', 'ending', 'clitic', 'form', 'partofspeech')
+
+# Morphological analysis attributes used by ESTNLTK's Vabamorf (stem-based analysis)
+ESTNLTK_MORPH_ATTRIBUTES_STEM_BASED = ('root', 'root_tokens', 'ending', 'clitic', 'form', 'partofspeech')
 
 # Name of the normalized text attribute. This refers to 
 # the normalized word form that was used as a basis in 

@@ -8,6 +8,17 @@
 #  based) morphological disambiguation, and MorphAnalysisReorderer is 
 #  used to sort remaining ambiguities by their corpus frequency.
 # 
+#  Lemma-based versus stem-based morphological analysis. 
+#  By default, Vabamorf's morphological analysis is lemma-based, which 
+#  means that inflectional forms will be normalized to their lemmas in 
+#  the output. For instance, verb 'läks' will be normalized to root/lemma 
+#  'minema' and noun 'vette' will be normalized to root/lemma 'vesi'. 
+#  With stem-based morphological analysis, inflectional forms will be kept 
+#  as they are in the surface form. For instance, verb 'läks' will be 
+#  normalized to root/stem 'läk' (with ending 's') and noun 'vette' will 
+#  be normalized to root/stem 've' (with ending 'tt'). There are no 
+#  lemmas in the output of stem-based morphological analysis.
+#
 from typing import MutableMapping
 
 from estnltk import Annotation
@@ -25,7 +36,7 @@ from estnltk.taggers.standard.morph_analysis.cb_disambiguator import CorpusBased
 
 from estnltk.taggers.standard.morph_analysis.morf_common import DEFAULT_PARAM_DISAMBIGUATE, DEFAULT_PARAM_GUESS
 from estnltk.taggers.standard.morph_analysis.morf_common import DEFAULT_PARAM_PROPERNAME, DEFAULT_PARAM_PHONETIC
-from estnltk.taggers.standard.morph_analysis.morf_common import DEFAULT_PARAM_COMPOUND
+from estnltk.taggers.standard.morph_analysis.morf_common import DEFAULT_PARAM_COMPOUND, DEFAULT_PARAM_STEM
 from estnltk.taggers.standard.morph_analysis.morf_common import ESTNLTK_MORPH_ATTRIBUTES
 from estnltk.taggers.standard.morph_analysis.morf_common import VABAMORF_ATTRIBUTES
 from estnltk.taggers.standard.morph_analysis.morf_common import IGNORE_ATTR
@@ -40,7 +51,6 @@ from estnltk.taggers.standard.morph_analysis.morf_common import _convert_vm_reco
 
 class VabamorfTagger(Tagger):
     """Tags morphological analysis on words. Uses Vabamorf's analyzer and disambiguator.
-
     """
     output_attributes = (NORMALIZED_TEXT,) + ESTNLTK_MORPH_ATTRIBUTES
     #output_attributes = ESTNLTK_MORPH_ATTRIBUTES
@@ -51,6 +61,7 @@ class VabamorfTagger(Tagger):
                   'disambiguate',
                   "compound",
                   "phonetic",
+                  "stem",
                   "slang_lex",
                   # postanalysis tagger
                   'postanalysis_tagger',
@@ -89,6 +100,7 @@ class VabamorfTagger(Tagger):
                  disambiguate=DEFAULT_PARAM_DISAMBIGUATE,
                  compound=DEFAULT_PARAM_COMPOUND,
                  phonetic=DEFAULT_PARAM_PHONETIC,
+                 stem=DEFAULT_PARAM_STEM,
                  slang_lex=False ):
         """Initialize VabamorfTagger class.
 
@@ -153,6 +165,18 @@ class VabamorfTagger(Tagger):
             Add compound word markers to root forms.
         phonetic: boolean (default: False)
             Add phonetic information to root forms.
+        stem: boolean (default: False)
+            Replaces lemma with word stem in the 'root' and 'root_tokens'
+            (so called stem-based morphological analysis). 
+            In the stem-based analysis, inflectional forms are not normalized 
+            to their lemmas, but instead kept as they are, and only endings 
+            are separated from words. 
+            For instance, with lemma-based analysis (default), the 
+            word 'läks' gets root='mine' (lemma='minema'); 
+            however, with the stem-based analysis, the word 'läks' 
+            gets root='läk' (with ending='s' and no lemma). 
+            Note that with stem-based analysis, there will be no 
+            lemmas in the output.
         slang_lex: boolean (default: False)
             If True, then uses an extended version of Vabamorf's binary lexicon, 
             which provides valid analyses to spoken and slang words, such as 
@@ -188,6 +212,7 @@ class VabamorfTagger(Tagger):
         self.disambiguate = disambiguate
         self.compound     = compound
         self.phonetic     = phonetic
+        self.stem         = stem
         self.slang_lex    = slang_lex
         self.use_postanalysis = use_postanalysis
         self.use_reorderer    = use_reorderer
@@ -207,7 +232,8 @@ class VabamorfTagger(Tagger):
             # Initialize default postanalysis_tagger
             postanalysis_tagger = PostMorphAnalysisTagger(output_layer=output_layer,\
                                                           input_compound_tokens_layer=input_compound_tokens_layer,
-                                                          input_words_layer=input_words_layer)
+                                                          input_words_layer=input_words_layer,
+                                                          stem=self.stem)
         # Check postanalysis_tagger
         if postanalysis_tagger:
             # Check for Retagger
@@ -219,6 +245,8 @@ class VabamorfTagger(Tagger):
             assert postanalysis_tagger.output_layer == self.output_layer, \
                 '(!) postanalysis_tagger should modify layer "'+str(self.output_layer)+'".'+\
                 ' Currently, it modifies layer "'+str(postanalysis_tagger.output_layer)+'".'
+            assert postanalysis_tagger.stem == self.stem, \
+                f'(!) postanalysis_tagger has conflicting stem value: {postanalysis_tagger.stem}'
             #assert hasattr(postanalysis_tagger, 'attributes'), \
             #    '(!) postanalysis_tagger does not define any attributes.'
         self.postanalysis_tagger = postanalysis_tagger
@@ -244,6 +272,20 @@ class VabamorfTagger(Tagger):
         # If the default disambiguation is switched off, reordering will also be switched off
         if not self.disambiguate:
             self.use_reorderer = False
+        # If stem-based analysis is used, then:
+        # * reordering will be switched off (requires lemma information);
+        # * textbased_pre-disambiguation is switched off (requires lemma information);
+        # * textbased_post-disambiguation is switched off (requires lemma information);
+        if self.stem:
+            self.use_reorderer = False
+            self.predisambiguate = False
+            self.postdisambiguate = False
+            # Modify output layer's attributes: remove lemma
+            new_output_attributes = ()
+            for attr in self.output_attributes:
+                if attr != 'lemma':
+                    new_output_attributes += (attr,)
+            self.output_attributes = new_output_attributes
         #
         # Initialize textbased_disambiguator
         # Check if the user has provided a customized textbased_disambiguator
@@ -295,13 +337,15 @@ class VabamorfTagger(Tagger):
                                                          guess=self.guess,
                                                          propername=self.propername,
                                                          compound=self.compound,
-                                                         phonetic=self.phonetic)
+                                                         phonetic=self.phonetic,
+                                                         stem=self.stem)
         self._vabamorf_disambiguator = VabamorfDisambiguator( vm_instance=_vm_instance,
                                                               output_layer=output_layer,
                                                               input_words_layer=self._input_words_layer,
                                                               input_sentences_layer=self._input_sentences_layer,
                                                               compound=self.compound,
-                                                              phonetic=self.phonetic)
+                                                              phonetic=self.phonetic,
+                                                              stem=self.stem)
         # Update dependencies: add dependencies specific to postanalysis_tagger
         if postanalysis_tagger and postanalysis_tagger.input_layers:
             for postanalysis_dependency in postanalysis_tagger.input_layers:
@@ -465,6 +509,7 @@ class VabamorfAnalyzer(Tagger):
                   "propername",
                   "compound",
                   "phonetic",
+                  "stem",
                   # Internal stuff:
                   '_vm_instance',
                   # Names of the specific input layers:
@@ -483,7 +528,8 @@ class VabamorfAnalyzer(Tagger):
                  guess = DEFAULT_PARAM_GUESS,
                  propername = DEFAULT_PARAM_PROPERNAME,
                  compound = DEFAULT_PARAM_COMPOUND,
-                 phonetic = DEFAULT_PARAM_PHONETIC):
+                 phonetic = DEFAULT_PARAM_PHONETIC,
+                 stem=DEFAULT_PARAM_STEM):
         """Initialize VabamorfAnalyzer class.
 
         Parameters
@@ -511,6 +557,18 @@ class VabamorfAnalyzer(Tagger):
             Add compound word markers to root forms.
         phonetic: boolean (default: False)
             Add phonetic information to root forms.
+        stem: boolean (default: False)
+            Replaces lemma with word stem in the 'root' and 'root_tokens'
+            (so called stem-based morphological analysis). 
+            In the stem-based analysis, inflectional forms are not normalized 
+            to their lemmas, but instead kept as they are, and only endings 
+            are separated from words. 
+            For instance, with lemma-based analysis (default), the 
+            word 'läks' gets root='mine' (lemma='minema'); 
+            however, with the stem-based analysis, the word 'läks' 
+            gets root='läk' (with ending='s' and no lemma). 
+            Note that with stem-based analysis, there will be no 
+            lemmas in the output.
         """
         # Set input/output layer names
         self.output_layer = output_layer
@@ -518,6 +576,13 @@ class VabamorfAnalyzer(Tagger):
         self._input_sentences_layer      = input_sentences_layer
         self.input_layers = [input_words_layer, input_sentences_layer]
         self.extra_attributes = extra_attributes
+        if stem:
+            # Modify output layer's attributes: remove lemma
+            new_output_attributes = ()
+            for attr in self.output_attributes:
+                if attr != 'lemma':
+                    new_output_attributes += (attr,)
+            self.output_attributes = new_output_attributes
         if self.extra_attributes:
             for extra_attr in self.extra_attributes:
                 self.output_attributes += (extra_attr,)
@@ -533,6 +598,8 @@ class VabamorfAnalyzer(Tagger):
         self.propername = propername
         self.compound = compound
         self.phonetic = phonetic
+        self.stem = stem
+        
 
 
     def _make_layer_template(self):
@@ -571,6 +638,7 @@ class VabamorfAnalyzer(Tagger):
         current_kwargs["propername"] = self.propername
         current_kwargs["compound"]   = self.compound
         current_kwargs["phonetic"]   = self.phonetic
+        current_kwargs["stem"]       = self.stem
         # --------------------------------------------
         #   Use Vabamorf for morphological analysis
         # --------------------------------------------
@@ -673,7 +741,8 @@ class VabamorfAnalyzer(Tagger):
            list of dict
               list with resulting analyses. Each analysis item is dict 
               with keys 'clitic', 'ending', 'form', 'lemma', 'partofspeech', 
-              'root', 'root_tokens'.
+              'root', 'root_tokens'. (Note: the key 'lemma' is not present 
+              in stem-based analysis)
         """
         # Do nothing for an empty string, non-string or a space token
         if not isinstance(input_token, str) or len(input_token) == 0 or input_token.isspace():
@@ -685,6 +754,7 @@ class VabamorfAnalyzer(Tagger):
         analysis_kwargs["propername"] = self.propername
         analysis_kwargs["compound"]   = self.compound
         analysis_kwargs["phonetic"]   = self.phonetic
+        analysis_kwargs["stem"]       = self.stem
         res = self._vm_instance.analyze(words=[input_token], **analysis_kwargs)
         if len(res) > 0 and sort_analyses:
             res[0]['analysis'] = sorted(res[0]['analysis'],
@@ -741,7 +811,7 @@ class VabamorfDisambiguator(Retagger):
     """Disambiguates morphologically analysed texts. 
        Uses Vabamorf for disambiguating.
     """
-    conf_param = ['compound', 'phonetic',
+    conf_param = ['compound', 'phonetic', 'stem', 
                   '_vm_instance',
                   '_input_words_layer',
                   '_input_sentences_layer' ]
@@ -752,7 +822,8 @@ class VabamorfDisambiguator(Retagger):
                  input_sentences_layer='sentences',
                  vm_instance=None,
                  compound = DEFAULT_PARAM_COMPOUND,
-                 phonetic = DEFAULT_PARAM_PHONETIC):
+                 phonetic = DEFAULT_PARAM_PHONETIC,
+                 stem=DEFAULT_PARAM_STEM):
         """Initialize VabamorfDisambiguator class.
 
         Parameters
@@ -780,6 +851,18 @@ class VabamorfDisambiguator(Retagger):
             have been preserved on the input morph analysis. 
             If the input layer misses the markers, 
             then disambiguator cannot add them.
+        stem: boolean (default: False)
+            Replaces lemma with word stem in the 'root' and 'root_tokens'
+            (so called stem-based morphological analysis). 
+            In the stem-based analysis, inflectional forms are not normalized 
+            to their lemmas, but instead kept as they are, and only endings 
+            are separated from words. 
+            For instance, with lemma-based analysis (default), the 
+            word 'läks' gets root='mine' (lemma='minema'); 
+            however, with the stem-based analysis, the word 'läks' 
+            gets root='läk' (with ending='s' and no lemma). 
+            Note that with stem-based analysis, there will be no 
+            lemmas in the output.
         """
         # Set attributes & configuration
         self.output_layer = output_layer
@@ -791,6 +874,14 @@ class VabamorfDisambiguator(Retagger):
         self._input_sentences_layer = self.input_layers[1]
         self.compound = compound
         self.phonetic = phonetic
+        self.stem     = stem
+        if self.stem:
+            # Modify output layer's attributes: remove lemma
+            new_output_attributes = ()
+            for attr in self.output_attributes:
+                if attr != 'lemma':
+                    new_output_attributes += (attr,)
+            self.output_attributes = new_output_attributes
         if vm_instance:
             # Check Vabamorf Instance
             if not isinstance(vm_instance, Vabamorf):
@@ -941,7 +1032,8 @@ class VabamorfDisambiguator(Retagger):
                 disambiguated_dicts = \
                     self._vm_instance.disambiguate( sentence_morph_dicts,
                                                     phonetic=self.phonetic,
-                                                    compound=self.compound )
+                                                    compound=self.compound,
+                                                    stem=self.stem )
             # D) Convert Vabamorf's results to AmbiguousSpans
             global_morph_span_id = sentence_start_morph_span_id
             wid = 0
