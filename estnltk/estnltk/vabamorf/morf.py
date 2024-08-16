@@ -166,7 +166,8 @@ class Vabamorf(object):
         assert disamb_lex_path is not None, '(!) disamb_lex_path unspecified. Please use the parameter disamb_lex_path to specify Vabamorf disambiguator\'s lexicon file.'
         self._morf = vm.Vabamorf(convert(lex_path), convert(disamb_lex_path))
 
-    def analyze(self, words, **kwargs):
+    def analyze(self, words, disambiguate: bool=True, guess: bool=True, propername: bool=True,
+                      compound: bool=True, phonetic: bool=False, stem: bool=False, **kwargs):
         """Perform morphological analysis and disambiguation of given text.
 
         Parameters
@@ -187,7 +188,7 @@ class Vabamorf(object):
             Add phonetic information to root forms.
         stem: boolean (default: False)
             Replaces lemma with word stem in the 'root' and 'root_tokens'
-            (so called stem-based analysis). 
+            (so called stem-based morphological analysis). 
             For instance, with lemma-based analysis (default), the 
             word 'läks' gets root='mine' (lemma='minema'); 
             however, with the stem-based analysis, the word 'läks' 
@@ -207,24 +208,31 @@ class Vabamorf(object):
         # convert words to native strings
         words = [convert(w) for w in words]
 
+        # Note: we always add phonetic and compound information
+        # to the analysis, because, unlike other options, it does 
+        # not change the number of analyses nor inflection of the 
+        # root -- it only adds phonetic and compound markers to 
+        # the root, which can be easily stripped off during the 
+        # post-processing (if not needed).
         morfresults = self._morf.analyze(
             vm.StringVector(words),
-            kwargs.get('disambiguate', True),
-            kwargs.get('guess', True),
+            disambiguate,
+            guess,
             True, # add phonetic and compound information by default
-            kwargs.get('propername', True),
-            kwargs.get('stem', False)) # TV-2024.02.03 ???
-        preserve_phonetic = kwargs.get('phonetic', False)
-        preserve_compound = kwargs.get('compound', True)
+            propername,
+            stem) # TV-2024.02.03
+        preserve_phonetic = phonetic
+        preserve_compound = compound
 
-        # if stem==True, then lemma cannot be constructed, so 
-        # remove lemma from the data structure
-        remove_lemma = kwargs.get('stem', False)
+        # if stem==True, then lemma cannot be constructed, 
+        # so remove lemma from the output
+        remove_lemma = stem
 
         return [postprocess_result(mr, preserve_phonetic, preserve_compound, \
                                        remove_lemma=remove_lemma) for mr in morfresults]
 
-    def disambiguate(self, words, **kwargs):
+    def disambiguate(self, words, compound: bool=True, phonetic: bool=False, stem: bool=False, 
+                           **kwargs):
         """Disambiguate previously analyzed words.
 
         Parameters
@@ -245,15 +253,15 @@ class Vabamorf(object):
         list of dict
             Sentence of disambiguated words.
         """
-        preserve_phonetic = kwargs.get('phonetic', False)
-        preserve_compound = kwargs.get('compound', True)
+        preserve_phonetic = phonetic
+        preserve_compound = compound
         
         words = vm.SentenceAnalysis([as_wordanalysis(w) for w in words])
         disambiguated = self._morf.disambiguate(words)
 
         # if stem==True, then lemma cannot be constructed, so 
         # remove lemma from the data structure
-        remove_lemma = kwargs.get('stem', False)
+        remove_lemma = stem
 
         return [postprocess_result(mr, preserve_phonetic, preserve_compound, \
                                        remove_lemma=remove_lemma) for mr in disambiguated]
