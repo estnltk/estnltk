@@ -179,6 +179,7 @@ class VabamorfEstCatConverter(Tagger):
               This can be used to store metadata on layer tagging.
         """
         original_morph_layer = layers[self.input_layers[0]]
+        lemma_based = 'lemma' in original_morph_layer.attributes
         translated_morph_layer = self._make_layer_template()
         translated_morph_layer.text_object = text
         for morph_span in original_morph_layer:
@@ -187,7 +188,11 @@ class VabamorfEstCatConverter(Tagger):
                 for annotation in morph_span.annotations:
                     record = {}
                     record['normaliseeritud_sõne'] = annotation['normalized_text']
-                    record['algvorm'] = annotation['lemma']
+                    # TODO: if stem-based analysis is used instead of lemma-based, then 
+                    # it would be more correct to name attributes as 'tüvi' instead of 
+                    # 'algvorm'. But this would require changing output_attributes in 
+                    # the constructor ...
+                    record['algvorm'] = annotation['lemma'] if lemma_based else annotation['root']
                     record['lõpp'] = annotation['ending']
                     record['sõnaliik'] = VM_POSTAGS.get(annotation['partofspeech'], '??')
                     record['vormi_nimetus'] = '??'
