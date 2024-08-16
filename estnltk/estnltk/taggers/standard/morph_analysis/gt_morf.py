@@ -312,6 +312,11 @@ class GTMorphConverter( Tagger ):
         status: dict
            This can be used to store metadata on layer tagging.
         """
+        # Validate
+        if 'lemma' not in layers[self._input_morph_analysis_layer].attributes:
+            raise Exception(f'(!) Missing attribute "lemma" in layer {self._input_morph_analysis_layer!r}. '+\
+                            'GT conversion is currently implemented only for lemma-based morphological analyses.')
+
         # 0) Create an empty layer
         gt_morph = self._make_layer_template()
         gt_morph.text_object = text
