@@ -726,6 +726,10 @@ class CorpusBasedMorphDisambiguator( object ):
                         if layer in doc.layers:
                             not_detached.append( layer )
                         missing.append( layer )
+                    if layer == self.output_layer:
+                        if 'lemma' not in (doc_detached_layers[layer]).attributes:
+                            raise Exception(f'(!) Missing attribute "lemma" in layer {self.output_layer!r} (at document {doc_id}). '+\
+                                             'CB disambiguation is currently implemented only for lemma-based morphological analyses.')
                 if not_detached:
                     raise Exception( '(!) {!r} has layers {!r}, but they are not in detached_layers: {!r}'.\
                           format(doc,not_detached,detached_layers.keys()))
@@ -746,6 +750,10 @@ class CorpusBasedMorphDisambiguator( object ):
                             if layer in doc.layers:
                                 not_detached.append( layer )
                             missing.append( layer )
+                        if layer == self.output_layer:
+                            if 'lemma' not in (doc_detached_layers[layer]).attributes:
+                                raise Exception(f'(!) Missing attribute "lemma" in layer {self.output_layer!r} (at document {(cid, doc_id)}). '+\
+                                                 'CB disambiguation is currently implemented only for lemma-based morphological analyses.')
                     if not_detached:
                         raise Exception( '(!) {!r} has layers {!r}, but they are not in detached_layers: {!r}'.\
                               format(doc,not_detached,detached_layers.keys()))
