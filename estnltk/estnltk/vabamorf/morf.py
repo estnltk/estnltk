@@ -522,7 +522,7 @@ def as_wordanalysis(word):
 # SHORTCUT FUNCTIONS                                 
 ######################################################
 
-# TODO: relocate the following methods spellcheck, fix_spelling, 
+# TODO: relocate the following functions spellcheck, fix_spelling, 
 #       synthesize and syllabify_word and their utility functions 
 #       to separate modules.
 #       Note: this will be a breaking change for users 
@@ -606,19 +606,25 @@ def synthesize(lemma, form, partofspeech='', hint='', guess=True, phonetic=False
     return Vabamorf.instance().synthesize(lemma, form, partofspeech, hint, guess, phonetic)
 
 
-# Note: dash and slash are special symbols for Vabamorf's syllabifier
-# marking points where words are split.
-# Analysing these characters alone causes syllabifier to crash, so 
-# we should refrain from analysing them and only analyse strings and 
-# symbols around them.
+'''
+Special symbols for syllabifier. 
+Note: dash and slash are special symbols for Vabamorf's syllabifier
+marking points where words are split.
+Analysing these characters alone causes syllabifier to crash, so 
+we should refrain from analysing them and only analyse strings and 
+symbols around them.
+'''
 _SPECIAL_SYMBOL_SYLLABLES = { \
   '-' : {'syllable': '-','quantity': 3, 'accent': 1 },
   '/' : {'syllable': '/','quantity': 3, 'accent': 1,}
 }
 
-# Prepares word for syllabification: tokenizes word in a way 
-# that dash and slash are separate symbols
+
 def _split_word_for_syllabification( word_text ):
+    '''
+    Prepares word for syllabification: tokenizes word in a way 
+    that dash and slash are separate symbols.
+    '''
     split_word = [[]]
     for cid, c in enumerate( word_text ):
         if c not in ['-', '/']:
@@ -632,17 +638,19 @@ def _split_word_for_syllabification( word_text ):
     return [''.join(chars) for chars in split_word]
 
 
-# Heuristic: attempts to split the input word by its 
-# compound word boundaries. Only succeeds if:
-#  a) the input word is unambiguously a compound word;
-#  b) lemma and the surface form of the input word 
-#     match by prefix (to extent of compound word 
-#     boundaries);
-# If tolerance is defined (default: tolerance=2), then 
-# allows the given amount of characters to be mismatched 
-# at the end of a sub word of the compound if the 
-# mismatch is followed by at least 2 matching characters
 def _split_compound_word_heuristically( word_text, tolerance=2 ):
+    '''
+    Heuristic: attempts to split the input word by its 
+    compound word boundaries. Only succeeds if:
+     a) the input word is unambiguously a compound word;
+     b) lemma and the surface form of the input word 
+        match by prefix (to extent of compound word 
+        boundaries);
+    If tolerance is defined (default: tolerance=2), then 
+    allows the given amount of characters to be mismatched 
+    at the end of a sub word of the compound if the 
+    mismatch is followed by at least 2 matching characters.
+    '''
     # Discard unanalysable inputs
     if word_text is None or len(word_text) == 0 or word_text.isspace():
         return [word_text]
@@ -811,6 +819,18 @@ def syllable_as_tuple(syllable):
 
 
 def syllabify_word(word, as_dict=True, split_compounds=True, tolerance=2):
+    '''
+    Syllabifies a single word using Vabamorf's internal syllabifier.
+    
+    **Important:** this syllabification functionality was not originally designed 
+    as a general purpose syllabifier of Estonian. It's original purpose was to 
+    analyse only words unknown to Vabamorf's morphological analyser (to help 
+    guessing the word structure), and as such, it can produce erroneous 
+    syllabification for common words that are already described in Vabamorf's 
+    lexicon. Therefore, it's usage is not encouraged. 
+    
+    This function is **to be deprecated** in future versions of EstNLTK. 
+    '''
     if word is None or len(word) == 0:
         # Nothing to do in case of an empty string
         return []
@@ -843,6 +863,11 @@ def syllabify_word(word, as_dict=True, split_compounds=True, tolerance=2):
 
 
 def syllabify_words(words, as_dict=True, split_compounds=True, tolerance=2):
+    '''
+    Syllabifies a list of words using Vabamorf's internal syllabifier.
+    
+    Warning: this function is **to be deprecated** in future versions. 
+    '''
     return [syllabify_word(w, as_dict=as_dict, \
                               split_compounds=split_compounds, \
                               tolerance=tolerance) for w in words]
