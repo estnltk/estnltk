@@ -170,7 +170,7 @@ class VabamorfTagger(Tagger):
             (so called stem-based morphological analysis). 
             In the stem-based analysis, inflectional forms are not normalized 
             to their lemmas, but instead kept as they are, and only endings 
-            are separated from words. 
+            are separated from roots. 
             For instance, with lemma-based analysis (default), the 
             word 'läks' gets root='mine' (lemma='minema'); 
             however, with the stem-based analysis, the word 'läks' 
@@ -562,7 +562,7 @@ class VabamorfAnalyzer(Tagger):
             (so called stem-based morphological analysis). 
             In the stem-based analysis, inflectional forms are not normalized 
             to their lemmas, but instead kept as they are, and only endings 
-            are separated from words. 
+            are separated from roots. 
             For instance, with lemma-based analysis (default), the 
             word 'läks' gets root='mine' (lemma='minema'); 
             however, with the stem-based analysis, the word 'läks' 
@@ -856,7 +856,7 @@ class VabamorfDisambiguator(Retagger):
             (so called stem-based morphological analysis). 
             In the stem-based analysis, inflectional forms are not normalized 
             to their lemmas, but instead kept as they are, and only endings 
-            are separated from words. 
+            are separated from roots. 
             For instance, with lemma-based analysis (default), the 
             word 'läks' gets root='mine' (lemma='minema'); 
             however, with the stem-based analysis, the word 'läks' 

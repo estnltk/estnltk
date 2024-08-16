@@ -10,17 +10,18 @@ from estnltk.common import DEFAULT_PARAM_DISAMBIGUATE, DEFAULT_PARAM_GUESS
 from estnltk.common import DEFAULT_PARAM_PROPERNAME, DEFAULT_PARAM_PHONETIC
 from estnltk.common import DEFAULT_PARAM_COMPOUND
 from estnltk.common import ESTNLTK_MORPH_ATTRIBUTES
+from estnltk.common import ESTNLTK_MORPH_ATTRIBUTES_STEM_BASED
 from estnltk.common import NORMALIZED_TEXT
 from estnltk.common import IGNORE_ATTR
-from estnltk.common import DEFAULT_PARAM_STEM # TV-2024.02.04 ???
+from estnltk.common import DEFAULT_PARAM_STEM  # TV-2024.02.04
 
 def make_resolver(
-                 stem        =DEFAULT_PARAM_STEM, # TV-2024.02.04 ???
                  disambiguate=DEFAULT_PARAM_DISAMBIGUATE,
                  guess       =DEFAULT_PARAM_GUESS,
                  propername  =DEFAULT_PARAM_PROPERNAME,
                  phonetic    =DEFAULT_PARAM_PHONETIC,
                  compound    =DEFAULT_PARAM_COMPOUND,
+                 stem        =DEFAULT_PARAM_STEM, # TV-2024.02.04
                  slang_lex   =False,
                  use_reorderer=True,
                  predisambiguate =False,
@@ -31,16 +32,14 @@ def make_resolver(
     Parameters change settings of Vabamorf's morphological analysis.
 
     **Warning**: changing Vabamorf's parameters `guess`, `propername`,
-    `disambiguate`, `compound` and `phonetic` can tamper the quality of
-    taggers that are dependent on morphological analysis, and some
-    downstream taggers can also become non-functional (run into errors).
+    `disambiguate`, `compound`, `phonetic` and `stem` can tamper the
+    quality of taggers that are dependent on morphological analysis, and 
+    some downstream taggers can also become non-functional (run into errors).
     So, you should not use downstream taggers if you change these
     parameters (unless you know what you are doing).
 
     Parameters
     ----------
-    stem: boolean (default: False)  # TV-2024.02.03 ???
-        asenda lemma tüvega         # TV-2024.02.03 ???
     guess: boolean (default: True)
         Use guessing in case of unknown words (Vabamorf's parameter).
     propername: boolean (default: True)
@@ -53,6 +52,20 @@ def make_resolver(
         Add compound word markers to root forms (Vabamorf's parameter).
     phonetic: boolean (default: False)
         Add phonetic information to root forms (Vabamorf's parameter).
+    stem: boolean (default: False)
+        Replaces lemma with word stem in the 'root' and 'root_tokens'
+        (so called stem-based morphological analysis). 
+        In the stem-based analysis, inflectional forms are not normalized 
+        to their lemmas, but instead kept as they are, and only endings 
+        are separated from roots. 
+        For instance, with lemma-based analysis (default), the 
+        word 'läks' gets root='mine' (lemma='minema'); 
+        however, with the stem-based analysis, the word 'läks' 
+        gets root='läk' (with ending='s' and no lemma). 
+        Note that with stem-based analysis, there will be no 
+        lemmas in the output. As a result, most of the downstream 
+        taggers become non-functional if stem-based analysis is 
+        switched on. 
     slang_lex: boolean (default: False)
         If True, then uses an extended version of Vabamorf's binary lexicon,
         which provides valid analyses to spoken and slang words, such as
@@ -88,16 +101,20 @@ def make_resolver(
         'slang_lex': slang_lex,
         'use_reorderer': use_reorderer,
         'predisambiguate': predisambiguate,
-        'postdisambiguate': postdisambiguate
+        'postdisambiguate': postdisambiguate,
+        'stem' : stem
     }
     
+    vabamorf_tagger_output_attributes = (NORMALIZED_TEXT,) + ESTNLTK_MORPH_ATTRIBUTES
+    if stem:
+        vabamorf_tagger_output_attributes = (NORMALIZED_TEXT,) + ESTNLTK_MORPH_ATTRIBUTES_STEM_BASED
+    if not disambiguate:
+        vabamorf_tagger_output_attributes += (IGNORE_ATTR,)
+
     # TODO: if stem == True, then we should create a different kind of pipeline,
     #       because downstream taggers depending on vabamorf do not support 
     #       this setting ...
-    
-    vabamorf_tagger_output_attributes = (NORMALIZED_TEXT,) + ESTNLTK_MORPH_ATTRIBUTES
-    if not disambiguate:
-        vabamorf_tagger_output_attributes += (IGNORE_ATTR,)
+
     taggers = TaggersRegistry([
         # ==================================================
         #             The basic pipeline                    
