@@ -158,11 +158,16 @@ class CompoundWordTagger(Tagger):
 
     @staticmethod
     def _correct_cases( normalized_text, root_tokens ):
-        '''Corrects cases in root_tokens according to normalized_text.
-        '''
+        '''Corrects cases in root_tokens according to normalized_text. '''
+        if len(root_tokens) == 1 or all([len(r)==0 for r in root_tokens]):
+            # Just return normalized_text and be done with it
+            return [normalized_text]
         if '-' in normalized_text:
             # Remove hyphens/dashes (which are not in root_tokens)
             normalized_text = normalized_text.replace('-', '')
+            # Nothing left after removal: return singleton hyphens/dashes
+            if len(normalized_text) == 0:
+                return root_tokens
         new_root_tokens = []
         i = 0; c = 0
         while i < len(root_tokens):
@@ -171,14 +176,28 @@ class CompoundWordTagger(Tagger):
             j = 0
             while j < len(root_tokens[i]):
                 rtc = root_tokens[i][j]
-                wc = normalized_text[c]
-                # Take only chars from normalized text
-                subword.append( wc )
+                if c < len(normalized_text):
+                    # By default, take chars from normalized text
+                    wc = normalized_text[c]
+                    subword.append( wc )
+                else:
+                    # Bucket overfill: take leftover from root_tokens
+                    # This happens when Vabamorf adds chars, e.g. 
+                    # changes 'õhkond' -> 'õhk_onu' + 'd';
+                    subword.append( rtc )
                 c += 1
                 j += 1
+            # Check for leftover in normalized_text
+            # This happens when Vabamorf removes chars, e.g. 
+            # changes 'noorloooma' -> 'noor_looma'
+            if i == len(root_tokens)-1:
+                while c < len(normalized_text):
+                    wc = normalized_text[c]
+                    subword.append( wc )
+                    c += 1
             # Finish subword
             new_root_tokens.append( ''.join(subword) )
-            assert len(new_root_tokens[-1]) == len(root_tokens[i])
+            #assert len(new_root_tokens[-1]) == len(root_tokens[i])
             i += 1
         return new_root_tokens
 
