@@ -8,7 +8,7 @@ While many of the components are part of the default pipeline (callable via _def
 
 * [A_text_segmentation](A_text_segmentation/) tutorials give details about segmenting texts into tokens, compound tokens, words, sentences, paragraphs and clauses.
 
-* [B_morphology](B_morphology/) tutorials describe morphological analysis tools (Vabamorf, text-based and corpus-based disambiguator, user dictionary tagger, UD and GT converters; HFST-based analyser), morphological synthesis, spelling correction and syllabification.
+* [B_morphology](B_morphology/) tutorials describe morphological analysis tools (Vabamorf, text-based and corpus-based disambiguator, user dictionary tagger, UD and GT converters; HFST-based analyser), morphological synthesis, spelling correction, stemming, compound word detection and syllabification.
 
 * [C_syntax](C_syntax/) tutorials give information about preprocessing for syntactic analysis and syntactic analysers, available models and utilities for comparing and validating syntactic annotations.
 
