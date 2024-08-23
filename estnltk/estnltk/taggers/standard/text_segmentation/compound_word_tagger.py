@@ -22,7 +22,7 @@ from estnltk.taggers import Tagger
 from estnltk.taggers.standard.morph_analysis.morf_common import NORMALIZED_TEXT
 
 class CompoundWordTagger(Tagger):
-    """Tags compound word/subword boundaries on words. 
+    """Tags linguistic compound word boundaries on words. 
        Uses Vabamorf's stem-based morphological analysis to find compound 
        word boundaries.
     """
