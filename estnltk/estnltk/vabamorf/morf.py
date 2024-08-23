@@ -76,13 +76,6 @@ def convert(word):
     return word
 
 
-def deconvert(word):
-    """This method converts back the output from wrapper.
-       Result should be `unicode` for Python2 and `str` for Python3"""
-    # TODO: Is this method required at all? Nothing to do here in Python 3
-    return word
-
-
 # =============================================================================
 #   Handling Vabamorf's lexicons
 # =============================================================================
@@ -173,14 +166,16 @@ class Vabamorf(object):
         assert disamb_lex_path is not None, '(!) disamb_lex_path unspecified. Please use the parameter disamb_lex_path to specify Vabamorf disambiguator\'s lexicon file.'
         self._morf = vm.Vabamorf(convert(lex_path), convert(disamb_lex_path))
 
-    def analyze(self, words, **kwargs):
+    def analyze(self, words, disambiguate: bool=True, guess: bool=True, propername: bool=True,
+                      compound: bool=True, phonetic: bool=False, stem: bool=False, **kwargs):
         """Perform morphological analysis and disambiguation of given text.
 
         Parameters
         ----------
         words: list of str or str
-            Either a list of pretokenized words or a string. In case of a string, it will be splitted using
-            default behaviour of string.split() function.
+            Either a list of pretokenized words or a string. In case of a 
+            string, it will be split using default behaviour of string.split() 
+            function.
         disambiguate: boolean (default: True)
             Disambiguate the output and remove incosistent analysis.
         guess: boolean (default: True)
@@ -191,6 +186,15 @@ class Vabamorf(object):
             Add compound word markers to root forms.
         phonetic: boolean (default: False)
             Add phonetic information to root forms.
+        stem: boolean (default: False)
+            Replaces lemma with word stem in the 'root' and 'root_tokens'
+            (so called stem-based morphological analysis). 
+            For instance, with lemma-based analysis (default), the 
+            word 'läks' gets root='mine' (lemma='minema'); 
+            however, with the stem-based analysis, the word 'läks' 
+            gets root='läk' (with ending='s' and no lemma). 
+            Note that with stem-based analysis, there will be no 
+            lemmas in the output.
 
         Returns
         -------
@@ -204,18 +208,31 @@ class Vabamorf(object):
         # convert words to native strings
         words = [convert(w) for w in words]
 
+        # Note: we always add phonetic and compound information
+        # to the analysis, because, unlike other options, it does 
+        # not change the number of analyses nor inflection of the 
+        # root -- it only adds phonetic and compound markers to 
+        # the root, which can be easily stripped off during the 
+        # post-processing (if not needed).
         morfresults = self._morf.analyze(
             vm.StringVector(words),
-            kwargs.get('disambiguate', True),
-            kwargs.get('guess', True),
+            disambiguate,
+            guess,
             True, # add phonetic and compound information by default
-            kwargs.get('propername', True))
-        preserve_phonetic = kwargs.get('phonetic', False)
-        preserve_compound = kwargs.get('compound', True)
+            propername,
+            stem) # TV-2024.02.03
+        preserve_phonetic = phonetic
+        preserve_compound = compound
 
-        return [postprocess_result(mr, preserve_phonetic, preserve_compound) for mr in morfresults]
+        # if stem==True, then lemma cannot be constructed, 
+        # so remove lemma from the output
+        remove_lemma = stem
 
-    def disambiguate(self, words, **kwargs):
+        return [postprocess_result(mr, preserve_phonetic, preserve_compound, \
+                                       remove_lemma=remove_lemma) for mr in morfresults]
+
+    def disambiguate(self, words, compound: bool=True, phonetic: bool=False, stem: bool=False, 
+                           **kwargs):
         """Disambiguate previously analyzed words.
 
         Parameters
@@ -236,12 +253,18 @@ class Vabamorf(object):
         list of dict
             Sentence of disambiguated words.
         """
-        preserve_phonetic = kwargs.get('phonetic', False)
-        preserve_compound = kwargs.get('compound', True)
+        preserve_phonetic = phonetic
+        preserve_compound = compound
         
         words = vm.SentenceAnalysis([as_wordanalysis(w) for w in words])
         disambiguated = self._morf.disambiguate(words)
-        return [postprocess_result(mr, preserve_phonetic, preserve_compound) for mr in disambiguated]
+
+        # if stem==True, then lemma cannot be constructed, so 
+        # remove lemma from the data structure
+        remove_lemma = stem
+
+        return [postprocess_result(mr, preserve_phonetic, preserve_compound, \
+                                       remove_lemma=remove_lemma) for mr in disambiguated]
 
     def spellcheck(self, words, suggestions=True):
         """Spellcheck given sentence.
@@ -252,8 +275,8 @@ class Vabamorf(object):
         Parameters
         ----------
         words: list of str or str
-            Either a list of pretokenized words or a string. In case of a string, it will be splitted using
-            default behaviour of string.split() function.
+            Either a list of pretokenized words or a string. In case of a string, it 
+            will be split using default behaviour of string.split() function.
         suggestions: boolean (default: True)
             Add spell suggestions to result.
 
@@ -274,9 +297,9 @@ class Vabamorf(object):
         spellresults = self._morf.spellcheck(words, suggestions)
         results = []
         for spellresult in spellresults:
-            suggestions = [deconvert(s) for s in spellresult.suggestions]
+            suggestions = list(spellresult.suggestions)
             result = {
-                'text': deconvert(spellresult.word),
+                'text': spellresult.word,
                 'spelling': spellresult.spelling,
                 'suggestions': suggestions
             }
@@ -354,35 +377,38 @@ class Vabamorf(object):
             guess,
             phonetic
         )
-        return [deconvert(w) for w in words]
+        return list(words)
 
 
-def postprocess_result(morphresult, preserve_phonetic, preserve_compound):
+def postprocess_result(morphresult, preserve_phonetic, preserve_compound, remove_lemma=False):
     """Postprocess vabamorf wrapper output."""
     word, analysis = morphresult
     return {
-        'text': deconvert(word),
-        'analysis': [postprocess_analysis(a, preserve_phonetic, preserve_compound) for a in analysis]
+        'text': word,
+        'analysis': \
+            [postprocess_analysis(a, preserve_phonetic, preserve_compound, remove_lemma=remove_lemma) for a in analysis]
     }
 
 
-def postprocess_analysis(analysis, preserve_phonetic, preserve_compound):
-    root = deconvert(analysis.root)
+def postprocess_analysis(analysis, preserve_phonetic, preserve_compound, remove_lemma=False):
+    root = analysis.root
 
-    # extract tokens and construct lemma
+    # extract token groups
     grouptoks = get_group_tokens(root)
     toks = reduce(operator.add, grouptoks)
-    lemma = get_lemma(grouptoks, analysis.partofspeech)
 
-    return {
-        'root': get_root(root, preserve_phonetic, preserve_compound),
-        'root_tokens': toks,
-        'ending': deconvert(analysis.ending),
-        'clitic': deconvert(analysis.clitic),
-        'partofspeech': deconvert(analysis.partofspeech),
-        'form': deconvert(analysis.form),
-        'lemma': lemma
-        }
+    result_dict = \
+        { 'root': get_root(root, preserve_phonetic, preserve_compound),
+          'root_tokens': toks,
+          'ending': analysis.ending,
+          'clitic': analysis.clitic,
+          'partofspeech': analysis.partofspeech,
+          'form': analysis.form }
+    if not remove_lemma:
+        # construct lemma
+        lemma = get_lemma(grouptoks, analysis.partofspeech)
+        result_dict['lemma'] = lemma
+    return result_dict
 
 
 def trim_phonetics(root):
@@ -493,59 +519,14 @@ def as_wordanalysis(word):
 
 
 ######################################################
-# SHORTCUT FUNCTIONS
+# SHORTCUT FUNCTIONS                                 
 ######################################################
 
-
-def analyze(words, **kwargs):
-    """Perform morphological analysis and disambiguation of given text.
-
-    Parameters
-    ----------
-    words: list of str or str
-        Either a list of pretokenized words or a string. In case of a string, it will be splitted using
-        default behaviour of string.split() function.
-    disambiguate: boolean (default: True)
-        Disambiguate the output and remove incosistent analysis.
-    guess: boolean (default: True)
-        Use guessing in case of unknown words
-    propername: boolean (default: True)
-        Perform additional analysis of proper names.
-    compound: boolean (default: True)
-        Add compound word markers to root forms.
-    phonetic: boolean (default: False)
-        Add phonetic information to root forms.
-
-    Returns
-    -------
-    list of (list of dict)
-        List of analysis for each word in input.
-    """
-    return Vabamorf.instance().analyze(words, **kwargs)
-
-
-def disambiguate(words, **kwargs):
-    """Disambiguate previously analyzed words.
-
-    Parameters
-    ----------
-    words: list of dict
-        A sentence of words.
-    compound: boolean (default: True)
-        Preserve compound word markers in root forms.
-        Note: this has effect only if analysis has 
-        also preserved compound word markers.
-    phonetic: boolean (default: False)
-        Preserve phonetic information in root forms.
-        Note: this has effect only if analysis has 
-        also preserved phonetic markers.
-
-    Returns
-    -------
-    list of dict
-        Sentence of disambiguated words.
-    """
-    return Vabamorf.instance().disambiguate(words, **kwargs)
+# TODO: relocate the following functions spellcheck, fix_spelling, 
+#       synthesize and syllabify_word and their utility functions 
+#       to separate modules.
+#       Note: this will be a breaking change for users 
+#       importing these methods from estnltk.vabamorf.morf
 
 
 def spellcheck(words, suggestions=True):
@@ -625,19 +606,25 @@ def synthesize(lemma, form, partofspeech='', hint='', guess=True, phonetic=False
     return Vabamorf.instance().synthesize(lemma, form, partofspeech, hint, guess, phonetic)
 
 
-# Note: dash and slash are special symbols for Vabamorf's syllabifier
-# marking points where words are split.
-# Analysing these characters alone causes syllabifier to crash, so 
-# we should refrain from analysing them and only analyse strings and 
-# symbols around them.
+'''
+Special symbols for syllabifier. 
+Note: dash and slash are special symbols for Vabamorf's syllabifier
+marking points where words are split.
+Analysing these characters alone causes syllabifier to crash, so 
+we should refrain from analysing them and only analyse strings and 
+symbols around them.
+'''
 _SPECIAL_SYMBOL_SYLLABLES = { \
   '-' : {'syllable': '-','quantity': 3, 'accent': 1 },
   '/' : {'syllable': '/','quantity': 3, 'accent': 1,}
 }
 
-# Prepares word for syllabification: tokenizes word in a way 
-# that dash and slash are separate symbols
+
 def _split_word_for_syllabification( word_text ):
+    '''
+    Prepares word for syllabification: tokenizes word in a way 
+    that dash and slash are separate symbols.
+    '''
     split_word = [[]]
     for cid, c in enumerate( word_text ):
         if c not in ['-', '/']:
@@ -651,76 +638,33 @@ def _split_word_for_syllabification( word_text ):
     return [''.join(chars) for chars in split_word]
 
 
-# Heuristic: attempts to split the input word by its 
-# compound word boundaries. Only succeeds if:
-#  a) the input word is unambiguously a compound word;
-#  b) lemma and the surface form of the input word 
-#     match by prefix (to extent of compound word 
-#     boundaries);
-# If tolerance is defined (default: tolerance=2), then 
-# allows the given amount of characters to be mismatched 
-# at the end of a sub word of the compound if the 
-# mismatch is followed by at least 2 matching characters
-def _split_compound_word_heuristically( word_text, tolerance=2 ):
+def _split_compound_word_heuristically( word_text ):
+    '''
+    Heuristic: attempts to split the input word by its 
+    compound word boundaries. Only succeeds if the 
+    input word is an unambiguous compound word. 
+    If the word is morphologically ambiguous, then 
+    returns the input word without splitting it.
+    '''
     # Discard unanalysable inputs
     if word_text is None or len(word_text) == 0 or word_text.isspace():
         return [word_text]
-    # Apply morph analysis to determine if we have a compound
+    # Apply stem-based morph analysis to determine if we have a compound 
+    #       and to get the tokenization of the word into subwords
     analyses_of_word = \
-        analyze(word_text,guess=True,propername=True,disambiguate=False)
+        Vabamorf.instance().analyze(word_text,guess=True,propername=True,\
+                                    disambiguate=False,stem=True)
     
     all_root_tokens = []
+    all_ending_tokens = []
+    all_clitic_tokens = []
     for a in analyses_of_word[0]['analysis']:
         if a['root_tokens'] not in all_root_tokens:
             all_root_tokens.append( a['root_tokens'] )
+            all_ending_tokens.append( a['ending'] )
+            all_clitic_tokens.append( a['clitic'] )
     if len(all_root_tokens) == 1:
-        
-        # Find recursively next matching position within (small) edit radius
-        # The next matching positions must cover at least 2 characters
-        def _find_next_match(root_tokens, word, cur_c, cur_j, cur_i, eds):
-            # Advance in root_tokens if needed
-            if cur_j >= len(root_tokens[cur_i]):
-                cur_j = 0
-                cur_i += 1
-            # Can we check this position?
-            if cur_c < len(word) and \
-               cur_i < len(root_tokens) and \
-               cur_j < len(root_tokens[cur_i]):
-                wc = word[cur_c]
-                rc = all_root_tokens[cur_i][cur_j]
-                if wc == rc:
-                    # We've found a match!
-                    # Check if the next chars also match
-                    # (but don't do it recursively)
-                    next_is_also_match = False
-                    next_c = cur_c + 1
-                    next_j = cur_j + 1
-                    next_i = cur_i
-                    if next_j >= len(root_tokens[next_i]):
-                        next_j = 0
-                        next_i += 1
-                    next_is_also_match = (next_c < len(word) and \
-                                          next_i < len(root_tokens) and \
-                                          next_j < len(root_tokens[next_i]) and \
-                                          word[next_c] == all_root_tokens[next_i][next_j])
-                    if next_is_also_match:
-                        # Return a matching position only if 
-                        # the next position also matched
-                        return (cur_c, cur_j, cur_i)
-                elif eds > 0:
-                    # Check next positions
-                    next_positions = [ \
-                        _find_next_match(root_tokens, word, cur_c+1, cur_j, cur_i, eds-1),
-                        _find_next_match(root_tokens, word, cur_c, cur_j+1, cur_i, eds-1),
-                        _find_next_match(root_tokens, word, cur_c+1, cur_j+1, cur_i, eds-1),
-                    ]
-                    for (nc, nj, ni) in next_positions:
-                        if nc != -1:
-                            # Return first position if we've found a match
-                            return (nc, nj, ni)
-            # return a mismatching position
-            return (-1, -1, -1)
-        
+
         # The compound is unambiguous
         all_root_tokens = all_root_tokens[0]
         # Throw out empty strings
@@ -728,90 +672,19 @@ def _split_compound_word_heuristically( word_text, tolerance=2 ):
         if len(all_root_tokens) < 2:
             # Nothing to split here: move along! 
             return [word_text]
-        # Assume prefix of the root can be matched to prefix of the 
-        # surface form; Split as long as there is a match:
-        c = 0
-        i = 0
-        j = 0
-        split_word_text = [[]]
-        wc = ''
-        rc = ''
-        while c < len(word_text):
-            wc = word_text[c]
-            rc = all_root_tokens[i][j]
-            if wc == rc:
-                split_word_text[-1].append( wc )
-            else:
-                if tolerance > 0:
-                    # If we have a tolerance, try to find next matching 
-                    # position
-                    (next_c, next_j, next_i) = \
-                        _find_next_match(all_root_tokens, word_text, c, j, i, tolerance)
-                    if next_c > -1 and next_i - i < 2:
-                        # Match at the start of the same or next root_token
-                        if next_j == 0 and next_i == i:
-                            # 1) We are at the start of the same root_token
-                            # Add skipped positions
-                            if len(split_word_text) > 1:
-                                split_word_text[-2].append( word_text[c:next_c] )
-                            else:
-                                split_word_text[-1].append( word_text[c:next_c] )
-                            split_word_text[-1].append( word_text[next_c] )
-                            # Update indexes
-                            c = next_c
-                            j = next_j
-                            i = next_i
-                        elif next_j == 0 and next_i != i:
-                            # 2) We are at the start of the next root_token
-                            # Add skipped positions with break
-                            split_word_text[-1].append( word_text[c:next_c] )
-                            split_word_text.append([])
-                            split_word_text[-1].append( word_text[next_c] )
-                            # Update indexes
-                            c = next_c
-                            j = next_j
-                            i = next_i
-                        elif next_j == len(all_root_tokens[next_i])-1 and next_i == i:
-                            # 3)  We are at the end of the same root_token
-                            # Add skipped positions
-                            split_word_text[-1].append( word_text[c:next_c] )
-                            split_word_text[-1].append( word_text[next_c] )
-                            # Update indexes
-                            c = next_c
-                            j = next_j
-                            i = next_i
-                        else:
-                            # break in case of no suitable matching position
-                            # (unable to match inflected lemma)
-                            break
-                    else:
-                        # break in case of no suitable matching position
-                        # (unable to match inflected lemma)
-                        break
-                else:
-                    # break in case of a mismatch or 
-                    # no tolerance for mismatches
-                    # (unable to match inflected lemma)
-                    break
-            c += 1
-            j += 1
-            if j >= len(all_root_tokens[i]):
-                j = 0
-                i += 1
-                if i >= len(all_root_tokens):
-                    break 
-                # Make a break in word_text
-                if len(split_word_text[-1]) > 0 and \
-                   c < len(word_text):
-                    split_word_text.append([])
-        while c < len(word_text):
-            wc = word_text[c]
-            split_word_text[-1].append( wc )
-            c += 1
-        return [''.join(chars) for chars in split_word_text]
-    # If the compound was ambiguous, or there were problems with 
-    # determining the compound boundaries, the return the input 
-    # text without splitting:
+        # Construct the split tokens based on root_tokens. Thanks to stem-based  
+        # morph analysis (introduced in v1.7.4), we should get exactly the stem 
+        # tokens we need (we only need to add ending and clitic to the end) 
+        if all_ending_tokens[-1] not in ['0', '']:
+            # Add case ending
+            all_root_tokens[-1] = all_root_tokens[-1] + all_ending_tokens[-1]
+        if len(all_clitic_tokens[-1]) > 0:
+            # Add clitic
+            all_root_tokens[-1] = all_root_tokens[-1] + all_clitic_tokens[-1]
+        return all_root_tokens
+
+    # If the compound was ambiguous, then return the input 
+    # text without splitting;
     return [word_text]
 
 
@@ -829,7 +702,19 @@ def syllable_as_tuple(syllable):
     return syllable.syllable, syllable.quantity, syllable.accent
 
 
-def syllabify_word(word, as_dict=True, split_compounds=True, tolerance=2):
+def syllabify_word(word, as_dict=True, split_compounds=True):
+    '''
+    Syllabifies a single word using Vabamorf's internal syllabifier.
+    
+    **Important:** this syllabification functionality was not originally designed 
+    as a general purpose syllabifier of Estonian. It's original purpose was to 
+    analyse only words unknown to Vabamorf's morphological analyser (to help 
+    guessing the word structure), and as such, it can produce erroneous 
+    syllabification for common words that are already described in Vabamorf's 
+    lexicon. Therefore, it's usage is not encouraged. 
+    
+    This function is **to be deprecated** in future versions of EstNLTK. 
+    '''
     if word is None or len(word) == 0:
         # Nothing to do in case of an empty string
         return []
@@ -850,8 +735,7 @@ def syllabify_word(word, as_dict=True, split_compounds=True, tolerance=2):
                 raw_syllables.extend( syllables )
             else:
                 # Split word by compound word boundaries (heuristic)
-                subwords = _split_compound_word_heuristically( token, \
-                                                tolerance=tolerance )
+                subwords = _split_compound_word_heuristically( token )
                 # Syllabify each subword separately
                 for subword in subwords:
                     syllables = vm.syllabify(convert(subword))
@@ -861,8 +745,12 @@ def syllabify_word(word, as_dict=True, split_compounds=True, tolerance=2):
     return [syllable_as_tuple(syllable) for syllable in raw_syllables]
 
 
-def syllabify_words(words, as_dict=True, split_compounds=True, tolerance=2):
+def syllabify_words(words, as_dict=True, split_compounds=True):
+    '''
+    Syllabifies a list of words using Vabamorf's internal syllabifier.
+    
+    Warning: this function is **to be deprecated** in future versions. 
+    '''
     return [syllabify_word(w, as_dict=as_dict, \
-                              split_compounds=split_compounds, \
-                              tolerance=tolerance) for w in words]
+                              split_compounds=split_compounds) for w in words]
 

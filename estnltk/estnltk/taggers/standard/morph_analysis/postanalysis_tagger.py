@@ -19,6 +19,7 @@ from estnltk.taggers import Retagger
 
 from estnltk.taggers.standard.morph_analysis.morf_common import IGNORE_ATTR
 from estnltk.taggers.standard.morph_analysis.morf_common import ESTNLTK_MORPH_ATTRIBUTES
+from estnltk.taggers.standard.morph_analysis.morf_common import ESTNLTK_MORPH_ATTRIBUTES_STEM_BASED
 from estnltk.taggers.standard.morph_analysis.morf_common import VABAMORF_ATTRIBUTES
 from estnltk.taggers.standard.morph_analysis.morf_common import NORMALIZED_TEXT
 from estnltk.taggers.standard.morph_analysis.morf_common import _create_empty_morph_record
@@ -45,6 +46,7 @@ class PostMorphAnalysisTagger(Retagger):
                   'fix_number_analyses_using_rules',
                   'fix_number_analyses_by_replacing',
                   'remove_broken_pronoun_analyses',
+                  'stem', 
                   # Number analysis related
                   '_number_analysis_rules_file',
                   '_number_correction_rules',
@@ -74,8 +76,8 @@ class PostMorphAnalysisTagger(Retagger):
                  fix_number_analyses_using_rules:bool=True,
                  number_analysis_rules:str=DEFAULT_NUMBER_ANALYSIS_RULES,
                  fix_number_analyses_by_replacing:bool=True,
-                 
-                 remove_broken_pronoun_analyses:bool=False ):
+                 remove_broken_pronoun_analyses:bool=False,
+                 stem:bool=False ):
         """Initialize PostMorphAnalysisTagger class.
 
         Parameters
@@ -172,6 +174,13 @@ class PostMorphAnalysisTagger(Retagger):
             and you cannot disambiguate the resulting text. So,
             use this option with care -- use it only when you 
             do not need morphological disambiguation;
+
+        stem: bool (default: False)
+            If set, then morph_analysis layer contains stem-based 
+            analysis. 
+            In the stem-based analysis, inflectional forms are 
+            not normalized to their lemmas, but instead kept as 
+            they are, and only endings are separated from words. 
         """
         # Set attributes & configuration
         # The output layer
@@ -205,6 +214,10 @@ class PostMorphAnalysisTagger(Retagger):
         self.fix_abbreviations = fix_abbreviations
         self.fix_number_postags = fix_number_postags
         self.remove_duplicates = remove_duplicates
+        self.stem = stem
+        
+        if self.stem:
+            self.output_attributes = ESTNLTK_MORPH_ATTRIBUTES_STEM_BASED + (IGNORE_ATTR, )
         
         # Compile regexes
         self._pat_name_needs_underscore1 = \

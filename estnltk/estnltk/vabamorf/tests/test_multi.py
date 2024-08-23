@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from ..morf import analyze
 from multiprocessing import Pool
 import unittest
 import os
 
+from estnltk.vabamorf.tests.morph_extra import analyze
 
 class MultithreadingTest(unittest.TestCase):
     

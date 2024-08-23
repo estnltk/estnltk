@@ -598,7 +598,12 @@ class UserDictTagger(Retagger):
            status: dict
               This can be used to store metadata on layer retagging.
         """
+        # Basic validation
         assert self.output_layer in layers
+        if 'lemma' not in layers[self.output_layer].attributes:
+            raise Exception(f'(!) Missing attribute "lemma" in input layer {self.output_layer!r}. '+\
+                            'User dictionary corrections are currently implemented only for '+\
+                            'lemma-based morphological analyses.')
         # --------------------------------------------
         #   Rewrite spans according to the dict
         # --------------------------------------------

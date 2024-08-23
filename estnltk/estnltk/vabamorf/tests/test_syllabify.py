@@ -112,8 +112,7 @@ class SyllabificationTest(unittest.TestCase):
         expected = ['-------']
         self.assertListEqual(expected, actual)
 
-    def test_split_compound_word_heuristically_with_tolerance(self):
-        # Split with tolerance for mismatches (default: tolerance=2)
+    def test_split_compound_word_heuristically_complex_cases(self):
         # Case 0
         actual = _split_compound_word_heuristically('kahekümne')
         expected = ['kahe', 'kümne']
@@ -146,10 +145,10 @@ class SyllabificationTest(unittest.TestCase):
         actual = _split_compound_word_heuristically('seitsmekümne')
         expected = ['seitsme', 'kümne']
         self.assertListEqual(expected, actual)
-        # Case 8 -- TODO this is not working, needs a fix
+        # Case 8
         actual = _split_compound_word_heuristically('sellessamas')
         expected = ['selles', 'samas']
-        #self.assertListEqual(expected, actual)
+        self.assertListEqual(expected, actual)
 
     def test_syllabification_with_split_compounds(self):
         # Case 1
@@ -181,3 +180,25 @@ class SyllabificationTest(unittest.TestCase):
                      {'syllable': 'te', 'quantity': 1, 'accent': 0},
                      {'syllable': 'le', 'quantity': 1, 'accent': 0}]
         self.assertListEqual(expected, actual)
+
+        # Cases 4 ( from complex cases )
+        actual = syllabify_word('kolmekümne', split_compounds=True)
+        expected = [ {'syllable': 'kol', 'quantity': 2, 'accent': 1},
+                     {'syllable': 'me', 'quantity': 1, 'accent': 0},
+                     {'syllable': 'küm', 'quantity': 2, 'accent': 1},
+                     {'syllable': 'ne', 'quantity': 1, 'accent': 0} ]
+        self.assertListEqual(expected, actual)
+        actual = syllabify_word('paarisada', split_compounds=True)
+        expected = [ {'syllable': 'paa', 'quantity': 2, 'accent': 1},
+                     {'syllable': 'ri', 'quantity': 1, 'accent': 0},
+                     {'syllable': 'sa', 'quantity': 1, 'accent': 1},
+                     {'syllable': 'da', 'quantity': 1, 'accent': 0} ]
+        self.assertListEqual(expected, actual)
+        actual = syllabify_word('ühesainsas', split_compounds=True)
+        expected = [ {'syllable': 'ü', 'quantity': 1, 'accent': 1},
+                     {'syllable': 'hes', 'quantity': 2, 'accent': 0},
+                     {'syllable': 'ain', 'quantity': 3, 'accent': 1},
+                     {'syllable': 'sas', 'quantity': 2, 'accent': 0} ]
+        self.assertListEqual(expected, actual)
+
+

@@ -22,12 +22,16 @@ from estnltk.common import DEFAULT_PARAM_GUESS
 from estnltk.common import DEFAULT_PARAM_PROPERNAME
 from estnltk.common import DEFAULT_PARAM_PHONETIC
 from estnltk.common import DEFAULT_PARAM_COMPOUND
+from estnltk.common import DEFAULT_PARAM_STEM
 
 # Morphological analysis attributes used by Vabamorf
 from estnltk.common import VABAMORF_ATTRIBUTES
 
-# Morphological analysis attributes used by ESTNLTK's Vabamorf
+# Morphological analysis attributes used by ESTNLTK's Vabamorf (lemma-based analysis)
 from estnltk.common import ESTNLTK_MORPH_ATTRIBUTES
+
+# Morphological analysis attributes used by ESTNLTK's Vabamorf (stem-based analysis)
+from estnltk.common import ESTNLTK_MORPH_ATTRIBUTES_STEM_BASED
 
 # Name of the normalized text attribute. This refers to 
 # the normalized word form that was used as a basis in 
@@ -86,7 +90,7 @@ def _is_empty_annotation(annotation):
     is empty, that is, all of its morph attributes are set to None.
     This means that the word was unknown to morphological analyser.
     """
-    return all(getattr(annotation, attr) is None for attr in ESTNLTK_MORPH_ATTRIBUTES)
+    return all(getattr(annotation, attr) is None for attr in ESTNLTK_MORPH_ATTRIBUTES_STEM_BASED)
 
 # ========================================================
 #   Convert Span to records, but ignore some attributes   
