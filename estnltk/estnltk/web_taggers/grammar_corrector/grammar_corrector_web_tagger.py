@@ -91,8 +91,6 @@ class GrammarCorrectorWebTagger( Tagger ):
            `self.batch_max_size` characters.
            Returns smaller text objects and string separators between texts (for later joining).
         '''
-        assert self.batch_layer is None
-        assert self.batch_enveloping_layer is None
         assert self.batch_max_size > 0
         chunks = []
         chunk_separators = []
