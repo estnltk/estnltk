@@ -1,6 +1,7 @@
 from typing import MutableMapping
 
 import requests
+import warnings
 
 from estnltk_core.layer_operations import join_layers_while_reusing_spans
 
@@ -15,14 +16,44 @@ class GrammarCorrectorWebTagger( Tagger ):
     IMPORTANT: Using this tagger means that the data will be processed by the public TartuNLP API. 
     This means that the text will be uploaded and can be read by a third party.
     """
-    conf_param = ['url', 'batch_max_size']
+    conf_param = ['url', 'batch_max_size', 'enveloping_words']
 
-    def __init__(self, output_layer='grammar_corrections', url="https://api.tartunlp.ai/grammar"):
+    def __init__(self, output_layer='grammar_corrections', url="https://api.tartunlp.ai/grammar", 
+                       enveloping_words=False, custom_words_layer:str='words', batch_size=10000):
+        '''
+        Initializes GrammarCorrectorWebTagger that uses TartuNLP's web service for tagging.
+        
+        Parameters
+        ----------
+        output_layer: str
+            Name of the output error corrections layer. 
+            Default: 'grammar_corrections'.
+        url: str
+            URL of the web service. Defaults to the TartuNLP GC web service URL. 
+        enveloping_words: bool
+            Whether the output layer will be an enveloping layer around the words layer 
+            (custom_words_layer). If False (default), then the output layer will be a 
+            simple span layer (not enveloping).
+            Default: False
+        custom_words_layer: str
+            Name of a customized words layer that is taken as a basis on enveloping 
+            output layer. 
+            Default: 'words'. 
+        batch_size: int
+            Maximum batch size (in characters) that is processed as a whole by the webservice. 
+            The input text is split into batches of the given size before processing. 
+            Default: 10000
+        '''
         self.url = url
         self.output_layer = output_layer
         self.output_attributes = ('correction', )
+        self.enveloping_words = enveloping_words
         self.input_layers = []
-        self.batch_max_size = 10000  # max size in characters
+        if self.enveloping_words:
+            self.input_layers.append( custom_words_layer )
+        assert batch_size > 0, '(!) Batch size must be a positive integer'
+        self.batch_max_size = batch_size  # max size in characters
+
 
     def post_request(self, text: Text, layers: MutableMapping[str, Layer], parameters=None):
         if len( text.text ) > self.batch_max_size:
@@ -79,6 +110,9 @@ class GrammarCorrectorWebTagger( Tagger ):
 
     def _make_layer(self, text: Text, layers: MutableMapping[str, Layer], status: dict):
         layer = self.batch_process(text, layers)
+        if self.enveloping_words:
+            layer = self._rewrite_to_enveloping_layer(layer, layers)
+            layer.text_object = text
         return layer
 
     # ================================================
@@ -126,6 +160,79 @@ class GrammarCorrectorWebTagger( Tagger ):
         assert len(chunk_separators) == len(chunks) - 1
         # Return extracted chunks
         return ( chunks, chunk_separators )
+
+    # ================================================
+    #  rewrite layer as an enveloping layer
+    # ================================================
+    
+    def _rewrite_to_enveloping_layer(self, output_layer: Layer, input_layers: MutableMapping[str, Layer]):
+        '''Rewrites output layer as an enveloping layer.'''
+        assert len(self.input_layers) > 0, \
+            '(!) self.input_layers is missing words layer.'
+        words_layer_name = self.input_layers[0]
+        assert words_layer_name in input_layers.keys(), \
+            f'(!) input_layers is missing {words_layer_name!r} layer.'
+        words_layer = input_layers[words_layer_name]
+        enveloping_layer = Layer(name=self.output_layer, 
+                                 attributes=self.output_attributes, 
+                                 enveloping=words_layer_name,
+                                 ambiguous=True)
+        j = 0
+        words_start = 0
+        while j < len( output_layer ):
+            correction = output_layer[j]
+            correction_words = []
+            i = words_start
+            while i < len( words_layer ):
+                word = words_layer[i]
+                if correction.start < word.end and word.end < correction.end:
+                    # word falls completely within the correction, or
+                    # overlaps it from the left
+                    '''
+                    cccccccc
+                      wwwww
+
+                    cccccccc
+                    wwwww
+
+                      cccccccc
+                    wwwww
+                    '''
+                    correction_words.append( word.base_span )
+                    # Advance starting index
+                    words_start = i
+                elif correction.start <= word.end and word.start < correction.end and word.end >= correction.end:
+                    # word inside the correction and the next word cannot overlap correction
+                    '''
+                    cccccccc
+                    wwwwwwww
+
+                    cccccccc
+                       wwwww
+
+                    cccccccc
+                         wwwww
+                    '''
+                    correction_words.append( word.base_span )
+                    # Advance starting index
+                    words_start = i
+                elif correction.end <= word.start:
+                    # No need to look further
+                    '''
+                    cccccccc
+                              wwwww
+                    '''
+                    break
+                i += 1
+            if correction_words:
+                # Add correction to the new enveloping layer
+                for annotation in correction.annotations:
+                    annotations_dict = {attr:annotation[attr] for attr in self.output_attributes}
+                    enveloping_layer.add_annotation( correction_words, annotations_dict )
+            else:
+                warnings.warn(f'(!) Unable to align correction {correction!r} with the {words_layer_name!r} layer.')
+            j += 1  # next correction
+        return enveloping_layer
 
     @property
     def about(self) -> str:
