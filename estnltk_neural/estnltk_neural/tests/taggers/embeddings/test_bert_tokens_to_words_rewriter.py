@@ -6,7 +6,7 @@ from estnltk.converters import dict_to_layer, layer_to_dict
 from estnltk_neural.taggers import BertTokens2WordsRewriter
 
 
-def test_bert_tokens_2_words_rewriter():
+def test_bert_tokens_2_words_rewriter_enveloping():
     # Case 1: bert tokens layer is a simple layer
     text = Text('RMK keelas Nipernaadil Rakvere linnametsa siseneda. '+\
                 'Myanmari mässulised olid ka kuulnud Bangkokis toimuvast. '+\
@@ -116,6 +116,7 @@ def test_bert_tokens_2_words_rewriter():
                                         input_words_layer = 'words', 
                                         output_attributes = ('bert_tokens',), 
                                         output_layer = 'bert_tokens_of_words',
+                                        enveloping = True,
                                         decorator = rewriter_decorator)
     rewriter.tag(text)
     #from pprint import pprint
@@ -213,6 +214,7 @@ def test_bert_tokens_2_words_rewriter():
                                         input_words_layer = 'words', 
                                         output_attributes = ('words', 'bert_tokens', 'nertags'), 
                                         output_layer = 'bert_tokens_2_of_words',
+                                        enveloping = True,
                                         decorator = rewriter_decorator)
     rewriter2.tag(text)
     #from pprint import pprint
@@ -264,4 +266,186 @@ def test_bert_tokens_2_words_rewriter():
                     'base_span': ((160, 172),)}]}
             
     assert layer_to_dict(text['bert_tokens_2_of_words']) == expected_output_layer_2
+
+
+
+def test_bert_tokens_2_words_rewriter_sublayer():
+    # Case 1: bert tokens layer is a simple layer
+    text = Text('RMK keelas Nipernaadil Rakvere linnametsa siseneda. '+\
+                'Myanmari mässulised olid ka kuulnud Bangkokis toimuvast. '+\
+                'See sundis MacArthurit lahkuma Kenyast ja siirduma Mecklenburgi. ')
+    bert_tokens_layer = \
+        {'ambiguous': False,
+         'attributes': (),
+         'enveloping': None,
+         'meta': {},
+         'name': 'bert_tokens',
+         'parent': None,
+         'secondary_attributes': (),
+         'serialisation_module': None,
+         'spans': [{'annotations': [{}], 'base_span': (0, 1)},
+                   {'annotations': [{}], 'base_span': (1, 2)},
+                   {'annotations': [{}], 'base_span': (2, 3)},
+                   {'annotations': [{}], 'base_span': (4, 10)},
+                   {'annotations': [{}], 'base_span': (11, 13)},
+                   {'annotations': [{}], 'base_span': (13, 18)},
+                   {'annotations': [{}], 'base_span': (18, 22)},
+                   {'annotations': [{}], 'base_span': (23, 30)},
+                   {'annotations': [{}], 'base_span': (31, 36)},
+                   {'annotations': [{}], 'base_span': (36, 41)},
+                   {'annotations': [{}], 'base_span': (42, 50)},
+                   {'annotations': [{}], 'base_span': (50, 51)},
+                   {'annotations': [{}], 'base_span': (52, 54)},
+                   {'annotations': [{}], 'base_span': (54, 56)},
+                   {'annotations': [{}], 'base_span': (56, 60)},
+                   {'annotations': [{}], 'base_span': (61, 66)},
+                   {'annotations': [{}], 'base_span': (66, 71)},
+                   {'annotations': [{}], 'base_span': (72, 76)},
+                   {'annotations': [{}], 'base_span': (77, 79)},
+                   {'annotations': [{}], 'base_span': (80, 87)},
+                   {'annotations': [{}], 'base_span': (88, 94)},
+                   {'annotations': [{}], 'base_span': (94, 97)},
+                   {'annotations': [{}], 'base_span': (98, 107)},
+                   {'annotations': [{}], 'base_span': (107, 108)},
+                   {'annotations': [{}], 'base_span': (109, 112)},
+                   {'annotations': [{}], 'base_span': (113, 119)},
+                   {'annotations': [{}], 'base_span': (120, 123)},
+                   {'annotations': [{}], 'base_span': (123, 124)},
+                   {'annotations': [{}], 'base_span': (124, 126)},
+                   {'annotations': [{}], 'base_span': (126, 129)},
+                   {'annotations': [{}], 'base_span': (129, 131)},
+                   {'annotations': [{}], 'base_span': (132, 139)},
+                   {'annotations': [{}], 'base_span': (140, 143)},
+                   {'annotations': [{}], 'base_span': (143, 145)},
+                   {'annotations': [{}], 'base_span': (145, 147)},
+                   {'annotations': [{}], 'base_span': (148, 150)},
+                   {'annotations': [{}], 'base_span': (151, 157)},
+                   {'annotations': [{}], 'base_span': (157, 159)},
+                   {'annotations': [{}], 'base_span': (160, 162)},
+                   {'annotations': [{}], 'base_span': (162, 164)},
+                   {'annotations': [{}], 'base_span': (164, 167)},
+                   {'annotations': [{}], 'base_span': (167, 172)},
+                   {'annotations': [{}], 'base_span': (172, 173)}]}
+    text.add_layer( dict_to_layer(bert_tokens_layer) )
+    words_layer = \
+        {'ambiguous': True,
+         'attributes': ('normalized_form',),
+         'enveloping': None,
+         'meta': {},
+         'name': 'words',
+         'parent': None,
+         'secondary_attributes': (),
+         'serialisation_module': None,
+         'spans': [{'annotations': [{'normalized_form': None}], 'base_span': (0, 3)},
+                   {'annotations': [{'normalized_form': None}], 'base_span': (4, 10)},
+                   {'annotations': [{'normalized_form': None}], 'base_span': (11, 22)},
+                   {'annotations': [{'normalized_form': None}], 'base_span': (23, 30)},
+                   {'annotations': [{'normalized_form': None}], 'base_span': (31, 41)},
+                   {'annotations': [{'normalized_form': None}], 'base_span': (42, 50)},
+                   {'annotations': [{'normalized_form': None}], 'base_span': (50, 51)},
+                   {'annotations': [{'normalized_form': None}], 'base_span': (52, 60)},
+                   {'annotations': [{'normalized_form': None}], 'base_span': (61, 71)},
+                   {'annotations': [{'normalized_form': None}], 'base_span': (72, 76)},
+                   {'annotations': [{'normalized_form': None}], 'base_span': (77, 79)},
+                   {'annotations': [{'normalized_form': None}], 'base_span': (80, 87)},
+                   {'annotations': [{'normalized_form': None}], 'base_span': (88, 97)},
+                   {'annotations': [{'normalized_form': None}], 'base_span': (98, 107)},
+                   {'annotations': [{'normalized_form': None}],
+                    'base_span': (107, 108)},
+                   {'annotations': [{'normalized_form': None}],
+                    'base_span': (109, 112)},
+                   {'annotations': [{'normalized_form': None}],
+                    'base_span': (113, 119)},
+                   {'annotations': [{'normalized_form': None}],
+                    'base_span': (120, 131)},
+                   {'annotations': [{'normalized_form': None}],
+                    'base_span': (132, 139)},
+                   {'annotations': [{'normalized_form': None}],
+                    'base_span': (140, 147)},
+                   {'annotations': [{'normalized_form': None}],
+                    'base_span': (148, 150)},
+                   {'annotations': [{'normalized_form': None}],
+                    'base_span': (151, 159)},
+                   {'annotations': [{'normalized_form': None}],
+                    'base_span': (160, 172)},
+                   {'annotations': [{'normalized_form': None}],
+                    'base_span': (172, 173)}]}
+    text.add_layer( dict_to_layer(words_layer) )
     
+    # Return a list of annotations
+    def rewriter_decorator(text_obj, word_id, bert_tokens):
+        return [{'bert_tokens': t.text} for t in bert_tokens]
+    
+    rewriter = BertTokens2WordsRewriter('bert_tokens', 
+                                        input_words_layer = 'words', 
+                                        output_attributes = ('bert_tokens',), 
+                                        output_layer = 'bert_tokens_of_words',
+                                        enveloping = False,
+                                        decorator = rewriter_decorator)
+
+    rewriter.tag(text)
+    #from pprint import pprint
+    #pprint( layer_to_dict(text['bert_tokens_of_words']) )
+    expected_output_layer_3 = \
+        {'ambiguous': True,
+         'attributes': ('bert_tokens',),
+         'enveloping': None,
+         'meta': {},
+         'name': 'bert_tokens_of_words',
+         'parent': 'words',
+         'secondary_attributes': (),
+         'serialisation_module': None,
+         'spans': [{'annotations': [{'bert_tokens': 'R'},
+                                    {'bert_tokens': 'M'},
+                                    {'bert_tokens': 'K'}],
+                    'base_span': (0, 3)},
+                   {'annotations': [{'bert_tokens': 'keelas'}], 'base_span': (4, 10)},
+                   {'annotations': [{'bert_tokens': 'Ni'},
+                                    {'bert_tokens': 'perna'},
+                                    {'bert_tokens': 'adil'}],
+                    'base_span': (11, 22)},
+                   {'annotations': [{'bert_tokens': 'Rakvere'}], 'base_span': (23, 30)},
+                   {'annotations': [{'bert_tokens': 'linna'}, {'bert_tokens': 'metsa'}],
+                    'base_span': (31, 41)},
+                   {'annotations': [{'bert_tokens': 'siseneda'}],
+                    'base_span': (42, 50)},
+                   {'annotations': [{'bert_tokens': '.'}], 'base_span': (50, 51)},
+                   {'annotations': [{'bert_tokens': 'My'},
+                                    {'bert_tokens': 'an'},
+                                    {'bert_tokens': 'mari'}],
+                    'base_span': (52, 60)},
+                   {'annotations': [{'bert_tokens': 'mässu'}, {'bert_tokens': 'lised'}],
+                    'base_span': (61, 71)},
+                   {'annotations': [{'bert_tokens': 'olid'}], 'base_span': (72, 76)},
+                   {'annotations': [{'bert_tokens': 'ka'}], 'base_span': (77, 79)},
+                   {'annotations': [{'bert_tokens': 'kuulnud'}], 'base_span': (80, 87)},
+                   {'annotations': [{'bert_tokens': 'Bangko'}, {'bert_tokens': 'kis'}],
+                    'base_span': (88, 97)},
+                   {'annotations': [{'bert_tokens': 'toimuvast'}],
+                    'base_span': (98, 107)},
+                   {'annotations': [{'bert_tokens': '.'}], 'base_span': (107, 108)},
+                   {'annotations': [{'bert_tokens': 'See'}], 'base_span': (109, 112)},
+                   {'annotations': [{'bert_tokens': 'sundis'}],
+                    'base_span': (113, 119)},
+                   {'annotations': [{'bert_tokens': 'Mac'},
+                                    {'bert_tokens': 'A'},
+                                    {'bert_tokens': 'rt'},
+                                    {'bert_tokens': 'hur'},
+                                    {'bert_tokens': 'it'}],
+                    'base_span': (120, 131)},
+                   {'annotations': [{'bert_tokens': 'lahkuma'}],
+                    'base_span': (132, 139)},
+                   {'annotations': [{'bert_tokens': 'Ken'},
+                                    {'bert_tokens': 'ya'},
+                                    {'bert_tokens': 'st'}],
+                    'base_span': (140, 147)},
+                   {'annotations': [{'bert_tokens': 'ja'}], 'base_span': (148, 150)},
+                   {'annotations': [{'bert_tokens': 'siirdu'}, {'bert_tokens': 'ma'}],
+                    'base_span': (151, 159)},
+                   {'annotations': [{'bert_tokens': 'Me'},
+                                    {'bert_tokens': 'ck'},
+                                    {'bert_tokens': 'len'},
+                                    {'bert_tokens': 'burgi'}],
+                    'base_span': (160, 172)},
+                   {'annotations': [{'bert_tokens': '.'}], 'base_span': (172, 173)}]}
+    assert layer_to_dict(text['bert_tokens_of_words']) == expected_output_layer_3

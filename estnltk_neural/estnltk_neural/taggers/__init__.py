@@ -2,6 +2,7 @@ from estnltk_neural.taggers.coreference.v1.coreference_tagger import Coreference
 from estnltk_neural.taggers.embeddings.bert.bert_tagger import BertTagger
 from estnltk_neural.taggers.embeddings.bert.roberta_tagger import RobertaTagger
 from estnltk_neural.taggers.ner.estbertner_tagger import EstBERTNERTagger
+from estnltk_neural.taggers.neural_morph.bert_based.bert_morph_tagger import BertMorphTagger
 from estnltk_neural.taggers.neural_morph.new_neural_morph.neural_morph_tagger import SoftmaxEmbTagSumTagger
 from estnltk_neural.taggers.neural_morph.new_neural_morph.neural_morph_tagger import SoftmaxEmbCatSumTagger
 from estnltk_neural.taggers.neural_morph.new_neural_morph.neural_morph_tagger import Seq2SeqEmbTagSumTagger
