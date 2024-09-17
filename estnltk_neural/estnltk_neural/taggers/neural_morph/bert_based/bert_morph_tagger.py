@@ -24,8 +24,8 @@ from estnltk.downloader import get_resource_paths
 from estnltk_neural.taggers.embeddings.bert.bert_tokens_to_words_rewriter import BertTokens2WordsRewriter
 
 class BertMorphTagger(Tagger):
-    """Applies BERT-based morphological tagging. 
-       Uses Vabamorf's tagset (partofspeech and form tags). 
+    """Applies BERT-based tagging of morphological features (partofspeech and form tags). 
+       Uses partofspeech and form tags from Vabamorf's tagset. 
     """
 
     def __init__(
