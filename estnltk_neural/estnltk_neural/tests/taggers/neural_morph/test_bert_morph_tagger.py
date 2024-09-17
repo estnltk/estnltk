@@ -109,3 +109,69 @@ def test_bert_morph_v1_out_of_the_box():
          {'word': '12 431', 'morph_label': '?_N'}, 
          {'word': 'krooni', 'morph_label': 'sg p_S'}, 
          {'word': '.', 'morph_label': 'Z'}]
+
+    # Case 3: apply same tagger on another text
+    text = Text('Autojuhi lapitekk pälvis linna kodukal palju teenimatut tähelepanu. ')
+    text.tag_layer(['words', 'sentences'])
+    bert_morph_tagger_2.tag(text)
+    # Validate results
+    assert output_layer in text.layers
+    results = _extract_word_partofspeech_and_form(text[output_layer], add_probs=False)
+    assert results == \
+        [{'word': 'Autojuhi', 'morph_label': 'sg g_S'}, 
+         {'word': 'lapitekk', 'morph_label': 'sg n_S'}, 
+         {'word': 'pälvis', 'morph_label': 's_V'}, 
+         {'word': 'linna', 'morph_label': 'sg g_S'}, 
+         {'word': 'kodukal', 'morph_label': 'sg ad_S'}, 
+         {'word': 'palju', 'morph_label': 'D'}, 
+         {'word': 'teenimatut', 'morph_label': 'sg p_A'}, 
+         {'word': 'tähelepanu', 'morph_label': 'sg p_S'}, 
+         {'word': '.', 'morph_label': 'Z'}]
+
+
+@pytest.mark.skipif(not check_if_transformers_is_available(),
+                    reason="package tranformers is required for this test")
+@pytest.mark.skipif(not check_if_pytorch_is_available(),
+                    reason="package pytorch is required for this test")
+@pytest.mark.skipif(BERTMORPH_V1_PATH is None,
+                    reason="BertMorphTagger's model location not known. "+\
+                           "Use estnltk.download('bert_morph_tagging') to get the missing resources.")
+def test_bert_morph_disambiguator_v1_out_of_the_box():
+    # Case 1: Test that BertMorphTagger works "out_of_the_box" as a disambiguator if model v1 is available
+    from estnltk.taggers import VabamorfAnalyzer
+    from estnltk_neural.taggers import BertMorphTagger
+    vm_analyser = VabamorfAnalyzer()
+    bert_morph_disambiguator = BertMorphTagger(output_layer=vm_analyser.output_layer, disambiguate=True)
+    # Case 1
+    text = Text("Lae äpp kohe alla!")
+    # Tag layers required by morph analysis
+    text.tag_layer(['words', 'sentences'])
+    vm_analyser.tag( text )
+    amb_results = _extract_word_partofspeech_and_form(text[vm_analyser.output_layer], add_probs=False)
+    #print(amb_results)
+    assert amb_results == \
+       [{'word': 'Lae', 'partofspeech': 'H', 'form': 'sg g'}, 
+        {'word': 'Lae', 'partofspeech': 'H', 'form': 'sg g'}, 
+        {'word': 'Lae', 'partofspeech': 'H', 'form': 'sg n'}, 
+        {'word': 'Lae', 'partofspeech': 'H', 'form': 'sg g'}, 
+        {'word': 'Lae', 'partofspeech': 'S', 'form': 'sg g'}, 
+        {'word': 'Lae', 'partofspeech': 'V', 'form': 'o'}, 
+        {'word': 'Lae', 'partofspeech': 'S', 'form': 'sg g'}, 
+        {'word': 'äpp', 'partofspeech': 'S', 'form': 'sg n'}, 
+        {'word': 'kohe', 'partofspeech': 'A', 'form': 'sg n'}, 
+        {'word': 'kohe', 'partofspeech': 'D', 'form': ''}, 
+        {'word': 'alla', 'partofspeech': 'D', 'form': ''}, 
+        {'word': 'alla', 'partofspeech': 'K', 'form': ''}, 
+        {'word': '!', 'partofspeech': 'Z', 'form': ''}]
+    # Apply disambiguation
+    bert_morph_disambiguator.retag( text )
+    # Validate results
+    results = _extract_word_partofspeech_and_form(text[vm_analyser.output_layer], add_probs=False)
+    #print(results)
+    assert results == \
+        [{'word': 'Lae', 'partofspeech': 'V', 'form': 'o'}, 
+         {'word': 'äpp', 'partofspeech': 'S', 'form': 'sg n'}, 
+         {'word': 'kohe', 'partofspeech': 'D', 'form': ''}, 
+         {'word': 'alla', 'partofspeech': 'D', 'form': ''}, 
+         {'word': '!', 'partofspeech': 'Z', 'form': ''}]
+

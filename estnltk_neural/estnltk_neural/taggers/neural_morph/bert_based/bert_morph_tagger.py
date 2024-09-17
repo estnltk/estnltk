@@ -18,14 +18,27 @@ from typing import MutableMapping, List, Optional
 
 from transformers import AutoConfig, AutoTokenizer, AutoModelForTokenClassification
 
-from estnltk import Text, Layer, Tagger
+from estnltk import Text, Layer, Retagger
 from estnltk.downloader import get_resource_paths
 
 from estnltk_neural.taggers.embeddings.bert.bert_tokens_to_words_rewriter import BertTokens2WordsRewriter
 
-class BertMorphTagger(Tagger):
+class BertMorphTagger(Retagger):
     """Applies BERT-based tagging of morphological features (partofspeech and form tags). 
        Uses partofspeech and form tags from Vabamorf's tagset. 
+       
+       This tagger works either as a tagger (A) or as a retagger (B), depending on 
+       whether the flag <code>disambiguate</code> is disabled or enabled. As a Tagger, 
+       it creates a new morphological analysis layer, while as a Retagger, it disambiguates 
+       an existing morphological analysis layer that has annotations in Vabamorf's tagset. 
+       
+       A) If <code>disambiguate</code> is False, then the tagger works as a tagger and 
+       a new morph layer (<code>output_layer</code>) can be created by calling tagger's 
+       tag(...) or make_layer(...) methods. 
+       
+       B) If <code>disambiguate</code> is True, then <code>output_layer</code> must be set 
+       to a morphological analysis (which will become an input layer) and which then can 
+       be disambiguated by calling tagger's retag(...) or change_layer(...) methods. 
     """
 
     def __init__(
@@ -37,6 +50,7 @@ class BertMorphTagger(Tagger):
         words_layer: str = 'words',
         token_level: bool = False,
         split_pos_form: bool = True,
+        disambiguate: bool = False,
         **kwargs
     ):
         """
@@ -48,13 +62,20 @@ class BertMorphTagger(Tagger):
                 attempts to use bert_morph_tagging model from estnltk_resources. If that fails (model is 
                 missing and downloading fails), then throws an exception.
             get_top_n_predictions (int): Number of labeles predicted for each word.
-            output_layer (str): Name of the output named entity annotations layer. Defaults to 'bert_morph_tagging'.
+            output_layer (str): 
+                Name of the output morphological annotations layer. Defaults to 'bert_morph_tagging'. 
+                Note: if <code>disambiguate==True</code>, then this must be name a Vabamorf-based morph 
+                analysis layer which will be disambiguated by calling tagger's <code>retag</code> method. 
             sentences_layer (str): Name of the layer containing sentences.
             words_layer (str): Name of the layer containing words.
-            token_level (bool): Whether to tag the text BERT token-level or EstNLTK's word-level. Defaults to False.
-            split_pos_form (bool): Whether to split the predicted labels into two separate features. Defaults to True. \n
+            token_level (bool): Whether to tag the text BERT token-level or EstNLTK's word-level. Defaults to False. 
+            split_pos_form (bool): Whether to split the predicted labels into two separate features. Defaults to True. 
                 <i>Predicted BERT label is a concatenation of Vabamorf's <code>form</code> and <code>partofspeech</code>
                 joined with <code>_</code>, for example <code>sg n_S</code></i>.
+            disambiguate (bool): Whether the tagger is to be used as an disambiguator of an input morph analyis layer. 
+                Defaults to False. If set, then BertMorphTagger can be used to disambiguate an existing Vabamorf-based 
+                morph analysis layer by calling <code>BertMorphTagger.retag(text_obj)</code>. Note that the input 
+                <code>text_obj</code> must already have <code>output_layer<code> which will be disambiguated. 
 
         Raises:
             Exception: Raises when BertMorphTagger's resources have not been downloaded.
@@ -62,8 +83,8 @@ class BertMorphTagger(Tagger):
 
         # Configuration parameters
         self.conf_param = ('model_location', 'get_top_n_predictions', 'bert_tokenizer', 'bert_morph_tagging', 'id2label', \
-                           'token_level', 'split_pos_form', 'sentences_layer', 'words_layer', 'output_layer', 'input_layers', \
-                           'output_attributes', '_bert_tokens_rewriter')
+                           'token_level', 'split_pos_form', 'disambiguate', 'sentences_layer', 'words_layer', 'output_layer', \
+                           'input_layers', 'output_attributes', '_bert_tokens_rewriter')
 
         if model_location is None:
             # Try to get the resources path for bert_morph_tagger. Attempt to download, if missing
@@ -91,11 +112,15 @@ class BertMorphTagger(Tagger):
 
         # Set input and output layers
         self.split_pos_form = split_pos_form
+        self.disambiguate = disambiguate
         self.token_level = token_level
         self.sentences_layer = sentences_layer
         self.words_layer = words_layer
         self.output_layer = output_layer
         self.input_layers = [sentences_layer, words_layer]
+        if self.disambiguate:
+            # add output_layer as an expected input layer that needs to be disambiguated
+            self.input_layers.append( self.output_layer )
         self.output_attributes = ['bert_tokens', 'form', 'partofspeech', 'probability'] if self.split_pos_form else ['bert_tokens', 'morph_label', 'probability']
         if self.token_level:
             self._bert_tokens_rewriter = None
@@ -273,6 +298,40 @@ class BertMorphTagger(Tagger):
         f"Failed to rewrite '{morph_layer.name}' layer tokens to '{words_layer.name}' layer words: {len(morph_layer)} != {len(words_layer)}"
 
         return morph_layer
+
+
+    def _change_layer(self, text, layers, status=None):
+        # Validate configuration
+        if not self.split_pos_form:
+            raise Exception( ('(!) Cannot use BertMorphTagger as a disambiguator if '+\
+                              'split_pos_form is set False.').format(attr, morph_layer.name) )
+        # Validate inputs
+        morph_layer = layers[self.output_layer]
+        for attr in ['partofspeech', 'form']:
+            if attr not in morph_layer.attributes:
+                raise Exception( ('(!) Missing attribute {!r} in output_layer {!r}.'+\
+                                  '').format(attr, morph_layer.name) )
+        # Create disambiguation layer
+        disamb_layer = self._make_layer(text, layers, status)
+        # Disambiguate input_morph_analysis_layer
+        assert len(morph_layer) == len(disamb_layer)
+        for original_word, disamb_word in zip(morph_layer, disamb_layer):
+            disamb_pos  = disamb_word.annotations[0]['partofspeech']
+            disamb_form = disamb_word.annotations[0]['form']
+            # Filter annotations of the original morph layer: keep only those
+            # annotations that are matching with the disambiguated annotation
+            # (note: there can be multiple suitable annotations due to lemma 
+            #  ambiguities)
+            keep_annotations = []
+            for annotation in original_word.annotations:
+                if annotation['partofspeech'] == disamb_pos and annotation['form'] == disamb_form:
+                    keep_annotations.append(annotation)
+            if len(keep_annotations) > 0:
+                # Only disambiguate if there is at least one annotation left
+                # (can't leave a word without any annotations)
+                original_word.clear_annotations()
+                for annotation in keep_annotations:
+                    original_word.add_annotation( annotation )
 
 
 def convert_bert_labels_to_vabamorf(predictions:List[dict]):
