@@ -63,7 +63,7 @@ class BertMorphTagger(Tagger):
         # Configuration parameters
         self.conf_param = ('model_location', 'get_top_n_predictions', 'bert_tokenizer', 'bert_morph_tagging', 'id2label', \
                            'token_level', 'split_pos_form', 'sentences_layer', 'words_layer', 'output_layer', 'input_layers', \
-                           'output_attributes')
+                           'output_attributes', '_bert_tokens_rewriter')
 
         if model_location is None:
             # Try to get the resources path for bert_morph_tagger. Attempt to download, if missing
@@ -97,6 +97,26 @@ class BertMorphTagger(Tagger):
         self.output_layer = output_layer
         self.input_layers = [sentences_layer, words_layer]
         self.output_attributes = ['bert_tokens', 'form', 'partofspeech', 'probability'] if self.split_pos_form else ['bert_tokens', 'morph_label', 'probability']
+        if self.token_level:
+            self._bert_tokens_rewriter = None
+        else:
+            # Create BertTokens2WordsRewriter for rewriting bert tokens to Estnltk's words
+            if self.split_pos_form:
+                self._bert_tokens_rewriter = BertTokens2WordsRewriter(
+                    bert_tokens_layer=self.output_layer, 
+                    input_words_layer=self.words_layer, 
+                    output_attributes=self.output_attributes, 
+                    output_layer=self.output_layer, 
+                    enveloping=False, 
+                    decorator=rewriter_decorator_Vabamorf)
+            else:
+                self._bert_tokens_rewriter = BertTokens2WordsRewriter(
+                    bert_tokens_layer=self.output_layer, 
+                    input_words_layer=self.words_layer, 
+                    output_attributes=self.output_attributes, 
+                    output_layer=self.output_layer, 
+                    enveloping=False, 
+                    decorator=rewriter_decorator_BERT)
 
     def _get_bert_morph_tagging_label_predictions(self, 
                                                   input_str:str, 
@@ -246,25 +266,8 @@ class BertMorphTagger(Tagger):
         else:
             # Aggregate tokens back into words/phrases
             # Use BertTokens2WordsRewriter to convert BERT tokens to words
-            if self.split_pos_form:
-                rewriter = BertTokens2WordsRewriter(
-                    bert_tokens_layer=self.output_layer, 
-                    input_words_layer=self.words_layer, 
-                    output_attributes=self.output_attributes, 
-                    output_layer=self.output_layer, 
-                    enveloping=False, 
-                    decorator=rewriter_decorator_Vabamorf)
-            else:
-                rewriter = BertTokens2WordsRewriter(
-                    bert_tokens_layer=self.output_layer, 
-                    input_words_layer=self.words_layer, 
-                    output_attributes=self.output_attributes, 
-                    output_layer=self.output_layer, 
-                    enveloping=False, 
-                    decorator=rewriter_decorator_BERT)
-
             # Rewrite to align BERT tokens with words
-            morph_layer = rewriter.make_layer(text, layers={morph_layer.name: morph_layer})
+            morph_layer = self._bert_tokens_rewriter.make_layer(text, layers={morph_layer.name: morph_layer})
 
         assert len(morph_layer) == len(words_layer), \
         f"Failed to rewrite '{morph_layer.name}' layer tokens to '{words_layer.name}' layer words: {len(morph_layer)} != {len(words_layer)}"
@@ -322,7 +325,7 @@ def rewriter_decorator_BERT(text_obj, word_index, span):
     top_1_label_counts = collections.Counter()
 
     for sp in span:
-        top_1_label = sp['morph_labels'][0] # Get top-1 label
+        top_1_label = sp['morph_label'][0] # Get top-1 label
         top_1_label_counts[top_1_label] += 1  # Count occurrences of each top-1 label
 
     # Identify the most frequent top-1 label
@@ -331,19 +334,19 @@ def rewriter_decorator_BERT(text_obj, word_index, span):
 
     # Step 2: Find the first token that has this most frequent top-1 label
     for sp in span:
-        if most_frequent_label in sp['morph_labels']:
+        if most_frequent_label in sp['morph_label']:
 
             # Extract the top N labels and their probabilities starting from this label
-            labels = sp['morph_labels']
-            probabilities = sp['probabilities']
+            labels = sp['morph_label']
+            probabilities = sp['probability']
 
             assert len(labels) == len(probabilities)
 
             for (label, prob) in zip(labels, probabilities):
                 annotation = {
                 'bert_tokens': [sp['bert_tokens'][0] for sp in span],
-                'morph_labels': label,
-                'probabilities': prob
+                'morph_label': label,
+                'probability': prob
                 }
                 annotations.append(annotation)
 

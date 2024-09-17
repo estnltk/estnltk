@@ -29,9 +29,13 @@ def _extract_word_partofspeech_and_form(morph_layer, add_probs=False, round_prob
     results = []
     for span in morph_layer:
         for annotation in span.annotations:
-            entry = {'word': span.text, 
-                     'partofspeech': annotation['partofspeech'], 
-                     'form': annotation['form']}
+            entry = {'word': span.text}
+            if 'morph_label' in morph_layer.attributes:
+                entry['morph_label'] = annotation['morph_label']
+            if 'partofspeech' in morph_layer.attributes:
+                entry['partofspeech'] = annotation['partofspeech']
+            if 'form' in morph_layer.attributes:
+                entry['form'] = annotation['form']
             if add_probs:
                 entry['probability'] = annotation['probability']
                 if round_probs:
@@ -47,7 +51,7 @@ def _extract_word_partofspeech_and_form(morph_layer, add_probs=False, round_prob
                     reason="BertMorphTagger's model location not known. "+\
                            "Use estnltk.download('bert_morph_tagging') to get the missing resources.")
 def test_bert_morph_v1_out_of_the_box():
-    # Test that BertMorphTagger works "out_of_the_box" if model v1 is available
+    # Case 1: Test that BertMorphTagger works "out_of_the_box" if model v1 is available
     from estnltk_neural.taggers import BertMorphTagger
     bert_morph_tagger = BertMorphTagger()
     text = Text('A. H. Tammsaare oli eesti kirjanik, esseist, kultuurifilosoof ja tõlkija. '+\
@@ -78,3 +82,30 @@ def test_bert_morph_v1_out_of_the_box():
          {'form': 'sg p', 'partofspeech': 'S', 'word': 'krooni'},
          {'form': '', 'partofspeech': 'Z', 'word': '.'}]
 
+    # Case 2: Test BertMorphTagger with original labels, do not split morph labels
+    bert_morph_tagger_2 = BertMorphTagger(output_layer='bert_morph_2', split_pos_form=False)
+    bert_morph_tagger_2.tag(text)
+    output_layer = bert_morph_tagger_2.output_layer
+    #from pprint import pprint
+    #pprint( _round_up_probabilities( layer_to_dict(text[output_layer])) )
+    # Validate results
+    assert output_layer in text.layers
+    results = _extract_word_partofspeech_and_form(text[output_layer], add_probs=False)
+    assert results == \
+        [{'word': 'A. H. Tammsaare', 'morph_label': 'sg n_H'}, 
+         {'word': 'oli', 'morph_label': 's_V'}, 
+         {'word': 'eesti', 'morph_label': 'G'}, 
+         {'word': 'kirjanik', 'morph_label': 'sg n_S'}, 
+         {'word': ',',  'morph_label': 'Z'}, 
+         {'word': 'esseist', 'morph_label': 'sg n_S'}, 
+         {'word': ',', 'morph_label': 'Z'}, 
+         {'word': 'kultuurifilosoof', 'morph_label': 'sg n_S'}, 
+         {'word': 'ja', 'morph_label': 'J'}, 
+         {'word': 'tõlkija', 'morph_label': 'sg n_S'}, 
+         {'word': '.', 'morph_label': 'Z'}, 
+         {'word': 'Üksnes', 'morph_label': 'D'}, 
+         {'word': 'autorihüvitis', 'morph_label': 'sg n_S'}, 
+         {'word': 'oli', 'morph_label': 's_V'}, 
+         {'word': '12 431', 'morph_label': '?_N'}, 
+         {'word': 'krooni', 'morph_label': 'sg p_S'}, 
+         {'word': '.', 'morph_label': 'Z'}]
