@@ -123,7 +123,7 @@ class BertMorphTagger(Retagger):
             # Check other parameters
             if not self.split_pos_form:
                 raise Exception( ('(!) Cannot use BertMorphTagger as a disambiguator (disambiguate==True) if '+\
-                                  'split_pos_form==False.').format(attr, morph_layer.name) )
+                                  'split_pos_form==False.') )
             if self.get_top_n_predictions > 1:
                 warnings.warn( f'(!) Parameter get_top_n_predictions=={self.get_top_n_predictions} has no effect '+\
                                 'during retagging/disambiguation (disambiguate==True). Only the label with the '+\
