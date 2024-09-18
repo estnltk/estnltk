@@ -13,6 +13,7 @@
 import os
 import torch
 import collections
+import warnings
 
 from typing import MutableMapping, List, Optional
 
@@ -119,7 +120,15 @@ class BertMorphTagger(Retagger):
         self.output_layer = output_layer
         self.input_layers = [sentences_layer, words_layer]
         if self.disambiguate:
-            # add output_layer as an expected input layer that needs to be disambiguated
+            # Check other parameters
+            if not self.split_pos_form:
+                raise Exception( ('(!) Cannot use BertMorphTagger as a disambiguator (disambiguate==True) if '+\
+                                  'split_pos_form==False.').format(attr, morph_layer.name) )
+            if self.get_top_n_predictions > 1:
+                warnings.warn( f'(!) Parameter get_top_n_predictions=={self.get_top_n_predictions} has no effect '+\
+                                'during retagging/disambiguation (disambiguate==True). Only the label with the '+\
+                                'highest probability is used in the disambiguation.' )
+            # Add output_layer as an expected input layer that needs to be disambiguated
             self.input_layers.append( self.output_layer )
         self.output_attributes = ['bert_tokens', 'form', 'partofspeech', 'probability'] if self.split_pos_form else ['bert_tokens', 'morph_label', 'probability']
         if self.token_level:
