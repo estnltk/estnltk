@@ -239,7 +239,10 @@ class StanzaSyntaxTagger(Tagger):
             id = line['id']
             lemma = line['lemma']
             upostag = line['upos']
-            xpostag = line['xpos']
+            # Remark about XPOS. If self.input_type == 'sentences', then XPOS can be missing 
+            # due to some obscurities in output of the stanza's partofspeech tagging pipeline. 
+            # Indicate missing value with '_'
+            xpostag = line.get('xpos', '_')
             feats = OrderedDict()  # Stays this way if word has no features.
             if 'feats' in line.keys():
                 feats = feats_to_ordereddict(line['feats'])
