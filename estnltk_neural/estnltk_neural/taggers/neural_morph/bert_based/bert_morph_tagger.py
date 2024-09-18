@@ -38,8 +38,8 @@ class BertMorphTagger(Retagger):
        tag(...) or make_layer(...) methods. 
        
        B) If <code>disambiguate</code> is True, then <code>output_layer</code> must be set 
-       to a morphological analysis (which will become an input layer) and which then can 
-       be disambiguated by calling tagger's retag(...) or change_layer(...) methods. 
+       to a morphological analysis layer (which will become an input layer) and which then 
+       can be disambiguated by calling tagger's retag(...) or change_layer(...) methods. 
     """
 
     def __init__(
@@ -142,6 +142,7 @@ class BertMorphTagger(Retagger):
                     output_attributes=self.output_attributes, 
                     output_layer=self.output_layer, 
                     enveloping=False, 
+                    ambiguous=True, 
                     decorator=rewriter_decorator_Vabamorf)
             else:
                 self._bert_tokens_rewriter = BertTokens2WordsRewriter(
@@ -150,6 +151,7 @@ class BertMorphTagger(Retagger):
                     output_attributes=self.output_attributes, 
                     output_layer=self.output_layer, 
                     enveloping=False, 
+                    ambiguous=True, 
                     decorator=rewriter_decorator_BERT)
 
     def _get_bert_morph_tagging_label_predictions(self, 

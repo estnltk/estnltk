@@ -24,10 +24,6 @@ class BertTokens2WordsRewriter(Tagger):
        which is applied on every pair (enveloped_words, corresponding_bert_tokens). 
        The decorator function has input parameters (text_obj, enveloped_words, 
        corresponding_bert_tokens). 
-       The decorator function is expected to assign a single annotation to 
-       each span of the layer (unambiguous output). Returned annotation should 
-       be in form of a dictionary containing attributes & values. If decorator 
-       returns None, then the annotation at that location is discarded. 
        
        In the sublayer mode (enveloping = False), the parent of the output layer 
        is EstNLTK's words layer. 
@@ -38,21 +34,30 @@ class BertTokens2WordsRewriter(Tagger):
        The decorator function has input parameters (text_obj, word_id, 
        corresponding_bert_tokens). word_id is index of the word in the 
        words layer. 
-       The decorator function is expected to assign a list annotations to 
-       each span of the layer (ambiguous output). Returned annotation should 
+       
+       Use constructor parameter <code>ambiguous</code> to control whether the 
+       output layer is unambiguous (default) or ambiguous. 
+       In case unambiguous output (the default setting), the decorator function 
+       is expected to assign a single annotation to each span of the layer. 
+       Returned annotation should be in form of a dictionary containing attributes 
+       & values. If decorator returns None, then the annotation at that location 
+       is discarded. 
+       In case of an ambiguous output, the decorator function is expected to 
+       assign a list annotations to each span of the layer. Each annotation should 
        be in form of a dictionary containing attributes & values. If decorator 
        returns None, then the annotation at that location is discarded. 
        
        If the decorator function is not specified, then default_decorator is 
        used, which returns {} on any input. 
     '''
-    conf_param = ('bert_tokens_layer', 'enveloping', 'decorator')
+    conf_param = ('bert_tokens_layer', 'enveloping', 'ambiguous', 'decorator')
 
     def __init__(self, bert_tokens_layer: str, 
                        input_words_layer: str='words', 
-                       output_attributes = (),
+                       output_attributes = (), 
                        output_layer: str = None, 
-                       enveloping: bool = True,
+                       enveloping: bool = True, 
+                       ambiguous: bool = False, 
                        decorator: callable = default_decorator):
         self.input_layers = [input_words_layer, bert_tokens_layer]
         self.output_layer = output_layer
@@ -61,6 +66,7 @@ class BertTokens2WordsRewriter(Tagger):
             raise TypeError(f'(!) decorator should be a callable function, not {type(decorator)}')
         self.enveloping = enveloping
         self.decorator = decorator
+        self.ambiguous = ambiguous
 
     def _make_layer_template(self):
         if self.enveloping:
@@ -68,13 +74,13 @@ class BertTokens2WordsRewriter(Tagger):
                         attributes=self.output_attributes,
                         text_object=None,
                         enveloping=self.input_layers[0],
-                        ambiguous=False )
+                        ambiguous=self.ambiguous )
         else:
             layer = Layer(name=self.output_layer,
                         attributes=self.output_attributes,
                         text_object=None,
                         parent=self.input_layers[0],
-                        ambiguous=True )
+                        ambiguous=self.ambiguous )
         return layer
 
     def _make_layer(self, text, layers, status):
@@ -92,14 +98,27 @@ class BertTokens2WordsRewriter(Tagger):
                 new_span = [sp.base_span for sp in sharing_words]
                 annotation = self.decorator(text, sharing_words, shared_bert_tokens)
                 if annotation is not None:
-                    layer.add_annotation(new_span, annotation)
+                    if isinstance(annotation, dict):
+                        layer.add_annotation(new_span, annotation)
+                    elif isinstance(annotation, list):
+                        for anno in annotation:
+                            layer.add_annotation(new_span, anno)
+                    else:
+                        raise TypeError(f'(!) Unexpected type of annotation ({type(annotation)}) '+\
+                                         'returned by the decorator function. Expected list of dict or dict.')
         else:
             for (k, v) in words_to_bert_tokens_map.items():
                 new_span = text.words[k].base_span
-                annotations = self.decorator(text, k, v)
-                if annotations is not None:
-                    for annotation in annotations:
+                annotation = self.decorator(text, k, v)
+                if annotation is not None:
+                    if isinstance(annotation, dict):
                         layer.add_annotation(new_span, annotation)
+                    elif isinstance(annotation, list):
+                        for anno in annotation:
+                            layer.add_annotation(new_span, anno)
+                    else:
+                        raise TypeError(f'(!) Unexpected type of annotation ({type(annotation)}) '+\
+                                         'returned by the decorator function. Expected list of dict or dict.')
         return layer
 
 

@@ -381,6 +381,7 @@ def test_bert_tokens_2_words_rewriter_sublayer():
                                         output_attributes = ('bert_tokens',), 
                                         output_layer = 'bert_tokens_of_words',
                                         enveloping = False,
+                                        ambiguous = True,
                                         decorator = rewriter_decorator)
 
     rewriter.tag(text)
