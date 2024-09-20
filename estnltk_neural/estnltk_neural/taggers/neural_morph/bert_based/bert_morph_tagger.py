@@ -124,6 +124,9 @@ class BertMorphTagger(Retagger):
             if not self.split_pos_form:
                 raise Exception( ('(!) Cannot use BertMorphTagger as a disambiguator (disambiguate==True) if '+\
                                   'split_pos_form==False.') )
+            if self.token_level:
+                raise Exception( ('(!) Cannot use BertMorphTagger as a disambiguator (disambiguate==True) if '+\
+                                  'token_level==True.') )
             if self.get_top_n_predictions > 1:
                 warnings.warn( f'(!) Parameter get_top_n_predictions=={self.get_top_n_predictions} has no effect '+\
                                 'during retagging/disambiguation (disambiguate==True). Only the label with the '+\
@@ -316,6 +319,9 @@ class BertMorphTagger(Retagger):
         if not self.split_pos_form:
             raise Exception( ('(!) Cannot use BertMorphTagger as a disambiguator if '+\
                               'split_pos_form is set False.').format(attr, morph_layer.name) )
+        if self.token_level:
+            raise Exception( ('(!) Cannot use BertMorphTagger as a disambiguator if '+\
+                              'token_level==True.') )
         # Validate inputs
         morph_layer = layers[self.output_layer]
         for attr in ['partofspeech', 'form']:
