@@ -43,7 +43,8 @@ dynamic = ["version"]
 
 [project.optional-dependencies]
 tests = [ "pytest" ]
-neural_morph = [ "tensorflow <= 1.15.5" ]  # Required by neural morphological disambiguator
+bert_morph = [ "sentencepiece" ]  # Required by Bert-based morphological tagger/disambiguator
+neural_morph = [ "tensorflow <= 1.15.5" ]  # Required by (old) neural morphological disambiguator
 coreference_v1 = [ "scikit-learn", "xgboost", "gensim" ]  # Required by CoreferenceTagger
 
 [tool.setuptools]
