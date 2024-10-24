@@ -3,11 +3,12 @@ EstNLTK neural -- EstNLTK's linguistic analysis based on neural models
 
 This package contains EstNLTK's linguistic analysis tools that use neural models:
 
-* neural morphological tagger ( disambiguator );
 * bert embeddings tagger;
 * bert-based named entity recognition;
+* bert-based morphological features tagger and disambiguator;
 * stanza syntax tagger and stanza ensemble syntax tagger;
 * pronominal coreference tagger v1 (relies on stanza for input preprocessing);
+* [legacy] tensorflow-based neural morphological features tagger ( disambiguator );
 
 Note: these tools require installation of deep learning frameworks (`tensorflow`, `pytorch`), and are demanding for computational resources; they also rely on large models which need to be downloaded separately. 
 
