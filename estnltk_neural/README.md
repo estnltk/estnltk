@@ -38,7 +38,15 @@ If needed, you can also change the default location where downloaded models will
 
 ### Documentation
 
-EstNLTK's [NLP component tutorials](https://github.com/estnltk/estnltk/tree/main/tutorials/nlp_pipeline) also cover information about neural taggers. 
+EstNLTK's [NLP component tutorials](https://github.com/estnltk/estnltk/tree/main/tutorials/nlp_pipeline) also cover information about neural taggers:
+
+* [bert embeddings tagger](https://github.com/estnltk/estnltk/blob/main/tutorials/nlp_pipeline/E_embeddings/bert_embeddings_tagger.ipynb);
+* [named entity recognition (incl bert-based approaches)](https://github.com/estnltk/estnltk/blob/main/tutorials/nlp_pipeline/D_information_extraction/02_named_entities.ipynb);
+* [bert-based morphological features tagger and disambiguator](https://github.com/estnltk/estnltk/blob/devel_1.7/tutorials/nlp_pipeline/B_morphology/08_bert_based_morph_tagger.ipynb);
+* [stanza-based syntax taggers](https://github.com/estnltk/estnltk/blob/main/tutorials/nlp_pipeline/C_syntax/03_syntactic_analysis_with_stanza.ipynb);
+* [pronominal coreference tagger v1](https://github.com/estnltk/estnltk/blob/main/tutorials/nlp_pipeline/D_information_extraction/04_pronominal_coreference.ipynb);
+* [\[legacy\] tensorflow-based neural morphological features tagger ( disambiguator )](https://github.com/estnltk/estnltk/blob/main/tutorials/nlp_pipeline/B_morphology/08_neural_morph_tagger_py37.ipynb)
+
 
 ### Source
 
