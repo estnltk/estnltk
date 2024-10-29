@@ -13,9 +13,10 @@ from estnltk import Text
 from estnltk_core import RelationLayer
 from estnltk_core.taggers import RelationTagger
 
+from estnltk.downloader import get_resource_paths
+
 from estnltk.taggers.standard.syntax.syntax_dependency_retagger import SyntaxDependencyRetagger
 
-DEFAULT_LEXICON = os.path.join(os.path.dirname(__file__), 'propbank_frames.jl')
 
 # Mapping cases from UD lowercase to morph_analysis
 ud_to_vm_case_mapping = {
@@ -71,7 +72,7 @@ class PropBankPreannotator(RelationTagger):
                   'debug_output']
 
     def __init__(self,
-                 propbank_lexicon: str=DEFAULT_LEXICON, 
+                 propbank_lexicon: str=None, 
                  output_layer: str='pre_semantic_roles',
                  input_syntax_layer: str='stanza_syntax', 
                  output_flat_layer: bool=False, 
@@ -88,7 +89,9 @@ class PropBankPreannotator(RelationTagger):
         Parameters
         ----------
         propbank_lexicon: str
-            Path to lexicon with mappings from morph/syntactic features to frames and arguments.
+            Path to lexicon with mappings from morph/syntactic features to frames and arguments. 
+            If not provided, then attempts to download the lexicon automatically from ESTNLTK's 
+            resources. 
         output_layer: str
             Name of the output layer.
             Default: 'pre_semantic_roles'
@@ -128,9 +131,18 @@ class PropBankPreannotator(RelationTagger):
         '''
         # Load lexicon mapping morph/syntactic features to arguments
         self._lexicon = {}
+        
+        if propbank_lexicon is None:
+            # Try to get the resources path for PropBankPreannotator. Attempt to download resources, if missing
+            propbank_lexicon = get_resource_paths("propbankpreannotator", only_latest=True, download_missing=True)
+            propbank_lexicon = os.path.join(propbank_lexicon, 'propbank_frames.jl') if propbank_lexicon is not None else None
+        if propbank_lexicon is None:
+            raise Exception('Resources of PropBankPreannotator are missing. '+\
+                            'Please use estnltk.download("propbankpreannotator") to download the resources.')
         assert isinstance(propbank_lexicon, str)
         assert os.path.exists(propbank_lexicon), \
             f'(!) Illegal path for propbank_lexicon: {propbank_lexicon}'
+        
         with open(propbank_lexicon, 'r', encoding='utf-8') as in_f:
             for entry in in_f:
                 #
