@@ -21,7 +21,7 @@
 
     * [web taggers](taggers/web_taggers/web_taggers.ipynb): EstNLTK's taggers that are available (or can be made available) as web services.
 
-    * [miscellaneous language analysers and experimental tools](nlp_pipeline/X_miscellaneous): verb chain detector, noun phrase chunker, date and number taggers for medical texts,  adjective phrase tagger and Flesch reading ease score tagger.
+    * [miscellaneous language analysers and experimental tools](nlp_pipeline/X_miscellaneous): verb chain detector, noun phrase chunker; preliminary syntax-based semantic roles tagger and location and time phrase detector; date and number taggers for medical texts, adjective phrase tagger and Flesch reading ease score tagger.
 
     * [Estonian WordNet API](wordnet/wordnet.ipynb)
  
