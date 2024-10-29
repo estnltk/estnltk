@@ -384,7 +384,9 @@ def _normalize_resource_size( resource_size: float ) -> str:
     '''
     if not isinstance(resource_size, float):
         return ''
-    if resource_size < 1.0:
+    if resource_size < 0.001:
+        return '{:.0f}K'.format(resource_size*1000.0*1000.0)
+    elif 0.001 <= resource_size and resource_size < 1.0:
         return '{:.0f}M'.format(resource_size*1000.0)
     else:
         return '{:.1f}G'.format(resource_size)
