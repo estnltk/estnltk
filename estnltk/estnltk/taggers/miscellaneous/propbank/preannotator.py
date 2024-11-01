@@ -66,6 +66,7 @@ class PropBankPreannotator(RelationTagger):
                   'output_flat_layer',
                   'skip_compound_prt', 
                   'discard_frames_wo_args', 
+                  'discard_overlapped_frames', 
                   'add_verb_class',
                   'add_arg_descriptions', 
                   'add_arg_feats',
@@ -77,6 +78,7 @@ class PropBankPreannotator(RelationTagger):
                  input_syntax_layer: str='stanza_syntax', 
                  output_flat_layer: bool=False, 
                  discard_frames_wo_args: bool=False, 
+                 discard_overlapped_frames: bool=False, 
                  add_verb_class: bool=False,
                  add_arg_descriptions: bool=False,
                  add_arg_feats: bool=False,
@@ -107,7 +109,14 @@ class PropBankPreannotator(RelationTagger):
             Default: False
         discard_frames_wo_args: bool
             Whether frames without arguments will be included in the output_layer. 
-            Default: True
+            Default: False
+        discard_overlapped_frames: bool
+            Whether frames that are entirely overlapped by a bigger frame should be removed 
+            from the output_layer. 
+            Note: this is a heuristic and not entirely unharmful. Removing overlapped frames 
+            can reduce redundant frames roughly 9 %pt, but with a cost of decreasing correct 
+            frame detection accuracy 0.3 %pt (based on measurements on EDT-UD corpus). 
+            Default: False
         add_verb_class: bool
             Whether the output_layer has extra attribute 'verb_class' conveying the verb class 
             from the lexicon.
@@ -174,6 +183,7 @@ class PropBankPreannotator(RelationTagger):
         self.input_layers = [input_syntax_layer]
         self.skip_compound_prt = skip_compound_prt
         self.discard_frames_wo_args = discard_frames_wo_args
+        self.discard_overlapped_frames = discard_overlapped_frames
         self.add_verb_class = add_verb_class
         self.add_arg_descriptions = add_arg_descriptions
         self.add_arg_feats = add_arg_feats
@@ -365,6 +375,62 @@ class PropBankPreannotator(RelationTagger):
                 return group_matches
         return []
 
+    @staticmethod
+    def _frame_overlap_status(frame_info_a, frame_info_b):
+        '''Detects frame overlap status between frames a and b. 
+          
+           Returns string indicating the status:
+           * 'B-in-A' -- B is fully contained within A
+                         (and A is bigger than B);
+           * 'A-in-B' -- A is fully contained within B
+                         (and B is bigger than A);
+           * 'A==B' -- A equals B;
+           * '' -- undetermined status (could be a partial 
+                   overlap or no overlap); 
+        '''
+        # Extract frame A info
+        frame_a_base_span = frame_info_a[1]
+        frame_a_args = {}
+        for arg_info in frame_info_a[-1]:
+            arg_name = arg_info[0]
+            arg_spans = [s.base_span for s in arg_info[2]]
+            frame_a_args[arg_name] = arg_spans
+        # Extract frame B info
+        frame_b_base_span = frame_info_b[1]
+        frame_b_args = {}
+        for arg_info in frame_info_b[-1]:
+            arg_name = arg_info[0]
+            arg_spans = [s.base_span for s in arg_info[2]]
+            frame_b_args[arg_name] = arg_spans
+        if frame_a_base_span == frame_b_base_span:
+            # Check whether all B spans are within A spans or 
+            #       all B spans are within A spans 
+            b_within_a = []
+            for (arg, spans_b) in frame_b_args.items():
+                if arg in frame_a_args and \
+                   all([span_b in frame_a_args[arg] for span_b in spans_b]):
+                    b_within_a.append( arg )
+            a_within_b = []
+            for (arg, spans_a) in frame_a_args.items():
+                if arg in frame_b_args and \
+                   all([span_a in frame_b_args[arg] for span_a in spans_a]):
+                    a_within_b.append( arg )
+            if len(b_within_a) == len(frame_b_args.keys()) and \
+               len(b_within_a) < len(frame_a_args.keys()):
+                # B is contained within A
+                return 'B-in-A'
+            elif len(a_within_b) == len(frame_a_args.keys()) and \
+                 len(a_within_b) < len(frame_b_args.keys()):
+                # A is contained within B
+                return 'A-in-B'
+            elif len(a_within_b) == len(b_within_a) and \
+                 len(a_within_b) == len(frame_a_args.keys()) and \
+                 len(frame_a_args.keys()) == len(frame_b_args.keys()):
+                # A equals B
+                return 'A==B'
+        return ''
+
+
     def _extract_frames(self, sentence_syntax):
         '''
         Extracts frames from the given sentence_syntax. 
@@ -475,6 +541,7 @@ class PropBankPreannotator(RelationTagger):
                                 del found_matches[frame]
 
                     if len(found_matches.keys()) > 0:
+                        collected_frame_infos = []
                         for frame_name in found_matches.keys():
                             frame_info = [frame_name, syntax_word.base_span]
                             if self.add_verb_class:
@@ -517,7 +584,25 @@ class PropBankPreannotator(RelationTagger):
                                         arg_info.append(arg_feats)
                                     # Add argument to frame
                                     frame_info[-1].append( tuple(arg_info) )
-                            detected_frames.append(frame_info)
+                            collected_frame_infos.append(frame_info)
+                        if self.discard_overlapped_frames:
+                            if len(collected_frame_infos) > 1:
+                                # Detect frames that are entirely overlapped by a bigger frame
+                                to_remove = set()
+                                for fid_a, frame_a in enumerate(collected_frame_infos):
+                                    for fid_b, frame_b in enumerate(collected_frame_infos):
+                                        if fid_a != fid_b:
+                                            overlap_status = \
+                                                PropBankPreannotator._frame_overlap_status(frame_a, frame_b)
+                                            if overlap_status == 'B-in-A':
+                                                to_remove.add(fid_b)
+                                            elif overlap_status == 'A-in-B':
+                                                to_remove.add(fid_a)
+                                # Remove detected frames
+                                if len(to_remove) > 0:
+                                    for i in sorted(list(to_remove), reverse=True):
+                                        del collected_frame_infos[i]
+                        detected_frames.extend(collected_frame_infos)
                         
                     if self.debug_output and len(found_matches.keys()) > 0:
                         # 
