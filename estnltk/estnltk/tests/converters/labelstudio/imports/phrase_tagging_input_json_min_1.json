@@ -1,0 +1,45 @@
+[
+  {
+    "text": "Koer tuletas omanikule meelde, et uus kass, mille peremees võtab, ei tohi olla ilusam kui vana",
+    "id": 3007,
+    "terms": [
+      {
+        "start": 0,
+        "end": 4,
+        "text": "Koer",
+        "labels": [
+          "Koer"
+        ]
+      },
+      {
+        "start": 38,
+        "end": 42,
+        "text": "kass",
+        "labels": [
+          "kass"
+        ]
+      },
+      {
+        "start": 90,
+        "end": 94,
+        "text": "vana",
+        "labels": [
+          "kass"
+        ]
+      },
+      {
+        "start": 50,
+        "end": 58,
+        "text": "peremees",
+        "labels": [
+          "Koer"
+        ]
+      }
+    ],
+    "annotator": 1,
+    "annotation_id": 16,
+    "created_at": "2024-04-26T13:02:59.317338Z",
+    "updated_at": "2024-04-29T10:59:32.561256Z",
+    "lead_time": 19.383000000000003
+  }
+]
