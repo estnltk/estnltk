@@ -9,7 +9,7 @@ from estnltk.taggers.system.rule_taggers.taggers.substring_tagger import Substri
 
 from estnltk.converters import layer_to_dict
 from estnltk.converters.label_studio.labelling_configurations import PhraseTaggingConfiguration
-from estnltk.converters.label_studio.labelling_tasks.phrase_tagging_task import PhraseTaggingTask
+from estnltk.converters.label_studio.labelling_tasks import PhraseTaggingTask
 
 def test_data_export_for_phrase_tagging_task():
     # Create input data
