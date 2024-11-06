@@ -121,7 +121,7 @@ class PhraseClassificationConfiguration:
         if self.header and self.header_placement == 'middle':
             result += f'  <Header value="{self.header}" />\n'
 
-        result += f'  <Choices name="{self.class_annotator_element}" toName="{self.text_element}" >\n    '
+        result += f'  <Choices name="{self.class_annotator_element}" toName="{self.text_element}" choice="{self.choice_type}" >\n    '
         choice_tags = [None] * len(self.choice_labels)
         for i, label_dict in enumerate(self.choice_labels):
             attributes = " ".join(f'{key}="{value}"'for key, value in label_dict.items())

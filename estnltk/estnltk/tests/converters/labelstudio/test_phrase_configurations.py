@@ -61,7 +61,7 @@ def test_phrase_classification_configuration():
     <Label value="span" background="green" />
   </Labels>
   <Text name="text" value="$text" />
-  <Choices name="phrase_class" toName="text" >
+  <Choices name="phrase_class" toName="text" choice="single-radio" >
     <Choice value="Jah" alias="True" />
     <Choice value="Ei-Ei" alias="False" />
     <Choice value="Ei tea" alias="na" />
@@ -78,7 +78,7 @@ def test_phrase_classification_configuration():
     <Label value="span" background="green" />
   </Labels>
   <Text name="text" value="$text" />
-  <Choices name="phrase_class" toName="text" >
+  <Choices name="phrase_class" toName="text" choice="single-radio" >
     <Choice value="Jah" alias="True" />
     <Choice value="Ei-Ei" alias="False" />
     <Choice value="Ei tea" alias="na" />
@@ -95,7 +95,7 @@ def test_phrase_classification_configuration():
   </Labels>
   <Text name="text" value="$text" />
   <Header value="header text" />
-  <Choices name="phrase_class" toName="text" >
+  <Choices name="phrase_class" toName="text" choice="single-radio" >
     <Choice value="Jah" alias="True" />
     <Choice value="Ei-Ei" alias="False" />
     <Choice value="Ei tea" alias="na" />
@@ -111,7 +111,7 @@ def test_phrase_classification_configuration():
     <Label value="span" background="green" />
   </Labels>
   <Text name="text" value="$text" />
-  <Choices name="phrase_class" toName="text" >
+  <Choices name="phrase_class" toName="text" choice="single-radio" >
     <Choice value="Jah" alias="True" hotkey="+" />
     <Choice value="Ei-Ei" alias="False" hotkey="-" />
     <Choice value="Ei tea" alias="NA" hotkey="?" />

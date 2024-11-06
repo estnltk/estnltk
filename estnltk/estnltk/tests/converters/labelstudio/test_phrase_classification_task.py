@@ -34,7 +34,7 @@ def test_data_export_for_phrase_classification_task():
     <Label value="kass" background="blue" />
   </Labels>
   <Text name="text" value="$text" />
-  <Choices name="phrase_class" toName="text" >
+  <Choices name="phrase_class" toName="text" choice="single-radio" >
     <Choice value="Jah" alias="True" />
     <Choice value="Ei" alias="False" />
   </Choices>
