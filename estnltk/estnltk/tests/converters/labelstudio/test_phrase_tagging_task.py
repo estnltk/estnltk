@@ -158,7 +158,7 @@ def test_data_import_from_phrase_tagging_task():
     #pprint(layer_to_dict(imported_texts[0][tagger.output_layer]))
     
     # Case 2 & 3
-    with open(abs_path('tests/converters/labelstudio/imports/phrase_tagging_input_json_1.json'), 'r') as in_file:
+    with open(abs_path('tests/converters/labelstudio/imports/phrase_tagging_input_json_1.json'), 'r', encoding='utf-8') as in_file:
         content = in_file.read()
     #from pprint import pprint
     #pprint( layer_to_dict( task1.import_data(content)[0]['terms'] ) )
@@ -192,7 +192,7 @@ def test_data_import_from_phrase_tagging_task():
                                      'updated_at': '2024-04-29T10:59:32.561256Z'}],
                     'base_span': (90, 94)}]}
     assert layer_to_dict( task1.import_data(content)[0]['terms'] ) == expected_imported_layer_dict
-    with open(abs_path('tests/converters/labelstudio/imports/phrase_tagging_input_json_min_1.json'), 'r') as in_file:
+    with open(abs_path('tests/converters/labelstudio/imports/phrase_tagging_input_json_min_1.json'), 'r', encoding='utf-8') as in_file:
         content = in_file.read()
     assert layer_to_dict( task1.import_data(content, input_type='json-min')[0]['terms'] ) == expected_imported_layer_dict
 
