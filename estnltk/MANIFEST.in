@@ -24,6 +24,7 @@ graft estnltk/vabamorf/dct
 graft estnltk/visualisation/attribute_visualiser
 graft estnltk/visualisation/span_visualiser
 graft estnltk/tests/converters
+graft estnltk/tests/converters/labelstudio/imports
 graft estnltk/tests/corpus_processing
 graft estnltk/tests/taggers/standard/morph_analysis
 graft estnltk/tests/taggers/standard/syntax/preprocessing
