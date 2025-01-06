@@ -38,8 +38,9 @@ Information about EstNLTK-core's API is provided in docstrings of classes and me
 
 The source of the package can be found at [main branch](https://github.com/estnltk/estnltk/tree/main/estnltk_core).
 
----
+## License
 
-License: GNU General Public License v2.0
+EstNLTK-core is released under dual license - either GNU General Public License v2.0 or 
+Apache 2.0 License. 
 
 (C) University of Tartu  

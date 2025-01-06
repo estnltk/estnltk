@@ -202,7 +202,7 @@ setup(
     description="Estnltk — open source tools for Estonian natural language processing",
     long_description=open('README.md', errors='replace').read(),
     long_description_content_type='text/markdown',
-    license="GPLv2",
+    license="Dual License: GPLv2 or Apache-2.0",
     url="https://github.com/estnltk/estnltk",
     ext_modules=[
         Extension('estnltk.vabamorf._vabamorf',

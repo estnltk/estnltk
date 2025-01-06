@@ -93,8 +93,9 @@ In case you use EstNLTK in your work, please cite us as follows:
       url       = {https://www.aclweb.org/anthology/2020.lrec-1.884}
     }
 
----
+## License
 
-License: GNU General Public License v2.0
+EstNLTK is released under dual license - either GNU General Public License v2.0 or 
+Apache 2.0 License. 
 
 (C) University of Tartu  

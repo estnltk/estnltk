@@ -52,8 +52,9 @@ EstNLTK's [NLP component tutorials](https://github.com/estnltk/estnltk/tree/main
 
 The source of the last release is available at the [main branch](https://github.com/estnltk/estnltk/tree/main/estnltk_neural).
 
----
+## License
 
-License: GNU General Public License v2.0
+EstNLTK-neural is released under dual license - either GNU General Public License v2.0 or 
+Apache 2.0 License. 
 
 (C) University of Tartu  

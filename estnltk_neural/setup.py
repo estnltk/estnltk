@@ -26,7 +26,7 @@ setup(
     description="EstNLTK neural -- EstNLTK's linguistic analysis based on neural models",
     long_description=open('README.md', errors='replace').read(),
     long_description_content_type='text/markdown',
-    license="GPLv2",
+    license="Dual License: GPLv2 or Apache-2.0",
     # the list of package data used by "build", "bdist" and "install"
     include_package_data=True,
     package_data={

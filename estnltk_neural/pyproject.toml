@@ -14,7 +14,7 @@ description = "EstNLTK neural -- EstNLTK's linguistic analysis based on neural m
 readme = "README.md"
 requires-python = ">=3.9"
 keywords = ["Estonian natural language processing", "Estonian linguistic processing"]
-license = {text = "GPLv2"}
+license = {file = "LICENSE"}
 classifiers = [
     "Intended Audience :: Developers",
     "Intended Audience :: Education",
