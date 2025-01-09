@@ -4,6 +4,9 @@
 EstNLTK-neural is released under dual license - either GNU General Public License v2.0 or 
 Apache 2.0 License. 
 
+EstNLTK-neural's GliLem lemmatizer and morphological disambiguator contains code that is 
+licensed under Mozilla Public License 2.0 (MPL 2.0).
+
 --------------------------------------------------------------------------------
 
                     GNU GENERAL PUBLIC LICENSE
