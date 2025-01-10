@@ -46,6 +46,7 @@ tests = [ "pytest" ]
 bert_morph = [ "sentencepiece" ]  # Required by Bert-based morphological tagger/disambiguator
 neural_morph = [ "tensorflow <= 1.15.5" ]  # Required by (old) neural morphological disambiguator
 coreference_v1 = [ "scikit-learn", "xgboost", "gensim" ]  # Required by CoreferenceTagger
+glilem = [ "gliner" ]  # Required by GliLemTagger
 
 [tool.setuptools]
 include-package-data = true

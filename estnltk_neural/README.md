@@ -42,8 +42,8 @@ EstNLTK's [NLP component tutorials](https://github.com/estnltk/estnltk/tree/main
 
 * [bert embeddings tagger](https://github.com/estnltk/estnltk/blob/main/tutorials/nlp_pipeline/E_embeddings/bert_embeddings_tagger.ipynb);
 * [named entity recognition (incl bert-based approaches)](https://github.com/estnltk/estnltk/blob/main/tutorials/nlp_pipeline/D_information_extraction/02_named_entities.ipynb);
-* [bert-based morphological features tagger and disambiguator](https://github.com/estnltk/estnltk/blob/devel_1.7/tutorials/nlp_pipeline/B_morphology/08_bert_based_morph_tagger.ipynb);
-* GliLem lemmatizer and morphological disambiguator;
+* [bert-based morphological features tagger and disambiguator](https://github.com/estnltk/estnltk/blob/b3950ebc8566e054cf7f44ad5d52efcc21bcf0f8/tutorials/nlp_pipeline/B_morphology/08_bert_based_morph_tagger.ipynb);
+* [GliLem lemmatizer and morphological disambiguator](https://github.com/estnltk/estnltk/blob/b3950ebc8566e054cf7f44ad5d52efcc21bcf0f8/tutorials/nlp_pipeline/B_morphology/08_glilem_lemmatizer_and_disambiguator.ipynb);
 * [stanza-based syntax taggers](https://github.com/estnltk/estnltk/blob/main/tutorials/nlp_pipeline/C_syntax/03_syntactic_analysis_with_stanza.ipynb);
 * [pronominal coreference tagger v1](https://github.com/estnltk/estnltk/blob/main/tutorials/nlp_pipeline/D_information_extraction/04_pronominal_coreference.ipynb);
 * [\[legacy\] tensorflow-based neural morphological features tagger ( disambiguator )](https://github.com/estnltk/estnltk/blob/main/tutorials/nlp_pipeline/B_morphology/08_neural_morph_tagger_py37.ipynb)
@@ -56,6 +56,7 @@ The source of the last release is available at the [main branch](https://github.
 ## License
 
 EstNLTK-neural is released under dual license - either GNU General Public License v2.0 or Apache 2.0 License. 
+
 EstNLTK-neural's GliLem lemmatizer and morphological disambiguator contains code that is licensed under Mozilla Public License 2.0 (MPL 2.0).
 
-(C) University of Tartu  
+(C) University of Tartu (unless specified otherwise in the file headers)

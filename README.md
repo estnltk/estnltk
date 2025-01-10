@@ -116,9 +116,3 @@ If you use EstNLTK v1.4.1 (or older), please cite:
     language = {english}
     }
 
-## License
-
-EstNLTK is released under dual license - either GNU General Public License v2.0 or 
-Apache 2.0 License. 
-
-(C) University of Tartu  
