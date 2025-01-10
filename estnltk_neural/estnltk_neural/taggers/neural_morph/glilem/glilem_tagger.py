@@ -138,7 +138,12 @@ class GliLemTagger(Retagger):
         Processes the input text to generate a GliLem layer. 
         """
         words_layer = layers[ self.input_layers[0] ]
-        sentences_layer = layers[ self.input_layers[-1] ]
+        if not self.disambiguate:
+            assert len(self.input_layers) == 3
+            sentences_layer = layers[ self.input_layers[-1] ]
+        else:
+            assert len(self.input_layers) == 4
+            sentences_layer = layers[ self.input_layers[-2] ]
         glilem_layer = Layer(name='_glilem_tokens', text_object=text, ambiguous=True, 
                              attributes=('lemma', 'score', 'label', 'vabamorf_overwritten', 'is_input_token'))
         for k, sentence in enumerate( sentences_layer ):

@@ -130,10 +130,47 @@ def test_glilem_tagger_as_disambiguator():
     results = _extract_word_partofspeech_and_form(text[vm_analyser.output_layer])
     #print(results)
     assert results == \
-        [{'word': 'Lae', 'lemma': 'lagi', 'partofspeech': 'S', 'form': 'sg g'}, 
+        [{'word': 'Lae', 'lemma': 'laadima', 'partofspeech': 'V', 'form': 'o'}, 
          {'word': 'äpp', 'lemma': 'äpp', 'partofspeech': 'S', 'form': 'sg n'}, 
          {'word': 'kohe', 'lemma': 'kohe', 'partofspeech': 'A', 'form': 'sg n'}, 
          {'word': 'kohe', 'lemma': 'kohe', 'partofspeech': 'D', 'form': ''}, 
          {'word': 'alla', 'lemma': 'alla', 'partofspeech': 'D', 'form': ''}, 
          {'word': 'alla', 'lemma': 'alla', 'partofspeech': 'K', 'form': ''}, 
          {'word': '!', 'lemma': '!', 'partofspeech': 'Z', 'form': ''}]
+
+    # Case 2
+    text = Text("Meie teod räägivad nüüd enda eest.")
+    # Tag layers required by morph analysis
+    text.tag_layer(['words', 'sentences'])
+    vm_analyser.tag( text )
+    amb_results = _extract_word_partofspeech_and_form(text[vm_analyser.output_layer])
+    #print(amb_results)
+    assert amb_results == \
+        [{'word': 'Meie', 'lemma': 'mina', 'partofspeech': 'P', 'form': 'pl g'}, 
+         {'word': 'Meie', 'lemma': 'mina', 'partofspeech': 'P', 'form': 'pl n'}, 
+         {'word': 'teod', 'lemma': 'tegu', 'partofspeech': 'S', 'form': 'pl n'}, 
+         {'word': 'teod', 'lemma': 'tigu', 'partofspeech': 'S', 'form': 'pl n'}, 
+         {'word': 'räägivad', 'lemma': 'rääkima', 'partofspeech': 'V', 'form': 'vad'}, 
+         {'word': 'nüüd', 'lemma': 'nüüd', 'partofspeech': 'D', 'form': ''}, 
+         {'word': 'enda', 'lemma': 'ise', 'partofspeech': 'P', 'form': 'sg g'}, 
+         {'word': 'eest', 'lemma': 'eest', 'partofspeech': 'D', 'form': ''}, 
+         {'word': 'eest', 'lemma': 'eest', 'partofspeech': 'K', 'form': ''}, 
+         {'word': 'eest', 'lemma': 'esi', 'partofspeech': 'S', 'form': 'sg el'}, 
+         {'word': '.', 'lemma': '.', 'partofspeech': 'Z', 'form': ''}]
+    # Apply disambiguation
+    glilem.retag(text)
+    # Validate results
+    results = _extract_word_partofspeech_and_form(text[vm_analyser.output_layer])
+    #print(results)
+    assert results == \
+        [{'word': 'Meie', 'lemma': 'mina', 'partofspeech': 'P', 'form': 'pl g'}, 
+         {'word': 'Meie', 'lemma': 'mina', 'partofspeech': 'P', 'form': 'pl n'}, 
+         {'word': 'teod', 'lemma': 'tegu', 'partofspeech': 'S', 'form': 'pl n'}, 
+         {'word': 'räägivad', 'lemma': 'rääkima', 'partofspeech': 'V', 'form': 'vad'}, 
+         {'word': 'nüüd', 'lemma': 'nüüd', 'partofspeech': 'D', 'form': ''}, 
+         {'word': 'enda', 'lemma': 'ise', 'partofspeech': 'P', 'form': 'sg g'}, 
+         {'word': 'eest', 'lemma': 'eest', 'partofspeech': 'D', 'form': ''}, 
+         {'word': 'eest', 'lemma': 'eest', 'partofspeech': 'K', 'form': ''}, 
+         {'word': 'eest', 'lemma': 'esi', 'partofspeech': 'S', 'form': 'sg el'}, 
+         {'word': '.', 'lemma': '.', 'partofspeech': 'Z', 'form': ''}]
+
