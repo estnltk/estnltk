@@ -22,13 +22,18 @@ from estnltk_neural.taggers.neural_morph.glilem.vabamorf_glilem_lemmatizer impor
 
 def gilem_decorator(text, word_id, gilem_tokens):
     if len(gilem_tokens) > 0:
-        if len(gilem_tokens) > 1:
-            warnings.warn(f'(!) word {text["words"][word_id].text!r} mapped to multiple gilem tokens: {gilem_tokens!r}')
-        return {'lemma': gilem_tokens[0].annotations[0]['lemma'],
-                'score': gilem_tokens[0].annotations[0]['score'],
-                'label': gilem_tokens[0].annotations[0]['label'],
-                'vabamorf_overwritten': gilem_tokens[0].annotations[0]['vabamorf_overwritten'],
-                'is_input_token': gilem_tokens[0].annotations[0]['is_input_token']}
+        #if len(gilem_tokens) > 1:
+        #    warnings.warn(f'(!) word {text["words"][word_id].text!r} mapped to multiple gilem tokens: {gilem_tokens!r}')
+        all_annotations = []
+        for gilem_token in gilem_tokens:
+            for annotation in gilem_token.annotations:
+                all_annotations.append( \
+                    {'lemma': annotation['lemma'],
+                     'score': annotation['score'],
+                     'label': annotation['label'],
+                     'vabamorf_overwritten': annotation['vabamorf_overwritten'],
+                     'is_input_token': annotation['is_input_token']} )
+        return all_annotations
 
 
 class GliLemTagger(Retagger):
@@ -130,7 +135,7 @@ class GliLemTagger(Retagger):
                       text_object=None,
                       attributes=self.output_attributes,
                       parent=self.input_layers[0], 
-                      ambiguous=False )
+                      ambiguous=True )
         return layer
 
     def _make_layer(self, text: Text, layers: MutableMapping[str, Layer], status: dict) -> Layer:
@@ -159,13 +164,13 @@ class GliLemTagger(Retagger):
                     start = chunk_span.start
                     end = chunk_span.end
                     new_span = (sent_start + chunk_start + start, sent_start + chunk_start + end)
-                    chunk_annotation = chunk_span.annotations[0]
-                    annotation = { 'lemma': chunk_annotation['lemma'],
-                                   'score': chunk_annotation['score'],
-                                   'label': chunk_annotation['label'],
-                                   'vabamorf_overwritten': chunk_annotation['vabamorf_overwritten'],
-                                   'is_input_token': chunk_annotation['is_input_token'] }
-                    glilem_layer.add_annotation(new_span, **annotation)
+                    for chunk_annotation in chunk_span.annotations:
+                        annotation = { 'lemma': chunk_annotation['lemma'],
+                                       'score': chunk_annotation['score'],
+                                       'label': chunk_annotation['label'],
+                                       'vabamorf_overwritten': chunk_annotation['vabamorf_overwritten'],
+                                       'is_input_token': chunk_annotation['is_input_token'] }
+                        glilem_layer.add_annotation(new_span, **annotation)
         # Aggregate tokens back into words in the original input tokenization
         # Use BertTokens2WordsRewriter to convert BERT tokens to words
         mapped_layer = self._bert_tokens_rewriter.make_layer(text, layers={'_glilem_tokens': glilem_layer,
@@ -201,20 +206,21 @@ class GliLemTagger(Retagger):
             if disamb_idx < len(disamb_layer):
                 disamb_word = disamb_layer[disamb_idx]
                 if disamb_word.base_span == original_word.base_span:
-                    # Matching spans
-                    disamb_lemma = disamb_word.annotations[0]['lemma']
-                    # Filter annotations of the original morph layer: keep only those
-                    # annotations that are matching with the disambiguated annotation
-                    keep_annotations = []
-                    for annotation in original_word.annotations:
-                        if annotation['lemma'] == disamb_lemma:
-                            keep_annotations.append(annotation)
-                    if len(keep_annotations) > 0:
-                        # Only disambiguate if there is at least one annotation left
-                        # (can't leave a word without any annotations)
-                        original_word.clear_annotations()
-                        for annotation in keep_annotations:
-                            original_word.add_annotation( annotation )
+                    if len(disamb_word.annotations) == 1:
+                        # Matching spans
+                        disamb_lemma = disamb_word.annotations[0]['lemma']
+                        # Filter annotations of the original morph layer: keep only those
+                        # annotations that are matching with the disambiguated annotation
+                        keep_annotations = []
+                        for annotation in original_word.annotations:
+                            if annotation['lemma'] == disamb_lemma:
+                                keep_annotations.append(annotation)
+                        if len(keep_annotations) > 0:
+                            # Only disambiguate if there is at least one annotation left
+                            # (can't leave a word without any annotations)
+                            original_word.clear_annotations()
+                            for annotation in keep_annotations:
+                                original_word.add_annotation( annotation )
                     disamb_idx += 1
 
 

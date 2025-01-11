@@ -80,6 +80,8 @@ def test_glilem_tagger_out_of_the_box():
     assert _extract_glilem_annotations(text[output_layer]) == \
         [{'word': 'Puuotsast', 'lemma': 'puuots', 'label': '↓0;d¦---', 'vabamorf_overwritten': True, 'is_input_token': True}, 
          {'word': 'kukkunud', 'lemma': 'kukkuma', 'label': None, 'vabamorf_overwritten': False, 'is_input_token': True}, 
+         {'word': 'kukkunud', 'lemma': 'kukkunu', 'label': None, 'vabamorf_overwritten': False, 'is_input_token': True}, 
+         {'word': 'kukkunud', 'lemma': 'kukkunud', 'label': None, 'vabamorf_overwritten': False, 'is_input_token': True}, 
          {'word': 'õun', 'lemma': 'õun', 'label': None, 'vabamorf_overwritten': False, 'is_input_token': True}, 
          {'word': 'igatses', 'lemma': 'igatsema', 'label': '↓0;d¦-+m+a', 'vabamorf_overwritten': False, 'is_input_token': True}, 
          {'word': 'tagasi', 'lemma': 'tagasi', 'label': None, 'vabamorf_overwritten': False, 'is_input_token': True}, 

@@ -7,6 +7,8 @@
 
 from typing import Union, MutableMapping
 
+from estnltk_core import ElementaryBaseSpan
+
 from estnltk import Text, Layer
 
 from estnltk_neural.taggers.neural_morph.glilem.rule_processor import RuleProcessor
@@ -101,7 +103,7 @@ def create_glilem_layer(text:str, gliner_model:'gliner.model.GLiNER', output_lay
     if add_missing_lemmas_from_vabamorf:
         for wid, span_lemmas in enumerate(lemmas):
             w_start, w_end = token_indexes[wid]
-            if (w_start, w_end) not in glilem_layer._span_list:
+            if ElementaryBaseSpan(w_start, w_end) not in glilem_layer._span_list:
                 for vm_lemma in span_lemmas:
                     glilem_layer.add_annotation( (w_start, w_end), 
                                                   label=None, 
