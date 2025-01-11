@@ -123,7 +123,7 @@ class Lemmatizer:
         disambiguate: bool = False,
         use_context: bool = False,
         proper_name: bool = True,
-        guess: bool = False,
+        guess: bool = True,
         separate_punctuation: bool = False,
     ):
         from estnltk.taggers import (
@@ -137,9 +137,14 @@ class Lemmatizer:
         self.proper_name = proper_name
         self.guess = guess
         # TODO: make input layer names customizable
-        # TODO: switching off compound and guess is rather restrictive
         # TODO: add possibility to used a customized VabamorfTagger 
         # for preprocessing
+        #
+        # Note: while originally guessing was switched off, it 
+        # did not take effect because if propername is switched 
+        # on, guessing will be automatically switched on also
+        # ( https://github.com/estnltk/estnltk/issues/66 )
+        #
         self.tagger = VabamorfTagger(
             output_layer='_gilem_preproccessing_morph',
             compound=False,
