@@ -7,7 +7,7 @@ All notable changes to this project will be documented in this file.
 
 ## Changed
 
-* Changed [licensing](LICENSE): EstNLTK is now dual licensed: choose either GNU General Public License v2.0 or Apache 2.0 License. 
+* Changed licensing: EstNLTK is now dual licensed: choose either GNU General Public License v2.0 or Apache 2.0 License. 
 * Updated `resource_utils`: removed rudimentary version constraints checking; version constraints are now checked with the [packaging](https://packaging.pypa.io/) utility which is a new dependency of EstNLTK;
 * Refactored `estnltk.vabamorf.morf` module:
 	* Removed legacy `deconvert` function;
