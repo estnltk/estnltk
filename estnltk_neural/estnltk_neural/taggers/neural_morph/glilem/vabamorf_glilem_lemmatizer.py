@@ -15,11 +15,14 @@ from estnltk_neural.taggers.neural_morph.glilem.rule_processor import RuleProces
 
 
 def create_glilem_layer(text:str, gliner_model:'gliner.model.GLiNER', output_layer:str='glilem_tokens', 
-                        lemmatizer:'Lemmatizer'=None, rule_processor:'RuleProcessor'=None,
+                        lemmatizer:'Lemmatizer'=None, rule_processor:'RuleProcessor'=None, threshold:float=0.5, 
                         add_missing_lemmas_from_vabamorf:bool=False):
     '''
     GliLem Lemmatizer's preprocessing, following the example:
     https://huggingface.co/spaces/adorkin/GliLem/blob/15ce1742d8f6bdb4fcce533d5b0fd904bf831c89/demo.py
+    
+    Parameter threshold controls the probability threshold of lemmatization: only lemmas 
+    which probability exceeds the threshold will be output. Defaults to 0.5.
     
     If add_missing_lemmas_from_vabamorf is set, then produces an ambiguous layer and adds 
     word's lemmas from Vabamorf in case GliLem's output did not contain any lemmas. 
@@ -62,7 +65,7 @@ def create_glilem_layer(text:str, gliner_model:'gliner.model.GLiNER', output_lay
             labels_set.add(lemma_label)
     # make predictions with GLiNER model
     predicted_entities = gliner_model.predict_entities(
-        text=text, labels=labels, flat_ner=True, threshold=0.5
+        text=text, labels=labels, flat_ner=True, threshold=threshold
     )
     # create output layer
     glilem_layer = Layer(name=output_layer, text_object=None, 

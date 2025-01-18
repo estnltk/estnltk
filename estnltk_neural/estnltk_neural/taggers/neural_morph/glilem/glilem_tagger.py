@@ -60,6 +60,7 @@ class GliLemTagger(Retagger):
         self,
         model_location: Optional[str] = None,
         output_layer: str = 'glilem', 
+        threshold:float = 0.5, 
         missing_lemmas_strategy: str = "DISCARD", 
         disambiguate: bool = False
     ):
@@ -75,6 +76,11 @@ class GliLemTagger(Retagger):
                 Name of the output layer. Defaults to 'glilem'. If <code>disambiguate==True</code>, then 
                 this must be name a Vabamorf-based morph analysis layer which will be disambiguated by 
                 calling tagger's <code>retag</code> method. 
+            threshold (float):
+                Probability threshold to be applied on the underlying glilem model. Only lemmatizations 
+                which probability exceeds the threshold will be output. The default threshold is 0.5. 
+                Setting this value to 0.0 instructs the model to output lemmatizations for all words, 
+                however, some of these could be highly improbable. 
             missing_lemmas_strategy (str):
                 What to do if GliLem does not produce any lemma for a word? Options:
                 * "DISCARD" (default) -- do no produce any spans for such words;
@@ -89,14 +95,17 @@ class GliLemTagger(Retagger):
                 which will be disambiguated. 
         """
         from gliner import GLiNER
-        self.conf_param = ('model', 'missing_lemmas_strategy', 'disambiguate', '_lemmatizer', 
-                           '_rule_processor', '_bert_tokens_rewriter')
+        self.conf_param = ('model', 'threshold', 'missing_lemmas_strategy', 'disambiguate', 
+                           '_lemmatizer', '_rule_processor', '_bert_tokens_rewriter')
         if missing_lemmas_strategy is None:
             missing_lemmas_strategy = "DISCARD"
         assert missing_lemmas_strategy.lower() in ['discard', 'none_values', 'vabamorf_lemmas'], \
             f'(!) Unexpected value {missing_lemmas_strategy!r} for parameter missing_lemmas_strategy. '+\
             ' Allowed values are: "discard", "none_values", "vabamorf_lemmas".'
         self.missing_lemmas_strategy = missing_lemmas_strategy.lower()
+        assert isinstance(threshold, float) 
+        assert threshold >= 0.0, '(!) Parameter threshold should be in range [0.0, 1.0]'
+        self.threshold = threshold
         if model_location is None:
             # Try to get the resources path for glilem_vabamorf_disambiguator. Attempt to download, if missing
             resources_path = get_resource_paths("glilem_vabamorf_disambiguator", only_latest=True, download_missing=True)
@@ -158,8 +167,9 @@ class GliLemTagger(Retagger):
             sent_chunks, sent_chunk_indexes = _split_sentence_into_smaller_chunks(sent_text)
             for sent_chunk, (chunk_start, chunk_end) in zip(sent_chunks, sent_chunk_indexes):
                 # Get predictions for the sentence
-                chunk_glilem_layer = create_glilem_layer( sent_chunk, self.model, output_layer='_glilem_tokens',
-                                     add_missing_lemmas_from_vabamorf=(self.missing_lemmas_strategy=='vabamorf_lemmas'))
+                chunk_glilem_layer = create_glilem_layer( sent_chunk, self.model, output_layer='_glilem_tokens', 
+                                     add_missing_lemmas_from_vabamorf=(self.missing_lemmas_strategy=='vabamorf_lemmas'),
+                                     threshold = self.threshold)
                 for chunk_span in chunk_glilem_layer:
                     start = chunk_span.start
                     end = chunk_span.end
