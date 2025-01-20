@@ -14,7 +14,7 @@ description = "EstNLTK core - basic data structures and components of the EstNLT
 readme = "README.md"
 requires-python = ">=3.9"
 keywords = ["natural language processing data structures", "linguistic processing data structures"]
-license = {file = "LICENSE"}
+license = {text = "Dual License: GPL-2.0 OR Apache-2.0"}
 classifiers = [
     "Intended Audience :: Developers",
     "Intended Audience :: Education",
