@@ -4,7 +4,7 @@ include LICENSE
 graft include
 graft src
 graft estnltk/java/res
-graft estnltk/storage/postgres/tests/test_example_syntax.conll
+include estnltk/storage/postgres/tests/test_example_syntax.conll
 graft estnltk/taggers/standard/ner/gazetteer
 graft estnltk/taggers/standard/ner/models
 graft estnltk/taggers/standard/morph_analysis/number_fixes
@@ -28,8 +28,10 @@ graft estnltk/tests/converters/labelstudio/imports
 graft estnltk/tests/corpus_processing
 graft estnltk/tests/taggers/standard/morph_analysis
 graft estnltk/tests/taggers/standard/syntax/preprocessing
-graft estnltk/tests/taggers/system/dict_taggers
-graft estnltk/tests/taggers/miscellaneous
+graft estnltk/tests/taggers/system/rule_taggers/data
+graft estnltk/tests/taggers/system/rule_taggers/phrase_tagger
+graft estnltk/tests/taggers/system/rule_taggers/span_tagger
 graft estnltk/tests/taggers/system
+graft estnltk/tests/taggers/miscellaneous
 graft estnltk/tests/visualisation/expected_outputs
 prune scribbles
