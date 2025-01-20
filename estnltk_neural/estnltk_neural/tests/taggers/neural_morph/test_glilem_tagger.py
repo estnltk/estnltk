@@ -68,6 +68,33 @@ def _extract_word_partofspeech_and_form(morph_layer):
                            "Use estnltk.download('glilem') to get the missing resources.")
 def test_glilem_tagger_out_of_the_box():
     # Test that GliLemTagger works "out_of_the_box" if the model is available
+    glilem = GliLemTagger()
+    text = Text('Puuotsast kukkunud õun igatses tagasi. '+\
+                'Kolletunud naeris saagis rediseid. ').tag_layer( glilem.input_layers )
+    glilem.tag(text)
+    output_layer = glilem.output_layer
+    #from pprint import pprint
+    #pprint( _round_up_probabilities( layer_to_dict(text[output_layer])) )
+    # Validate results
+    assert output_layer in text.layers
+    assert _extract_glilem_annotations(text[output_layer]) == \
+        [{'word': 'Puuotsast', 'lemma': 'puuots', 'label': '↓0;d¦---', 'vabamorf_overwritten': True, 'is_input_token': True}, 
+         {'word': 'igatses', 'lemma': 'igatsema', 'label': '↓0;d¦-+m+a', 'vabamorf_overwritten': False, 'is_input_token': True}, 
+         {'word': 'Kolletunud', 'lemma': 'kolletunud', 'label': '↓0;d¦', 'vabamorf_overwritten': True, 'is_input_token': True}, 
+         {'word': 'naeris', 'lemma': 'naeri', 'label': '↓0;d¦-', 'vabamorf_overwritten': True, 'is_input_token': True}, 
+         {'word': 'saagis', 'lemma': 'saak', 'label': '↓0;d¦---+k', 'vabamorf_overwritten': True, 'is_input_token': True}, 
+         {'word': 'rediseid', 'lemma': 'redis', 'label': '↓0;d¦---', 'vabamorf_overwritten': False, 'is_input_token': True}]
+
+
+@pytest.mark.skipif(not check_if_transformers_is_available(),
+                    reason="package tranformers is required for this test")
+@pytest.mark.skipif(not check_if_gliner_is_available(),
+                    reason="package gliner is required for this test")
+@pytest.mark.skipif(GLILEM_MODEL_PATH is None,
+                    reason="GliLemTagger's model location not known. "+\
+                           "Use estnltk.download('glilem') to get the missing resources.")
+def test_glilem_tagger_extended_output():
+    # Test GliLemTagger's extended output (lemma suggestions for all words)
     # Case 1: Generate all lemmas (including low-probability ones, which are likely incorrect)
     glilem1 = GliLemTagger(threshold=0.0)
     text = Text('Puuotsast kukkunud õun igatses tagasi. '+\
@@ -91,8 +118,8 @@ def test_glilem_tagger_out_of_the_box():
          {'word': 'rediseid', 'lemma': 'redis', 'label': '↓0;d¦---', 'vabamorf_overwritten': False, 'is_input_token': True}, 
          {'word': '.', 'lemma': '.', 'label': '↓0;d¦', 'vabamorf_overwritten': False, 'is_input_token': True}]
     
-    # Case 2: Generate only lemmas which probability exceeds threshold=0.5, 
-    # and replace missing lemmas with ambiguous lemmas from Vabamorf
+    # Case 2: Generate only lemmas which probability exceeds threshold=0.5 (default), 
+    # but replace missing lemmas with ambiguous lemmas from Vabamorf
     glilem2 = GliLemTagger(missing_lemmas_strategy='vabamorf_lemmas')
     text = Text('Puuotsast kukkunud õun igatses tagasi. '+\
                 'Kolletunud naeris saagis rediseid. ').tag_layer( glilem2.input_layers )
