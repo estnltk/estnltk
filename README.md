@@ -19,11 +19,11 @@ Source code of packages is available at the [EstNLTK's monorepository](https://g
 
 ### Installation
 
-EstNLTK is available for osx, windows-64, and linux-64, and for python versions 3.9 to 3.12. 
+EstNLTK is available for osx, windows-64, and linux-64, and for python versions 3.9 to 3.13. 
 You can install the latest version via PyPI:
 
 ```
-pip install estnltk==1.7.3
+pip install estnltk==1.7.4
 ```
 
 Alternatively, you can install EstNLTK via [Anaconda](https://www.anaconda.com/download). Installation steps with conda:
@@ -40,7 +40,7 @@ conda activate py310
 
 3. install EstNLTK with the command:
 ```
-conda install -c estnltk -c conda-forge estnltk=1.7.3
+conda install -c estnltk -c conda-forge estnltk=1.7.4
 ```
 
 _Remark about conda installations:_ As our platform coverage is wider on pip, we encourage installing EstNLTK inside conda environment through pip if the default conda installation fails.  
@@ -49,14 +49,13 @@ _Remark on conda & Linux:_ if you are trying to run estnltk conda package on an 
 
 _Note_: for using some of the tools in estnltk, you also need to have Java installed in your system. We recommend using Oracle Java http://www.oracle.com/technetwork/java/javase/downloads/index.html, although alternatives such as OpenJDK (http://openjdk.java.net/) should also work.
 
-_NLTK troubleshooting:_ if you stumble upon `LookupError: ********... Resource punkt_tab not found.` (resulting from [this issue](https://github.com/estnltk/estnltk/issues/122) and [this issue](https://github.com/nltk/nltk/issues/3293)), the solution is to install `punkt_tab` manually before using EstNLTK: for instance, run `python -c "import nltk; nltk.download('punkt_tab')"`. A complete fix for this issue will be available in the next EstNLTK release. 
 
 ### Using on Google Colab
 
 You can install EstNLTK on [Google Colab](https://colab.research.google.com) environment via command:
 
 ```
-!pip install estnltk==1.7.3
+!pip install estnltk==1.7.4
 ```
 
 ### Documentation

@@ -19,13 +19,13 @@ The EstNLTK project is funded by EKT ([Eesti Keeletehnoloogia Riiklik Programm](
 EstNLTK-core is available as a PyPI wheel:  
 
 ```
-pip install estnltk_core==1.7.3
+pip install estnltk_core==1.7.4
 ```
 
 And as an Anaconda package:
 
 ```
-conda install -c estnltk -c conda-forge estnltk_core=1.7.3
+conda install -c estnltk -c conda-forge estnltk_core=1.7.4
 ```
 
 Supported Python versions: 3.9+
