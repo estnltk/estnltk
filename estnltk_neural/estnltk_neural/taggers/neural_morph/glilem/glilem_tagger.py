@@ -79,15 +79,19 @@ class GliLemTagger(Retagger):
             threshold (float):
                 Probability threshold to be applied on the underlying glilem model. Only lemmatizations 
                 which probability exceeds the threshold will be output. The default threshold is 0.5. 
-                Setting this value to 0.0 instructs the model to output lemmatizations for all words, 
-                however, some of these could be highly improbable. 
+                Setting this value to 0.0 instructs the model to output lemmatizations for all words 
+                (for which Vabamorf has ambiguous lemmatization), however, some of these could be highly 
+                improbable. 
             missing_lemmas_strategy (str):
-                What to do if GliLem does not produce any lemma for a word? Options:
+                What to do if GliLem does not produce any lemma for a word? ( In other words: what 
+                to do with words which lemmatization does not meet the threshold ?)
+                Options:
                 * "DISCARD" (default) -- do no produce any spans for such words;
                 * "NONE_VALUES" -- add missing spans with None values;
                 * "VABAMORF_LEMMAS" -- add missing spans from underlying Vabamorf's lemmatizer;
                   Note: the underlying Vabamorf's lemmatizer uses settings compound=False,
                   disambiguate=False, guess=False, slang_lex=False, propername=True by default;
+            disambiguate (bool):
                 Whether the tagger is to be used as an disambiguator of an input morph analyis layer. 
                 Defaults to False. If set, then GliLemTagger can be used to disambiguate an existing 
                 Vabamorf-based morph analysis layer by calling <code>GliLemTagger.retag(text_obj)</code>. 
