@@ -32,8 +32,8 @@ classifiers = [
     "Topic :: Text Processing :: Linguistic"
 ]
 dependencies = [
-    'estnltk-core >= 1.7.3',   # EstNLTK's basic datastructures and conversion methods
-    'estnltk >= 1.7.3',        # EstNLTK's NLP pipelines and database tools
+    'estnltk-core >= 1.7.4',   # EstNLTK's basic datastructures and conversion methods
+    'estnltk >= 1.7.4',        # EstNLTK's NLP pipelines and database tools
     'torch',                   # Required by Stanza-based syntactic parsing and Bert embeddings tagger
     'transformers',            # Required by Bert embeddings tagger
     'stanza',                  # Required by Stanza-based syntactic parsing
