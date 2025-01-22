@@ -93,10 +93,10 @@ jobs:
 
           # List of available platforms: 
           # https://cibuildwheel.readthedocs.io/en/stable/options/#build-skip 
-          #CIBW_BUILD: cp313-*64
+          CIBW_BUILD: cp313-*64
           #CIBW_BUILD: cp311-*64
           #CIBW_BUILD: cp39-*64
-          CIBW_BUILD:  cp310-*64  cp311-*64  cp312-*64
+          #CIBW_BUILD:  cp310-*64  cp311-*64  cp312-*64
 
           # Disable building PyPy wheels on all platforms.
           # Enable if you get it working.
