@@ -24,8 +24,8 @@ jobs:
         #
         os: [ubuntu-latest, windows-latest, macos-12]
         #os: [ubuntu-latest, windows-latest, macos-latest]
-        #python-version: ['3.9']
-        python-version: ['3.10', '3.11']
+        python-version: ['3.9']
+        #python-version: ['3.10', '3.11']
 
     steps:
       - uses: actions/checkout@v4
@@ -58,7 +58,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: estnltk_core/ec_channel
-          key: estnltk-core-channel-2024-06-13-1
+          key: estnltk-core-channel-2025-01-22-1
           enableCrossOsArchive: true
 
       - name: Build estnltk_core conda package
@@ -96,13 +96,13 @@ jobs:
       # in cache unless the cache key has been changed.
       # (so, you should change the key if you want 
       #  to store a new build)
-      - if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.10'
+      - if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.11'
         name: Cache e_channel
         id: cache-e-channel
         uses: actions/cache@v4
         with:
           path: estnltk/e_channel
-          key: estnltk-channel-2024-06-13-1
+          key: estnltk-channel-2025-01-22-1
           enableCrossOsArchive: true
 
       - if: matrix.os != 'windows-latest'
@@ -123,8 +123,11 @@ jobs:
           name: estnltk-conda-packages-${{ matrix.os }}-${{ matrix.python-version }}
           path: |
             ./estnltk/e_channel/win-64/*.tar.bz2
+            ./estnltk/e_channel/win-64/*.conda
             ./estnltk/e_channel/linux-64/*.tar.bz2
+            ./estnltk/e_channel/linux-64/*.conda
             ./estnltk/e_channel/osx-64/*.tar.bz2
+            ./estnltk/e_channel/osx-64/*.conda
           retention-days: 14
           overwrite: true
 
@@ -144,7 +147,7 @@ jobs:
         uses: s-weigand/setup-conda@v1
         with:
           update-conda: true
-          python-version: '3.10'
+          python-version: '3.11'
           conda-channels: anaconda, conda-forge
 
       - name: Install anaconda-client
@@ -160,7 +163,7 @@ jobs:
           ls -lah linux-64
           ls -lah osx-64
           echo --------------------- 
-          linux_packages=$(ls -1 linux-64/*.tar.bz2)
-          win_packages=$(ls -1 win-64/*.tar.bz2)
-          osx_packages=$(ls -1 osx-64/*.tar.bz2)
+          linux_packages=$(ls -1 linux-64/estnltk-*)
+          win_packages=$(ls -1 win-64/estnltk-*)
+          osx_packages=$(ls -1 osx-64/estnltk-*)
           anaconda -t ${{ secrets.conda_upload_token }} upload -l dev --force -u estnltk $linux_packages $win_packages $osx_packages
