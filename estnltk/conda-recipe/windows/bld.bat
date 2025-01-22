@@ -1,4 +1,2 @@
-"%PYTHON%" setup.py build
-if errorlevel 1 exit 1
-"%PYTHON%" setup.py install --single-version-externally-managed --record=record.txt
+$PYTHON -m build "-C--build-option=build_ext" .
 if errorlevel 1 exit 1
