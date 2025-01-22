@@ -25,14 +25,14 @@ jobs:
       - uses: actions/setup-python@v5
         name: Install Python
         with:
-          python-version: '3.10'
+          python-version: '3.11'
 
       - name: Install pypa/build
         run: |
           python -m pip install build --user
 
       - name: Build estnltk
-        uses: pypa/cibuildwheel@v2.18.1
+        uses: pypa/cibuildwheel@v2.22.0
         with:
           package-dir: ./estnltk
           output-dir:  ./estnltk/wheelhouse
@@ -49,8 +49,8 @@ jobs:
 
           # List of available platforms: 
           # https://cibuildwheel.readthedocs.io/en/stable/options/#build-skip 
-          CIBW_BUILD:  cp310-*64
-          #CIBW_BUILD:  cp37-*64  cp38-*64  cp39-*64  cp310-*64  cp311-*64
+          CIBW_BUILD:  cp311-*64
+          #CIBW_BUILD:  cp39-*64  cp310-*64  cp311-*64  cp312-*64  cp313-*64
 
           # Disable building PyPy wheels on all platforms.
           # Enable if you get it working.
@@ -94,7 +94,7 @@ jobs:
       - uses: pypa/gh-action-pypi-publish@release/v1
         with:
           user: __token__
-          password: ${{ secrets.pypi_token }}
+          password: ${{ secrets.test_pypi_token }}
           # Use https://test.pypi.org instead of the default pypi:
-          #repository-url: https://test.pypi.org/legacy/
+          repository-url: https://test.pypi.org/legacy/
           packages-dir: estnltk-neural-pypi-packages
