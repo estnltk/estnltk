@@ -29,7 +29,7 @@ jobs:
         uses: conda-incubator/setup-miniconda@v3
         with:
           auto-update-conda: true
-          python-version: "3.10"
+          python-version: "3.11"
           channels: anaconda, conda-forge
           miniconda-version: "latest"
           activate-environment: building
@@ -54,7 +54,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: estnltk_core/ec_channel
-          key: estnltk-core-channel-2024-06-13-1
+          key: estnltk-core-channel-2025-01-22-1
           enableCrossOsArchive: true
 
       - name: Build estntlk_core conda package
@@ -91,7 +91,7 @@ jobs:
           auto-activate-base: true
           activate-environment: true
           auto-update-conda: true
-          python-version: "3.10"
+          python-version: "3.11"
           channels: anaconda, conda-forge
           miniconda-version: "latest"
 
