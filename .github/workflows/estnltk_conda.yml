@@ -22,8 +22,8 @@ jobs:
         # due to bug: 
         #   https://github.com/s-weigand/setup-conda/issues/432
         #
-        os: [ubuntu-latest, windows-latest, macos-12]
-        #os: [ubuntu-latest, windows-latest, macos-latest]
+        #os: [ubuntu-latest, windows-latest, macos-13]
+        os: [ubuntu-latest, windows-latest, macos-latest]
         python-version: ['3.9']
         #python-version: ['3.10', '3.11']
 
