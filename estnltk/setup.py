@@ -179,7 +179,8 @@ setup(
         'estnltk.taggers.standard.text_segmentation': ['*.csv'], 
         'estnltk.taggers.miscellaneous':  ['*.csv', 
                                            'verb_chains/v1_4_1/res/*.*'],
-        'estnltk.tests.converters': ['*.conll'], 
+        'estnltk.tests.converters': ['labelstudio/imports/*.json',
+                                     '*.conll'], 
         'estnltk.tests.corpus_processing': ['*.vert'], 
         'estnltk.tests.taggers': ['standard/morph_analysis/*.csv',
                                   'standard/syntax/preprocessing/*.txt',
@@ -201,7 +202,7 @@ setup(
     description="Estnltk — open source tools for Estonian natural language processing",
     long_description=open('README.md', errors='replace').read(),
     long_description_content_type='text/markdown',
-    license="GPLv2",
+    license="Dual License: GPL-2.0 or Apache-2.0",
     url="https://github.com/estnltk/estnltk",
     ext_modules=[
         Extension('estnltk.vabamorf._vabamorf',
@@ -217,7 +218,7 @@ setup(
     # we have fixed dependency versions to guarantee, what works
     # however, you can probably safely install newer versions of the dependencies
     install_requires=[
-        'estnltk-core >= 1.7.3',   # EstNLTK's basic datastructures and conversion methods
+        'estnltk-core >= 1.7.4',   # EstNLTK's basic datastructures and conversion methods
         'nltk>=3.4.1',             # NLTK mainly required for tokenization
         'regex>=2015.07.19',       # improved Python regular expressions
         'python-crfsuite>=0.8.3',  # Conditional random fields library
@@ -233,6 +234,7 @@ setup(
         'conllu',                  # CONLLU for syntax
         'pandas',                  # Panel Data Analysis library for Python
         'pyahocorasick',           # Fast multi-pattern string search 
+        'packaging'                # Required for version checking
     ],
     classifiers=['Intended Audience :: Developers',
                  'Intended Audience :: Education',
@@ -243,6 +245,7 @@ setup(
                  'Programming Language :: Python :: 3.10',
                  'Programming Language :: Python :: 3.11',
                  'Programming Language :: Python :: 3.12',
+                 'Programming Language :: Python :: 3.13',
                  'Topic :: Scientific/Engineering',
                  'Topic :: Scientific/Engineering :: Artificial Intelligence',
                  'Topic :: Scientific/Engineering :: Information Analysis',

@@ -26,12 +26,13 @@ setup(
     description="EstNLTK core - basic data structures and components of the EstNLTK library",
     long_description=open('README.md', errors='replace').read(),
     long_description_content_type='text/markdown',
-    license="GPLv2",
+    license="Dual License: GPL-2.0 or Apache-2.0",
     url="https://github.com/estnltk/estnltk",
     install_requires=[
         'regex>=2015.07.19', # improved Python regular expressions
         'networkx',          # building graphs: required for layers
         'pandas',            # Panel Data Analysis library for Python
+        'packaging'          # Required for version checking
     ],
     classifiers=['Intended Audience :: Developers',
                  'Intended Audience :: Education',
@@ -42,6 +43,7 @@ setup(
                  'Programming Language :: Python :: 3.10',
                  'Programming Language :: Python :: 3.11',
                  'Programming Language :: Python :: 3.12',
+                 'Programming Language :: Python :: 3.13',
                  'Topic :: Scientific/Engineering',
                  'Topic :: Scientific/Engineering :: Artificial Intelligence',
                  'Topic :: Scientific/Engineering :: Information Analysis',

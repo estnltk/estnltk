@@ -17,6 +17,7 @@ requirements:
     - regex >=2015.11.22
     - networkx
     - pandas
+    - packaging
 
   run:
     - python 
@@ -24,6 +25,7 @@ requirements:
     - networkx
     - pandas
     - IPython
+    - packaging
 
 about:
   home: https://github.com/estnltk/estnltk

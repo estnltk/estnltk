@@ -477,6 +477,10 @@ class MorphAnalysisReorderer(Retagger):
            This can be used to store metadata on layer tagging.
         """
         morph_analysis = layers[ self.output_layer ]
+        if 'lemma' not in morph_analysis.attributes:
+            raise Exception(f'(!) Missing attribute "lemma" in input layer {self.output_layer!r}. '+\
+                            'Reordering ambiguous analyses is currently implemented only for '+\
+                            'lemma-based morphological analyses.')
         for morph_word in morph_analysis:
             if len(morph_word.annotations) == 1:
                 # We have only one annotation: on we go, to the next word!

@@ -1,4 +1,4 @@
-from typing import MutableMapping
+from typing import MutableMapping, Union
 
 from transformers import AutoTokenizer
 from transformers import AutoModelForTokenClassification
@@ -31,7 +31,9 @@ class EstBERTNERTagger(MultiLayerTagger):
                        batch_size:int=1750, 
                        postfix_expand_suffixes:bool=False, 
                        postfix_concat_same_type_entities:bool=False, 
-                       postfix_remove_infix_matches:bool=False):
+                       postfix_remove_infix_matches:bool=False, 
+                       device: Union[int, "torch.device"] = None 
+                       ):
         """
         Initializes EstBERTNERTagger.
         
@@ -84,6 +86,11 @@ class EstBERTNERTagger(MultiLayerTagger):
             "Te[ma]" -> "Tema", "[L]A[P]S[E]P[Õ]LVEKODU" -> "LAPSEPÕLVEKODU". 
             These postcorrections are only required if custom_words_layer == None. 
             Default: False.
+        device: int
+            The device argument to be passed to transformers.pipeline. Optional, defaults to -1. 
+            According to transformers' documentation: "Device ordinal for CPU/GPU supports. Setting 
+            this to -1 will leverage CPU, a positive will run the model on the associated CUDA 
+            device id. You can pass native `torch.device` or a `str` too."
         """
         if model_location is None:
             # Try to get the resources path for berttagger. Attempt to download, if missing
@@ -101,7 +108,7 @@ class EstBERTNERTagger(MultiLayerTagger):
         tokenizer = AutoTokenizer.from_pretrained(self.model_location, model_max_length=512)
         bertner = AutoModelForTokenClassification.from_pretrained(self.model_location)
 
-        self.nlp = pipeline("ner", model=bertner, tokenizer=tokenizer)
+        self.nlp = pipeline("ner", model=bertner, tokenizer=tokenizer, device=device)
         self.tokenizer = tokenizer
         self.batch_size = batch_size
         

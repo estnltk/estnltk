@@ -227,7 +227,7 @@ def conll_to_texts_list(file: str, syntax_layer: str = 'conll_syntax', postcorre
                         texts[-1].add_layer(words_layers[-1])
                         texts[-1].add_layer(sentences_layers[-1])
                         texts[-1].add_layer(syntax_layers[-1])
-                        SyntaxDependencyRetagger(conll_syntax_layer=syntax_layer).retag( texts[-1] )
+                        SyntaxDependencyRetagger(syntax_layer=syntax_layer).retag( texts[-1] )
                         # 2) Initiate a new Text object
                         cur = 0
                         t = []

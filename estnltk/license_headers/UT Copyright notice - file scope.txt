@@ -1,8 +1,12 @@
-Copyright 2015 University of Tartu and Author(s):
+Copyright 2015 University of Tartu and Author(s)
 
+This file is part of Estnltk. It is available under dual license - either GNU General Public License v2.0 or Apache 2.0 License. 
+See the LICENSE file at the top-level directory of this distribution. 
 
-This file is part of Estnltk. It is available under the license of GPLv2 found in the top-level directory of this distribution and at http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html . No part of this file, may be copied, modified, propagated, or distributed except according to the terms contained in the license.
+Full copy of GNU General Public License v2.0 can be found at http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html .
 
+Full copy of Apache 2.0 License can be found at http://www.apache.org/licenses/LICENSE-2.0 .
 
+No part of this file, may be copied, modified, propagated, or distributed except according to the terms contained in the license.
 
 This software is distributed on an "AS IS" basis, without warranties or conditions of any kind, either express or implied.

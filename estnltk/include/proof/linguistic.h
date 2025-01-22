@@ -37,6 +37,7 @@ public:
 	DECLARE_FSNOCOPY(CLinguistic);
 
 	CLinguistic() :
+		m_bStem(false), // TV-2024.02.03
 		m_bAbbrevations(true), m_bRomanNumerals(true),
 		m_bGuess(false), m_bPhonetic(false),
 		m_bProperName(false), m_bCombineWords(false),
@@ -104,6 +105,12 @@ public:
 	CFSArray<CMorphInfo> Synthesize(const CMorphInfo &MorphInfo, CFSWString szHint);
 
 public:
+/** TV-2024.02.03
+* true: morf analüüsi väljundis tüvi; false: morf analüüsi väljundis lemma, vaikeväärtus
+* Applies to Analyze
+*/
+	bool m_bStem;
+
 /**
 * Analyze abbrevations stricktly. Applies to Spell, Analyze
 */

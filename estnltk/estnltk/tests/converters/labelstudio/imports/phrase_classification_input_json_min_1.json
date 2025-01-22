@@ -1,0 +1,30 @@
+[
+  {
+    "text": "Koer tuletas omanikule meelde, et uus kass, mille peremees võtab, ei tohi olla ilusam kui vana",
+    "id": 3008,
+    "phrase": [
+      {
+        "start": 0,
+        "end": 4,
+        "text": "Koer",
+        "labels": [
+          "koer"
+        ]
+      },
+      {
+        "start": 38,
+        "end": 42,
+        "text": "kass",
+        "labels": [
+          "kass"
+        ]
+      }
+    ],
+    "phrase_class": "No",
+    "annotator": 1,
+    "annotation_id": 17,
+    "created_at": "2024-05-17T10:08:53.339812Z",
+    "updated_at": "2024-05-17T10:09:04.135250Z",
+    "lead_time": 8.304
+  }
+]

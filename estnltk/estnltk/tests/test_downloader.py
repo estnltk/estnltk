@@ -86,9 +86,12 @@ def test_resource_file_download():
         delete_resource(resource_name)
 
 
+@pytest.mark.filterwarnings("ignore:(!) Error at parsing estnltk's version specifier")
 def test_estnltk_version_checking_smoke():
     # Test estnltk's version checking component works
     # (this is used by the get_resource_paths function)
+
+    # Basic/canonical version specifiers
     assert _check_version('my_resource', 'estnltk', '>1.4.1')
     assert _check_version('my_resource', 'estnltk_core', '>=1.4.1.1')
     result = _check_version('my_resource', 'estnltk', '<1.4')
@@ -99,3 +102,15 @@ def test_estnltk_version_checking_smoke():
     assert _check_version('my_resource', 'estnltk', '> 1.6.9.1, <30.0.0')
     result = _check_version('my_resource', 'estnltk', '<3.0.0, > 2.0.0')
     assert result is not None and not result  # returns False, but not None
+    # Erroneous version specifier
+    with pytest.warns(UserWarning):
+        # UserWarning("(!) Error at parsing estnltk's version specifier for 'my_resource' : 
+        # unable to extract a version string from 'dadadaaa'.")
+        assert _check_version('my_resource', 'estnltk', 'dadadaaa') is None
+    # Beta version specifiers
+    result = _check_version('my_resource', 'estnltk', '>1.6.9b, >1.6.9.1b0')
+    assert result is not None and result  # returns True
+    # Exclude specific versions
+    result = _check_version('my_resource', 'estnltk', '!=1.7.0rc0, !=1.7.1')
+    assert result is not None and result  # returns True
+

@@ -12,7 +12,7 @@ This package contains EstNLTK's basic linguistic analysis, system and database t
 * tokenization tools: word, sentence and paragraph tokenization; clause segmentation; 
 * morphology tools: morphological analysis and disambiguation, spelling correction, morphological synthesis and syllabification, HFST based analyser, GT and UD converters;
 * information extraction tools: addresses tagger, named entity recognizer, temporal expression tagger; tools for rule based and grammar based fact extraction;
-* experimental taggers: verb chain detector, noun phrase chunker, adjective phrase tagger;
+* experimental taggers: verb chain detector, noun phrase chunker, adjective phrase tagger, PropBank semantic roles tagger;
 * syntactic analysis tools: preprocessing for syntactic analysis, VislCG3 and Maltparser based syntactic parsers;
 * Estonian Wordnet and Collocation-Net;
 * web taggers -- such as bert embeddings web tagger, neural named entity recognition web tagger, stanza syntax web tagger and stanza ensemble syntax web tagger;
@@ -25,11 +25,11 @@ This package contains EstNLTK's basic linguistic analysis, system and database t
 
 ### Installation
 
-EstNLTK is available for osx, windows-64, and linux-64, and for python versions 3.9 to 3.12. 
+EstNLTK is available for osx, windows-64, and linux-64, and for python versions 3.9 to 3.13. 
 You can install the latest version via PyPI:
 
 ```
-pip install estnltk==1.7.3
+pip install estnltk==1.7.4
 ```
 
 Alternatively, you can install EstNLTK via [Anaconda](https://www.anaconda.com/download). Installation steps with conda:
@@ -46,7 +46,7 @@ conda activate py310
 
 3. install EstNLTK with the command:
 ```
-conda install -c estnltk -c conda-forge estnltk=1.7.3
+conda install -c estnltk -c conda-forge estnltk=1.7.4
 ```
 
 _Note_: for using some of the tools in estnltk, you also need to have Java installed in your system. We recommend using Oracle Java http://www.oracle.com/technetwork/java/javase/downloads/index.html, although alternatives such as OpenJDK (http://openjdk.java.net/) should also work.
@@ -56,7 +56,7 @@ _Note_: for using some of the tools in estnltk, you also need to have Java insta
 You can install EstNLTK on [Google Colab](https://colab.research.google.com) environment via command:
 
 ```
-!pip install estnltk==1.7.3
+!pip install estnltk==1.7.4
 ```
 
 ### Documentation
@@ -93,8 +93,9 @@ In case you use EstNLTK in your work, please cite us as follows:
       url       = {https://www.aclweb.org/anthology/2020.lrec-1.884}
     }
 
----
+## License
 
-License: GNU General Public License v2.0
+EstNLTK is released under dual license - either GNU General Public License v2.0 or 
+Apache 2.0 License. 
 
 (C) University of Tartu  

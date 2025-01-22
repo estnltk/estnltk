@@ -17,3 +17,5 @@ Other converters listed here provide either application specific data import/exp
 * [`tcf`](tcf) -- tools for converting Text objects to  Weblicht's [TCF XML format](https://weblicht.sfs.uni-tuebingen.de/weblichtwiki/index.php/The_TCF_Format), and restoring Text objects from the same format;
 
 * [`conll`](conll) -- tools for importing Text objects from CONLL format files, and exporting to the same format. Allow to export/import syntactic analysis annotations, and named entity annotations;
+
+* [`label_studio`](label_studio) -- tools for exporting Text objects' annotations to [Labelstudio](https://labelstud.io/) format, and importing back from the same format. Currently supported tasks: phrase labelling, text/sentence/word classification;

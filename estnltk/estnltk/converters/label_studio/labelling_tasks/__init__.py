@@ -1,0 +1,2 @@
+from estnltk.converters.label_studio.labelling_tasks.phrase_tagging_task import PhraseTaggingTask
+from estnltk.converters.label_studio.labelling_tasks.phrase_classification_task import PhraseClassificationTask

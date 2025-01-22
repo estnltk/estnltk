@@ -8,7 +8,7 @@ While many of the components are part of the default pipeline (callable via _def
 
 * [A_text_segmentation](A_text_segmentation/) tutorials give details about segmenting texts into tokens, compound tokens, words, sentences, paragraphs and clauses.
 
-* [B_morphology](B_morphology/) tutorials describe morphological analysis tools (Vabamorf, text-based and corpus-based disambiguator, user dictionary tagger, UD and GT converters; HFST-based analyser), morphological synthesis, spelling correction and syllabification.
+* [B_morphology](B_morphology/) tutorials describe morphological analysis tools (Vabamorf, text-based and corpus-based disambiguator, user dictionary tagger, UD and GT converters; HFST-based analyser; Bert-based morphological tagger and GliLem lemmatizer/disambiguator), morphological synthesis, spelling correction, stemming, compound word detection and syllabification.
 
 * [C_syntax](C_syntax/) tutorials give information about preprocessing for syntactic analysis and syntactic analysers, available models and utilities for comparing and validating syntactic annotations.
 
@@ -18,6 +18,6 @@ While many of the components are part of the default pipeline (callable via _def
 
 * [F_annotation_consistency](F_annotation_consistency/) tutorials describe tools for detecting inconsistencies between different linguistic annotations and for repairing annotations;
 
-* [X_miscellaneous](X_miscellaneous/) and experimental language analysers: verb chain detector, noun phrase chunker, date and number taggers for medical texts,  adjective phrase tagger and Flesch reading ease score tagger.
+* [X_miscellaneous](X_miscellaneous/) and experimental language analysers: verb chain detector, noun phrase chunker, classifying oblique phrases into times and locations, lexicon-based tagging of PropBank semantic roles, date and number taggers for medical texts, adjective phrase tagger and Flesch reading ease score tagger.
 
 

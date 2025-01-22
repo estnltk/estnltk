@@ -3,6 +3,42 @@
 
 All notable changes to this project will be documented in this file.
 
+# [1.7.4] - 2025-01-22
+
+## Changed
+
+* Changed licensing: EstNLTK is now dual licensed: choose either [GNU General Public License v2.0](http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html) or [Apache 2.0 License](http://www.apache.org/licenses/LICENSE-2.0). 
+* Updated `resource_utils`: removed rudimentary version constraints checking; version constraints are now checked with the [packaging](https://packaging.pypa.io/) utility which is a new dependency of EstNLTK;
+* Refactored `estnltk.vabamorf.morf` module:
+	* Removed legacy `deconvert` function;
+	* Removed legacy shortcut functions `analyze` and `disambiguate` (use `VabamorfInstance.analyze` and `VabamorfInstance.disambiguate`) instead;
+* Changed `syllabify_word`: it now uses stem-based morph analysis for compound word splitting (removed rudimentary and error-prone compound word splitting heuristic);
+* Changed `BertTokens2WordsRewriter`: it can now also create a sublayer of the words layer, mapping each word to corresponding Bert embeddings, and added a constructor parameter <code>ambiguous</code> to control whether the output layer is ambiguous or not. In case unambiguous output (the default setting), the decorator function is expected to assign a single annotation (dictionary) to each span of the output layer, otherwise, the decorator must return a list of annotations.
+* Updated `EstBERTNERTagger`: added `device` argument for [switching between cpu and gpu in transformers pipeline](https://huggingface.co/transformers/v3.0.2/main_classes/pipelines.html#transformers.Pipeline);
+* Remove `PropBankPreannotator`'s lexicon from the package and made it available as a downloadable resource; 
+* Updated `PropBankPreannotator`: added flag `discard_overlapped_frames` for removing entirely overlapped frames; Note: this is a heuristic and not entirely unharmful. Removing overlapped frames can reduce redundant frames roughly 9 %pt, but with a cost of decreasing correct frame detection accuracy 0.3 %pt (based on measurements on EDT-UD corpus). For evaluation of `PropBankPreannotator`, see notebook [this repository](https://github.com/estnltk/estnltk-model-data/tree/main/propbank_sem_roles).
+
+## Added
+
+* Added stem-based morphological analysis (and disambiguation) option to Vabamorf instance. Modified `VabamorfTagger` & its sub-components: and added stem-based morph_analysis option (flag `stem`). See [this tutorial](https://github.com/estnltk/estnltk/blob/0886be3ecbc5548827e0a70e4cef0f1aa313798b/tutorials/nlp_pipeline/B_morphology/02_morphological_analysis_stem_based.ipynb) for details; 
+	* Be aware that there is _no lemma_ in the output of stem-based morphological analysis. This is also hinders the usability of the stem-based analysis by other tools in EstNLTK, because most of the tools require lemma-based morphological analysis.
+* Added `CompoundWordTagger` for tagging linguistic compound word/subword boundaries on words. Details in the [tutorial](https://github.com/estnltk/estnltk/blob/0886be3ecbc5548827e0a70e4cef0f1aa313798b/tutorials/nlp_pipeline/B_morphology/compound_word_detection.ipynb);
+* Added [packaging](https://packaging.pypa.io/) dependency to `estnltk_core` & `estnltk` (this is required for checking versions of Python packages used by EstNLTK).
+* Added `GrammarCorrectorWebTagger` which tags grammatical error correction suggestions via TartuNLP's ws, see details in [this tutorial](https://github.com/estnltk/estnltk/blob/179ea6865383a3a349195907fb85b1da01c96eba/tutorials/taggers/web_taggers/web_taggers.ipynb);
+* Added `BertMorphTagger` which tags part-of-speech and morphological form features in Estonian texts using Vabamorf's tagset, leveraging a fine-tuned Bert model. The tagger can also be used as a disambiguator to resolve ambiguities of an existing morphological analysis layer that uses Vabamorf's tagset. For details, see [this tutorial](https://github.com/estnltk/estnltk/blob/752ec7276b891c5d754433286058f26f9c973e74/tutorials/nlp_pipeline/B_morphology/08_bert_based_morph_tagger.ipynb). Note that `BertMorphTagger` depends on [sentencepiece](https://pypi.org/project/sentencepiece/), which won't be installed automatically with `estnltk-neural`, but needs to be installed manually;
+* Added `GliLemTagger` which enhances Vabamorf's lemmatizer with an external disambiguation module based on GliNER and can either improve the lemmatization accuracy or provide an alternative lemmatization. The tagger can also be used as a disambiguator to resolve lemma ambiguities of an existing morphological analysis layer. For details, see [this tutorial](https://github.com/estnltk/estnltk/blob/b074fefa6597df7d6981b7920ca19a3621afbc0d/tutorials/nlp_pipeline/B_morphology/08_glilem_lemmatizer_and_disambiguator.ipynb). Note that `GliLemTagger` depends on [gliner](https://pypi.org/project/gliner/), which won't be installed automatically with `estnltk-neural`, but needs to be installed manually;
+* Added a tutorial about using [TimeLocTagger](https://github.com/estnltk/estnltk/blob/179ea6865383a3a349195907fb85b1da01c96eba/tutorials/nlp_pipeline/X_miscellaneous/03_time_and_location_adverbials.ipynb) -- an experimental tagger which can be used to classify oblique phrases into time and location adverbials;
+* Added a tutorial about [PropBankPreannotator](https://github.com/estnltk/estnltk/blob/179ea6865383a3a349195907fb85b1da01c96eba/tutorials/nlp_pipeline/X_miscellaneous/04_propbank_semantic_roles_preannotation.ipynb), which tags Estonian PropBank semantic roles based on a (manually-crafted) lexicon; 
+* Added `converters.label_studio` `PhraseTaggingTask` & `PhraseClassificationTask` for importing/exporting [Labelstudio](https://labelstud.io/) annotations. For usage details, see [this tutorial](https://github.com/estnltk/estnltk/blob/179ea6865383a3a349195907fb85b1da01c96eba/tutorials/converters/labelstudio_exporter_importer.ipynb).
+
+## Fixed
+
+* Bugfix in `conll_to_texts_list`;
+* Fixed issue [#122](https://github.com/estnltk/estnltk/issues/122): `SentenceTokenizer`'s base tokenizer now uses resources from `"punkt_tab"` (so estnltk is now compatible with `nltk > 3.8.1`);
+* Bugfix in `StanzaSyntaxTagger`: do not crash if the input is accidentially missing `'xpos'` (affects only `input_type='sentences'`);
+* Fix in `resource_utils._normalize_resource_size`: resource sizes smaller than 1M will be normalized properly now; 
+
+
 # [1.7.3] - 2024-06-10
 
 ## Changed

@@ -314,6 +314,45 @@ def test_stanza_syntax_tagger_sentences():
 
 @unittest.skipIf(STANZA_SYNTAX_MODELS_PATH is None,
                  reason=skip_message_missing_models)
+def test_stanza_syntax_tagger_sentences_bugfix():
+    # Test bug related to missing 'xpos' in stanza partofspeech tagger's output
+    text = Text("Umbes 262 000 4chani-kasutajat.")
+    # Add words layer with '262' and '000' tokenized separately
+    text.add_layer( \
+        dict_to_layer( {'ambiguous': True,
+                        'attributes': ('normalized_form',),
+                        'enveloping': None,
+                        'meta': {},
+                        'name': 'words',
+                        'parent': None,
+                        'secondary_attributes': (),
+                        'serialisation_module': None,
+                        'spans': [{'annotations': [{'normalized_form': None}], 'base_span': (0, 5)},
+                                  {'annotations': [{'normalized_form': None}], 'base_span': (6, 9)},
+                                  {'annotations': [{'normalized_form': None}], 'base_span': (10, 13)},
+                                  {'annotations': [{'normalized_form': None}], 'base_span': (14, 30)},
+                                  {'annotations': [{'normalized_form': None}], 'base_span': (30, 31)}]} ) )
+    text.tag_layer('sentences')
+    # Apply stanza's original et pipeline (on tokenized unambigous input)
+    stanza_tagger = StanzaSyntaxTagger(input_type='sentences',
+                                       random_pick_seed=4,
+                                       resources_path=STANZA_SYNTAX_MODELS_PATH,
+                                       depparse_path=os.path.join(STANZA_SYNTAX_MODELS_PATH,
+                                                                  'et', 'depparse', 'stanza_depparse.pt'))
+    stanza_tagger.tag(text)
+    annotations = [(w.text, w.annotations[0]) for w in text[stanza_tagger.output_layer]]
+    pos_annotations = [(w, ann['upostag'], ann['xpostag']) for (w, ann) in annotations]
+    # Assert that missing 'xpos' will be indicated by '_'
+    assert pos_annotations == \
+            [('Umbes', 'ADV', 'D'), 
+             ('262', 'NUM', 'N'), 
+             ('000', 'X', '_'), 
+             ('4chani-kasutajat', 'NOUN', 'S'), 
+             ('.', 'PUNCT', 'Z')]
+
+
+@unittest.skipIf(STANZA_SYNTAX_MODELS_PATH is None,
+                 reason=skip_message_missing_models)
 def test_stanza_syntax_tagger_analysis():
     text = Text('Väike jänes jooksis metsa! Mina ei jookse.')
 

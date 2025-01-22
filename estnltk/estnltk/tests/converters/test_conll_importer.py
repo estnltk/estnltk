@@ -297,6 +297,63 @@ def test_conll_importers():
     assert text_to_dict(text) == text_dict
 
 
+input_conll_syntax_texts_list_str = \
+'''
+# sent_id = aja_horisont2000_911
+# text = Naabruses elasid organiseeritult karatšaid ja balkaarid.
+1	Naabruses	naabrus	S	S	com=com|sg=sg|in=in	2	obl	_	_
+2	elasid	elama	V	V	mod=mod|indic=indic|impf=impf|ps2=ps2|sg=sg|ps=ps|af=af	0	root	_	_
+3	organiseeritult	organiseeritult	D	D	_	2	advmod	_	_
+4	karatšaid	karatšai	S	S	com=com|pl=pl|nom=nom	2	nsubj	_	_
+5	ja	ja	J	J	sub=sub|crd=crd	6	cc	_	_
+6	balkaarid	balkaar	S	S	com=com|pl=pl|nom=nom	4	conj	_	_
+7	.	.	Z	Z	_	2	punct	_	_
+
+# sent_id = aja_luup200009_973
+# text = Surnu pistis jooksu ja koer järele.
+1	Surnu	surnu	S	S	com=com|sg=sg|nom=nom	2	nsubj	_	_
+2	pistis	pistma	V	V	main=main|indic=indic|impf=impf|ps3=ps3|sg=sg|ps=ps|af=af	0	root	_	_
+3	jooksu	jooks	S	S	com=com|sg=sg|adit=adit	2	obl	_	_
+4	ja	ja	J	J	sub=sub|crd=crd	5	cc	_	_
+5	koer	koer	S	S	com=com|sg=sg|nom=nom	2	conj	_	_
+5.1	pistis	pistma	V	V	aux=aux|indic=indic|impf=impf|ps3=ps3|sg=sg|ps=ps|af=af	_	_	_	_
+6	järele	järele	D	D	_	5	orphan	_	_
+7	.	.	Z	Z	_	2	punct	_	_
+'''
+
+@pytest.mark.skipif(not check_if_conllu_is_available(),
+                    reason="package conllu is required for this test")
+def test_conll_importer_texts_list():
+    # Smoke test importing multiple texts
+    from estnltk.converters.conll.conll_importer import conll_to_texts_list
+    
+    # Write example conll texts into tempfile
+    fp = tempfile.NamedTemporaryFile(mode='w', encoding='utf-8', suffix='.conll', delete=False)
+    fp.write( input_conll_syntax_texts_list_str )
+    fp.close()
+    
+    different_texts = None
+    try:
+        different_texts = conll_to_texts_list(fp.name, syntax_layer='syntax')
+    finally:
+        # clean up: remove temporary file
+        os.remove(fp.name)
+    assert not os.path.exists(fp.name)
+
+    assert different_texts is not None
+    assert len(different_texts) == 2
+    
+    for tid, text in enumerate(different_texts):
+        words = [sp.text for sp in text['words']]
+        syntax_words = [sp.text for sp in text['syntax']]
+        assert words == syntax_words
+        if tid == 0:
+            assert words == \
+                ['Naabruses', 'elasid', 'organiseeritult', 'karatšaid', 'ja', 'balkaarid', '.']
+        elif tid == 1:
+            assert words == ['Surnu', 'pistis', 'jooksu', 'ja', 'koer', 'järele', '.']
+
+
 input_conll_syntax_with_empty_nodes_str = \
 '''
 # sent_id = aja_luup200009_511

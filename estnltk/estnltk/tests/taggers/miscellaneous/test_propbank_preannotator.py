@@ -9,11 +9,15 @@ from estnltk import Text
 from estnltk.converters import text_to_dict
 from estnltk.converters import layer_to_dict, dict_to_layer
 
-from estnltk.taggers.miscellaneous.propbank.preannotator import DEFAULT_LEXICON
+from estnltk.downloader import get_resource_paths
+
 from estnltk.taggers.miscellaneous.propbank.preannotator import PropBankPreannotator
 
-@pytest.mark.skipif(not os.path.exists(DEFAULT_LEXICON),
-                    reason="missing propbank lexicon. lexicon file is required for this test")
+# Try to get the resources path for propbankpreannotator. If missing, do nothing. It's up for the user to download the missing resources
+DEFAULT_LEXICON = get_resource_paths("propbankpreannotator", only_latest=True, download_missing=False)
+
+@pytest.mark.skipif(DEFAULT_LEXICON is None, 
+                    reason="Missing propbank lexicon. Use estnltk.download('propbankpreannotator') to fetch the missing resources.")
 def test_propbank_preannotator_smoke():
     # Smoke test PropBankPreannotator
     prop_annotator = PropBankPreannotator(input_syntax_layer='stanza_syntax', add_arg_descriptions=True)

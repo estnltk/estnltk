@@ -11,7 +11,7 @@
     
     * [text_segmentation](nlp_pipeline/A_text_segmentation) -- taggers for splitting text into tokens, words, sentences, paragraphs and clauses;
     
-    * [morphological processing](nlp_pipeline/B_morphology) -- morphological analysis, disambiguation and synthesis; lemmatisation; spelling correction and syllabification;
+    * [morphological processing](nlp_pipeline/B_morphology) -- morphological analysis, disambiguation and synthesis; lemmatisation; compound word detection; spelling correction and syllabification;
 
     * [syntactic analysis](nlp_pipeline/C_syntax) -- preprocessing for syntax and syntactic analysers; available models; utilities for comparing and validating syntactic annotations;
 
@@ -21,7 +21,7 @@
 
     * [web taggers](taggers/web_taggers/web_taggers.ipynb): EstNLTK's taggers that are available (or can be made available) as web services.
 
-    * [miscellaneous language analysers and experimental tools](nlp_pipeline/X_miscellaneous): verb chain detector, noun phrase chunker, date and number taggers for medical texts,  adjective phrase tagger and Flesch reading ease score tagger.
+    * [miscellaneous language analysers and experimental tools](nlp_pipeline/X_miscellaneous): verb chain detector, noun phrase chunker; preliminary syntax-based semantic roles tagger and location and time phrase detector; date and number taggers for medical texts, adjective phrase tagger and Flesch reading ease score tagger.
 
     * [Estonian WordNet API](wordnet/wordnet.ipynb)
  

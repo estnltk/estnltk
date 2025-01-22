@@ -9,3 +9,4 @@ from estnltk.web_taggers.v01.stanza_syntax_ensemble_web_tagger import StanzaSynt
 from estnltk.web_taggers.v01.coreference_v1_web_tagger import CoreferenceV1WebTagger
 
 from estnltk.web_taggers.ner.ner_web_tagger import NerWebTagger
+from estnltk.web_taggers.grammar_corrector.grammar_corrector_web_tagger import GrammarCorrectorWebTagger

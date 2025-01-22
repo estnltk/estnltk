@@ -55,7 +55,10 @@ CFSArray<CFSVar> convertInput(StringVector const& sentence) {
 }
 
 // apply morphoanalysis settings to CLinguistics instance.
-void applyMorfSettings(CLinguistic& linguistic, const bool guess, const bool phonetic, const bool propername) {
+void applyMorfSettings(CLinguistic& linguistic, const bool guess, const bool phonetic, const bool propername, 
+    const bool stem = false  // TV-2024.02.03 selliselt backward compatible.
+    ) {
+    linguistic.m_bStem = stem; // TV-2024.02.03 
     linguistic.m_bProperName=propername;
     linguistic.m_bGuess=(guess || linguistic.m_bProperName);
     if (linguistic.m_bGuess) {
@@ -132,9 +135,12 @@ std::vector<WordAnalysis> Vabamorf::analyze(
     const bool disambiguate,
     const bool guess,
     const bool phonetic,
-    const bool propername) {
+    const bool propername,
+    const bool stem // TV-2024.02.03
+    ) {
 
-    applyMorfSettings(linguistic, guess, phonetic, propername);
+    applyMorfSettings(linguistic, guess, phonetic, propername,
+                                                    stem);  // TV-2024.02.03
     CFSArray<CFSVar> words = convertInput(sentence);
     addAnalysis(linguistic, disambiguator, words, disambiguate);
     return convertOutput(words);

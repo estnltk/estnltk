@@ -26,6 +26,7 @@ from estnltk.taggers.standard.text_segmentation.word_tagger import WordTagger
 from estnltk.taggers.standard.text_segmentation.sentence_tokenizer import SentenceTokenizer
 from estnltk.taggers.standard.text_segmentation.paragraph_tokenizer import ParagraphTokenizer
 from estnltk.taggers.standard.text_segmentation.compound_token_tagger import CompoundTokenTagger
+from estnltk.taggers.standard.text_segmentation.compound_word_tagger import CompoundWordTagger
 from estnltk.taggers.standard.text_segmentation.clause_segmenter import ClauseSegmenter
 from estnltk.taggers.standard.text_segmentation.whitespace_tokens_tagger import WhiteSpaceTokensTagger
 from estnltk.taggers.standard.text_segmentation.pretokenized_text_compound_tokens_tagger import PretokenizedTextCompoundTokensTagger

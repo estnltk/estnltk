@@ -6,6 +6,9 @@ from typing import MutableMapping
 
 import re
 
+from packaging.version import Version as pkg_Version
+from packaging.version import parse as parse_version
+
 from estnltk import SpanList
 from estnltk import Layer
 from estnltk.taggers import Tagger
@@ -426,23 +429,35 @@ class SentenceTokenizer( Tagger ):
         
         # 1) Set or initialize base sentence tokenizer
         import nltk as nltk
-        from nltk.tokenize.punkt import PunktSentenceTokenizer
         from nltk.tokenize.api import TokenizerI
-
+        from nltk.tokenize.punkt import PunktSentenceTokenizer
         self.base_sentence_tokenizer = None
         if not base_sentence_tokenizer:
             # If base tokenizer was not given by the user:
             #    Initialize NLTK's tokenizer
             #    use NLTK-s sentence tokenizer for Estonian, in case it is not 
             #    downloaded yet, try to download it first
-            try:
-                self.base_sentence_tokenizer = nltk.data.load('tokenizers/punkt/estonian.pickle')
-            except LookupError:
-                import nltk.downloader
-                nltk.downloader.download('punkt')
-            finally:
-                if self.base_sentence_tokenizer is None:
+            if parse_version(nltk.__version__) > pkg_Version('3.8.1'):
+                # NLTK version '3.9' and above
+                from nltk.tokenize.punkt import PunktTokenizer
+                try:
+                    self.base_sentence_tokenizer = PunktTokenizer(lang='estonian')
+                except LookupError:
+                    import nltk.downloader
+                    nltk.downloader.download('punkt_tab')
+                finally:
+                    if self.base_sentence_tokenizer is None:
+                        self.base_sentence_tokenizer = PunktTokenizer(lang='estonian')
+            else:
+                # NLTK version '3.8.1' and below
+                try:
                     self.base_sentence_tokenizer = nltk.data.load('tokenizers/punkt/estonian.pickle')
+                except LookupError:
+                    import nltk.downloader
+                    nltk.downloader.download('punkt')
+                finally:
+                    if self.base_sentence_tokenizer is None:
+                        self.base_sentence_tokenizer = nltk.data.load('tokenizers/punkt/estonian.pickle')
         else:
             # If base tokenizer was given by the user:
             #    check that it implements the correct interface

@@ -26,7 +26,7 @@ setup(
     description="EstNLTK neural -- EstNLTK's linguistic analysis based on neural models",
     long_description=open('README.md', errors='replace').read(),
     long_description_content_type='text/markdown',
-    license="GPLv2",
+    license="Dual License: GPL-2.0 or Apache-2.0",
     # the list of package data used by "build", "bdist" and "install"
     include_package_data=True,
     package_data={
@@ -35,8 +35,8 @@ setup(
     },
     url="https://github.com/estnltk/estnltk",
     install_requires=[
-        'estnltk-core >= 1.7.3', # EstNLTK's basic data structures and conversion methods
-        'estnltk >= 1.7.3',      # EstNLTK's NLP pipelines and database tools
+        'estnltk-core >= 1.7.4', # EstNLTK's basic data structures and conversion methods
+        'estnltk >= 1.7.4',      # EstNLTK's NLP pipelines and database tools
         'torch',
         'transformers',
         'stanza',

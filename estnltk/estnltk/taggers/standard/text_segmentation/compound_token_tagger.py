@@ -3,6 +3,15 @@
 #  tokens should be joined together (as compound_tokens).
 #  In later analysis, tokens and compound_tokens layers 
 #  are used for creating the words layer.
+#  
+#  For instance, joins together date tokens (e.g. 
+#  ['02', '.', '02', '.', '2010'] -> '02.02.2010') 
+#  and joins separated case endings with words (e.g. 
+#  ['10', '000', '-', 'st'] --> '10000-st').
+#  
+#  Not to be confused with CompoundWordTagger, which 
+#  marks linguistic compound word boundaries inside 
+#  words.
 # 
 
 import regex as re

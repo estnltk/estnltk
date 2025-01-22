@@ -3,11 +3,13 @@ EstNLTK neural -- EstNLTK's linguistic analysis based on neural models
 
 This package contains EstNLTK's linguistic analysis tools that use neural models:
 
-* neural morphological tagger ( disambiguator );
 * bert embeddings tagger;
 * bert-based named entity recognition;
+* bert-based morphological features tagger and disambiguator;
+* GliLem lemmatizer and morphological disambiguator;
 * stanza syntax tagger and stanza ensemble syntax tagger;
 * pronominal coreference tagger v1 (relies on stanza for input preprocessing);
+* [legacy] tensorflow-based neural morphological features tagger ( disambiguator );
 
 Note: these tools require installation of deep learning frameworks (`tensorflow`, `pytorch`), and are demanding for computational resources; they also rely on large models which need to be downloaded separately. 
 
@@ -37,14 +39,25 @@ If needed, you can also change the default location where downloaded models will
 
 ### Documentation
 
-EstNLTK's [NLP component tutorials](https://github.com/estnltk/estnltk/tree/main/tutorials/nlp_pipeline) also cover information about neural taggers. 
+EstNLTK's [NLP component tutorials](https://github.com/estnltk/estnltk/tree/main/tutorials/nlp_pipeline) also cover information about neural taggers:
+
+* [bert embeddings tagger](https://github.com/estnltk/estnltk/blob/main/tutorials/nlp_pipeline/E_embeddings/bert_embeddings_tagger.ipynb);
+* [named entity recognition (incl bert-based approaches)](https://github.com/estnltk/estnltk/blob/main/tutorials/nlp_pipeline/D_information_extraction/02_named_entities.ipynb);
+* [bert-based morphological features tagger and disambiguator](https://github.com/estnltk/estnltk/blob/b074fefa6597df7d6981b7920ca19a3621afbc0d/tutorials/nlp_pipeline/B_morphology/08_bert_based_morph_tagger.ipynb);
+* [GliLem lemmatizer and morphological disambiguator](https://github.com/estnltk/estnltk/blob/b074fefa6597df7d6981b7920ca19a3621afbc0d/tutorials/nlp_pipeline/B_morphology/08_glilem_lemmatizer_and_disambiguator.ipynb);
+* [stanza-based syntax taggers](https://github.com/estnltk/estnltk/blob/main/tutorials/nlp_pipeline/C_syntax/03_syntactic_analysis_with_stanza.ipynb);
+* [pronominal coreference tagger v1](https://github.com/estnltk/estnltk/blob/main/tutorials/nlp_pipeline/D_information_extraction/04_pronominal_coreference.ipynb);
+* [\[legacy\] tensorflow-based neural morphological features tagger ( disambiguator )](https://github.com/estnltk/estnltk/blob/main/tutorials/nlp_pipeline/B_morphology/08_neural_morph_tagger_py37.ipynb)
+
 
 ### Source
 
 The source of the last release is available at the [main branch](https://github.com/estnltk/estnltk/tree/main/estnltk_neural).
 
----
+## License
 
-License: GNU General Public License v2.0
+EstNLTK-neural is released under dual license - either GNU General Public License v2.0 or Apache 2.0 License. 
 
-(C) University of Tartu  
+EstNLTK-neural's GliLem lemmatizer and morphological disambiguator contains code that is licensed under Mozilla Public License 2.0 (MPL 2.0).
+
+(C) University of Tartu (unless specified otherwise in the file headers)

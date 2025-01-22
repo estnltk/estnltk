@@ -14,13 +14,13 @@ build:
 requirements:
   build:
     - python 
-    - estnltk_core >=1.7.3
-    - estnltk >=1.7.3
+    - estnltk_core >=1.7.4
+    - estnltk >=1.7.4
 
   run:
     - python 
-    - estnltk_core >=1.7.3
-    - estnltk >=1.7.3
+    - estnltk_core >=1.7.4
+    - estnltk >=1.7.4
     - transformers
     - pytorch
     - stanza

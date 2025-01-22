@@ -16,7 +16,7 @@ build:
 requirements:
   build:
     - python 
-    - estnltk_core >=1.7.3
+    - estnltk_core >=1.7.4
     - swig >=3.0.8
     - nltk >=3.4.1
     - regex >=2015.11.22
@@ -27,9 +27,10 @@ requirements:
     - html5lib
     - networkx
     - lxml
+    - packaging
   run:
     - python
-    - estnltk_core >=1.7.3
+    - estnltk_core >=1.7.4
     - nltk >=3.4.1
     - regex >=2015.11.22
     - conllu >=3.1.1
@@ -45,6 +46,7 @@ requirements:
     - requests
     - matplotlib
     - pyahocorasick
+    - packaging
 
 about:
   home: https://github.com/estnltk/estnltk
