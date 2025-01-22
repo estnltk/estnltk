@@ -76,8 +76,8 @@ jobs:
           # which provides both x86_64 and arm64 in a single
           # wheel, it can take up to twice the size of the 
           # separate wheels -- this is to be avoided
-          #CIBW_ARCHS_MACOS: x86_64
-          CIBW_ARCHS_MACOS: x86_64 arm64
+          CIBW_ARCHS_MACOS: x86_64
+          #CIBW_ARCHS_MACOS: x86_64 arm64
 
 
           # Before build:
@@ -92,8 +92,8 @@ jobs:
 
           # List of available platforms: 
           # https://cibuildwheel.readthedocs.io/en/stable/options/#build-skip 
-          CIBW_BUILD: cp311-*64
-          #CIBW_BUILD: cp39-*64
+          #CIBW_BUILD: cp311-*64
+          CIBW_BUILD: cp39-*64
           #CIBW_BUILD:  cp310-*64  cp311-*64  cp312-*64  cp313-*64
 
           # Disable building PyPy wheels on all platforms.
@@ -122,7 +122,7 @@ jobs:
       - uses: pypa/gh-action-pypi-publish@release/v1
         with:
           user: __token__
-          password: ${{ secrets.test_pypi_token }}
+          password: ${{ secrets.pypi_token }}
           packages-dir: estnltk-pypi-packages
           # Use https://test.pypi.org instead of the default pypi:
-          repository-url: https://test.pypi.org/legacy/
+          #repository-url: https://test.pypi.org/legacy/
