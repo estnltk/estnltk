@@ -31,6 +31,14 @@ jobs:
         run: |
           python -m pip install build --user
 
+      - name: Set up QEMU
+        # This is needed when building for non-native platforms
+        # https://cibuildwheel.pypa.io/en/stable/faq/#emulation
+        if: runner.os == 'Linux'
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: all
+
       - name: Build wheels
         # Check the latest version from: https://github.com/pypa/cibuildwheel
         uses: pypa/cibuildwheel@v2.22.0
