@@ -111,6 +111,6 @@ jobs:
           echo --------------------- 
           ls -lah
           echo --------------------- 
-          packagefile=$(ls -1 *.tar.bz2) $(ls -1 *.conda)
+          packagefile=$(ls -1 estnltk_core-*) 
           echo --------------------- 
           anaconda -t ${{ secrets.conda_upload_token }} upload -l dev --force -u estnltk $packagefile
