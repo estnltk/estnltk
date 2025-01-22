@@ -50,5 +50,5 @@ requirements:
 
 about:
   home: https://github.com/estnltk/estnltk
-  license: GPLv2
+  license: 'Dual License: GPL-2.0 OR Apache-2.0'
   summary: 'Estnltk open source tools for Estonian natural language processing'
