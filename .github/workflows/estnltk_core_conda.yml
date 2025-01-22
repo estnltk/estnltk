@@ -73,6 +73,7 @@ jobs:
           name: estnltk-core-conda-package
           path: |
             ./estnltk_core/ec_channel/noarch/*.tar.bz2
+            ./estnltk_core/ec_channel/noarch/*.conda
           retention-days: 14
           overwrite: true
 
@@ -110,6 +111,6 @@ jobs:
           echo --------------------- 
           ls -lah
           echo --------------------- 
-          packagefile=$(ls -1 *.tar.bz2) 
+          packagefile=$(ls -1 *.tar.bz2) $(ls -1 *.conda)
           echo --------------------- 
           anaconda -t ${{ secrets.conda_upload_token }} upload -l dev --force -u estnltk $packagefile
