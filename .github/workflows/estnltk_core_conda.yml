@@ -64,7 +64,9 @@ jobs:
           conda build -c conda-forge --output-folder ec_channel conda_recipe
           echo --- estntlk_core completed --- 
           dir ec_channel
-          echo --- dir completed --- 
+          echo --- dir 1 completed --- 
+          dir ec_channel/noarch
+          echo --- dir 2 completed --- 
 
       - uses: actions/upload-artifact@v4
         with:
