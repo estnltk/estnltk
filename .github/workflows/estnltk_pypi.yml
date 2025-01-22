@@ -15,7 +15,7 @@ jobs:
   build_estnltk_sdist:
     name: Build estnltk source distribution
     runs-on: ubuntu-latest
-    if: false  # This condition ensures the job is never executed
+    #if: false  # Use this condition to skip the job
     steps:
       - uses: actions/checkout@v4
 
@@ -93,8 +93,8 @@ jobs:
 
           # List of available platforms: 
           # https://cibuildwheel.readthedocs.io/en/stable/options/#build-skip 
-          CIBW_BUILD: cp313-*64
-          #CIBW_BUILD: cp311-*64
+          #CIBW_BUILD: cp313-*64
+          CIBW_BUILD: cp311-*64
           #CIBW_BUILD: cp39-*64
           #CIBW_BUILD:  cp310-*64  cp311-*64  cp312-*64
 
@@ -111,8 +111,8 @@ jobs:
 
   upload_pypi:
     name: Push to PyPI
-    #needs: [build_estnltk_wheels, build_estnltk_sdist]
-    needs: [build_estnltk_wheels] 
+    needs: [build_estnltk_wheels, build_estnltk_sdist]
+    #needs: [build_estnltk_wheels] 
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
