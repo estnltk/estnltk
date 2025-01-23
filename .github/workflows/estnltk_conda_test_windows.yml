@@ -1,0 +1,133 @@
+name: Build estnltk conda packages and upload to conda [windows-only]
+
+on: 
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/estnltk_conda_test_windows.yml'
+      
+  # Manual run (works only in the default branch) 
+  #workflow_dispatch:
+
+
+jobs:
+  build_estnltk_conda_packages:
+    name: Build estnltk conda package on ${{ matrix.os }} (py ${{ matrix.python-version }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest]
+        python-version: ['3.9']
+        #python-version: ['3.10', '3.11']
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        name: Install Python
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Setup miniconda
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-update-conda: true
+          python-version: ${{ matrix.python-version }}
+          channels: anaconda, conda-forge
+          miniconda-version: "latest"
+          activate-environment: building
+
+      - name: Install conda-build and building prerequisites
+        shell: bash -el {0}
+        run: |
+          conda install conda-build conda-verify swig cython
+          conda update conda-build
+
+      # Use estnltk-core-channel cache
+      # load data from the cache if it exists.
+      # this enables to skip the building 
+      # step below.
+      # Look for the cache key in the workflow 
+      # of building estnltk_core conda package
+      - name: Cache ec_channel
+        id: cache-ec-channel
+        uses: actions/cache@v4
+        with:
+          path: estnltk_core/ec_channel
+          key: estnltk-core-channel-2025-01-22-1
+          enableCrossOsArchive: true
+
+      - name: Build estnltk_core conda package
+        if: steps.cache-ec-channel.outputs.cache-hit != 'true'
+        shell: bash -el {0}
+        run: |
+          cd estnltk_core
+          conda build -c conda-forge --output-folder ec_channel conda_recipe
+          echo --------------------- 
+
+      - if: matrix.os == 'windows-latest'
+        name: Configure Dev Command Prompt for MS Visual C++ (windows-only)
+        # https://github.com/ilammy/msvc-dev-cmd
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+
+      - if: matrix.os == 'windows-latest'
+        name: Build estnltk conda package (windows)
+        shell: cmd /C CALL {0}
+        run: |
+          echo --------------------- 
+          echo ${{ github.workspace }} 
+          dir ${{ github.workspace }} 
+          echo ---------------------
+          conda build -c conda-forge -c ${{ github.workspace }}/estnltk_core/ec_channel --output-folder estnltk/e_channel estnltk/conda-recipe/windows
+          echo --------------------- 
+          dir estnltk\e_channel
+          echo --------------------- 
+
+      # Use estnltk-channel cache on Ubuntu. 
+      # The goal is to store the channel data, so 
+      # that it can be used to speed up the building 
+      # process of estnltk-neural conda package.
+      # Note that if the cache exists, conda build 
+      # will overwrite the data, but it is not stored 
+      # in cache unless the cache key has been changed.
+      # (so, you should change the key if you want 
+      #  to store a new build)
+      - if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.11'
+        name: Cache e_channel
+        id: cache-e-channel
+        uses: actions/cache@v4
+        with:
+          path: estnltk/e_channel
+          key: estnltk-channel-2025-01-22-1
+          enableCrossOsArchive: true
+
+      - if: matrix.os != 'windows-latest'
+        name: Build estnltk conda package (linux or macos)
+        shell: bash -el {0}
+        run: |
+          echo --------------------- 
+          echo ${{ github.workspace }}
+          ls -lah ${{ github.workspace }}
+          echo ---------------------
+          conda build -c conda-forge -c ${{ github.workspace }}/estnltk_core/ec_channel --output-folder estnltk/e_channel estnltk/conda-recipe/linux_and_osx
+          echo --------------------- 
+          ls estnltk/e_channel
+          echo --------------------- 
+
+      # (!) Important: "macos-latest" would produce "./estnltk/e_channel/osx-arm64/*.tar.bz2"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: estnltk-conda-packages-${{ matrix.os }}-${{ matrix.python-version }}
+          path: |
+            ./estnltk/e_channel/win-64/*.tar.bz2
+            ./estnltk/e_channel/win-64/*.conda
+            ./estnltk/e_channel/linux-64/*.tar.bz2
+            ./estnltk/e_channel/linux-64/*.conda
+            ./estnltk/e_channel/osx-64/*.tar.bz2
+            ./estnltk/e_channel/osx-64/*.conda
+          retention-days: 14
+          overwrite: true
+
