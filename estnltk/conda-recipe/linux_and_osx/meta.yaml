@@ -10,29 +10,19 @@ source:
 build:
  number: {{ environ.get('GIT_DESCRIBE_NUMBER', '0') }}
  string: {{ environ.get('PY_VER', '') }}
- script: python -m pip install . -vv --no-deps --no-build-isolation "-C--build-option=build_ext" 
+ script: {{ PYTHON }} -m pip install . -vv --no-deps --no-build-isolation "-C--build-option=build_ext" 
 
 
 requirements:
   build:
     - {{ compiler('c') }}
+  host:
     - python >=3.9
-    - setuptools 
-    - pip 
+    - setuptools
+    - swig >=3.0.8
+    - pip
     - build 
     - wheel 
-    - estnltk_core >=1.7.4
-    - swig >=3.0.8
-    - nltk >=3.4.1
-    - regex >=2015.11.22
-    - pandas
-    - python-crfsuite >=0.8.4
-    - cached-property >=1.2.0
-    - beautifulsoup4 >=4.4.0
-    - html5lib
-    - networkx
-    - lxml
-    - packaging
   run:
     - python
     - estnltk_core >=1.7.4
