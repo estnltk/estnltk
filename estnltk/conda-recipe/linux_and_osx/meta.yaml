@@ -15,7 +15,9 @@ build:
 
 requirements:
   build:
-    - python 
+    - python >=3.9
+    - setuptools 
+    - pip 
     - build 
     - estnltk_core >=1.7.4
     - swig >=3.0.8
