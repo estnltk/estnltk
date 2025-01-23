@@ -74,12 +74,18 @@ jobs:
           arch: x64
 
       - if: matrix.os == 'windows-latest'
-        name: Build estnltk conda package (windows)
+        name: Examine workspace (windows)
         shell: cmd /C CALL {0}
         run: |
           echo --------------------- 
           echo ${{ github.workspace }} 
           dir ${{ github.workspace }} 
+          echo --------------------- 
+
+      - if: matrix.os == 'windows-latest'
+        name: Build estnltk conda package (windows)
+        shell: bash -el {0}
+        run: |
           echo ---------------------
           conda build -c conda-forge -c ${{ github.workspace }}/estnltk_core/ec_channel --output-folder estnltk/e_channel estnltk/conda-recipe/windows
           echo --------------------- 
