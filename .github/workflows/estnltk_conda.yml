@@ -7,7 +7,7 @@ on:
     paths:
       - '.github/workflows/estnltk_conda.yml'
       
-  # Manual run (works only in the default branch)
+  # Manual run (works only in the default branch) 
   #workflow_dispatch:
 
 
