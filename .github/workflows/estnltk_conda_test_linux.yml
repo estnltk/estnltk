@@ -45,28 +45,6 @@ jobs:
           conda install conda-build conda-verify swig cython
           conda update conda-build
 
-      # Use estnltk-core-channel cache
-      # load data from the cache if it exists.
-      # this enables to skip the building 
-      # step below.
-      # Look for the cache key in the workflow 
-      # of building estnltk_core conda package
-      - name: Cache ec_channel
-        id: cache-ec-channel
-        uses: actions/cache@v4
-        with:
-          path: estnltk_core/ec_channel
-          key: estnltk-core-channel-2025-01-22-1
-          enableCrossOsArchive: true
-
-      - name: Build estnltk_core conda package
-        if: steps.cache-ec-channel.outputs.cache-hit != 'true'
-        shell: bash -el {0}
-        run: |
-          cd estnltk_core
-          conda build -c conda-forge --output-folder ec_channel conda_recipe
-          echo --------------------- 
-
       # Use estnltk-channel cache on Ubuntu. 
       # The goal is to store the channel data, so 
       # that it can be used to speed up the building 
@@ -93,7 +71,7 @@ jobs:
           echo ${{ github.workspace }}
           ls -lah ${{ github.workspace }}
           echo ---------------------
-          conda build -c conda-forge -c ${{ github.workspace }}/estnltk_core/ec_channel --output-folder estnltk/e_channel estnltk/conda-recipe/linux_and_osx
+          conda build -c conda-forge --output-folder estnltk/e_channel estnltk/conda-recipe/linux_and_osx
           echo --------------------- 
           ls estnltk/e_channel
           echo --------------------- 
