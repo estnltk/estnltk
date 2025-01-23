@@ -17,7 +17,7 @@ requirements:
   build:
     - {{ compiler('c') }}
   host:
-    - python >=3.9
+    - python =={{ environ.get('PY_VER', '') }}
     - setuptools
     - swig >=3.0.8
     - pip

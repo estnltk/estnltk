@@ -59,7 +59,7 @@ jobs:
           key: estnltk-core-channel-2025-01-22-1
           enableCrossOsArchive: true
 
-      - name: Build estnltk_core conda package 
+      - name: Build estnltk_core conda package
         if: steps.cache-ec-channel.outputs.cache-hit != 'true'
         shell: bash -el {0}
         run: |
