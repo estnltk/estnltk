@@ -127,8 +127,8 @@ jobs:
             ./estnltk/e_channel/win-64/*.conda
             ./estnltk/e_channel/linux-64/*.tar.bz2
             ./estnltk/e_channel/linux-64/*.conda
-            ./estnltk/e_channel/osx-64/*.tar.bz2
-            ./estnltk/e_channel/osx-64/*.conda
+            ./estnltk/e_channel/osx-arm64/*.tar.bz2
+            ./estnltk/e_channel/osx-arm64/*.conda
           retention-days: 14
           overwrite: true
 
@@ -166,9 +166,9 @@ jobs:
           echo --------------------- 
           ls -lah win-64
           ls -lah linux-64
-          ls -lah osx-64
+          ls -lah osx-arm64
           echo --------------------- 
           linux_packages=$(ls -1 linux-64/estnltk-*)
           win_packages=$(ls -1 win-64/estnltk-*)
-          osx_packages=$(ls -1 osx-64/estnltk-*)
+          osx_packages=$(ls -1 osx-arm64/estnltk-*)
           anaconda -t ${{ secrets.conda_upload_token }} upload -l dev --force -u estnltk $linux_packages $win_packages $osx_packages
