@@ -19,7 +19,7 @@ jobs:
       matrix:
         #os: [ubuntu-latest, windows-latest, macos-latest]
         os: [ubuntu-latest]
-        python-version: ['3.9']
+        python-version: ['3.11']
         #python-version: ['3.10', '3.11']
 
     steps:
@@ -89,8 +89,6 @@ jobs:
         name: Build estnltk conda package (linux or macos)
         shell: bash -el {0}
         run: |
-          conda install conda-build conda-verify swig cython
-          conda update conda-build
           echo --------------------- 
           echo ${{ github.workspace }}
           ls -lah ${{ github.workspace }}
