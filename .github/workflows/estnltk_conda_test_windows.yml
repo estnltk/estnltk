@@ -74,7 +74,7 @@ jobs:
           arch: x64
 
       - if: matrix.os == 'windows-latest'
-        name: Build estnltk conda package (windows) 
+        name: Build estnltk conda package (windows)
         shell: cmd /C CALL {0}
         run: |
           echo --------------------- 
