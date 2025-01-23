@@ -11,7 +11,6 @@ source:
 build:
  number: {{ environ.get('GIT_DESCRIBE_NUMBER', '0') }}
  string: {{ environ.get('PY_VER', '') }}
- script: {{ PYTHON }} -m pip install . -vv --no-deps --no-build-isolation "-C--build-option=build_ext" 
 
 
 requirements:
