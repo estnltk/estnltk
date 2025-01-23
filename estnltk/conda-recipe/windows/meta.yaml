@@ -16,22 +16,13 @@ build:
 requirements:
   build:
     - {{ compiler('c') }}
-    - python >=3.9
-    - setuptools 
-    - pip 
+  host:
+    - python =={{ environ.get('PY_VER', '') }}
+    - setuptools
+    - swig >=3.0.8
+    - pip
     - build 
-    - estnltk_core >=1.7.4
-    - swig >=3.0.12
-    - nltk >=3.4.1
-    - regex >=2015.11.22
-    - pandas
-    - python-crfsuite >=0.8.4
-    - cached-property >=1.2.0
-    - beautifulsoup4 >=4.4.0
-    - html5lib
-    - networkx
-    - lxml
-    - packaging
+    - wheel 
   run:
     - python
     - estnltk_core >=1.7.4
