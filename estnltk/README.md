@@ -25,7 +25,7 @@ This package contains EstNLTK's basic linguistic analysis, system and database t
 
 ### Installation
 
-EstNLTK is available for osx, windows-64, and linux-64, and for python versions 3.9 to 3.13. 
+EstNLTK is available for osx, windows-64, and linux-64, and for python versions 3.9 to 3.12 (3.13*). 
 You can install the latest version via PyPI:
 
 ```
@@ -48,6 +48,8 @@ conda activate py310
 ```
 conda install -c estnltk -c conda-forge estnltk=1.7.4
 ```
+
+*Currently, estnltk package for python 3.13 is only available via pip. 
 
 _Note_: for using some of the tools in estnltk, you also need to have Java installed in your system. We recommend using Oracle Java http://www.oracle.com/technetwork/java/javase/downloads/index.html, although alternatives such as OpenJDK (http://openjdk.java.net/) should also work.
 
