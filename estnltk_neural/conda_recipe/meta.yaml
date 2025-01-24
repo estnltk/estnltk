@@ -1,8 +1,8 @@
-{% set data = load_setup_py_data() %}
+{% set version = "1.7.4" %}
 
 package:
   name: estnltk_neural
-  version: {{ data.get('version')  }}
+  version: {{ version }}
 
 source:
     path: ../../estnltk_neural
@@ -10,13 +10,13 @@ source:
 build:
  noarch: python
  number: 0
+ script: {{ PYTHON }} -m pip install . -vv --no-deps --no-build-isolation
 
 requirements:
-  build:
-    - python 
-    - estnltk_core >=1.7.4
-    - estnltk >=1.7.4
-
+  host:
+    - python >=3.9
+    - setuptools
+    - pip
   run:
     - python 
     - estnltk_core >=1.7.4
