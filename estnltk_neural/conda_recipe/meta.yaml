@@ -14,9 +14,10 @@ build:
 
 requirements:
   host:
-    - python >=3.9
+    - python =={{ environ.get('PY_VER', '') }}
     - setuptools
     - pip
+    - wheel
   run:
     - python 
     - estnltk_core >=1.7.4
