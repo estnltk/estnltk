@@ -137,7 +137,7 @@ jobs:
         run: |
           cd estnltk-neural-conda-package
           echo --------------------- 
-          ls -lah noarch
+          ls -lah 
           echo --------------------- 
-          packagefile=$(ls -1 noarch/estnltk_neural-*) 
+          packagefile=$(ls -1 estnltk_neural-*) 
           anaconda -t ${{ secrets.conda_upload_token }} upload -l dev --force -u estnltk $packagefile
