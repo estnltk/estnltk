@@ -19,8 +19,9 @@ jobs:
       matrix:
         #os: [ubuntu-latest, windows-latest, macos-latest]
         os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ['3.12']
         #python-version: ['3.9']
-        python-version: ['3.10', '3.11']
+        #python-version: ['3.10', '3.11']
 
     steps:
       - uses: actions/checkout@v4
@@ -170,5 +171,5 @@ jobs:
           echo --------------------- 
           linux_packages=$(ls -1 linux-64/estnltk-*)
           win_packages=$(ls -1 win-64/estnltk-*)
-          osx_packages=$(ls -1 osx-arm64'/estnltk-*)
+          osx_packages=$(ls -1 osx-arm64/estnltk-*)
           anaconda -t ${{ secrets.conda_upload_token }} upload -l dev --force -u estnltk $linux_packages $win_packages $osx_packages

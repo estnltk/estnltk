@@ -21,7 +21,6 @@ requirements:
     - setuptools
     - swig >=3.0.8
     - pip
-    - build 
     - wheel 
   run:
     - python
