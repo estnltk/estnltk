@@ -20,7 +20,7 @@ Source code of packages is available at the [EstNLTK's monorepository](https://g
 
 ### Installation
 
-EstNLTK is available for osx, windows-64, and linux-64, and for python versions 3.9 to 3.13. 
+EstNLTK is available for osx, windows-64, and linux-64, and for python versions 3.9 to 3.12 (3.13*). 
 You can install the latest version via PyPI:
 
 ```
@@ -44,7 +44,9 @@ conda activate py310
 conda install -c estnltk -c conda-forge estnltk=1.7.4
 ```
 
-_Remark about conda installations:_ As our platform coverage is wider on pip, we encourage installing EstNLTK inside conda environment through pip if the default conda installation fails.  
+*Currently, estnltk package for python 3.13 is only available via pip. 
+
+_Remark about conda installations:_ As our platform coverage is wider on pip, we encourage installing EstNLTK inside conda environment through pip if the default conda installation fails. 
 
 _Remark on conda & Linux:_ if you are trying to run estnltk conda package on an older Linux platform (such as CentOS 7, Ubuntu 18.04 or 20.04), you may stumble upon an error stating `libc.so.6: version 'GLIBC_2.34' not found`. A quick and recommended solution is to install estnltk via pip instead. For possible alternative soultions, see [this thread](https://github.com/huggingface/tokenizers/issues/585).
 
