@@ -14,7 +14,7 @@ build:
 
 requirements:
   host:
-    - python =={{ environ.get('PY_VER', '') }}
+    - python
     - setuptools
     - pip
     - wheel
