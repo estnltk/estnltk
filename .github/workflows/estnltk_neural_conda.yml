@@ -41,7 +41,7 @@ jobs:
         run: |
           conda install conda-build conda-verify swig cython
           conda update conda-build
-          conda install --name base conda-anaconda-telemetry
+          conda install conda-anaconda-telemetry
 
       # Use estnltk-core-channel cache
       # load data from the cache if it exists.
