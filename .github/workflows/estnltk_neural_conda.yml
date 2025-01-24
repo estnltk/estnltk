@@ -37,6 +37,10 @@ jobs:
           miniconda-version: "latest"
           activate-environment: building
 
+      # Note: installation of conda-anaconda-telemetry seemed to 
+      # have solved AttributeError("'PluginConfig' object has no 
+      # attribute 'anaconda_telemetry'") which unexpectedly occurred 
+      # during the conda build. Otherwise, it shouldn't be needed 
       - name: Install conda-build and building prerequisites
         run: |
           conda install conda-build conda-verify swig cython
@@ -130,10 +134,12 @@ jobs:
           activate-environment: building
 
       - name: Install anaconda-client
+        shell: bash -el {0}
         run: |
           conda install anaconda-client
 
       - name: Upload estnltk_neural conda package
+        shell: bash -el {0}
         run: |
           cd estnltk-neural-conda-package
           echo --------------------- 
