@@ -1,8 +1,8 @@
-{% set data = load_setup_py_data() %}
+{% set version = "1.7.4" %}
 
 package:
   name: estnltk_core
-  version: {{ data.get('version')  }}
+  version: {{ version }}
 
 source:
     path: ../../estnltk_core
@@ -10,15 +10,14 @@ source:
 build:
  noarch: python
  number: 0
+ script: {{ PYTHON }} -m pip install . -vv --no-deps --no-build-isolation
 
 requirements:
-  build:
-    - python 
-    - regex >=2015.11.22
-    - networkx
-    - pandas
-    - packaging
-
+  host:
+    - python
+    - setuptools
+    - pip
+    - wheel
   run:
     - python 
     - regex >=2015.11.22
