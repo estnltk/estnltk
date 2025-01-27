@@ -35,7 +35,7 @@ Supported Python versions: 3.9+
 
 Models required by neural tools are large, and therefore cannot be distributed with this package. 
 However, our tagger classes are implemented in a way that once you create an instance of a neural tagger, you'll be asked  for a permission to download missing models, and if you give the permission, the model will be downloaded (and installed in a proper location) automatically. 
-If needed, you can also change the default location where downloaded models will be placed, see [this tutorial](https://github.com/estnltk/estnltk/blob/ce224214244bd903d71283a2f1db2e4697f20e84/tutorials/basics/estnltk_resources.ipynb) for details.
+If needed, you can also change the default location where downloaded models will be placed, see [this tutorial](https://github.com/estnltk/estnltk/blob/main/tutorials/basics/estnltk_resources.ipynb) for details.
 
 ### Documentation
 
@@ -43,8 +43,8 @@ EstNLTK's [NLP component tutorials](https://github.com/estnltk/estnltk/tree/main
 
 * [bert embeddings tagger](https://github.com/estnltk/estnltk/blob/main/tutorials/nlp_pipeline/E_embeddings/bert_embeddings_tagger.ipynb);
 * [named entity recognition (incl bert-based approaches)](https://github.com/estnltk/estnltk/blob/main/tutorials/nlp_pipeline/D_information_extraction/02_named_entities.ipynb);
-* [bert-based morphological features tagger and disambiguator](https://github.com/estnltk/estnltk/blob/b074fefa6597df7d6981b7920ca19a3621afbc0d/tutorials/nlp_pipeline/B_morphology/08_bert_based_morph_tagger.ipynb);
-* [GliLem lemmatizer and morphological disambiguator](https://github.com/estnltk/estnltk/blob/b074fefa6597df7d6981b7920ca19a3621afbc0d/tutorials/nlp_pipeline/B_morphology/08_glilem_lemmatizer_and_disambiguator.ipynb);
+* [bert-based morphological features tagger and disambiguator](https://github.com/estnltk/estnltk/blob/main/tutorials/nlp_pipeline/B_morphology/08_bert_based_morph_tagger.ipynb);
+* [GliLem lemmatizer and morphological disambiguator](https://github.com/estnltk/estnltk/blob/main/tutorials/nlp_pipeline/B_morphology/08_glilem_lemmatizer_and_disambiguator.ipynb);
 * [stanza-based syntax taggers](https://github.com/estnltk/estnltk/blob/main/tutorials/nlp_pipeline/C_syntax/03_syntactic_analysis_with_stanza.ipynb);
 * [pronominal coreference tagger v1](https://github.com/estnltk/estnltk/blob/main/tutorials/nlp_pipeline/D_information_extraction/04_pronominal_coreference.ipynb);
 * [\[legacy\] tensorflow-based neural morphological features tagger ( disambiguator )](https://github.com/estnltk/estnltk/blob/main/tutorials/nlp_pipeline/B_morphology/08_neural_morph_tagger_py37.ipynb)
