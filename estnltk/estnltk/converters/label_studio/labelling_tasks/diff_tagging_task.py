@@ -107,14 +107,17 @@ class DiffTaggingTask:
         texts: Text | list[Text],
         text_ids: int | list[int] | None = None,
         file_path: str | None = None,
+        **kwargs
     ) -> str | None:
         """
-        Exports text objects into string that can be used as Label Studio input.
-        If file_path is set the result is written into the file, otherwise result is returned as a string.
-        An appropriate exception is raised when file cannot be created or updated.
-        Issues warnings if the labelling configuration is in conflict with exported phrase annotations.
-        It is possible to pass additional text ids that will be saved to the
-        text_id meta field.
+        Exports text objects into string that can be used as Label Studio 
+        input. If file_path is set the result is written into the file,
+        otherwise result is returned as a string. An appropriate exception
+        is raised when file cannot be created or updated. Issues warnings
+        if the labelling configuration is in conflict with exported phrase
+        annotations. It is possible to pass additional text ids that will
+        be saved to the text_id meta field. Additional keyword arguments
+        are passed to json.dumps(...).
         """
         if isinstance(texts, Text):
             texts = [texts]
@@ -136,9 +139,9 @@ class DiffTaggingTask:
 
         if file_path is not None:
             with open(file_path, "w") as file:
-                json.dump(tasks, file)
+                json.dump(tasks, file, **kwargs)
         else:
-            return json.dumps(tasks)
+            return json.dumps(tasks, **kwargs)
 
     def import_data(
         self,
