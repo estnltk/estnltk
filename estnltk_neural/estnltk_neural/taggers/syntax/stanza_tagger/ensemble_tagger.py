@@ -157,10 +157,10 @@ class StanzaSyntaxEnsembleTagger(Tagger):
             ensemble_path = os.path.join(resources_path, 'et', 'depparse', 'ensemble_models')
             if not os.path.isdir(ensemble_path):
                 raise ValueError('Missing models under the subdirectory `stanza_resources/et/depparse/ensemble_models.')
-            for model in os.listdir(ensemble_path):
+            for model in sorted(os.listdir(ensemble_path)):
                 self.model_paths.append(os.path.join(ensemble_path, model))
 
-        self.taggers = dict()  # Save taggers
+        self.taggers = OrderedDict()  # Save taggers
         for i, model_path in enumerate(self.model_paths):
             if not os.path.isfile(model_path):
                 raise ValueError('Invalid model path: {}'.format(model_path))
@@ -461,7 +461,7 @@ def find_prediction_entropy(words_layer, parsed_texts, add_model_votes=True,
         votes = []
         votes_head = []
         votes_deprel = []
-        for model, parsed_doc in parsed_texts.items():
+        for model, parsed_doc in sorted(parsed_texts.items(), key=lambda x: x[0]):
             sentence = parsed_doc[sentence_id]
             token = sentence[sentence_word_id]
             label = '{}_{}'.format(token['deprel'], token['head'])
