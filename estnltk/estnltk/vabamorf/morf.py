@@ -344,10 +344,11 @@ class Vabamorf(object):
 
 
     def synthesize(self, lemma, form, partofspeech='', hint='', guess=True, phonetic=False):
-        """Synthesize a single word based on given morphological attributes.
+        """Synthesize a single word based on given morphological attributes. 
 
-        Note that spellchecker does not respect pre-tokenized words and concatenates
-        token sequences such as "New York".
+        Note that synthesizer does not respect pre-tokenized words, and multiword units, 
+        such as "New York", should be split into tokens by whitespace and processed 
+        token-by-token. 
 
         Parameters
         ----------
@@ -358,7 +359,8 @@ class Vabamorf(object):
         partofspeech: str
             Part-of-speech.
         hint: str
-            Hint.
+            Hint, essentially a prefix filter. Returns only 
+            synthesized words that start with the given prefix. 
         guess: boolean (default: True)
             Use heuristics when synthesizing unknown words.
         phonetic: boolean (default: False)
@@ -580,8 +582,9 @@ def fix_spelling(words, join=True, joinstring=' '):
 def synthesize(lemma, form, partofspeech='', hint='', guess=True, phonetic=False):
     """Synthesize a single word based on given morphological attributes.
 
-    Note that spellchecker does not respect pre-tokenized words and concatenates
-    token sequences such as "New York".
+    Note that synthesizer does not respect pre-tokenized words, and multiword units, 
+    such as "New York", should be split into tokens by whitespace and processed 
+    token-by-token. 
 
     Parameters
     ----------
@@ -592,7 +595,8 @@ def synthesize(lemma, form, partofspeech='', hint='', guess=True, phonetic=False
     partofspeech: str
         Part-of-speech.
     hint: str
-        Hint.
+        Hint, essentially a prefix filter. Returns only 
+        synthesized words that start with the given prefix. 
     guess: boolean (default: True)
         Use heuristics when synthesizing unknown words.
     phonetic: boolean (default: False)
