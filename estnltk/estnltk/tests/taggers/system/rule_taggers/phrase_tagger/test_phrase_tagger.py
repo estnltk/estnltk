@@ -1,6 +1,6 @@
 from estnltk_core.taggers.tagger_tester import TaggerTester
-from estnltk.taggers.system.rule_taggers import PhraseTagger
-from estnltk.taggers.system.rule_taggers import Ruleset
+from estnltk.taggers import PhraseTagger
+from estnltk.taggers import Ruleset
 from estnltk.common import abs_path
 
 def test_tagger():

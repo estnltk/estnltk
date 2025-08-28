@@ -5,8 +5,8 @@ from estnltk_core.taggers.tagger_tester import TaggerTester
 from estnltk import Text
 from estnltk.common import abs_path
 
-from estnltk.taggers.system.rule_taggers import SpanTagger
-from estnltk.taggers.system.rule_taggers import Ruleset, StaticExtractionRule
+from estnltk.taggers import SpanTagger
+from estnltk.taggers import Ruleset, StaticExtractionRule
 from estnltk.converters import layer_to_dict, dict_to_layer
 
 def test_tagger():

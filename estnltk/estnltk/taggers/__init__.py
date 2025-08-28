@@ -17,6 +17,12 @@ from estnltk.taggers.system.rule_taggers.taggers.phrase_tagger import PhraseTagg
 from estnltk.taggers.system.rule_taggers.taggers.regex_tagger import RegexTagger
 from estnltk.taggers.system.rule_taggers.taggers.span_tagger import SpanTagger
 
+# Rules and rulesets required by PhraseTagger, RegexTagger & SpanTagger:
+from estnltk.taggers.system.rule_taggers.extraction_rules.static_extraction_rule import StaticExtractionRule
+from estnltk.taggers.system.rule_taggers.extraction_rules.dynamic_extraction_rule import DynamicExtractionRule
+from estnltk.taggers.system.rule_taggers.extraction_rules.ambiguous_ruleset import AmbiguousRuleset
+from estnltk.taggers.system.rule_taggers.extraction_rules.ruleset import Ruleset
+
 from estnltk.taggers.system.grammar_taggers.grammar_parsing_tagger import GrammarParsingTagger
 
 from estnltk.taggers.standard.text_segmentation.tokens_tagger import TokensTagger
