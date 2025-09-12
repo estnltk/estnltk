@@ -34,21 +34,21 @@ class DirectPlainSpanVisualiser(SpanVisualiser):
         # There is a span to decorate
         output = ['<span style=']
         if self.colour_mapping is not None:
-            output.append('color:' + self.colour_mapping(segment) + ";")
+            output.append('color:' + self.colour_mapping(segment, spans) + ";")
         if self.bg_mapping is not None:
-            output.append('background:' + self.bg_mapping(segment) + ";")
+            output.append('background:' + self.bg_mapping(segment, spans) + ";")
         if self.font_mapping is not None:
-            output.append('font-family:' + self.font_mapping(segment) + ";")
+            output.append('font-family:' + self.font_mapping(segment, spans) + ";")
         if self.weight_mapping is not None:
-            output.append('font-weight:' + self.weight_mapping(segment) + ";")
+            output.append('font-weight:' + self.weight_mapping(segment, spans) + ";")
         if self.italics_mapping is not None:
-            output.append('font-style:' + self.italics_mapping(segment) + ";")
+            output.append('font-style:' + self.italics_mapping(segment, spans) + ";")
         if self.underline_mapping is not None:
-            output.append('text-decoration:' + self.underline_mapping(segment) + ";")
+            output.append('text-decoration:' + self.underline_mapping(segment, spans) + ";")
         if self.size_mapping is not None:
-            output.append('font-size:' + self.size_mapping(segment) + ";")
+            output.append('font-size:' + self.size_mapping(segment, spans) + ";")
         if self.tracking_mapping is not None:
-            output.append('letter-spacing:' + self.tracking_mapping(segment) + ";")
+            output.append('letter-spacing:' + self.tracking_mapping(segment, spans) + ";")
         if len(segment[1]) > 1:
             output.append(' class=overlapping-span ')
             rows = []

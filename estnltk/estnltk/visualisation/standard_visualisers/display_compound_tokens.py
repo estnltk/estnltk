@@ -35,7 +35,7 @@ class DisplayCompoundTokens(DisplaySpans):
     """
 
     def __init__(self, layer: str = 'compound_tokens', ambiguity_resolver: callable = None):
-        super(DisplayCompoundTokens, self).__init__(styling="direct")
+        super(DisplayCompoundTokens, self).__init__()
 
         # Hack to get it working by replacing a wrong base class
         self.span_decorator = DirectPlainSpanVisualiser()

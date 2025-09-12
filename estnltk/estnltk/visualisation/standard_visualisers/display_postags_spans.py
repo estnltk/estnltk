@@ -5,9 +5,9 @@ from estnltk import Text, Layer
 
 class DisplayPostagsSpans(DisplaySpans):
     """
-    Visualises different part-of-speech tags in a text
+    Visualises different part-of-speech tags in a text.
 
-    Provides default background colourschme for EstMorf and GT tagsets.
+    Provides default background colourschme for Vabamorf and GT tagsets.
     Color scheme is controlled by two dictionary-like class attributes
     * pos_coloring[str]
     * span_coloring[int]
@@ -33,8 +33,8 @@ class DisplayPostagsSpans(DisplaySpans):
     It is possible to customise this by redefining ambiguity_resolver.
     """
 
-    def __init__(self, layer: str = 'morph_analysis', tagset: str = 'EstMorf', ambiguity_resolver: callable = None):
-        super(DisplayPostagsSpans, self).__init__(styling="direct")
+    def __init__(self, layer: str = 'morph_analysis', tagset: str = 'vabamorf', ambiguity_resolver: callable = None):
+        super(DisplayPostagsSpans, self).__init__()
 
         # Hack to get it working by replacing a wrong base class
         self.span_decorator = DirectPlainSpanVisualiser()
@@ -51,7 +51,7 @@ class DisplayPostagsSpans(DisplaySpans):
         self.ambiguity_resolver = self.__default_ambiguity_resolver
 
         self.pos_coloring = {}
-        if self.tagset == 'EstMorf' or self.tagset == 'GT':
+        if self.tagset.lower() == 'vabamorf' or self.tagset.upper() == 'GT':
             self.pos_coloring['S'] = 'orange'
             self.pos_coloring['H'] = 'orange'
             self.pos_coloring['A'] = 'yellow'

@@ -35,7 +35,7 @@ class DisplayCompoundWords(DisplaySpans):
     """
 
     def __init__(self, layer: str = 'morph_analysis', ambiguity_resolver: callable = None):
-        super(DisplayCompoundWords, self).__init__(styling="direct")
+        super(DisplayCompoundWords, self).__init__()
 
         # Hack to get it working by replacing a wrong base class
         self.span_decorator = DirectPlainSpanVisualiser()
