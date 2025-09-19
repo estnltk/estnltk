@@ -7,10 +7,10 @@ from estnltk_core import RelationLayer
 
 class DisplayNamedSpans:
     """Displays named spans defined by a relation layer. 
-       By default spans are coloured light yellow, and overlapping spans are dark yellow. 
-       To change the behaviour, redefine ..._mapping. Arguments that can be changed are bg_mapping, 
-       colour_mapping, font_mapping, weight_mapping, italics_mapping, underline_mapping, size_mapping 
-       and tracking_mapping."""
+       By default spans are coloured light yellow, and overlapping spans are orange. 
+       To change the behaviour, use `styles` parameter to define a mapping from CSS property name (e.g. "background", 
+       "font-weight") to either a static CSS value (`str`) or `Callable[[str, List[RelationAnnotation]], str]` that 
+       returns the CSS value correponding to the input named span (defined as `[str, List[RelationAnnotation]]`)."""
 
     js_file = abs_path("visualisation/span_visualiser/span_visualiser.js")
     css_file = abs_path("visualisation/span_visualiser/prettyprinter.css")

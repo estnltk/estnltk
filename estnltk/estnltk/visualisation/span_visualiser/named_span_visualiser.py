@@ -1,13 +1,23 @@
 import copy
+import warnings
 
 from estnltk_core.layer.relation_layer import NamedSpan
+
 
 class NamedSpanVisualiser:
     default_overlap_colour = "#FFCC00"  # darker yellow / orange
 
-    def __init__(self,text_id,fill_empty_spans=False,mapping_dict=None,span_names_formatting=None):
+    def __init__(self, text_id, fill_empty_spans=False, styles:'Union[str, Callable[[str, List[RelationAnnotation]], str]]'=None, 
+                                                        mapping_dict=None, span_names_formatting=None):
         self.fill_empty_spans = fill_empty_spans
-        self.mapping_dict = mapping_dict or {"background":self.default_bg_mapping}
+        if styles is None and mapping_dict is not None:
+            styles = mapping_dict
+            # Issue a DeprecationWarning
+            warnings.simplefilter("always", DeprecationWarning)
+            warnings.warn('Parameter mapping_dict is deprecated. Please use parameter styles instead. '+\
+                          'In future versions, parameter mapping_dict will be removed.', DeprecationWarning)
+            warnings.simplefilter("ignore", DeprecationWarning)
+        self.mapping_dict = styles or {"background":self.default_bg_mapping}
         self.span_names_formatting = span_names_formatting or self.default_span_names_formatting
         self.text_id = text_id
 
@@ -87,11 +97,20 @@ class NamedSpanVisualiser:
             if key == "class" or key == "id":
                 pass
             else:
-                output.append(key + ":" + value(mapping_segment) + ";")
+                if callable(value):
+                    output.append(key + ":" + value(mapping_segment) + ";")
+                elif isinstance(value, str):
+                    output.append(key + ":" + value + ";")
+                else:
+                    raise ValueError(f'(!) Unexpected value {value} in styles. Expected str or callable.')
         output.append('"')
+        # TODO: attributes "class" and "id" should not be defined under `styles` 
         for key, value in self.mapping_dict.items():
             if key == "class" or key == "id":
-                output.append(' ' + key + "=" + value(mapping_segment))
+                if callable(value):
+                    output.append(' ' + key + "=" + value(mapping_segment))
+                else:
+                    raise ValueError(f'(!) Unexpected value {value} in styles. Expected callable.')
         if len(covering_span_indexes) > 1:
             rows = []
             for i in covering_span_indexes:
