@@ -606,6 +606,29 @@ class RelationLayer:
         return '\n'.join(('<h4>{}</h4>'.format(self.__class__.__name__), meta, text_object_msg, table_1, table_2))
 
     def display(self, **kwargs):
+        """
+        Displays HTML representation of the text with annotations of this relation layer 
+        highlighted. 
+        
+        Note: this method requires the main package `estnltk`. 
+
+        Parameters
+        ----------
+        styles : Union[str, Callable[[str, List[RelationAnnotation]], str]]
+            [Optional] A mapping with customised CSS styles for the visualisation. 
+            Should map from CSS property name (e.g. "background", "font-weight") to 
+            either a static CSS value (`str`) or a callable function that returns the 
+            CSS value corresponding to the input named span. 
+            The callable function should take a single argument, which is an input 
+            span given as `[str, List[RelationAnnotation]]`. The first element (`str`) 
+            is textual content of the span, and the second element 
+            (`List[RelationAnnotation]`) is a list with relations's annotations. 
+
+           Returns
+           --------
+           str
+               A HTML representation for this relation layer. 
+        """
         if check_if_estnltk_is_available():
             # This requires estnltk version 1.7.3+
             from estnltk.visualisation import DisplayNamedSpans

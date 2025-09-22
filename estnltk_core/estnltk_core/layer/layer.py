@@ -149,7 +149,7 @@ class Layer(BaseLayer):
            Returns
            --------
            estnltk_core.layer_operations.Rolling
-                estnltk_core.layer_operations.Rolling object.
+                estnltk_core.layer_operations.Rolling object. 
         """
         return Rolling(self, window=window, min_periods=min_periods, inside=inside)
 
@@ -212,6 +212,40 @@ class Layer(BaseLayer):
         return self.resolve_attribute(item)
 
     def display(self, **kwargs):
+        """
+        Displays HTML representation of the text with annotations of this layer highlighted. 
+        
+        Note: this method requires the main package `estnltk`. 
+
+        Parameters
+        ----------
+        styles : Union[str, Callable[[str, List[Annotation]], str]]
+            [Optional] A mapping with customised CSS styles for the visualisation. 
+            Should map from CSS property name (e.g. "background", "font-weight") to 
+            either a static CSS value (`str`) or a callable function that returns the 
+            CSS value corresponding to the input span. 
+            The callable function should take a single argument, which is an input 
+            span given as `[str, List[Annotation]]`. The first element (`str`) is 
+            textual content of the span, and the second element (`List[Annotation]`) 
+            is a list with span's annotations. 
+            
+            Examples: 
+               >> from estnltk import Text
+               >> text = Text('Rahulikud rohelised rododendronid').tag_layer('words')
+               >> # display 'words' layer with background color 'lime'
+               >> text['words'].display( styles = {"background":  "lime"} ) 
+               
+               >> text = Text('Rahulikud rohelised rododendronid').tag_layer('morph_analysis')
+               >> # display 'morph_analysis' layer with common nouns ('S') having background 
+               >> # color 'aqua', and other words having background color 'pink' 
+               >> text['morph_analysis'].display( styles = {"background": \
+                    lambda x: 'aqua' if x[1][0]['partofspeech'] == 'S' else 'pink'} )
+
+           Returns
+           --------
+           str
+               A HTML representation for this layer. 
+        """
         if check_if_estnltk_is_available():
             from estnltk.visualisation import DisplaySpans
             display_spans = DisplaySpans(**kwargs)
