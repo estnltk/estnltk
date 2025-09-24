@@ -1,5 +1,7 @@
 from typing import List
 
+from warnings import warn
+
 from estnltk.taggers.system.rule_taggers.regex_library.regex_element import RegexElement
 from estnltk.taggers.system.rule_taggers.regex_library.string_list import StringList
 
@@ -88,6 +90,8 @@ class ChoiceGroup(RegexElement):
             all_strings = []
             all_ignore_case_flags = []
             for pattern in self.patterns:
+                if pattern.group_name is not None:
+                    warn(f'(!) group_name {pattern.group_name!r} was lost while creating ChoiceGroup of StringLists.')
                 all_strings.extend( pattern.strings )
                 all_ignore_case_flags.extend( pattern.ignore_case_flags )
             # Create new StringList
