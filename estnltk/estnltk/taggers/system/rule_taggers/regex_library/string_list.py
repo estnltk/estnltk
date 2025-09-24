@@ -18,9 +18,9 @@ class StringList(RegexElement):
 
     It is possible to tame unnecessary complexity of string variations by specifying the 'replacements' attribute,
     which is a dictionary of character to regex replacements that is applied to all strings.
-    For instance, we can specify a substitution ' ' --> '\s+' to cover possible variations of white space symbols.
+    For instance, we can specify a substitution ' ' --> '\\s+' to cover possible variations of white space symbols.
     The left hand of the rule can be only a single character that is interpreted as a plain character.
-    For instance, a rule '.' --> '\s*\.\s*' is applicable for '.' characters inside the strings.
+    For instance, a rule '.' --> '\\s*\\.\\s*' is applicable for '.' characters inside the strings.
     Proper escaping of special symbols on the right-hand side of the rule is a responsibility of the user.
 
     TODO: Emphasise the use of negative examples and positive examples!
@@ -52,7 +52,7 @@ class StringList(RegexElement):
         replacements: Dict[str, str]
             Optional. A dictionary of character to regex replacements 
             that is applied to all strings. For instance, you can 
-            specify a substitution `{' ' : '\s+'}` to cover possible 
+            specify a substitution `{' ' : '\\s+'}` to cover possible 
             variations of white space symbols. The left hand of the 
             rule can be only a single character that is interpreted 
             as a plain character, not regex meta character. Proper 
