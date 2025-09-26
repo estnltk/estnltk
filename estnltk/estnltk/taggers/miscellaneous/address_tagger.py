@@ -1,5 +1,7 @@
 import regex as re
 
+from estnltk import Layer
+
 from estnltk.taggers.system.rule_taggers import PhraseTagger
 from estnltk.taggers.system.rule_taggers import SpanTagger
 from estnltk.taggers.system.rule_taggers import RegexTagger
@@ -191,7 +193,9 @@ class AddressPartTagger(Tagger):
                                         output_attributes=self.output_attributes)
 
     def _make_layer_template(self):
-        return self.merge_tagger._make_layer_template()
+        return Layer( name=self.merge_tagger.output_layer, 
+                      attributes=self.merge_tagger.output_attributes, 
+                      parent=None, enveloping=None, ambiguous=True )
 
     def _make_layer(self, text, layers, status):
         raw_text = text.text
