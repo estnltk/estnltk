@@ -17,7 +17,7 @@ class NamedSpanVisualiser:
             warnings.warn('Parameter mapping_dict is deprecated. Please use parameter styles instead. '+\
                           'In future versions, parameter mapping_dict will be removed.', DeprecationWarning)
             warnings.simplefilter("ignore", DeprecationWarning)
-        self.mapping_dict = styles or {"background":self.default_bg_mapping}
+        self.span_styles = styles or {"background":self.default_bg_mapping}
         self.span_names_formatting = span_names_formatting or self.default_span_names_formatting
         self.text_id = text_id
 
@@ -76,7 +76,7 @@ class NamedSpanVisualiser:
         if not self.fill_empty_spans and self.is_pure_text(segment):
             return segment[0]
 
-        if self.mapping_dict is None:
+        if self.span_styles is None:
             return segment[0]
 
         # There is a span to decorate: start span and a ruby annotation
@@ -93,7 +93,7 @@ class NamedSpanVisualiser:
             annotations = spans[i].relation.annotations
             mapping_segment[1].extend( annotations )
         # Provide style
-        for key, value in self.mapping_dict.items():
+        for key, value in self.span_styles.items():
             if key == "class" or key == "id":
                 pass
             else:
@@ -105,7 +105,7 @@ class NamedSpanVisualiser:
                     raise ValueError(f'(!) Unexpected value {value} in styles. Expected str or callable.')
         output.append('"')
         # TODO: attributes "class" and "id" should not be defined under `styles` 
-        for key, value in self.mapping_dict.items():
+        for key, value in self.span_styles.items():
             if key == "class" or key == "id":
                 if callable(value):
                     output.append(' ' + key + "=" + value(mapping_segment))
