@@ -125,7 +125,7 @@ class NamedSpanVisualiser:
         output.append('>')
         output.append(segment[0])
         output.append('</span>')
-        # Add covering span names as a super-script
+        # Add covering span names as a ruby annotation or as a super-script
         if covering_span_names:
             output.append(self.span_names_formatting(covering_span_names))
         # Finish ruby annotation

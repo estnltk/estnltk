@@ -5,7 +5,7 @@ import warnings
 
 class PlainSpanVisualiser(SpanVisualiser):
 
-    def __init__(self, text_id, fill_empty_spans=False, styles:'Union[str, Callable[[str, List[Annotation]], str]]'=None, 
+    def __init__(self, text_id, fill_empty_spans=False, styles:'Dict[str, Union[str, Callable[[str, List[Annotation]], str]]]'=None, 
                                                         mapping_dict=None):
         self.fill_empty_spans = fill_empty_spans
         if styles is None and mapping_dict is not None:
