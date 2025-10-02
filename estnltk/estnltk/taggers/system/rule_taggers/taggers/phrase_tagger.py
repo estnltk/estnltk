@@ -188,7 +188,7 @@ class PhraseTagger(Tagger):
         layer = self._make_layer_template()
         layer.text_object = text
         raw_text = text.text
-        all_matches = self.extract_annotations(raw_text,layers)
+        all_matches = self.extract_matches(raw_text, layers)
 
         if self.conflict_resolver == 'KEEP_ALL':
             layer = self.add_decorated_annotations_to_layer(layer, iter(all_matches))
@@ -218,7 +218,7 @@ class PhraseTagger(Tagger):
 
         return layer
 
-    def extract_annotations(self, text: 'Text', layers: dict) -> List[Tuple[EnvelopingBaseSpan, str, Any]]:
+    def extract_matches(self, text: 'Text', layers: dict) -> List[Tuple[EnvelopingBaseSpan, str, Any]]:
         """
         Returns a list of matches of the defined by the list of extraction rules that are canonically ordered:
             span[i].start <= span[i+1].start
@@ -267,7 +267,7 @@ class PhraseTagger(Tagger):
         Converts all matches into decorator inputs. 
         
         The input match_list is expected to be the output of 
-        self.extract_annotations or keep_minimal_matches/
+        self.extract_matches or keep_minimal_matches/
         keep_maximal_matches. 
         By default, yields a list of tuples (text_obj, base_span, annotation).
         If add_aux==True, then adds auxiliary information and yields list 

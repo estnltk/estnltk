@@ -324,7 +324,7 @@ class SubstringTagger(Tagger):
         Converts all matches into decorator inputs. 
         
         The input match_list is expected to be the output of 
-        self.extract_annotations or keep_minimal_matches/
+        self.extract_matches or keep_minimal_matches/
         keep_maximal_matches.
         By default, yields a list of tuples (text_obj, base_span, 
         annotation). 

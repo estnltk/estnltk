@@ -139,7 +139,7 @@ class SpanTagger(Tagger):
                      parent=self.input_layers[0],
                      ambiguous=not isinstance(self._ruleset, Ruleset))
 
-    def extract_annotations(self, text: str, layers: dict) -> List[Tuple[ElementaryBaseSpan, str]]:
+    def extract_matches(self, text: str, layers: dict) -> List[Tuple[ElementaryBaseSpan, str]]:
         """
         Returns a list of matches of the defined by the list of extraction rules that are canonically ordered:
             span[i].start <= span[i+1].start
@@ -170,7 +170,7 @@ class SpanTagger(Tagger):
         Converts all matches into decorator inputs. 
         
         The input match_list is expected to be the output of 
-        self.extract_annotations or keep_minimal_matches/
+        self.extract_matches or keep_minimal_matches/
         keep_maximal_matches. 
         By default, yields a list of tuples (text_obj, base_span, annotation). 
         If add_aux==True, then yields list of tuples (text_obj, base_span, 
@@ -292,7 +292,7 @@ class SpanTagger(Tagger):
         layer = self._make_layer_template()
         layer.text_object = text
 
-        all_matches = self.extract_annotations(raw_text, layers)
+        all_matches = self.extract_matches(raw_text, layers)
 
         if self.conflict_resolver == 'KEEP_ALL':
             return self.add_redecorated_annotations_to_layer(layer, iter(all_matches))
