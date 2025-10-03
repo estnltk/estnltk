@@ -11,13 +11,13 @@ class DisplaySpans:
        "font-weight") to either a static CSS value (`str`) or `Callable[[str, List[Annotation]], str]` that 
        returns the CSS value corresponding to the input span (defined as `[str, List[Annotation]]`).
        
-       Optinally, you can add a small text to be displayed on top of each span by providing `ruby` parameter. 
-       The `ruby` parameter should either define a static value for ruby annotation (`str`) or 
-       `Callable[[str, List[Annotation]], str]` that computes ruby annotation's value (`str`) based on 
-       properties of the input span (defined as `[str, List[Annotation]]`). 
+       Optinally, you can add a small text to be displayed on top of each span by providing `ruby_text` parameter. 
+       The `ruby_text` parameter should either define a static value for a ruby text (`str`) or 
+       `Callable[[str, List[Annotation]], str]` that computes ruby texts (`str`) based on properties of 
+       the input span (defined as `[str, List[Annotation]]`). 
        More information about the ruby tags, please see: https://www.w3schools.com/tags/tag_ruby.asp 
        
-       If `ruby` parameter is provided, you can also change the CSS style of the ruby annotation. Use parameter 
+       If `ruby_text` parameter is provided, you can also change the CSS style of the ruby annotation. Use parameter 
        `ruby_styles` to provide either a static CSS value (`str`) or `Callable[[str, List[Annotation]], str]` that 
        provides CSS value corresponding to the input span.
        The default style for all ruby annotations is "font-size:75%".
@@ -28,8 +28,8 @@ class DisplaySpans:
     _text_id = 0
 
     def __init__(self, **kwargs):
-        if kwargs.get('ruby', None) is not None:
-            # Add span decorations along with ruby decorations (optional)
+        if kwargs.get('ruby_text', None) is not None:
+            # Add span decorations along with ruby texts (optional)
             self.span_decorator = RubySpanVisualiser(text_id=self._text_id, **kwargs)
         else:
             # Add only span decorations

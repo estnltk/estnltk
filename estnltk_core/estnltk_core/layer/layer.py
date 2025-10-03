@@ -219,7 +219,7 @@ class Layer(BaseLayer):
 
         Parameters
         ----------
-        styles : Union[str, Callable[[str, List[Annotation]], str]]
+        styles : Dict[str, Union[str, Callable[[str, List[Annotation]], str]]]
             [Optional] A mapping with customised CSS styles for the visualisation. 
             Should map from CSS property name (e.g. "background", "font-weight") to 
             either a static CSS value (`str`) or a callable function that returns the 
@@ -228,6 +228,7 @@ class Layer(BaseLayer):
             span given as `[str, List[Annotation]]`. The first element (`str`) is 
             textual content of the span, and the second element (`List[Annotation]`) 
             is a list with span's annotations. 
+            By default, spans are coloured light yellow and overlapping spans are red. 
             
             Examples: 
                >> from estnltk import Text
@@ -238,13 +239,41 @@ class Layer(BaseLayer):
                >> text = Text('Rahulikud rohelised rododendronid').tag_layer('morph_analysis')
                >> # display 'morph_analysis' layer with common nouns ('S') having background 
                >> # color 'aqua', and other words having background color 'pink' 
-               >> text['morph_analysis'].display( styles = {"background": \
+               >> text['morph_analysis'].display( styles = {"background": 
                     lambda x: 'aqua' if x[1][0]['partofspeech'] == 'S' else 'pink'} )
 
-           Returns
-           --------
-           str
-               A HTML representation for this layer. 
+        ruby_text : Union[str, Callable[[str, List[Annotation]], str]]
+            [Optional] Add a small text to be displayed on top of each span. This text is 
+            added via HTML ruby tags ( https://www.w3schools.com/tags/tag_ruby.asp ). 
+            The `ruby_text` parameter should either define a static text content (`str`) or 
+            `Callable[[str, List[Annotation]], str]` that computes texts (`str`) based on 
+            properties of the input span (defined as `[str, List[Annotation]]`). 
+            By default, ruby_text=None (no ruby texts will be displayed). 
+            
+            Example: 
+               >> from estnltk import Text
+               >> text = Text('Rahulikud rohelised rododendronid').tag_layer('morph_analysis')
+               >> # display 'morph_analysis' layer with small partofspeech tags on top of words
+               >> text['morph_analysis'].display(ruby_text=(lambda x: x[1][0]['partofspeech']))
+
+        ruby_styles : Dict[str, Union[str, Callable[[str, List[Annotation]], str]]]
+            [Optional] Specify CSS styles to be applied on the ruby_text (more specifically, 
+            on the ruby <rt> tag). Usage of `ruby_styles` parameter is analogous to the usage 
+            of the `styles` parameter. Only works with `ruby_text`. The default value for 
+            `ruby_styles` is `{"font-size": '75%'}`. 
+
+            Example: 
+               >> from estnltk import Text
+               >> text = Text('Rahulikud rohelised rododendronid').tag_layer('morph_analysis')
+               >> # display 'morph_analysis' layer with small partofspeech tags on top of words 
+               >> # format partofspeech tags with aqua background and font-size set to 70% 
+               >> text['morph_analysis'].display( ruby_text=(lambda x: x[1][0]['partofspeech']), 
+                                                  ruby_styles={"background": 'aqua', "font-size": '70%'} )
+
+        Returns
+        --------
+        str
+            A HTML representation for this layer. 
         """
         if check_if_estnltk_is_available():
             from estnltk.visualisation import DisplaySpans

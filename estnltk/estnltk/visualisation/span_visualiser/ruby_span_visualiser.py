@@ -6,11 +6,11 @@ import warnings
 class RubySpanVisualiser(PlainSpanVisualiser):
 
     def __init__(self, text_id, fill_empty_spans=False, styles:'Dict[str, Union[str, Callable[[str, List[Annotation]], str]]]'=None, 
-                                                        ruby:'Union[str, Callable[[str, List[Annotation]], str]]'=None, 
+                                                        ruby_text:'Union[str, Callable[[str, List[Annotation]], str]]'=None, 
                                                         ruby_styles:'Dict[str, Union[str, Callable[[str, List[Annotation]], str]]]'=None):
         super().__init__(text_id, fill_empty_spans=fill_empty_spans, styles=styles)
         self.fill_empty_spans = fill_empty_spans
-        self.ruby_rt = ruby
+        self.ruby_rt = ruby_text
         self.ruby_rt_styles = ruby_styles
 
     def __call__(self, segment, spans):

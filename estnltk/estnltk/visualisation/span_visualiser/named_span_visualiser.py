@@ -7,7 +7,7 @@ from estnltk_core.layer.relation_layer import NamedSpan
 class NamedSpanVisualiser:
     default_overlap_colour = "#FFCC00"  # darker yellow / orange
 
-    def __init__(self, text_id, fill_empty_spans=False, styles:'Union[str, Callable[[str, List[RelationAnnotation]], str]]'=None, 
+    def __init__(self, text_id, fill_empty_spans=False, styles:'Dict[str, Union[str, Callable[[str, List[RelationAnnotation]], str]]]'=None, 
                                                         mapping_dict=None, span_names_formatting=None):
         self.fill_empty_spans = fill_empty_spans
         if styles is None and mapping_dict is not None:
