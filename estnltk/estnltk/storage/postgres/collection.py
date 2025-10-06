@@ -1148,7 +1148,7 @@ class PgCollection:
 
 
     def create_layer(self, layer_template=None, data_iterator=None, row_mapper=None, tagger=None,
-                     create_index=False, ngram_index=None, overwrite=False, meta=None, progressbar=None,
+                     create_index=False, ngram_index=None, meta=None, progressbar=None,
                      query_length_limit=5000000, mode=None, sparse=False):
         """
         Creates a new detached layer to this collection.
@@ -1183,10 +1183,6 @@ class PgCollection:
                 Whether to create an index on json column
             ngram_index: list
                 A list of attributes for which to create an ngram index
-            overwrite: bool
-                deprecated, use mode='overwrite' instead
-                If True and layer table exists, table is overwritten.
-                If False and layer table exists, error is raised.
             meta: dict of str -> str
                 Specifies table column names and data types to create for storing additional
                 meta information. E.g. meta={"sum": "int", "average": "float"}.
@@ -1229,12 +1225,11 @@ class PgCollection:
         
         if create_relation_layer and ngram_index:
             raise NotImplementedError("Creating relation layers with ngram_index not implemented.")
-        
-        # TODO: remove overwrite parameter
-        assert overwrite is False or mode is None, (overwrite, mode)
-        if overwrite:
-            mode = 'overwrite'
+
         mode = mode or 'new'
+        # Check mode value
+        assert mode in {'new', 'overwrite', 'append'}, \
+            f'(!) Unexpected mode={mode!r}. Please use values "new", "overwrite" or "append".'
 
         def default_row_mapper(row):
             text_id, text = row[0], row[1]
