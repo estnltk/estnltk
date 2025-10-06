@@ -27,6 +27,7 @@ class PostgresStorage:
     exposes interface to conveniently search/save json data.
     """
 
+    # TODO: layer_type 'multi' is redundant. MultiLayerTagger should produce multiple 'detached' layers instead
     TABLED_LAYER_TYPES = {'detached', 'fragmented', 'multi'}
 
     ALL_LAYER_TYPES = ({'attached'}).union(TABLED_LAYER_TYPES)

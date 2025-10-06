@@ -784,7 +784,7 @@ class PgCollection:
                 Note that collection version 4.0 is required for adding relation 
                 layers.
             layer_type: str
-                Must be one of the following: {'detached', 'fragmented', 'multi'}.
+                Must be one of the following: {'detached', 'fragmented'}.
                 See also: PostgresStorage.TABLED_LAYER_TYPES
             fragmented_layer: bool
                 Whether a fragmented layer will be created (default: False)
