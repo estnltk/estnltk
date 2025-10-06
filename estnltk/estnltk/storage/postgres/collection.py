@@ -274,20 +274,6 @@ class PgCollection:
         self._selected_layers = None
         self._is_empty = not self.exists() or is_empty(self.storage, self.name)
 
-    def create(self, description=None, meta: dict = None, temporary=None):
-        """Creates and adds new collection to the database. 
-           * Creates tables of the collection (structure table and collection table);
-           * Adds entry about the collection to StorageCollections's table
-             (if the entry is missing);
-          
-          **Important:** this method is deprecated. Please use
-          PostgresStorage.add_collection(...) to create a new collection.
-        """
-        error_msg = '(!) PgCollection.create() is deprecated. '+\
-                    'Please use PostgresStorage.add_collection(...) '+\
-                    'method to create a new collection in database.'
-        raise Exception( error_msg )
-
     @property
     def structure(self):
         return self._structure
@@ -958,14 +944,6 @@ class PgCollection:
 
         logger.info('{} layer {!r} created from template'.format(layer_type, layer_template.name))
 
-    def continue_creating_layer(self, tagger, progressbar=None, query_length_limit=5000000):
-        warnings.simplefilter("always", DeprecationWarning)
-        warnings.warn('Method collection.continue_creating_layer(...) is deprecated. '+\
-                      'Please use collection.create_layer(..., mode="append") instead. ', 
-                       DeprecationWarning)
-        warnings.simplefilter("ignore", DeprecationWarning)
-        self.create_layer(tagger=tagger, progressbar=progressbar, query_length_limit=query_length_limit,
-                          mode='append')
 
     def create_fragmented_layer(self, tagger=None, fragmenter:callable=None, layer_template:Layer=None, \
                                       data_iterator=None,  row_mapper=None,  create_index:bool=False, \
@@ -1556,17 +1534,6 @@ class PgCollection:
         for layer in deletable_layers:
             drop_layer_table(self.storage, self.name, layer, layer_type=deletable_layer_types[layer])
             logger.info('layer deleted: {!r}'.format(layer))
-
-
-    def delete(self):
-        """Removes collection and all related layers.
-          **Important:** this method is deprecated. Please use
-          PostgresStorage.delete_collection(...) to delete a collection.
-        """
-        error_msg = '(!) PgCollection.delete() is deprecated. '+\
-                    'Please use PostgresStorage.delete_collection(...) '+\
-                    'method to remove a collection from database.'
-        raise Exception( error_msg )
 
     def has_layer(self, layer_name, layer_type=None):
         if not self.exists():
