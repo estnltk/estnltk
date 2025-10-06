@@ -614,7 +614,7 @@ class RelationLayer:
 
         Parameters
         ----------
-        styles : Union[str, Callable[[str, List[RelationAnnotation]], str]]
+        styles : Dict[str, Union[str, Callable[[str, List[RelationAnnotation]], str]]] 
             [Optional] A mapping with customised CSS styles for the visualisation. 
             Should map from CSS property name (e.g. "background", "font-weight") to 
             either a static CSS value (`str`) or a callable function that returns the 
