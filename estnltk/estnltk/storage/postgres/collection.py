@@ -756,7 +756,6 @@ class PgCollection:
 
     def add_layer(self, layer_template: Union[Layer, RelationLayer],
                         layer_type: str = 'detached',
-                        fragmented_layer: bool = False,
                         meta: Dict[str, str] = None,
                         create_index: bool = False,
                         ngram_index=None,
@@ -786,10 +785,6 @@ class PgCollection:
             layer_type: str
                 Must be one of the following: {'detached', 'fragmented'}.
                 See also: PostgresStorage.TABLED_LAYER_TYPES
-            fragmented_layer: bool
-                Whether a fragmented layer will be created (default: False)
-                Warning: this is a deprected argument and will be removed in 
-                future version.
             meta: dict of str -> str
                 Specifies table column names and data types to create for storing additional
                 meta information. E.g. meta={"sum": "int", "average": "float"}.
@@ -827,14 +822,6 @@ class PgCollection:
         if layer_type not in pg.PostgresStorage.TABLED_LAYER_TYPES:
             raise PgCollectionException("Unexpected layer type {!r}. Supported layer types are: {!r}".format(layer_type, \
                                                                      pg.PostgresStorage.TABLED_LAYER_TYPES))
-
-        if fragmented_layer:
-            warnings.simplefilter("always", DeprecationWarning)
-            warnings.warn('Flag collection.add_layer(...fragmented_layer=True) is deprecated. '+\
-                          'Please use collection.add_layer(..., layer_type="fragmented") instead. '+\
-                          'Currently, a detached layer is created.', 
-                          DeprecationWarning)
-            warnings.simplefilter("ignore", DeprecationWarning)
 
         # Check existence of the layer
         if self.layers is not None and layer_template.name in self.layers:
