@@ -123,6 +123,25 @@ class TestPgCollectionExportLayer(unittest.TestCase):
              (7, 2, 1, 7, 12, None, 'kolmas yllitis')]
         assert table_entries == expected_entries
         
+        #
+        # 4) Export layer with 'text' and 'enclosing_text'
+        #
+        table_name='words_fourth_export'
+        collection.export_layer('words', ('normalized_form', 'text', 'enclosing_text'), table_name=table_name)
+        assert pg.table_exists(self.storage, table_name)
+        # Validate exported annotations
+        table_identifier = pg.table_identifier(storage=self.storage, table_name=table_name)
+        table_entries = self._make_simple_query_on_table( table_identifier )
+        expected_entries = \
+            [(1, 0, 0, 0, 7, None, 'Esimene', 'Esimene'),
+             (2, 0, 1, 8, 13, None, 'tekst', 'tekst'),
+             (3, 0, 2, 13, 14, None, '.', '.'),
+             (4, 1, 0, 0, 5, None, 'Teine', 'Teine'),
+             (5, 1, 1, 6, 11, None, 'tekst', 'tekst'),
+             (6, 2, 0, 0, 6, None, 'Kolmas', 'Kolmas'),
+             (7, 2, 1, 7, 12, None, 'tekst', 'tekst')]
+        assert table_entries == expected_entries
+        
         self.storage.delete_collection(collection.name)
 
 

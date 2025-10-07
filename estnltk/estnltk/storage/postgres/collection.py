@@ -1679,6 +1679,12 @@ class PgCollection:
             Attributes of the layer which will be exported.
             For each attribute, a separate table column will
             be created.
+            In case of a span layer, you can also use attribute 
+            names 'text' and 'enclosing_text' to export values 
+            of span.text and span.enclosing_text, respectively. 
+            However, if the span layer already has attributes 
+            named 'text' or 'enclosing_text', then values of 
+            these attributes will be exported instead. 
         :param collection_meta: List[str]
             Collection's metadata fields to be exported. 
             For each metadata field, a separate table column 
@@ -1719,6 +1725,13 @@ class PgCollection:
         if table_name is None:
             table_name = '{}__{}__export'.format(self.name, layer)
         table_identifier = pg.table_identifier(storage=self.storage, table_name=table_name)
+
+        layer_attributes = self._structure[layer]['attributes']
+        # Validate attributes
+        for attr in attributes:
+            if attr not in layer_attributes and attr not in ['text', 'enclosing_text']:
+                raise AttributeError(f'(!) Layer {layer!r} does not have attribute {attr!r}. '+\
+                                     f'Available attributes: {layer_attributes!r}')
 
         logger.info('preparing to export {!r} layer with attributes {!r}'.format(layer, attributes))
 
@@ -1805,7 +1818,13 @@ class PgCollection:
                         for annotation in span.annotations:
                             i += 1
                             values = [ i, text_id, span_nr, span.start, span.end ]
-                            values.extend( [annotation[attr] for attr in attributes] )
+                            for attr in attributes:
+                                if attr in layer_attributes:
+                                    values.append( annotation[attr] )
+                                elif attr == 'text':
+                                    values.append( span.text )
+                                elif attr == 'enclosing_text':
+                                    values.append( span.enclosing_text )
                             values.extend( [meta[k] for k in collection_meta] )
                             buffered_inserter.insert( values )
                 else:
