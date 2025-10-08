@@ -141,7 +141,26 @@ class TestPgCollectionExportLayer(unittest.TestCase):
              (6, 2, 0, 0, 6, None, 'Kolmas', 'Kolmas'),
              (7, 2, 1, 7, 12, None, 'tekst', 'tekst')]
         assert table_entries == expected_entries
-        
+
+        #
+        # 5) Export layer with only with 'id' and 'text', exclude all other attributes
+        #
+        table_name='words_fifth_export'
+        collection.export_layer('words', ('text',), table_name=table_name, key_attributes=['id'])
+        assert pg.table_exists(self.storage, table_name)
+        # Validate exported annotations
+        table_identifier = pg.table_identifier(storage=self.storage, table_name=table_name)
+        table_entries = self._make_simple_query_on_table( table_identifier )
+        expected_entries = \
+            [(1, 'Esimene'),
+             (2, 'tekst'),
+             (3, '.'),
+             (4, 'Teine'),
+             (5, 'tekst'),
+             (6, 'Kolmas'),
+             (7, 'tekst')]
+        assert table_entries == expected_entries
+
         self.storage.delete_collection(collection.name)
 
 

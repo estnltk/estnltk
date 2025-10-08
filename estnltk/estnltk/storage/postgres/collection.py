@@ -1640,11 +1640,12 @@ class PgCollection:
             layer_template_json = layer_to_json(layer_template) if layer_template is not None else None
         return layer_template_json if as_json else layer_template
 
-    def export_layer(self, layer, attributes, collection_meta=None, table_name=None, progressbar=None, mode='NEW'):
+    def export_layer(self, layer, attributes, collection_meta=None, table_name=None, progressbar=None, mode='NEW', \
+                           key_attributes=['id', 'text_id', 'span_nr', 'span_start', 'span_end']):
         """
         Exports annotations from the given layer to a separate table.
         
-        At minimum, the exported span layer table has the following columns:
+        By default, the exported span layer table has the following columns:
         * id -- annotation id (unique in the whole collection);
         * text_id -- text's id in the collection;
         * span_nr -- span's index in the layer;
@@ -1705,6 +1706,11 @@ class PgCollection:
             If mode=='APPEND', then appends to an existing table 
             (and throws an expection if the table does not exist).
             Default: 'NEW'
+        :param key_attributes: List[str]
+            Key attributes are always added as columns to the exported 
+            table. Normally, you wouldn't need to change this parameter. 
+            Change it only when you know what you are doing. 
+            Default: ['id', 'text_id', 'span_nr', 'span_start', 'span_end'] 
         """
         if not self.exists():
             raise PgCollectionException("collection {!r} does not exist, can't export layer {!r}".format(
@@ -1726,6 +1732,13 @@ class PgCollection:
             table_name = '{}__{}__export'.format(self.name, layer)
         table_identifier = pg.table_identifier(storage=self.storage, table_name=table_name)
 
+        # Validate key_attributes (span layer)
+        legal_key_attributes = ['id', 'text_id', 'span_nr', 'span_start', 'span_end']
+        for key_attr in key_attributes:
+            if key_attr not in legal_key_attributes:
+                raise AttributeError(f'(!) Unexpected key_attribute {key_attr!r}. '+\
+                                     f'Please use only key_attributes from: {legal_key_attributes!r}')
+
         layer_attributes = self._structure[layer]['attributes']
         # Validate attributes
         for attr in attributes:
@@ -1733,17 +1746,21 @@ class PgCollection:
                 raise AttributeError(f'(!) Layer {layer!r} does not have attribute {attr!r}. '+\
                                      f'Available attributes: {layer_attributes!r}')
 
+        # Validate that at least some attributes have been specified
+        if not key_attributes and not attributes and not collection_meta:
+            raise AttributeError(f'(!) Cannot export layer {layer!r}: no attributes specified. ')
+
         logger.info('preparing to export {!r} layer with attributes {!r}'.format(layer, attributes))
 
         if not export_relation_layer:
             # span layer
-            columns = [
-                ('id', 'serial PRIMARY KEY'),
-                ('text_id', 'int NOT NULL'),
-                ('span_nr', 'int NOT NULL'),
-                ('span_start', 'int NOT NULL'),
-                ('span_end', 'int NOT NULL'),
-            ]
+            columns = []
+            for key_attr in key_attributes:
+                if key_attr == 'id':
+                    columns.append( ('id', 'serial PRIMARY KEY') )
+                else:
+                    # 'text_id', 'span_nr', 'span_start', 'span_end'
+                    columns.append( (key_attr, 'int NOT NULL') )
             columns.extend((attr, 'text') for attr in attributes)
             columns.extend((attr, 'text') for attr in collection_meta)
         else:
@@ -1817,7 +1834,18 @@ class PgCollection:
                     for span_nr, span in enumerate( text[layer] ):
                         for annotation in span.annotations:
                             i += 1
-                            values = [ i, text_id, span_nr, span.start, span.end ]
+                            values = []
+                            for key_attr in key_attributes:
+                                if key_attr == 'id':
+                                    values.append( i )
+                                elif key_attr == 'text_id':
+                                    values.append( text_id )
+                                elif key_attr == 'span_nr':
+                                    values.append( span_nr )
+                                elif key_attr == 'span_start':
+                                    values.append( span.start )
+                                elif key_attr == 'span_end':
+                                    values.append( span.end )
                             for attr in attributes:
                                 if attr in layer_attributes:
                                     values.append( annotation[attr] )
