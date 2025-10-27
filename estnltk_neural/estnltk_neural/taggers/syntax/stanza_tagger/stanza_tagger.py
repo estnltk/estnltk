@@ -45,6 +45,8 @@ class StanzaSyntaxTagger(Tagger):
 
     Names of layers to use can be changed using parameters sentences_layer, words_layer and input_morph_layer,
     if needed. To use GPU for parsing, parameter use_gpu must be set to True. 
+    Optionally, you can also provide parameter device to change the GPU devide, e.g. use "cuda:1" instead of 
+    "cuda:0". 
     Parameter add_parents_and_children adds attributes that contain the parent and children of a word. 
     
     The input morph analysis layer can be ambiguous. In that case, StanzaSyntaxTagger picks randomly one 
@@ -66,7 +68,7 @@ class StanzaSyntaxTagger(Tagger):
     conf_param = ['model_path', 'add_parent_and_children', 'syntax_dependency_retagger',
                   'input_type', 'dir', 'mark_syntax_error', 'mark_agreement_error', 'agreement_error_retagger',
                   'ud_validation_retagger', 'nlp', 'use_gpu', 'gpu_max_words_in_sentence', 'random_pick_seed', 
-                  '_random']
+                  '_random', '_device']
 
     def __init__(self,
                  output_layer='stanza_syntax',
@@ -81,6 +83,7 @@ class StanzaSyntaxTagger(Tagger):
                  mark_syntax_error=False,
                  mark_agreement_error=False,
                  use_gpu=False,
+                 device:str=None,
                  gpu_max_words_in_sentence=1000
                  ):
         # Make an internal import to avoid explicit stanza dependency
@@ -93,6 +96,7 @@ class StanzaSyntaxTagger(Tagger):
         self.output_attributes = ('id', 'lemma', 'upostag', 'xpostag', 'feats', 'head', 'deprel', 'deps', 'misc')
         self.input_type = input_type
         self.use_gpu = use_gpu
+        self._device = device
         self.random_pick_seed = random_pick_seed
         self._random = Random()
         if isinstance(self.random_pick_seed, int):
@@ -175,6 +179,7 @@ class StanzaSyntaxTagger(Tagger):
                                        tokenize_pretokenized=True,
                                        depparse_model_path=self.model_path,
                                        use_gpu=self.use_gpu,
+                                       device=self._device,
                                        logging_level='WARN')  # Logging level chosen so it does not display
             # information about downloading model
 

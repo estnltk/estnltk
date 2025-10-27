@@ -27,7 +27,9 @@ class StanzaSyntaxEnsembleTagger(Tagger):
     UPOS is the same as VabaMorf's part of speech tag and feats is based on VabaMorf's forms.
 
     Names of layers to use can be changed using parameters sentences_layer, words_layer and input_morph_layer,
-    if needed. To use GPU for parsing, parameter use_gpu must be set to True.
+    if needed. To use GPU for parsing, parameter use_gpu must be set to True. 
+    Optionally, you can also provide parameter device to change the GPU devide, e.g. use "cuda:1" instead of 
+    "cuda:0". 
     Parameter add_parents_and_children adds attributes that contain the parent and children of a word.
 
     When using models which are trained on some missing conllu fields (text, lemma, upos, xpos, feats), these
@@ -89,7 +91,7 @@ class StanzaSyntaxEnsembleTagger(Tagger):
                   'find_entropy', 'deprel_entropy', 'head_entropy', 'add_voting_results', 
                   'ud_validation_retagger', 'use_gpu', 'gpu_max_words_in_sentence', 'model_paths', 
                   'taggers', 'remove_fields', 'replace_fields', 'random_pick_seed', '_random1', 
-                  'random_pick_max_score_seed', '_random2']
+                  'random_pick_max_score_seed', '_device', '_random2']
 
     def __init__(self,
                  output_layer: str = 'stanza_ensemble_syntax',
@@ -110,6 +112,7 @@ class StanzaSyntaxEnsembleTagger(Tagger):
                  head_entropy: bool = False,
                  add_voting_results: bool = False,
                  use_gpu: bool = False,
+                 device: str = None,
                  gpu_max_words_in_sentence: int = 1000
                  ):
         # Make an internal import to avoid explicit stanza dependency
@@ -129,6 +132,7 @@ class StanzaSyntaxEnsembleTagger(Tagger):
                               'Must be a value from set {"las_coherence", "majority_voting"}').format(aggregation_algorithm))
         self.aggregation_algorithm = aggregation_algorithm.lower()
         self.use_gpu = use_gpu
+        self._device = device
         # We may run into "CUDA out of memory" error when processing very long sentences 
         # with GPU.
         # Set a reasonable default for max sentence length: if that gets exceeded, then a 
@@ -170,6 +174,7 @@ class StanzaSyntaxEnsembleTagger(Tagger):
                                   depparse_pretagged=True,
                                   depparse_model_path=model_path,
                                   use_gpu=self.use_gpu,
+                                  device=self._device,
                                   logging_level='WARN')
             self.taggers[str(i)] = nlp
 
