@@ -20,8 +20,11 @@ def ner_decorator(text_obj, words_phrase, corresponding_bert_tokens):
     return {"nertag": nertags[0]}
 
 
-class EstBERTNERTagger(MultiLayerTagger):
-    """EstNLTK wrapper for the huggingface EstBERTNER models."""
+class BertNerTagger(MultiLayerTagger):
+    """EstNLTK wrapper for Bert-based Named Entity Recognition models for Estonian. 
+       Assures that NER labels in the Bert output will be aligned with EstNLTK's words. 
+       By default, uses the model "estbertner_v1", but other models can also be used. 
+    """
     conf_param = ('model_location', 'nlp', 'tokenizer', 'custom_words_layer', 'batch_size', 
                   'postfix_expand_suffixes', 'postfix_concat_same_type_entities', 'postfix_remove_infix_matches',
                   '_bert_tokens_rewriter')
@@ -35,14 +38,15 @@ class EstBERTNERTagger(MultiLayerTagger):
                        device: Union[int, "torch.device"] = None 
                        ):
         """
-        Initializes EstBERTNERTagger.
+        Initializes BertNerTagger.
         
         Parameters
         ----------
         model_location: str
-            Full path to the EstBERTNER model files directory. If not provided (default), then 
-            attempts to use estbertner v1 model from estnltk_resources. If that fails (model is 
-            missing and downloading fails), then throws an exception.
+            Full path to a directory containing a Bert based model finetuned for Estonian NER. 
+            If not provided (default), then attempts to use estbertner v1 model from 
+            estnltk_resources. If that fails (model is missing and downloading fails), then 
+            throws an exception. 
         output_layer: str
             Name of the output named entity annotations layer. 
             Default: 'estbertner'.

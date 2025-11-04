@@ -11,11 +11,14 @@ def check_if_transformers_is_available():
 def check_if_pytorch_is_available():
     return find_spec("torch") is not None
 
-# Try to get the resources path for EstBERTNERTagger model v1. If missing, do nothing. It's up for the user to download the missing resources
+# Try to get the resources path for EstBERTNER model v1. If missing, do nothing. It's up for the user to download the missing resources
 ESTBERTNER_V1_PATH = get_resource_paths("estbertner", only_latest=True, download_missing=False)
 
-# Try to get the resources path for EstBERTNERTagger model v2. If missing, do nothing. It's up for the user to download the missing resources
+# Try to get the resources path for EstBERTNER model v2. If missing, do nothing. It's up for the user to download the missing resources
 ESTBERTNER_V2_PATH = get_resource_paths("estbertner_v2", only_latest=True, download_missing=False)
+
+# Try to get the resources path for estroberta_ud_ner_v1. If missing, do nothing. It's up for the user to download the missing resources
+ESTROBERTA_UD_NER_PATH = get_resource_paths("estroberta_ud_ner_v1", only_latest=True, download_missing=False)
 
 def _ner_spans_as_tuples(ner_layer):
     results = []
@@ -30,12 +33,12 @@ def _ner_spans_as_tuples(ner_layer):
 @pytest.mark.skipif(not check_if_pytorch_is_available(),
                     reason="package pytorch is required for this test")
 @pytest.mark.skipif(ESTBERTNER_V1_PATH is None,
-                    reason="EstBERTNERTagger's model location not known. "+\
+                    reason="BertNerTagger's model location not known. "+\
                            "Use estnltk.download('estbertner') to get the missing resources.")
 def test_estbertner_v1_out_of_the_box():
-    # Test that EstBERTNERTagger works "out_of_the_box" if model v1 is available
-    from estnltk_neural.taggers import EstBERTNERTagger
-    neural_ner_tagger = EstBERTNERTagger()
+    # Test that BertNerTagger works "out_of_the_box" if model v1 is available
+    from estnltk_neural.taggers import BertNerTagger
+    neural_ner_tagger = BertNerTagger()
     text = Text('Tarmo Kruusimäe : Vaiko Eplik hoiatas ammu kogu Euroopat. Läänemets viib nüüd täide. '+\
                 'Homme avatakse Tartu Linnaraamatukogu muusikaosakonnas maalikunstnik Ove Büttneri, '+\
                 'graafik Tiit Rammuli, ning Tiina Vilbergi ühisnäitus "Loomaaed".').tag_layer('words')
@@ -58,12 +61,12 @@ def test_estbertner_v1_out_of_the_box():
 @pytest.mark.skipif(not check_if_pytorch_is_available(),
                     reason="package pytorch is required for this test")
 @pytest.mark.skipif(ESTBERTNER_V2_PATH is None,
-                    reason="EstBERTNERTagger's model location not known. "+\
+                    reason="BertNerTagger's model location not known. "+\
                            "Use estnltk.download('estbertner_v2') to get the missing resources.")
 def test_estbertner_v2_smoke():
-    # Test that EstBERTNERTagger works "out_of_the_box" if model v2 location is provided
-    from estnltk_neural.taggers import EstBERTNERTagger
-    neural_ner_tagger = EstBERTNERTagger( model_location=ESTBERTNER_V2_PATH )
+    # Test that BertNerTagger works "out_of_the_box" if model v2 location is provided
+    from estnltk_neural.taggers import BertNerTagger
+    neural_ner_tagger = BertNerTagger( model_location=ESTBERTNER_V2_PATH )
     text = Text('Tarmo Kruusimäe : Vaiko Eplik hoiatas ammu kogu Euroopat. Läänemets viib nüüd täide. '+\
                 'Homme avatakse Tartu Linnaraamatukogu muusikaosakonnas maalikunstnik Ove Büttneri, '+\
                 'graafik Tiit Rammuli, ning Tiina Vilbergi ühisnäitus "Loomaaed".').tag_layer('words')
@@ -91,13 +94,13 @@ def test_estbertner_v2_smoke():
 @pytest.mark.skipif(not check_if_pytorch_is_available(),
                     reason="package pytorch is required for this test")
 @pytest.mark.skipif(ESTBERTNER_V2_PATH is None,
-                    reason="EstBERTNERTagger's model location not known. "+\
+                    reason="BertNerTagger's model location not known. "+\
                            "Use estnltk.download('estbertner_v2') to get the missing resources.")
 def test_estbertner_v2_tokenization_fail():
-    # Test EstBERTNERTagger on texts that contain rare unicode symbols. 
+    # Test BertNerTagger on texts that contain rare unicode symbols. 
     # Previous versions of the tagger crashed on these symbols. 
-    from estnltk_neural.taggers import EstBERTNERTagger
-    neural_ner_tagger = EstBERTNERTagger( model_location=ESTBERTNER_V2_PATH )
+    from estnltk_neural.taggers import BertNerTagger
+    neural_ner_tagger = BertNerTagger( model_location=ESTBERTNER_V2_PATH )
     text = Text('Gröönimaa - Magssanguaq Qujaukitsoq ; Island - Žórarinn Eldjárn ; Soome - Joni Pyysalo ; '+\
                 'Läti - Kārlis Vērdiņš ; Laïta jõe suudme vaheline rannikuala ; Yangi­Millsi kalibratsioonivälja ; '+\
                 'arbitrio sobre la productión y sobre las importaciones').tag_layer('words')
@@ -119,15 +122,15 @@ def test_estbertner_v2_tokenization_fail():
 @pytest.mark.skipif(not check_if_pytorch_is_available(),
                     reason="package pytorch is required for this test")
 @pytest.mark.skipif(ESTBERTNER_V1_PATH is None,
-                    reason="EstBERTNERTagger's model location not known. "+\
+                    reason="BertNerTagger's model location not known. "+\
                            "Use estnltk.download('estbertner') to get the missing resources.")
 def test_estbertner_v1_postfixes():
     # Initialize model without any postfixes
-    from estnltk_neural.taggers import EstBERTNERTagger
-    neural_ner_tagger = EstBERTNERTagger(custom_words_layer=None,
-                                         postfix_expand_suffixes=False, 
-                                         postfix_concat_same_type_entities=False, 
-                                         postfix_remove_infix_matches=False)
+    from estnltk_neural.taggers import BertNerTagger
+    neural_ner_tagger = BertNerTagger(custom_words_layer=None,
+                                      postfix_expand_suffixes=False, 
+                                      postfix_concat_same_type_entities=False, 
+                                      postfix_remove_infix_matches=False)
     # 1) Test _postfix_expand_suffixes
     text = Text('Seni Kuressaarel otseliin Pärnuga puudub. '+\
                 'Calev konnib Brusselisse. Kanepi alevik nimetatakse Kaiaks. '
@@ -179,17 +182,16 @@ def test_estbertner_v1_postfixes():
 @pytest.mark.skipif(not check_if_pytorch_is_available(),
                     reason="package pytorch is required for this test")
 @pytest.mark.skipif(ESTBERTNER_V2_PATH is None,
-                    reason="EstBERTNERTagger's model location not known. "+\
+                    reason="BertNerTagger's model location not known. "+\
                            "Use estnltk.download('estbertner_v2') to get the missing resources.")
 def test_estbertner_v2_postfixes():
     # Initialize model without any postfixes
-    from estnltk_neural.taggers import EstBERTNERTagger
-    from estnltk_neural.taggers import EstBERTNERTagger
-    neural_ner_tagger = EstBERTNERTagger(model_location=ESTBERTNER_V2_PATH,
-                                         custom_words_layer=None,
-                                         postfix_expand_suffixes=False, 
-                                         postfix_concat_same_type_entities=False, 
-                                         postfix_remove_infix_matches=False)
+    from estnltk_neural.taggers import BertNerTagger
+    neural_ner_tagger = BertNerTagger(model_location=ESTBERTNER_V2_PATH,
+                                      custom_words_layer=None,
+                                      postfix_expand_suffixes=False, 
+                                      postfix_concat_same_type_entities=False, 
+                                      postfix_remove_infix_matches=False)
     # 1) Test _postfix_expand_suffixes
     text = Text('Seni Kuressaarel otseliin Pärnuga puudub. '+\
                 'Calev konnib Brusselisse. Kanepi alevik nimetatakse Kaiaks. '
@@ -235,3 +237,43 @@ def test_estbertner_v2_postfixes():
          (52, 60, 'Myanmari', 'GPE'), (88, 97, 'Bangkokis', 'GPE'), 
          (120, 131, 'MacArthurit', 'PER'), (140, 147, 'Kenyast', 'GPE'), (160, 172, 'Mecklenburgi', 'GPE')]
 
+
+
+@pytest.mark.skipif(not check_if_transformers_is_available(),
+                    reason="package tranformers is required for this test")
+@pytest.mark.skipif(not check_if_pytorch_is_available(),
+                    reason="package pytorch is required for this test")
+@pytest.mark.skipif(ESTROBERTA_UD_NER_PATH is None,
+                    reason="BertNerTagger's UD ner model location not known. "+\
+                           "Use estnltk.download('estroberta_ud_ner_v1') to get the missing resources.")
+def test_estroberta_ud_ner_v1_smoke():
+    # Initialize model
+    from estnltk_neural.taggers import BertNerTagger
+    ud_ner_tagger = BertNerTagger(model_location=ESTROBERTA_UD_NER_PATH)
+    # Test Case 1
+    text = Text('Seni Kuressaarel otseliin Pärnuga puudub. '+\
+                'Calev konnib Brusselisse. Kanepi alevik nimetatakse Kaiaks. '
+                'Helmutil läheb hästi, Ilse vaatas Ellit kahtlustavalt, '+\
+                'Rolandi kavalus ei läinud läbi isegi Tartus Gogoli raamatukogus. ').tag_layer('words')
+    ud_ner_tagger.tag(text)
+    output_layer = ud_ner_tagger.output_layers[0]
+    #print( _ner_spans_as_tuples( text[output_layer] ) )
+    assert _ner_spans_as_tuples( text[output_layer] ) == \
+        [(5, 16, 'Kuressaarel', 'LOC'), (26, 33, 'Pärnuga', 'LOC'), \
+         (42, 47, 'Calev', 'ORG'), (55, 66, 'Brusselisse', 'LOC'), \
+         (68, 81, 'Kanepi alevik', 'LOC'), (94, 100, 'Kaiaks', 'LOC'), \
+         (102, 110, 'Helmutil', 'PER'), (124, 128, 'Ilse', 'PER'), (136, 141, 'Ellit', 'PER'), \
+         (157, 164, 'Rolandi', 'PER'), (194, 200, 'Tartus', 'LOC'), (201, 220, 'Gogoli raamatukogus', 'ORG')]
+    # Test Case 2
+    text = Text('Baskerville Communications Corp Londonist ennustab, '+\
+                'et USA majandus on languses, aga Eestis ei sega see '
+                'enne suurt börsikrahhi Von Krahli Teatris '+\
+                'etendamast Ervin Õunapuu näitemängu " Surm ooperis " .').tag_layer('words')
+    ud_ner_tagger.tag(text)
+    output_layer = ud_ner_tagger.output_layers[0]
+    #print( _ner_spans_as_tuples( text[output_layer] ) )
+    assert _ner_spans_as_tuples( text[output_layer] ) == \
+        [(0, 31, 'Baskerville Communications Corp', 'ORG'), (32, 41, 'Londonist', 'LOC'), \
+         (55, 58, 'USA', 'GEP'), (85, 91, 'Eestis', 'GEP'), (127, 145, 'Von Krahli Teatris', 'ORG'), \
+         (157, 170, 'Ervin Õunapuu', 'PER'), (171, 181, 'näitemängu', 'PROD'), \
+         (182, 198, '" Surm ooperis "', 'PROD')]
