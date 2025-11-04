@@ -1,5 +1,7 @@
 from typing import MutableMapping, Union
 
+import warnings
+
 from transformers import AutoTokenizer
 from transformers import AutoModelForTokenClassification
 from transformers import pipeline
@@ -427,3 +429,18 @@ def _text_snippet( text_obj:Text, start:int, end:int ) -> str:
     snippet = text_obj.text[start:end]
     snippet = snippet.replace('\n', '\\n')
     return snippet
+
+
+# Only for backward compatibility, will be removed in a future version
+class EstBERTNERTagger(BertNerTagger):
+    """EstNLTK wrapper for the huggingface EstBERTNER models. [Deprecated]
+    """
+
+    def __init__(self, *args, **kwargs):
+        warnings.warn(
+            "EstBERTNERTagger is deprecated and will be removed in a future release. "
+            "Please use BertNerTagger instead.",
+            Warning,
+            stacklevel=2
+        )
+        super().__init__(*args, **kwargs)
