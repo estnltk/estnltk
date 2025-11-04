@@ -23,7 +23,7 @@ def ner_decorator(text_obj, words_phrase, corresponding_bert_tokens):
 
 
 class BertNerTagger(MultiLayerTagger):
-    """EstNLTK wrapper for Bert-based Named Entity Recognition models for Estonian. 
+    """EstNLTK wrapper for Estonian Bert-based Named Entity Recognition models. 
        Assures that NER labels in the Bert output will be aligned with EstNLTK's words. 
        By default, uses the model "estbertner_v1", but other models can also be used. 
     """
