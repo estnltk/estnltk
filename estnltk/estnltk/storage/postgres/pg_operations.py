@@ -188,66 +188,6 @@ def layer_table_identifier(storage, collection_name, layer_name, layer_type='det
         raise NotImplementedError( error_msg )
 
 
-def create_collection_table(storage, collection_name, meta_columns=None, description=None):
-    """
-    Creates a new table to store jsonb data:
-
-        CREATE TABLE table(
-            id serial PRIMARY KEY,
-            data jsonb,
-        );
-
-    and automatically adds a GIN index for the jsonb column:
-
-        CREATE INDEX idx_table_data ON table USING gin ((data -> 'layers') jsonb_path_ops);
-    
-    The types for meta columns can be int, bigint, float, str and datetime. For more information 
-    consult the source code. 
-    
-    Deprecated: this method is deprecated and will be removed in future versions. 
-    Please use collection.structure.create_collection_table(...) instead.
-    """
-    warnings.simplefilter("always", DeprecationWarning)
-    warnings.warn('Function create_collection_table is deprecated and will be removed in future versions. '+\
-                  'Please use collection.structure.create_collection_table(...) instead.', 
-                  DeprecationWarning)
-    warnings.simplefilter("ignore", DeprecationWarning)
-    
-    assert storage.conn.autocommit == False
-
-    columns = [SQL('id BIGSERIAL PRIMARY KEY'),
-               SQL('data jsonb')]
-    if meta_columns is not None:
-        for col_name, col_type in meta_columns.items():
-            columns.append(SQL('{} {}').format(Identifier(col_name), SQL(pytype2dbtype[col_type])))
-
-    temp = SQL('TEMPORARY') if storage.temporary else SQL('')
-    table_name = collection_table_name(collection_name)
-    table = collection_table_identifier(storage, table_name)
-
-    with storage.conn.cursor() as c:
-        try:
-            c.execute(SQL("CREATE {} TABLE {} ({});").format(
-                temp, table, SQL(', ').join(columns)))
-            logger.debug(c.query.decode())
-            c.execute(
-                SQL("CREATE INDEX {index} ON {table} USING gin ((data->'layers') jsonb_path_ops);").format(
-                    index=Identifier('idx_%s_data' % table_name),
-                    table=table))
-            logger.debug(c.query.decode())
-            if isinstance(description, str):
-                c.execute(SQL("COMMENT ON TABLE {} IS {}").format(
-                    table, Literal(description)))
-                logger.debug(c.query.decode())
-        except:
-            storage.conn.rollback()
-            raise
-        finally:
-            if storage.conn.status == STATUS_BEGIN:
-                # no exception, transaction in progress
-                storage.conn.commit()
-
-
 def layer_table_exists(storage, collection_name, layer_name, layer_type='detached', omit_commit: bool=False, omit_rollback: bool=False):
     if layer_type=='detached':
         return table_exists(storage, layer_table_name(collection_name, layer_name), omit_commit=omit_commit, omit_rollback=omit_rollback)

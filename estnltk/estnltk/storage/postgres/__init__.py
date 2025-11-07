@@ -50,7 +50,6 @@ from .pg_operations import structure_table_identifier
 from .pg_operations import layer_table_identifier
 
 from .pg_operations import create_schema
-from .pg_operations import create_collection_table  # Deprecated: use collection.structure.create_collection_table(...) instead
 
 from .pg_operations import table_exists
 from .pg_operations import table_identifier
