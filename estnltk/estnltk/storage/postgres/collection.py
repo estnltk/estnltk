@@ -1543,16 +1543,6 @@ class PgCollection:
         else:
             return layer_name in self.get_layer_names_by_type(layer_type=layer_type)
 
-    def has_fragment(self, fragment_name):
-        warnings.simplefilter("always", DeprecationWarning)
-        warnings.warn('collection.has_fragment(...) is deprecated. '+\
-                      'Use collection.has_layer(name, layer_type="fragmented") instead. ', 
-                      DeprecationWarning)
-        warnings.simplefilter("ignore", DeprecationWarning)
-        if not self.exists():
-            raise PgCollectionException("collection {!r} does not exist".format( self.name ))
-        return fragment_name in self.get_fragment_names()
-
     def is_sparse(self, layer_name):
         if not self.exists():
             raise PgCollectionException("collection {!r} does not exist".format( self.name ))
@@ -1566,37 +1556,6 @@ class PgCollection:
         if not self.has_layer(layer_name):
             raise ValueError('collection does not have layer {!r}'.format(layer_name))
         return (self._structure[layer_name]).get('relation_layer', False)
-
-    def get_fragment_names(self):
-        warnings.simplefilter("always", DeprecationWarning)
-        warnings.warn('collection.get_fragment_names(...) is deprecated. ', 
-                      DeprecationWarning)
-        warnings.simplefilter("ignore", DeprecationWarning)
-        if not self.exists():
-            raise PgCollectionException("collection {!r} does not exist".format( self.name ))
-        
-        lf_names = []
-        for tbl in self.get_fragment_tables():
-            layer = re.sub("^%s__" % self.name, "", tbl)
-            layer = re.sub("__fragment$", "", layer)
-            lf_names.append(layer)
-        return lf_names
-
-    def get_fragment_tables(self):
-        warnings.simplefilter("always", DeprecationWarning)
-        warnings.warn('collection.get_fragment_tables(...) is deprecated. '+\
-                      'Use collection.get_layer_names_by_type(layer_type="fragmented") with '+\
-                      'fragment_table_name(...) instead. ', 
-                      DeprecationWarning)
-        warnings.simplefilter("ignore", DeprecationWarning)
-        if not self.exists():
-            raise PgCollectionException("collection {!r} does not exist".format( self.name ))
-        
-        fragment_tables = []
-        for tbl in pg.get_all_table_names(self.storage):
-            if tbl.startswith("%s__" % self.name) and tbl.endswith("__fragment"):
-                fragment_tables.append(tbl)
-        return fragment_tables
 
     def get_layer_names_by_type(self, layer_type:str='attached'):
         if not self.exists():
