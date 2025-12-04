@@ -18,10 +18,10 @@ def flatten(input_layer: Union['BaseLayer', 'Layer'], output_layer: str, output_
 
        Note: If the input layer is enveloping and contains discontinuous text 
        spans, the output layer will still have continuous text spans, covering 
-       all the gaps between spans. 
-       However, if you set gaps_strategy = 'cut_out', then gaps between 
-       discontinuous spans (indicated by non-whitspace) will be cut out, 
-       splitting spans correspondingly. 
+       all the gaps inside spans. 
+       However, if you set gaps_strategy = 'cut_out', then gaps inside spans 
+       (signalled by a non-whitspace string between two sub-spans) will be cut 
+       out, splitting spans correspondingly. 
        
        Parameters
        ----------

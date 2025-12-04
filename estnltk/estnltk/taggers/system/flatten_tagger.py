@@ -18,25 +18,40 @@ class FlattenTagger(Tagger):
     parameter ( the function can be imported from module:
     estnltk_core.layer_operations.flatten ) or apply a 
     Disambiguator on the output layer. 
-    
-    Note #2: layer's attributes and their names and default values 
+
+    Note #2: if the input layer is enveloping and contains 
+    discontinuous text spans, then, by default, the output layer 
+    will still have continuous text spans, covering all the gaps 
+    inside spans. 
+    However, if you set gaps_strategy='cut_out', then gaps inside 
+    spans (signalled by a non-whitspace string between two sub-spans, 
+    as described by gaps_pattern) will be cut out, splitting spans 
+    correspondingly. Please consult the docstring of the flatten 
+    function for more details.
+
+    Note #3: layer's attributes and their names and default values 
     can be changed during the flattening process. Please consult the 
     docstring of the flatten function for details.
     """
-    conf_param = ['attribute_mapping', 'default_values']
+    conf_param = ['attribute_mapping', 'default_values', \
+                  'gaps_strategy', 'gaps_pattern']
 
     def __init__(self,
                  input_layer: str,
                  output_layer: str,
                  output_attributes: Sequence[str],
                  attribute_mapping=None,
-                 default_values=None
+                 default_values=None,
+                 gaps_strategy=None,
+                 gaps_pattern=r'\s*\S.*\s*',
                  ):
         self.input_layers = (input_layer, )
         self.output_layer = output_layer
         self.output_attributes = tuple(output_attributes)
         self.attribute_mapping = attribute_mapping
         self.default_values = default_values
+        self.gaps_strategy = gaps_strategy
+        self.gaps_pattern = gaps_pattern
 
     def _make_layer_template(self):
         return Layer(name=self.output_layer,
@@ -51,5 +66,7 @@ class FlattenTagger(Tagger):
                         output_layer=self.output_layer,
                         output_attributes=self.output_attributes,
                         attribute_mapping=self.attribute_mapping,
-                        default_values=self.default_values)
+                        default_values=self.default_values,
+                        gaps_strategy=self.gaps_strategy, 
+                        gaps_pattern=self.gaps_pattern)
         return layer
