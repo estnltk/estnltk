@@ -133,7 +133,7 @@ class TokensTagger(Tagger):
                         # Add the quotation mark
                         split_spans.append( (start+q_start, start+q_end) )
                         last_q_end = q_end
-                    if last_q_end < len(token):
+                    if split_spans and last_q_end < len(token):
                         # Complete the separation:
                         # 'ˮEuroopa' --> 'ˮ', 'Euroopa'
                         split_spans.append( (start+last_q_end, start+len(token)) )
