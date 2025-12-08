@@ -119,25 +119,27 @@ class TokensTagger(Tagger):
                             match_locs.append( (q_start, q_end) )
                     # Split span into sub-tokens
                     split_spans = []
+                    last_q_end = 0
                     for (q_start, q_end) in match_locs:
-                        if q_start == 0:
-                            split_spans.append( (start+q_start, start+q_end) )
-                            if len(match_locs) == 1:
-                                # Complete the separation:
-                                # 'ˮEuroopa' --> 'ˮ', 'Euroopa'
-                                split_spans.append( (start+q_end, end) )
-                        elif q_end == len(token):
-                            if len(match_locs) == 1:
-                                # Complete the separation:
-                                # '2020ˮ' --> '2020', 'ˮ'
-                                split_spans.append( (start, start+q_start) )
-                            else:
-                                # Continue separation:
-                                # 'ˮEuroopaˮ --> 'ˮ', 'Euroopa', 'ˮ'
-                                last_end = split_spans[-1][-1]
-                                split_spans.append( (last_end, start+q_start) )
-                            split_spans.append( (start+q_start, end) )
+                        if len(split_spans) == 0 and q_start > 0:
+                            # Add the string before the first quotation mark,
+                            # e.g. ',"+/–"' -> ',', '"', '+/–', '"'
+                            #      '2020ˮ' --> '2020', 'ˮ'
+                            split_spans.append( (start, start+q_start) )
+                        elif len(split_spans) > 0 and q_start > last_q_end:
+                            # Add the string between two quotation marks,
+                            # e.g. 'ˮEuroopaˮ --> 'ˮ', 'Euroopa', 'ˮ'
+                            split_spans.append( (start+last_q_end, start+q_start) )
+                        # Add the quotation mark
+                        split_spans.append( (start+q_start, start+q_end) )
+                        last_q_end = q_end
+                    if last_q_end < len(token):
+                        # Complete the separation:
+                        # 'ˮEuroopa' --> 'ˮ', 'Euroopa'
+                        split_spans.append( (start+last_q_end, start+len(token)) )
                     if split_spans:
+                        assert split_spans[0][0] == start
+                        assert split_spans[-1][-1] == end
                         q_split_spans[(start, end)] = split_spans
             if q_split_spans:
                 new_spans = []
