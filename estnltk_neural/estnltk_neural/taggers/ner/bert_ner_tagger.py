@@ -103,7 +103,8 @@ class BertNerTagger(MultiLayerTagger):
             A function that transforms input text chunks to strings on which the Bert model is less 
             likely to fail with an error -- basically, it should replace bad characters that can 
             cause internal indexing errors with safer ones. 
-            Default: if the default model is used, then uses `estbert_normalizer` from 
+            Default: if the model location points to one of the EstBERTNER models at their default 
+            location in estnltk's resources, then uses `estbert_normalizer` from 
             `estnltk_neural.taggers.embeddings.bert.bert_patches`. Otherwise: None. 
         """
         if model_location is None:
@@ -119,6 +120,13 @@ class BertNerTagger(MultiLayerTagger):
         else:
             self.model_location = model_location
             self.input_normalizer = input_normalizer
+            if self.input_normalizer is None:
+                # If the model location points to one of the EstBERTNER models at the default location, 
+                # and then input_normalizer is not provided, then use the estbert_normalizer
+                ESTBERTNER_V1_PATHS = get_resource_paths("estbertner", only_latest=False, download_missing=False)
+                ESTBERTNER_V2_PATHS = get_resource_paths("estbertner_v2", only_latest=False, download_missing=False)
+                if self.model_location in ESTBERTNER_V1_PATHS or self.model_location in ESTBERTNER_V2_PATHS:
+                    self.input_normalizer = estbert_normalizer
         
         tokenizer = AutoTokenizer.from_pretrained(self.model_location, model_max_length=512)
         bertner = AutoModelForTokenClassification.from_pretrained(self.model_location)
