@@ -60,6 +60,32 @@ def test_estbertner_v1_out_of_the_box():
                     reason="package tranformers is required for this test")
 @pytest.mark.skipif(not check_if_pytorch_is_available(),
                     reason="package pytorch is required for this test")
+@pytest.mark.skipif(ESTBERTNER_V1_PATH is None,
+                    reason="BertNerTagger's model location not known. "+\
+                           "Use estnltk.download('estbertner') to get the missing resources.")
+def test_estbertner_v1_cyrillic_chars_fail():
+    # Test BertNerTagger on texts that contain substrings with cyrillic symbols 'е' and 'и'. 
+    # Previous versions of the tagger crashed on these substrings with an error:
+    #
+    # ...\Lib\site-packages\torch\nn\modules\sparse.py:190: in forward
+    #>       return torch.embedding(weight, input, padding_idx, scale_grad_by_freq, sparse)
+    #E       IndexError: ('index out of range in self', "in the 'BertNerTagger'")
+    #
+    from estnltk_neural.taggers import BertNerTagger
+    neural_ner_tagger = BertNerTagger()
+    text = Text('Jah, kuni ta 15 4е jala pikuseks saab. Kas kood oli 1и või Cи ?').tag_layer('words')
+    neural_ner_tagger.tag(text)
+    output_layer = neural_ner_tagger.output_layers[0]
+    assert len(text[output_layer]) == 0
+    # Note: although the model does not detect all the entities, at least 
+    # it does not crash on the input
+    #print( _ner_spans_as_tuples( text[output_layer] ) )
+
+
+@pytest.mark.skipif(not check_if_transformers_is_available(),
+                    reason="package tranformers is required for this test")
+@pytest.mark.skipif(not check_if_pytorch_is_available(),
+                    reason="package pytorch is required for this test")
 @pytest.mark.skipif(ESTBERTNER_V2_PATH is None,
                     reason="BertNerTagger's model location not known. "+\
                            "Use estnltk.download('estbertner_v2') to get the missing resources.")

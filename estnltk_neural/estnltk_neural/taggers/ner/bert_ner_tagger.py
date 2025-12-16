@@ -1,4 +1,4 @@
-from typing import MutableMapping, Union
+from typing import MutableMapping, Union, Callable
 
 import warnings
 
@@ -13,6 +13,7 @@ from estnltk.downloader import get_resource_paths
 from estnltk import Text, Layer, EnvelopingBaseSpan, ElementaryBaseSpan
 from estnltk import logger
 
+from estnltk_neural.taggers.embeddings.bert.bert_patches import estbert_normalizer
 from estnltk_neural.taggers.embeddings.bert.bert_tokens_to_words_rewriter import BertTokens2WordsRewriter
 
 
@@ -29,7 +30,7 @@ class BertNerTagger(MultiLayerTagger):
     """
     conf_param = ('model_location', 'nlp', 'tokenizer', 'custom_words_layer', 'batch_size', 
                   'postfix_expand_suffixes', 'postfix_concat_same_type_entities', 'postfix_remove_infix_matches',
-                  '_bert_tokens_rewriter')
+                  'input_normalizer', '_bert_tokens_rewriter')
 
     def __init__(self, model_location: str = None, output_layer: str = 'estbertner', 
                        tokens_output_layer:str ='nertokens', custom_words_layer:str = 'words', 
@@ -37,7 +38,8 @@ class BertNerTagger(MultiLayerTagger):
                        postfix_expand_suffixes:bool=False, 
                        postfix_concat_same_type_entities:bool=False, 
                        postfix_remove_infix_matches:bool=False, 
-                       device: Union[int, "torch.device"] = None 
+                       device: Union[int, "torch.device"] = None, 
+                       input_normalizer: Callable[[str], str] = None
                        ):
         """
         Initializes BertNerTagger.
@@ -97,6 +99,12 @@ class BertNerTagger(MultiLayerTagger):
             According to transformers' documentation: "Device ordinal for CPU/GPU supports. Setting 
             this to -1 will leverage CPU, a positive will run the model on the associated CUDA 
             device id. You can pass native `torch.device` or a `str` too."
+        input_normalizer: Callable[[str], str]
+            A function that transforms input text chunks to strings on which the Bert model is less 
+            likely to fail with an error -- basically, it should replace bad characters that can 
+            cause internal indexing errors with safer ones. 
+            Default: if the default model is used, then uses `estbert_normalizer` from 
+            `estnltk_neural.taggers.embeddings.bert.bert_patches`. Otherwise: None. 
         """
         if model_location is None:
             # Try to get the resources path for berttagger. Attempt to download, if missing
@@ -107,10 +115,11 @@ class BertNerTagger(MultiLayerTagger):
                                  "Alternatively, you can specify the directory containing the model "+\
                                  "via parameter model_location at creating the tagger." )
             self.model_location = resources_path
-
+            self.input_normalizer = estbert_normalizer
         else:
             self.model_location = model_location
-
+            self.input_normalizer = input_normalizer
+        
         tokenizer = AutoTokenizer.from_pretrained(self.model_location, model_max_length=512)
         bertner = AutoModelForTokenClassification.from_pretrained(self.model_location)
 
@@ -167,7 +176,8 @@ class BertNerTagger(MultiLayerTagger):
         nertag_attr = self.output_layers_to_attributes[self.output_layers[0]][0]
         tokenslayer = Layer(name='temp_bert_tokens', attributes=(), text_object=text)
         # Apply batch processing: split input text into smaller batches and process batch by batch
-        text_chunks, text_indexes = _split_text_into_smaller_texts(text, max_size=self.batch_size)
+        text_chunks, text_indexes = _split_text_into_smaller_texts(text, max_size=self.batch_size, \
+                                                                   normalizer=self.input_normalizer)
         chunk_count = 0
         for text_chunk, (chunk_start, chunk_end) in zip(text_chunks, text_indexes):
             chunk_count += 1
@@ -371,18 +381,27 @@ class BertNerTagger(MultiLayerTagger):
 
 
 
-def _split_text_into_smaller_texts(large_text: Text, max_size:int=1750, seek_end_symbols: str='.!?'):
+def _split_text_into_smaller_texts(large_text: Text, max_size:int=1750, \
+                                   seek_end_symbols: str='.!?', \
+                                   normalizer: 'Callable[[str], str]'=None ):
     '''Splits given large_text into smaller texts following the text size limit. 
-       Each smaller Text object's text string is allowed to have at most `max_size` characters.
-       Returns smaller text strings and their (start, end) indexes in the original text.
+       Each smaller Text object's text string is allowed to have at most `max_size` characters. 
+       Parameter `normalizer` defines a function that transforms text chunks to strings 
+       on which EstBert (or some other model) is less likely to fail with an error -- basically, 
+       it should replace bad characters that can cause internal indexing errors with safer ones. 
+       Returns smaller text strings and their (start, end) indexes in the original text. 
     '''
     assert max_size > 0, f'(!) Invalid batch size: {max_size}'
+    if normalizer is None:
+        # Define a default normalizer
+        normalizer = lambda x : x
     if len(large_text.text) < max_size:
-        return [large_text.text], [(0, len(large_text.text))]
+        return [normalizer(large_text.text)], [(0, len(large_text.text))]
     chunks = []
     chunk_separators = []
     chunk_indexes = []
     last_chunk_end = 0
+    skipped_bad_chunks = 0
     while last_chunk_end < len(large_text.text):
         chunk_start = last_chunk_end
         chunk_end = chunk_start + max_size
@@ -398,7 +417,7 @@ def _split_text_into_smaller_texts(large_text: Text, max_size:int=1750, seek_end
                     chunk_end = i + 1
                     break
                 i -= 1
-        chunks.append( large_text.text[chunk_start:chunk_end] )
+        chunks.append( normalizer(large_text.text[chunk_start:chunk_end]) )
         chunk_indexes.append( (chunk_start, chunk_end) )
         # Find next chunk_start, skip space characters
         updated_chunk_end = chunk_end
