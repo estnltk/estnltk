@@ -77,8 +77,8 @@ def test_estbertner_v1_cyrillic_chars_problem():
     neural_ner_tagger.tag(text)
     output_layer = neural_ner_tagger.output_layers[0]
     assert len(text[output_layer]) == 0
-    # Note: although the model does not detect all the entities, at least 
-    # it does not crash on the input
+    # Note: although there are no entities to detect, 
+    # the model does not crash on the input
     #print( _ner_spans_as_tuples( text[output_layer] ) )
 
 
@@ -133,7 +133,7 @@ def test_estbertner_v2_tokenization_fail():
     neural_ner_tagger.tag(text)
     output_layer = neural_ner_tagger.output_layers[0]
     assert len(text[output_layer]) > 0
-    # Note: although the model does not detect all the entities, at least 
+    # Note: although the model does not detect all the entities, at least
     # it does not crash on the input
     #print( _ner_spans_as_tuples( text[output_layer] ) )
 
@@ -159,8 +159,8 @@ def test_estbertner_v2_cyrillic_chars_problem():
     neural_ner_tagger.tag(text)
     output_layer = neural_ner_tagger.output_layers[0]
     assert len(text[output_layer]) == 0
-    # Note: although the model does not detect all the entities, at least 
-    # it does not crash on the input
+    # Note: although there are no entities to detect, 
+    # the model does not crash on the input
     #print( _ner_spans_as_tuples( text[output_layer] ) )
 
 

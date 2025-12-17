@@ -1,4 +1,4 @@
-from typing import MutableMapping, List
+from typing import MutableMapping, List, Callable
 import os
 
 import torch
@@ -15,13 +15,16 @@ from estnltk import Text
 from estnltk.taggers import Tagger
 from estnltk import Layer
 
+from estnltk_neural.taggers.embeddings.bert.bert_patches import estbert_normalizer
+
 
 class BertTagger(Tagger):
     """Tags BERT embeddings."""
 
     def __init__(self, bert_location: str = None, sentences_layer: str = 'sentences',
                  token_level: bool = True, output_layer: str = 'bert_embeddings', 
-                 bert_layers: List[int] = None, method='concatenate'):
+                 bert_layers: List[int] = None, method='concatenate', 
+                 input_normalizer: Callable[[str], str] = None):
 
         if bert_layers is None:
             bert_layers = [-4, -3, -2, -1]
@@ -32,7 +35,9 @@ class BertTagger(Tagger):
                           "is reasonable to choose layers from the last layers, for example [-4, -3, -2, -1]: last 4 " \
                           "layers. "
                     raise Exception(msg)
-        self.conf_param = ('bert_location', 'bert_model', 'tokenizer', 'method', 'token_level', 'bert_layers')
+        self.conf_param = ('bert_location', 'bert_model', 'tokenizer', 'method', 'token_level', 'bert_layers', \
+                           'input_normalizer')
+        self.input_normalizer = None
         if bert_location is None:
             # Try to get the resources path for berttagger. Attempt to download, if missing
             resources_path = get_resource_paths("berttagger", only_latest=True, download_missing=True)
@@ -42,8 +47,17 @@ class BertTagger(Tagger):
                                  "Alternatively, you can specify the directory containing BERT model "+\
                                  "via parameter bert_location at creating BertTagger." )
             self.bert_location = resources_path
+            self.input_normalizer = estbert_normalizer
         else:
             self.bert_location = bert_location
+            if input_normalizer is None:
+                # If the model location points to the EstBERT model at the default location, 
+                # and then input_normalizer is not provided, then use the estbert_normalizer
+                ESTBERT_PATHS = get_resource_paths("berttagger", only_latest=False, download_missing=False)
+                if self.bert_location in ESTBERT_PATHS:
+                    self.input_normalizer = estbert_normalizer
+        if input_normalizer is not None:
+            self.input_normalizer = input_normalizer
         if method not in ('concatenate', 'add', 'all'):
             msg = "Method can be 'concatenate', 'add' or 'all'."
             raise Exception(msg)
@@ -84,6 +98,8 @@ class BertTagger(Tagger):
 
         for k, sentence in enumerate(sentences_layer):
             sent_text = sentence.enclosing_text
+            if self.input_normalizer is not None:
+                sent_text = self.input_normalizer(sent_text)
             embeddings = get_embeddings(sent_text, self.bert_model, self.tokenizer, self.method, self.bert_layers)
             tokens = self.tokenize_with_bert(sent_text)
             assert len(tokens) == len(embeddings)

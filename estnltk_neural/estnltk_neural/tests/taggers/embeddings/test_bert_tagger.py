@@ -268,4 +268,38 @@ def test_bert_tagger_tokens_and_word_span_misaligment_bugfix():
          ('Lehmanni', ['##nile', '##hma', '##nni']), 
          ('teoreem', ['teoree', '##m'])]
 
-    
+
+@pytest.mark.skipif(not check_if_transformers_is_available(),
+                    reason="package tranformers is required for this test")
+@pytest.mark.skipif(not check_if_pytorch_is_available(),
+                    reason="package pytorch is required for this test")
+@pytest.mark.skipif(not check_if_model_present(),
+                    reason="BertTagger's resources have not been downloaded. "+\
+                           "Use estnltk.download('berttagger') to get the missing resources.")
+def test_bert_tagger_cyrillic_chars_problem_bugfix():
+    # Test BertNerTagger on texts that contain substrings with cyrillic symbols 'е' and 'и'. 
+    # Previous versions of the tagger crashed on these substrings with an error:
+    #
+    # ...\Lib\site-packages\torch\nn\modules\sparse.py:190: in forward
+    #>       return torch.embedding(weight, input, padding_idx, scale_grad_by_freq, sparse)
+    #E       IndexError: ('index out of range in self', "in the 'BertTagger'")
+    #
+    from estnltk_neural.taggers.embeddings.bert.bert_tagger import BertTagger
+    from estnltk_neural.taggers.embeddings.bert.bert_patches import estbert_normalizer
+    text = Text('Jah, kuni ta 15 4е jala pikuseks saab. Kas kood oli 1и või Cи ?')
+    text.tag_layer('sentences')
+    # word level
+    bert_tagger_2 = BertTagger(output_layer='bert_word_embeddings',
+                               bert_location=MODEL_PATH, token_level=False)
+    assert bert_tagger_2.input_normalizer == estbert_normalizer
+    bert_tagger_2.tag(text)
+    assert 'bert_word_embeddings' in text.layers
+    for embedding_span in text['bert_word_embeddings']:
+        assert len(embedding_span.bert_embedding) == 3072  # 768 * 4 
+    words_and_bert_tokens = _get_bert_tokens(text, bert_layer=bert_tagger_2.output_layer)
+    assert words_and_bert_tokens == \
+        [('Jah', ['jah']), (',', [',']), ('kuni', ['kuni']), ('ta', ['ta']), ('15', ['15']), 
+         ('4е', ['4', '##e']), ('jala', ['jala']), ('pikuseks', ['piku', '##seks']), ('saab', ['saab']), 
+         ('.', ['.']), 
+         ('Kas', ['kas']), ('kood', ['kood']), ('oli', ['oli']), ('1и', ['1', '##i']), ('või', ['voi']), 
+         ('Cи', ['c', '##i']), ('?', ['?'])]
