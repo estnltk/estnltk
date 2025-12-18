@@ -63,8 +63,9 @@ def test_estbertner_v1_out_of_the_box():
 @pytest.mark.skipif(ESTBERTNER_V1_PATH is None,
                     reason="BertNerTagger's model location not known. "+\
                            "Use estnltk.download('estbertner') to get the missing resources.")
-def test_estbertner_v1_cyrillic_chars_problem():
-    # Test BertNerTagger on texts that contain substrings with cyrillic symbols 'е' and 'и'. 
+def test_estbertner_v1_cyrillic_and_accented_chars_problem_bugfix():
+    # Test BertNerTagger on texts that contain substrings with cyrillic symbols 'е' and 'и', 
+    # and accented letter 'ò'.
     # Previous versions of the tagger crashed on these substrings with an error:
     #
     # ...\Lib\site-packages\torch\nn\modules\sparse.py:190: in forward
@@ -73,6 +74,7 @@ def test_estbertner_v1_cyrillic_chars_problem():
     #
     from estnltk_neural.taggers import BertNerTagger
     neural_ner_tagger = BertNerTagger()
+    # Case 1
     text = Text('Jah, kuni ta 15 4е jala pikuseks saab. Kas kood oli 1и või Cи ?').tag_layer('words')
     neural_ner_tagger.tag(text)
     output_layer = neural_ner_tagger.output_layers[0]
@@ -80,6 +82,16 @@ def test_estbertner_v1_cyrillic_chars_problem():
     # Note: although there are no entities to detect, 
     # the model does not crash on the input
     #print( _ner_spans_as_tuples( text[output_layer] ) )
+    # Case 2
+    text = Text('Direktiivide määratlemisel lähtuti Tomasello (2010: 84) ning '+\
+                'Romanò ja Sansò (2011: 3) käsitlusest.').tag_layer('words')
+    neural_ner_tagger.tag(text)
+    output_layer = neural_ner_tagger.output_layers[0]
+    #print( _ner_spans_as_tuples( text[output_layer] ) )
+    assert _ner_spans_as_tuples( text[output_layer] ) == \
+        [(35, 44, 'Tomasello', 'PER'), 
+         (61, 67, 'Romanò', 'PER'), 
+         (71, 76, 'Sansò', 'PER')]
 
 
 @pytest.mark.skipif(not check_if_transformers_is_available(),
@@ -145,7 +157,7 @@ def test_estbertner_v2_tokenization_fail():
 @pytest.mark.skipif(ESTBERTNER_V2_PATH is None,
                     reason="BertNerTagger's model location not known. "+\
                            "Use estnltk.download('estbertner_v2') to get the missing resources.")
-def test_estbertner_v2_cyrillic_chars_problem():
+def test_estbertner_v2_cyrillic_and_accented_chars_problem_bugfix():
     # Test BertNerTagger on texts that contain substrings with cyrillic symbols 'е' and 'и'. 
     # Previous versions of the tagger crashed on these substrings with an error:
     #
@@ -155,6 +167,7 @@ def test_estbertner_v2_cyrillic_chars_problem():
     #
     from estnltk_neural.taggers import BertNerTagger
     neural_ner_tagger = BertNerTagger( model_location=ESTBERTNER_V2_PATH )
+    # Case 1
     text = Text('Jah, kuni ta 15 4е jala pikuseks saab. Kas kood oli 1и või Cи ?').tag_layer('words')
     neural_ner_tagger.tag(text)
     output_layer = neural_ner_tagger.output_layers[0]
@@ -162,6 +175,20 @@ def test_estbertner_v2_cyrillic_chars_problem():
     # Note: although there are no entities to detect, 
     # the model does not crash on the input
     #print( _ner_spans_as_tuples( text[output_layer] ) )
+    # Case 2
+    # Note: Actually, only 'estbertner_v1' crashed on this input, but 
+    # for completeness, we also test 'estbertner_v2' on the input. 
+    text = Text('Direktiivide määratlemisel lähtuti Tomasello (2010: 84) ning '+\
+                'Romanò ja Sansò (2011: 3) käsitlusest.').tag_layer('words')
+    neural_ner_tagger.tag(text)
+    output_layer = neural_ner_tagger.output_layers[0]
+    #print( _ner_spans_as_tuples( text[output_layer] ) )
+    assert _ner_spans_as_tuples( text[output_layer] ) == \
+        [(35, 44, 'Tomasello', 'PER'), 
+         (46, 50, '2010', 'DATE'), 
+         (61, 67, 'Romanò', 'PER'), 
+         (71, 76, 'Sansò', 'PER'), 
+         (78, 82, '2011', 'DATE')]
 
 
 # ========================================================================
