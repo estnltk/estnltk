@@ -50,6 +50,7 @@ class CoreTimexTagger( Tagger ):
     conf_param = [ 'rules_file', 'pick_first_in_overlap', 
                    'mark_part_of_interval', 'output_ordered_dicts', 
                    'use_normalized_word_form',
+                   'cut_out_subwords',
                    # Names of the specific input layers
                    '_input_words_layer', '_input_sentences_layer',
                    '_input_morph_analysis_layer',
@@ -66,7 +67,8 @@ class CoreTimexTagger( Tagger ):
                        pick_first_in_overlap:bool=True, \
                        mark_part_of_interval:bool=True, \
                        output_ordered_dicts:bool=True, \
-                       use_normalized_word_form:bool=True ):
+                       use_normalized_word_form:bool=True, \
+                       cut_out_subwords:bool=False ):
         """Initializes Java-based temporal expression tagger.
         
         Parameters
@@ -117,6 +119,16 @@ class CoreTimexTagger( Tagger ):
              value of) word.normalized_form (if word.normalized_form is not None). 
              Otherwise, timex tagger uses only the surface word forms (word.text),
              and no attention is paid on word normalizations;
+        
+        cut_out_subwords: boolean (default: False)
+            If set, then cuts out sub-word timexes from words. For example, the compound 
+            token 'http://dx.doi.org/10.12697/eha.2014.2.1.09' contains timex '2014.', which 
+            should be cut out for precise annotation. 
+            Note, however, that cutting out subwords breaks the enveloping span logic: 
+            subwords have no corresponding spans in the 'words' layer, they would be kind 
+            of "rogue spans". Therefore, you should only use this option when you flatten 
+            the output layer afterwards, so that the layer is no longer enveloping the 
+            'words'. 
         """
         # Set input/output layer names
         self.output_layer = output_layer
@@ -131,6 +143,7 @@ class CoreTimexTagger( Tagger ):
         if self.mark_part_of_interval:
            self.output_attributes += ('part_of_interval', )
         self.use_normalized_word_form = use_normalized_word_form
+        self.cut_out_subwords = cut_out_subwords
         # Fetch & check rules file 
         use_rules_file = \
             os.path.join(JAVARES_PATH, 'reeglid.xml') if not rules_file else rules_file
@@ -448,6 +461,7 @@ class CoreTimexTagger( Tagger ):
             # Record the current sentence in VM format
             input_data['sentences'].append( {'words': sentence_morph_dicts })
         # B) Analyse the text with the Java-based Timex Tagger
+        #from pprint import pprint
         #pprint(input_data)
         text_vm_json = json.dumps(input_data)
         result_vm_str  = \
@@ -518,6 +532,7 @@ class CoreTimexTagger( Tagger ):
                              timexes_dict[tid]['_word_span_ids'].append( word_span_id )
             vm_word_id += 1
             word_span_id += 1
+        #from pprint import pprint
         #pprint(timexes_dict)
         #pprint(empty_timexes_dict)
         #
@@ -540,6 +555,33 @@ class CoreTimexTagger( Tagger ):
                       # partially overlaps with a previously
                       # annotated timex
                       continue
+            if self.cut_out_subwords:
+                # Cut out sub-word timexes, if any. 
+                # For example, the compound token with an url 
+                # 'http://dx.doi.org/10.12697/eha.2014.2.1.09' 
+                # contains timex '2014.', which should be cut 
+                # out for precise annotation. 
+                # Note, however, that cutting out subwords breaks 
+                # the enveloping span logic: subwords have no 
+                # corresponding spans in the 'words' layer, they 
+                # would be kind of "rogue spans". Therefore, you 
+                # should only use this option when you flatten the 
+                # output layer afterwards, so that the layer is no 
+                # longer enveloping around the 'words' layer. 
+                if len(timex['_word_spans']) == 1:
+                    word_span = word_spans[timex['_word_span_ids'][0]]
+                    timex_text = timex['text']
+                    if len(timex_text) < len(word_span.text):
+                        start = (word_span.text).find(timex_text)
+                        if start == -1:
+                            timex_text = timex_text.replace(' ', '')
+                            start = (word_span.text).find(timex_text)
+                        if start > -1:
+                            # Replace default for span with the 
+                            # subword span
+                            end = start + len(timex_text)
+                            timex['_word_spans'] = [(word_span.start + start, \
+                                                     word_span.start + end)]
             # Convert timex attributes from camelCase to Python +
             # perform some fixes
             attributes = self._convert_timex_attributes(timex, empty_timexes_dict)

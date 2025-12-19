@@ -381,6 +381,36 @@ def test_timex_tagging_flat_output_layer():
     timexes_tagger.close()
 
 
+
+def test_timex_tagging_cut_out_subwords():
+    # TimexTagger that cuts out subword timexes (default settings)
+    timexes_tagger = TimexTagger( cut_out_subwords=True )
+    all_timex_attributes = ['text']+list(timexes_tagger.output_attributes)
+    test_data = [ {'text': 'K. Aus , G. Arro, A-L. Jõgi, E. Malleus Eesti Haridusteaduste Ajakiri, nr 2(1), 2014, 217–240 doi: http://dx.doi.org/10.12697/eha.2014.2.1.09 1 Psühholoogia instituut, Tallinna Ülikool, Narva mnt 29, 10120 Tallinn.',\
+                   'dct':'2025-12-19TXX:XX',\
+                   'expected_timexes': [ \
+                                 {'text': '2014', 'tid':'t1', 'type':'DATE', 'value':'2014', 'temporal_function':False}, \
+                                 {'text': '2014.', 'tid':'t2', 'type':'DATE', 'value':'2014', 'temporal_function':False},\
+                              ]  } ]
+    for test_item in test_data:
+        # Prepare text
+        text = Text(test_item['text'])
+        if 'dct' in test_item:
+            text.meta['dct'] = test_item['dct']
+        timexes_tagger.tag( text )
+        # Compare attributes and values of all timexes
+        for timex_id, expected_timex in enumerate(test_item['expected_timexes']):
+            # Expected attributes & values
+            expected_attribs = [attr for attr in all_timex_attributes if attr in expected_timex]
+            expected_vals    = [expected_timex[attr] for attr in all_timex_attributes if attr in expected_timex]
+            # Obtained attributes & values
+            result_vals      = list(text.timexes[timex_id, expected_attribs])
+            #print(expected_vals, result_vals)
+            assert expected_vals == result_vals
+    timexes_tagger.close()
+
+
+
 def test_smoke_timex_phrases_tagger():
     # Test cut-down version of TimexTagger that extracts only phrases, no datetime semantics
     timexes_phrases_tagger = TimexPhrasesTagger()

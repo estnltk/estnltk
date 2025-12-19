@@ -68,6 +68,7 @@ class TimexTagger( Tagger ):
     conf_param = [ 'enveloped_words_layer', 
                    'rules_file', 'pick_first_in_overlap', 
                    'mark_part_of_interval', 'output_ordered_dicts', 
+                   'cut_out_subwords',
                    
                    # Internal taggers
                    '_tokens_tagger',
@@ -83,7 +84,8 @@ class TimexTagger( Tagger ):
                        rules_file:str=None, \
                        pick_first_in_overlap:bool=True, \
                        mark_part_of_interval:bool=True, \
-                       output_ordered_dicts:bool=True ):
+                       output_ordered_dicts:bool=True,\
+                       cut_out_subwords:bool=True ):
         """Initializes temporal expression tagger.
         
         Parameters
@@ -123,6 +125,11 @@ class TimexTagger( Tagger ):
              and part_of_interval will be converted into OrderedDict-s. Use this to 
              ensure fixed order of elements in the dictionaries (might be useful for
              nbval testing).
+        
+        cut_out_subwords: boolean (default: True)
+            If set, then cuts out sub-word timexes from words. For example, if the 
+            compound token 'http://dx.doi.org/10.12697/eha.2014.2.1.09' contains timex 
+            '2014.', then it is cut out for more precise annotation. 
         """
         # Initialize required preprocessing taggers
         # Use custom layer names to avoid conflicts with EstNLTK's 
@@ -151,7 +158,8 @@ class TimexTagger( Tagger ):
                                 pick_first_in_overlap=pick_first_in_overlap, \
                                 mark_part_of_interval=mark_part_of_interval, \
                                 output_ordered_dicts=output_ordered_dicts, \
-                                use_normalized_word_form=True )
+                                use_normalized_word_form=True, \
+                                cut_out_subwords=cut_out_subwords )
         # Set configuration
         if isinstance(enveloped_words_layer, str):
             self.input_layers = [enveloped_words_layer]
@@ -162,6 +170,7 @@ class TimexTagger( Tagger ):
         self.pick_first_in_overlap = self._timex_tagger.pick_first_in_overlap
         self.mark_part_of_interval = self._timex_tagger.mark_part_of_interval
         self.output_ordered_dicts  = self._timex_tagger.output_ordered_dicts
+        self.cut_out_subwords      = self._timex_tagger.cut_out_subwords
         self.rules_file = self._timex_tagger.rules_file
         self.output_layer = self._timex_tagger.output_layer
         self.output_attributes = self._timex_tagger.output_attributes
