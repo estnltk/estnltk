@@ -130,6 +130,8 @@ class TimexTagger( Tagger ):
             If set, then cuts out sub-word timexes from words. For example, if the 
             compound token 'http://dx.doi.org/10.12697/eha.2014.2.1.09' contains timex 
             '2014.', then it is cut out for more precise annotation. 
+            Note: this setting only works with the flat timexes layer; it is switched 
+            off automatically if enveloped_words_layer is defined. 
         """
         # Initialize required preprocessing taggers
         # Use custom layer names to avoid conflicts with EstNLTK's 
@@ -149,6 +151,10 @@ class TimexTagger( Tagger ):
                                 input_words_layer='timex_tagger_words',
                                 input_sentences_layer='timex_tagger_sentences',
                                 input_compound_tokens_layer='timex_tagger_compound_tokens' )
+        # Fix potential parameter conflict: switch off cut_out_subwords 
+        # if the output layer is enveloping
+        if isinstance(enveloped_words_layer, str):
+            cut_out_subwords = False
         self._timex_tagger = CoreTimexTagger( \
                                 output_layer=output_layer,
                                 input_words_layer='timex_tagger_words',
