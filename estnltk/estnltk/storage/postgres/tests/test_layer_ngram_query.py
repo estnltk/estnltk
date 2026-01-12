@@ -2,8 +2,8 @@ import unittest
 import pytest
 import random
 
-from estnltk import logger
 from estnltk import Text
+from estnltk import get_logger_with_tqdm_handler
 from estnltk.storage.postgres import PostgresStorage, layer_table_identifier
 from estnltk.storage.postgres import delete_schema, count_rows
 from estnltk.taggers import VabamorfTagger
@@ -12,7 +12,7 @@ from estnltk.storage.postgres.queries.layer_query import LayerQuery
 
 from estnltk.storage.postgres.tests.test_sparse_layer import ModuleRemainderNumberTagger
 
-logger.setLevel('DEBUG')
+logger = get_logger_with_tqdm_handler('DEBUG')
 
 
 def get_random_collection_name():

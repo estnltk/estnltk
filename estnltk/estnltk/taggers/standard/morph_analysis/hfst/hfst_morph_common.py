@@ -8,8 +8,6 @@ from collections import OrderedDict
 import os.path
 import re
 
-from estnltk import logger
-
 from estnltk import Layer, Text
 from estnltk import Span
 from estnltk.taggers import Tagger

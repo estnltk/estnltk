@@ -13,7 +13,7 @@ from psycopg2.errors import DuplicateSchema
 from psycopg2.sql import SQL, Identifier
 
 from estnltk import Text
-from estnltk import logger
+from estnltk import get_logger_with_tqdm_handler
 from estnltk.taggers import TokensTagger
 from estnltk.storage import postgres as pg
 
@@ -22,7 +22,7 @@ from estnltk.storage.postgres import delete_schema
 from estnltk.storage.postgres import BufferedTableInsert
 from estnltk.storage.postgres import CollectionTextObjectInserter
 
-logger.setLevel('DEBUG')
+logger = get_logger_with_tqdm_handler('DEBUG')
 
 
 class TestBufferedTableInsert(unittest.TestCase):

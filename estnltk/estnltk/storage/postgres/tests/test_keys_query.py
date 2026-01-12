@@ -1,13 +1,13 @@
 import unittest
 import random
 
-from estnltk import logger
 from estnltk import Text
+from estnltk import get_logger_with_tqdm_handler
 from estnltk.storage.postgres import PostgresStorage
 from estnltk.storage.postgres import delete_schema
 from estnltk.storage import postgres as pg
 
-logger.setLevel('DEBUG')
+logger = get_logger_with_tqdm_handler('DEBUG')
 
 
 def get_random_collection_name():

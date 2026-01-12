@@ -4,8 +4,8 @@ from collections import OrderedDict
 
 from psycopg2.errors import DuplicateSchema
 
-from estnltk import logger
 from estnltk import Text
+from estnltk import get_logger_with_tqdm_handler
 from estnltk.taggers import VabamorfTagger
 from estnltk.storage.postgres import PostgresStorage
 from estnltk.storage.postgres import RowMapperRecord
@@ -14,7 +14,7 @@ from estnltk.storage.postgres import delete_schema
 from estnltk.storage.postgres.queries.metadata_query import MetadataQuery
 from estnltk.storage.postgres.queries.slice_query import SliceQuery
 
-logger.setLevel('DEBUG')
+logger = get_logger_with_tqdm_handler('DEBUG')
 
 
 def get_random_collection_name():

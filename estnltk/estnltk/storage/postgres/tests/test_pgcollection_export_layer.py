@@ -13,14 +13,14 @@ from psycopg2.errors import DuplicateSchema
 
 from estnltk import Text
 from estnltk import Layer
-from estnltk import logger
+from estnltk import get_logger_with_tqdm_handler
 
 from estnltk.storage import postgres as pg
 from estnltk.storage.postgres import PostgresStorage
 from estnltk.storage.postgres.collection import RowMapperRecord
 from estnltk.storage.postgres import delete_schema
 
-logger.setLevel('DEBUG')
+logger = get_logger_with_tqdm_handler('DEBUG')
 
 
 def get_random_collection_name():

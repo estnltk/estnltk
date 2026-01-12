@@ -15,8 +15,8 @@ from psycopg2.errors import DuplicateSchema
 from estnltk_core.layer_operations import split_by_sentences
 
 from estnltk import Text
-from estnltk import logger
 from estnltk.common import abs_path
+from estnltk import get_logger_with_tqdm_handler
 from estnltk.converters import dict_to_layer
 from estnltk.converters import dict_to_text, text_to_dict
 from estnltk.converters.conll.conll_importer import conll_to_text
@@ -25,7 +25,7 @@ from estnltk.storage import postgres as pg
 from estnltk.storage.postgres import PostgresStorage
 from estnltk.storage.postgres import delete_schema
 
-logger.setLevel('DEBUG')
+logger = get_logger_with_tqdm_handler('DEBUG')
 
 
 def get_random_collection_name():

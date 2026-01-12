@@ -4,8 +4,8 @@ import re
 
 from psycopg2.sql import SQL, Identifier
 
-from estnltk import logger
 from estnltk import Text, Layer
+from estnltk import get_logger_with_tqdm_handler
 from estnltk.converters import layer_to_dict, text_to_dict
 from estnltk.storage.postgres import PostgresStorage
 from estnltk.storage.postgres import delete_schema
@@ -14,7 +14,7 @@ from estnltk.storage.postgres import count_rows
 from estnltk.taggers import Tagger
 from estnltk.taggers import SentenceTokenizer, ParagraphTokenizer
 
-logger.setLevel('DEBUG')
+logger = get_logger_with_tqdm_handler('DEBUG')
 
 
 def get_random_collection_name():

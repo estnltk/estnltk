@@ -10,7 +10,7 @@ from collections import OrderedDict
 from psycopg2.errors import DuplicateSchema
 
 from estnltk import Text
-from estnltk import logger
+from estnltk import get_logger_with_tqdm_handler
 
 from estnltk.storage import postgres as pg
 from estnltk.storage.postgres import PostgresStorage
@@ -19,7 +19,7 @@ from estnltk.storage.postgres.collection_meta import PgCollectionMeta
 from estnltk.storage.postgres.collection_meta_selection import PgCollectionMetaSelection
 
 
-logger.setLevel('DEBUG')
+logger = get_logger_with_tqdm_handler('DEBUG')
 
 
 def get_random_collection_name():

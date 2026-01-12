@@ -7,15 +7,15 @@ import unittest
 import random
 from collections import OrderedDict
 
-from estnltk import logger
 from estnltk import Text
+from estnltk import get_logger_with_tqdm_handler
 from estnltk.taggers import VabamorfTagger
 from estnltk.taggers import WordTagger
 from estnltk.taggers import SentenceTokenizer
 from estnltk.storage import postgres as pg
 
 
-logger.setLevel('DEBUG')
+logger = get_logger_with_tqdm_handler('DEBUG')
 
 
 def get_random_collection_name():

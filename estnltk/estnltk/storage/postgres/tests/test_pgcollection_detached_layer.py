@@ -9,7 +9,7 @@ import unittest
 
 from estnltk_core import Layer
 from estnltk import Text
-from estnltk import logger
+from estnltk import get_logger_with_tqdm_handler
 from estnltk.storage import postgres as pg
 from estnltk.storage.postgres import LayerQuery
 from estnltk.storage.postgres import PgCollection
@@ -24,7 +24,7 @@ from estnltk.storage.postgres import count_rows
 from estnltk.taggers import SentenceTokenizer
 from estnltk.taggers import VabamorfTagger
 
-logger.setLevel('DEBUG')
+logger = get_logger_with_tqdm_handler('DEBUG')
 
 
 def get_random_collection_name():

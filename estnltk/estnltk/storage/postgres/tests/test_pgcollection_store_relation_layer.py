@@ -15,8 +15,8 @@ from estnltk_core.taggers import RelationTagger
 from estnltk.taggers import WordTagger
 from estnltk.taggers import SentenceTokenizer
 
-from estnltk import logger
 from estnltk import Text
+from estnltk import get_logger_with_tqdm_handler
 from estnltk.converters import layer_to_dict, text_to_dict
 
 from estnltk.storage.postgres import PostgresStorage
@@ -28,7 +28,7 @@ from estnltk.storage.postgres import table_exists
 from estnltk.storage.postgres import table_identifier
 
 
-logger.setLevel('DEBUG')
+logger = get_logger_with_tqdm_handler('DEBUG')
 
 def get_random_collection_name():
     return 'collection_{}'.format(random.randint(1, 1000000))
