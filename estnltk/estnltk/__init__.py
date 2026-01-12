@@ -3,6 +3,7 @@ __version__ = '1.7.4'
 
 from estnltk.common import PACKAGE_PATH
 from estnltk.helpers.logger import logger
+from estnltk.helpers.logger import get_logger_with_tqdm_handler
 from estnltk.helpers.progressbar import Progressbar
 
 from estnltk_core.layer.annotation import Annotation

@@ -11,11 +11,21 @@ class TqdmLoggingHandler(logging.Handler):
         try:
             msg = self.format(record)
             tqdm.tqdm.write(msg)
-            # self.flush()
+            self.flush()
+        except (KeyboardInterrupt, SystemExit):
+            raise
         except Exception:
             self.handleError(record)
 
 
-logger = logging.getLogger()
-logger.addHandler(TqdmLoggingHandler())
-logger.setLevel('INFO')
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler())
+
+
+def get_logger_with_tqdm_handler(level=logging.INFO):
+    # Check if a TqdmLoggingHandler is already attached
+    if not any(isinstance(h, TqdmLoggingHandler) for h in logger.handlers):
+        logger.addHandler(TqdmLoggingHandler())
+        logger.setLevel(level)
+    return logger
+
