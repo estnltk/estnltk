@@ -899,8 +899,13 @@ class Relation:
         if isinstance(item, str):
             if self.relation_layer is not None and item in self.legal_span_names:
                 return self._named_spans.get(item, None)
-            # note: only named spans can be retrieved this way,
-            # attributes are not guaranteed to be valid identifiers
+            elif item in self.legal_attribute_names:
+                # note: only attributes that are guaranteed to be valid 
+                # identifiers can be accessed this way ...
+                if self.relation_layer.ambiguous:
+                    return [ann[item] for ann in self.annotations]
+                else:
+                    return self.annotations[0][item]
         # Note: we need to raise AttributeError here instead of KeyError, 
         # otherwise _repr_html_ does not work in Jupyter Notebook / Lab.
         raise AttributeError('attribute {} cannot be accessed in {}'.format(item, self.__class__.__name__))

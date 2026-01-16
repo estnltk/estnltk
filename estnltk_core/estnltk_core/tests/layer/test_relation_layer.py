@@ -180,7 +180,7 @@ def test_relation_layer_basic_with_text_obj():
          {'arg0': '5', 'arg1': '4', 'summa': 9}]
 
 
-def test_relation_layer_access_via_get_item():
+def test_relation_layer_access_via_get_item_and_get_attr():
     # Load Text or BaseText class (depending on the available packages)
     Text = load_text_class()
     
@@ -210,6 +210,18 @@ def test_relation_layer_access_via_get_item():
     with pytest.raises(ValueError):
         # error: illegal attribute or span name
         text['relations'][['arg2', 'arg3']]
+
+    # access single named span via get_attr
+    assert str(text['relations'][0].arg0) == "NamedSpan(arg0: '0')"
+    assert str(text['relations'][1].arg0) == "NamedSpan(arg0: '2')"
+    assert str(text['relations'][2].arg1) == "NamedSpan(arg1: '2')"
+    assert str(text['relations'][3].arg1) == "NamedSpan(arg1: '4')"
+    # access single attribute via get_attr
+    # (attribute must be a valid identifier)
+    assert text['relations'][0].summa == 1
+    assert text['relations'][1].summa == 5
+    assert text['relations'][2].summa == 7
+    assert text['relations'][3].summa == 9
 
     # Case 2: ambiguous layer
     layer2 = RelationLayer('relations2', span_names=['arg0', 'arg1'], 
@@ -251,6 +263,19 @@ def test_relation_layer_access_via_get_item():
     # single relation: access single span and attribute
     assert str(text['relations2'][0][['arg0', 'less_than']]) == \
         "[[NamedSpan(arg0: '0'), 2], [NamedSpan(arg0: '0'), 3]]"
+
+    # access single named span via get_attr
+    assert str(text['relations2'][0].arg0) == "NamedSpan(arg0: '0')"
+    assert str(text['relations2'][1].arg0) == "NamedSpan(arg0: '2')"
+    assert str(text['relations2'][2].arg1) == "NamedSpan(arg1: '2')"
+    assert str(text['relations2'][3].arg1) == "NamedSpan(arg1: '4')"
+    # access single attribute via get_attr
+    # (attribute must be a valid identifier)
+    assert text['relations2'][0].less_than == [2, 3]
+    assert text['relations2'][1].less_than == [6]
+    assert text['relations2'][2].less_than == [8]
+    assert text['relations2'][3].less_than == [10]
+
 
 
 def test_relation_layer_named_span_resolve_foreign_attribute():
