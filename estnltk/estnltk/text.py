@@ -268,7 +268,7 @@ class Text( BaseText ):
             return self.__getattribute__(item)
 
         # Resolve layers
-        if item in self.layers:
+        if item in self.layers or item in self.relation_layers:
             return self.__getitem__(item)
 
         # Resolve attributes that uniquely determine a layer, e.g. BaseText/Text.lemmas ==> BaseText/Text.morph_layer.lemmas

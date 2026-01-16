@@ -333,6 +333,22 @@ def test_normal_layer_access():
         assert text.nonempty_layer[0].attr_0 == 'L0-0'
         assert text.nonempty_layer[0] is text['nonempty_layer'][0]
 
+    # Accessing RelationLayer
+    rel_layer = RelationLayer('rel_layer', span_names=['arg0', 'arg1'], 
+                                           attributes=['rel_id'],
+                                           text_object=text)
+    rel_layer.add_annotation(arg0=(0, 7), arg1=(8, 12), rel_id='100%')
+    text.add_layer(rel_layer)
+    
+    assert text['rel_layer'] is rel_layer
+    assert text['rel_layer'][0].rel_id == '100%'
+    
+    if Text().__class__.__name__ == 'Text':
+        # .attr access will only be available in estnltk-standard
+        assert text.rel_layer is rel_layer
+        assert text.rel_layer[0].rel_id == '100%'
+        assert text.rel_layer[0] == text['rel_layer'][0]
+
 
 def test_access_of_shadowed_layers():
     # Load Text or BaseText class (depending on the available packages)
