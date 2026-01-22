@@ -9,6 +9,7 @@ from psycopg2.sql import SQL, Identifier, Literal
 from psycopg2.extensions import STATUS_BEGIN
 
 from estnltk import logger
+from estnltk import get_logger_with_tqdm_handler
 from estnltk.storage.postgres import PgCollection
 from estnltk.storage.postgres import parse_pgpass
 from estnltk.storage.postgres import create_schema
@@ -34,7 +35,7 @@ class PostgresStorage:
 
     def __init__(self, dbname=None, user=None, password=None, host=None, port=None,
                  pgpass_file=None, schema="public", role=None, temporary=False, 
-                 create_schema_if_missing=False, **kwargs):
+                 create_schema_if_missing=False, initialize_logging=True, **kwargs):
         """
         Connects to database either using connection parameters if specified, or ~/.pgpass file.
 
@@ -44,6 +45,12 @@ class PostgresStorage:
         and raises a PgStorageException if the schema is missing. 
         Use flag `create_schema_if_missing=True` to create the schema automatically if 
         the user has sufficient privileges.
+        
+        The flag `initialize_logging` switches on logging of database's (INFO 
+        level) messages to the standard output. This is switched on by default. 
+        If you want to change the logging level, then initialize 
+        `estnltk.get_logger_with_tqdm_handler(...)` with a different logging level 
+        before initializing PostgresStorage. 
         """
         self.schema = schema
         self.temporary = temporary
@@ -54,6 +61,12 @@ class PostgresStorage:
             role = conn_param['user']
 
         self.user = conn_param['user']
+
+        if initialize_logging:
+            # The following function call attaches TqdmLoggingHandler to the default 
+            # estnltk's logger, and as a result, logging messages will be printed to 
+            # standard output. 
+            get_logger_with_tqdm_handler()
 
         logger.info('connecting to host: '
                     '{host!r}, port: {port!r}, dbname: {dbname!r}, user: {user!r}'.format(**conn_param))
