@@ -30,7 +30,8 @@ class BertTagger(Tagger):
 
         Args:
             bert_location (str, optional): 
-                Path to the directory containing the pre-trained BERT model.
+                Path to the directory containing the pre-trained BERT model or 
+                corresponding huggingface repo_id.
                 If None, attempts to download 'berttagger' from estnltk_resources.
                 Defaults to None.
             sentences_layer (str, optional): 

@@ -23,7 +23,43 @@ class RobertaTagger(Tagger):
     def __init__(self, bert_location: str = 'EMBEDDIA/est-roberta', sentences_layer: str = 'sentences',
                  token_level: bool = True, output_layer: str = 'roberta_embeddings', 
                  bert_layers: List[int] = None, method='concatenate', device: str = "cpu"):
+        """
+        Initializes a RobertaTagger instance.
 
+        Args:
+            bert_location (str, optional): 
+                Path to the directory containing the pre-trained RoBERTa model or 
+                corresponding huggingface repo_id.
+                Defaults to 'EMBEDDIA/est-roberta'.
+            sentences_layer (str, optional): 
+                The name of the input layer containing sentences. Defaults to 'sentences'.
+            token_level (bool, optional): 
+                If True, annotates bert tokens. If False, annotates full words 
+                (by combining token embeddings). Defaults to True.
+            output_layer (str, optional): 
+                The name of the output layer containing BERT embeddings. 
+                Defaults to 'roberta_embeddings'.
+            bert_layers (List[int], optional): 
+                A list of BERT layer indices to use for embeddings. The values should 
+                be from -12 to -1 (referring to the last 12 layers). If None, the 
+                last 4 layers ([-4, -3, -2, -1]) are used. Defaults to None.
+            method (str, optional): 
+                Method for combining BERT layer embeddings: 'concatenate', 'add', or 'all'.
+                'concatenate': concatenates all selected layers into a single list.
+                'add': element-wise sum of selected layers. Forms a single list.
+                'all': returns all selected layer embeddings individually (list of lists).
+                Defaults to 'concatenate'.
+            device (str, optional): 
+                The device to run the model on ('cpu' or 'cuda'). Defaults to 'cpu'.
+
+        Raises:
+            Exception: If `bert_layers` contains an index outside the range (-12..-1).
+            Exception: If `bert_location` is not provided.
+            Exception: If an invalid `method` is provided.
+
+        For more detailed usage and examples, please refer to the tutorial:
+        https://github.com/estnltk/estnltk/blob/main/tutorials/nlp_pipeline/E_embeddings/bert_embeddings_tagger.ipynb
+        """
         if bert_layers is None:
             bert_layers = [-4, -3, -2, -1]
         else:
