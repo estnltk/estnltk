@@ -12,20 +12,27 @@ def check_if_transformers_is_available():
 def check_if_pytorch_is_available():
     return find_spec("torch") is not None
 
-ESTROBERTA_PATH = os.environ.get('ESTROBERTA_PATH', None)
+def check_if_embeddia_estroberta_is_available():
+    from huggingface_hub import scan_cache_dir
+    cache_info = scan_cache_dir()
+    for repo in cache_info.repos:
+        if repo.repo_id == 'EMBEDDIA/est-roberta':
+            return True
+    return False
+
 
 
 @pytest.mark.skipif(not check_if_transformers_is_available(),
                     reason="package tranformers is required for this test")
 @pytest.mark.skipif(not check_if_pytorch_is_available(),
                     reason="package pytorch is required for this test")
-@pytest.mark.skipif(ESTROBERTA_PATH is None,
-                    reason="RobertaTagger's model location not known. "+\
-                           "Set environment variable ESTROBERTA_PATH to model's local directory.")
+@pytest.mark.skipif(not check_if_embeddia_estroberta_is_available(),
+                    reason="RobertaTagger's model (EMBEDDIA/est-roberta) is not available. "+\
+                           "Please download the model via huggingface_hub.snapshot_download('EMBEDDIA/est-roberta').")
 def test_roberta_tagger_out_of_the_box():
     # Test that RobertaTagger works "out_of_the_box" if model is available
     from estnltk_neural.taggers.embeddings.bert.roberta_tagger import RobertaTagger
-    roberta_tagger = RobertaTagger(bert_location=ESTROBERTA_PATH)
+    roberta_tagger = RobertaTagger()
     text = Text(
         'Ilus suur karvane kass nurrus punasel diivanil. Ta on ise tee esimesel poolel. Valge jänes jooksis metsa!')
     text.tag_layer('sentences')
@@ -43,13 +50,13 @@ def test_roberta_tagger_out_of_the_box():
                     reason="package tranformers is required for this test")
 @pytest.mark.skipif(not check_if_pytorch_is_available(),
                     reason="package pytorch is required for this test")
-@pytest.mark.skipif(ESTROBERTA_PATH is None,
-                    reason="RobertaTagger's model location not known. "+\
-                           "Set environment variable ESTROBERTA_PATH to model's local directory.")
+@pytest.mark.skipif(not check_if_embeddia_estroberta_is_available(),
+                    reason="RobertaTagger's model (EMBEDDIA/est-roberta) is not available. "+\
+                           "Please download the model via huggingface_hub.snapshot_download('EMBEDDIA/est-roberta').")
 def test_roberta_tagger_word_level_smoke():
     # Test that RobertaTagger works on word level
     from estnltk_neural.taggers.embeddings.bert.roberta_tagger import RobertaTagger
-    roberta_tagger = RobertaTagger(bert_location=ESTROBERTA_PATH, token_level=False)
+    roberta_tagger = RobertaTagger(token_level=False)
     text = Text(
         'Ilus suur karvane kass nurrus punasel diivanil. Ta on ise tee esimesel poolel. Valge jänes jooksis metsa, ütles KabernaakelHiks.')
     text.tag_layer('sentences')
@@ -73,16 +80,16 @@ def _get_bert_tokens(text_obj, bert_layer='roberta_word_embeddings'):
                     reason="package tranformers is required for this test")
 @pytest.mark.skipif(not check_if_pytorch_is_available(),
                     reason="package pytorch is required for this test")
-@pytest.mark.skipif(ESTROBERTA_PATH is None,
-                    reason="RobertaTagger's model location not known. "+\
-                           "Set environment variable ESTROBERTA_PATH to model's local directory.")
+@pytest.mark.skipif(not check_if_embeddia_estroberta_is_available(),
+                    reason="RobertaTagger's model (EMBEDDIA/est-roberta) is not available. "+\
+                           "Please download the model via huggingface_hub.snapshot_download('EMBEDDIA/est-roberta').")
 def test_roberta_tagger_tokens_and_word_span_misaligment_bugfix():
     # 1) Test RobertaTagger for handling misalignment of word spans and embedding tokens
     from estnltk_neural.taggers.embeddings.bert.roberta_tagger import RobertaTagger
     text = Text('Ta säutsus: 😃💁?💁!💁💁? Mina vastu: ☎☏??? Tema seepeale: ╳🔥!🔥!')
 
     # token level
-    roberta_tagger_1 = RobertaTagger(bert_location=ESTROBERTA_PATH, token_level=True)
+    roberta_tagger_1 = RobertaTagger(token_level=True)
     text.tag_layer('sentences')
     roberta_tagger_1.tag(text)
     assert 'roberta_embeddings' in text.layers
@@ -91,7 +98,7 @@ def test_roberta_tagger_tokens_and_word_span_misaligment_bugfix():
 
     # word level
     roberta_tagger_2 = RobertaTagger(output_layer='roberta_word_embeddings',
-                                     bert_location=ESTROBERTA_PATH, token_level=False)
+                                     token_level=False)
     roberta_tagger_2.tag(text)
     assert 'roberta_word_embeddings' in text.layers
     for embedding_span in text.roberta_word_embeddings:
