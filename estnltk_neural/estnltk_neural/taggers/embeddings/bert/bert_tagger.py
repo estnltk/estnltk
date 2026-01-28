@@ -24,7 +24,7 @@ class BertTagger(Tagger):
     def __init__(self, bert_location: str = None, sentences_layer: str = 'sentences',
                  token_level: bool = True, output_layer: str = 'bert_embeddings', 
                  bert_layers: List[int] = None, method='concatenate', 
-                 input_normalizer: Callable[[str], str] = None):
+                 input_normalizer: Callable[[str], str] = None, device: str = "cpu"):
 
         if bert_layers is None:
             bert_layers = [-4, -3, -2, -1]
@@ -36,7 +36,7 @@ class BertTagger(Tagger):
                           "layers. "
                     raise Exception(msg)
         self.conf_param = ('bert_location', 'bert_model', 'tokenizer', 'method', 'token_level', 'bert_layers', \
-                           'input_normalizer')
+                           'device', 'input_normalizer')
         self.input_normalizer = None
         if bert_location is None:
             # Try to get the resources path for berttagger. Attempt to download, if missing
@@ -62,12 +62,14 @@ class BertTagger(Tagger):
             msg = "Method can be 'concatenate', 'add' or 'all'."
             raise Exception(msg)
         self.method = method
+        self.device = device
         self.output_layer = output_layer
         self.input_layers = [sentences_layer]
 
         self.bert_model = AutoModel.from_pretrained(self.bert_location, output_hidden_states=True)
         self.tokenizer = AutoTokenizer.from_pretrained(self.bert_location)
-
+        self.bert_model = self.bert_model.to(self.device)
+        
         self.output_attributes = ['token', 'bert_embedding']
 
         self.token_level = token_level
@@ -81,7 +83,7 @@ class BertTagger(Tagger):
            set to None.
         '''
         tokens = []
-        batch_encoding = self.tokenizer(text_str)
+        batch_encoding = self.tokenizer(text_str).to(self.device)
         for token_id, token in enumerate(batch_encoding.tokens()):
             char_span = batch_encoding.token_to_chars(token_id)
             if char_span is not None:
@@ -100,7 +102,8 @@ class BertTagger(Tagger):
             sent_text = sentence.enclosing_text
             if self.input_normalizer is not None:
                 sent_text = self.input_normalizer(sent_text)
-            embeddings = get_embeddings(sent_text, self.bert_model, self.tokenizer, self.method, self.bert_layers)
+            embeddings = get_embeddings(sent_text, self.bert_model, self.tokenizer, \
+                                        self.method, self.bert_layers, self.device)
             tokens = self.tokenize_with_bert(sent_text)
             assert len(tokens) == len(embeddings)
             if self.token_level:
@@ -321,28 +324,29 @@ class BertTagger(Tagger):
 
 
 
-def get_embeddings(sentence: str, model, tokenizer, method, bert_layers):
-    input_data = tokenizer(sentence)
+def get_embeddings(sentence: str, model, tokenizer, method, bert_layers, device):
+    input_data = tokenizer(sentence, return_tensors="pt").to(device)
     input_ids = input_data.get('input_ids')
     token_vecs_cat = []
-    if len(input_ids) > 512:  # maximum sequence length can be 512
-        msg = "Input sentence is too big (%s), splitting the sentence." % len(input_ids)
+    if len(input_ids[0]) > 512:  # maximum sequence length can be 512. Use input_ids[0] because input_ids has a batch dimension.
+        msg = "Input sentence is too big (%s), splitting the sentence." % len(input_ids[0])
         print(msg)
         collected_input_ids = []
+        current_input_ids = input_ids[0] # Take the first (and only) batch
         while True:
-            collected_input_ids.append(input_ids[:512])
-            input_ids = input_ids[512:]
-            if len(input_ids) <= 512:
-                collected_input_ids.append(input_ids)
+            collected_input_ids.append(current_input_ids[:512])
+            current_input_ids = current_input_ids[512:]
+            if len(current_input_ids) <= 512:
+                collected_input_ids.append(current_input_ids)
                 break
     else:
-        collected_input_ids = [input_ids]
+        collected_input_ids = [input_ids[0]] # Take the first (and only) batch
 
-    for i, input_ids in enumerate(collected_input_ids):
+    for i, current_input_ids in enumerate(collected_input_ids):
 
-        segments_ids = [1] * len(input_ids)
-        tokens_tensor = torch.tensor([input_ids])
-        segments_tensors = torch.tensor([segments_ids])
+        segments_ids = [1] * len(current_input_ids)
+        tokens_tensor = current_input_ids.unsqueeze(0) # Add batch dimension back
+        segments_tensors = torch.tensor([segments_ids]).to(device)
 
         with torch.no_grad():
             outputs = model(tokens_tensor, segments_tensors)
@@ -355,15 +359,15 @@ def get_embeddings(sentence: str, model, tokenizer, method, bert_layers):
             if method == 'concatenate':  # concatenate the vectors
                 layers = [token[i] for i in bert_layers]
                 cat_vec = torch.cat(layers, dim=0)
-                token_vecs_cat.append(np.asarray(cat_vec))
+                token_vecs_cat.append(np.asarray(cat_vec.cpu())) # Move to CPU before converting to numpy
 
             if method == 'add':  # elementwise addition
-                layers = [np.asarray(token[i]) for i in bert_layers]
+                layers = [np.asarray(token[i].cpu()) for i in bert_layers] # Move to CPU before converting to numpy
                 sum_vec = np.sum(layers, 0)
                 token_vecs_cat.append(np.asarray(sum_vec))
 
             if method == 'all':  # return all
-                layers = [np.asarray(token[i]) for i in bert_layers]
+                layers = [np.asarray(token[i].cpu()) for i in bert_layers] # Move to CPU before converting to numpy
                 token_vecs_cat.append(layers)
 
     return token_vecs_cat
