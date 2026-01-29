@@ -78,6 +78,7 @@ from estnltk.storage.postgres.queries.layer_ngram_query import LayerNgramQuery
 from estnltk.storage.postgres.queries.metadata_query import MetadataQuery
 
 from estnltk.storage.postgres.context_managers.buffered_table_insert import BufferedTableInsert
+from estnltk.storage.postgres.context_managers.buffered_multi_table_insert import BufferedMultiTableInsert
 from estnltk.storage.postgres.context_managers.collection_text_object_inserter import CollectionTextObjectInserter
 from estnltk.storage.postgres.context_managers.collection_detached_layer_inserter import CollectionDetachedLayerInserter
 
