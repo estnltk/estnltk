@@ -70,6 +70,16 @@ class MultiLayerTagger(metaclass=MultiLayerTaggerChecker):
     New layers are created inside the _make_layers(...) method, 
     which should return a dictionary mapping from output_layers 
     to corresponding Layer objects. 
+
+    _make_layer_templates(...) method
+    ==================================
+    The method _make_layer_templates(...) should create a 
+    a dictionary mapping from output_layers to corresponding 
+    empty Layer objects. 
+    This method can be used inside the _make_layers(...) 
+    method to initiate all layers this tagger must create, 
+    and it can also be used in the database interface for 
+    storing templates of the layers. 
     """
     __slots__ = ['_initialized', 'conf_param', 'output_layers', 'output_layers_to_attributes', 'input_layers']
 
@@ -96,16 +106,54 @@ class MultiLayerTagger(metaclass=MultiLayerTaggerChecker):
             'attribute {!r} not listed in {}.conf_param'.format(key, self.__class__.__name__)
         super().__setattr__(key, value)
 
+    def _make_layer_templates(self) -> MutableMapping[str,Layer]:
+        """Returns a mapping from output layer names to corresponding empty detached layers (layer templates). 
+           This method needs to be implemented in a derived class.
+        """
+        raise NotImplementedError('_make_layer_templates method not implemented in ' + self.__class__.__name__)
+
+    def get_layer_templates(self) -> MutableMapping[str,Layer]:
+        """
+        Returns a mapping from output layer names to corresponding empty detached layers (layer templates).
+        """
+        return self._make_layer_templates()
+
     def _make_layers(self, text: Union['BaseText', 'Text'], layers: MutableMapping[str, Layer], status: dict) -> MutableMapping[str,Layer]:
         """
-        analog to tagger._make_layer
+        Returns a mapping from output layer names to corresponding detached layers created by this tagger. 
+        All created layers must be associated with the given Text object (their .text attribute must point 
+        to the Text object). 
+        This method needs to be implemented in a derived class. 
         """
         raise NotImplementedError('make_layer method not implemented in ' + self.__class__.__name__)
 
     def make_layers(self, text: Union['BaseText', 'Text'], layers: Union[MutableMapping[str, Layer], Set[str]] = None,
                    status: dict = None) -> MutableMapping[str,Layer]:
-        """
-        analog to tagger.make_layer
+        """Creates and returns new layers, based on the given `text` and its `layers`.
+           
+           Note: derived classes **should not override** this method.
+
+           Parameters
+           ----------
+           text: Union['BaseText', 'Text']
+               Text object to be annotated.
+           layers: MutableMapping[str, Layer]
+               A mapping from layer names to corresponding Layer objects.
+               Layers in the mapping can be detached from the Text object.
+               It is assumed that all tagger's `input_layers` are in the
+               mapping.
+               IMPORTANT: new layers are created based on input_layers
+               in the mapping, and not based on layers attached to the
+               Text object.
+           status: dict
+                Dictionary with status messages about tagging.
+                Note: the status parameter is **deprecated**.
+                To store/access metadata, use ``layer.meta`` instead.
+
+            Returns
+            ----------
+            MutableMapping[str, Layer]
+                Created Layer objects, which are detached from the Text object.
         """
         assert status is None or isinstance(status, dict), 'status should be None or dict, not {!r}'.format(
             type(status))
@@ -140,13 +188,13 @@ class MultiLayerTagger(metaclass=MultiLayerTaggerChecker):
                 self.__class__.__name__)
         for layername, layer in layers.items():
             assert layer.attributes == tuple(self.output_layers_to_attributes[layername]), \
-                '{}._make_layer returned layer with unexpected attributes: {} != {}'.format(
+                '{}._make_layers returned layer with unexpected attributes: {} != {}'.format(
                     self.__class__.__name__, layer.attributes, tuple(self.output_layers_to_attributes[layername]))
         for layer in layers.values():
-            assert isinstance(layer, Layer), self.__class__.__name__ + '._make_layer must return Layer'
+            assert isinstance(layer, Layer), self.__class__.__name__ + '._make_layers must return (a mapping of) Layer(s)'
         for layer in layers.values():
             assert layer.name in self.output_layers, \
-                '{}._make_layer returned a layer with incorrect name: {} != {}'.format(
+                '{}._make_layers returned a layer with incorrect name: {} != {}'.format(
                     self.__class__.__name__, layer.name, self.output_layers)
 
         return layers
