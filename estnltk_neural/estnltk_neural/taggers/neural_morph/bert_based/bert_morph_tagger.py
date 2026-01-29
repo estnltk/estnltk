@@ -52,6 +52,7 @@ class BertMorphTagger(Retagger):
         token_level: bool = False,
         split_pos_form: bool = True,
         disambiguate: bool = False,
+        device: str = "cpu",
         **kwargs
     ):
         """
@@ -77,6 +78,8 @@ class BertMorphTagger(Retagger):
                 Defaults to False. If set, then BertMorphTagger can be used to disambiguate an existing Vabamorf-based 
                 morph analysis layer by calling <code>BertMorphTagger.retag(text_obj)</code>. Note that the input 
                 <code>text_obj</code> must already have <code>output_layer<code> which will be disambiguated. 
+            device (str):
+                The device to run the bert_morph_tagging model on ('cpu' or 'cuda'). Defaults to 'cpu'.
 
         Raises:
             Exception: Raises when BertMorphTagger's resources have not been downloaded.
@@ -85,7 +88,7 @@ class BertMorphTagger(Retagger):
         # Configuration parameters
         self.conf_param = ('model_location', 'get_top_n_predictions', 'bert_tokenizer', 'bert_morph_tagging', 'id2label', \
                            'token_level', 'split_pos_form', 'disambiguate', 'sentences_layer', 'words_layer', 'output_layer', \
-                           'input_layers', 'output_attributes', '_bert_tokens_rewriter')
+                           'input_layers', 'output_attributes', 'device', '_bert_tokens_rewriter')
 
         if model_location is None:
             # Try to get the resources path for bert_morph_tagger. Attempt to download, if missing
@@ -101,12 +104,13 @@ class BertMorphTagger(Retagger):
             self.model_location = model_location
 
         tokenizer_kwargs = { k:v for (k,v) in kwargs.items() if k in ['do_lower_case', 'use_fast'] }
+        self.device = device
         self.get_top_n_predictions = get_top_n_predictions
         self.bert_tokenizer = AutoTokenizer.from_pretrained(self.model_location, **tokenizer_kwargs )
         self.bert_morph_tagging = AutoModelForTokenClassification.from_pretrained(self.model_location,
                                                                         output_attentions = False,
                                                                         output_hidden_states = False)
-
+        self.bert_morph_tagging = self.bert_morph_tagging.to(self.device)
         # Fetch id2label mapping from configuration
         config_dict = AutoConfig.from_pretrained(self.model_location).to_dict()
         self.id2label, _ = config_dict["id2label"], config_dict["label2id"]
@@ -174,7 +178,7 @@ class BertMorphTagger(Retagger):
         """
         # Tokenize the input string
         tokens, batch_encoding = self._tokenize_with_bert(input_str)
-        token_indexes = torch.tensor([batch_encoding['input_ids']])
+        token_indexes = torch.tensor([batch_encoding['input_ids']]).to(self.device)
 
         # Check if the length exceeds the model's maximum sequence length
         max_seq_length = self.bert_tokenizer.model_max_length
@@ -229,7 +233,7 @@ class BertMorphTagger(Retagger):
             </ul>
         """
         tokens = []
-        batch_encoding = self.bert_tokenizer(text)
+        batch_encoding = self.bert_tokenizer(text).to(self.device)
         for token_id, token in enumerate(batch_encoding.tokens()):
             char_span = batch_encoding.token_to_chars(token_id)
             if char_span is not None:
