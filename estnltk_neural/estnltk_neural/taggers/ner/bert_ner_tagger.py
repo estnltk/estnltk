@@ -175,6 +175,19 @@ class BertNerTagger(MultiLayerTagger):
                 tokens.append( (None, None, token) )
         return tokens
 
+    def _make_layer_templates(self) -> MutableMapping[str,Layer]:
+        # Create layer templates
+        ner_layer_template = Layer(name=self.output_layers[0], 
+                                   attributes=self.output_layers_to_attributes[self.output_layers[0]],
+                                   enveloping=self.input_layers[0] if len(self.input_layers) > 0 else self.output_layers[1])
+        if self.custom_words_layer is None:
+            tokens_layer_template = Layer(name=self.output_layers[1], 
+                                          attributes=self.output_layers_to_attributes[self.output_layers[1]])
+            return { self.output_layers[1]: tokens_layer_template, 
+                     self.output_layers[0]: ner_layer_template }
+        else:
+            return { self.output_layers[0]: ner_layer_template }
+
     def _make_layers(self, text: Text, layers: MutableMapping[str, Layer], status: dict) -> Layer:
         # Create layers (and layer templates)
         nerlayer = Layer(name='temp_bertner', 
