@@ -13,7 +13,6 @@ from psycopg2.sql import SQL, Identifier
 
 from estnltk import Text
 from estnltk import get_logger_with_tqdm_handler
-from estnltk.taggers import TokensTagger
 from estnltk.storage import postgres as pg
 
 from estnltk.storage.postgres import PostgresStorage
@@ -24,10 +23,8 @@ logger = get_logger_with_tqdm_handler('DEBUG')
 
 
 class TestBufferedMultiTableInsertInsert(unittest.TestCase):
-    """ A small test for the basic functionality of BufferedTableInsert.
-        ( we do not cover all the aspects of the class, because most of 
-          the insertion functionality flows through it, and so it is 
-          already heavily used in other tests ) """
+    """ A small test for the basic functionality of BufferedMultiTableInsert. 
+    """
 
     def setUp(self):
         schema = "test_schema"
@@ -115,11 +112,6 @@ class TestBufferedMultiTableInsertInsert(unittest.TestCase):
                                  (1, 'Wie spät ist es?', 'teine lausung'),
                                  (2, 'Doch!', 'kolmas lausung')]
         self.assertListEqual(result_rows3, expected_result_rows3)
-
-
-
-def get_random_collection_name():
-    return 'collection_{}'.format(random.randint(1, 1000000))
 
 
 

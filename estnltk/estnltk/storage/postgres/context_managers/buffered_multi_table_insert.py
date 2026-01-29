@@ -17,7 +17,7 @@ from estnltk.storage.postgres import BufferedTableInsert
 
 class BufferedMultiTableInsert(object):
     '''A buffered inserter that maintains insertion buffers over multiple tables. 
-       Allows to insert into multiple tables simulteneously. 
+       Allows to insert into multiple tables simultaneously. 
     
        Builds upon: 
        https://github.com/estnltk/estnltk-workflows/blob/98109d50f6901a8c6baa422ee960faefee0274cf/enc_workflows/x_db_utils.py
