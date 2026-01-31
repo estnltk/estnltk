@@ -53,10 +53,9 @@ class TestCollectionMultiLayerInserter(unittest.TestCase):
 
         # Insert plain text objects into the collection
         with collection.insert() as collection_insert:
-            text1 = Text('see on esimene lause')
-            collection_insert(text1)
-            text2 = Text('see on teine lause')
-            collection_insert(text2)
+            collection_insert(Text('see on esimene lause'))
+            collection_insert(Text('see on teine lause'))
+            collection_insert(Text('see on kolmas lausung'))
 
         # Create applicable taggers, fetch layer names and templates
         taggers = [TokensTagger(), CompoundTokenTagger(), WordTagger(), SentenceTokenizer()]
@@ -89,7 +88,7 @@ class TestCollectionMultiLayerInserter(unittest.TestCase):
             inserted_rows = count_rows( self.storage, 
                                         table=layer_table_name(collection.name, layer_template.name) )
             if layer_template.name != 'compound_tokens':
-                self.assertEqual( inserted_rows, 2 )
+                self.assertEqual( inserted_rows, 3 )
             else:
                 self.assertEqual( inserted_rows, 0 )
 

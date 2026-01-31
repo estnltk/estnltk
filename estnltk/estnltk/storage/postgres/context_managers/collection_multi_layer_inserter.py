@@ -15,13 +15,12 @@ from estnltk.storage.postgres.pg_operations import layer_table_identifier
 
 
 class CollectionMultiLayerInserter(object):
-    '''An extension of CollectionDetachedLayerInserter that allows to insert multiple (detached) layers 
-       of a Text object into corresponding layer tables. 
-       Updates simultaneously all target detached layer tables. 
+    '''An extension of CollectionDetachedLayerInserter that holds an insertion buffer over multiple 
+       layer tables at the same time. Allows to insert multiple (detached) layers of a Text object. 
        
        Builds upon: 
-       https://github.com/estnltk/estnltk-workflows/blob/98109d50f6901a8c6baa422ee960faefee0274cf/enc_workflows/x_db_utils.py
-       https://github.com/estnltk/estnltk/blob/ab676f28df06cabee3b7e1f17c9eeaa1f635831d/estnltk/estnltk/storage/postgres/context_managers/collection_detached_layer_inserter.py
+       https://github.com/estnltk/estnltk-workflows/blob/98109d50f6901a8c6baa422ee960faefee0274cf/enc_workflows/x_db_utils.py 
+       https://github.com/estnltk/estnltk/blob/ab676f28df06cabee3b7e1f17c9eeaa1f635831d/estnltk/estnltk/storage/postgres/context_managers/collection_detached_layer_inserter.py 
     '''
 
     def __init__(self, collection, layers, sparse_layers: list=None, extra_columns: dict=None,
@@ -65,21 +64,25 @@ class CollectionMultiLayerInserter(object):
         # Validate target layers & collect corresponding collection layers
         assert isinstance(layers, list) and len(layers) > 0
         assert all([isinstance(l, str) for l in layers])
+        unique_layers = []
         missing_layers = []
         for target_layer in layers:
             layer_exists = target_layer in existing_filled_layers
             if not layer_exists:
                 missing_layers.append( target_layer )
+            if target_layer not in unique_layers:
+                # Take only unique layers, discard duplicates
+                unique_layers.append( target_layer )
         if missing_layers:
             raise pg.PgCollectionException( f'(!) No tables have been created for layers {missing_layers!r}. '+\
                                              'Please use PgCollection.add_layer method to create layer tables.' )
-        self.layers = layers
+        self.layers = unique_layers
         # Validate extra columns (must be a map from layers to list of their extra columns)
         assert extra_columns is None or isinstance(extra_columns, dict)
         if extra_columns is not None:
             for (layer, columns) in extra_columns.items():
                 if layer not in self.layers:
-                    raise Exception(f'(!) extra_columns layer {layer} not in layers list {layers}.')
+                    raise Exception(f'(!) extra_columns layer {layer} not in layers list {self.layers}.')
                 assert isinstance(columns, list)
                 assert all([isinstance(c, str) for c in columns])
         self.extra_columns = extra_columns if extra_columns is not None else dict()
@@ -88,7 +91,7 @@ class CollectionMultiLayerInserter(object):
         if sparse_layers is not None:
             for layer in sparse_layers:
                 if layer not in self.layers:
-                    raise Exception(f'(!) sparse_layer {layer} not in layers list {layers}.')
+                    raise Exception(f'(!) sparse_layer {layer} not in layers list {self.layers}.')
         self.sparse_layers = set(sparse_layers) if sparse_layers is not None else set()
         # Make mapping from insertion phases to table names and columns
         self.insertion_phase_map = OrderedDict()
@@ -214,36 +217,4 @@ class CollectionMultiLayerInserter(object):
         self.layer_insert_counter += 1
 
 
-    def is_inserted(self, text_id, detailed=False):
-        """Checks whether layers of the Text object with the given text_id have been 
-           inserted into tables targeted by this CollectionMultiLayerInserter. 
-           Use this method to check whether layers have already been inserted 
-           during the collection update. 
-           Note that by default, the method returns `True` even if the layers have 
-           have been partially inserted, i.e. some are inserted, others are missing. 
-           Switch on the flag `detailed` to get a detailed overview of the insertion 
-           status: then the method will return a list of tuples 
-           (insertion_phase:str, status:bool). 
-        """
-        #
-        # Check insertion statuses of all different insertion phases
-        #
-        insertion_phases = []
-        insertion_statuses = []
-        with self.collection.storage.conn.cursor() as cursor:
-            for phase in self.insertion_phase_map.keys():
-                table_name = self.insertion_phase_map[phase][0]
-                table_identifier = [i[1] for i in self.insertable_tables if i[0] == table_name]
-                assert len(table_identifier) > 0
-                table_identifier = table_identifier[0]
-                query = None
-                if phase.startswith('_layer_'):
-                    query = SQL('SELECT 1 FROM {table} WHERE {table}."text_id" = {key} LIMIT 1').format(table=table_identifier, 
-                                                                                                        key=Literal(text_id))
-                assert query is not None
-                cursor.execute( query )
-                result = cursor.fetchone()
-                insertion_phases.append(phase)
-                insertion_statuses.append( bool(result) )
-        return any(insertion_statuses) if not detailed else [(k,s) for k,s in zip(insertion_phases, insertion_statuses)]
 
