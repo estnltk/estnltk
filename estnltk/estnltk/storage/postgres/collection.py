@@ -15,6 +15,7 @@ from estnltk import logger
 from estnltk_core import Layer
 from estnltk_core import RelationLayer
 from estnltk_core.taggers import RelationTagger
+from estnltk_core.taggers import MultiLayerTagger
 from estnltk.converters import dict_to_layer
 from estnltk.converters import dict_to_text
 from estnltk.converters import layer_to_dict
@@ -24,6 +25,7 @@ from estnltk.storage import postgres as pg
 from estnltk.storage.postgres import BufferedTableInsert
 from estnltk.storage.postgres import CollectionDetachedLayerInserter
 from estnltk.storage.postgres import CollectionTextObjectInserter
+from estnltk.storage.postgres import CollectionMultiLayerInserter
 from estnltk.storage.postgres import is_empty
 from estnltk.storage.postgres import count_rows
 from estnltk.storage.postgres import drop_layer_table
@@ -1408,7 +1410,7 @@ class PgCollection:
                                     query = MissingLayerQuery(missing_layer=tagger.output_layer))
             data_iterator = data_iterator.select( \
                 additional_constraint=additional_constraint, 
-                selected_layers=data_iterator.selected_layers + add_selected_layers )
+                selected_layers=data_iterator.selected_layers + add_selected_layers)
         else:
             # Use default data_iterator
             block_query = pg.BlockQuery(*block)
@@ -1459,6 +1461,158 @@ class PgCollection:
         
         if no_errors:
             logger.info('block {} of {!r} layer created'.format(block, layer_name))
+
+
+    def create_layers(self, tagger, data_iterator=None, block=None, query_length_limit=5000000, 
+                            mode=None, progressbar=None):
+        """Creates multiple layers using the given multi-layer `tagger`.
+        
+        Note: before layers can be created, corresponding layer tables must already exist. 
+        Use the method add_layer() for creating empty layer tables beforehand. 
+
+        **Important:** You should use this method only after the insertion of Text objects into
+        the collection has been finished. Once you create detached layers, new Text objects
+        cannot be inserted into the collection anymore. 
+
+        :param tagger: MultiLayerTagger
+            multi-layer tagger to be applied on collection's texts. 
+            Note: tagger's input_layers will be selected automatically, 
+            but the collection must have all the input layers. 
+        :param data_iterator: iterator
+            Optional: iterator over Texts of this collection which generates tuples (`text_id`, `text`).
+            If not provided and a block is also not provided, then simply selects all texts of this 
+            collection. 
+            See method `PgCollection.select`.
+        :param block: Tuple[int, int]
+            Optional: pair of integers `(module, remainder)`. If provided, then only texts with 
+            `id % module = remainder` are tagged. 
+        :param query_length_limit: int
+            Soft approximate query length limit in unicode characters, can be exceeded by the length of 
+            last buffer insert. Defaults to 5000000.
+        :param mode: str 
+            Specifies how layer creation should handle existing layers inside the block. 
+            Currently, only one mode has been implemented: None / 'new' - attempts tags all texts 
+            inside the block (creates a new block);
+        :param progressbar: str
+            if 'notebook', display progressbar as a jupyter notebook widget
+            if 'unicode', use unicode (smooth blocks) to fill the progressbar
+            if 'ascii', use ASCII characters (1-9 #) to fill the progressbar
+            else disable progressbar (default)
+        """
+        mode = 'new' if mode is None else mode.lower()
+        if mode.lower() != 'new':
+            # We currently support only one mode
+            raise ValueError( f"mode={mode!r} not supported. ")
+        if not isinstance(tagger, MultiLayerTagger):
+            raise PgCollectionException("tagger must be a MultiLayerTagger, not {!r}".format(type(tagger)))
+        if not self.exists():
+            raise PgCollectionException("collection {!r} does not exist, can't create layers {!r}".format(
+                self.name, tagger.output_layers))
+        # Check tagger's input_layers
+        for required_layer in tagger.input_layers:
+            if not self.has_layer( required_layer ):
+                raise PgCollectionException(("Tagger's input layer {!r} is missing from " +\
+                                             "this collection, cannot apply the tagger." +\
+                                             "").format(required_layer))
+        # Collect information about creatable layer structure 
+        sparse_layers = set()
+        layer_structures = dict()
+        for layer_name in tagger.output_layers:
+            if layer_name not in self._structure:
+                self.refresh()
+            if layer_name not in self._structure:
+                # Note: at this point, the structure should already exist
+                # ( created by add_layer(...) function )
+                raise PgCollectionException(("Layer {!r} is missing from collection's structure. " + \
+                                             "Use collection.add_layer(...) to update the structure " + \
+                                             "before using this method.").format(layer_name))
+            struct = self._structure[layer_name]
+            if struct['layer_type'] != 'detached':
+                raise PgCollectionException(("Wrong layer type {!r} for {!r}. This method can only be " + \
+                                             "applied on 'detached' layers.").format(struct['layer_type'],\
+                                                                                     layer_name))
+            current_layer_structure = (layer_name, struct['attributes'], struct['ambiguous'],
+                                       struct['parent'], struct['enveloping'])
+            if 'span_names' in struct:
+                current_layer_structure += ( struct['span_names'], )
+            layer_structures[layer_name] = current_layer_structure
+            sparse = struct['sparse'] if 'sparse' in struct else False
+            if sparse:
+                sparse_layers.add(layer_name)
+
+        # Prepare block query (optional)
+        block_query = None
+        if block is not None:
+            block_query = pg.BlockQuery(*block)
+
+        if data_iterator is not None:
+            # Validate & extend input data_iterator
+            if not isinstance(data_iterator, pg.PgSubCollection):
+                raise TypeError( ('(!) Unexpected data_iterator type {!r}, '+
+                                   'expected PgSubCollection.').format( type(data_iterator) ) )
+            # Collection can only be self
+            if data_iterator.collection != self:
+                raise ValueError( "(!) wrong collection: data_iterator's collection should be "+\
+                                  "this collection." )
+            # Collect layers that should be added to selection
+            add_selected_layers = []
+            for required_layer in tagger.input_layers:
+                if required_layer not in data_iterator.selected_layers:
+                    assert self.has_layer( required_layer )
+                    add_selected_layers.append( required_layer )
+            # Extend data_iterator by new constraints and layers
+            additional_constraint = pg.WhereClause(collection=self, query=block_query)
+            data_iterator = data_iterator.select( \
+                additional_constraint=additional_constraint, 
+                selected_layers=data_iterator.selected_layers + add_selected_layers )
+        else:
+            # Use default data_iterator
+            data_iterator = self.select(query=block_query, layers=tagger.input_layers)
+
+        no_errors = True
+        collection_text_id = None
+        try:
+            with CollectionMultiLayerInserter( self, tagger.output_layers, sparse_layers=list(sparse_layers),
+                                                     query_length_limit=query_length_limit ) as buffered_inserter:
+
+                for collection_text_id, text in data_iterator:
+                    layers_dict = tagger.make_layers(text=text, status=None)
+                    for (layer_name, layer) in layers_dict.items():
+                        # Check layer structure
+                        layer_structure_from_tagger = (layer.name, layer.attributes, layer.ambiguous, 
+                                                       layer.parent if isinstance(layer, Layer) else None, 
+                                                       layer.enveloping)
+                        if 'span_names' in struct:
+                            layer_structure_from_tagger += \
+                                ( (layer.span_names if isinstance(layer, RelationLayer) else None), )
+                        assert len(layer_structures[layer_name]) == len(layer_structure_from_tagger)
+                        if layer_structures[layer_name] != layer_structure_from_tagger:
+                            no_errors = False
+                            raise ValueError( ('(!) Mismatching layer {!r} structures: '+
+                                               'structure in database: {!r} and '+
+                                               'structure created by tagger: {!r}').format(layer_name, 
+                                                                                           layer_structures[layer_name], 
+                                                                                           layer_structure_from_tagger) )
+                        
+                        buffered_inserter.insert(layer, collection_text_id, key=collection_text_id)
+
+        except Exception as layer_creation_error:
+            no_errors = False
+            if collection_text_id is not None:
+                layer_creation_error_msg = ('Layer creation failed at document with id {} '+\
+                                            'due to an error: {}.').format(collection_text_id, \
+                                                                           layer_creation_error)
+            else:
+                layer_creation_error_msg = ('Layer creation failed due to an error: {}.'+\
+                                            '').format(layer_creation_error)
+            logger.error(layer_creation_error_msg)
+            raise
+        
+        if no_errors:
+            if block is not None:
+                logger.info('block {} of {!r} layers created'.format(block, tagger.output_layers))
+            else:
+                logger.info('{!r} layers created'.format(tagger.output_layers))
 
 
     def delete_layer(self, layer_name, cascade=False):
