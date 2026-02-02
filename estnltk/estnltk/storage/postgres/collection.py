@@ -127,7 +127,7 @@ class PgCollection:
     You can create detached layers with a tagger:
 
             # Insert layers with a tagger
-            collection.create_layer( tagger=tagger, mode='create' )
+            collection.create_layer( tagger=tagger, mode='new' )
 
     Alternatively, you can use collection.add_layer(...) method to first add a new
     detached layer to the structure of the collection:
@@ -146,6 +146,16 @@ class PgCollection:
 
     Note that each parallel tagging process must be launched inside a different database
     connection.
+    
+    If you have a MultiLayerTagger, which tags multiple layers simultaneously on 
+    a document, you can apply it on the collection via the method create_layers:
+    
+            # Insert multiple layers
+            assert isinstance(multi_layer_tagger, MultiLayerTagger)
+            collection.create_layers( tagger=multi_layer_tagger )
+    
+    Analogously to `create_layer_block()`, there is a method `create_layers_block()` 
+    for tagging blocks of multiple layers. 
 
     Single document access
     =======================
