@@ -10,6 +10,7 @@ import unittest
 from typing import MutableMapping, List, Tuple
 
 from psycopg2.sql import SQL, Identifier
+from psycopg2.errors import UniqueViolation
 
 from estnltk_core import Layer
 from estnltk import Text
@@ -217,6 +218,23 @@ class TestCollectionMultiLayerInserter(unittest.TestCase):
                 self.assertEqual( len(inserted_text_ids), 0 )
         self.assertTrue( collection.is_sparse("compound_tokens") )
 
+        # Case 4: trying to annotate same documents again raises exception 
+        # or safely ignores command (does not annotate anything)
+        # Validate layers
+        for layer in multi_tagger_2.output_layers:
+            inserted_text_ids = _get_inserted_text_ids(self.storage, collection, layer)
+            self.assertEqual( len(inserted_text_ids), 3 )
+            self.assertListEqual( inserted_text_ids, [0, 1, 2] )
+        with self.assertRaises(Exception):
+            collection.create_layers(multi_tagger_2) # raises an exception
+        collection.create_layers(multi_tagger_2, mode='append') # will be safely ignored
+        # Validate layers
+        for layer in multi_tagger_2.output_layers:
+            inserted_text_ids = _get_inserted_text_ids(self.storage, collection, layer)
+            self.assertEqual( len(inserted_text_ids), 3 )
+            self.assertListEqual( inserted_text_ids, [0, 1, 2] )
+
+
     def test_create_layers_with_multitagger_block_wise(self):
         collection_name = get_random_collection_name()
         collection = self.storage.add_collection(collection_name)
@@ -270,6 +288,20 @@ class TestCollectionMultiLayerInserter(unittest.TestCase):
         # Finish the block
         collection.create_layers_block( multi_tagger_2, block=(1,0), mode='append' )
         # Validate created layers
+        for layer in multi_tagger_2.output_layers:
+            inserted_text_ids = _get_inserted_text_ids(self.storage, collection, layer)
+            self.assertEqual( len(inserted_text_ids), 4 )
+            self.assertListEqual( inserted_text_ids, [0, 2, 1, 3] )
+
+        # Case 3: trying to annotate same documents again raises exception 
+        # or safely ignores command (does not annotate anything)
+        with self.assertRaises(Exception):
+            collection.create_layers(multi_tagger_2) # raises an exception
+        with self.assertRaises(UniqueViolation):
+            collection.create_layers_block(multi_tagger_2, block=(1,0) ) # raises an exception
+        collection.create_layers(multi_tagger_2, mode='append') # will be safely ignored
+        collection.create_layers_block(multi_tagger_2, block=(1,0), mode='append' ) # will be safely ignored
+        # Validate layers
         for layer in multi_tagger_2.output_layers:
             inserted_text_ids = _get_inserted_text_ids(self.storage, collection, layer)
             self.assertEqual( len(inserted_text_ids), 4 )
