@@ -6,6 +6,7 @@ from random import uniform, randint
 
 from estnltk import logger, Progressbar
 from estnltk import Text
+from estnltk_core.taggers import MultiLayerTagger
 from estnltk_core.converters.serialisation_registry import SERIALISATION_REGISTRY
 from estnltk_core.converters import default_serialisation
 from estnltk.converters.serialisation_modules import legacy_v0 as legacy_serialisation
