@@ -329,7 +329,7 @@ class CompoundTokenTagger( Tagger ):
                      attributes=self.output_attributes,
                      text_object=None,
                      enveloping=self._input_tokens_layer,
-                     ambiguous=True)
+                     ambiguous=False)
 
     @staticmethod
     def _any_starts_with(str_list, target):
@@ -355,6 +355,7 @@ class CompoundTokenTagger( Tagger ):
         """
         layer = self._make_layer_template()
         layer.text_object = text
+        layer.ambiguous = True
 
         raw_text = text.text
         compound_tokens_lists = []
@@ -489,6 +490,7 @@ class CompoundTokenTagger( Tagger ):
 
         temp_layers = layers.copy()
         temp_layers[self.output_layer] = layer
+        # Note: this changes layer.ambiguous from True to False
         self._disamb_tagger.change_layer(text=text, layers=temp_layers, status=status)
 
         # TODO: remove
