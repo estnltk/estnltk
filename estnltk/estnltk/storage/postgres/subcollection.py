@@ -1169,50 +1169,6 @@ class PgSubCollection:
                                             meta=meta, query_length_limit=query_length_limit,
                                             mode=mode )
 
-    def create_layers(self, tagger, block=None, query_length_limit=5000000, mode=None, progressbar=None):
-        """Creates multiple sparse layers based on this subcollection.
-        
-        Note: before layers can be created, corresponding layer tables must already exist. 
-        Use the method add_layer(..., sparse=True) for creating sparse layer tables beforehand. 
-
-        :param tagger: MultiLayerTagger
-            multi-layer tagger to be applied on subcollection's texts. 
-            Note: tagger's input_layers will be selected automatically, 
-            but the collection must have all the input layers. 
-        :param block: Tuple[int, int]
-            Optional: pair of integers `(module, remainder)`. If provided, then only texts with 
-            `id % module = remainder` are tagged. 
-        :param query_length_limit: int
-            Soft approximate query length limit in unicode characters, can be exceeded by the length of 
-            last buffer insert. Defaults to 5000000.
-        :param mode: str 
-            Specifies how layer creation should handle existing layers inside the block. 
-            Currently, only one mode has been implemented: None / 'new' - attempts tags all texts 
-            inside the block (creates a new block);
-        :param progressbar: str
-            if 'notebook', display progressbar as a jupyter notebook widget
-            if 'unicode', use unicode (smooth blocks) to fill the progressbar
-            if 'ascii', use ASCII characters (1-9 #) to fill the progressbar
-            else disable progressbar (default)
-        """
-        # Check the tagger
-        if not isinstance(tagger, MultiLayerTagger):
-            raise PgCollectionException("tagger must be a MultiLayerTagger, not {!r}".format(type(tagger)))
-        # Check for the existence and sparsity of output layers
-        for layer_name in tagger.output_layers:
-            if not self.collection.has_layer( layer_name ):
-                raise PgCollectionException(("Layer {!r} is missing from collection's structure. " + \
-                                             "Use collection.add_layer(...) to update the structure " + \
-                                             "before using this method.").format(layer_name))
-            if not self.collection.is_sparse( layer_name ):
-                raise PgCollectionException(("Layer {!r} is not sparse. Only sparse layers can be created " + \
-                                             "via this method. Use collection.create_layers(...) to " + \
-                                             "create a non-sparse layer.").format(layer_name))
-        data_iterator=self
-        self.collection.create_layers( tagger=tagger, data_iterator=data_iterator, block=block, 
-                                       query_length_limit=query_length_limit, mode=mode, 
-                                       progressbar=progressbar )
-
     def select_all(self):
         self.selected_layers = self.layers
         return self

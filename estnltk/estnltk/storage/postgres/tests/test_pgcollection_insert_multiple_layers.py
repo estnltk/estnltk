@@ -179,42 +179,45 @@ class TestCollectionMultiLayerInserter(unittest.TestCase):
             collection_insert(Text('see on esimene lause'))
             collection_insert(Text('see on teine lause'))
             collection_insert(Text('see on kolmas lausung'))
-        
+
+        # Case 1: Create layer tables & fill them with data at once
         multi_tagger_1 = TextSegmentationMultiTagger(output_layers=["tokens", "compound_tokens"])
-        # Create layer tables 1
-        for layer in multi_tagger_1.output_layers:
-            layer_template = multi_tagger_1.get_layer_templates()[layer]
-            collection.add_layer( layer_template=layer_template )
-            initial_rows = _count_layer_rows( self.storage, collection, layer_template.name )
-            self.assertEqual( initial_rows, 0 )
-        
-        # Fill in layer tables 1
-        collection.create_layers( multi_tagger_1 )
-        
+        collection.create_layers( multi_tagger_1, mode='new' )
         # Validate created layers 1
         for layer in multi_tagger_1.output_layers:
             inserted_text_ids = _get_inserted_text_ids(self.storage, collection, layer)
             self.assertEqual( len(inserted_text_ids), 3 )
             self.assertListEqual( inserted_text_ids, [0, 1, 2] )
         
+        # Case 2: Create layer tables first & then fill them with data afterwards
         multi_tagger_2 = TextSegmentationMultiTagger(output_layers=["words", "sentences"])
-        # Create layer tables 2
+        # Add layer tables
         for layer in multi_tagger_2.output_layers:
             layer_template = multi_tagger_2.get_layer_templates()[layer]
             collection.add_layer( layer_template=layer_template )
             initial_rows = _count_layer_rows( self.storage, collection, layer_template.name )
             self.assertEqual( initial_rows, 0 )
-        
-        # Fill in layer tables 2
-        collection.create_layers( multi_tagger_2 )
-
-        # Validate created layers 1
+        # Fill in layer tables
+        collection.create_layers( multi_tagger_2, mode='append' )
+        # Validate created layers
         for layer in multi_tagger_2.output_layers:
             inserted_text_ids = _get_inserted_text_ids(self.storage, collection, layer)
             self.assertEqual( len(inserted_text_ids), 3 )
             self.assertListEqual( inserted_text_ids, [0, 1, 2] )
 
+        # Case 3: Overwrite layer tables
+        self.assertFalse( collection.is_sparse("compound_tokens") )
+        collection.create_layers( multi_tagger_1, mode='overwrite', sparse_layers=["compound_tokens"] )
+        for layer in multi_tagger_1.output_layers:
+            inserted_text_ids = _get_inserted_text_ids(self.storage, collection, layer)
+            if layer == "tokens":
+                self.assertEqual( len(inserted_text_ids), 3 )
+                self.assertListEqual( inserted_text_ids, [0, 1, 2] )
+            elif layer == "compound_tokens":
+                self.assertEqual( len(inserted_text_ids), 0 )
+        self.assertTrue( collection.is_sparse("compound_tokens") )
 
+    @unittest.expectedFailure
     def test_create_layers_with_multitagger_block_wise(self):
         collection_name = get_random_collection_name()
         collection = self.storage.add_collection(collection_name)
