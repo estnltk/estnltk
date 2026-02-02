@@ -217,7 +217,6 @@ class TestCollectionMultiLayerInserter(unittest.TestCase):
                 self.assertEqual( len(inserted_text_ids), 0 )
         self.assertTrue( collection.is_sparse("compound_tokens") )
 
-    @unittest.expectedFailure
     def test_create_layers_with_multitagger_block_wise(self):
         collection_name = get_random_collection_name()
         collection = self.storage.add_collection(collection_name)
@@ -229,6 +228,7 @@ class TestCollectionMultiLayerInserter(unittest.TestCase):
             collection_insert(Text('see on kolmas lausung'))
             collection_insert(Text('see on neljas ja viimane kutsung'))
         
+        # Case 1: Create layer tables & fill them via 2 blocks afterwards
         multi_tagger_1 = TextSegmentationMultiTagger(output_layers=["tokens", "compound_tokens"])
         # Create layer tables 1
         for layer in multi_tagger_1.output_layers:
@@ -236,21 +236,41 @@ class TestCollectionMultiLayerInserter(unittest.TestCase):
             collection.add_layer( layer_template=layer_template )
             initial_rows = _count_layer_rows( self.storage, collection, layer_template.name )
             self.assertEqual( initial_rows, 0 )
-        
         # Fill in layer tables 1 block 1
-        collection.create_layers( multi_tagger_1, block=(2,0) )
-        
+        collection.create_layers_block( multi_tagger_1, block=(2,0), mode='new' )
         # Validate created layers 1 block 1
         for layer in multi_tagger_1.output_layers:
             inserted_text_ids = _get_inserted_text_ids(self.storage, collection, layer)
             self.assertEqual( len(inserted_text_ids), 2 )
             self.assertListEqual( inserted_text_ids, [0, 2] )
-        
         # Fill in layer tables 1 block 2
-        collection.create_layers( multi_tagger_1, block=(2,1) )
-
+        collection.create_layers_block( multi_tagger_1, block=(2,1), mode='new' )
         # Validate created layers 1 block 2
         for layer in multi_tagger_1.output_layers:
+            inserted_text_ids = _get_inserted_text_ids(self.storage, collection, layer)
+            self.assertEqual( len(inserted_text_ids), 4 )
+            self.assertListEqual( inserted_text_ids, [0, 2, 1, 3] )
+
+        # Case 2: Create layer tables, fill in half of the block first and then 
+        # append entire block afterwards
+        multi_tagger_2 = TextSegmentationMultiTagger(output_layers=["words", "sentences"])
+        # Add layer tables
+        for layer in multi_tagger_2.output_layers:
+            layer_template = multi_tagger_2.get_layer_templates()[layer]
+            collection.add_layer( layer_template=layer_template )
+            initial_rows = _count_layer_rows( self.storage, collection, layer_template.name )
+            self.assertEqual( initial_rows, 0 )
+        # Fill in half of the block
+        collection.create_layers_block( multi_tagger_2, block=(2,0) )
+        # Validate created layers
+        for layer in multi_tagger_2.output_layers:
+            inserted_text_ids = _get_inserted_text_ids(self.storage, collection, layer)
+            self.assertEqual( len(inserted_text_ids), 2 )
+            self.assertListEqual( inserted_text_ids, [0, 2] )
+        # Finish the block
+        collection.create_layers_block( multi_tagger_2, block=(1,0), mode='append' )
+        # Validate created layers
+        for layer in multi_tagger_2.output_layers:
             inserted_text_ids = _get_inserted_text_ids(self.storage, collection, layer)
             self.assertEqual( len(inserted_text_ids), 4 )
             self.assertListEqual( inserted_text_ids, [0, 2, 1, 3] )
