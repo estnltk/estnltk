@@ -966,7 +966,10 @@ class PgCollection:
         
         A fragmented layer is a layer that is composed of (sub)layers of 
         a parent layer, e.g. created by breaking one layer into multiple 
-        sublayers.
+        sublayers. 
+        While detached layer tables store zero to one layer instances per 
+        Text object, fragmented layer tables can store more than one layer 
+        instances per Text. 
 
         *Important:* You should use this method only after the insertion of 
         Text objects into the collection has been finished. Once you create 
@@ -982,7 +985,7 @@ class PgCollection:
                 Either tagger and fragmenter must be None or layer_template, 
                 data_iterator and row_mapper must be None.
             fragmenter: callable
-                if tagger is provided, then fragmenter is called to brake layer 
+                if tagger is provided, then fragmenter is called to break layer 
                 into list of (sub)layers. (sub)layers should specify 'parent_layer_id' 
                 in their meta;
             layer_template: Layer
