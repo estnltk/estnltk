@@ -200,6 +200,7 @@ class BertNerTagger(MultiLayerTagger):
         text_chunks, text_indexes = _split_text_into_smaller_texts(text, max_size=self.batch_size, \
                                                                    normalizer=self.input_normalizer)
         chunk_count = 0
+        seen_bert_token_spans = set()
         for text_chunk, (chunk_start, chunk_end) in zip(text_chunks, text_indexes):
             chunk_count += 1
             #logger.debug( f'Processing chunk {chunk_count} out of {len(text_chunks)} chunks.' )
@@ -209,7 +210,18 @@ class BertNerTagger(MultiLayerTagger):
                 if (start_span, end_span) == (None, None):
                     # Skip special tokens (e.g. [CLS], [SEP])
                     continue
-                tokenslayer.add_annotation( ElementaryBaseSpan(chunk_start+start_span, chunk_start+end_span) )
+                bert_token_span = (chunk_start+start_span, chunk_start+end_span)
+                if bert_token_span not in seen_bert_token_spans:
+                    #
+                    # Add only unique spans, because tokenslayer is not ambiguous.
+                    # How come there can be non-unique spans?
+                    # Well, in some rare occasions, est-roberta's tokenizer tokenizes strings 
+                    # into overlapping tokens, e.g. string '8½' is tokenized into 
+                    # ['▁81', '⁄', '2'], and the last two tokens ['⁄', '2'] have exactly 
+                    # the same spans. 
+                    #
+                    tokenslayer.add_annotation( ElementaryBaseSpan(bert_token_span[0], bert_token_span[1]) )
+                    seen_bert_token_spans.add( bert_token_span )
             labels = ['O'] * len(bert_tokens)
             # B) Annotate NE labels
             response = self.nlp( text_chunk )

@@ -356,3 +356,31 @@ def test_estroberta_ud_ner_v1_smoke():
          (55, 58, 'USA', 'GEP'), (85, 91, 'Eestis', 'GEP'), (127, 145, 'Von Krahli Teatris', 'ORG'), \
          (157, 170, 'Ervin Õunapuu', 'PER'), (171, 181, 'näitemängu', 'PROD'), \
          (182, 198, '" Surm ooperis "', 'PROD')]
+
+
+
+@pytest.mark.skipif(not check_if_transformers_is_available(),
+                    reason="package tranformers is required for this test")
+@pytest.mark.skipif(not check_if_pytorch_is_available(),
+                    reason="package pytorch is required for this test")
+@pytest.mark.skipif(ESTROBERTA_UD_NER_PATH is None,
+                    reason="BertNerTagger's UD ner model location not known. "+\
+                           "Use estnltk.download('estroberta_ud_ner_v1') to get the missing resources.")
+def test_estroberta_ud_ner_v1_tokenization_problem():
+    # Initialize model
+    from estnltk_neural.taggers import BertNerTagger
+    ud_ner_tagger = BertNerTagger(model_location=ESTROBERTA_UD_NER_PATH)
+    # Problematic case:
+    # string '8½' is tokenized into ['▁81', '⁄', '2'] by est-roberta's 
+    # tokenizer, and last two tokens ['⁄', '2'] have exactly the same 
+    # spans in the original text, thus breaking the condition that 
+    # berttokens layer must contain unambiguous spans
+    text = Text('Kuulutuste ja müürilehtede wäljapanemise eest kuni 1 jalg kõrged ja 8½ tolli laiad. '+\
+                'Kalev konnib Brusselisse. Kanepi alevik nimetatakse Kaiaks. ').tag_layer('words')
+    ud_ner_tagger.tag(text)
+    output_layer = ud_ner_tagger.output_layers[0]
+    #print( _ner_spans_as_tuples( text[output_layer] ) )
+    assert _ner_spans_as_tuples( text[output_layer] ) == \
+        [(84, 89, 'Kalev', 'ORG'), (97, 108, 'Brusselisse', 'LOC'), 
+         (110, 123, 'Kanepi alevik', 'LOC'), (136, 142, 'Kaiaks', 'LOC')]
+
