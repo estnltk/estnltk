@@ -251,7 +251,28 @@ class BertNerTagger(MultiLayerTagger):
                 # Apply corrections to entity positions
                 corrected_start = chunk_start + span[0]
                 corrected_end   = chunk_start + span[1]
-                entity_spans.append( ElementaryBaseSpan(corrected_start, corrected_end) )
+                new_base_span = ElementaryBaseSpan(corrected_start, corrected_end)
+                if new_base_span not in entity_spans:
+                    #
+                    # Gather only unique spans, e.g. if the string " 26½ kr." is 
+                    # tagged as [('▁26', ' 26', 'B-MONEY'), 
+                    #            ('1', '½', 'B-MONEY'), 
+                    #            ('⁄', '½', 'I-MONEY'), 
+                    #            ('2', '½', 'I-MONEY'), 
+                    #            ('▁kr', ' kr', 'I-MONEY')] 
+                    # due to est-roberta's tokenization idiosyncrasy, then gather 
+                    # only spans covering tokens ' 26', '½' and ' kr', and skip 
+                    # duplicates ('⁄', '½', 'I-MONEY') and ('2', '½', 'I-MONEY'). 
+                    # An attempt to annotate everything here would contradict with 
+                    # the requirement for enveloped spans to be non-overlapping. 
+                    #
+                    entity_spans.append( new_base_span )
+                else:
+                    ne_start = new_base_span.start
+                    ne_end   = new_base_span.end
+                    ann_str  = text.text[ne_start:ne_end]
+                    warnings.warn(f'(!) Discarding {entity_type} annotation {ann_str!r} at '+\
+                                  f'({ne_start,ne_end}) due to overlap with existing annotations.')
         # Apply postfixes to raw BERT output
         # (Note: if you use custom_words_layer, then no need for postfixes)
         if self.postfix_expand_suffixes:

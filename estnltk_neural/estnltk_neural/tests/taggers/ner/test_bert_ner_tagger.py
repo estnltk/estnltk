@@ -384,3 +384,44 @@ def test_estroberta_ud_ner_v1_tokenization_problem():
         [(84, 89, 'Kalev', 'ORG'), (97, 108, 'Brusselisse', 'LOC'), 
          (110, 123, 'Kanepi alevik', 'LOC'), (136, 142, 'Kaiaks', 'LOC')]
 
+
+def check_if_tartuNLP_est_roberta_hist_ner_for_tccp_is_available():
+    from huggingface_hub import scan_cache_dir
+    cache_info = scan_cache_dir()
+    for repo in cache_info.repos:
+        if repo.repo_id == 'tartuNLP/est-roberta-hist-ner-for-tccp':
+            return True
+    return False
+
+
+@pytest.mark.skipif(not check_if_transformers_is_available(),
+                    reason="package tranformers is required for this test")
+@pytest.mark.skipif(not check_if_pytorch_is_available(),
+                    reason="package pytorch is required for this test")
+@pytest.mark.skipif(not check_if_tartuNLP_est_roberta_hist_ner_for_tccp_is_available(),
+                    reason="Model tartuNLP/est-roberta-hist-ner-for-tccp is not available.  "+\
+                           "Please download the model via huggingface_hub.snapshot_download('tartuNLP/est-roberta-hist-ner-for-tccp').")
+def test_estroberta_hist_ner_for_tccp_tokenization_problem():
+    # Initialize model
+    from estnltk_neural.taggers import BertNerTagger
+    hist_ner_tagger = BertNerTagger(model_location='tartuNLP/est-roberta-hist-ner-for-tccp')
+    # Problematic case:
+    # string " 26½ kr." is tagged as [('▁26', ' 26', 'B-MONEY'), 
+    #                                 ('1', '½', 'B-MONEY'), 
+    #                                 ('⁄', '½', 'I-MONEY'), 
+    #                                 ('2', '½', 'I-MONEY'), 
+    #                                 ('▁kr', ' kr', 'I-MONEY')] 
+    # due to est-roberta's tokenization idiosyncrasy, resulting in 
+    # duplicate spans ('1', '½', 'B-MONEY'), ('⁄', '½', 'I-MONEY'), 
+    # and ('2', '½', 'I-MONEY'). 
+    # Test that duplicate spans do not trigger 
+    # ValueError: "enveloped components must be sorted and must not overlap" 
+    text = Text('Seega 26½ kr.rohkem, köik hariduse pääle minevad. '+\
+                'Tiisikuseravilale annab linn toetust 1½ milj. senti ehk 15.000 krooni. ').tag_layer('words')
+    hist_ner_tagger.tag(text)
+    output_layer = hist_ner_tagger.output_layers[0]
+    #print( _ner_spans_as_tuples( text[output_layer] ) )
+    assert _ner_spans_as_tuples( text[output_layer] ) == \
+        [(6, 13, '26½ kr.', 'MONEY'), (50, 67, 'Tiisikuseravilale', 'ORG'), 
+         (87, 101, '1½ milj. senti', 'MONEY'), (106, 119, '15.000 krooni', 'MONEY')]
+
