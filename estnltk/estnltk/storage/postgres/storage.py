@@ -15,7 +15,9 @@ from estnltk.storage.postgres import parse_pgpass
 from estnltk.storage.postgres import create_schema
 from estnltk.storage.postgres import schema_exists
 from estnltk.storage.postgres import drop_layer_table
+from estnltk.storage.postgres import get_total_size
 from estnltk.storage import postgres as pg
+
 
 
 class PgStorageException(Exception):
@@ -389,6 +391,9 @@ class PostgresStorage:
                     break
 
         if structure:
+            # Add total size over all collections
+            size_bytes, size_str = get_total_size( self )
+            structure[(f'TOTAL SIZE ({self.schema})', '', '')] = {'total_size': size_str, 'comment': '', 'rows': ''}
             df = pandas.DataFrame.from_dict(structure, orient='index', columns=['rows', 'total_size', 'comment'])
             df.index.names = ('collection', 'version', 'relations')
             collection_tables = df.to_html()

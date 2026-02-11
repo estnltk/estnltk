@@ -121,6 +121,49 @@ def get_all_tables(storage, omit_commit: bool=False):
     return tables
 
 
+def get_total_size(storage, table_name_prefixes=None, omit_commit: bool=False):
+    '''Finds a total size of tables in this storage, or, alternatively, 
+       an aggregate size over tables prefixed with given table_name_prefixes. 
+
+       Returns
+       -------
+       (int, str)
+           total_bytes (int): Sum of sizes in bytes.
+           pretty_size (str): Human-readable size (e.g., '123 MB').
+    '''
+    if storage.closed():
+        return None, None
+    prefix_patterns = None
+    if table_name_prefixes is not None:
+        assert isinstance(table_name_prefixes, list)
+        assert all([isinstance(p, str) for p in table_name_prefixes])
+        # Trim whitespace and skip empty prefixes
+        table_name_prefixes = [p.strip() for p in table_name_prefixes if p and p.strip()]
+        if table_name_prefixes:
+            # Build LIKE patterns for "starts with": prefix || '%'
+            prefix_patterns = [p + '%' for p in table_name_prefixes]
+    with storage.conn.cursor() as c:
+        sql = SQL(
+            "SELECT "
+            "COALESCE(SUM(pg_total_relation_size(format('%I.%I', t.table_schema, t.table_name)::regclass)), 0) "
+            "AS total_bytes, "
+            "pg_size_pretty(COALESCE(SUM(pg_total_relation_size(format('%I.%I', t.table_schema, t.table_name)::regclass)), 0)) " 
+            "AS pretty_size "
+            "FROM information_schema.tables AS t "
+            "WHERE t.table_schema = {schema} "
+            "AND t.table_type = 'BASE TABLE'").format(schema=Literal(storage.schema))
+        if prefix_patterns is not None:
+            sql = SQL("{} AND t.table_name LIKE ANY({})").format( sql, Literal(prefix_patterns) )
+        logger.debug(sql.as_string(context=storage.conn))
+        c.execute(sql)
+        row = c.fetchone()
+        total_bytes, pretty = row if row is not None else (0, "0 bytes")
+    if not omit_commit:
+        # make a commit to avoid 'idle in transaction' status
+        storage.conn.commit()
+    return int(total_bytes), str(pretty)
+
+
 def drop_table(storage, table_name: str, cascade: bool = False):
     assert storage.conn.autocommit == False
     if cascade:
