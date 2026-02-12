@@ -51,6 +51,10 @@ class TestLayerNgramQuery(unittest.TestCase):
         collection.create_layer(tagger=tagger1, ngram_index={"lemma": 2})
         collection.create_layer(tagger=tagger2, ngram_index={"partofspeech": 3})
 
+        # Add indexes to layers
+        collection.create_layer_index(layer1, index_type='ngram_index', ngram_index={"lemma": 2})
+        collection.create_layer_index(layer2, index_type='ngram_index', ngram_index={"partofspeech": 3})
+
         self.assertEqual(
             count_rows(self.storage, table_identifier=layer_table_identifier(self.storage, collection.name, layer1)), 2)
         self.assertEqual(
@@ -161,7 +165,11 @@ class TestLayerNgramQuery(unittest.TestCase):
 
         collection.create_layer(tagger=tagger1, ngram_index={"lemma": 2})
         collection.create_layer(tagger=tagger2, ngram_index={"partofspeech": 3})
-        
+
+        # Add indexes to layers
+        collection.create_layer_index(layer_w_lemma_ngrams, index_type='ngram_index', ngram_index={"lemma": 2})
+        collection.create_layer_index(layer_pos_lemma_ngrams, index_type='ngram_index', ngram_index={"partofspeech": 3})
+
         self.assertEqual(
             count_rows(self.storage, table_identifier=layer_table_identifier(self.storage, collection.name, layer_w_lemma_ngrams)), 3)
         self.assertEqual(
@@ -201,6 +209,40 @@ class TestLayerNgramQuery(unittest.TestCase):
         self.storage.delete_collection(collection.name)
 
 
+    def test_layer_ngram_index_creation_before_layer_creation(self):
+        # Test that collection.add_layer() can be used to create layer ngram index 
+        # before creating layer with collection.create_layer()
+        collection_name = get_random_collection_name()
+        collection = self.storage.add_collection(collection_name)
+
+        with collection.insert() as collection_insert:
+            text1 = Text("Tass tiksus mansardkorrusel.").tag_layer("sentences")
+            collection_insert(text1, key=1)
+
+            text2 = Text("Kuubik keelitas kaloreid.").tag_layer("sentences")
+            collection_insert(text2, key=2)
+
+        tagger = VabamorfTagger(disambiguate=False, output_layer='morph_analysis')
+        # Create layer table and ngram index
+        collection.add_layer(tagger.get_layer_template(), 
+                             ngram_index={"lemma": 2}, 
+                             create_ngram_index=True)
+        # Fill layer table with data
+        collection.create_layer(tagger=tagger, ngram_index={"lemma": 2}, mode='append')
+        
+        # Test queries
+        # Q1 : lemma=("keelitama", "kalor")
+        res = list(collection.select( query = LayerNgramQuery( {'morph_analysis': {"lemma": [("keelitama", "kalor")]}} ) ) )
+        self.assertEqual(len(res), 1)
+        self.assertEqual(res[0][0], 2)
+
+        # Q2 : lemma='mansardkorrus' AND lemma=("kass", "tiksuma")
+        res = list(collection.select( query = LayerQuery(layer_name="morph_analysis", lemma='mansardkorrus') & \
+                                              LayerNgramQuery( {'morph_analysis': {"lemma": [("tass", "tiksuma")]}} )  ) )
+        self.assertEqual(len(res), 1)
+        self.assertEqual(res[0][0], 1)
+
+
     @pytest.mark.filterwarnings("ignore:Metadata items were lost during the sparse insertion")
     def test_layer_ngram_query_on_sparse_layer(self):
         # Test that LayerNgramQuery successfully works with sparse layers
@@ -229,6 +271,11 @@ class TestLayerNgramQuery(unittest.TestCase):
         collection.create_layer( tagger=sixth_number_tagger, 
                                  sparse=True, 
                                  ngram_index={'normalized': 2} )
+
+        # Add indexes to layers
+        collection.create_layer_index('even_numbers', index_type='ngram_index', ngram_index={'normalized': 2})
+        collection.create_layer_index('sixth_numbers', index_type='ngram_index', ngram_index={'normalized': 2})
+
         # Make initial assertion about rows
         self.assertEqual(
             count_rows(self.storage, table_identifier=layer_table_identifier(self.storage, collection.name, 'even_numbers')), 15)

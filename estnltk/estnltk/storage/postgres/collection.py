@@ -404,6 +404,97 @@ class PgCollection:
                     # no exception, transaction in progress
                     self.storage.conn.commit()
 
+    def create_layer_index(self, layer_name:str, index_type:str='data', ngram_index:Dict[str, int]=None):
+        """Create index for detached layer table.
+        
+           Although index can be created for empty layer table, it is recommended 
+           to create the index afterwards, after the table has been filled with data, 
+           as this ensures that the resulting index is a compact and well-optimized. 
+
+           Args:
+                layer_name: str
+                    Name of the layer for which the index is created. Must be a 
+                    detached or fragmented layer. 
+                index_type: str
+                    Type of the index. Two possible values:
+                    * 'data' -- creates an index over layer's spans or relations; 
+                    * 'ngram_index' -- creates an index over n-gram data of the layer; 
+                ngram_index: Dict[str, int]
+                    Specifies n-gram data column names along with the corresponding n 
+                    values which will be indexed if index_type=='ngram_index'. 
+                    (default: None).
+        """
+        if not self.exists():
+            raise PgCollectionException('collection {!r} does not exist'.format(self.name))
+        if not isinstance(index_type, str) or index_type not in ['data', 'ngram_index']:
+            raise ValueError("(!) index_type value must be one of the following {'data', 'ngram_index'}.")
+        if index_type == 'ngram_index':
+            if ngram_index is None:
+                raise ValueError("(!) ngram_index must be specified if index_type=='ngram_index'.")
+            elif not isinstance(ngram_index, dict) and (not isinstance(ngram_index, dict) or \
+               not all(isinstance(k, str) and isinstance(v, int) for k,v in ngram_index.items())):
+                raise ValueError(f"(!) ngram_index must be Dict[str, int], not {type(ngram_index)}.")
+        # Attempt to load the structure
+        if layer_name not in self._structure:
+            self.refresh()
+        if layer_name not in self._structure:
+            # Note: at this point, the structure should already exist
+            # ( created by add_layer(...) function )
+            raise PgCollectionException(("Layer {!r} is missing from collection's structure. " + \
+                                         "Use collection.add_layer(...) to update the structure " + \
+                                         "before using this method.").format(layer_name))
+        layer_struct = self._structure[layer_name]
+        layer_type = layer_struct.get('layer_type')
+        if layer_type == 'fragmented': 
+            layer_table = fragment_table_name(self.name, layer_name)
+        elif layer_type == 'detached': 
+            layer_table = layer_table_name(self.name, layer_name)
+        else:
+            raise PgCollectionException(f'cannot index, the layer {layer_name!r} is {layer_type}. '+\
+                                         'Please use collection.create_index() instead.')
+        assert self.storage.conn.autocommit == False
+        conn = self.storage.conn
+        conn.commit()
+        conn.autocommit = False
+        with conn.cursor() as cur:
+            try:
+                # create jsonb index
+                if index_type == 'data':
+                    if layer_struct.get('relation_layer', False):
+                        # Index for relation layer
+                        cur.execute(SQL(
+                            "CREATE INDEX {index} ON {schema}.{table} USING gin ((data->'relations') jsonb_path_ops);").format(
+                            schema=Identifier(self.storage.schema),
+                            index=Identifier('idx_%s_relations' % layer_table),
+                            table=Identifier(layer_table)))
+                        logger.debug(cur.query.decode())
+                    else:
+                        # Index for span layer
+                        cur.execute(SQL(
+                            "CREATE INDEX {index} ON {schema}.{table} USING gin ((data->'spans') jsonb_path_ops);").format(
+                            schema=Identifier(self.storage.schema),
+                            index=Identifier('idx_%s_spans' % layer_table),
+                            table=Identifier(layer_table)))
+                        logger.debug(cur.query.decode())
+                elif index_type == 'ngram_index':
+                    # create ngram array index
+                    for column in ngram_index:
+                        cur.execute(SQL(
+                            "CREATE INDEX {index} ON {schema}.{table} USING gin ({column});").format(
+                            schema=Identifier(self.storage.schema),
+                            index=Identifier('idx_%s_%s' % (layer_table, column)),
+                            table=Identifier(layer_table),
+                            column=Identifier(column)))
+                        logger.debug(cur.query.decode())
+            except Exception as layer_indexing_error:
+                conn.rollback()
+                raise PgCollectionException("can't index layer {!r}".format(layer_name)) from layer_indexing_error
+            finally:
+                if conn.status == STATUS_BEGIN:
+                    # no exception, transaction in progress
+                    conn.commit()
+
+
     def drop_index(self):
         """Drop index of the collection table.
         """
@@ -756,7 +847,8 @@ class PgCollection:
                         layer_type: str = 'detached',
                         meta: Dict[str, str] = None,
                         create_index: bool = False,
-                        ngram_index=None,
+                        ngram_index: Dict[str, int]=None,
+                        create_ngram_index: bool = False,
                         sparse: bool = False) -> None:
         """
         Adds detached or fragmented layer to the collection. You can use this 
@@ -783,15 +875,22 @@ class PgCollection:
             layer_type: str
                 Must be one of the following: {'detached', 'fragmented'}.
                 See also: PostgresStorage.TABLED_LAYER_TYPES
-            meta: dict of str -> str
+            meta: Dict[str, str]
                 Specifies table column names and data types to create for storing additional
                 meta information. E.g. meta={"sum": "int", "average": "float"}.
                 See `pytype2dbtype` in `pg_operations` for supported types.
             create_index: bool
                 Whether to create an index on json column (default: False)
-            ngram_index: list
-                A list of attributes for which to create an ngram index (default: None).
-                
+            ngram_index: Dict[str, int]
+                Optional. Specifies layer's attributes for which to create an 
+                ngram index columns. For instance, {'attr_a': 2} creates a bigram 
+                index column for 'attr_a', and {'attr_b': 3} creates a trigram 
+                index column for 'attr_b'. If not specified, the no ngram index 
+                columns are created for this layer. 
+                (default: None).
+            create_ngram_index: bool
+                Whether to create an array index over columns specified in ngram_index. 
+                (default: False) 
             sparse: bool
                 Whether the layer table is created as a sparse tabel which means
                 that empty layers are not stored in the table.
@@ -824,6 +923,9 @@ class PgCollection:
         # Check existence of the layer
         if self.layers is not None and layer_template.name in self.layers:
             raise PgCollectionException("The {!r} layer already exists.".format(layer_template.name))
+
+        if create_ngram_index and ngram_index is None:
+            raise ValueError('(!) Cannot create ngram index if parameter ngram_index is not specified.')
 
         conn = self.storage.conn
         conn.commit()
@@ -912,34 +1014,7 @@ class PgCollection:
                 cur.execute(q)
                 logger.debug(cur.query.decode())
 
-                # create jsonb index
-                if create_index is True:
-                    if isinstance( layer_template, Layer ):
-                        cur.execute(SQL(
-                            "CREATE INDEX {index} ON {schema}.{table} USING gin ((data->'spans') jsonb_path_ops);").format(
-                            schema=Identifier(self.storage.schema),
-                            index=Identifier('idx_%s_spans' % layer_table),
-                            table=Identifier(layer_table)))
-                        logger.debug(cur.query.decode())
-                    elif isinstance( layer_template, RelationLayer ):
-                        cur.execute(SQL(
-                            "CREATE INDEX {index} ON {schema}.{table} USING gin ((data->'relations') jsonb_path_ops);").format(
-                            schema=Identifier(self.storage.schema),
-                            index=Identifier('idx_%s_relations' % layer_table),
-                            table=Identifier(layer_table)))
-                        logger.debug(cur.query.decode())
-
-                # create ngram array index
-                if ngram_index is not None:
-                    for column in ngram_index:
-                        cur.execute(SQL(
-                            "CREATE INDEX {index} ON {schema}.{table} USING gin ({column});").format(
-                            schema=Identifier(self.storage.schema),
-                            index=Identifier('idx_%s_%s' % (layer_table, column)),
-                            table=Identifier(layer_table),
-                            column=Identifier(column)))
-                        logger.debug(cur.query.decode())
-
+                # create text_id index
                 cur.execute(SQL(
                     "CREATE INDEX {index} ON {layer_table} (text_id);").format(
                     index=Identifier('idx_%s__text_id' % layer_table),
@@ -955,6 +1030,14 @@ class PgCollection:
                     conn.commit()
 
         logger.info('{} layer {!r} created from template'.format(layer_type, layer_template.name))
+        
+        # create jsonb index
+        if create_index:
+            self.create_layer_index(layer_template.name, index_type='data')
+        
+        # create ngram array index
+        if create_ngram_index:
+            self.create_layer_index(layer_template.name, index_type='ngram_index', ngram_index=ngram_index)
 
 
     def create_fragmented_layer(self, tagger=None, fragmenter:callable=None, layer_template:Layer=None, \
@@ -1021,9 +1104,12 @@ class PgCollection:
                 by the length of last buffer insert
             create_index:
                 Whether to create an index on json column
-            ngram_index:
-                A list of attributes for which to create an ngram index.
-                
+            ngram_index: Dict[str, int]
+                Optional. Specifies layer's attributes for which to create an 
+                ngram index columns. For instance, {'attr_a': 2} creates a bigram 
+                index column for 'attr_a'. If not specified, the no ngram index 
+                columns are created for this layer. 
+                (default: None).
         """
         # Check the configuration
         if not ((layer_template is None and data_iterator is None and row_mapper is None) is not (tagger is None and fragmenter is None)):
@@ -1174,8 +1260,12 @@ class PgCollection:
                 row_mapper must be None.
             create_index: bool
                 Whether to create an index on json column
-            ngram_index: list
-                A list of attributes for which to create an ngram index
+            ngram_index: Dict[str, int]
+                Optional. Specifies layer's attributes for which to create an 
+                ngram index columns. For instance, {'attr_b': 3} creates a trigram 
+                index column for 'attr_b'. If not specified, the no ngram index 
+                columns are created for this layer. 
+                (default: None).
             meta: dict of str -> str
                 Specifies table column names and data types to create for storing additional
                 meta information. E.g. meta={"sum": "int", "average": "float"}.
