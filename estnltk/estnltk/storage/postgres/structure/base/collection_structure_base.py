@@ -41,14 +41,13 @@ class CollectionStructureBase:
             self._modified = False
         return self._structure
 
-    def create_collection_table(self, meta_columns=None, description=None):
-        """Creates collection table for storing Text objects with attached layers and (optinal) metadata columns. 
-           Also, adds automatically a GIN index for the jsonb column:
-
-           CREATE INDEX idx_table_data ON table USING gin ((data -> 'layers') jsonb_path_ops);
-           
+    def create_collection_table(self, meta_columns=None, description=None, create_index=False):
+        """Creates collection table for storing Text objects with attached layers and (optional) metadata columns. 
            The types for meta columns can be int, bigint, float, str and datetime. For more information consult 
            the source code. 
+           Optionally, if create_index==True, then creates GIN jsonb_path_ops indexes for attached layers stored 
+           in jsonb data column of this collection. Note that it is recommended to postpone the index creation until 
+           the table is filled with data. Indexes can be created later via calling collection.create_index(). 
         """
         storage = self.collection.storage
         collection_name = self.collection.name
@@ -77,14 +76,15 @@ class CollectionStructureBase:
                 c.execute(SQL("CREATE {} TABLE {} ({});").format(
                     temp, table, SQL(', ').join(columns)))
                 logger.debug(c.query.decode())
-                c.execute(
-                    SQL("CREATE INDEX {index} ON {table} USING gin ((data->'layers') jsonb_path_ops);").format(
-                        index=Identifier('idx_%s_layer_data' % table_name), table=table))
-                if self.version >= '4.0':
+                if create_index:
                     c.execute(
-                        SQL("CREATE INDEX {index} ON {table} USING gin ((data->'relation_layers') jsonb_path_ops);").format(
-                            index=Identifier('idx_%s_relation_layer_data' % table_name), table=table) )
-                logger.debug(c.query.decode())
+                        SQL("CREATE INDEX {index} ON {table} USING gin ((data->'layers') jsonb_path_ops);").format(
+                            index=Identifier('idx_%s_layer_data' % table_name), table=table))
+                    if self.version >= '4.0':
+                        c.execute(
+                            SQL("CREATE INDEX {index} ON {table} USING gin ((data->'relation_layers') jsonb_path_ops);").format(
+                                index=Identifier('idx_%s_relation_layer_data' % table_name), table=table) )
+                    logger.debug(c.query.decode())
                 if isinstance(description, str):
                     c.execute(SQL("COMMENT ON TABLE {} IS {}").format(
                         table, Literal(description)))

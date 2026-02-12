@@ -162,7 +162,8 @@ class PostgresStorage:
         collection = self[name]
         return collection
 
-    def add_collection(self, name: str, description: str = None, meta: dict = None):
+    def add_collection(self, name: str, description: str = None, meta: dict = None, 
+                             create_index: bool = False):
         """
         Adds a new collection to this storage. 
         Inserts entry about the collection to the table of collections 
@@ -186,6 +187,15 @@ class PostgresStorage:
             {"int", "bigint", "float", "str", "datetime"}.
             Optional, if meta is not provided, then no metadata 
             columns will be added to the collection table.
+        create_index: bool
+            Whether to create GIN jsonb_path_ops indexes for 
+            attached layers stored in the jsonb data column of 
+            this collection. 
+            Note that it is recommended to postpone the index 
+            creation until the table is filled with data. 
+            Indexes can be created later via calling 
+            collection.create_index(). 
+            Default: False
 
         Returns
         --------
@@ -245,7 +255,8 @@ class PostgresStorage:
                 description = 'created by {} on {}'.format(self.user, time.asctime())
             # Create collection table (stores Text objects with attached layers and metadata columns)
             collection.structure.create_collection_table(meta_columns=meta,
-                                                         description=description)
+                                                         description=description,
+                                                         create_index=create_index)
             logger.info('new empty collection {!r} created'.format(name))
         except Exception as adding_error:
             raise PgStorageException(('(!) Cannot add new collection {!r} '+\
