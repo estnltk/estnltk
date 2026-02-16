@@ -6,9 +6,13 @@ from estnltk import Text
 from estnltk import get_logger_with_tqdm_handler
 from estnltk.storage.postgres import PostgresStorage, layer_table_identifier
 from estnltk.storage.postgres import delete_schema, count_rows
+from estnltk.storage.postgres import drop_layer_ngrams_table
+from estnltk.storage.postgres import layer_ngrams_table_table_exists
 from estnltk.taggers import VabamorfTagger
+from estnltk.storage.postgres import PgCollectionException
 from estnltk.storage.postgres.queries.layer_ngram_query import LayerNgramQuery
 from estnltk.storage.postgres.queries.layer_query import LayerQuery
+
 
 from estnltk.storage.postgres.tests.test_sparse_layer import ModuleRemainderNumberTagger
 
@@ -19,6 +23,81 @@ def get_random_collection_name():
     return 'collection_{}'.format(random.randint(1, 1000000))
 
 
+# Test creating a separate table for storing layer ngram index data
+class TestLayerNgramIndexTable(unittest.TestCase):
+    def setUp(self):
+        schema = "test_schema"
+        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db', \
+                                       create_schema_if_missing=True)
+
+    def tearDown(self):
+        delete_schema(self.storage)
+        self.storage.close()
+
+    def test_create_layer_ngram_table_smoke(self):
+        collection_name = get_random_collection_name()
+        collection = self.storage.add_collection(collection_name)
+        
+        with collection.insert() as collection_insert:
+            text1 = Text("Tass tiksus mansardkorrusel tunnikese.").tag_layer("sentences")
+            collection_insert(text1, key=1)
+
+            text2 = Text("Kuubik keelitas kaloreid kimamast.").tag_layer("sentences")
+            collection_insert(text2, key=2)
+
+        tagger = VabamorfTagger(disambiguate=False, output_layer='morph_layer')
+        # Create layer table
+        collection.add_layer(tagger.get_layer_template())
+        
+        # Sanity check : layer does not have any ngram index yet
+        self.assertFalse( collection.has_ngram_index(tagger.output_layer) )
+        
+        # Create layer ngram index table
+        collection.add_layer_ngram_index(tagger.output_layer, 
+                                         ngram_index={"lemma": 2, "partofspeech": 2})
+        
+        # Sanity check : the ngram index should now exist
+        self.assertTrue( collection.has_ngram_index(tagger.output_layer) )
+        
+        # Validate that ngram index cannot be added twice
+        with self.assertRaises( PgCollectionException ):
+            collection.add_layer_ngram_index(tagger.output_layer, ngram_index={"lemma": 2})
+
+        # Remove ngram index
+        drop_layer_ngrams_table(self.storage, collection_name, tagger.output_layer)
+
+        # Sanity check : the layer does not have ngram index anymore
+        self.assertFalse( collection.has_ngram_index(tagger.output_layer) )
+        
+        # Validate that ngram index cannot be added with wrong attribute names 
+        with self.assertRaises( PgCollectionException ):
+            collection.add_layer_ngram_index(tagger.output_layer, ngram_index={"random_attribute": 2})
+        
+        # Create layer ngram index table
+        collection.add_layer_ngram_index(tagger.output_layer, ngram_index={"root": 2, "form": 2})
+        
+        # Sanity check : the ngram index should now exist
+        self.assertTrue( collection.has_ngram_index(tagger.output_layer) )
+        
+        # Try to remove whole layer : we get an exception because layer 
+        # ngram table also exists
+        with self.assertRaises( PgCollectionException ):
+            collection.delete_layer(tagger.output_layer, cascade=False)
+        
+        self.assertTrue( collection.has_ngram_index(tagger.output_layer) )
+        
+        # But deletion works if cascade=True
+        collection.delete_layer(tagger.output_layer, cascade=True)
+
+        # Sanity check : the layer does not have ngram index anymore
+        self.assertFalse( layer_ngrams_table_table_exists(self.storage, collection_name, tagger.output_layer) )
+        
+        # Clean-up
+        self.storage.delete_collection(collection.name)
+
+
+
+# Test making layer ngram queries
 class TestLayerNgramQuery(unittest.TestCase):
     def setUp(self):
         schema = "test_schema"

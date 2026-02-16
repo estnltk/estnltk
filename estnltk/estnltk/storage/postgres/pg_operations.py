@@ -8,6 +8,7 @@ from estnltk.storage.postgres import structure_table_name
 from estnltk.storage.postgres import collection_table_name
 from estnltk.storage.postgres import layer_table_name
 from estnltk.storage.postgres import fragment_table_name
+from estnltk.storage.postgres import layer_ngrams_table_name
 
 pytype2dbtype = {
     "int": "integer",
@@ -231,6 +232,11 @@ def layer_table_identifier(storage, collection_name, layer_name, layer_type='det
         raise NotImplementedError( error_msg )
 
 
+def layer_ngrams_table_identifier(storage, collection_name, layer_name):
+    return table_identifier(storage, layer_ngrams_table_name(collection_name, layer_name))
+
+
+
 def layer_table_exists(storage, collection_name, layer_name, layer_type='detached', omit_commit: bool=False, omit_rollback: bool=False):
     if layer_type=='detached':
         return table_exists(storage, layer_table_name(collection_name, layer_name), omit_commit=omit_commit, omit_rollback=omit_rollback)
@@ -240,6 +246,11 @@ def layer_table_exists(storage, collection_name, layer_name, layer_type='detache
         error_msg = \
           "(!) Checking table's existence not implemented for layer type: {!r}".format(layer_type)
         raise NotImplementedError( error_msg )
+
+
+def layer_ngrams_table_table_exists(storage, collection_name, layer_name, omit_commit: bool=False, omit_rollback: bool=False):
+    table_name = layer_ngrams_table_name(collection_name, layer_name)
+    return table_exists(storage, table_name, omit_commit=omit_commit, omit_rollback=omit_rollback)
 
 
 def collection_table_exists(storage, collection_name, omit_commit: bool=False, omit_rollback: bool=False):
@@ -259,6 +270,11 @@ def drop_collection_table(storage, collection_name, cascade: bool = False):
 
 def drop_structure_table(storage, collection_name):
     table_name = structure_table_name(collection_name)
+    drop_table(storage, table_name)
+
+
+def drop_layer_ngrams_table(storage, collection_name, layer_name):
+    table_name = layer_ngrams_table_name(collection_name, layer_name)
     drop_table(storage, table_name)
 
 

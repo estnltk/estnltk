@@ -42,12 +42,14 @@ from estnltk.storage.postgres.sql_composition.sql_table_naming import collection
 from estnltk.storage.postgres.sql_composition.sql_table_naming import structure_table_name
 from estnltk.storage.postgres.sql_composition.sql_table_naming import layer_table_name
 from estnltk.storage.postgres.sql_composition.sql_table_naming import fragment_table_name
+from estnltk.storage.postgres.sql_composition.sql_table_naming import layer_ngrams_table_name
 
 from .pg_operations import pytype2dbtype
 
 from .pg_operations import collection_table_identifier
 from .pg_operations import structure_table_identifier
 from .pg_operations import layer_table_identifier
+from .pg_operations import layer_ngrams_table_identifier
 
 from .pg_operations import create_schema
 
@@ -58,6 +60,7 @@ from .pg_operations import get_all_tables
 from .pg_operations import collection_table_exists
 from .pg_operations import structure_table_exists
 from .pg_operations import layer_table_exists
+from .pg_operations import layer_ngrams_table_table_exists
 
 from .pg_operations import schema_exists
 from .pg_operations import delete_schema
@@ -65,6 +68,7 @@ from .pg_operations import drop_table
 from .pg_operations import drop_collection_table
 from .pg_operations import drop_structure_table
 from .pg_operations import drop_layer_table
+from .pg_operations import drop_layer_ngrams_table
 
 from .pg_operations import is_empty
 from .pg_operations import count_rows

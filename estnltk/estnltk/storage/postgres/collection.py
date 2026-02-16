@@ -29,13 +29,17 @@ from estnltk.storage.postgres import CollectionMultiLayerInserter
 from estnltk.storage.postgres import is_empty
 from estnltk.storage.postgres import count_rows
 from estnltk.storage.postgres import drop_layer_table
+from estnltk.storage.postgres import drop_layer_ngrams_table
 from estnltk.storage.postgres import fragment_table_name
 from estnltk.storage.postgres import layer_table_exists
 from estnltk.storage.postgres import layer_table_identifier
 from estnltk.storage.postgres import layer_table_name
+from estnltk.storage.postgres import layer_ngrams_table_name
+from estnltk.storage.postgres import layer_ngrams_table_identifier
 from estnltk.storage.postgres import structure_table_exists
 from estnltk.storage.postgres import structure_table_identifier
 from estnltk.storage.postgres import table_exists
+from estnltk.storage.postgres import layer_ngrams_table_table_exists
 from estnltk.storage.postgres.queries.missing_layer_query import MissingLayerQuery
 from estnltk.storage.postgres.queries.slice_query import SliceQuery
 
@@ -431,8 +435,8 @@ class PgCollection:
         if index_type == 'ngram_index':
             if ngram_index is None:
                 raise ValueError("(!) ngram_index must be specified if index_type=='ngram_index'.")
-            elif not isinstance(ngram_index, dict) and (not isinstance(ngram_index, dict) or \
-               not all(isinstance(k, str) and isinstance(v, int) for k,v in ngram_index.items())):
+            elif not isinstance(ngram_index, dict) or (isinstance(ngram_index, dict) and \
+                not all(isinstance(k, str) and isinstance(v, int) for k,v in ngram_index.items())):
                 raise ValueError(f"(!) ngram_index must be Dict[str, int], not {type(ngram_index)}.")
         # Attempt to load the structure
         if layer_name not in self._structure:
@@ -1038,6 +1042,112 @@ class PgCollection:
         # create ngram array index
         if create_ngram_index:
             self.create_layer_index(layer_template.name, index_type='ngram_index', ngram_index=ngram_index)
+
+
+    def add_layer_ngram_index(self, layer_name: str, ngram_index: Dict[str, int], overwrite: bool=False) -> None:
+        """
+        Adds layer ngram index to detached or fragmented layer of this collection. 
+        Use this method to create an empty layer ngram index table that will be filled in 
+        with data later. 
+
+        Args:
+            layer_name: str
+                A name of detached or fragmented layer to which ngram index is added. 
+                Note that the layer must already be registered in collection's structure, 
+                and the corresponding layer table must exist. 
+            ngram_index: Dict[str, int]
+                Specifies layer's attributes for which to create ngram index, along with 
+                the lengths of the corresponding ngrams. 
+                For instance, {'attr_a': 2} creates a bigram index column for 'attr_a', and 
+                {'attr_b': 3} creates a trigram index column for 'attr_b'. 
+            overwrite: bool
+                Whether an existing layer ngram index table will be deleted before creating 
+                a new table. If not set and there is an existing layer ngram index for this 
+                layer, then an exception will be raised.
+                Defaul: False.
+        """
+        if not self.exists():
+            raise PgCollectionException('collection {!r} does not exist'.format(self.name))
+        if layer_name is None:
+            raise ValueError("(!) layer_name must be specified.")
+        if ngram_index is None:
+            raise ValueError("(!) ngram_index must be specified.")
+        elif not isinstance(ngram_index, dict) or (isinstance(ngram_index, dict) and \
+           not all(isinstance(k, str) and isinstance(v, int) for k,v in ngram_index.items())):
+            raise ValueError(f"(!) ngram_index must be Dict[str, int], not {type(ngram_index)}.")
+        # Attempt to load the structure
+        if layer_name not in self._structure:
+            self.refresh()
+        if layer_name not in self._structure:
+            # Note: at this point, the structure should already exist
+            # ( created by add_layer(...) function )
+            raise PgCollectionException(("Layer {!r} is missing from collection's structure. " + \
+                                         "Use collection.add_layer(...) to update the structure " + \
+                                         "before using this method.").format(layer_name))
+        if self.is_relation_layer(layer_name):
+            raise NotImplementedError(f'cannot add ngram index to the relation layer {layer_name!r}.')
+        layer_struct = self._structure[layer_name]
+        layer_type = layer_struct.get('layer_type')
+        if layer_type not in ['fragmented', 'detached']: 
+            raise NotImplementedError(f'cannot add ngram index to the {layer_type} layer {layer_name!r}.')
+        # Validate the structure
+        for attr in ngram_index.keys():
+            if attr not in layer_struct['attributes']:
+                raise PgCollectionException(("Cannot add ngram index: layer {!r} does not have attribute {!r}. " + \
+                                             "Existing attributes: {!r}.").format( layer_name, \
+                                                                                   attr, \
+                                                                                   layer_struct['attributes'] ))
+        # Finally, check for existence of the ngram index table
+        if self.has_ngram_index(layer_name):
+            if not overwrite:
+                raise PgCollectionException(("Layer {!r} already has layer ngram index. " + \
+                                             "If you want to delete the old ngram index and " + \
+                                             "start a new one, then set overwrite=True. ").format(layer_name))
+            else:
+                drop_layer_ngrams_table(self.storage, self.name, layer_name)
+                logger.info('overwrite mode: deleted existing layer ngrams table.')
+        conn = self.storage.conn
+        conn.commit()
+        conn.autocommit = False
+        with conn.cursor() as cur:
+            try:
+                # create layer ngrams index table
+                q = ('CREATE TABLE {layer_identifier} ('
+                     'id SERIAL PRIMARY KEY, '
+                     'layer_id int NOT NULL '
+                     '%(ngram_cols)s);')
+                ngram_cols = ", %s" % ",".join(["%s text[]" % Identifier(column).as_string(self.storage.conn)
+                                                              for column in ngram_index])
+                q %= {"ngram_cols": ngram_cols}
+
+                layer_identifier = layer_ngrams_table_identifier(self.storage, self.name, layer_name)
+                q = SQL(q).format(layer_identifier=layer_identifier)
+                cur.execute(q)
+                logger.debug(cur.query.decode())
+
+                # Add comment to the layer table
+                q = SQL("COMMENT ON TABLE {} IS {};").format(
+                        layer_identifier,
+                        Literal('created by {} on {}'.format(self.storage.user, time.asctime())))
+                cur.execute(q)
+                logger.debug(cur.query.decode())
+                
+                # create layer_id index
+                layer_table = layer_ngrams_table_name(self.name, layer_name)
+                cur.execute(SQL(
+                    "CREATE INDEX {index} ON {layer_table} (layer_id);").format(
+                    index=Identifier('idx_%s__layer_id' % layer_table),
+                    layer_table=layer_identifier))
+                logger.debug(cur.query.decode())
+
+            except Exception as table_creation_error:
+                conn.rollback()
+                raise PgCollectionException("can't add ngram index table to layer {!r}".format(layer_name)) from table_creation_error
+            finally:
+                if conn.status == STATUS_BEGIN:
+                    # no exception, transaction in progress
+                    conn.commit()
+        logger.info('{!r} layer ngram index table created.'.format(layer_name))
 
 
     def create_fragmented_layer(self, tagger=None, fragmenter:callable=None, layer_template:Layer=None, \
@@ -1900,9 +2010,12 @@ class PgCollection:
 
         # Find out dependent layers of the given layer
         dependent_layers = []
+        dependent_layers_with_ngrams = []
         cur_layers = [layer_name]
         while len(cur_layers) > 0:
             layer = cur_layers.pop()
+            if self.has_ngram_index(layer):
+                dependent_layers_with_ngrams.append( layer )
             for layer2, struct in self._structure.structure.items():
                 if layer2 in dependent_layers:
                     continue
@@ -1916,6 +2029,11 @@ class PgCollection:
                                          "there are dependent layers: {!r}; "+ \
                                          'set cascade=True to remove layer '+ \
                                          'along with its dependents.').format(layer_name, dependents))
+        if len(dependent_layers_with_ngrams) > 0 and not cascade:
+            raise PgCollectionException(("can't delete layer {!r}; "+ \
+                                         "the following dependent layers also have ngram tables: {!r}; "+ \
+                                         'set cascade=True to remove layer '+ \
+                                         'along with its dependents, including ngram tables.').format(layer_name, dependent_layers_with_ngrams))
         # Delete layers from structure table
         # a) get layer types
         deletable_layer_types = {}
@@ -1960,6 +2078,10 @@ class PgCollection:
         for layer in deletable_layers:
             drop_layer_table(self.storage, self.name, layer, layer_type=deletable_layer_types[layer])
             logger.info('layer deleted: {!r}'.format(layer))
+        # Delete ngram layer tables (if any exists)
+        for layer in dependent_layers_with_ngrams:
+            drop_layer_ngrams_table(self.storage, self.name, layer)
+            logger.info('layer ngrams table deleted: {!r}'.format(layer))
 
     def has_layer(self, layer_name, layer_type=None):
         if not self.exists():
@@ -1982,6 +2104,14 @@ class PgCollection:
         if not self.has_layer(layer_name):
             raise ValueError('collection does not have layer {!r}'.format(layer_name))
         return (self._structure[layer_name]).get('relation_layer', False)
+
+    def has_ngram_index(self, layer_name):
+        if not self.exists():
+            raise PgCollectionException("collection {!r} does not exist".format( self.name ))
+        if not self.has_layer(layer_name):
+            raise ValueError('collection does not have layer {!r}'.format(layer_name))
+        else:
+            return layer_ngrams_table_table_exists(self.storage, self.name, layer_name)
 
     def get_layer_names_by_type(self, layer_type:str='attached'):
         if not self.exists():
