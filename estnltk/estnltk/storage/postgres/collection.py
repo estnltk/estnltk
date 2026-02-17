@@ -1049,6 +1049,11 @@ class PgCollection:
         Adds layer ngram index to detached or fragmented layer of this collection. 
         Use this method to create an empty layer ngram index table that will be filled in 
         with data later. 
+        
+        Important: normally, this method will be called inside collection.add_layer(...) 
+        upon creating a new layer table, and you do not need to call it by yourself. 
+        If you call it after you've already added some data to the layer, it will raise 
+        an exception. 
 
         Args:
             layer_name: str
@@ -1064,7 +1069,7 @@ class PgCollection:
                 Whether an existing layer ngram index table will be deleted before creating 
                 a new table. If not set and there is an existing layer ngram index for this 
                 layer, then an exception will be raised.
-                Defaul: False.
+                Default: False.
         """
         if not self.exists():
             raise PgCollectionException('collection {!r} does not exist'.format(self.name))
@@ -1093,16 +1098,23 @@ class PgCollection:
         # Validate the structure
         for attr in ngram_index.keys():
             if attr not in layer_struct['attributes']:
-                raise PgCollectionException(("Cannot add ngram index: layer {!r} does not have attribute {!r}. " + \
-                                             "Existing attributes: {!r}.").format( layer_name, \
-                                                                                   attr, \
-                                                                                   layer_struct['attributes'] ))
+                raise PgCollectionException(f"Cannot add ngram index: layer {layer_name!r} does not have "+\
+                                            f"attribute {attr!r}. "+\
+                                            f"Existing attributes: {layer_struct['attributes']!r}.")
+        # Validate that the layer is empty
+        if layer_type == 'fragmented':
+            layer_table_name_str = fragment_table_name(self.name, layer_name)
+        else:
+            layer_table_name_str = layer_table_name(self.name, layer_name)
+        layer_table_identifier_str = pg.table_identifier(self.storage, layer_table_name_str)
+        if not is_empty(self.storage, table_identifier=layer_table_identifier_str):
+            raise PgCollectionException(f"Cannot add ngram index: layer {layer_name!r} is not empty. ")
         # Finally, check for existence of the ngram index table
         if self.has_ngram_index(layer_name):
             if not overwrite:
-                raise PgCollectionException(("Layer {!r} already has layer ngram index. " + \
-                                             "If you want to delete the old ngram index and " + \
-                                             "start a new one, then set overwrite=True. ").format(layer_name))
+                raise PgCollectionException(f"Layer {layer_name!r} already has layer ngram index. " +\
+                                            "If you want to delete the old ngram index and " +\
+                                            "start a new one, then set overwrite=True. ")
             else:
                 drop_layer_ngrams_table(self.storage, self.name, layer_name)
                 logger.info('overwrite mode: deleted existing layer ngrams table.')
@@ -1112,32 +1124,37 @@ class PgCollection:
         with conn.cursor() as cur:
             try:
                 # create layer ngrams index table
-                q = ('CREATE TABLE {layer_identifier} ('
+                q = ('CREATE TABLE {layer_ngrams_identifier} ('
                      'id SERIAL PRIMARY KEY, '
-                     'layer_id int NOT NULL '
+                     '%(parent_col)s'
+                     'text_id int NOT NULL '
                      '%(ngram_cols)s);')
                 ngram_cols = ", %s" % ",".join(["%s text[]" % Identifier(column).as_string(self.storage.conn)
                                                               for column in ngram_index])
-                q %= {"ngram_cols": ngram_cols}
+                if (layer_type == 'fragmented'):
+                    parent_col = "parent_id int NOT NULL,"
+                else:
+                    parent_col = ""
+                q %= {"parent_col": parent_col, "ngram_cols": ngram_cols}
 
-                layer_identifier = layer_ngrams_table_identifier(self.storage, self.name, layer_name)
-                q = SQL(q).format(layer_identifier=layer_identifier)
+                layer_ngrams_identifier = layer_ngrams_table_identifier(self.storage, self.name, layer_name)
+                q = SQL(q).format(layer_ngrams_identifier=layer_ngrams_identifier)
                 cur.execute(q)
                 logger.debug(cur.query.decode())
 
                 # Add comment to the layer table
                 q = SQL("COMMENT ON TABLE {} IS {};").format(
-                        layer_identifier,
+                        layer_ngrams_identifier,
                         Literal('created by {} on {}'.format(self.storage.user, time.asctime())))
                 cur.execute(q)
                 logger.debug(cur.query.decode())
                 
-                # create layer_id index
+                # create text_id index
                 layer_table = layer_ngrams_table_name(self.name, layer_name)
                 cur.execute(SQL(
-                    "CREATE INDEX {index} ON {layer_table} (layer_id);").format(
+                    "CREATE INDEX {index} ON {layer_table} (text_id);").format(
                     index=Identifier('idx_%s__layer_id' % layer_table),
-                    layer_table=layer_identifier))
+                    layer_table=layer_ngrams_identifier))
                 logger.debug(cur.query.decode())
 
             except Exception as table_creation_error:
