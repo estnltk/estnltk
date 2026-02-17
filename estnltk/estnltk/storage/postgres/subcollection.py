@@ -198,12 +198,14 @@ class PgSubCollection:
                                               collection_meta=self.meta_attributes,
                                               include_layer_ids=False)
 
+        # TODO: merge required_layers & required_extra_tables in future
         required_layers = sorted(set(self._detached_layers + self._selection_criterion.required_layers))
+        required_extra_tables = sorted(set(self._selection_criterion.required_extra_tables))
         
         collection_identifier = pg.collection_table_identifier(self.collection.storage, self.collection.name)
 
-        # Required layers are part of the main collection
-        if required_layers:
+        # Required layers or extra tables are part of the main collection
+        if required_layers or required_extra_tables:
             # Build a FROM clause with joins to required detached layers
             from_clause = pg.FromClause(self.collection, [])
             for layer in required_layers:
@@ -213,7 +215,30 @@ class PgSubCollection:
                     if self.collection.is_sparse( layer ):
                         # force using inner join
                         join_type = ['INNER JOIN']
-                from_clause &= pg.FromClause(self.collection, [layer], join_type)
+                from_clause &= pg.FromClause(self.collection, 
+                                             [pg.layer_table_name(self.collection.name, layer)], 
+                                             join_type)
+            # Build a FROM clause with joins to required extra tables
+            for table in required_extra_tables:
+                join_type = None
+                # Attempt to parse table type and layer name from table name
+                table_name_parts = table.split('__')
+                layer_name = None
+                table_type = None
+                if (table_name_parts[-1]) in ['layer', 'layer_ngrams', 'fragment'] and \
+                   len(table_name_parts) > 2:
+                    table_type = table_name_parts[-1]
+                    layer_name = table_name_parts[-2]
+                if table_type is None:
+                    raise ValueError(f'(!) Unexpected table name {table!r}. Should '+\
+                                     'be either a layer table name or a ngrams index '+\
+                                     'table name.')
+                if not self._left_join_sparse_layers:
+                    # check whether we have a sparse layer
+                    if self.collection.is_sparse( layer_name ):
+                        # force using inner join
+                        join_type = ['INNER JOIN']
+                from_clause &= pg.FromClause(self.collection, [table], join_type)
             # Build SELECT query
             if self._selection_criterion:
                 query = SQL("SELECT {} FROM {} WHERE {}").format(SQL(', ').join(selected_columns),

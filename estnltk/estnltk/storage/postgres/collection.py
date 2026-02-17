@@ -797,7 +797,7 @@ class PgCollection:
                 # Note: the join_type is determined automatically based on sparsity of the layer:
                 # * LEFT JOIN for sparse layer tables
                 # * INNER JOIN for non-sparse layer tables
-                from_clause &= pg.FromClause( self, [layer] )
+                from_clause &= pg.FromClause( self, [ layer_table_name(self.name, layer) ] )
             query = SQL("SELECT {} FROM {} WHERE {}").format(SQL(', ').join(selected_columns),
                                                                        from_clause,
                                                                        select_by_key_sql)

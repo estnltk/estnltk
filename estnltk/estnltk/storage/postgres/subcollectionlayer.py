@@ -47,6 +47,9 @@ class PgSubCollectionLayer:
             self._selection_criterion = pg.WhereClause(collection=self.collection)
         elif isinstance(selection_criterion, pg.WhereClause):
             self._selection_criterion = selection_criterion
+            if self._selection_criterion.required_extra_tables is not None and \
+               len(self._selection_criterion.required_extra_tables) > 0:
+                raise NotImplementedError("Adding extra tables to PgSubCollectionLayer is not yet implemented.")
         else:
             raise TypeError('unexpected type of selection_criterion: {!r}'.format(type(selection_criterion)))
 
@@ -106,7 +109,9 @@ class PgSubCollectionLayer:
                     if self.collection.is_sparse( layer ):
                         # force using inner join
                         join_type = ['INNER JOIN']
-                from_clause &= pg.FromClause(self.collection, [layer], join_type)
+                from_clause &= pg.FromClause(self.collection, 
+                                             [pg.layer_table_name(self.collection.name, layer)], 
+                                             join_type)
             # Build SELECT query
             if self._selection_criterion:
                 return SQL("SELECT {} FROM {} WHERE {}").format(SQL(', ').join(selected_columns),

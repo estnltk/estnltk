@@ -1,23 +1,24 @@
 from typing import List, Optional
 from psycopg2.sql import Composed, SQL
 
-from estnltk.storage.postgres.pg_operations import layer_table_identifier
+from estnltk.storage.postgres.pg_operations import table_identifier
 from estnltk.storage.postgres.pg_operations import collection_table_identifier
+
 
 
 class FromClause(Composed):
     """
-    `FromClause` specifies which layer table(s) should be joined with the 
-    collection table and corresponding join types (the FROM part of the query). 
-    If there are no joined layers, this narrows down to the collection table 
-    on which the select query is made.
-    
-    All JOIN-s should be made between the collection table and layer 
-    table(s). Joining layer tables with each other is not supported. 
+    `FromClause` specifies which layer (or auxiliary) table(s) should be joined with 
+    the collection table and corresponding join types (the FROM part of the query). 
+    If there are no joined tables, this narrows down to the collection table on which 
+    the select query is made.
+
+    All JOIN-s should be made between the collection table and layer (or auxiliary) 
+    table(s). Joining layer (or auxiliary) tables with each other is not supported. 
     
     Supported JOIN types:
-    * `collection_table` INNER JOIN `layer_table` (default for non-sparse tables);
-    * `collection_table` LEFT OUTER JOIN `layer_table` (default for sparse tables);
+    * `collection_table` INNER JOIN `layer_table`/`aux_table` (default for non-sparse tables);
+    * `collection_table` LEFT OUTER JOIN `layer_table`/`aux_table` (default for sparse tables);
 
     The main usecase for the class is to provide an extended FROM statement 
     for the SQL select query.
@@ -27,28 +28,41 @@ class FromClause(Composed):
 
     def __init__(self,
                  collection, 
-                 joined_layers:List[str], 
+                 joined_tables:List[str], 
                  join_types:Optional[List[str]]=None):
         self.collection = collection
         
-        if not isinstance(joined_layers, list):
-            raise TypeError('(!) joined_layers must be a list with layer names')
+        if not isinstance(joined_tables, list):
+            raise TypeError('(!) joined_tables must be a list with table names')
+        
         if join_types is not None:
             if not isinstance(join_types, list):
                 raise TypeError('(!) join_types must be a list with join types')
-            if len(joined_layers) != len(join_types):
-                raise ValueError('(!) number of joined_layers does not match with '+\
+            if len(joined_tables) != len(join_types):
+                raise ValueError('(!) number of joined_tables does not match with '+\
                                  'the number of join_types')
         else:
             join_types = []
         # validate or add join types
-        for layer_nr, layer in enumerate(joined_layers):
-            if not isinstance(layer, str):
-                raise TypeError( ('(!) a layer name string expected, '+\
-                                  'but got {}').format(type(layer)))
-            if layer_nr < len(join_types):
+        for table_no, table in enumerate(joined_tables):
+            if not isinstance(table, str):
+                raise TypeError( ('(!) a table name string expected, '+\
+                                  'but got {}').format(type(table)))
+            # Attempt to parse table type and layer name from table name
+            table_name_parts = table.split('__')
+            layer_name = None
+            table_type = None
+            if (table_name_parts[-1]) in ['layer', 'layer_ngrams', 'fragment'] and \
+               len(table_name_parts) > 2:
+                table_type = table_name_parts[-1]
+                layer_name = table_name_parts[-2]
+            if table_type is None:
+                raise ValueError(f'(!) Unexpected table name {table!r}. Should '+\
+                                 'be either a layer table name or a ngrams index '+\
+                                 'table name.')
+            if table_no < len(join_types):
                 # Validate given join type
-                join_type = join_types[layer_nr]
+                join_type = join_types[table_no]
                 if isinstance(join_type, str):
                     join_type = join_type.upper()
                 if join_type not in FromClause.__SUPPORTED_JOIN_TYPES:
@@ -59,19 +73,19 @@ class FromClause(Composed):
                 # Use default join types:
                 # non-sparse layer -> INNER JOIN
                 # sparse layer -> LEFT OUTER JOIN
-                if collection.is_sparse(layer):
+                if collection.is_sparse( layer_name ):
                     join_types.append('LEFT OUTER JOIN')
                 else:
                     join_types.append('INNER JOIN')
 
-        self._joined_layers = joined_layers
+        self._joined_tables = joined_tables
         self._join_types = join_types
 
-        super().__init__(self.from_clause(collection, self._joined_layers, self._join_types))
+        super().__init__(self.from_clause(collection, self._joined_tables, self._join_types))
 
     @property
-    def required_layers(self):
-        return self._joined_layers
+    def required_tables(self):
+        return self._joined_tables
 
     def __and__(self, other):
         if not isinstance(other, FromClause):
@@ -85,23 +99,23 @@ class FromClause(Composed):
         if not self:
             return other
 
-        joined_layers = self._joined_layers + other._joined_layers
+        joined_tables = self._joined_tables + other._joined_tables
         join_types    = self._join_types + other._join_types
-        return FromClause(self.collection, joined_layers, join_types)
+        return FromClause(self.collection, joined_tables, join_types)
 
     @staticmethod
-    def from_clause(collection, joined_layers, join_types):
+    def from_clause(collection, joined_tables, join_types):
         """
-        Builds FROM clause with SQL JOIN/ON conditions for given layers.
-        If no layers are given (an empty list), the returns only the 
+        Builds FROM clause with SQL JOIN/ON conditions for given tables. 
+        If no tables are given (an empty list), the returns only the 
         SQL identifier of the collection table.
         
         :param collection:
             instance of the EstNLTK PostgreSQL collection
-        :param joined_layers:
-            names of layers to be joined with the collection. 
-            these must be layers that are in separate layer 
-            tables.
+        :param joined_tables:
+            names of tables to be joined with the collection. 
+            can be either layer tables or auxiliary tables of 
+            this collection. 
         :param join_types:
             list of join types for layers. Supported join types:
             ['INNER JOIN', 'LEFT OUTER JOIN']
@@ -112,19 +126,31 @@ class FromClause(Composed):
         sql_parts = []
         collection_identifier = \
             collection_table_identifier(collection.storage, collection.name)
-        if joined_layers is None:
-            joined_layers = []
-        for layer_nr, layer in enumerate(joined_layers):
-            join_type = join_types[layer_nr]
+        if joined_tables is None:
+            joined_tables = []
+        for table_no, table in enumerate(joined_tables):
+            join_type = join_types[table_no]
             if join_type not in FromClause.__SUPPORTED_JOIN_TYPES:
                 raise ValueError('(!) Unsupported join type: {!r}'.format(join_type))
-            layer_table_id = \
-                layer_table_identifier(collection.storage, collection.name, layer)
+            # Attempt to parse table type and layer name from table name
+            table_name_parts = table.split('__')
+            layer_name = None
+            table_type = None
+            if (table_name_parts[-1]) in ['layer', 'layer_ngrams', 'fragment'] and \
+               len(table_name_parts) > 2:
+                table_type = table_name_parts[-1]
+                layer_name = table_name_parts[-2]
+            if table_type is None:
+                raise ValueError(f'(!) Unexpected table name {table!r}. Should '+\
+                                 'be either a layer table name or a ngrams index '+\
+                                 'table name.')
+            # Create JOIN condition
+            table_id = table_identifier(collection.storage, table)
             join_condition = \
                 SQL('{} {} ON {}."id" = {}."text_id"').format( SQL(join_type), 
-                                                               layer_table_id,
+                                                               table_id,
                                                                collection_identifier,
-                                                               layer_table_id )
+                                                               table_id )
             sql_parts.append( join_condition )
         from_result = SQL("{}").format(collection_identifier)
         if sql_parts:
