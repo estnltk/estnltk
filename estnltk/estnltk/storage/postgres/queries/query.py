@@ -42,9 +42,6 @@ class And(BinaryOperation):
     def required_layers(self) -> Set[str]:
         return (self.left.required_layers).union( self.right.required_layers )
 
-    @property
-    def required_extra_tables(self) -> Set[str]:
-        return (self.left.required_extra_tables).union( self.right.required_extra_tables )
 
 class Or(BinaryOperation):
     def eval(self, collection: 'PgCollection'):
@@ -53,10 +50,6 @@ class Or(BinaryOperation):
     @property
     def required_layers(self) -> Set[str]:
         return (self.left.required_layers).union( self.right.required_layers )
-
-    @property
-    def required_extra_tables(self) -> Set[str]:
-        return (self.left.required_extra_tables).union( self.right.required_extra_tables )
 
 class Query(Node):
     def eval(self, collection: 'PgCollection'):
@@ -67,13 +60,6 @@ class Query(Node):
     def required_layers(self) -> Set[str]:
         """Returns list of detached collection layers used in query"""
         raise NotImplemented()
-
-    @property
-    def required_extra_tables(self) -> Set[str]:
-        """Returns list of extra / external tables used in this query"""
-        # TODO: merge required_layers & required_extra_tables
-        return set()
-
 
 
 # TODO: test or remove

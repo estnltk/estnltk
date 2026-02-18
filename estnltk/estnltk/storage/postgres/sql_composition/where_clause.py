@@ -39,7 +39,7 @@ class WhereClause(Composed):
             return
 
         self._required_layers = query.required_layers
-        self._required_extra_tables = query.required_extra_tables
+        self._required_extra_tables = set()
 
         super().__init__(self.where_clause(collection, query=query))
 
