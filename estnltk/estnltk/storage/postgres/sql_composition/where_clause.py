@@ -54,6 +54,8 @@ class WhereClause(Composed):
                     required_tables.append( fragment_table_name(collection.name, layer_name) )
                 elif layer_type == 'detached': 
                     required_tables.append( layer_table_name(collection.name, layer_name) )
+            for layer_name in sorted(set( query.required_layer_ngram_indexes )):
+                required_tables.append( layer_ngrams_table_name(collection.name, layer_name) )
         return required_tables
 
     def __bool__(self):

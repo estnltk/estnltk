@@ -42,6 +42,9 @@ class And(BinaryOperation):
     def required_layers(self) -> Set[str]:
         return (self.left.required_layers).union( self.right.required_layers )
 
+    @property
+    def required_layer_ngram_indexes(self) -> Set[str]:
+        return (self.left.required_layer_ngram_indexes).union( self.right.required_layer_ngram_indexes )
 
 class Or(BinaryOperation):
     def eval(self, collection: 'PgCollection'):
@@ -50,6 +53,10 @@ class Or(BinaryOperation):
     @property
     def required_layers(self) -> Set[str]:
         return (self.left.required_layers).union( self.right.required_layers )
+
+    @property
+    def required_layer_ngram_indexes(self) -> Set[str]:
+        return (self.left.required_layer_ngram_indexes).union( self.right.required_layer_ngram_indexes )
 
 class Query(Node):
     def eval(self, collection: 'PgCollection'):
@@ -60,6 +67,12 @@ class Query(Node):
     def required_layers(self) -> Set[str]:
         """Returns list of detached collection layers used in query"""
         raise NotImplemented()
+
+    @property
+    def required_layer_ngram_indexes(self) -> Set[str]:
+        """Returns list of layer ngram indexes used in query"""
+        # TODO: find a way to merge required_layers & required_layer_ngram_indexes
+        return set()
 
 
 # TODO: test or remove

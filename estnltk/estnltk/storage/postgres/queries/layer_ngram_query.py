@@ -3,7 +3,7 @@ from typing import Mapping, Set, Any
 
 from psycopg2.sql import SQL, Identifier, Literal
 
-from estnltk.storage.postgres import layer_table_identifier, layer_table_name
+from estnltk.storage.postgres import layer_ngrams_table_identifier, layer_ngrams_table_name
 from estnltk.storage.postgres.queries.query import Query
 
 
@@ -22,7 +22,7 @@ def build_column_ngram_query(storage, collection_name, query, column, layer_name
     else:
         raise ValueError("Invalid ngram query format: {}".format(query))
 
-    table_identifier = layer_table_identifier(storage, collection_name, layer_name)
+    table_identifier = layer_ngrams_table_identifier(storage, collection_name, layer_name)
     or_parts = []
     for and_term in or_terms:
         arr = ",".join("'%s'" % v for v in and_term)
@@ -36,7 +36,7 @@ def build_column_ngram_query(storage, collection_name, query, column, layer_name
 
 class LayerNgramQuery(Query):
     """Constructs database query to search `text` objects that have specific N-grams in specific layers.
-       Note: this query only works on detached layers that have appropriate ngram_index.
+       Note: this query only works on detached layers that have appropriate ngram_index table.
 
        Example. Search ("üks","kaks" AND "kolm","neli") OR "viis","kuus":
        
@@ -54,8 +54,11 @@ class LayerNgramQuery(Query):
 
     @property
     def required_layers(self) -> Set[str]:
-        return { *self.layer_ngram_query }
+        return set()
 
+    @property
+    def required_layer_ngram_indexes(self) -> Set[str]:
+        return { *self.layer_ngram_query }
 
     def validate( self, collection: 'PgCollection' ):
         """ Validates that this collection has detached layer table with appropriate ngram columns.
@@ -66,7 +69,7 @@ class LayerNgramQuery(Query):
         
         def _fetch_table_column_names( storage, collection_name, layer_name ):
             # Fetches column names for given detached layer
-            table_name = layer_table_name( collection_name, layer_name )
+            table_name = layer_ngrams_table_name( collection_name, layer_name )
             with storage.conn.cursor() as c:
                 c.execute(SQL('SELECT column_name, data_type from information_schema.columns '
                               'WHERE table_schema={} and table_name={} '

@@ -482,6 +482,7 @@ class PgCollection:
                         logger.debug(cur.query.decode())
                 elif index_type == 'ngram_index':
                     # create ngram array index
+                    layer_table = layer_ngrams_table_name(self.name, layer_name)
                     for column in ngram_index:
                         cur.execute(SQL(
                             "CREATE INDEX {index} ON {schema}.{table} USING gin ({column});").format(
@@ -980,19 +981,12 @@ class PgCollection:
                      '%(parent_col)s'
                      'text_id int NOT NULL, '
                      'data jsonb'
-                     '%(meta_cols)s'
-                     '%(ngram_cols)s);')
+                     '%(meta_cols)s);')
 
                 if (layer_type == 'fragmented'):
                     parent_col = "parent_id int NOT NULL,"
                 else:
                     parent_col = ""
-
-                if ngram_index is not None:
-                    ngram_cols = ", %s" % ",".join(["%s text[]" % Identifier(column).as_string(self.storage.conn)
-                                                    for column in ngram_index])
-                else:
-                    ngram_cols = ""
 
                 if meta is not None:
                     cols = [Identifier(col).as_string(self.storage.conn) for col in meta.keys()]
@@ -1001,7 +995,7 @@ class PgCollection:
                 else:
                     meta_cols = ""
 
-                q %= {"parent_col": parent_col, "ngram_cols": ngram_cols, "meta_cols": meta_cols}
+                q %= {"parent_col": parent_col, "meta_cols": meta_cols}
                 if layer_type == 'fragmented':
                     layer_identifier = pg.table_identifier(self.storage, fragment_table_name(self.name, layer_template.name))
                 else:
@@ -1034,6 +1028,10 @@ class PgCollection:
                     conn.commit()
 
         logger.info('{} layer {!r} created from template'.format(layer_type, layer_template.name))
+        
+        # create separate table for ngram index
+        if ngram_index is not None:
+            self.add_layer_ngram_index(layer_template.name, ngram_index=ngram_index)
         
         # create jsonb index
         if create_index:
@@ -1164,7 +1162,7 @@ class PgCollection:
                 if conn.status == STATUS_BEGIN:
                     # no exception, transaction in progress
                     conn.commit()
-        logger.info('{!r} layer ngram index table created.'.format(layer_name))
+        logger.info('{!r} ngram index table created.'.format(layer_name))
 
 
     def create_fragmented_layer(self, tagger=None, fragmenter:callable=None, layer_template:Layer=None, \
@@ -1271,9 +1269,12 @@ class PgCollection:
         extra_columns = []
         if meta_columns:
             extra_columns.extend(meta_columns)
+        ngram_index_table_id = None
+        ngram_index_columns = None
         if ngram_index is not None:
-            ngram_index_keys = tuple(ngram_index.keys())
-            extra_columns.extend(ngram_index_keys)
+            ngram_index_table_id = layer_ngrams_table_identifier(self.storage, self.name, layer_name)
+            ngram_index_columns = ("id", "parent_id", "text_id")
+            ngram_index_columns += tuple(ngram_index.keys())
         columns = ["id", "parent_id", "text_id", "data"] + extra_columns
 
         # Add layer table and structure
@@ -1285,11 +1286,16 @@ class PgCollection:
         conn = self.storage.conn
         with conn.cursor() as c:
             text_id = None
+            ngram_index_buffered_inserter = None
             try:
                 conn.commit()
                 conn.autocommit = False
                 fragment_id = 0
                 fragment_table_id = layer_table_identifier(self.storage, self.name, layer_name, layer_type='fragmented')
+                if ngram_index is not None:
+                    ngram_index_buffered_inserter = \
+                        BufferedTableInsert(conn, ngram_index_table_id, columns=ngram_index_columns, \
+                                                  query_length_limit=query_length_limit )
                 with BufferedTableInsert(conn, fragment_table_id, columns=columns, query_length_limit=query_length_limit) \
                                                                                 as buffered_inserter:
                     for row in data_iterator:
@@ -1307,14 +1313,15 @@ class PgCollection:
                                 extra_data = []
                                 if meta_columns:
                                     extra_data.extend( fragment.meta[k] for k in meta_columns )
-                                if ngram_index is not None:
-                                    ngram_values = [create_ngram_fingerprint_index(layer, attr, n)
-                                                                         for attr, n in ngram_index.items()]
-                                    extra_data.extend( ngram_values )
                                 assert isinstance(layer, Layer)
                                 layer_json = layer_to_json(layer)
                                 values = [fragment_id, parent_layer_id, text_id, layer_json] + extra_data
                                 buffered_inserter.insert( values )
+                                if ngram_index is not None:
+                                    ngram_values = [fragment_id, parent_layer_id, text_id]
+                                    ngram_values.extend([create_ngram_fingerprint_index(layer, attr, n)
+                                                                         for attr, n in ngram_index.items()])
+                                    ngram_index_buffered_inserter.insert( values )
                                 fragment_id += 1
                         else:
                             for record in row_mapper(row):
@@ -1325,12 +1332,13 @@ class PgCollection:
                                 extra_data = []
                                 if meta_columns:
                                     extra_data.extend( layer.meta[k] for k in meta_columns )
-                                if ngram_index is not None:
-                                    ngram_values = [create_ngram_fingerprint_index(layer, attr, n)
-                                                    for attr, n in ngram_index.items()]
-                                    extra_data.extend( ngram_values )
                                 values = [fragment_id, parent_layer_id, text_id, layer_json] + extra_data
                                 buffered_inserter.insert( values )
+                                if ngram_index is not None:
+                                    ngram_values = [fragment_id, parent_layer_id, text_id]
+                                    ngram_values.extend([create_ngram_fingerprint_index(layer, attr, n)
+                                                               for attr, n in ngram_index.items()])
+                                    ngram_index_buffered_inserter.insert( values )
                                 fragment_id += 1
             except Exception as layer_creation_error:
                 no_errors = False
@@ -1344,6 +1352,8 @@ class PgCollection:
                 conn.rollback()
                 raise
             finally:
+                if ngram_index_buffered_inserter is not None:
+                    ngram_index_buffered_inserter.close()
                 if conn.status == STATUS_BEGIN:
                     # no exception, transaction in progress
                     conn.commit()
@@ -1485,9 +1495,15 @@ class PgCollection:
         extra_columns = []
         if meta_columns:
             extra_columns.extend(meta_columns)
+
+        ngram_index_keys = None
+        ngram_index_table_id = None
+        ngram_index_columns = None
         if ngram_index is not None:
+            ngram_index_table_id = layer_ngrams_table_identifier(self.storage, self.name, layer_name)
+            ngram_index_columns = ("id", "text_id")
             ngram_index_keys = tuple(ngram_index.keys())
-            extra_columns.extend(ngram_index_keys)
+            ngram_index_columns += ngram_index_keys
 
         # Add layer table and structure
         if mode in {'new', 'overwrite'}:
@@ -1502,10 +1518,14 @@ class PgCollection:
         no_errors = True
         with conn.cursor() as c:
             collection_text_id = None
+            ngram_index_buffered_inserter = None
             try:
                 # insert data
                 logger.info('inserting data into the {!r} layer table'.format(layer_name))
-                
+                if ngram_index is not None:
+                    ngram_index_buffered_inserter = \
+                        BufferedTableInsert(conn, ngram_index_table_id, columns=ngram_index_columns, \
+                                                  query_length_limit=query_length_limit )
                 with CollectionDetachedLayerInserter( self, layer_name, extra_columns=extra_columns, 
                                                       query_length_limit=query_length_limit,
                                                       sparse=sparse ) as buffered_inserter:
@@ -1520,13 +1540,17 @@ class PgCollection:
                         if meta_columns:
                             extra_values.extend(record.meta[k] for k in meta_columns)
 
-                        if ngram_index is not None:
-                            extra_values.extend(create_ngram_fingerprint_index(layer=layer,
-                                                                         attribute=attr,
-                                                                         n=ngram_index[attr])
-                                          for attr in ngram_index_keys)
-
                         buffered_inserter.insert(layer, collection_text_id, key=collection_text_id, extra_data=extra_values)
+                        
+                        if ngram_index is not None:
+                            ngram_values = [collection_text_id, collection_text_id]
+                            ngram_values.extend([create_ngram_fingerprint_index(layer=layer,
+                                                                                attribute=attr,
+                                                                                n=ngram_index[attr])
+                                                               for attr in ngram_index_keys])
+
+                            ngram_index_buffered_inserter.insert( ngram_values )
+
             except Exception as layer_creation_error:
                 no_errors = False
                 if collection_text_id is not None:
@@ -1540,6 +1564,8 @@ class PgCollection:
                 conn.rollback()
                 raise
             finally:
+                if ngram_index_buffered_inserter is not None:
+                    ngram_index_buffered_inserter.close()
                 if conn.status == STATUS_BEGIN:
                     # no exception, transaction in progress
                     conn.commit()
