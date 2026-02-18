@@ -78,12 +78,16 @@ class PgSubCollectionFragments:
         selected_columns = [SQL('{}."text_id"').format(fragmented_layer_table_id),
                             SQL('{}."data"').format(fragmented_layer_table_id)]
 
-        required_layers = sorted({self.fragmented_layer, *self._selection_criterion.required_layers})
+        # Find out which extra tables we need in addition to the fragmented layer table
+        required_extra_tables = list(self._selection_criterion.required_tables)
+        required_extra_tables.append( pg.fragment_table_name(self.collection.name, self.fragmented_layer) )
+        required_extra_tables = sorted(set(required_extra_tables))
 
         collection_identifier = pg.collection_table_identifier(self.collection.storage, self.collection.name)
 
-        # Required layers are part of the main collection
-        if not required_layers:
+        # All required layers are part of the main collection
+        # TODO: is this even possible with Fragmented layers query?
+        if not required_extra_tables:
             if self._selection_criterion:
                 return SQL("SELECT {} FROM {} WHERE {}").format(SQL(', ').join(selected_columns),
                                                                 collection_identifier,
@@ -93,11 +97,24 @@ class PgSubCollectionFragments:
 
         # Build a join clauses to merge required layers by text_id
         required_layer_tables = []
-        for layer in required_layers:
-            layer_type = self.collection._structure[layer]['layer_type']
+        for table_name in required_extra_tables:
+            # Attempt to parse table type and layer name from table name
+            # TODO: too complex, refactor this logic
+            table_name_parts = table_name.split('__')
+            layer_name = None
+            table_type = None
+            if (table_name_parts[-1]) in ['layer', 'layer_ngrams', 'fragment'] and \
+               len(table_name_parts) > 2:
+                table_type = table_name_parts[-1]
+                layer_name = table_name_parts[-2]
+            if table_type is None:
+                raise ValueError(f'(!) Unexpected table name {table_name!r}. Should '+\
+                                 'be either a layer table name or a ngrams index '+\
+                                 'table name.')
+            layer_type = self.collection._structure[layer_name]['layer_type']
             required_layer_tables.append( \
-                pg.layer_table_identifier(self.collection.storage, self.collection.name, layer, layer_type=layer_type))
-        
+                pg.layer_table_identifier(self.collection.storage, self.collection.name, layer_name, layer_type=layer_type))
+
         join_condition = SQL(" AND ").join(SQL('{}."id" = {}."text_id"').format(collection_identifier,
                                                                                 layer_table_identifier)
                                            for layer_table_identifier in required_layer_tables)

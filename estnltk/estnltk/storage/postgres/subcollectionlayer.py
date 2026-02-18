@@ -47,9 +47,6 @@ class PgSubCollectionLayer:
             self._selection_criterion = pg.WhereClause(collection=self.collection)
         elif isinstance(selection_criterion, pg.WhereClause):
             self._selection_criterion = selection_criterion
-            if self._selection_criterion.required_extra_tables is not None and \
-               len(self._selection_criterion.required_extra_tables) > 0:
-                raise NotImplementedError("Adding extra tables to PgSubCollectionLayer is not yet implemented.")
         else:
             raise TypeError('unexpected type of selection_criterion: {!r}'.format(type(selection_criterion)))
 
@@ -85,12 +82,15 @@ class PgSubCollectionLayer:
         selected_columns = [SQL('{}."text_id"').format(pg.layer_table_identifier(self.collection.storage, self.collection.name, self.detached_layer)),
                             SQL('{}."data"').format(pg.layer_table_identifier(self.collection.storage, self.collection.name, self.detached_layer))]
 
-        required_layers = sorted({self.detached_layer, *self._selection_criterion.required_layers})
+        # Find out which extra tables we need in addition to the detached layer table
+        required_extra_tables = list(self._selection_criterion.required_tables)
+        required_extra_tables.append( pg.layer_table_name(self.collection.name, self.detached_layer) )
+        required_extra_tables = sorted(set(required_extra_tables))
         
         collection_identifier = pg.collection_table_identifier(self.collection.storage, self.collection.name)
 
-        # Required layers are part of the main collection
-        if not required_layers:
+        # All required layers are part of the main collection
+        if not required_extra_tables:
             # TODO: why this branch? this cannot happen if we only allow detached layers
             if self._selection_criterion:
                 return SQL("SELECT {} FROM {} WHERE {}").format(SQL(', ').join(selected_columns),
@@ -100,18 +100,29 @@ class PgSubCollectionLayer:
             return SQL("SELECT {} FROM {}").format(SQL(', ').join(selected_columns), collection_identifier)
         else:
             # Detached layers
-            # Build a FROM clause with joins to required detached layers
+            # Build a FROM clause with joins to required extra tables
             from_clause = pg.FromClause(self.collection, [])
-            for layer in required_layers:
+            for table in required_extra_tables:
                 join_type = None
+                # Attempt to parse table type and layer name from table name
+                table_name_parts = table.split('__')
+                layer_name = None
+                table_type = None
+                if (table_name_parts[-1]) in ['layer', 'layer_ngrams', 'fragment'] and \
+                   len(table_name_parts) > 2:
+                    table_type = table_name_parts[-1]
+                    layer_name = table_name_parts[-2]
+                if table_type is None:
+                    raise ValueError(f'(!) Unexpected table name {table!r}. Should '+\
+                                     'be either a layer table name or a ngrams index '+\
+                                     'table name.')
                 if self.skip_empty:
                     # check whether we have a sparse layer
-                    if self.collection.is_sparse( layer ):
+                    if self.collection.is_sparse( layer_name ):
                         # force using inner join
                         join_type = ['INNER JOIN']
-                from_clause &= pg.FromClause(self.collection, 
-                                             [pg.layer_table_name(self.collection.name, layer)], 
-                                             join_type)
+                from_clause &= pg.FromClause(self.collection, [table], join_type)
+
             # Build SELECT query
             if self._selection_criterion:
                 return SQL("SELECT {} FROM {} WHERE {}").format(SQL(', ').join(selected_columns),

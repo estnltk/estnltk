@@ -1,62 +1,67 @@
 from psycopg2.sql import Composed, SQL
 
-from estnltk.storage.postgres.queries.query import Query
+from estnltk.storage.postgres import fragment_table_name
+from estnltk.storage.postgres import layer_table_name
+from estnltk.storage.postgres import layer_ngrams_table_name
 
+from estnltk.storage.postgres.queries.query import Query
 
 #logger.setLevel('DEBUG')
 
 
 class WhereClause(Composed):
-    """`WhereClause` class is a sequence of Composed SQL strings following the statement "WHERE" in an SQL query,
-    indicating what is being queried from the database.
+    """`WhereClause` class is a sequence of Composed SQL strings following the statement "WHERE" in 
+    an SQL query, indicating what is being queried from the database.
 
     The main usecase for the class is as a selection criterion for selecting data from a collection.
 
-    TODO: merge required_layers & required_extra_tables
+    Note: `required_tables` should only cover names of the auxiliary tables (e.g. detached layer 
+    tables) that need to be joined inside the query, excluding collection table name. 
     """
 
     def __init__(self,
                  collection,
                  query: Query = None,
                  seq=None,
-                 required_layers=None,
-                 required_extra_tables=None):
+                 required_tables=None):
         self.collection = collection
 
         # WhereClause is specified by SQL fragment
         if seq is not None:
             assert query is None, "SQL sequence and query can not be set simultaneously"
-            self._required_layers = sorted(set(required_layers or ()))
-            self._required_extra_tables = sorted(set(required_extra_tables or ()))
+            self._required_tables = sorted(set(required_tables or ()))
             super().__init__(seq)
             return
 
         # No restrictions are placed, empty WhereClause
         if query is None:
-            self._required_layers = sorted(set(required_layers or ()))
-            self._required_extra_tables = sorted(set(required_extra_tables or ()))
+            self._required_tables = sorted(set(required_tables or ()))
             super().__init__([])
             return
 
-        self._required_layers = query.required_layers
-        self._required_extra_tables = set()
+        self._required_tables = \
+            WhereClause.get_required_tables_from_query(collection, query)
 
         super().__init__(self.where_clause(collection, query=query))
+
+    @staticmethod
+    def get_required_tables_from_query(collection, query: Query):
+        required_tables = []
+        if query is not None:
+            for layer_name in sorted(set( query.required_layers )):
+                layer_type = collection.structure[layer_name]['layer_type']
+                if layer_type == 'fragmented': 
+                    required_tables.append( fragment_table_name(collection.name, layer_name) )
+                elif layer_type == 'detached': 
+                    required_tables.append( layer_table_name(collection.name, layer_name) )
+        return required_tables
 
     def __bool__(self):
         return bool(self.seq)
 
-    def _non_attached_required_layers(self):
-        """Returns self._required_layers without attached layers."""
-        return [layer for layer in self._required_layers if self.collection.structure[layer]['layer_type'] != 'attached']
-
     @property
-    def required_layers(self):
-        return self._non_attached_required_layers()
-
-    @property
-    def required_extra_tables(self):
-        return self._required_extra_tables
+    def required_tables(self):
+        return self._required_tables
 
     def __and__(self, other):
         if not isinstance(other, WhereClause):
@@ -71,11 +76,9 @@ class WhereClause(Composed):
             return other
 
         seq = SQL(" AND ").join((self, other))
-        required_layers = sorted(set(self.required_layers) | set(other.required_layers))
-        required_extra_tables = sorted(set(self.required_extra_tables) | set(other.required_extra_tables))
+        required_tables = sorted(set(self.required_tables) | set(other.required_tables))
         return WhereClause(collection=self.collection, seq=seq, 
-                           required_layers=required_layers, 
-                           required_extra_tables=required_extra_tables)
+                           required_tables=required_tables)
 
     @staticmethod
     def where_clause(collection, query: Query = None):

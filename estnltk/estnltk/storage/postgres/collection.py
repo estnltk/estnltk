@@ -1332,7 +1332,7 @@ class PgCollection:
                                 values = [fragment_id, parent_layer_id, text_id, layer_json] + extra_data
                                 buffered_inserter.insert( values )
                                 fragment_id += 1
-            except Exception:
+            except Exception as layer_creation_error:
                 no_errors = False
                 if text_id is not None:
                     layer_creation_error_msg = ('Layer creation failed at document with id {} '+\

@@ -198,27 +198,18 @@ class PgSubCollection:
                                               collection_meta=self.meta_attributes,
                                               include_layer_ids=False)
 
-        # TODO: merge required_layers & required_extra_tables in future
-        required_layers = sorted(set(self._detached_layers + self._selection_criterion.required_layers))
-        required_extra_tables = sorted(set(self._selection_criterion.required_extra_tables))
+        # Find out which extra tables we need in addition to the collection table
+        required_extra_tables = list(self._selection_criterion.required_tables)
+        for layer_name in self._detached_layers:
+            required_extra_tables.append( pg.layer_table_name(self.collection.name, layer_name) )
+        required_extra_tables = sorted(set(required_extra_tables))
         
         collection_identifier = pg.collection_table_identifier(self.collection.storage, self.collection.name)
 
-        # Required layers or extra tables are part of the main collection
-        if required_layers or required_extra_tables:
-            # Build a FROM clause with joins to required detached layers
-            from_clause = pg.FromClause(self.collection, [])
-            for layer in required_layers:
-                join_type = None
-                if not self._left_join_sparse_layers:
-                    # check whether we have a sparse layer
-                    if self.collection.is_sparse( layer ):
-                        # force using inner join
-                        join_type = ['INNER JOIN']
-                from_clause &= pg.FromClause(self.collection, 
-                                             [pg.layer_table_name(self.collection.name, layer)], 
-                                             join_type)
+        # Required extra tables from the main collection
+        if required_extra_tables:
             # Build a FROM clause with joins to required extra tables
+            from_clause = pg.FromClause(self.collection, [])
             for table in required_extra_tables:
                 join_type = None
                 # Attempt to parse table type and layer name from table name
