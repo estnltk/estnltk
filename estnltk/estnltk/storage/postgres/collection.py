@@ -1078,6 +1078,12 @@ class PgCollection:
         elif not isinstance(ngram_index, dict) or (isinstance(ngram_index, dict) and \
            not all(isinstance(k, str) and isinstance(v, int) for k,v in ngram_index.items())):
             raise ValueError(f"(!) ngram_index must be Dict[str, int], not {type(ngram_index)}.")
+        if len(ngram_index.keys()) == 0:
+            raise ValueError(f"(!) ngram_index cannot be empty.")
+        for k in ngram_index.keys():
+            if k.lower() in ['id', 'text_id', 'parent_id']:
+                raise ValueError(f"(!) ngram_index cannot contain key {k!r}, as it overlaps with "+
+                                 "a structural column of the table.")
         # Attempt to load the structure
         if layer_name not in self._structure:
             self.refresh()
