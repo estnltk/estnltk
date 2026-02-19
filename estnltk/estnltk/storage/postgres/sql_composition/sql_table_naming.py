@@ -15,7 +15,7 @@ def fragment_table_name(collection_name, fragment_name):
 
 
 def layer_ngrams_table_name(collection_name, layer_name):
-    return '{}__{}__layer_ngrams'.format(collection_name, layer_name)
+    return '{}__{}__ngrams'.format(collection_name, layer_name)
 
 
 def deconstruct_table_name(table_name):
@@ -25,7 +25,7 @@ def deconstruct_table_name(table_name):
        * 'collection' -- collection name or None (unknown structure);
        * 'type' -- table or layer type; one of the following: 
           {None (unknown structure), 'collection', 'structure', 'detached', 
-           'fragmented', 'layer_ngrams'}
+           'fragmented', 'ngrams'}
        * 'layer' -- layer name if this is a layer table or an auxiliary layer 
           table (such as layer ngrams index). Otherwise: None;
        * 'suffix' -- table name suffix;
@@ -52,6 +52,6 @@ def deconstruct_table_name(table_name):
             table_name_struct['type'] = 'detached'
         elif table_name_struct['suffix'] == 'fragment':
             table_name_struct['type'] = 'fragmented'
-        elif table_name_struct['suffix'] == 'layer_ngrams':
+        elif table_name_struct['suffix'] == 'ngrams':
             table_name_struct['type'] = table_name_struct['suffix']
     return table_name_struct

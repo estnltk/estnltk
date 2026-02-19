@@ -70,7 +70,7 @@ class Query(Node):
 
     @property
     def required_layer_ngram_indexes(self) -> Set[str]:
-        """Returns list of layer ngram indexes used in query"""
+        """Returns list of layers whose ngram indexes are used in query"""
         # TODO: find a way to merge required_layers & required_layer_ngram_indexes
         return set()
 

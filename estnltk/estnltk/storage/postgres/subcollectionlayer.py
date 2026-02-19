@@ -109,7 +109,7 @@ class PgSubCollectionLayer:
                 layer_name = table_name_parts['layer']
                 table_type = table_name_parts['type']
                 # A sanity check
-                if (layer_name is None) or (table_type not in ['detached', 'fragmented', 'layer_ngrams']):
+                if (layer_name is None) or (table_type not in ['detached', 'fragmented', 'ngrams']):
                     raise ValueError(f'(!) Unexpected table name {table!r}. Should '+\
                                      'be either a layer table name or a ngrams index '+\
                                      'table name.')

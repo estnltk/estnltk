@@ -54,7 +54,7 @@ class FromClause(Composed):
             layer_name = table_name_parts['layer']
             table_type = table_name_parts['type']
             # A sanity check
-            if (layer_name is None) or (table_type not in ['detached', 'fragmented', 'layer_ngrams']):
+            if (layer_name is None) or (table_type not in ['detached', 'fragmented', 'ngrams']):
                 raise ValueError(f'(!) Unexpected table name {table!r}. Should '+\
                                  'be either a layer table name or a ngrams index '+\
                                  'table name.')
@@ -131,14 +131,11 @@ class FromClause(Composed):
             if join_type not in FromClause.__SUPPORTED_JOIN_TYPES:
                 raise ValueError('(!) Unsupported join type: {!r}'.format(join_type))
             # Attempt to parse table type and layer name from table name
-            table_name_parts = table.split('__')
-            layer_name = None
-            table_type = None
-            if (table_name_parts[-1]) in ['layer', 'layer_ngrams', 'fragment'] and \
-               len(table_name_parts) > 2:
-                table_type = table_name_parts[-1]
-                layer_name = table_name_parts[-2]
-            if table_type is None:
+            table_name_parts = deconstruct_table_name(table)
+            layer_name = table_name_parts['layer']
+            table_type = table_name_parts['type']
+            # A sanity check
+            if (layer_name is None) or (table_type not in ['detached', 'fragmented', 'ngrams']):
                 raise ValueError(f'(!) Unexpected table name {table!r}. Should '+\
                                  'be either a layer table name or a ngrams index '+\
                                  'table name.')
