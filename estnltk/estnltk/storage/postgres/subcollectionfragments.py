@@ -70,17 +70,25 @@ class PgSubCollectionFragments:
 
         # TODO: Simplify query
 
-        layer_type = self.collection._structure[self.fragmented_layer]['layer_type']
+        fragmented_layer_type = self.collection._structure[self.fragmented_layer]['layer_type']
+        fragmented_layer_table_name = None
+        if fragmented_layer_type == 'detached':
+            fragmented_layer_table_name = pg.layer_table_name(self.collection.name, self.fragmented_layer)
+        elif fragmented_layer_type == 'fragmented':
+            fragmented_layer_table_name = pg.fragment_table_name(self.collection.name, self.fragmented_layer)
+        else:
+            raise TypeError(f'(!) Unexpected fragmented layer type {fragmented_layer_type!r}')
         fragmented_layer_table_id = \
             pg.layer_table_identifier( self.collection.storage, self.collection.name, 
-                                       self.fragmented_layer, layer_type=layer_type )
+                                       self.fragmented_layer, layer_type=fragmented_layer_type )
+        
 
         selected_columns = [SQL('{}."text_id"').format(fragmented_layer_table_id),
                             SQL('{}."data"').format(fragmented_layer_table_id)]
 
         # Find out which extra tables we need in addition to the fragmented layer table
         required_extra_tables = list(self._selection_criterion.required_tables)
-        required_extra_tables.append( pg.fragment_table_name(self.collection.name, self.fragmented_layer) )
+        required_extra_tables.append( fragmented_layer_table_name )
         required_extra_tables = sorted(set(required_extra_tables))
 
         collection_identifier = pg.collection_table_identifier(self.collection.storage, self.collection.name)
@@ -99,19 +107,14 @@ class PgSubCollectionFragments:
         required_layer_tables = []
         for table_name in required_extra_tables:
             # Attempt to parse table type and layer name from table name
-            # TODO: too complex, refactor this logic
-            table_name_parts = table_name.split('__')
-            layer_name = None
-            table_type = None
-            if (table_name_parts[-1]) in ['layer', 'layer_ngrams', 'fragment'] and \
-               len(table_name_parts) > 2:
-                table_type = table_name_parts[-1]
-                layer_name = table_name_parts[-2]
-            if table_type is None:
-                raise ValueError(f'(!) Unexpected table name {table_name!r}. Should '+\
-                                 'be either a layer table name or a ngrams index '+\
-                                 'table name.')
-            layer_type = self.collection._structure[layer_name]['layer_type']
+            table_name_parts = pg.deconstruct_table_name(table_name)
+            layer_name = table_name_parts['layer']
+            layer_type = table_name_parts['type']
+            # A sanity check
+            if (layer_name is None) or (layer_type not in ['detached', 'fragmented']):
+                raise ValueError(f'(!) Unexpected table name {table!r}. Should '+\
+                                 'be either a layer table name or a fragmented '+\
+                                 'layer table name.')
             required_layer_tables.append( \
                 pg.layer_table_identifier(self.collection.storage, self.collection.name, layer_name, layer_type=layer_type))
 

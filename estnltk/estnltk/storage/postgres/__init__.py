@@ -43,6 +43,7 @@ from estnltk.storage.postgres.sql_composition.sql_table_naming import structure_
 from estnltk.storage.postgres.sql_composition.sql_table_naming import layer_table_name
 from estnltk.storage.postgres.sql_composition.sql_table_naming import fragment_table_name
 from estnltk.storage.postgres.sql_composition.sql_table_naming import layer_ngrams_table_name
+from estnltk.storage.postgres.sql_composition.sql_table_naming import deconstruct_table_name
 
 from .pg_operations import pytype2dbtype
 

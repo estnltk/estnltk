@@ -1,6 +1,7 @@
 from typing import List, Optional
 from psycopg2.sql import Composed, SQL
 
+from estnltk.storage.postgres import deconstruct_table_name
 from estnltk.storage.postgres.pg_operations import table_identifier
 from estnltk.storage.postgres.pg_operations import collection_table_identifier
 
@@ -49,14 +50,11 @@ class FromClause(Composed):
                 raise TypeError( ('(!) a table name string expected, '+\
                                   'but got {}').format(type(table)))
             # Attempt to parse table type and layer name from table name
-            table_name_parts = table.split('__')
-            layer_name = None
-            table_type = None
-            if (table_name_parts[-1]) in ['layer', 'layer_ngrams', 'fragment'] and \
-               len(table_name_parts) > 2:
-                table_type = table_name_parts[-1]
-                layer_name = table_name_parts[-2]
-            if table_type is None:
+            table_name_parts = deconstruct_table_name(table)
+            layer_name = table_name_parts['layer']
+            table_type = table_name_parts['type']
+            # A sanity check
+            if (layer_name is None) or (table_type not in ['detached', 'fragmented', 'layer_ngrams']):
                 raise ValueError(f'(!) Unexpected table name {table!r}. Should '+\
                                  'be either a layer table name or a ngrams index '+\
                                  'table name.')
