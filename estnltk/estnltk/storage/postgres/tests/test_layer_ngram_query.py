@@ -4,11 +4,13 @@ import random
 
 from estnltk import Text
 from estnltk import get_logger_with_tqdm_handler
+from estnltk.taggers import VabamorfTagger
+
 from estnltk.storage.postgres import PostgresStorage, layer_table_identifier
 from estnltk.storage.postgres import delete_schema, count_rows
 from estnltk.storage.postgres import drop_layer_ngrams_table
 from estnltk.storage.postgres import layer_ngrams_table_table_exists
-from estnltk.taggers import VabamorfTagger
+from estnltk.storage.postgres import layer_ngrams_table_identifier
 from estnltk.storage.postgres import PgCollectionException
 from estnltk.storage.postgres.queries.layer_ngram_query import LayerNgramQuery
 from estnltk.storage.postgres.queries.layer_query import LayerQuery
@@ -33,6 +35,19 @@ class TestLayerNgramIndexTable(unittest.TestCase):
     def tearDown(self):
         delete_schema(self.storage)
         self.storage.close()
+
+    def _test_simple_query_on_table( self, table_identifier ):
+        from psycopg2.sql import SQL
+        query = SQL('SELECT * FROM {}').format( table_identifier )
+        rows = []
+        with self.storage.conn.cursor() as cursor:
+            try:
+                cursor.execute( query )
+            except:
+                raise
+            for row in cursor.fetchall():
+                rows.append( row )
+        return rows
 
     def test_create_layer_ngram_table_smoke(self):
         collection_name = get_random_collection_name()
@@ -92,8 +107,71 @@ class TestLayerNgramIndexTable(unittest.TestCase):
         # Sanity check : the layer does not have ngram index anymore
         self.assertFalse( layer_ngrams_table_table_exists(self.storage, collection_name, tagger.output_layer) )
         
+        # Create a layer without ngram index 
+        collection.create_layer(tagger=tagger)
+        
+        # Try to add ngram index to a non-empty layer : 
+        # currently not implemented, throws and exception
+        with self.assertRaises( Exception ):
+            collection.add_layer_ngram_index(tagger.output_layer, ngram_index={"lemma": 2})
+        
         # Clean-up
         self.storage.delete_collection(collection.name)
+
+    @staticmethod
+    def _sort_ngrams_columns_in_list( ngrams_query_result ):
+        lists_with_sorted_columns = []
+        for ngrams_row in ngrams_query_result:
+            sorted_ngrams_row = []
+            for item in ngrams_row:
+                if isinstance( item, list ):
+                    sorted_ngrams_row.append( sorted(item) )
+                else:
+                    sorted_ngrams_row.append( item )
+            lists_with_sorted_columns.append( tuple(sorted_ngrams_row) )
+        return lists_with_sorted_columns
+
+    def test_create_and_fill_layer_ngram_table(self):
+        collection_name = get_random_collection_name()
+        collection = self.storage.add_collection(collection_name)
+        
+        with collection.insert() as collection_insert:
+            text1 = Text("Tass tiksus mansardkorrusel tunnikese.").tag_layer("sentences")
+            collection_insert(text1, key=1)
+
+            text2 = Text("Kuubik keelitas kaloreid kimamast.").tag_layer("sentences")
+            collection_insert(text2, key=2)
+
+        tagger = VabamorfTagger(disambiguate=False, output_layer='morph_layer')
+
+        # Sanity check : the table does not exist yet
+        self.assertFalse( layer_ngrams_table_table_exists(self.storage, collection_name, tagger.output_layer) )
+        
+        # Create layer table with a separate n-gram index table
+        collection.create_layer( tagger=tagger, ngram_index={"lemma": 2, "partofspeech": 3} )
+
+        # Sanity check : the table has been created
+        self.assertTrue( layer_ngrams_table_table_exists(self.storage, collection_name, tagger.output_layer) )
+
+        # Validate contents of the n-grams table
+        ngrams_table_content = \
+            self._test_simple_query_on_table( \
+                 layer_ngrams_table_identifier(self.storage, collection.name, tagger.output_layer) )
+        expected_result = \
+            [(1, 1, ['tiks', 'tass', 'tiksuma', 'Tass', 'tunnike', '.', 'mansardkorrus', 'tiks-mansardkorrus', 
+                    'tiksuma-mansardkorrus', 'mansardkorrus-tunnike', 'tunnike-.', 'Tass-tiksuma', 'tass-tiksuma', 
+                    'tass-tiks', 'Tass-tiks'], 
+                    ['V', 'H', 'S', 'Z', 'H-V', 'V-S', 'S-Z', 'S-V', 'S-S', 'H-S', 'S-S-S', 'V-S-S', 'H-V-S', 
+                    'S-S-Z', 'S-V-S', 'H-S-S']), 
+             (2, 2, ['Kuubik', 'kuubik', '.', 'kimama', 'keelitama', 'kalor', 'Kuubik-keelitama', 'kalor-kimama', 
+                     'kimama-.', 'kuubik-keelitama', 'keelitama-kalor'], 
+                    ['V', 'H', 'S', 'Z', 'H-V', 'V-S', 'S-V', 'V-Z', 'V-S-V', 'H-V-S', 'S-V-S', 'S-V-Z'])]
+        self.assertListEqual( TestLayerNgramIndexTable._sort_ngrams_columns_in_list( ngrams_table_content ), \
+                              TestLayerNgramIndexTable._sort_ngrams_columns_in_list( expected_result ) )
+
+        # Clean-up
+        self.storage.delete_collection(collection.name)
+
 
 
 
