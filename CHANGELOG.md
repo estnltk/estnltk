@@ -10,38 +10,63 @@ All notable changes to this project will be documented in this file.
 * Made rules & rulesets required by `PhraseTagger`, `RegexTagger` & `SpanTagger` importable via `estnltk.taggers`;
 * Renamed `rule_taggers` method `extract_annotations` to `extract_matches`. This affects `PhraseTagger`, `RegexTagger`, `SpanTagger` and `SubstringTagger`; 
 * Renamed `EstBERTNERTagger` to `BertNerTagger`. Old `EstBERTNERTagger` class is available for backwards compatibility, but it will be removed in a future release; 
-* Updated [NER tutorial](https://github.com/estnltk/estnltk/blob/a919e8442712457ad9becb6b19a5751e9e440c61/tutorials/nlp_pipeline/D_information_extraction/02_named_entities.ipynb): corrected references to Bert models and added information about using Bert models with GPU; 
+* Updated [NER tutorial](https://github.com/estnltk/estnltk/blob/757feceef0c8371e3d1f56be72db78639f4bde6e/tutorials/nlp_pipeline/D_information_extraction/02_named_entities.ipynb): corrected references to Bert models and added information about using Bert models with GPU; 
 * Updated `TimexTagger`: added option `cut_out_subwords` for precise extraction of subword timex spans. For example, if `CoreTimexTagger` mistakenly annotates the whole token `http://dx.doi.org/10.12697/eha.2014.2.1.09` as a single timex, then with `cut_out_subwords` switched on, only the span `2014.` within the token will be annotated as a timex span. Note that this option can be switched on in `TimexTagger` only if the output layer is flat (not enveloping around a words layer). By default, `cut_out_subwords` is switched on; 
 * Updated and restructured visualisation tutorials: 
     * added [a tutorial about the table display](https://github.com/estnltk/estnltk/blob/a919e8442712457ad9becb6b19a5751e9e440c61/tutorials/visualisation/A_estnltk_table_display.ipynb); 
     * added alphabetic enumeration to tutorial's file names ( `A_estnltk_table_display.ipynb`, `B_span_visualisation.ipynb`, ... ); 
 * `Layer.display` parameter name: `mapping_dict` -> `styles`. Extended the usage of the parameter `styles`: in addition to specifying callable functions for computing CSS values, the parameter can now also specify CSS values directly. For usage of the parameter `styles`, see [the span visualisation tutorial](https://github.com/estnltk/estnltk/blob/a919e8442712457ad9becb6b19a5751e9e440c61/tutorials/visualisation/B_span_visualisation.ipynb); 
-* Updated `PgCollection`: removed deprecated methods `create`, `continue_creating_layer`, `delete`, `has_fragment`, `get_fragment_names` and `get_fragment_tables`; 
-
+* Updated `PgCollection`: 
+    * removed deprecated methods `create`, `continue_creating_layer`, `delete`, `has_fragment`, `get_fragment_names` and `get_fragment_tables`; 
+    * changed ngram index creation (`add_layer`, `create_layer`, `create_fragmented_layer`): layer ngram index is no longer stored in the detached or fragmented layer table, but in a separate layer ngram index table. As a result, `LayerNgramQuery` in EstNLTK v1.7.4 and earlier versions cannot be used on ngram indexes created with the new version (and vice versa) [(tutorial)](https://github.com/estnltk/estnltk/blob/757feceef0c8371e3d1f56be72db78639f4bde6e/tutorials/storage/indexing_postgres_storage.ipynb); 
+* Updated `PostgresStorage`: 
+    * `add_collection` no longer creates collection indexes by default, but only if the flag `create_index` has been set. It is recommended to create collection indexes after data insertion, see [this tutorial](https://github.com/estnltk/estnltk/blob/757feceef0c8371e3d1f56be72db78639f4bde6e/tutorials/storage/indexing_postgres_storage.ipynb) for details;
+    * HTML representation now shows total size of the schema;
+    * changed internal components `FromClause` and `WhereClause` to use `required_tables` instead of `required_layers`. This affects all methods using these components. 
+* Updated `Wordnet` database to version 2.7.0; 
 
 
 ## Added
 
+* Updated `MultiLayerTagger`: added `_make_layer_templates()` and `get_layer_templates()` methods;
+    * Added missing  `_make_layer_templates` implementations to `NerWebTagger` & `BertNerTagger`;
+* Updated `Text` and `Relation` interface: 
+    * made relation layers of `Text` object also accessible via attribute access (e.g. `text.coreference`);
+    * made attribute values of `Relation` object also accessible via attribute access (e.g. `text.coreference[0].chain_id`);
 * Updated `flatten`: added parameters `gaps_strategy`/`gaps_pattern` for cutting out gaps within enveloping spans. These parameters are now also accepted by `FlattenTagger`. For details, see [this tutorial](https://github.com/estnltk/estnltk/blob/a919e8442712457ad9becb6b19a5751e9e440c61/tutorials/system/layer_operations.ipynb); 
 * Added `DiffTaggingTask` to `converters.label_studio` for importing/exporting [Labelstudio](https://labelstud.io/) annotations with manual judgements on annotation differences. For usage details, see [this tutorial](https://github.com/estnltk/estnltk/blob/45b7bb859e5c5774f064afd5c6a0c1dfce6a0cc3/tutorials/converters/labelstudio_exporter_importer.ipynb); 
 * Added `RubySpanVisualiser` which allows to display small texts on top of span annotations during the span visualisation via [HTML ruby tags](https://www.w3schools.com/tags/tag_ruby.asp). `Layer.display` now accepts `ruby_text` and `ruby_styles` parameters which specify how ruby tags are computed. For usage details, see [the span visualisation tutorial](https://github.com/estnltk/estnltk/blob/a919e8442712457ad9becb6b19a5751e9e440c61/tutorials/visualisation/B_span_visualisation.ipynb); 
-* Updated `StanzaSyntax(Ensemble)Tagger`: added parameter `device`. Also, updated [stanza syntax tutorial](https://github.com/estnltk/estnltk/blob/a919e8442712457ad9becb6b19a5751e9e440c61/tutorials/nlp_pipeline/C_syntax/03_syntactic_analysis_with_stanza.ipynb) about using GPU; 
-* Updated [NER tutorial](https://github.com/estnltk/estnltk/blob/a919e8442712457ad9becb6b19a5751e9e440c61/tutorials/nlp_pipeline/D_information_extraction/02_named_entities.ipynb): introduced a new Bert-like model finetuned on Estonian dependency treebanks (`estroberta_ud_ner_v1`); 
-* Updated `PgCollection.export_layer`: 
-    * added possibility to export `text` & `enclosing_text` values; 
-    * added possibility to change `key_attributes` (only for span layer); 
-* Updated PostreSQL's tutorial: added an example about customized layer creation (without the tagger class) via specifying `layer_template`, `data_iterator` and `rowmapper` (`RowMapperRecord`). For details, see [this tutorial](https://github.com/estnltk/estnltk/blob/a919e8442712457ad9becb6b19a5751e9e440c61/tutorials/storage/storing_text_objects_in_postgres.ipynb);
-
+* Added parameter `device` (enabling hardware acceleration) to the following taggers:
+    * `StanzaSyntax(Ensemble)Tagger` [(tutorial)](https://github.com/estnltk/estnltk/blob/757feceef0c8371e3d1f56be72db78639f4bde6e/tutorials/nlp_pipeline/C_syntax/03_syntactic_analysis_with_stanza.ipynb); 
+    * `BertTagger` and `RobertaTagger` [(tutorial)](https://github.com/estnltk/estnltk/blob/757feceef0c8371e3d1f56be72db78639f4bde6e/tutorials/nlp_pipeline/E_embeddings/bert_embeddings_tagger.ipynb); 
+    * `BertMorphTagger` [(tutorial)](https://github.com/estnltk/estnltk/blob/757feceef0c8371e3d1f56be72db78639f4bde6e/tutorials/nlp_pipeline/B_morphology/08_bert_based_morph_tagger.ipynb); 
+* Updated [NER tutorial](https://github.com/estnltk/estnltk/blob/757feceef0c8371e3d1f56be72db78639f4bde6e/tutorials/nlp_pipeline/D_information_extraction/02_named_entities.ipynb): introduced a new Bert-like model finetuned on Estonian dependency treebanks (`estroberta_ud_ner_v1`); 
+* Updated `PgCollection`: 
+    * added `create_layers` method for creating multiple detached layers simultaneously via `MultiLayerTagger` [(tutorial)](https://github.com/estnltk/estnltk/blob/757feceef0c8371e3d1f56be72db78639f4bde6e/tutorials/storage/storing_text_objects_in_postgres.ipynb);
+    * added `create_layers_block` method for parallel simultaneous insertion of multiple detached layers via `MultiLayerTagger` [(tutorial)](https://github.com/estnltk/estnltk/blob/757feceef0c8371e3d1f56be72db78639f4bde6e/tutorials/storage/storing_text_objects_in_postgres.ipynb);
+    * added `create_layer_index` method for separate creation of detached layer indexes [(tutorial)](https://github.com/estnltk/estnltk/blob/757feceef0c8371e3d1f56be72db78639f4bde6e/tutorials/storage/indexing_postgres_storage.ipynb);
+    * added `add_layer_ngram_index` method for creating layer ngram index as a separate table; 
+    * `PgCollection.add_layer`: added flag `create_ngram_index` which switches on creation of array indexes over ngram columns [(tutorial)](https://github.com/estnltk/estnltk/blob/757feceef0c8371e3d1f56be72db78639f4bde6e/tutorials/storage/indexing_postgres_storage.ipynb);
+    * `PgCollection.export_layer`: added possibility to export `text` & `enclosing_text` values; 
+    * `PgCollection.export_layer`: added possibility to change `key_attributes` (only for span layer); 
+* Updated `PostgresStorage`: 
+    * added flag `initialize_logging` which switches on logging of database's messages to the standard output (switched on by default); 
+* Updated `PostgresStorage`'s tutorials: 
+    * added an example about customized layer creation without using the tagger class [(tutorial)](https://github.com/estnltk/estnltk/blob/757feceef0c8371e3d1f56be72db78639f4bde6e/tutorials/storage/storing_text_objects_in_postgres.ipynb);
+    * added a [tutorial](https://github.com/estnltk/estnltk/blob/757feceef0c8371e3d1f56be72db78639f4bde6e/tutorials/storage/indexing_postgres_storage.ipynb)  that explains how to create indexes for more efficient querying in PostgreSQL;
 
 
 ## Fixed
 
+* Fixed issue [#128](https://github.com/estnltk/estnltk/issues/128): estnltk now uses a named logger instead of the root logger, and tqdm logging is not added to it by default;
 * Fixed `StanzaSyntaxEnsembleTagger`: ensured that models are applied in the same order on all platforms; 
 * Fixed `DirectPlainSpanVisualiser` and `DisplaySpans` classes depending on it: made it work like in the visualisation tutorial. Made `DisplaySpans` classes importable via `estnltk.visualisation.standard_visualisers`. For usage details, see [the span visualisation tutorial](https://github.com/estnltk/estnltk/blob/a919e8442712457ad9becb6b19a5751e9e440c61/tutorials/visualisation/B_span_visualisation.ipynb) (
 subsection "II. Pre-defined visualisation modules");
 * Fixed `AddressPartTagger._make_layer_template`: added proper implementation;
 * Fixed `TokensTagger`'s `apply_quotes_postfixes` bug: handle quotation marks that are not at token start or token end position, but in the middle of token;
+* Fixed `CompoundTokenTagger`: unified ambiguity settings of layers returned by `_make_layer_template` and `_make_layer`;
 * Bugfix in `BertTagger` with EstBert based model(s): use `estbert_normalizer` to preprocess input and to avoid model crashing on bad character combinations;
+* Fixed `BertNerTagger`: added guards against tokens with duplicate spans produced by [estroberta](https://huggingface.co/EMBEDDIA/est-roberta)'s tokenizer;
 
 
 
