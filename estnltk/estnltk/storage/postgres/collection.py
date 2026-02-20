@@ -1060,9 +1060,10 @@ class PgCollection:
                 and the corresponding layer table must exist. 
             ngram_index: Dict[str, int]
                 Specifies layer's attributes for which to create ngram index, along with 
-                the lengths of the corresponding ngrams. 
-                For instance, {'attr_a': 2} creates a bigram index column for 'attr_a', and 
-                {'attr_b': 3} creates a trigram index column for 'attr_b'. 
+                the maximum lengths of the corresponding ngrams. 
+                For instance, {'attr_a': 2} creates unigrams and bigrams index column for 
+                'attr_a', and {'attr_b': 3} creates unigrams, bigrams and trigrams index 
+                column for 'attr_b'. 
             overwrite: bool
                 Whether an existing layer ngram index table will be deleted before creating 
                 a new table. If not set and there is an existing layer ngram index for this 
@@ -1236,9 +1237,10 @@ class PgCollection:
             create_index:
                 Whether to create an index on json column
             ngram_index: Dict[str, int]
-                Optional. Specifies layer's attributes for which to create an 
-                ngram index columns. For instance, {'attr_a': 2} creates a bigram 
-                index column for 'attr_a'. If not specified, the no ngram index 
+                Optional. Specifies layer's attributes for which to create ngram index 
+                columns. For instance, {'attr_a': 2} creates unigrams and bigrams index 
+                column for 'attr_a', and {'attr_b': 3} creates unigrams, bigrams and 
+                trigrams index column for 'attr_b'. If not specified, then no ngram index 
                 columns are created for this layer. 
                 (default: None).
         """
@@ -1405,9 +1407,10 @@ class PgCollection:
                 Whether to create an index on json column
             ngram_index: Dict[str, int]
                 Optional. Specifies layer's attributes for which to create an 
-                ngram index columns. For instance, {'attr_b': 3} creates a trigram 
-                index column for 'attr_b'. If not specified, the no ngram index 
-                columns are created for this layer. 
+                ngram index columns. For instance, {'attr_a': 2} creates unigrams and 
+                bigrams index column for 'attr_a', and {'attr_b': 3} creates unigrams, 
+                bigrams and trigrams index column for 'attr_b'. If not specified, then 
+                no ngram index columns are created for this layer. 
                 (default: None).
             meta: dict of str -> str
                 Specifies table column names and data types to create for storing additional

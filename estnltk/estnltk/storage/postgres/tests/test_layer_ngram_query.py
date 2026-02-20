@@ -136,10 +136,10 @@ class TestLayerNgramIndexTable(unittest.TestCase):
         collection = self.storage.add_collection(collection_name)
         
         with collection.insert() as collection_insert:
-            text1 = Text("Tass tiksus mansardkorrusel tunnikese.").tag_layer("sentences")
+            text1 = Text("Tass tiksus mansardkorrusel.").tag_layer("sentences")
             collection_insert(text1, key=1)
 
-            text2 = Text("Kuubik keelitas kaloreid kimamast.").tag_layer("sentences")
+            text2 = Text("Kuubik keelitas kaloreid.").tag_layer("sentences")
             collection_insert(text2, key=2)
 
         tagger = VabamorfTagger(disambiguate=False, output_layer='morph_layer')
@@ -158,14 +158,14 @@ class TestLayerNgramIndexTable(unittest.TestCase):
             self._test_simple_query_on_table( \
                  layer_ngrams_table_identifier(self.storage, collection.name, tagger.output_layer) )
         expected_result = \
-            [(1, 1, ['tiks', 'tass', 'tiksuma', 'Tass', 'tunnike', '.', 'mansardkorrus', 'tiks-mansardkorrus', 
-                    'tiksuma-mansardkorrus', 'mansardkorrus-tunnike', 'tunnike-.', 'Tass-tiksuma', 'tass-tiksuma', 
-                    'tass-tiks', 'Tass-tiks'], 
-                    ['V', 'H', 'S', 'Z', 'H-V', 'V-S', 'S-Z', 'S-V', 'S-S', 'H-S', 'S-S-S', 'V-S-S', 'H-V-S', 
-                    'S-S-Z', 'S-V-S', 'H-S-S']), 
-             (2, 2, ['Kuubik', 'kuubik', '.', 'kimama', 'keelitama', 'kalor', 'Kuubik-keelitama', 'kalor-kimama', 
-                     'kimama-.', 'kuubik-keelitama', 'keelitama-kalor'], 
-                    ['V', 'H', 'S', 'Z', 'H-V', 'V-S', 'S-V', 'V-Z', 'V-S-V', 'H-V-S', 'S-V-S', 'S-V-Z'])]
+            [(1, 1, ['tiksuma', 'Tass', 'tiks', 'tass', 'mansardkorrus', '.', 'tiks-mansardkorrus', 
+                     'Tass-tiks', 'tiksuma-mansardkorrus', 'mansardkorrus-.', 'Tass-tiksuma', 'tass-tiks', 
+                     'tass-tiksuma'], 
+                    ['S', 'H', 'Z', 'V', 'S-S', 'S-V', 'V-S', 'S-Z', 'H-S', 'H-V', 'H-S-S', 'V-S-Z', 'S-V-S', 
+                     'S-S-S', 'S-S-Z', 'H-V-S']), 
+             (2, 2, ['kuubik', 'keelitama', 'kalor', '.', 'Kuubik', 'Kuubik-keelitama', 'kalor-.', 
+                     'kuubik-keelitama', 'keelitama-kalor'], ['S', 'H', 'Z', 'V', 'V-S', 'S-V', 'S-Z', 'H-V', 
+                     'H-V-S', 'V-S-Z', 'S-V-S'])]
         self.assertListEqual( TestLayerNgramIndexTable._sort_ngrams_columns_in_list( ngrams_table_content ), \
                               TestLayerNgramIndexTable._sort_ngrams_columns_in_list( expected_result ) )
 
