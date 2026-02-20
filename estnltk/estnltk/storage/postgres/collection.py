@@ -1158,7 +1158,7 @@ class PgCollection:
                 layer_table = layer_ngrams_table_name(self.name, layer_name)
                 cur.execute(SQL(
                     "CREATE INDEX {index} ON {layer_table} (text_id);").format(
-                    index=Identifier('idx_%s__layer_id' % layer_table),
+                    index=Identifier('idx_%s__text_id' % layer_table),
                     layer_table=layer_ngrams_identifier))
                 logger.debug(cur.query.decode())
 
