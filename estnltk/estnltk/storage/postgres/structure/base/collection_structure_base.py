@@ -6,6 +6,7 @@ from estnltk.storage.postgres import structure_table_identifier
 from estnltk.storage.postgres import collection_table_name
 from estnltk.storage.postgres import pytype2dbtype
 from estnltk.storage.postgres import collection_table_identifier
+from estnltk.storage.postgres import get_index_name_hash
 
 class CollectionStructureBase:
     def __init__(self, collection, version):
@@ -79,11 +80,11 @@ class CollectionStructureBase:
                 if create_index:
                     c.execute(
                         SQL("CREATE INDEX {index} ON {table} USING gin ((data->'layers') jsonb_path_ops);").format(
-                            index=Identifier('idx_%s_layer_data' % table_name), table=table))
+                            index=Identifier( get_index_name_hash('%s_layer_data' % table_name) ), table=table))
                     if self.version >= '4.0':
                         c.execute(
                             SQL("CREATE INDEX {index} ON {table} USING gin ((data->'relation_layers') jsonb_path_ops);").format(
-                                index=Identifier('idx_%s_relation_layer_data' % table_name), table=table) )
+                                index=Identifier( get_index_name_hash('%s_relation_layer_data' % table_name) ), table=table) )
                     logger.debug(c.query.decode())
                 if isinstance(description, str):
                     c.execute(SQL("COMMENT ON TABLE {} IS {}").format(

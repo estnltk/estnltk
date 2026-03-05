@@ -23,6 +23,8 @@ from estnltk.storage.postgres import layer_table_exists
 from estnltk.storage.postgres import table_exists
 from estnltk.storage.postgres import layer_table_name
 from estnltk.storage.postgres import count_rows
+from estnltk.storage.postgres import get_index_name_hash
+from estnltk.storage.postgres import index_exists
 from estnltk.taggers import SentenceTokenizer
 from estnltk.taggers import VabamorfTagger
 
@@ -324,18 +326,6 @@ class TestDetachedLayer(unittest.TestCase):
                                          LayerQuery(layer2, lemma="ööbik") )
         self.assertEqual(len(list(res)), 1)
 
-    def _check_if_index_exists( self, index_name ):
-        '''Checks whether given index exists in the storage. 
-           Works for user-visible indexes, but not for invalid or 
-           in-progress indexes.'''
-        query = SQL("""SELECT EXISTS ( SELECT 1 FROM pg_indexes """+
-                    """WHERE schemaname = %s AND indexname = %s );""")
-        with self.storage.conn.cursor() as cur:
-            cur.execute(query, (self.schema, index_name))
-            logger.debug(cur.query.decode())
-            exists = cur.fetchone()[0]
-            return exists
-
     def test_detached_layer_indexing(self):
         collection_name = get_random_collection_name()
         collection = self.storage.add_collection(collection_name)
@@ -350,32 +340,32 @@ class TestDetachedLayer(unittest.TestCase):
         layer_name = 'morph_analysis'
         tagger = VabamorfTagger(disambiguate=False, output_layer=layer_name)
         layer_table = layer_table_name(collection_name, layer_name)
-        layer_index_name = 'idx_%s_spans' % layer_table
+        layer_index_name = get_index_name_hash('%s_spans' % layer_table)
 
         # Sanity check
-        self.assertFalse( self._check_if_index_exists( layer_index_name ) )
+        self.assertFalse( index_exists( self.storage, layer_index_name ) )
 
         # Case 1: by default, no index is created via collection.add_layer
         collection.add_layer(tagger.get_layer_template())
         self.assertTrue( collection.has_layer(layer_name) )
-        self.assertFalse( self._check_if_index_exists( layer_index_name ) )
+        self.assertFalse( index_exists( self.storage, layer_index_name ) )
         collection.delete_layer(layer_name)
-        self.assertFalse( self._check_if_index_exists( layer_index_name ) )
+        self.assertFalse( index_exists( self.storage, layer_index_name ) )
         
         # Case 2: create index via collection.add_layer
         collection.add_layer(tagger.get_layer_template(), create_index=True)
-        self.assertTrue( self._check_if_index_exists( layer_index_name ) )
+        self.assertTrue( index_exists( self.storage, layer_index_name ) )
         collection.create_layer(tagger=tagger, mode='append')
-        self.assertTrue( self._check_if_index_exists( layer_index_name ) )
+        self.assertTrue( index_exists( self.storage, layer_index_name ) )
         collection.delete_layer(layer_name)
-        self.assertFalse( self._check_if_index_exists( layer_index_name ) )
+        self.assertFalse( index_exists( self.storage, layer_index_name ) )
 
         # Case 3: create index via collection.create_layer_index afterwards
         collection.create_layer(tagger=tagger)
         self.assertTrue( collection.has_layer(layer_name) )
-        self.assertFalse( self._check_if_index_exists( layer_index_name ) )
+        self.assertFalse( index_exists( self.storage, layer_index_name ) )
         collection.create_layer_index(layer_name, index_type='data')
-        self.assertTrue( self._check_if_index_exists( layer_index_name ) )
+        self.assertTrue( index_exists( self.storage, layer_index_name ) )
 
 
 if __name__ == '__main__':

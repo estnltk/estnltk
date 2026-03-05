@@ -74,6 +74,8 @@ from .pg_operations import drop_layer_ngrams_table
 from .pg_operations import is_empty
 from .pg_operations import count_rows
 from .pg_operations import get_total_size
+from .pg_operations import index_exists
+from .pg_operations import get_index_name_hash
 
 from estnltk.storage.postgres.queries.layer_query import LayerQuery
 from estnltk.storage.postgres.queries.substring_query import SubstringQuery

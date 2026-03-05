@@ -21,6 +21,8 @@ from estnltk.storage.postgres import delete_schema
 from estnltk.storage.postgres import drop_collection_table
 from estnltk.storage.postgres import table_exists
 from estnltk.storage.postgres import is_empty
+from estnltk.storage.postgres import get_index_name_hash
+from estnltk.storage.postgres import index_exists
 from estnltk.taggers import ParagraphTokenizer
 from estnltk.taggers import VabamorfTagger
 
@@ -402,6 +404,46 @@ class TestPgCollection(unittest.TestCase):
             drop_collection_table(self.storage, injected_collection_name)
         self.assertTrue(collection_table_exists(self.storage, normal_collection_name))
         drop_collection_table(self.storage, normal_collection_name)
+
+    def test_create_and_drop_collection_table_indexes(self):
+        collection_name = get_random_collection_name()
+        collection = self.storage.add_collection(collection_name)
+
+        collection_spans_index = \
+            get_index_name_hash('%s_layer_data' % collection_name)
+        collection_relations_index = \
+            get_index_name_hash('%s_relation_layer_data' % collection_name)
+        
+        # Assert that no indexes exist at first
+        self.assertFalse( index_exists(self.storage, collection_spans_index) )
+        self.assertFalse( index_exists(self.storage, collection_relations_index) )
+
+        with collection.insert() as collection_insert:
+            text1 = Text("Tass tiksus mansardkorrusel tunnikese.").tag_layer("sentences")
+            collection_insert(text1, key=1)
+
+            text2 = Text("Kuubik keelitas kaloreid kimamast.").tag_layer("sentences")
+            collection_insert(text2, key=2)
+
+        # Assert that no indexes exist at first
+        self.assertFalse( index_exists(self.storage, collection_spans_index) )
+        self.assertFalse( index_exists(self.storage, collection_relations_index) )
+        
+        # Create collection indexes
+        collection.create_index()
+
+        # Verify that indexes have been created
+        self.assertTrue( index_exists(self.storage, collection_spans_index) )
+        self.assertTrue( index_exists(self.storage, collection_relations_index) )        
+        
+        # Drop collection indexes
+        collection.drop_index()
+        
+        # Verify that indexes were removed
+        self.assertFalse( index_exists(self.storage, collection_spans_index) )
+        self.assertFalse( index_exists(self.storage, collection_relations_index) )
+
+        drop_collection_table(self.storage, collection_name)
 
     def test_select(self):
         # Test error case: try to select on non-existing collection

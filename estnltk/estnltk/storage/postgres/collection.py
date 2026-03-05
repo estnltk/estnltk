@@ -40,6 +40,7 @@ from estnltk.storage.postgres import structure_table_exists
 from estnltk.storage.postgres import structure_table_identifier
 from estnltk.storage.postgres import table_exists
 from estnltk.storage.postgres import layer_ngrams_table_table_exists
+from estnltk.storage.postgres import get_index_name_hash
 from estnltk.storage.postgres.queries.missing_layer_query import MissingLayerQuery
 from estnltk.storage.postgres.queries.slice_query import SliceQuery
 
@@ -393,12 +394,12 @@ class PgCollection:
             try:
                 c.execute(
                     SQL("CREATE INDEX {index} ON {table} USING gin ((data->'layers') jsonb_path_ops)").format(
-                        index=Identifier('idx_%s_layer_data' % self.name),
+                        index=Identifier( get_index_name_hash('%s_layer_data' % self.name) ),
                         table=pg.collection_table_identifier(self.storage, self.name)))
                 if self.version >= '4.0':
                     c.execute(
                         SQL("CREATE INDEX {index} ON {table} USING gin ((data->'relation_layers') jsonb_path_ops)").format(
-                            index=Identifier('idx_%s_relation_layer_data' % self.name),
+                            index=Identifier( get_index_name_hash('%s_relation_layer_data' % self.name) ),
                             table=pg.collection_table_identifier(self.storage, self.name)))
             except Exception:
                 self.storage.conn.rollback()
@@ -469,7 +470,7 @@ class PgCollection:
                         cur.execute(SQL(
                             "CREATE INDEX {index} ON {schema}.{table} USING gin ((data->'relations') jsonb_path_ops);").format(
                             schema=Identifier(self.storage.schema),
-                            index=Identifier('idx_%s_relations' % layer_table),
+                            index=Identifier( get_index_name_hash('%s_relations' % layer_table) ),
                             table=Identifier(layer_table)))
                         logger.debug(cur.query.decode())
                     else:
@@ -477,7 +478,7 @@ class PgCollection:
                         cur.execute(SQL(
                             "CREATE INDEX {index} ON {schema}.{table} USING gin ((data->'spans') jsonb_path_ops);").format(
                             schema=Identifier(self.storage.schema),
-                            index=Identifier('idx_%s_spans' % layer_table),
+                            index=Identifier( get_index_name_hash('%s_spans' % layer_table) ),
                             table=Identifier(layer_table)))
                         logger.debug(cur.query.decode())
                 elif index_type == 'ngram_index':
@@ -487,7 +488,7 @@ class PgCollection:
                         cur.execute(SQL(
                             "CREATE INDEX {index} ON {schema}.{table} USING gin ({column});").format(
                             schema=Identifier(self.storage.schema),
-                            index=Identifier('idx_%s_%s' % (layer_table, column)),
+                            index=Identifier( get_index_name_hash('%s_%s' % (layer_table, column)) ),
                             table=Identifier(layer_table),
                             column=Identifier(column)))
                         logger.debug(cur.query.decode())
@@ -511,12 +512,12 @@ class PgCollection:
                 c.execute(
                     SQL("DROP INDEX {schema}.{index}").format(
                         schema=Identifier(self.storage.schema),
-                        index=Identifier('idx_%s_layer_data' % self.name)))
+                        index=Identifier( get_index_name_hash('%s_layer_data' % self.name) )))
                 if self.version >= '4.0':
                     c.execute(
                         SQL("DROP INDEX {schema}.{index}").format(
                             schema=Identifier(self.storage.schema),
-                            index=Identifier('idx_%s_relation_layer_data' % self.name)))
+                            index=Identifier( get_index_name_hash('%s_relation_layer_data' % self.name) )))
             except Exception:
                 self.storage.conn.rollback()
                 raise
@@ -1015,7 +1016,7 @@ class PgCollection:
                 # create text_id index
                 cur.execute(SQL(
                     "CREATE INDEX {index} ON {layer_table} (text_id);").format(
-                    index=Identifier('idx_%s__text_id' % layer_table),
+                    index=Identifier( get_index_name_hash('%s__text_id' % layer_table) ),
                     layer_table=layer_identifier))
                 logger.debug(cur.query.decode())
 
@@ -1158,7 +1159,7 @@ class PgCollection:
                 layer_table = layer_ngrams_table_name(self.name, layer_name)
                 cur.execute(SQL(
                     "CREATE INDEX {index} ON {layer_table} (text_id);").format(
-                    index=Identifier('idx_%s__text_id' % layer_table),
+                    index=Identifier( get_index_name_hash('%s__text_id' % layer_table) ),
                     layer_table=layer_ngrams_identifier))
                 logger.debug(cur.query.decode())
 

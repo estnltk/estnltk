@@ -2,6 +2,7 @@ from psycopg2.sql import SQL, Identifier, Literal
 from psycopg2.extensions import STATUS_BEGIN, TRANSACTION_STATUS_INERROR
 
 import warnings
+import hashlib
 
 from estnltk import logger
 from estnltk.storage.postgres import structure_table_name
@@ -209,6 +210,23 @@ def count_rows(storage, table=None, table_identifier=None):
             c.execute(SQL("SELECT count(*) FROM {}.{}").format(Identifier(storage.schema), Identifier(table)))
             nrows = c.fetchone()[0]
             return nrows
+
+
+def get_index_name_hash(index_name: str):
+    '''Computes SHA-1 hash for the given index name and returns `f'idx_sha1_{hash_hexdigest}'`.'''
+    hash_hexdigest = hashlib.sha1( str(index_name).encode('utf8') ).hexdigest()
+    return f'idx_sha1_{hash_hexdigest}'
+
+def index_exists(storage, index_name: str):
+    '''Checks whether the given index exists in the pg_indexes table of this storage. 
+       Only works for user-visible indexes, but not for invalid or in-progress indexes.'''
+    query = SQL("""SELECT EXISTS ( SELECT 1 FROM pg_indexes """+
+                """WHERE schemaname = {} AND indexname = {} );""")
+    with storage.conn.cursor() as cur:
+        cur.execute( query.format(Literal(storage.schema), Literal(index_name)) )
+        logger.debug(cur.query.decode())
+        exists = cur.fetchone()[0]
+        return exists
 
 
 def collection_table_identifier(storage, collection_name):
