@@ -207,7 +207,7 @@ class PostgresStorage:
         self.conn.commit()
         self.conn.autocommit = False
         collection = None
-        # Validate collection name (length)
+        # Validate collection name (table indentifier)
         status, validation_message = check_collection_name( name )
         if status == 'ERROR':
             logger.error(validation_message)

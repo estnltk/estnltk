@@ -326,6 +326,8 @@ def drop_all_storage_tables(storage):
 
 
 def check_collection_name( collection_name: str ):
+    if '__' in collection_name:
+        return 'ERROR', f'(!) Please do not use "__" in the collection name ({collection_name!r}).'
     instruction_str = 'Please keep collection name shorter than 30 chars, and prefer '+\
                       'ASCII alphanumeric characters whenever possible. '
     structure_table_id = structure_table_name(collection_name)
@@ -338,6 +340,8 @@ def check_collection_name( collection_name: str ):
 
 
 def check_layer_name( collection_name: str, layer_name: str, layer_type: str ):
+    if '__' in layer_name:
+        return 'ERROR', f'(!) Please do not use "__" in the layer name ({layer_name!r}).'
     instruction_str = 'Please make layer name shorter, and prefer ASCII '+\
                       'alphanumeric characters whenever possible. '
     if layer_type == 'detached':

@@ -927,7 +927,7 @@ class PgCollection:
             raise PgCollectionException("Unexpected layer type {!r}. Supported layer types are: {!r}".format(layer_type, \
                                                                      pg.PostgresStorage.TABLED_LAYER_TYPES))
 
-        # Validate layer name (check table identifier length)
+        # Validate layer name (check table identifier)
         status, validation_message = check_layer_name( self.name, layer_template.name, layer_type )
         if status == 'ERROR':
             logger.error(validation_message)
