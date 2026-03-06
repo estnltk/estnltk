@@ -41,6 +41,7 @@ from estnltk.storage.postgres import structure_table_identifier
 from estnltk.storage.postgres import table_exists
 from estnltk.storage.postgres import layer_ngrams_table_table_exists
 from estnltk.storage.postgres import get_index_name_hash
+from estnltk.storage.postgres import check_layer_name
 from estnltk.storage.postgres.queries.missing_layer_query import MissingLayerQuery
 from estnltk.storage.postgres.queries.slice_query import SliceQuery
 
@@ -925,6 +926,14 @@ class PgCollection:
         if layer_type not in pg.PostgresStorage.TABLED_LAYER_TYPES:
             raise PgCollectionException("Unexpected layer type {!r}. Supported layer types are: {!r}".format(layer_type, \
                                                                      pg.PostgresStorage.TABLED_LAYER_TYPES))
+
+        # Validate layer name (check table identifier length)
+        status, validation_message = check_layer_name( self.name, layer_template.name, layer_type )
+        if status == 'ERROR':
+            logger.error(validation_message)
+            raise PgCollectionException(validation_message)
+        elif status == 'WARNING':
+            logger.warning(validation_message)
 
         # Check existence of the layer
         if self.layers is not None and layer_template.name in self.layers:

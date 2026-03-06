@@ -16,6 +16,7 @@ from estnltk.storage.postgres import create_schema
 from estnltk.storage.postgres import schema_exists
 from estnltk.storage.postgres import drop_layer_table
 from estnltk.storage.postgres import get_total_size
+from estnltk.storage.postgres import check_collection_name
 from estnltk.storage import postgres as pg
 
 
@@ -206,6 +207,13 @@ class PostgresStorage:
         self.conn.commit()
         self.conn.autocommit = False
         collection = None
+        # Validate collection name (length)
+        status, validation_message = check_collection_name( name )
+        if status == 'ERROR':
+            logger.error(validation_message)
+            raise PgStorageException(validation_message)
+        elif status == 'WARNING':
+            logger.warning(validation_message)
         # Add storage.collections entry (collection name + version)
         with self.conn.cursor() as c:
             try:

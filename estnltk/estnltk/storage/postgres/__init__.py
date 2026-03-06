@@ -46,6 +46,9 @@ from estnltk.storage.postgres.sql_composition.sql_table_naming import layer_ngra
 from estnltk.storage.postgres.sql_composition.sql_table_naming import deconstruct_table_name
 
 from .pg_operations import pytype2dbtype
+from .pg_operations import PG_IDENTIFIER_MAX_LEN
+from .pg_operations import check_collection_name
+from .pg_operations import check_layer_name
 
 from .pg_operations import collection_table_identifier
 from .pg_operations import structure_table_identifier

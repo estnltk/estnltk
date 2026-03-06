@@ -20,6 +20,15 @@ pytype2dbtype = {
 }
 
 
+PG_IDENTIFIER_MAX_LEN = 63
+"""
+The maximum length for PostgreSQL's identifier (e.g. table or index name). 
+Note that the length is in bytes. The current value should be virtually a standard, 
+and you should change this only when you are connecting to a PostgreSQL's database 
+that has been recompiled with a customized identifier length. For details, see:
+https://www.postgresql.org/docs/current/datatype-character.html#DATATYPE-CHARACTER-SPECIAL-TABLE
+"""
+
 
 def create_schema(storage):
     assert storage.conn.autocommit == False
@@ -314,3 +323,30 @@ def drop_all_storage_tables(storage):
     for collection in storage.collections[:]:
         storage.delete_collection(collection, cascade=True)
     drop_table(storage, '__collections')
+
+
+def check_collection_name( collection_name: str ):
+    instruction_str = 'Please keep collection name shorter than 30 chars, and prefer '+\
+                      'ASCII alphanumeric characters whenever possible. '
+    structure_table_id = structure_table_name(collection_name)
+    if len( structure_table_id.encode("utf-8") ) >= PG_IDENTIFIER_MAX_LEN:
+        return 'ERROR', f'(!) Collection name {collection_name!r} is too long! '+instruction_str
+    elif PG_IDENTIFIER_MAX_LEN == 63 and len( collection_name.encode("utf-8") ) >= 30:
+        return 'WARNING', f'(!) Collection name {collection_name!r} is rather long, '+\
+                           'it can cause issues with naming layer tables. '+instruction_str
+    return 'OK', 'This collection name appears OK.'
+
+
+def check_layer_name( collection_name: str, layer_name: str, layer_type: str ):
+    instruction_str = 'Please make layer name shorter, and prefer ASCII '+\
+                      'alphanumeric characters whenever possible. '
+    if layer_type == 'detached':
+        layer_table_id = layer_table_name(collection_name, layer_name)
+    elif layer_type == 'fragmented':
+        layer_table_id = fragment_table_name(collection_name, layer_name)
+    else:
+        return 'ERROR', f'(!) Unexpected layer type {layer_type!r}.'
+    if len( layer_table_id.encode("utf-8") ) > PG_IDENTIFIER_MAX_LEN:
+        return 'ERROR', f'(!) Layer table name {layer_table_id!r} exceeds {PG_IDENTIFIER_MAX_LEN}. '+\
+                         instruction_str
+    return 'OK', 'This layer name appears OK.'
