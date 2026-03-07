@@ -331,10 +331,12 @@ def check_collection_name( collection_name: str ):
     instruction_str = 'Please keep collection name shorter than 30 chars, and prefer '+\
                       'ASCII alphanumeric characters whenever possible. '
     structure_table_id = structure_table_name(collection_name)
-    if len( structure_table_id.encode("utf-8") ) >= PG_IDENTIFIER_MAX_LEN:
+    if len( structure_table_id.encode("utf-8") ) >= PG_IDENTIFIER_MAX_LEN-1:
+        # Note: PG_IDENTIFIER_MAX_LEN-1, because we have to reserve at least 1 byte for 
+        # the _pkey index of the structure table (to make index name different from table name)
         return 'ERROR', f'(!) Collection name {collection_name!r} is too long! '+instruction_str
     elif PG_IDENTIFIER_MAX_LEN == 63 and len( collection_name.encode("utf-8") ) >= 30:
-        return 'WARNING', f'(!) Collection name {collection_name!r} is rather long, '+\
+        return 'WARNING', f'Collection name {collection_name!r} is rather long, '+\
                            'it can cause issues with naming layer tables. '+instruction_str
     return 'OK', 'This collection name appears OK.'
 
@@ -350,7 +352,9 @@ def check_layer_name( collection_name: str, layer_name: str, layer_type: str ):
         layer_table_id = fragment_table_name(collection_name, layer_name)
     else:
         return 'ERROR', f'(!) Unexpected layer type {layer_type!r}.'
-    if len( layer_table_id.encode("utf-8") ) > PG_IDENTIFIER_MAX_LEN:
-        return 'ERROR', f'(!) Layer table name {layer_table_id!r} exceeds {PG_IDENTIFIER_MAX_LEN}. '+\
+    if len( layer_table_id.encode("utf-8") ) > PG_IDENTIFIER_MAX_LEN-1:
+        # Note: PG_IDENTIFIER_MAX_LEN-1, because we have to reserve at least 1 byte for 
+        # the _pkey index of the layer table (to make index name different from table name)
+        return 'ERROR', f'(!) Layer table name {layer_table_id!r} exceeds {PG_IDENTIFIER_MAX_LEN-1}. '+\
                          instruction_str
     return 'OK', 'This layer name appears OK.'
