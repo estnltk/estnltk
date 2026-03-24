@@ -1,6 +1,10 @@
 import os
 import torch
 from typing import MutableMapping, List
+
+from packaging.version import Version, parse
+
+from transformers import __version__ as transformers_version
 from transformers import BertTokenizer, logging, BertModel
 
 from estnltk.downloader import get_resource_paths
@@ -10,7 +14,6 @@ from estnltk.text import Text
 from estnltk.taggers import Tagger
 from estnltk import Layer
 import numpy as np
-
 
 class BertTransformer(Tagger):
     """Tags BERT embeddings: token/word and sentence."""
@@ -197,7 +200,12 @@ class BertTransformer(Tagger):
 
 
 def get_embeddings(sentence: str, model, tokenizer, method, bert_layers):
-    input_data = tokenizer.encode_plus(sentence)
+    if parse(transformers_version) < Version("v5.0.0rc0"):
+        input_data = tokenizer.encode_plus(sentence)
+    else:
+        # Since transformers v5.0.0, the encode_plus method is 
+        # deprecated in favor of the single __call__ method
+        input_data = tokenizer( sentence )
     input_ids = input_data.get('input_ids')
     token_vecs_cat = []
     if len(input_ids) > 512:  # maximum sequence length can be 512
