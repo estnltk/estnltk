@@ -122,7 +122,7 @@ class GliLemTagger(Retagger):
         else:
             model_location = model_location
         #model_location = "tartuNLP/glilem-vabamorf-disambiguator"
-        self.model = GLiNER.from_pretrained(model_location, model_max_length=512)
+        self.model = GLiNER.from_pretrained(model_location)
         self.output_layer = output_layer
         self.input_layers = ['words', 'compound_tokens', 'sentences']
         self._rule_processor = RuleProcessor()
