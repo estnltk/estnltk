@@ -62,7 +62,8 @@ class GliLemTagger(Retagger):
         output_layer: str = 'glilem', 
         threshold:float = 0.5, 
         missing_lemmas_strategy: str = "DISCARD", 
-        disambiguate: bool = False
+        disambiguate: bool = False,
+        device: str = "cpu"
     ):
         """
         Initializes GliLemTagger
@@ -97,6 +98,10 @@ class GliLemTagger(Retagger):
                 Vabamorf-based morph analysis layer by calling <code>GliLemTagger.retag(text_obj)</code>. 
                 Note that the input <code>text_obj</code> must already have <code>output_layer<code> 
                 which will be disambiguated. 
+            device (str):
+                The device to run the GLiNER model on ('cpu' or 'cuda'). Defaults to 'cpu'. 
+                Note that this corresponds to parameter <code>map_location</code> passed to 
+                the function <code>GLiNER.from_pretrained</code> when initializing the model. 
         """
         from gliner import GLiNER
         self.conf_param = ('model', 'threshold', 'missing_lemmas_strategy', 'disambiguate', 
@@ -122,7 +127,7 @@ class GliLemTagger(Retagger):
         else:
             model_location = model_location
         #model_location = "tartuNLP/glilem-vabamorf-disambiguator"
-        self.model = GLiNER.from_pretrained(model_location)
+        self.model = GLiNER.from_pretrained(model_location, map_location=device)
         self.output_layer = output_layer
         self.input_layers = ['words', 'compound_tokens', 'sentences']
         self._rule_processor = RuleProcessor()
