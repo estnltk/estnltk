@@ -385,6 +385,43 @@ def test_estroberta_ud_ner_v1_tokenization_problem():
          (110, 123, 'Kanepi alevik', 'LOC'), (136, 142, 'Kaiaks', 'LOC')]
 
 
+
+def check_if_tartuNLP_est_roberta_hist_ner_is_available():
+    from huggingface_hub import scan_cache_dir
+    cache_info = scan_cache_dir()
+    for repo in cache_info.repos:
+        if repo.repo_id == 'tartuNLP/est-roberta-hist-ner':
+            return True
+    return False
+
+
+@pytest.mark.skipif(not check_if_transformers_is_available(),
+                    reason="package tranformers is required for this test")
+@pytest.mark.skipif(not check_if_pytorch_is_available(),
+                    reason="package pytorch is required for this test")
+@pytest.mark.skipif(not check_if_tartuNLP_est_roberta_hist_ner_is_available(),
+                    reason="Model tartuNLP/est-roberta-hist-ner is not available.  "+\
+                           "Please download the model via huggingface_hub.snapshot_download('tartuNLP/est-roberta-hist-ner').")
+def test_estroberta_hist_ner_smoke_test():
+    # Initialize model
+    from estnltk_neural.taggers import BertNerTagger
+    old_hist_ner_tagger = BertNerTagger(model_location='tartuNLP/est-roberta-hist-ner')
+    text = Text('Kaewas Aru Ropka rentnik G. Sarw, et tema wana teender Peter Mitt '+\
+                'teda see sügis warastanu. Kaebusalune Peter Mitt ette kutsutu wastas, '+\
+                'et tema Aru Ropka mõisas oma teenistuse ajal kiige wähemat warastanu ei olla.').tag_layer('words')
+    # Actually, we might need a special tokenizer for this model ( see: 
+    # https://github.com/soras/vk_ner_lrec_2022/blob/main/data_preprocessing.py ), 
+    # but for a small smoke testing, estnltk's default tokenizer should also be fine
+    old_hist_ner_tagger.tag(text)
+    output_layer = old_hist_ner_tagger.output_layers[0]
+    #print( _ner_spans_as_tuples( text[output_layer] ) )
+    assert _ner_spans_as_tuples( text[output_layer] ) == \
+        [(7, 16, 'Aru Ropka', 'LOC_ORG'), (25, 32, 'G. Sarw', 'PER'), 
+         (55, 65, 'Peter Mitt', 'PER'), (104, 114, 'Peter Mitt', 'PER'), 
+         (144, 160, 'Aru Ropka mõisas', 'LOC_ORG')]
+
+
+
 def check_if_tartuNLP_est_roberta_hist_ner_for_tccp_is_available():
     from huggingface_hub import scan_cache_dir
     cache_info = scan_cache_dir()
