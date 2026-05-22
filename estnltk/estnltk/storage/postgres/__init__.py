@@ -84,6 +84,7 @@ from estnltk.storage.postgres.queries.layer_query import LayerQuery
 from estnltk.storage.postgres.queries.substring_query import SubstringQuery
 from estnltk.storage.postgres.queries.block_query import BlockQuery
 from estnltk.storage.postgres.queries.index_query import IndexQuery
+from estnltk.storage.postgres.queries.slice_query import SliceQuery
 from estnltk.storage.postgres.queries.missing_layer_query import MissingLayerQuery
 from estnltk.storage.postgres.queries.layer_ngram_query import LayerNgramQuery
 from estnltk.storage.postgres.queries.metadata_query import MetadataQuery
