@@ -23,6 +23,16 @@ from estnltk.taggers.system.rule_taggers.extraction_rules.dynamic_extraction_rul
 from estnltk.taggers.system.rule_taggers.extraction_rules.ambiguous_ruleset import AmbiguousRuleset
 from estnltk.taggers.system.rule_taggers.extraction_rules.ruleset import Ruleset
 
+# Dependency-based relation taggers
+from estnltk.taggers.system.rule_taggers.taggers.dep_chain_tagger import DepChainTagger
+from estnltk.taggers.system.rule_taggers.taggers.dep_child_tagger import DepChildTagger
+
+# Components of the dependency-based relation taggers
+from estnltk.taggers.system.rule_taggers.deprel_components.conditions import EdgeConstraint, NodeConstraint, ValueCondition, NestedValueCondition
+from estnltk.taggers.system.rule_taggers.deprel_components.patterns import PathPattern
+from estnltk.taggers.system.rule_taggers.deprel_components.types import ConditionMode, DirectionMode
+from estnltk.taggers.system.rule_taggers.deprel_components.graph import SyntaxGraphIndex
+
 from estnltk.taggers.system.grammar_taggers.grammar_parsing_tagger import GrammarParsingTagger
 
 from estnltk.taggers.standard.text_segmentation.tokens_tagger import TokensTagger
