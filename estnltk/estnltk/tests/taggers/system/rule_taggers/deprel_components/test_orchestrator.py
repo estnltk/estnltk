@@ -1,7 +1,8 @@
 # DepTaggerOrchestrator class testing
 import pytest
+from importlib.util import find_spec
 
-from estnltk import Text
+from estnltk import Text, get_resource_paths
 from estnltk.taggers.system.rule_taggers.deprel_components.conditions import (
     EdgeConstraint,
     NodeConstraint,
@@ -26,22 +27,39 @@ from estnltk.taggers.system.rule_taggers.deprel_components.types import (
 )
 
 
+def check_if_estnltk_neural_is_available():
+    return find_spec("estnltk_neural") is not None
+
+
+# Try to get the resources path for stanzasyntaxtagger. If missing, tests will be skipped.
+STANZA_SYNTAX_MODELS_PATH = get_resource_paths(
+    "stanzasyntaxtagger", only_latest=True, download_missing=False
+)
+
+
 @pytest.fixture(scope="module")
 def sample_layers_and_spans():
+    if not check_if_estnltk_neural_is_available():
+        pytest.skip(
+            "estnltk_neural is not installed. You'll need estnltk_neural for running this test."
+        )
+    if STANZA_SYNTAX_MODELS_PATH is None:
+        pytest.skip(
+            "StanzaSyntaxTagger's model is required by this test. Use estnltk.download('stanzasyntaxtagger') to fetch the missing resource."
+        )
+
     sample_text = (
         "Ta andis lendurist abikaasale oma raamatu. See raamat on väga huvitav."
     )
     text_obj = Text(sample_text)
     text_obj.tag_layer("morph_extended")
-    try:
-        from estnltk_neural.taggers import StanzaSyntaxTagger
 
-        stanza = StanzaSyntaxTagger(
-            input_type="morph_analysis", input_morph_layer="morph_analysis"
-        )
-        stanza.tag(text_obj)
-    except Exception:
-        pytest.skip("StanzaSyntaxTagger not available; skipping orchestrator tests")
+    from estnltk_neural.taggers import StanzaSyntaxTagger
+
+    stanza = StanzaSyntaxTagger(
+        input_type="morph_analysis", input_morph_layer="morph_analysis"
+    )
+    stanza.tag(text_obj)
 
     layers = [sent.stanza_syntax for sent in text_obj.sentences]
     spans = [(sent.start, sent.end) for sent in text_obj.sentences]
@@ -171,8 +189,7 @@ def test_global_dedup_and_capping(sample_layers_and_spans):
     assert len(capped) <= 1
 
 
-def test_constructor_validation_and_span_alignment(sample_layers_and_spans):
-    layers, spans = sample_layers_and_spans
+def test_constructor_validation():
     base_pattern = build_wildcard_pattern("base_p")
     # Check: constructor enforces tuple type for patterns
     with pytest.raises(TypeError):
@@ -191,6 +208,10 @@ def test_constructor_validation_and_span_alignment(sample_layers_and_spans):
     with pytest.raises(TypeError):
         DepTaggerOrchestrator(patterns=(base_pattern,), allow_role_node_overlap="no")
 
+
+def test_span_alignment_validation(sample_layers_and_spans):
+    layers, spans = sample_layers_and_spans
+    base_pattern = build_wildcard_pattern("base_p")
     # Check: span alignment validation raises when lengths differ
     orch = DepTaggerOrchestrator(patterns=(base_pattern,))
     with pytest.raises(ValueError):

@@ -1,6 +1,7 @@
 import pytest
+from importlib.util import find_spec
 
-from estnltk import Text
+from estnltk import Text, get_resource_paths
 from estnltk.taggers.system.rule_taggers.deprel_components.graph import SyntaxGraphIndex
 from estnltk.taggers.system.rule_taggers.deprel_components.patterns import (
     ChainMatch,
@@ -15,20 +16,37 @@ from estnltk.taggers.system.rule_taggers.deprel_components.types import (
 )
 
 
+def check_if_estnltk_neural_is_available():
+    return find_spec("estnltk_neural") is not None
+
+
+# Try to get the resources path for stanzasyntaxtagger. If missing, tests will be skipped.
+STANZA_SYNTAX_MODELS_PATH = get_resource_paths(
+    "stanzasyntaxtagger", only_latest=True, download_missing=False
+)
+
+
 @pytest.fixture
 def sample_nodes():
+    if not check_if_estnltk_neural_is_available():
+        pytest.skip(
+            "estnltk_neural is not installed. You'll need estnltk_neural for running this test."
+        )
+    if STANZA_SYNTAX_MODELS_PATH is None:
+        pytest.skip(
+            "StanzaSyntaxTagger's model is required by this test. Use estnltk.download('stanzasyntaxtagger') to fetch the missing resource."
+        )
+
     sample_text = "Ta andis lendurist abikaasale oma raamatu."
     text_obj = Text(sample_text)
     text_obj.tag_layer("morph_extended")
-    try:
-        from estnltk_neural.taggers import StanzaSyntaxTagger
 
-        stanza = StanzaSyntaxTagger(
-            input_type="morph_analysis", input_morph_layer="morph_analysis"
-        )
-        stanza.tag(text_obj)
-    except Exception:
-        pytest.skip("StanzaSyntaxTagger not available; skipping decorator tests")
+    from estnltk_neural.taggers import StanzaSyntaxTagger
+
+    stanza = StanzaSyntaxTagger(
+        input_type="morph_analysis", input_morph_layer="morph_analysis"
+    )
+    stanza.tag(text_obj)
 
     sentence = text_obj.sentences[0]
     graph = SyntaxGraphIndex(
