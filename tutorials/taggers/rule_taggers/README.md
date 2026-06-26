@@ -11,4 +11,8 @@
 * [SpanTagger](span_tagger.ipynb) tags spans on a pre-annotated layer of the Text object
 * [Vocabulary](vocabulary.ipynb) is an input data object for SpanTagger, PhraseTagger, RegexTagger.
 
+🛠️ How to build rules upon dependency syntax?:
+
+* [DepChainTagger and DepChildTagger](dep_chain_tagger.ipynb) tag words based on their dependency syntactic relations and morphosyntactic features; 
+
 
