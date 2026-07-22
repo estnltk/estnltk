@@ -11,6 +11,7 @@
 # * https://bitbucket.org/utDigiHum/public/src/8635582194ef1f2dcec53c40abdfa3f29299a067/skriptid/nimeuksuste_m2rgendamine/bert_morph_tagging_tagger.py
 
 import os
+import copy
 import torch
 import collections
 import warnings
@@ -53,6 +54,8 @@ class BertMorphTagger(Retagger):
         split_pos_form: bool = True,
         disambiguate: bool = False,
         device: str = "cpu",
+        correct_verb_annotation: bool = True,
+        change_to_bert_form: bool = False,
         **kwargs
     ):
         """
@@ -80,6 +83,14 @@ class BertMorphTagger(Retagger):
                 <code>text_obj</code> must already have <code>output_layer<code> which will be disambiguated. 
             device (str):
                 The device to run the bert_morph_tagging model on ('cpu' or 'cuda'). Defaults to 'cpu'.
+            correct_verb_annotation (bool):
+                If there is word multiplicity but not verb multiplicity and correct annotation could be chosen based on Bert partofspeech, 
+                then correct_verb_annotation=True will take the Vabamorf annotation that matches Bert prediction. The comparison is done
+                with "neg" removed from Bert predicted "form".
+            change_to_bert_form (bool):
+                In case of verbs: if there is multiplicity but not verb multiplicity and Bert prediction form contains "neg" while Vabamorf 
+                does not, then Vabamorf annotation will be changed to also include "neg" if change_to_bert_form=True. This is tested
+                on UD treebank 2.18 where out of 1945 words (with no verb multiplicity) 91.98% matched UD annotation if "neg" was exluded from Bert prediction.
 
         Raises:
             Exception: Raises when BertMorphTagger's resources have not been downloaded.
@@ -88,7 +99,7 @@ class BertMorphTagger(Retagger):
         # Configuration parameters
         self.conf_param = ('model_location', 'get_top_n_predictions', 'bert_tokenizer', 'bert_morph_tagging', 'id2label', \
                            'token_level', 'split_pos_form', 'disambiguate', 'sentences_layer', 'words_layer', 'output_layer', \
-                           'input_layers', 'output_attributes', 'device', '_bert_tokens_rewriter')
+                           'input_layers', 'output_attributes', 'device', '_bert_tokens_rewriter', 'correct_verb_annotation', 'change_to_bert_form')
 
         if model_location is None:
             # Try to get the resources path for bert_morph_tagger. Attempt to download, if missing
@@ -161,6 +172,10 @@ class BertMorphTagger(Retagger):
                     ambiguous=True, 
                     decorator=rewriter_decorator_BERT)
 
+        self.correct_verb_annotation = correct_verb_annotation
+        self.change_to_bert_form = change_to_bert_form
+
+
     def _get_bert_morph_tagging_label_predictions(self, 
                                                   input_str:str, 
                                                   get_top_n_predictions:int = 1):
@@ -179,7 +194,6 @@ class BertMorphTagger(Retagger):
         # Tokenize the input string
         tokens, batch_encoding = self._tokenize_with_bert(input_str)
         token_indexes = torch.tensor([batch_encoding['input_ids']]).to(self.device)
-
         # Check if the length exceeds the model's maximum sequence length
         max_seq_length = self.bert_tokenizer.model_max_length
         if token_indexes.size(1) > max_seq_length:
@@ -204,11 +218,9 @@ class BertMorphTagger(Retagger):
                 'token': token_data,
                 'predictions': [{'label': label, 'probability': prob} for label, prob in zip(top_n_labels, top_n_probs)]
             })
-
         # Convert BERT labels to Vabamorf's form and POS
         if self.split_pos_form:
             top_n_predictions = convert_bert_labels_to_vabamorf(top_n_predictions)
-
         return top_n_predictions
 
     def _tokenize_with_bert(self, 
@@ -233,7 +245,8 @@ class BertMorphTagger(Retagger):
             </ul>
         """
         tokens = []
-        batch_encoding = self.bert_tokenizer(text).to(self.device)
+        #batch_encoding = self.bert_tokenizer(text, return_tensors="pt").to(self.device) # if the next line doesn't work then try this instead (worked with torch 2.9.1 ja transformers 4.57.3)
+        batch_encoding = self.bert_tokenizer(text) # worked for torch 2.2.2 and transformers 4.40.2
         for token_id, token in enumerate(batch_encoding.tokens()):
             char_span = batch_encoding.token_to_chars(token_id)
             if char_span is not None:
@@ -241,6 +254,7 @@ class BertMorphTagger(Retagger):
             elif include_spanless:
                 tokens.append( (None, None, token) )
         return tokens, batch_encoding
+
 
     def _make_layer(self, text: Text, layers: MutableMapping[str, Layer], status: dict) -> Layer:
         """
@@ -273,8 +287,35 @@ class BertMorphTagger(Retagger):
             # Apply batch processing: split larger input sentence into smaller chunks and process chunk by chunk
             sent_chunks, sent_chunk_indexes = _split_sentence_into_smaller_chunks(sent_text)
             for sent_chunk, (chunk_start, chunk_end) in zip(sent_chunks, sent_chunk_indexes):
+
+                # collecting spans with encoding problems
+                probably_missing_spans = []
+                if "�" in sent_chunk:
+                    #print("� is in the sentence. Collecting all the spans where that symbol appears.")
+                    for sp ,span in enumerate(layers[self.words_layer]):
+                        if "�" in span.text:
+                            probably_missing_spans.append((span.base_span.start, span.base_span.end))
+                #print(probably_missing_spans)
+
+                # this is for spans with encoding problem: add the spans with None attributes
+                for span in probably_missing_spans:
+                    if self.split_pos_form:
+                        annotation2 = {
+                                        'bert_tokens': None,
+                                        'form': "",
+                                        'partofspeech': "",
+                                        'probability': None
+                        }
+                    else:
+                        annotation2 = {
+                            'bert_tokens': None,
+                            'morph_label': "",
+                            'probability': None
+                        }
+                    morph_layer.add_annotation(span, **annotation2)
+
                 # Get predictions for the sentence
-                top_n_predictions = self._get_bert_morph_tagging_label_predictions(sent_chunk, self.get_top_n_predictions)
+                top_n_predictions = self._get_bert_morph_tagging_label_predictions(sent_chunk, self.get_top_n_predictions) 
 
                 # Collect token level annotations (a label for each token)
                 for token_data in top_n_predictions:
@@ -285,6 +326,7 @@ class BertMorphTagger(Retagger):
                     all_labels = [pred['label'] for pred in token_data['predictions']]
                     all_probabilities = [pred['probability'] for pred in token_data['predictions']]
                     token_span = (sent_start + chunk_start + start, sent_start + chunk_start + end)
+
                     for label, prob in zip(all_labels, all_probabilities):
                         if self.split_pos_form:
                             annotation = {
@@ -300,6 +342,7 @@ class BertMorphTagger(Retagger):
                                 'probability': prob
                             }
                         morph_layer.add_annotation(token_span, **annotation)
+
 
         # Add annotations
         if self.token_level:
@@ -343,10 +386,26 @@ class BertMorphTagger(Retagger):
             # annotations that are matching with the disambiguated annotation
             # (note: there can be multiple suitable annotations due to lemma 
             #  ambiguities)
+
+            if self.correct_verb_annotation:
+                # collects pos to check if there is pos multiplicity
+                original_pos = [ann['partofspeech'] for ann in original_word.annotations]
+
             keep_annotations = []
             for annotation in original_word.annotations:
                 if annotation['partofspeech'] == disamb_pos and annotation['form'] == disamb_form:
+                    # initial strict comparison
                     keep_annotations.append(annotation)
+                elif self.correct_verb_annotation and original_pos.count(disamb_pos) == 1 and disamb_pos == "V" and annotation['partofspeech'] == disamb_pos and annotation['form'] == disamb_form.replace("neg", "").strip():
+                    # if we get here: we want to choose vabamorf based on Bert verb pos prediction and there is no verb multiplicity in vabamorf, Bert predicted verb, annotation is verb and form matches (with 'neg' removed)
+                    if self.change_to_bert_form:
+                        # change form to Bert predicted form aka add "neg" to original annotation form 
+                        annotation['form'] = disamb_form
+                        keep_annotations.append(annotation)
+                    else: 
+                        # keep original vabamorf annotation
+                        keep_annotations.append(annotation)
+                    
             if len(keep_annotations) > 0:
                 # Only disambiguate if there is at least one annotation left
                 # (can't leave a word without any annotations)
@@ -492,7 +551,7 @@ def rewriter_decorator_Vabamorf(text_obj, word_index, span):
     raise RuntimeError(f'Could not find a token with this label: {most_frequent_label}')
 
 
-def _split_sentence_into_smaller_chunks(large_sent: str, max_size:int=1000, seek_end_symbols: str='.!?'):
+def _split_sentence_into_smaller_chunks(large_sent: str, max_size:int=900, seek_end_symbols: str='.!?'):
     """
     Splits given large_sent into smaller texts following the text size limit.
     Each smaller text string is allowed to have at most `max_size` characters.
