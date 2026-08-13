@@ -125,7 +125,8 @@ class BertTagger(Tagger):
            set to None.
         '''
         tokens = []
-        batch_encoding = self.tokenizer(text_str).to(self.device)
+        #batch_encoding = self.tokenizer(text_str, return_tensors="pt").to(self.device) # this worked with torch 2.9.1 ja transformers 4.57.3, but broke on older versions
+        batch_encoding = self.tokenizer(text_str) # this worked with torch 2.2.2 and transformers 4.40.2, and also with torch 2.9.1 ja transformers 4.57.3
         for token_id, token in enumerate(batch_encoding.tokens()):
             char_span = batch_encoding.token_to_chars(token_id)
             if char_span is not None:
