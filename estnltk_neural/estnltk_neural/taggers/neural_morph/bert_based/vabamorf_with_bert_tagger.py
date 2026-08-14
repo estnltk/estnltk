@@ -206,8 +206,8 @@ class VabamorfWithBertTagger(Tagger):
         # --------------------------------------------
         morph_layer = self.vabamorf.make_layer( text, layers, status )
         layers2 = layers.copy()
-        layers2[self.input_layers[0]] = text[self.input_layers[0]]  # words
-        layers2[self.input_layers[1]] = text[self.input_layers[1]]  # sentences
+        layers2[self.input_layers[0]] = layers[self.input_layers[0]]  # words
+        layers2[self.input_layers[1]] = layers[self.input_layers[1]]  # sentences
         # --------------------------------------------
         #   Adding necessary layers for post processing
         # -------------------------------------------- 
@@ -220,10 +220,11 @@ class VabamorfWithBertTagger(Tagger):
                          text_object=text,\
                          ambiguous=False)
                 layers2["compound_tokens"] = compound_tokens
-            else:
+            elif len(self.input_layers) == 3:
                 # Assure a compound tokens layer exists
-                assert self.post_morph.input_layers[0] in layers2.keys(), \
+                assert self.post_morph.input_layers[0] in layers.keys(), \
                     f'(!) Missing required input layer {self.post_morph.input_layers[0]}'
+                layers2[self.input_layers[2]] = layers[self.input_layers[2]]
 
         layers2[self.output_layer] = morph_layer
         
