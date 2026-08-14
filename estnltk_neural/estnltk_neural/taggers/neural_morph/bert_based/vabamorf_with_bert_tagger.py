@@ -20,17 +20,16 @@ from estnltk.taggers import CompoundTokenTagger
 
 
 class VabamorfWithBertTagger(Tagger):
-    """
-    Tagger that creates and refines 'morph_analysis' layer with
+    """Tags Vabamorf-based morphological analysis with Bert-based disambiguation. 
+    Under the hood, applies the following taggers 
      1. VabamorfAnalyzer
      2. PostMorphAnalysisTagger
      3. BertMorphTagger
     and returns 'morph_analysis' or user defined layer. 
     PostMorphAnalysisTagger can be disabled using use_postanalysis=False (default True).
     
-    VabamorfAnalyzer will be analysed with the default parameters (guess = True,
-    propername = True, compound = True, phonetic = False, stem=False), except slang_lex, 
-    which can be changed. 
+    VabamorfAnalyzer will be applied with the default parameters guess = True and 
+    propername = True, but parameters slang_lex, compound, phonetic, stem can be changed. 
     """
 
     conf_param = ['use_postanalysis', 'vabamorf', 'post_morph', 'bert_disamb', 'output_layer', 'slang_lex', "compound",
