@@ -204,12 +204,10 @@ class VabamorfWithBertTagger(Tagger):
         # --------------------------------------------
         #   Morphological analysis
         # --------------------------------------------
-        #text.tag_layer( self.vabamorf.input_layers )
         morph_layer = self.vabamorf.make_layer( text, layers, status )
-
         layers2 = layers.copy()
-        layers2["words"] = text["words"]
-        layers2["sentences"] = text["sentences"]
+        layers2[self.input_layers[0]] = text[self.input_layers[0]]  # words
+        layers2[self.input_layers[1]] = text[self.input_layers[1]]  # sentences
         # --------------------------------------------
         #   Adding necessary layers for post processing
         # -------------------------------------------- 
