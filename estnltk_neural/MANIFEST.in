@@ -2,3 +2,4 @@
 include COPYRIGHT
 include LICENSE
 include estnltk_neural/tests/taggers/neural_morph/neural_test_sentences.txt
+include estnltk_neural/taggers/neural_morph/bert_based/homonymous_word_forms/homonymous_words.txt

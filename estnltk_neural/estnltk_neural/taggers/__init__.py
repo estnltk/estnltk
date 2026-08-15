@@ -4,6 +4,7 @@ from estnltk_neural.taggers.embeddings.bert.roberta_tagger import RobertaTagger
 from estnltk_neural.taggers.ner.bert_ner_tagger import BertNerTagger
 from estnltk_neural.taggers.ner.bert_ner_tagger import EstBERTNERTagger  # Old NER tagger for backward compatibility. Will be removed in future
 from estnltk_neural.taggers.neural_morph.bert_based.bert_morph_tagger import BertMorphTagger
+from estnltk_neural.taggers.neural_morph.bert_based.morph_homonyms_retagger import MorphHomonymsRetagger
 from estnltk_neural.taggers.neural_morph.bert_based.vabamorf_with_bert_tagger import VabamorfWithBertTagger
 from estnltk_neural.taggers.neural_morph.glilem.glilem_tagger import GliLemTagger
 from estnltk_neural.taggers.neural_morph.new_neural_morph.neural_morph_tagger import SoftmaxEmbTagSumTagger
