@@ -16,6 +16,9 @@ from stanza import __version__ as stanza_version
 # Try to get the resources path for stanzasyntaxensembletagger. If missing, do nothing. It's up for the user to download the missing resources
 STANZA_SYNTAX_MODELS_PATH = get_resource_paths("stanzasyntaxensembletagger", only_latest=True, download_missing=False)
 
+# Get stanza model's version (the release date of the models)
+STANZA_SYNTAX_MODELS_VER = STANZA_SYNTAX_MODELS_PATH.rstrip(r'\//')[-10:] if isinstance(STANZA_SYNTAX_MODELS_PATH, str) else ''
+
 skip_message_missing_models = \
   "StanzaSyntaxEnsembleTagger's resources have not been downloaded. Use estnltk.download('stanzasyntaxensembletagger') to fetch the missing resources."
 
@@ -37,6 +40,20 @@ def ensemble_models_exist():
 def scipy_exists():
     return (find_spec('scipy') is not None)
 
+
+@unittest.skipIf(STANZA_SYNTAX_MODELS_PATH is None, skip_message_missing_models)
+@unittest.skipIf( not ensemble_models_exist(), skip_message_missing_models )
+def test_stanza_syntax_ensemble_tagger_smoke():
+    # Test that StanzaSyntaxEnsembleTagger runs OK with default options
+    text = Text('Väike jänes jooksis metsa! Mina ei jookse.')
+    text.tag_layer('morph_extended')
+    stanza_ensemble_tagger = StanzaSyntaxEnsembleTagger(output_layer='stanza_ensemble_syntax',
+                                                        random_pick_seed=5, 
+                                                        random_pick_max_score_seed=3)
+    stanza_ensemble_tagger.tag(text)
+    assert stanza_ensemble_tagger.output_layer in text.layers
+    assert len(text[stanza_ensemble_tagger.output_layer]) == len(text['morph_extended'])
+
 @unittest.skipIf(STANZA_SYNTAX_MODELS_PATH is None, skip_message_missing_models)
 @unittest.skipIf( not ensemble_models_exist(), skip_message_missing_models )
 def test_stanza_syntax_ensemble_tagger():
@@ -50,6 +67,7 @@ def test_stanza_syntax_ensemble_tagger():
     stanza_ensemble_tagger.tag(text)
 
     assert 'stanza_ensemble_syntax' in text.layers
+    # Base: expected output_layer with "stanza_syntax_2023-01-21" models
     expected_output_layer_dict = \
         {'ambiguous': False,
          'attributes': ('id',
@@ -191,6 +209,11 @@ def test_stanza_syntax_ensemble_tagger():
     #from pprint import pprint
     #print( layer_to_dict(text['stanza_ensemble_syntax']) )
     #
+    if STANZA_SYNTAX_MODELS_VER == '2026-08-18':
+        # Make corrections according to the new model
+        expected_output_layer_dict['spans'][3]['annotations'][0]['deprel'] = 'obl:lmod'
+        expected_output_layer_dict['spans'][8]['annotations'][0]['deprel'] = 'advmod:lmod'
+    # Make assertions
     assert expected_output_layer_dict == layer_to_dict(text['stanza_ensemble_syntax'])
 
     # 2) Test that StanzaSyntaxEnsembleTagger works on detached_layers
@@ -207,6 +230,7 @@ def test_stanza_syntax_ensemble_tagger():
     
     # Different random choiches for ambiguous words result in slightly
     # different output layer, this is an expected result
+    # Base: expected output_layer with "stanza_syntax_2023-01-21" models
     expected_output_layer_dict_2 = \
         {'ambiguous': False,
          'attributes': ('id',
@@ -345,7 +369,11 @@ def test_stanza_syntax_ensemble_tagger():
     
     #from pprint import pprint
     #pprint( layer_to_dict(stanza_me_layer) )
-    
+    if STANZA_SYNTAX_MODELS_VER == '2026-08-18':
+        # Make corrections according to the new model
+        expected_output_layer_dict_2['spans'][3]['annotations'][0]['deprel'] = 'obl:lmod'
+        expected_output_layer_dict_2['spans'][8]['annotations'][0]['deprel'] = 'advmod:lmod'
+    # Make assertions
     assert expected_output_layer_dict_2 == layer_to_dict(stanza_me_layer)
 
 
@@ -366,6 +394,7 @@ def test_stanza_syntax_ensemble_tagger_with_majority_voting_aggregation_algorith
     
     # Different random choiches for ambiguous words result in slightly
     # different output layer, this is an expected result
+    # Base: expected output_layer with "stanza_syntax_2023-01-21" models
     expected_output_layer_dict_3 = \
         {'ambiguous': False,
          'attributes': ('id',
@@ -506,7 +535,11 @@ def test_stanza_syntax_ensemble_tagger_with_majority_voting_aggregation_algorith
     
     #from pprint import pprint
     #pprint( layer_to_dict(output_layer) )
-    
+    if STANZA_SYNTAX_MODELS_VER == '2026-08-18':
+        # Make corrections according to the new model
+        expected_output_layer_dict_3['spans'][3]['annotations'][0]['deprel'] = 'obl:lmod'
+        expected_output_layer_dict_3['spans'][8]['annotations'][0]['deprel'] = 'advmod:lmod'
+    # Make assertions
     assert expected_output_layer_dict_3 == layer_to_dict(output_layer)
 
 
@@ -541,7 +574,8 @@ def test_stanza_syntax_ensemble_tagger_with_find_entropy():
                                                         )
     stanza_ensemble_tagger.tag(text)
     output_layer = text[stanza_ensemble_tagger.output_layer]
-    
+
+    # Base: expected output_layer with "stanza_syntax_2023-01-21" models
     expected_layer_with_normalized_entropy = \
         {'ambiguous': False,
          'attributes': ('id',
@@ -874,11 +908,334 @@ def test_stanza_syntax_ensemble_tagger_with_find_entropy():
                                      'voting_results': [('punct_3', 10)],
                                      'xpostag': 'Z'}],
                     'base_span': (82, 83)}]}
-    
+    if STANZA_SYNTAX_MODELS_VER == '2026-08-18':
+        # The expected layer according to the new model:
+        expected_layer_with_normalized_entropy = \
+        {'ambiguous': False,
+         'attributes': ('id',
+                        'lemma',
+                        'upostag',
+                        'xpostag',
+                        'feats',
+                        'head',
+                        'deprel',
+                        'deps',
+                        'misc',
+                        'max_votes',
+                        'entropy',
+                        'voting_results',
+                        'deprel_max',
+                        'deprel_max_votes',
+                        'deprel_entropy',
+                        'head_max',
+                        'head_max_votes',
+                        'head_entropy'),
+         'enveloping': None,
+         'meta': {},
+         'name': 'stanza_ensemble_syntax',
+         'parent': 'morph_extended',
+         'secondary_attributes': (),
+         'serialisation_module': None,
+         'spans': [{'annotations': [{'deprel': 'nsubj',
+                                     'deprel_entropy': '0.0000',
+                                     'deprel_max': 'nsubj',
+                                     'deprel_max_votes': 10,
+                                     'deps': '_',
+                                     'entropy': '0.0000',
+                                     'feats': OrderedDict([('com', 'com'),
+                                                           ('sg', 'sg'),
+                                                           ('nom', 'nom')]),
+                                     'head': 2,
+                                     'head_entropy': '0.0000',
+                                     'head_max': 2,
+                                     'head_max_votes': 10,
+                                     'id': 1,
+                                     'lemma': 'jänes',
+                                     'max_votes': 10,
+                                     'misc': '_',
+                                     'upostag': 'S',
+                                     'voting_results': [('nsubj_2', 10)],
+                                     'xpostag': 'S'}],
+                    'base_span': (0, 5)},
+                   {'annotations': [{'deprel': 'root',
+                                     'deprel_entropy': '0.0000',
+                                     'deprel_max': 'root',
+                                     'deprel_max_votes': 10,
+                                     'deps': '_',
+                                     'entropy': '0.0000',
+                                     'feats': OrderedDict([('main', 'main'),
+                                                           ('indic', 'indic'),
+                                                           ('impf', 'impf'),
+                                                           ('ps3', 'ps3'),
+                                                           ('sg', 'sg'),
+                                                           ('ps', 'ps'),
+                                                           ('af', 'af')]),
+                                     'head': 0,
+                                     'head_entropy': '0.0000',
+                                     'head_max': 0,
+                                     'head_max_votes': 10,
+                                     'id': 2,
+                                     'lemma': 'otsima',
+                                     'max_votes': 10,
+                                     'misc': '_',
+                                     'upostag': 'V',
+                                     'voting_results': [('root_0', 10)],
+                                     'xpostag': 'V'}],
+                    'base_span': (6, 11)},
+                   {'annotations': [{'deprel': 'obj',
+                                     'deprel_entropy': '0.0000',
+                                     'deprel_max': 'obj',
+                                     'deprel_max_votes': 10,
+                                     'deps': '_',
+                                     'entropy': '0.0000',
+                                     'feats': OrderedDict([('com', 'com'),
+                                                           ('pl', 'pl'),
+                                                           ('part', 'part')]),
+                                     'head': 2,
+                                     'head_entropy': '0.0000',
+                                     'head_max': 2,
+                                     'head_max_votes': 10,
+                                     'id': 3,
+                                     'lemma': 'lahendus',
+                                     'max_votes': 10,
+                                     'misc': '_',
+                                     'upostag': 'S',
+                                     'voting_results': [('obj_2', 10)],
+                                     'xpostag': 'S'}],
+                    'base_span': (12, 21)},
+                   {'annotations': [{'deprel': 'xcomp',
+                                     'deprel_entropy': '0.0000',
+                                     'deprel_max': 'xcomp',
+                                     'deprel_max_votes': 10,
+                                     'deps': '_',
+                                     'entropy': '0.0000',
+                                     'feats': OrderedDict([('com', 'com'),
+                                                           ('sg', 'sg'),
+                                                           ('tr', 'tr')]),
+                                     'head': 2,
+                                     'head_entropy': '0.0000',
+                                     'head_max': 2,
+                                     'head_max_votes': 10,
+                                     'id': 4,
+                                     'lemma': 'tulevik',
+                                     'max_votes': 10,
+                                     'misc': '_',
+                                     'upostag': 'S',
+                                     'voting_results': [('xcomp_2', 10)],
+                                     'xpostag': 'S'}],
+                    'base_span': (22, 32)},
+                   {'annotations': [{'deprel': 'punct',
+                                     'deprel_entropy': '0.0000',
+                                     'deprel_max': 'punct',
+                                     'deprel_max_votes': 10,
+                                     'deps': '_',
+                                     'entropy': '0.0000',
+                                     'feats': OrderedDict(),
+                                     'head': 2,
+                                     'head_entropy': '0.0000',
+                                     'head_max': 2,
+                                     'head_max_votes': 10,
+                                     'id': 5,
+                                     'lemma': '.',
+                                     'max_votes': 10,
+                                     'misc': '_',
+                                     'upostag': 'Z',
+                                     'voting_results': [('punct_2', 10)],
+                                     'xpostag': 'Z'}],
+                    'base_span': (32, 33)},
+                   {'annotations': [{'deprel': 'det',
+                                     'deprel_entropy': '0.0000',
+                                     'deprel_max': 'det',
+                                     'deprel_max_votes': 10,
+                                     'deps': '_',
+                                     'entropy': '0.0000',
+                                     'feats': OrderedDict({'sg': 'sg', 'part': 'part'}),
+                                     'head': 2,
+                                     'head_entropy': '0.0000',
+                                     'head_max': 2,
+                                     'head_max_votes': 10,
+                                     'id': 1,
+                                     'lemma': 'see',
+                                     'max_votes': 10,
+                                     'misc': '_',
+                                     'upostag': 'P',
+                                     'voting_results': [('det_2', 10)],
+                                     'xpostag': 'P'}],
+                    'base_span': (34, 38)},
+                   {'annotations': [{'deprel': 'obj',
+                                     'deprel_entropy': '0.0000',
+                                     'deprel_max': 'obj',
+                                     'deprel_max_votes': 10,
+                                     'deps': '_',
+                                     'entropy': '0.0000',
+                                     'feats': OrderedDict([('com', 'com'),
+                                                           ('sg', 'sg'),
+                                                           ('part', 'part')]),
+                                     'head': 3,
+                                     'head_entropy': '0.0000',
+                                     'head_max': 3,
+                                     'head_max_votes': 10,
+                                     'id': 2,
+                                     'lemma': 'traditsioon',
+                                     'max_votes': 10,
+                                     'misc': '_',
+                                     'upostag': 'S',
+                                     'voting_results': [('obj_3', 10)],
+                                     'xpostag': 'S'}],
+                    'base_span': (39, 51)},
+                   {'annotations': [{'deprel': 'root',
+                                     'deprel_entropy': '0.0000',
+                                     'deprel_max': 'root',
+                                     'deprel_max_votes': 10,
+                                     'deps': '_',
+                                     'entropy': '0.0000',
+                                     'feats': OrderedDict([('mod', 'mod'),
+                                                           ('indic', 'indic'),
+                                                           ('pres', 'pres'),
+                                                           ('ps1', 'ps1'),
+                                                           ('pl', 'pl'),
+                                                           ('ps', 'ps'),
+                                                           ('af', 'af')]),
+                                     'head': 0,
+                                     'head_entropy': '0.0000',
+                                     'head_max': 0,
+                                     'head_max_votes': 10,
+                                     'id': 3,
+                                     'lemma': 'hoidma',
+                                     'max_votes': 10,
+                                     'misc': '_',
+                                     'upostag': 'V',
+                                     'voting_results': [('root_0', 10)],
+                                     'xpostag': 'V'}],
+                    'base_span': (52, 58)},
+                   {'annotations': [{'deprel': 'obl:tmod',
+                                     'deprel_entropy': '0.0000',
+                                     'deprel_max': 'obl:tmod',
+                                     'deprel_max_votes': 10,
+                                     'deps': '_',
+                                     'entropy': '0.0000',
+                                     'feats': OrderedDict([('com', 'com'),
+                                                           ('sg', 'sg'),
+                                                           ('in', 'in')]),
+                                     'head': 3,
+                                     'head_entropy': '0.0000',
+                                     'head_max': 3,
+                                     'head_max_votes': 10,
+                                     'id': 4,
+                                     'lemma': 'elu',
+                                     'max_votes': 10,
+                                     'misc': '_',
+                                     'upostag': 'S',
+                                     'voting_results': [('obl:tmod_3', 10)],
+                                     'xpostag': 'S'}],
+                    'base_span': (59, 63)},
+                   {'annotations': [{'deprel': 'advmod',
+                                     'deprel_entropy': '0.0000',
+                                     'deprel_max': 'advmod',
+                                     'deprel_max_votes': 10,
+                                     'deps': '_',
+                                     'entropy': '0.5004',
+                                     'feats': OrderedDict(),
+                                     'head': 6,
+                                     'head_entropy': '0.5004',
+                                     'head_max': 6,
+                                     'head_max_votes': 8,
+                                     'id': 5,
+                                     'lemma': 'ka',
+                                     'max_votes': 8,
+                                     'misc': '_',
+                                     'upostag': 'D',
+                                     'voting_results': [('advmod_6', 8),
+                                                        ('advmod_8', 2)],
+                                     'xpostag': 'D'}],
+                    'base_span': (64, 66)},
+                   {'annotations': [{'deprel': 'nummod',
+                                     'deprel_entropy': '0.0000',
+                                     'deprel_max': 'nummod',
+                                     'deprel_max_votes': 10,
+                                     'deps': '_',
+                                     'entropy': '0.0000',
+                                     'feats': OrderedDict([('card', 'card'),
+                                                           ('<?>', '<?>'),
+                                                           ('digit', 'digit')]),
+                                     'head': 7,
+                                     'head_entropy': '0.0000',
+                                     'head_max': 7,
+                                     'head_max_votes': 10,
+                                     'id': 6,
+                                     'lemma': '3',
+                                     'max_votes': 10,
+                                     'misc': '_',
+                                     'upostag': 'N',
+                                     'voting_results': [('nummod_7', 10)],
+                                     'xpostag': 'N'}],
+                    'base_span': (67, 68)},
+                   {'annotations': [{'deprel': 'obl',
+                                     'deprel_entropy': '0.0000',
+                                     'deprel_max': 'obl',
+                                     'deprel_max_votes': 10,
+                                     'deps': '_',
+                                     'entropy': '0.0000',
+                                     'feats': OrderedDict([('com', 'com'),
+                                                           ('sg', 'sg'),
+                                                           ('part', 'part')]),
+                                     'head': 8,
+                                     'head_entropy': '0.0000',
+                                     'head_max': 8,
+                                     'head_max_votes': 10,
+                                     'id': 7,
+                                     'lemma': 'aasta',
+                                     'max_votes': 10,
+                                     'misc': '_',
+                                     'upostag': 'S',
+                                     'voting_results': [('obl_8', 10)],
+                                     'xpostag': 'S'}],
+                    'base_span': (69, 75)},
+                   {'annotations': [{'deprel': 'advmod:tmod',
+                                     'deprel_entropy': '0.0000',
+                                     'deprel_max': 'advmod:tmod',
+                                     'deprel_max_votes': 10,
+                                     'deps': '_',
+                                     'entropy': '0.0000',
+                                     'feats': OrderedDict(),
+                                     'head': 3,
+                                     'head_entropy': '0.0000',
+                                     'head_max': 3,
+                                     'head_max_votes': 10,
+                                     'id': 8,
+                                     'lemma': 'hiljem',
+                                     'max_votes': 10,
+                                     'misc': '_',
+                                     'upostag': 'D',
+                                     'voting_results': [('advmod:tmod_3', 10)],
+                                     'xpostag': 'D'}],
+                    'base_span': (76, 82)},
+                   {'annotations': [{'deprel': 'punct',
+                                     'deprel_entropy': '0.0000',
+                                     'deprel_max': 'punct',
+                                     'deprel_max_votes': 10,
+                                     'deps': '_',
+                                     'entropy': '0.0000',
+                                     'feats': OrderedDict(),
+                                     'head': 3,
+                                     'head_entropy': '0.0000',
+                                     'head_max': 3,
+                                     'head_max_votes': 10,
+                                     'id': 9,
+                                     'lemma': '.',
+                                     'max_votes': 10,
+                                     'misc': '_',
+                                     'upostag': 'Z',
+                                     'voting_results': [('punct_3', 10)],
+                                     'xpostag': 'Z'}],
+                    'base_span': (82, 83)}]}
+
     #from pprint import pprint
     #layer_dict = _normalize_entropy_values( layer_to_dict(output_layer) )
+    #print('>>>')
     #pprint( layer_dict )
-
+    #print('>>>')
+    # Assert results
     assert expected_layer_with_normalized_entropy == \
                 _normalize_entropy_values( layer_to_dict(output_layer) )
 

@@ -13,6 +13,10 @@ STANZA_SYNTAX_MODELS_PATH = get_resource_paths("stanzasyntaxtagger", only_latest
 skip_message_missing_models = \
   "StanzaSyntaxTagger's resources have not been downloaded. Use estnltk.download('stanzasyntaxtagger') to fetch the missing resources."
 
+# Get stanza model's version (the release date of the models)
+STANZA_SYNTAX_MODELS_VER = STANZA_SYNTAX_MODELS_PATH.rstrip(r'\//')[-10:] if isinstance(STANZA_SYNTAX_MODELS_PATH, str) else ''
+
+# Base: expected output_layer with "stanza_syntax_2023-01-21" models
 stanza_dict_sentences = {
     'name': 'stanza_syntax',
     'meta': {},
@@ -142,6 +146,7 @@ stanza_dict_sentences = {
                                 'deps': '_',
                                 'misc': '_'}]}]}
 
+# Base: expected output_layer with "stanza_syntax_2023-01-21" models
 stanza_dict_morph_analysis = {
     'name': 'stanza_ma',
     'meta': {},
@@ -362,6 +367,9 @@ def test_stanza_syntax_tagger_analysis():
                                           resources_path=STANZA_SYNTAX_MODELS_PATH)
     stanza_tagger_ma.tag(text)
 
+    if STANZA_SYNTAX_MODELS_VER == '2026-08-18':
+        # Make corrections according to the new model
+        stanza_dict_morph_analysis['spans'][3]['annotations'][0]['deprel'] = 'obl:lmod'
     # stanza pipeline (on tokenized unambigous input)
     assert stanza_dict_morph_analysis == layer_to_dict(text.stanza_ma), text.stanza_ma.diff(
         dict_to_layer(stanza_dict_morph_analysis))
@@ -435,7 +443,9 @@ def test_stanza_syntax_tagger_on_detached_layers():
                                           resources_path=STANZA_SYNTAX_MODELS_PATH)
     # Tag with detached layers
     stanza_ma_layer = stanza_tagger_ma.make_layer(text, detached_layers)
-
+    if STANZA_SYNTAX_MODELS_VER == '2026-08-18':
+        # Make corrections according to the new model
+        stanza_dict_morph_analysis['spans'][3]['annotations'][0]['deprel'] = 'obl:lmod'
     # stanza pipeline (on tokenized unambigous input)
     assert stanza_dict_morph_analysis == layer_to_dict(stanza_ma_layer), stanza_ma_layer.diff(
         dict_to_layer(stanza_dict_morph_analysis))
