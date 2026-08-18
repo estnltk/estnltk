@@ -4,6 +4,7 @@
 
 from estnltk import Text
 from estnltk.taggers import Tagger
+from estnltk.taggers import Retagger
 from estnltk import Span, Layer, Text
 from estnltk.taggers.standard.morph_analysis.morf_common import IGNORE_ATTR
 from estnltk.taggers.standard.morph_analysis.morf_common import DEFAULT_PARAM_PHONETIC
@@ -33,7 +34,8 @@ class VabamorfWithBertTagger(Tagger):
     """
 
     conf_param = ['use_postanalysis', 'vabamorf', 'post_morph', 'bert_disamb', 'output_layer', 'slang_lex', "compound",
-                  "phonetic", "stem", 'device', 'vm_instance', 'input_layers', 'correct_verb_annotation', 'change_to_bert_form']
+                  "phonetic", "stem", 'device', 'vm_instance', 'input_layers', 'correct_verb_annotation', 'change_to_bert_form',
+                  'post_disambiguator']
     output_layer = 'morph_analysis'
     output_attributes = ['normalized_text', 'lemma', 'root', 'root_tokens', 'ending', 'clitic', 'form', 'partofspeech']
     input_layers = ('words', 'sentences')
@@ -50,7 +52,8 @@ class VabamorfWithBertTagger(Tagger):
                  use_postanalysis: bool = True,
                  device:str = 'cpu', # for gpu - 'cuda'
                  correct_verb_annotation: bool = True,
-                 change_to_bert_form: bool = True):
+                 change_to_bert_form: bool = True,
+                 post_disambiguator: 'Retagger' = None):
         """Initialize VabamorfWithBertTagger class.
         
         Parameters
@@ -113,9 +116,16 @@ class VabamorfWithBertTagger(Tagger):
             Bert-based disambiguation: In case of verbs: if there is multiplicity 
             but not verb multiplicity and Bert prediction form contains "neg" while 
             Vabamorf does not, then Vabamorf annotation will be changed to also 
-            include "neg" if change_to_bert_form=True. This is tested on UD treebank 
-            2.18 where out of 1945 words (with no verb multiplicity) 91.98% matched 
-            UD annotation if "neg" was exluded from Bert prediction. 
+            include "neg" if change_to_bert_form=True. This is tested on UD treebank
+            2.18 where out of 1945 words (with no verb multiplicity) 91.98% matched
+            UD annotation if "neg" was exluded from Bert prediction.
+        post_disambiguator (Retagger, default: None)
+            An estnltk.taggers.Retagger that refines Bert's predictions. It is passed
+            on to the BertMorphTagger created by this tagger, and applied to Bert's
+            own layer before that layer is used to disambiguate the Vabamorf based
+            morph analysis layer. Defaults to None (not applied).
+            Example: MorphHomonymsRetagger, which re-evaluates form homonymous words
+            with a specialized expert model. 
         """
 
         self.output_layer = output_layer
@@ -169,13 +179,15 @@ class VabamorfWithBertTagger(Tagger):
                                                   input_compound_tokens_layer=input_compound_tokens_layer,
                                                   input_words_layer=self.input_layers[0],
                                                   stem=self.stem)
-        self.bert_disamb = BertMorphTagger(output_layer=self.output_layer, 
+        self.post_disambiguator = post_disambiguator
+        self.bert_disamb = BertMorphTagger(output_layer=self.output_layer,
                                            words_layer=self.input_layers[0],
                                            sentences_layer=self.input_layers[1],
-                                           disambiguate=True, 
-                                           device=self.device, 
+                                           disambiguate=True,
+                                           device=self.device,
                                            correct_verb_annotation=self.correct_verb_annotation,
-                                           change_to_bert_form=self.change_to_bert_form,)
+                                           change_to_bert_form=self.change_to_bert_form,
+                                           post_disambiguator=self.post_disambiguator,)
 
 
     def _make_layer_template(self):

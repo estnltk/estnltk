@@ -32,6 +32,8 @@ setup(
     package_data={
         'license_headers' : ['*.*'],
         'estnltk_neural.tests.taggers.neural_morph': ['*.txt'],
+        # Homonymous word forms lexicon used by MorphHomonymsRetagger
+        'estnltk_neural.taggers.neural_morph.bert_based': ['homonymous_word_forms/*.txt'],
     },
     url="https://github.com/estnltk/estnltk",
     install_requires=[

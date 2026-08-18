@@ -2,16 +2,20 @@
 #  Tests for MorphHomonymsRetagger -- Bert-based correction of Estonian form
 #  homonymy (e.g. 'komisjoni' as genitive 'sg g' vs short illative 'adt').
 #
-#  The tests are split into two groups:
+#  The tests are grouped by what they need:
 #   * tests that replace the Bert expert with a stub and therefore need no model.
-#     These cover the homonym lexicon gate and the annotation correction logic;
-#   * one end-to-end test that requires both the baseline and the expert model
-#     and is skipped if either is not downloaded.
+#     These cover the homonym lexicon gate, the annotation correction logic and
+#     the single pass over the source layer;
+#   * tests of the post_disambiguator wiring, which need the baseline model (they
+#     create a Bert layer) but use a stub retagger, so that they do not depend on
+#     what the expert model predicts;
+#   * end-to-end tests with both real models, asserting exact labels. These are
+#     skipped if the models are not downloaded.
 #
 from importlib.util import find_spec
 import pytest
 
-from estnltk import Text, Layer
+from estnltk import Text, Layer, Retagger
 from estnltk.downloader import get_resource_paths
 
 from estnltk.converters import layer_to_records
@@ -578,3 +582,192 @@ def test_morph_homonyms_retagger_keeps_baseline_when_expert_agrees():
     assert meta["inspected_words"] == 1
     assert meta["agreed_words"] == 1
     assert meta["corrected_words"] == 0
+
+
+# ===========================================================================
+#   MorphHomonymsRetagger used as a post_disambiguator inside other taggers
+# ===========================================================================
+
+POST_DISAMB_SENTENCE = "Kutsuti komisjoni kokku."
+
+# 'komisjoni' is a homonymous form for which Vabamorf offers 'adt', 'sg g' and
+# 'sg p'. The wiring tests below force 'adt' with a stub retagger instead of
+# relying on the real expert model: that way the assertions do not depend on the
+# models predicting any particular label, and they cannot pass vacuously if a
+# future model happens to agree with the baseline.
+FORCED_FORM = "adt"
+
+
+class _ForcingRetagger(Retagger):
+    """Minimal Retagger that rewrites one word's form to a fixed value.
+
+    Used to verify that `post_disambiguator` is invoked, on the expected layer
+    and at the expected point, without depending on the expert model. It records
+    the name of every layer it was handed, so a test can prove it really ran
+    rather than inferring it from a label that a model might produce anyway.
+    """
+
+    conf_param = ("target_word", "forced_form", "seen_layers",
+                  "sentences_layer", "words_layer")
+
+    def __init__(self, target_word, forced_form=FORCED_FORM,
+                 output_layer="bert_morph_tagging",
+                 sentences_layer="sentences", words_layer="words"):
+        self.target_word = target_word
+        self.forced_form = forced_form
+        self.output_layer = output_layer
+        self.output_attributes = MORPH_ATTRIBUTES
+        self.sentences_layer = sentences_layer
+        self.words_layer = words_layer
+        self.input_layers = [sentences_layer, words_layer, output_layer]
+        self.seen_layers = []
+
+    def _change_layer(self, text, layers, status=None):
+        layer = layers[self.output_layer]
+        self.seen_layers.append(layer.name)
+        for span in layer:
+            if span.text != self.target_word:
+                continue
+            annotations = [dict(a) for a in span.annotations]
+            span.clear_annotations()
+            for annotation in annotations:
+                annotation["form"] = self.forced_form
+                span.add_annotation(annotation)
+
+
+def _forms_of(layer, word):
+    for span in layer:
+        if span.text == word:
+            return sorted({(a["partofspeech"], a["form"]) for a in span.annotations})
+    return None
+
+
+@pytest.mark.skipif(
+    not check_if_transformers_is_available(),
+    reason="package transformers is required for this test",
+)
+@pytest.mark.skipif(
+    not check_if_pytorch_is_available(),
+    reason="package pytorch is required for this test",
+)
+@pytest.mark.skipif(
+    BERTMORPH_V2_PATH is None,
+    reason="BertMorphTagger's model location not known. "
+    + "Use estnltk.download('bert_morph_v2') to get the missing resources.",
+)
+def test_post_disambiguator_is_applied_in_tagger_mode():
+    # Tests BertMorphTagger's post_disambiguator in tagger mode: the retagger must
+    # be handed the layer Bert has just created. A stub retagger is used so that
+    # the assertion does not depend on what the expert model happens to predict.
+    from estnltk_neural.taggers import BertMorphTagger
+
+    stub = _ForcingRetagger("komisjoni")
+    text = Text(POST_DISAMB_SENTENCE).tag_layer(["words", "sentences"])
+    BertMorphTagger(model_location=BERTMORPH_V2_PATH, post_disambiguator=stub).tag(text)
+
+    # The retagger really ran, and it was handed Bert's own layer
+    assert stub.seen_layers == ["bert_morph_tagging"]
+    # ... and its effect is visible on the target word only
+    assert _forms_of(text["bert_morph_tagging"], "komisjoni") == [("S", FORCED_FORM)]
+    assert _forms_of(text["bert_morph_tagging"], "Kutsuti") == [("V", "ti")]
+
+
+@pytest.mark.skipif(
+    not check_if_transformers_is_available(),
+    reason="package transformers is required for this test",
+)
+@pytest.mark.skipif(
+    not check_if_pytorch_is_available(),
+    reason="package pytorch is required for this test",
+)
+@pytest.mark.skipif(
+    BERTMORPH_V2_PATH is None,
+    reason="BertMorphTagger's model location not known. "
+    + "Use estnltk.download('bert_morph_v2') to get the missing resources.",
+)
+def test_post_disambiguator_is_applied_in_disambiguator_mode():
+    # Tests that post_disambiguator also applies when BertMorphTagger is used as a
+    # disambiguator (disambiguate=True, applied via retag) on a Vabamorf layer.
+    # The retagger is applied to Bert's own layer, and the refined prediction is
+    # what then disambiguates the Vabamorf analyses -- so forcing 'adt' must leave
+    # 'adt' in morph_analysis, which Vabamorf does offer for this word.
+    from estnltk.taggers import VabamorfAnalyzer
+    from estnltk_neural.taggers import BertMorphTagger
+
+    stub = _ForcingRetagger("komisjoni")
+    text = Text(POST_DISAMB_SENTENCE).tag_layer(
+        ["words", "sentences", "compound_tokens"]
+    )
+    VabamorfAnalyzer().tag(text)
+    BertMorphTagger(
+        model_location=BERTMORPH_V2_PATH,
+        output_layer="morph_analysis",
+        disambiguate=True,
+        post_disambiguator=stub,
+    ).retag(text)
+
+    # The retagger was handed Bert's layer (named after this tagger's output_layer)
+    assert stub.seen_layers == ["morph_analysis"]
+    assert _forms_of(text["morph_analysis"], "komisjoni") == [("S", FORCED_FORM)]
+
+
+@pytest.mark.skipif(
+    not check_if_transformers_is_available(),
+    reason="package transformers is required for this test",
+)
+@pytest.mark.skipif(
+    not check_if_pytorch_is_available(),
+    reason="package pytorch is required for this test",
+)
+@pytest.mark.skipif(
+    BERTMORPH_V2_PATH is None,
+    reason="BertMorphTagger's model location not known. "
+    + "Use estnltk.download('bert_morph_v2') to get the missing resources.",
+)
+def test_post_disambiguator_is_passed_on_by_vabamorf_with_bert_tagger():
+    # Tests VabamorfWithBertTagger's post_disambiguator: it must reach the
+    # BertMorphTagger created inside, and its effect must survive into the final
+    # morph_analysis layer. Note that the stub keeps its own default output_layer
+    # name ('bert_morph_tagging') here -- it is handed the layer under the name it
+    # expects, so it does not have to be reconfigured to match.
+    from estnltk_neural.taggers import VabamorfWithBertTagger
+
+    stub = _ForcingRetagger("komisjoni")
+    tagger = VabamorfWithBertTagger(post_disambiguator=stub)
+    # The parameter is forwarded to the internal BertMorphTagger
+    assert tagger.bert_disamb.post_disambiguator is stub
+
+    text = Text(POST_DISAMB_SENTENCE).tag_layer(
+        ["words", "sentences", "compound_tokens"]
+    )
+    tagger.tag(text)
+    assert stub.seen_layers == ["morph_analysis"]
+    assert _forms_of(text["morph_analysis"], "komisjoni") == [("S", FORCED_FORM)]
+
+
+def test_invalid_post_disambiguator_is_rejected():
+    # Tests BertMorphTagger's validation of post_disambiguator. The validation runs
+    # before the model is loaded, so no model is needed here -- a misconfigured
+    # post_disambiguator should not cost a model download first.
+    from estnltk_neural.taggers import BertMorphTagger
+
+    # Not a Retagger
+    with pytest.raises(TypeError, match="Retagger"):
+        BertMorphTagger(model_location="no_such_model", post_disambiguator="nope")
+
+    # A post disambiguator works on the word level, so token_level is not allowed
+    with pytest.raises(Exception, match="token_level"):
+        BertMorphTagger(
+            model_location="no_such_model",
+            token_level=True,
+            post_disambiguator=_ForcingRetagger("komisjoni"),
+        )
+
+    # Input layers the tagger cannot provide
+    with pytest.raises(Exception, match="input layer"):
+        BertMorphTagger(
+            model_location="no_such_model",
+            post_disambiguator=_ForcingRetagger(
+                "komisjoni", sentences_layer="my_sentences"
+            ),
+        )

@@ -56,6 +56,7 @@ class BertMorphTagger(Retagger):
         device: str = "cpu",
         correct_verb_annotation: bool = True,
         change_to_bert_form: bool = False,
+        post_disambiguator: Optional[Retagger] = None,
         **kwargs
     ):
         """
@@ -80,7 +81,7 @@ class BertMorphTagger(Retagger):
             disambiguate (bool): Whether the tagger is to be used as an disambiguator of an input morph analyis layer. 
                 Defaults to False. If set, then BertMorphTagger can be used to disambiguate an existing Vabamorf-based 
                 morph analysis layer by calling <code>BertMorphTagger.retag(text_obj)</code>. Note that the input 
-                <code>text_obj</code> must already have <code>output_layer<code> which will be disambiguated. 
+                <code>text_obj</code> must already have <code>output_layer</code> which will be disambiguated. 
             device (str):
                 The device to run the bert_morph_tagging model on ('cpu' or 'cuda'). Defaults to 'cpu'.
             correct_verb_annotation (bool):
@@ -91,6 +92,19 @@ class BertMorphTagger(Retagger):
                 In case of verbs: if there is multiplicity but not verb multiplicity and Bert prediction form contains "neg" while Vabamorf 
                 does not, then Vabamorf annotation will be changed to also include "neg" if change_to_bert_form=True. This is tested
                 on UD treebank 2.18 where out of 1945 words (with no verb multiplicity) 91.98% matched UD annotation if "neg" was exluded from Bert prediction.
+            post_disambiguator (Retagger, Optional):
+                An <code>estnltk.taggers.Retagger</code> that is applied on the Bert layer right after
+                it has been created, to refine Bert's predictions. Defaults to None (not applied). \n
+                <i>Example: <code>MorphHomonymsRetagger</code>, which re-evaluates form homonymous
+                words with a specialized expert model.</i> \n
+                The layer is passed to the retagger under the layer name that the retagger expects
+                (its own <code>output_layer</code>), so the retagger does not need to be reconfigured
+                when this tagger's <code>output_layer</code> is renamed. Apart from that layer, all of
+                the retagger's input layers must be among this tagger's input layers. \n
+                Note: in the disambiguator mode (<code>disambiguate=True</code>) the post disambiguator
+                is applied to Bert's own layer <b>before</b> it is used to disambiguate the Vabamorf
+                based morph analysis layer, so the refined predictions are the ones that guide the
+                disambiguation. Cannot be used together with <code>token_level=True</code>.
 
         Raises:
             Exception: Raises when BertMorphTagger's resources have not been downloaded.
@@ -99,7 +113,31 @@ class BertMorphTagger(Retagger):
         # Configuration parameters
         self.conf_param = ('model_location', 'get_top_n_predictions', 'bert_tokenizer', 'bert_morph_tagging', 'id2label', \
                            'token_level', 'split_pos_form', 'disambiguate', 'sentences_layer', 'words_layer', 'output_layer', \
-                           'input_layers', 'output_attributes', 'device', '_bert_tokens_rewriter', 'correct_verb_annotation', 'change_to_bert_form')
+                           'input_layers', 'output_attributes', 'device', '_bert_tokens_rewriter', 'correct_verb_annotation', 'change_to_bert_form', \
+                           'post_disambiguator')
+
+        # Validate the optional post disambiguator before loading the model, so that a
+        # misconfigured post_disambiguator does not cost a model download/load first
+        if post_disambiguator is not None:
+            if not isinstance(post_disambiguator, Retagger):
+                raise TypeError( ('(!) post_disambiguator should be an instance of '+\
+                                  'estnltk.taggers.Retagger, not {!r}.'+\
+                                  '').format(type(post_disambiguator).__name__) )
+            if token_level:
+                raise Exception( '(!) Cannot use a post_disambiguator if token_level==True: '+\
+                                 'a post disambiguator is applied to the word level layer.' )
+            # The post disambiguator's input layers (apart from the layer it retags) must be
+            # obtainable from this tagger's input layers
+            expected_input_layers = [sentences_layer, words_layer]
+            if disambiguate:
+                expected_input_layers.append( output_layer )
+            missing_inputs = [layer for layer in post_disambiguator.input_layers \
+                              if layer != post_disambiguator.output_layer and \
+                                 layer not in expected_input_layers]
+            if missing_inputs:
+                raise Exception( ('(!) post_disambiguator requires input layer(s) {!r}, which are '+\
+                                  'not among BertMorphTagger\'s input layers {!r}.'+\
+                                  '').format(missing_inputs, expected_input_layers) )
 
         if model_location is None:
             # Try to get the resources path for bert_morph_tagger. Attempt to download, if missing
@@ -174,6 +212,8 @@ class BertMorphTagger(Retagger):
 
         self.correct_verb_annotation = correct_verb_annotation
         self.change_to_bert_form = change_to_bert_form
+
+        self.post_disambiguator = post_disambiguator
 
 
     def _get_bert_morph_tagging_label_predictions(self, 
@@ -358,7 +398,33 @@ class BertMorphTagger(Retagger):
         assert len(morph_layer) == len(words_layer), \
         f"Failed to rewrite '{morph_layer.name}' layer tokens to '{words_layer.name}' layer words: {len(morph_layer)} != {len(words_layer)}"
 
+        # Apply the post disambiguator (if provided) on the freshly created word level layer.
+        # Note: this also covers the disambiguator mode (_change_layer), because _change_layer
+        # obtains its Bert layer from this method.
+        if self.post_disambiguator is not None:
+            self._apply_post_disambiguator(text, layers, morph_layer, status)
+
         return morph_layer
+
+
+    def _apply_post_disambiguator(self, text, layers, morph_layer, status=None):
+        """Applies `post_disambiguator` on the Bert layer created by `_make_layer`.
+
+        The layer is handed to the retagger under the layer name that the retagger
+        expects (its own `output_layer`), so that a post disambiguator does not have
+        to be reconfigured whenever this tagger's `output_layer` is renamed.
+        """
+        post_layers = {}
+        for layer_name in self.post_disambiguator.input_layers:
+            if layer_name == self.post_disambiguator.output_layer:
+                # This is the layer that will be retagged; added below
+                continue
+            if isinstance(layers, dict) and layer_name in layers:
+                post_layers[layer_name] = layers[layer_name]
+            else:
+                post_layers[layer_name] = text[layer_name]
+        post_layers[self.post_disambiguator.output_layer] = morph_layer
+        self.post_disambiguator.change_layer(text, post_layers, status)
 
 
     def _change_layer(self, text, layers, status=None):
