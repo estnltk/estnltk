@@ -38,16 +38,18 @@ def test_local_tokens_splitter_smoke():
     text = Text('Esimene peatükk1 Arno3 isaga4 xxx5 koolijõudis⁷, olid1 tunnid juba 1934. ja 12 alanud.')
     # Add the default tokens layer
     text.tag_layer('tokens')
-    unsplit_tokens = \
-        ['Esimene', 'peatükk1', 'Arno3', 'isaga4', 'xxx5', 'koolijõudis⁷', \
-         ',', 'olid1', 'tunnid', 'juba', '1934', '.', 'ja', '12', 'alanud', '.']
-    assert unsplit_tokens == [t.text for t in text.tokens]
+    assert [t.text for t in text.tokens] in \
+            [['Esimene', 'peatükk1', 'Arno3', 'isaga4', 'xxx5', 'koolijõudis⁷', \
+              ',', 'olid1', 'tunnid', 'juba', '1934', '.', 'ja', '12', 'alanud', '.'],  # python 3.13, regex: 2024.11.6
+             ['Esimene', 'peatükk1', 'Arno3', 'isaga4', 'xxx5', 'koolijõudis', '⁷,', \
+              'olid1', 'tunnid', 'juba', '1934', '.', 'ja', '12', 'alanud', '.']]       # python 3.14, regex: 2026.7.19
     
     # Apply token splitter on text
     token_splitter.retag( text )
-    
-    split_tokens = \
-        ['Esimene', 'peatükk', '1', 'Arno', '3', 'isaga', '4', 'xxx5', 'koolijõudis', 
-         '⁷', ',', 'olid', '1', 'tunnid', 'juba', '1934', '.', 'ja', '12', 'alanud', '.']
 
-    assert split_tokens == [t.text for t in text.tokens]         
+    assert [t.text for t in text.tokens] in \
+            [['Esimene', 'peatükk', '1', 'Arno', '3', 'isaga', '4', 'xxx5', 'koolijõudis', 
+              '⁷', ',', 'olid', '1', 'tunnid', 'juba', '1934', '.', 'ja', '12', 'alanud', '.'], # python 3.13, regex: 2024.11.6
+             ['Esimene', 'peatükk', '1', 'Arno', '3', 'isaga', '4', 'xxx5', 'koolijõudis', '⁷,', \
+              'olid', '1',  'tunnid', 'juba', '1934', '.', 'ja', '12', 'alanud', '.']]          # python 3.14, regex: 2026.7.19
+
