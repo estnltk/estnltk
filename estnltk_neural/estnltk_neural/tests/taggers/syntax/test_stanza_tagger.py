@@ -1,6 +1,8 @@
-import os
-import unittest
+import os, os.path
+from importlib.util import find_spec
 from collections import OrderedDict
+
+import unittest
 
 from estnltk import Text
 from estnltk.converters import dict_to_layer, layer_to_dict
@@ -449,3 +451,150 @@ def test_stanza_syntax_tagger_on_detached_layers():
     # stanza pipeline (on tokenized unambigous input)
     assert stanza_dict_morph_analysis == layer_to_dict(stanza_ma_layer), stanza_ma_layer.diff(
         dict_to_layer(stanza_dict_morph_analysis))
+
+
+
+def check_if_transformers_is_available():
+    return find_spec("transformers") is not None
+
+def check_if_pytorch_is_available():
+    return find_spec("torch") is not None
+
+# Try to get the resources path for BertMorphTagger's model v2. If missing, do nothing. It's up for the user to download the missing resources
+BERTMORPH_V2_PATH = get_resource_paths("bert_morph_v2", only_latest=True, download_missing=False)
+
+@unittest.skipIf(STANZA_SYNTAX_MODELS_PATH is None,
+                 reason=skip_message_missing_models)
+@unittest.skipIf(not check_if_transformers_is_available(),
+                 reason="package tranformers is required for this test")
+@unittest.skipIf(not check_if_pytorch_is_available(),
+                 reason="package pytorch is required for this test")
+@unittest.skipIf(BERTMORPH_V2_PATH is None,
+                 reason="BertMorphTagger's model v2 location not known. "+\
+                        "Use estnltk.download('bert_morph_v2') to get the missing resources.")
+@unittest.skipIf(len(STANZA_SYNTAX_MODELS_VER) == 0 or not STANZA_SYNTAX_MODELS_VER >= '2026-08-18',
+                 reason="StanzaSyntaxTagger's model version >= 2026-08-18 is required for this test.")
+def test_stanza_syntax_tagger_on_morph_with_bert():
+    # Test that StanzaSyntaxTagger's model that has been 
+    # trained on VabamorfWithBertTagger's output layer
+    from estnltk_neural.taggers import VabamorfWithBertTagger
+    text = Text('Muna otsis kana, kass tahtis osa.')
+    vm_bert_morph_tagger = VabamorfWithBertTagger()
+    text.tag_layer( vm_bert_morph_tagger.input_layers )
+    assert vm_bert_morph_tagger.output_layer not in text.layers
+    vm_bert_morph_tagger.tag( text )
+    assert vm_bert_morph_tagger.output_layer in text.layers
+    # Construct model path
+    model_path = os.path.join(STANZA_SYNTAX_MODELS_PATH, 'et', 'depparse', 'morph_with_bert.pt')
+    assert os.path.exists( model_path ), \
+        f'(!) Missing morph_with_bert stanza model ({model_path!r}).'
+    stanza_tagger_morph_with_bert = \
+        StanzaSyntaxTagger(output_layer='stanza_bert_morph', 
+                           input_morph_layer=vm_bert_morph_tagger.output_layer, 
+                           input_type='morph_analysis', 
+                           depparse_path=model_path, 
+                           random_pick_seed=4)
+    stanza_tagger_morph_with_bert.tag( text )
+    assert stanza_tagger_morph_with_bert.output_layer in text.layers
+    assert len(text[stanza_tagger_morph_with_bert.output_layer]) == \
+           len(text[vm_bert_morph_tagger.output_layer])
+    #from pprint import pprint
+    #pprint( layer_to_dict(text[stanza_tagger_morph_with_bert.output_layer]) )
+    expected_output_layer_dict = \
+        {'ambiguous': False,
+         'attributes': ('id',
+                        'lemma',
+                        'upostag',
+                        'xpostag',
+                        'feats',
+                        'head',
+                        'deprel',
+                        'deps',
+                        'misc'),
+         'enveloping': None,
+         'meta': {},
+         'name': 'stanza_bert_morph',
+         'parent': 'morph_analysis',
+         'secondary_attributes': (),
+         'serialisation_module': None,
+         'spans': [{'annotations': [{'deprel': 'nsubj',
+                                     'deps': '_',
+                                     'feats': OrderedDict({'sg': 'sg', 'n': 'n'}),
+                                     'head': 2,
+                                     'id': 1,
+                                     'lemma': 'muna',
+                                     'misc': '_',
+                                     'upostag': 'S',
+                                     'xpostag': 'S'}],
+                    'base_span': (0, 4)},
+                   {'annotations': [{'deprel': 'root',
+                                     'deps': '_',
+                                     'feats': OrderedDict({'s': 's'}),
+                                     'head': 0,
+                                     'id': 2,
+                                     'lemma': 'otsima',
+                                     'misc': '_',
+                                     'upostag': 'V',
+                                     'xpostag': 'V'}],
+                    'base_span': (5, 10)},
+                   {'annotations': [{'deprel': 'obj',
+                                     'deps': '_',
+                                     'feats': OrderedDict({'sg': 'sg', 'p': 'p'}),
+                                     'head': 2,
+                                     'id': 3,
+                                     'lemma': 'kana',
+                                     'misc': '_',
+                                     'upostag': 'S',
+                                     'xpostag': 'S'}],
+                    'base_span': (11, 15)},
+                   {'annotations': [{'deprel': 'punct',
+                                     'deps': '_',
+                                     'feats': OrderedDict(),
+                                     'head': 6,
+                                     'id': 4,
+                                     'lemma': ',',
+                                     'misc': '_',
+                                     'upostag': 'Z',
+                                     'xpostag': 'Z'}],
+                    'base_span': (15, 16)},
+                   {'annotations': [{'deprel': 'nsubj',
+                                     'deps': '_',
+                                     'feats': OrderedDict({'sg': 'sg', 'n': 'n'}),
+                                     'head': 6,
+                                     'id': 5,
+                                     'lemma': 'kass',
+                                     'misc': '_',
+                                     'upostag': 'S',
+                                     'xpostag': 'S'}],
+                    'base_span': (17, 21)},
+                   {'annotations': [{'deprel': 'conj',
+                                     'deps': '_',
+                                     'feats': OrderedDict({'s': 's'}),
+                                     'head': 2,
+                                     'id': 6,
+                                     'lemma': 'tahtma',
+                                     'misc': '_',
+                                     'upostag': 'V',
+                                     'xpostag': 'V'}],
+                    'base_span': (22, 28)},
+                   {'annotations': [{'deprel': 'obj',
+                                     'deps': '_',
+                                     'feats': OrderedDict({'sg': 'sg', 'p': 'p'}),
+                                     'head': 6,
+                                     'id': 7,
+                                     'lemma': 'osa',
+                                     'misc': '_',
+                                     'upostag': 'S',
+                                     'xpostag': 'S'}],
+                    'base_span': (29, 32)},
+                   {'annotations': [{'deprel': 'punct',
+                                     'deps': '_',
+                                     'feats': OrderedDict(),
+                                     'head': 2,
+                                     'id': 8,
+                                     'lemma': '.',
+                                     'misc': '_',
+                                     'upostag': 'Z',
+                                     'xpostag': 'Z'}],
+                    'base_span': (32, 33)}]}
+    assert layer_to_dict(text[stanza_tagger_morph_with_bert.output_layer]) == expected_output_layer_dict
