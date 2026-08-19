@@ -2,6 +2,9 @@ from importlib.util import find_spec
 import pytest
 import os
 
+from packaging.version import Version as pkg_Version
+from packaging.version import parse as parse_version
+
 from estnltk import Text
 from estnltk.downloader import get_resource_paths
 
@@ -244,29 +247,50 @@ def test_bert_tagger_tokens_and_word_span_misaligment_bugfix():
     for embedding_span in text.bert_word_embeddings:
         assert len(embedding_span.bert_embedding) == 3072  # 768 * 4 
     assert text.bert_word_embeddings.text == text.words.text
-
     # 5) Check how partial overlaps between bert tokens and words are handled.
     #    Current logic: if a bert token can be associated with multiple words, 
     #    then associate it with all words;
+    from transformers import __version__ as transformers_version
     partial_overlap1 = Text('Yangi­Millsi kalibratsioonivälja kvantteooria.').tag_layer('sentences')
     bert_tagger_2.tag(partial_overlap1)
     words_and_bert_tokens = _get_bert_tokens(partial_overlap1, bert_layer=bert_tagger_2.output_layer)
-    assert words_and_bert_tokens == \
-        [('Yangi', ['y', '##angi']), 
-         ('\xad', ['##mil']), 
-         ('Millsi', ['##mil', '##ls', '##i']), 
-         ('kalibratsioonivälja', ['kalib', '##ratsiooni', '##val', '##ja']), 
-         ('kvantteooria', ['kvant', '##teooria']), 
-         ('.', ['.'])]
+    if parse_version(transformers_version) < pkg_Version('5.0.0'):
+        # transformers 4.x
+        assert words_and_bert_tokens == \
+            [('Yangi', ['y', '##angi']), 
+             ('\xad', ['##mil']), 
+             ('Millsi', ['##mil', '##ls', '##i']), 
+             ('kalibratsioonivälja', ['kalib', '##ratsiooni', '##val', '##ja']), 
+             ('kvantteooria', ['kvant', '##teooria']), 
+             ('.', ['.'])]
+    else:
+        # transformers 5.x
+        assert words_and_bert_tokens == \
+            [('Yangi', ['Ya', '##ngi']), 
+             ('\xad', ['##M']), 
+             ('Millsi', ['##M', '##ill','##si']), 
+             ('kalibratsioonivälja', ['kalib', '##ratsiooni', '##välja']), 
+             ('kvantteooria', ['kvant', '##teooria']), 
+             ('.', ['.'])]
     partial_overlap2 = Text('Ning Källeni­Lehmanni teoreem').tag_layer('sentences')
     bert_tagger_2.tag(partial_overlap2)
     words_and_bert_tokens = _get_bert_tokens(partial_overlap2, bert_layer=bert_tagger_2.output_layer)
-    assert words_and_bert_tokens == \
-        [('Ning', ['ning']), 
-         ('Källeni', ['kalle', '##nile']), 
-         ('\xad', ['##nile']), 
-         ('Lehmanni', ['##nile', '##hma', '##nni']), 
-         ('teoreem', ['teoree', '##m'])]
+    if parse_version(transformers_version) < pkg_Version('5.0.0'):
+        # transformers 4.x
+        assert words_and_bert_tokens == \
+            [('Ning', ['ning']), 
+             ('Källeni', ['kalle', '##nile']), 
+             ('\xad', ['##nile']), 
+             ('Lehmanni', ['##nile', '##hma', '##nni']), 
+             ('teoreem', ['teoree', '##m'])]
+    else:
+        # transformers 5.x
+        assert words_and_bert_tokens == \
+            [('Ning', ['Nin', '##g']), 
+             ('Källeni', ['Kä', '##lle', '##ni']), 
+             ('\xad', ['##L']), 
+             ('Lehmanni', ['##L', '##eh', '##manni']), 
+             ('teoreem', ['teoree', '##m'])]
 
 
 @pytest.mark.skipif(not check_if_transformers_is_available(),
@@ -286,6 +310,7 @@ def test_bert_tagger_cyrillic_chars_problem_bugfix():
     #
     from estnltk_neural.taggers.embeddings.bert.bert_tagger import BertTagger
     from estnltk_neural.taggers.embeddings.bert.bert_patches import estbert_normalizer
+    from transformers import __version__ as transformers_version
     text = Text('Jah, kuni ta 15 4е jala pikuseks saab. Kas kood oli 1и või Cи ?')
     text.tag_layer('sentences')
     # word level
@@ -297,9 +322,19 @@ def test_bert_tagger_cyrillic_chars_problem_bugfix():
     for embedding_span in text['bert_word_embeddings']:
         assert len(embedding_span.bert_embedding) == 3072  # 768 * 4 
     words_and_bert_tokens = _get_bert_tokens(text, bert_layer=bert_tagger_2.output_layer)
-    assert words_and_bert_tokens == \
-        [('Jah', ['jah']), (',', [',']), ('kuni', ['kuni']), ('ta', ['ta']), ('15', ['15']), 
-         ('4е', ['4', '##e']), ('jala', ['jala']), ('pikuseks', ['piku', '##seks']), ('saab', ['saab']), 
-         ('.', ['.']), 
-         ('Kas', ['kas']), ('kood', ['kood']), ('oli', ['oli']), ('1и', ['1', '##i']), ('või', ['voi']), 
-         ('Cи', ['c', '##i']), ('?', ['?'])]
+    if parse_version(transformers_version) < pkg_Version('5.0.0'):
+        # transformers 4.x
+        assert words_and_bert_tokens == \
+            [('Jah', ['jah']), (',', [',']), ('kuni', ['kuni']), ('ta', ['ta']), ('15', ['15']), 
+             ('4е', ['4', '##e']), ('jala', ['jala']), ('pikuseks', ['piku', '##seks']), ('saab', ['saab']), 
+             ('.', ['.']), 
+             ('Kas', ['kas']), ('kood', ['kood']), ('oli', ['oli']), ('1и', ['1', '##i']), ('või', ['voi']), 
+             ('Cи', ['c', '##i']), ('?', ['?'])]
+    else:
+        # transformers 5.x
+        assert words_and_bert_tokens == \
+            [('Jah', ['Ja', '##h']), (',', [',']), ('kuni', ['kuni']), ('ta', ['ta']), ('15', ['15']), 
+             ('4е', ['4', '##e']), ('jala', ['jala']), ('pikuseks', ['piku', '##seks']), ('saab', ['saab']), 
+             ('.', ['.']), 
+             ('Kas', ['Kas']), ('kood', ['kood']), ('oli', ['oli']), ('1и', ['1', '##i']), ('või', ['või']), 
+             ('Cи', ['Ci']), ('?', ['?'])]
