@@ -423,6 +423,8 @@ def test_syntax_phrase_extractor_on_stanza_syntax():
     #   https://github.com/estnltk/estnltk/blob/93a9435c353c6b0c39fdf2596ca9b9f48bcf8205/estnltk/estnltk/taggers/standard/syntax/phrase_extraction/tests/phrase_extractor_jupyter_tests.ipynb
     from estnltk_core.layer_operations import split_by_sentences
     from estnltk_neural.taggers import StanzaSyntaxTagger
+    # Get stanza model's version (the release date of the models)
+    STANZA_SYNTAX_MODELS_VER = STANZA_SYNTAX_MODELS_PATH.rstrip(r'\//')[-10:] if isinstance(STANZA_SYNTAX_MODELS_PATH, str) else ''
     stanza_tagger = StanzaSyntaxTagger(input_type="morph_extended", input_morph_layer="morph_extended", add_parent_and_children=True)
     phrase_tagger2 = PhraseExtractor(deprel="obl", syntax_layer="stanza_syntax", output_layer="obl_phrases")
     three_sentences = Text('Kolme aastaga on Eminem alias Marshall Mathers III ( 30 ) kindlalt meie teadvusesse sööbinud . '+\
@@ -439,14 +441,21 @@ def test_syntax_phrase_extractor_on_stanza_syntax():
     assert len(split_sentences) == 3
     # Validate sentence Text objects
     txt1 = split_sentences[0]
-    assert len(txt1.obl_phrases) == 2, len(txt1.obl_phrases)
+    if STANZA_SYNTAX_MODELS_VER == '2026-08-18':
+        # result with model version stanza_syntax_2026-08-18
+        assert len(txt1.obl_phrases) == 1, len(txt1.obl_phrases)
+    else:
+        # results with older models
+        assert len(txt1.obl_phrases) == 2, len(txt1.obl_phrases)
     assert list(txt1.obl_phrases[0].text) == ['Kolme', 'aastaga'], list(txt1.obl_phrases[0].text)
     assert len(txt1.obl_phrases[0]) == 2, len(txt1.obl_phrases[0])
-    assert len(txt1.obl_phrases[1]) == 2, len(txt1.obl_phrases[1])
-    assert list(txt1.obl_phrases[1].text) == ['meie', 'teadvusesse'], list(txt1.obl_phrases[1].text)
+    if STANZA_SYNTAX_MODELS_VER < '2026-08-18':
+        # results with older models
+        assert len(txt1.obl_phrases[1]) == 2, len(txt1.obl_phrases[1])
+        assert list(txt1.obl_phrases[1].text) == ['meie', 'teadvusesse'], list(txt1.obl_phrases[1].text)
     txt2 = split_sentences[1]
     # Note: restult depends on stanza's version/implementation
-    assert len(txt2.obl_phrases) in [1, 2], len(txt2.obl_phrases)
+    assert len(txt2.obl_phrases) in [0, 1, 2], len(txt2.obl_phrases)
     if len(txt2.obl_phrases) == 2:
         # Result with stanza version < 1.8.2,  model version stanza_syntax_2023-01-21
         assert list(txt2.obl_phrases[0].text) == ['sellest'], list(txt2.obl_phrases[0].text)
@@ -457,6 +466,9 @@ def test_syntax_phrase_extractor_on_stanza_syntax():
         # Result with stanza version 1.8.2,  model version stanza_syntax_2023-01-21
         assert list(txt2.obl_phrases[0].text) == ['nõiaringist'], list(txt2.obl_phrases[0].text)
         assert len(txt2.obl_phrases[0]) == 1, len(txt2.obl_phrases[0])
+    elif len(txt2.obl_phrases) == 0:
+        # Result with stanza version 1.12.1,  model version stanza_syntax_2026-08-18
+        assert STANZA_SYNTAX_MODELS_VER >= '2026-08-18'
     txt3 = split_sentences[2]
     assert len(txt3.obl_phrases) == 1, len(txt3.obl_phrases)
     assert list(txt3.obl_phrases[0].text) == ['vangi'], list(txt3.obl_phrases[0].text)
