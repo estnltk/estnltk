@@ -25,7 +25,7 @@ This package contains EstNLTK's basic linguistic analysis, system and database t
 
 ### Installation
 
-EstNLTK is available for osx, windows-64, and linux-64, and for python versions 3.10 to 3.14. 
+EstNLTK is available for osx, windows-64, and linux-64, and for python versions 3.11 to 3.14. 
 You can install the latest version via PyPI:
 
 ```

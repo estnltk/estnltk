@@ -18,7 +18,7 @@ Source code of packages is available at the [EstNLTK's monorepository](https://g
 
 ### Installation
 
-EstNLTK is available for osx, windows-64, and linux-64, and for python versions 3.10 to 3.14. 
+EstNLTK is available for osx, windows-64, and linux-64, and for python versions 3.11 to 3.14. 
 You can install the latest version via PyPI:
 
 ```

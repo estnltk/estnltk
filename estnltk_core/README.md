@@ -28,7 +28,7 @@ And as an Anaconda package:
 conda install -c estnltk -c conda-forge estnltk_core=1.7.5
 ```
 
-Supported Python versions: 3.10+
+Supported Python versions: 3.11+
 
 ### Documentation
 
