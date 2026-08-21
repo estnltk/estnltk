@@ -6,6 +6,7 @@ This package contains EstNLTK's linguistic analysis tools that use neural models
 * bert embeddings tagger;
 * bert-based named entity recognition;
 * bert-based morphological features tagger and disambiguator;
+* bert-based morphological form homonymy post-corrector;
 * GliLem lemmatizer and morphological disambiguator;
 * stanza syntax tagger and stanza ensemble syntax tagger;
 * pronominal coreference tagger v1 (relies on stanza for input preprocessing);
@@ -43,7 +44,8 @@ EstNLTK's [NLP component tutorials](https://github.com/estnltk/estnltk/tree/main
 
 * [bert embeddings tagger](https://github.com/estnltk/estnltk/blob/main/tutorials/nlp_pipeline/E_embeddings/bert_embeddings_tagger.ipynb);
 * [named entity recognition (incl bert-based approaches)](https://github.com/estnltk/estnltk/blob/main/tutorials/nlp_pipeline/D_information_extraction/02_named_entities.ipynb);
-* [bert-based morphological features tagger and disambiguator](https://github.com/estnltk/estnltk/blob/main/tutorials/nlp_pipeline/B_morphology/08_bert_based_morph_tagger.ipynb);
+* [bert-based morphological features tagger and disambiguator ( incl form homonymy post-corrector )](https://github.com/estnltk/estnltk/blob/main/tutorials/nlp_pipeline/B_morphology/08_bert_based_morph_tagger.ipynb);
+* [Vabamorf with bert-based disambiguator ( incl form homonymy post-corrector )](https://github.com/estnltk/estnltk/blob/main/tutorials/nlp_pipeline/B_morphology/04_vabamorf_with_bert_based_disambiguation.ipynb);
 * [GliLem lemmatizer and morphological disambiguator](https://github.com/estnltk/estnltk/blob/main/tutorials/nlp_pipeline/B_morphology/08_glilem_lemmatizer_and_disambiguator.ipynb);
 * [stanza-based syntax taggers](https://github.com/estnltk/estnltk/blob/main/tutorials/nlp_pipeline/C_syntax/03_syntactic_analysis_with_stanza.ipynb);
 * [pronominal coreference tagger v1](https://github.com/estnltk/estnltk/blob/main/tutorials/nlp_pipeline/D_information_extraction/04_pronominal_coreference.ipynb);
