@@ -458,7 +458,9 @@ def test_estroberta_hist_ner_for_tccp_tokenization_problem():
     hist_ner_tagger.tag(text)
     output_layer = hist_ner_tagger.output_layers[0]
     #print( _ner_spans_as_tuples( text[output_layer] ) )
-    assert _ner_spans_as_tuples( text[output_layer] ) == \
-        [(6, 13, '26½ kr.', 'MONEY'), (50, 67, 'Tiisikuseravilale', 'ORG'), 
-         (87, 101, '1½ milj. senti', 'MONEY'), (106, 119, '15.000 krooni', 'MONEY')]
+    assert _ner_spans_as_tuples( text[output_layer] ) in \
+        [[(6, 13, '26½ kr.', 'MONEY'), (50, 67, 'Tiisikuseravilale', 'ORG'), 
+          (87, 101, '1½ milj. senti', 'MONEY'), (106, 119, '15.000 krooni', 'MONEY')],   # with transformers 5.1.0
+         [(6, 8, '26', 'MONEY'), (8, 13, '½ kr.', 'MONEY'), (50, 67, 'Tiisikuseravilale', 'ORG'), 
+          (87, 101, '1½ milj. senti', 'MONEY'), (106, 119, '15.000 krooni', 'MONEY')]]   # with transformers 5.15.1
 
