@@ -28,7 +28,7 @@ And as an Anaconda package:
 conda install -c estnltk -c conda-forge estnltk_core=1.7.4
 ```
 
-Supported Python versions: 3.9+
+Supported Python versions: 3.10+
 
 ### Documentation
 
@@ -40,7 +40,6 @@ The source of the package can be found at [main branch](https://github.com/estnl
 
 ## License
 
-EstNLTK-core is released under dual license - either GNU General Public License v2.0 or 
-Apache 2.0 License. 
+EstNLTK-core is released under dual license - either GNU General Public License v2.0 or Apache 2.0 License. 
 
 (C) University of Tartu  

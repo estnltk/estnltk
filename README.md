@@ -18,7 +18,7 @@ Source code of packages is available at the [EstNLTK's monorepository](https://g
 
 ### Installation
 
-EstNLTK is available for osx, windows-64, and linux-64, and for python versions 3.9 to 3.12 (3.13*). 
+EstNLTK is available for osx, windows-64, and linux-64, and for python versions 3.10 to 3.14. 
 You can install the latest version via PyPI:
 
 ```
@@ -27,22 +27,20 @@ pip install estnltk==1.7.4
 
 Alternatively, you can install EstNLTK via [Anaconda](https://www.anaconda.com/download). Installation steps with conda:
 
-1. [create a conda environment](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#creating-an-environment-with-commands) with python 3.10, for instance:
+1. [create a conda environment](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#creating-an-environment-with-commands) with python 3.12, for instance:
 ```
-conda create -n py310 python=3.10
+conda create -n py312 python=3.12
 ```
 
 2. [activate the environment](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#activating-an-environment), for instance:
 ```
-conda activate py310
+conda activate py312
 ```
 
 3. install EstNLTK with the command:
 ```
 conda install -c estnltk -c conda-forge estnltk=1.7.4
 ```
-
-*Currently, estnltk package for python 3.13 is only available via pip. 
 
 _Remark about conda installations:_ As our platform coverage is wider on pip, we encourage installing EstNLTK inside conda environment through pip if the default conda installation fails. 
 
