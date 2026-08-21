@@ -1,10 +1,10 @@
 #
-# Docker file for Ubuntu 22.04 based EstNLTK 1.7 devel building, installing and testing
+# Docker file for Ubuntu 24.04 based EstNLTK 1.7 devel building, installing and testing
 #
 # ================================
 #   Set up OS
 # ================================
-FROM ubuntu:22.04
+FROM ubuntu:24.04
 
 RUN apt-get update && apt-get upgrade -y && apt-get install -y wget && \
     apt-get install -y g++ libpcre3 libpcre3-dev swig && \
@@ -59,18 +59,20 @@ ENV PATH=/miniconda/bin:${PATH}
 
 # Configure and update conda
 RUN conda config --set always_yes yes && \
+    conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/main && \
+    conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/r && \
     conda update -q conda && \
     conda info -a
 
 # ================================
-#   Python 3.10
+#   Python 3.11
 # ================================
-RUN echo " Python 3.10 " | figlet 
-RUN conda create -n py310 python=3.10
+RUN echo " Python 3.11 " | figlet 
+RUN conda create -n py311 python=3.11
 #
 # Make RUN commands to use the new environment (https://pythonspeed.com/articles/activate-conda-dockerfile/)
 #
-SHELL ["conda", "run", "-n", "py310", "/bin/bash", "-c"]
+SHELL ["conda", "run", "-n", "py311", "/bin/bash", "-c"]
 RUN python --version
 
 # ================================
@@ -175,6 +177,6 @@ RUN python -c "from estnltk.resource_utils import delete_all_resources; delete_a
 #RUN rm -r dist
 #WORKDIR /
 # Remove the environment
-#RUN conda remove --name py310 --all
+#RUN conda remove --name py311 --all
 
 #ENTRYPOINT ["/bin/bash"]
