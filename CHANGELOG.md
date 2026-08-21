@@ -19,7 +19,7 @@ All notable changes to this project will be documented in this file.
 * Updated `PgCollection`: 
     * removed deprecated methods `create`, `continue_creating_layer`, `delete`, `has_fragment`, `get_fragment_names` and `get_fragment_tables`; 
     * changed ngram index creation (`add_layer`, `create_layer`, `create_fragmented_layer`): layer ngram index is no longer stored in the detached or fragmented layer table, but in a separate layer ngram index table. As a result, `LayerNgramQuery` in EstNLTK v1.7.4 and earlier versions cannot be used on ngram indexes created with the new version (and vice versa) [(tutorial)](https://github.com/estnltk/estnltk/blob/ec7962be359a7ac05e94b76071ed8de97cc2e578/tutorials/storage/indexing_postgres_storage.ipynb); 
-    * collection table indentifier length is checked before adding new collection or layer table in order to avoid exceeding the Postgres' index name limit (63 chars). Also, '__' is no longer allowed in table name.
+    * collection table indentifier length is checked before adding new collection or layer table in order to avoid exceeding the Postgres' name length limit (63 chars). Also, '__' is no longer allowed in table name.
     
 * Updated `PostgresStorage`: 
     * `add_collection` no longer creates collection indexes by default, but only if the flag `create_index` has been set. It is recommended to create collection indexes after data insertion, see [this tutorial](https://github.com/estnltk/estnltk/blob/ec7962be359a7ac05e94b76071ed8de97cc2e578/tutorials/storage/indexing_postgres_storage.ipynb) for details;
