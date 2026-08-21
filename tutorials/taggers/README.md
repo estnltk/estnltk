@@ -11,7 +11,7 @@ Tagger is a generic class that creates a layer and attaches it to the text objec
 
 * [Generic taggers](system/) for comparing, manipulating and merging annotation layers, and for testing taggers.
 
-* [Rule taggers](rule_taggers/) for text annotation using regular experssions, word listings and phrase patterns.
+* [Rule taggers](rule_taggers/) for text annotation using regular experssions, word listings, phrase patterns, dependency syntactic relations and morphosyntactic features.
 
 * [GrammarParsingTagger](finite_grammar/) for finite grammar based text annotation.
 
