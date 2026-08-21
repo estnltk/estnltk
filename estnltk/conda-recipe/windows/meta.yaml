@@ -1,4 +1,4 @@
-{% set version = "1.7.4" %}
+{% set version = "1.7.5" %}
 
 package:
   name: estnltk
@@ -24,7 +24,7 @@ requirements:
     - wheel 
   run:
     - python
-    - estnltk_core >=1.7.4
+    - estnltk_core >=1.7.5
     - nltk >=3.4.1
     - regex >=2015.11.22
     - conllu >=3.1.1

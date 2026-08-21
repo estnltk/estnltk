@@ -1,4 +1,4 @@
-{% set version = "1.7.4" %}
+{% set version = "1.7.5" %}
 
 package:
   name: estnltk_neural
@@ -20,8 +20,8 @@ requirements:
     - wheel
   run:
     - python 
-    - estnltk_core >=1.7.4
-    - estnltk >=1.7.4
+    - estnltk_core >=1.7.5
+    - estnltk >=1.7.5
     - transformers
     - pytorch
     - stanza
