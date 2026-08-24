@@ -64,7 +64,7 @@ jobs:
 
       - name: Build wheels
         run: | 
-          python -m cibuildwheel --output-dir wheelhouse --package-dir ./estnltk
+          cd estnltk && python -m cibuildwheel --output-dir wheelhouse 
         env:
           # configure cibuildwheel to build native archs, and some
           # emulated ones
