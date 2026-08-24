@@ -20,13 +20,13 @@ jobs:
         os: [ubuntu-latest]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         name: Install Python
 
       - name: Setup miniconda
-        uses: conda-incubator/setup-miniconda@v3
+        uses: conda-incubator/setup-miniconda@v4
         with:
           auto-update-conda: true
           python-version: "3.11"
@@ -51,10 +51,10 @@ jobs:
       #  to store a new build)
       - name: Cache ec_channel
         id: cache-ec-channel
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: estnltk_core/ec_channel
-          key: estnltk-core-channel-2025-01-22-1
+          key: estnltk-core-channel-2026-08-24-1
           enableCrossOsArchive: true
 
       - name: Build estntlk_core conda package
@@ -68,7 +68,7 @@ jobs:
           dir ec_channel/noarch
           echo --- dir 2 completed --- 
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: estnltk-core-conda-package
           path: |
@@ -83,13 +83,13 @@ jobs:
     needs: [build_estnltk_core_conda_package]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: estnltk-core-conda-package
           path: conda-packages
 
       - name: Setup miniconda
-        uses: conda-incubator/setup-miniconda@v3
+        uses: conda-incubator/setup-miniconda@v4
         with:
           auto-activate-base: true
           activate-environment: true
