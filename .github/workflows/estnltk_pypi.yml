@@ -17,9 +17,9 @@ jobs:
     runs-on: ubuntu-latest
     #if: false  # Use this condition to skip the job
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         name: Install Python
 
       - name: Install pypa/build
@@ -31,7 +31,7 @@ jobs:
           cd estnltk
           python -m build --sdist --outdir dist/ .
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: estnltk-pypi-packages-sdist
           path: |
@@ -47,30 +47,30 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-latest]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         name: Install Python
         with:
-          python-version: '3.11'
+          python-version: '3.13'
 
       - name: Install pypa/build
         run: |
           python -m pip install build --user
 
+      - name: Install cibuildwheel
+        run: | 
+          python -m pip install cibuildwheel==4.2.0
+
       - name: Build wheels
-        # Check the latest version from: https://github.com/pypa/cibuildwheel
-        uses: pypa/cibuildwheel@v2.22.0
-        with:
-          package-dir: ./estnltk
-          output-dir:  ./estnltk/wheelhouse
+        run: | 
+          python -m cibuildwheel --output-dir wheelhouse --package-dir ./estnltk
         env:
           # configure cibuildwheel to build native archs, and some
           # emulated ones
           # https://cibuildwheel.pypa.io/en/stable/faq/#emulation
           CIBW_ARCHS_LINUX: x86_64
           #CIBW_ARCHS_LINUX: x86_64 aarch64
-
 
           # Cross-compile x86_64 wheels on arm64 runners.
           # Note: although we could make universal2 wheel, 
@@ -79,7 +79,6 @@ jobs:
           # separate wheels -- this is to be avoided
           #CIBW_ARCHS_MACOS: x86_64
           CIBW_ARCHS_MACOS: x86_64 arm64
-
 
           # Before build:
           # 0) Install legacy versions of dependency packages (only for py39);
@@ -93,8 +92,7 @@ jobs:
 
           # List of available platforms: 
           # https://cibuildwheel.readthedocs.io/en/stable/options/#build-skip 
-          #CIBW_BUILD: cp313-*64
-          CIBW_BUILD: cp311-*64
+          CIBW_BUILD: cp313-*64
           #CIBW_BUILD: cp39-*64
           #CIBW_BUILD:  cp310-*64  cp311-*64  cp312-*64
 
@@ -102,7 +100,7 @@ jobs:
           # Enable if you get it working.
           CIBW_SKIP: pp* *win_arm64 *musllinux_x86_64 *musllinux_aarch64
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: estnltk-pypi-packages-${{ matrix.os }}
           path: ./estnltk/wheelhouse/*.whl
@@ -115,7 +113,7 @@ jobs:
     #needs: [build_estnltk_wheels] 
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           path: estnltk-pypi-packages
           pattern: estnltk-pypi-packages-*
@@ -124,7 +122,7 @@ jobs:
       - uses: pypa/gh-action-pypi-publish@release/v1
         with:
           user: __token__
-          password: ${{ secrets.pypi_token }}
+          password: ${{ secrets.test_pypi_token }}
           packages-dir: estnltk-pypi-packages
           # Use https://test.pypi.org instead of the default pypi:
-          #repository-url: https://test.pypi.org/legacy/
+          repository-url: https://test.pypi.org/legacy/
