@@ -33,12 +33,11 @@ jobs:
           channels: anaconda, conda-forge
           miniconda-version: "latest"
           activate-environment: building
+          auto-activate: true
 
       - name: Install conda-build and conda-verify
         shell: bash -el {0}
         run: |
-          conda info
-          conda list
           conda install conda-build conda-verify
           conda update conda-build
 
@@ -62,8 +61,6 @@ jobs:
       - name: Build estntlk_core conda package
         shell: bash -el {0}
         run: |
-          conda info
-          conda list
           cd estnltk_core
           conda build -c conda-forge --output-folder ec_channel conda_recipe
           echo --- estntlk_core completed --- 
