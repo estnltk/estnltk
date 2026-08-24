@@ -17,11 +17,10 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        #os: [ubuntu-latest, windows-latest, macos-latest]
         os: [ubuntu-latest, windows-latest, macos-latest]
         python-version: ['3.11']
-        #python-version: ['3.9']
-        #python-version: ['3.10', '3.11', '3.12']
+        #python-version: ['3.13', '3.14']
+        #python-version: ['3.12', '3.13', '3.14']
 
     steps:
       - uses: actions/checkout@v7
@@ -35,7 +34,7 @@ jobs:
         uses: conda-incubator/setup-miniconda@v3
         with:
           auto-update-conda: true
-          python-version: '3.12'
+          python-version: ${{ matrix.python-version }}
           channels: anaconda, conda-forge
           miniconda-version: "latest"
           activate-environment: building
