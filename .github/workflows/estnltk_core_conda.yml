@@ -34,13 +34,13 @@ jobs:
           miniconda-version: "latest"
           activate-environment: building
           use-only-tar-bz2: true
-          # disable base environment activation:
-          auto-activate: false
+          conda-build-version: 26.7.1
+          # enable base environment activation:
+          auto-activate: true
 
       - name: Install conda-build and conda-verify
         shell: bash -el {0}
         run: |
-          conda install conda-build conda-verify
           conda update conda-build
 
       # Use estnltk-core-channel cache. 
