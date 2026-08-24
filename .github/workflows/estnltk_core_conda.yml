@@ -98,7 +98,7 @@ jobs:
           auto-activate-base: true
           activate-environment: true
           auto-update-conda: true
-          python-version: ['3.13']
+          python-version:  '3.13'
           channels: anaconda, conda-forge
           miniconda-version: "latest"
 
