@@ -81,6 +81,8 @@ subsection "II. Pre-defined visualisation modules");
 * Fixed `GliLemTagger`'s model initialization (removed model_max_length=512 parameter);
 * Fixed `BertTransformer`: adapted to transformers 5.0.0 tokenizer api changes;
 * Added missing `SliceQuery` import to estnltk.storage.postgres;
+* Fixed a pointer error in Vabamorf's source [(b737152
+)](https://github.com/estnltk/estnltk/commit/b737152e6a6d5906135ea4993ffe7b654f2b71dd). Note that the compiler error only appeared when compiling under MacOs, but not under Windows nor under Ubuntu;
 
 
 
