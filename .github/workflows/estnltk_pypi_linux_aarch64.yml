@@ -20,12 +20,12 @@ jobs:
         os: [ubuntu-latest]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         name: Install Python
         with:
-          python-version: '3.11'
+          python-version: '3.13'
 
       - name: Install pypa/build
         run: |
@@ -41,7 +41,7 @@ jobs:
 
       - name: Build wheels
         # Check the latest version from: https://github.com/pypa/cibuildwheel
-        uses: pypa/cibuildwheel@v2.22.0
+        uses: pypa/cibuildwheel@v4.2.0
         with:
           package-dir: ./estnltk
           output-dir:  ./estnltk/wheelhouse
@@ -53,7 +53,6 @@ jobs:
           CIBW_ARCHS_LINUX: aarch64
           #CIBW_ARCHS_LINUX: x86_64 aarch64
 
-
           # Before build:
           # 0) Install legacy versions of dependency packages (only for py39);
           # 1) install estnltk_core, because the package is not yet 
@@ -61,23 +60,23 @@ jobs:
           CIBW_BEFORE_BUILD:  >
             cd estnltk_core && 
             pip install . && 
-            cd .. &&
+            cd .. && 
             echo --- estntlk_core completed ---
 
           # List of available platforms: 
           # https://cibuildwheel.readthedocs.io/en/stable/options/#build-skip 
-          CIBW_BUILD: cp39-*64
+          CIBW_BUILD: cp311-*64
           #CIBW_BUILD:  cp310-*64  cp311-*64  cp312-*64  cp313-*64
 
           # Disable building PyPy wheels on all platforms.
           # Enable if you get it working.
-          CIBW_SKIP: pp* *win_arm64 *musllinux_x86_64 *musllinux_aarch64
+          CIBW_SKIP:  "*win_arm64 *musllinux_x86_64 *musllinux_aarch64"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: estnltk-pypi-packages-linux-aarch64-${{ matrix.os }}
           path: ./estnltk/wheelhouse/*.whl
-          retention-days: 14
+          retention-days: 7
           overwrite: true
 
   upload_pypi:
@@ -85,13 +84,15 @@ jobs:
     needs: [build_estnltk_wheels] 
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
+        if: false
         with:
           path: estnltk-pypi-packages-linux-aarch64-
           pattern: estnltk-pypi-packages-linux-aarch64-*
           merge-multiple: true
 
       - uses: pypa/gh-action-pypi-publish@release/v1
+        if: false
         with:
           user: __token__
           password: ${{ secrets.pypi_token }}
