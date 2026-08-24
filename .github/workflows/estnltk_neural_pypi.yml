@@ -20,19 +20,19 @@ jobs:
         os: [ubuntu-latest]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         name: Install Python
         with:
-          python-version: '3.11'
+          python-version: '3.13'
 
       - name: Install pypa/build
         run: |
           python -m pip install build --user
 
       - name: Build estnltk
-        uses: pypa/cibuildwheel@v2.22.0
+        uses: pypa/cibuildwheel@v4.2.0
         with:
           package-dir: ./estnltk
           output-dir:  ./estnltk/wheelhouse
@@ -44,17 +44,17 @@ jobs:
           CIBW_BEFORE_BUILD:  >
             cd estnltk_core && 
             pip install . && 
-            cd .. &&
+            cd .. && 
             echo --- estntlk_core completed ---
 
           # List of available platforms: 
           # https://cibuildwheel.readthedocs.io/en/stable/options/#build-skip 
-          CIBW_BUILD:  cp311-*64
-          #CIBW_BUILD:  cp39-*64  cp310-*64  cp311-*64  cp312-*64  cp313-*64
+          CIBW_BUILD:   cp313-*64
+          #CIBW_BUILD:  cp310-*64  cp311-*64  cp312-*64
 
           # Disable building PyPy wheels on all platforms.
           # Enable if you get it working.
-          CIBW_SKIP: pp* *arm64 *musllinux_x86_64 *musllinux_aarch64
+          CIBW_SKIP:  "*win_arm64 *musllinux_x86_64 *musllinux_aarch64"
 
       - name: Build estnltk_neural wheel
         run: |
@@ -71,7 +71,7 @@ jobs:
           ls dist
           echo --- ls dist completed --- 
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: estnltk-neural-pypi-packages
           path: |
@@ -85,7 +85,7 @@ jobs:
     needs: [build_estnltk_neural_and_sdist]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           path: estnltk-neural-pypi-packages
           pattern: estnltk-neural-pypi-packages
@@ -94,7 +94,7 @@ jobs:
       - uses: pypa/gh-action-pypi-publish@release/v1
         with:
           user: __token__
-          password: ${{ secrets.pypi_token }}
-          # Use https://test.pypi.org instead of the default pypi:
-          #repository-url: https://test.pypi.org/legacy/
+          password: ${{ secrets.test_pypi_token }}
           packages-dir: estnltk-neural-pypi-packages
+          # Use https://test.pypi.org instead of the default pypi:
+          repository-url: https://test.pypi.org/legacy/
