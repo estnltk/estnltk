@@ -34,7 +34,8 @@ jobs:
           miniconda-version: "latest"
           activate-environment: building
           use-only-tar-bz2: true
-          auto-activate: true
+          # disable base environment activation:
+          auto-activate: false
 
       - name: Install conda-build and conda-verify
         shell: bash -el {0}
