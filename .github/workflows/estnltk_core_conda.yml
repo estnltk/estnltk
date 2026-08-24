@@ -63,7 +63,7 @@ jobs:
         shell: bash -el {0}
         run: |
           cd estnltk_core
-          conda run -n building -c "conda build -c conda-forge --output-folder ec_channel conda_recipe"
+          conda run -n building "conda build -c conda-forge --output-folder ec_channel conda_recipe"
           echo --- estntlk_core completed --- 
           dir ec_channel
           echo --- dir 1 completed --- 
