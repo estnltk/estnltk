@@ -35,7 +35,7 @@ jobs:
           activate-environment: building
 
       - name: Install conda-build and conda-verify
-        shell: bash -l {0}
+        shell: bash -el {0}
         run: |
           conda install conda-build conda-verify
           conda update conda-build
@@ -58,9 +58,10 @@ jobs:
           enableCrossOsArchive: true
 
       - name: Build estntlk_core conda package
-        shell: bash -l {0}
+        shell: bash -el {0}
         run: |
           cd estnltk_core
+          conda build --version
           conda build -c conda-forge --output-folder ec_channel conda_recipe
           echo --- estntlk_core completed --- 
           dir ec_channel
@@ -99,12 +100,12 @@ jobs:
           miniconda-version: "latest"
 
       - name: Install anaconda-client
-        shell: bash -l {0}
+        shell: bash -el {0}
         run: |
           conda install anaconda-client
 
       - name: Upload estnltk_core conda package
-        shell: bash -l {0}
+        shell: bash -el {0}
         run: |
           echo --------------------- 
           cd conda-packages
