@@ -140,7 +140,7 @@ public:
     BASIC_TYPE_WITH_CMP & operator=(BASIC_TYPE_WITH_CMP& rec)
     {
         if (this != &rec)
-            obj = rec->obj;
+            obj = rec.obj;
         return *this;
     }
 
