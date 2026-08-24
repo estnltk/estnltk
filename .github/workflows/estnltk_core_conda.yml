@@ -39,10 +39,10 @@ jobs:
       - name: Install conda-build and conda-verify
         shell: bash -el {0}
         run: |
-          conda list -n building conda-build
+          conda list -n building | grep build
           conda install conda-build conda-verify
           conda update conda-build
-          conda list -n building conda-build
+          conda list -n building | grep build
 
       # Use estnltk-core-channel cache. 
       # The goal is to store the channel data, so 
