@@ -33,16 +33,14 @@ jobs:
           channels: anaconda, conda-forge
           miniconda-version: "latest"
           activate-environment: building
-          auto-activate: true
           use-only-tar-bz2: true
+          auto-activate: true
 
       - name: Install conda-build and conda-verify
         shell: bash -el {0}
         run: |
-          conda list -n building | grep build
           conda install conda-build conda-verify
           conda update conda-build
-          conda list -n building | grep build
 
       # Use estnltk-core-channel cache. 
       # The goal is to store the channel data, so 
@@ -65,9 +63,7 @@ jobs:
         shell: bash -el {0}
         run: |
           cd estnltk_core
-          conda activate building
-          conda list -n building | grep build
-          conda build -c conda-forge --output-folder ec_channel conda_recipe
+          conda run -n building -c conda build -c conda-forge --output-folder ec_channel conda_recipe
           echo --- estntlk_core completed --- 
           dir ec_channel
           echo --- dir 1 completed --- 
