@@ -44,9 +44,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        #os: [ubuntu-latest, windows-latest, macos-latest]
-        #os: [ubuntu-latest, windows-latest]
-        os: [macos-latest]
+        os: [ubuntu-latest, windows-latest, macos-latest]
 
     steps:
       - uses: actions/checkout@v7
@@ -99,7 +97,7 @@ jobs:
 
           # Disable building PyPy wheels on all platforms.
           # Enable if you get it working.
-          CIBW_SKIP:  "pp* *win_arm64 *musllinux_x86_64 *musllinux_aarch64"
+          CIBW_SKIP:  "*win_arm64 *musllinux_x86_64 *musllinux_aarch64"
 
       - uses: actions/upload-artifact@v7
         with:
@@ -115,14 +113,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v8
-        if: false
         with:
           path: estnltk-pypi-packages
           pattern: estnltk-pypi-packages-*
           merge-multiple: true
 
       - uses: pypa/gh-action-pypi-publish@release/v1
-        if: false
         with:
           user: __token__
           password: ${{ secrets.test_pypi_token }}
