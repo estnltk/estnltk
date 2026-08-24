@@ -58,8 +58,9 @@ jobs:
 
       - name: Build estnltk_neural wheel
         run: |
-          cd estnltk_core
-          python setup.py install 
+          cd estnltk_core && 
+          pip install . && 
+          cd .. && 
           echo --- estntlk_core completed --- 
           cd ..
           wheelfile=$(ls -1 estnltk/wheelhouse/*.whl) 
