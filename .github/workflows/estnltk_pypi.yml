@@ -97,7 +97,7 @@ jobs:
 
           # Disable building PyPy wheels on all platforms.
           # Enable if you get it working.
-          CIBW_SKIP:  *win_arm64 *musllinux_x86_64 *musllinux_aarch64
+          CIBW_SKIP:  "pp* *win_arm64 *musllinux_x86_64 *musllinux_aarch64"
 
       - uses: actions/upload-artifact@v7
         with:
