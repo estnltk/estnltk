@@ -85,9 +85,11 @@ jobs:
           # 1) install estnltk_core, because the package is not yet 
           #    available from the pypi;
           CIBW_BEFORE_BUILD:  >
+            cd .. &&
             cd estnltk_core && 
             pip install . && 
-            cd .. &&
+            cd .. && 
+            cd estnltk && 
             echo --- estntlk_core completed ---
 
           # List of available platforms: 
