@@ -18,7 +18,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        python-version: ['3.13']
+        python-version: ['3.12']
 
     steps:
       - uses: actions/checkout@v7
@@ -29,14 +29,13 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Setup miniconda
-        uses: conda-incubator/setup-miniconda@v4
+        uses: conda-incubator/setup-miniconda@v3
         with:
           auto-update-conda: true
           python-version: ${{ matrix.python-version }}
           channels: anaconda, conda-forge
           miniconda-version: "latest"
           activate-environment: building
-          use-only-tar-bz2: true
 
       - name: Install conda-build and conda-verify
         shell: bash -el {0}
@@ -93,7 +92,7 @@ jobs:
           path: conda-packages
 
       - name: Setup miniconda
-        uses: conda-incubator/setup-miniconda@v4
+        uses: conda-incubator/setup-miniconda@v3
         with:
           auto-activate-base: true
           activate-environment: true
