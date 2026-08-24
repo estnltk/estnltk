@@ -29,13 +29,14 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Setup miniconda
-        uses: conda-incubator/setup-miniconda@v3
+        uses: conda-incubator/setup-miniconda@v4
         with:
           auto-update-conda: true
           python-version: ${{ matrix.python-version }}
           channels: anaconda, conda-forge
           miniconda-version: "latest"
           activate-environment: building
+          use-only-tar-bz2: true
 
       - name: Install conda-build and conda-verify
         shell: bash -el {0}
@@ -64,7 +65,7 @@ jobs:
         shell: bash -el {0}
         run: |
           cd estnltk_core
-          conda build -c conda-forge --output-folder ec_channel conda_recipe
+          conda-build -c conda-forge --output-folder ec_channel conda_recipe
           echo --- estntlk_core completed --- 
           dir ec_channel
           echo --- dir 1 completed --- 
@@ -92,7 +93,7 @@ jobs:
           path: conda-packages
 
       - name: Setup miniconda
-        uses: conda-incubator/setup-miniconda@v3
+        uses: conda-incubator/setup-miniconda@v4
         with:
           auto-activate-base: true
           activate-environment: true
