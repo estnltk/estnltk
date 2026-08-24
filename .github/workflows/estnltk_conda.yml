@@ -19,14 +19,14 @@ jobs:
       matrix:
         #os: [ubuntu-latest, windows-latest, macos-latest]
         os: [ubuntu-latest, windows-latest, macos-latest]
-        python-version: ['3.13']
+        python-version: ['3.11']
         #python-version: ['3.9']
         #python-version: ['3.10', '3.11', '3.12']
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         name: Install Python
         with:
           python-version: ${{ matrix.python-version }}
@@ -35,7 +35,7 @@ jobs:
         uses: conda-incubator/setup-miniconda@v3
         with:
           auto-update-conda: true
-          python-version: ${{ matrix.python-version }}
+          python-version: '3.12'
           channels: anaconda, conda-forge
           miniconda-version: "latest"
           activate-environment: building
@@ -54,10 +54,10 @@ jobs:
       # of building estnltk_core conda package
       - name: Cache ec_channel
         id: cache-ec-channel
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: estnltk_core/ec_channel
-          key: estnltk-core-channel-2025-01-22-1
+          key: estnltk-core-channel-2026-08-24-1
           enableCrossOsArchive: true
 
       - name: Build estnltk_core conda package
@@ -65,7 +65,7 @@ jobs:
         shell: bash -el {0}
         run: |
           cd estnltk_core
-          conda build -c conda-forge --output-folder ec_channel conda_recipe
+          conda-build -c conda-forge --output-folder ec_channel conda_recipe
           echo --------------------- 
 
       - if: matrix.os == 'windows-latest'
@@ -83,7 +83,7 @@ jobs:
           echo ${{ github.workspace }} 
           dir ${{ github.workspace }} 
           echo ---------------------
-          conda build -c conda-forge -c ${{ github.workspace }}/estnltk_core/ec_channel --output-folder estnltk/e_channel estnltk/conda-recipe/windows
+          conda-build -c conda-forge -c ${{ github.workspace }}/estnltk_core/ec_channel --output-folder estnltk/e_channel estnltk/conda-recipe/windows
           echo --------------------- 
           dir estnltk\e_channel
           echo --------------------- 
@@ -100,10 +100,10 @@ jobs:
       - if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.11'
         name: Cache e_channel
         id: cache-e-channel
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: estnltk/e_channel
-          key: estnltk-channel-2025-01-22-1
+          key: estnltk-channel-2026-08-24-1
           enableCrossOsArchive: true
 
       - if: matrix.os != 'windows-latest'
@@ -114,13 +114,13 @@ jobs:
           echo ${{ github.workspace }}
           ls -lah ${{ github.workspace }}
           echo ---------------------
-          conda build -c conda-forge -c ${{ github.workspace }}/estnltk_core/ec_channel --output-folder estnltk/e_channel estnltk/conda-recipe/linux_and_osx
+          conda-build -c conda-forge -c ${{ github.workspace }}/estnltk_core/ec_channel --output-folder estnltk/e_channel estnltk/conda-recipe/linux_and_osx
           echo --------------------- 
           ls estnltk/e_channel
           echo --------------------- 
 
       # (!) Important: "macos-latest" would produce "./estnltk/e_channel/osx-arm64/*.tar.bz2"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: estnltk-conda-packages-${{ matrix.os }}-${{ matrix.python-version }}
           path: |
@@ -130,7 +130,7 @@ jobs:
             ./estnltk/e_channel/linux-64/*.conda
             ./estnltk/e_channel/osx-arm64/*.tar.bz2
             ./estnltk/e_channel/osx-arm64/*.conda
-          retention-days: 14
+          retention-days: 7
           overwrite: true
 
 
@@ -139,7 +139,7 @@ jobs:
     needs: [build_estnltk_conda_packages]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           path: estnltk-conda-packages
           pattern: estnltk-conda-packages-*
