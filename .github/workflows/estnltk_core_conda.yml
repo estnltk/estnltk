@@ -18,29 +18,30 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
+        python-version: ['3.14']
 
     steps:
       - uses: actions/checkout@v7
 
       - uses: actions/setup-python@v7
         name: Install Python
+        with:
+          python-version: ${{ matrix.python-version }}
 
       - name: Setup miniconda
         uses: conda-incubator/setup-miniconda@v4
         with:
           auto-update-conda: true
-          python-version: "3.11"
+          python-version: ${{ matrix.python-version }}
           channels: anaconda, conda-forge
           miniconda-version: "latest"
           activate-environment: building
           use-only-tar-bz2: true
-          conda-build-version: 26.7.1
-          # enable base environment activation:
-          auto-activate: true
 
       - name: Install conda-build and conda-verify
         shell: bash -el {0}
         run: |
+          conda install conda-build conda-verify
           conda update conda-build
 
       # Use estnltk-core-channel cache. 
@@ -64,7 +65,7 @@ jobs:
         shell: bash -el {0}
         run: |
           cd estnltk_core
-          conda run -n building "conda build -c conda-forge --output-folder ec_channel conda_recipe"
+          conda build -c conda-forge --output-folder ec_channel conda_recipe
           echo --- estntlk_core completed --- 
           dir ec_channel
           echo --- dir 1 completed --- 
@@ -97,7 +98,7 @@ jobs:
           auto-activate-base: true
           activate-environment: true
           auto-update-conda: true
-          python-version: "3.11"
+          python-version: ['3.13']
           channels: anaconda, conda-forge
           miniconda-version: "latest"
 
