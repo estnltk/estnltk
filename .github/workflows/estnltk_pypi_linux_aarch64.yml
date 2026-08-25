@@ -85,14 +85,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v8
-        if: false
         with:
           path: estnltk-pypi-packages-linux-aarch64-
           pattern: estnltk-pypi-packages-linux-aarch64-*
           merge-multiple: true
 
       - uses: pypa/gh-action-pypi-publish@release/v1
-        if: false
         with:
           user: __token__
           password: ${{ secrets.pypi_token }}
