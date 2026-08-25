@@ -21,13 +21,17 @@ jobs:
         python-version: ['3.11']
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         name: Install Python
         with:
           python-version: ${{ matrix.python-version }}
 
+      # Note: due to conda-build crash with the latest 
+      # version ( an example of the error message here: 
+      # https://github.com/iowarp/clio-core/issues/874 ),
+      # we roll back to setup-miniconda@v3 
       - name: Setup miniconda
         uses: conda-incubator/setup-miniconda@v3
         with:
@@ -54,14 +58,14 @@ jobs:
         uses: actions/cache@v3
         with:
           path: estnltk_core/ec_channel
-          key: estnltk-core-channel-2025-01-22-1
+          key: estnltk-core-channel-2026-08-24-1
 
       - name: Build estnltk_core conda package (noarch)
         if: steps.cache-ec-channel.outputs.cache-hit != 'true'
         shell: bash -el {0}
         run: |
           cd estnltk_core
-          conda build -c conda-forge --output-folder ec_channel conda_recipe
+          conda-build -c conda-forge --output-folder ec_channel conda_recipe
           echo --------------------- 
 
       # Use estnltk-channel cache
@@ -72,10 +76,10 @@ jobs:
       # of building estnltk conda package
       - name: Cache e_channel
         id: cache-e-channel
-        uses: actions/cache@v3
+        uses: actions/cache@v6
         with:
           path: estnltk/e_channel
-          key: estnltk-channel-2025-01-22-1
+          key: estnltk-channel-2026-08-24-1
 
       - name: Build estnltk conda package (${{ matrix.os }})
         if: steps.cache-e-channel.outputs.cache-hit != 'true'
@@ -85,7 +89,7 @@ jobs:
           echo ${{ github.workspace }}
           ls -lah ${{ github.workspace }}
           echo ---------------------
-          conda build -c conda-forge -c ${{ github.workspace }}/estnltk_core/ec_channel --output-folder estnltk/e_channel estnltk/conda-recipe/linux_and_osx
+          conda-build -c conda-forge -c ${{ github.workspace }}/estnltk_core/ec_channel --output-folder estnltk/e_channel estnltk/conda-recipe/linux_and_osx
           echo --------------------- 
           ls estnltk/e_channel
           echo --------------------- 
@@ -97,18 +101,18 @@ jobs:
           echo ${{ github.workspace }}
           ls -lah ${{ github.workspace }}
           echo ---------------------
-          conda build -c conda-forge -c ${{ github.workspace }}/estnltk_core/ec_channel -c ${{ github.workspace }}/estnltk/e_channel --output-folder estnltk_neural/en_channel estnltk_neural/conda_recipe
+          conda-build -c conda-forge -c ${{ github.workspace }}/estnltk_core/ec_channel -c ${{ github.workspace }}/estnltk/e_channel --output-folder estnltk_neural/en_channel estnltk_neural/conda_recipe
           echo --------------------- 
           ls estnltk_neural/en_channel
           echo ---------------------
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: estnltk-neural-conda-package
           path: |
             ./estnltk_neural/en_channel/noarch/*.tar.bz2
             ./estnltk_neural/en_channel/noarch/*.conda
-          retention-days: 14
+          retention-days: 7
           overwrite: true
 
 
@@ -117,7 +121,7 @@ jobs:
     needs: [build_estnltk_neural_conda_package]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           path: estnltk-neural-conda-package
           pattern: estnltk-neural-conda-packag*
