@@ -18,9 +18,8 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        python-version: ['3.13']
-        #python-version: ['3.13', '3.14']
-        #python-version: ['3.12', '3.13', '3.14']
+        python-version: ['3.14']
+        #python-version: ['3.11', '3.12', '3.13', '3.14']
 
     steps:
       - uses: actions/checkout@v7
@@ -30,6 +29,10 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
+      # Note: due to conda-build crash with the latest 
+      # version ( an example of the error message here: 
+      # https://github.com/iowarp/clio-core/issues/874 ),
+      # we roll back to setup-miniconda@v3 
       - name: Setup miniconda
         uses: conda-incubator/setup-miniconda@v3
         with:
