@@ -14,10 +14,15 @@ def check_if_pytorch_is_available():
 
 def check_if_embeddia_estroberta_is_available():
     from huggingface_hub import scan_cache_dir
-    cache_info = scan_cache_dir()
-    for repo in cache_info.repos:
-        if repo.repo_id == 'EMBEDDIA/est-roberta':
-            return True
+    from huggingface_hub.errors import CacheNotFound
+    try:
+        cache_info = scan_cache_dir()
+        for repo in cache_info.repos:
+            if repo.repo_id == 'EMBEDDIA/est-roberta':
+                return True
+    except CacheNotFound as err:
+        # CacheNotFound: Cache directory not found: /root/.cache/huggingface/hub. 
+        pass
     return False
 
 
