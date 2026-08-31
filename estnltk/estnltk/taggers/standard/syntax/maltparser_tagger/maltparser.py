@@ -6,7 +6,6 @@ from __future__ import unicode_literals, print_function
 
 from estnltk.common import PACKAGE_PATH
 import os, os.path
-import codecs
 import tempfile
 import subprocess
 
@@ -236,11 +235,8 @@ def _executeMaltparser(input_string, maltparser_dir, maltparser_jar, model_name,
     temp_input_file = \
         tempfile.NamedTemporaryFile(prefix='malt_in.', mode='w', delete=False)
     temp_input_file.close()
-    # We have to open separately here for writing, because Py 2.7 does not support
-    # passing parameter   encoding='utf-8'    to the NamedTemporaryFile;
-    out_f = codecs.open(temp_input_file.name, mode='w', encoding='utf-8')
-    out_f.write(input_string)
-    out_f.close()
+    with open(temp_input_file.name, mode='w', encoding='utf-8') as out_f:
+        out_f.write(input_string)
 
     temp_output_file = tempfile.NamedTemporaryFile(prefix='malt_out.', mode='w', delete=False)
     temp_output_file.close()
@@ -259,12 +255,9 @@ def _executeMaltparser(input_string, maltparser_dir, maltparser_jar, model_name,
 
     results = []
     if return_type.lower() == 'conllu_lines':
-        in_f = codecs.open(temp_output_file.name, mode='r', encoding='utf-8')
-        for line in in_f:
-            results.append(line.rstrip())
-        in_f.close()
-        if not in_f.closed:
-            raise Exception('Input file unclosed!')
+        with open(temp_output_file.name, mode='r', encoding='utf-8') as in_f:
+            for line in in_f:
+                results.append( line.rstrip() )
         if not temp_output_file.closed:
             raise Exception('Temp output file unclosed!')
         # Remove temporary output file
@@ -275,8 +268,6 @@ def _executeMaltparser(input_string, maltparser_dir, maltparser_jar, model_name,
 
     if not temp_input_file.closed:
         raise Exception('Temp input file unclosed!')
-    if not out_f.closed:
-        raise Exception('Output file unclosed!')
     
     # TODO: For some reason, the method gives "ResourceWarning: unclosed file"
     # in Python 3.4, although, apparently, all file handles seem to be closed;

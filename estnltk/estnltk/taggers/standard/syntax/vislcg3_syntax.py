@@ -60,7 +60,6 @@ from estnltk.converters.cg3.helpers import cleanup_lines
 from os import linesep as OS_NEWLINE
 import re
 import os, os.path, sys
-import codecs
 import tempfile
 from subprocess import Popen, PIPE
 
@@ -219,16 +218,12 @@ class VISLCG3Pipeline:
         temp_input_file = \
             tempfile.NamedTemporaryFile(prefix='vislcg3_in.', mode='w', delete=False)
         temp_input_file.close()
-        # We have to open separately here for writing, because Py 2.7 does not support
-        # passing parameter   encoding='utf-8'    to the NamedTemporaryFile;
-        out_f = codecs.open(temp_input_file.name, mode='w', encoding='utf-8')
-        for line in input_lines:
-            out_f.write( line.rstrip() )
-            out_f.write( '\n' )
-        out_f.close()
+        with open(temp_input_file.name, mode='w', encoding='utf-8') as out_f:
+            for line in input_lines:
+                out_f.write( line.rstrip() )
+                out_f.write( '\n' )
         # TODO: tempfile is currently used to ensure that the input is in 'utf-8',
         #       but perhaps we can somehow ensure it without using tempfile ??
-
 
         # 2) Dynamically construct the pipeline and open processes
         pipeline = []

@@ -1,5 +1,4 @@
 import os
-import codecs
 import regex as re
 from collections import defaultdict
 
@@ -135,7 +134,7 @@ class MorphToSyntaxMorphRetagger(Retagger):
         '''
         rules = defaultdict(list)
         rules_pattern = re.compile(r'(¤?)[^@]*@(_(.)_\s*([^@]*)|####)@[^@]*@_(.)_\s*([^@]*)')
-        with codecs.open(fs_to_synt_rules_file, mode='r', encoding='utf-8') as in_f:
+        with open(fs_to_synt_rules_file, mode='r', encoding='utf-8') as in_f:
             for line in in_f:
                 m = rules_pattern.match(line)
                 assert m is not None, ' Unexpected format of the line: ' + line
