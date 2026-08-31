@@ -1,7 +1,6 @@
 from estnltk import Text, Layer
 from estnltk.taggers import Tagger, Retagger
 from collections import defaultdict
-import codecs
 from typing import MutableMapping
 from itertools import product
 import re
@@ -381,8 +380,8 @@ class NerGazetteerFeatureTagger(Retagger):
         self.input_layers = input_layers
 
         self.data = defaultdict(set)
-        with codecs.open(settings.GAZETTEER_FILE, 'rb', encoding="utf8") as f:
-            for ln in f:
+        with open(settings.GAZETTEER_FILE, 'r', encoding="utf8") as in_f:
+            for ln in in_f:
                 word, lbl = ln.strip().rsplit("\t", 1)
                 self.data[word].add(lbl)
 
