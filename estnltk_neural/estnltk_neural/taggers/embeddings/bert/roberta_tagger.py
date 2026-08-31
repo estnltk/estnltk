@@ -1,5 +1,6 @@
 import os
 from typing import MutableMapping, List
+import warnings
 
 import numpy as np
 import torch
@@ -16,13 +17,16 @@ from estnltk import Layer
 class RobertaTagger(Tagger):
     """Tags EstRobertA embeddings.
     
-       TODO: processing logic of RobertaTagger is almost identical to that of BertTagger,
-       so RobertaTagger should become BertTagger's subclass.
+       Processing logic of RobertaTagger is almost identical to that of BertTagger,
+       so RobertaTagger can become BertTagger's subclass.
+       But note: EMBEDDIA/est-roberta can create ambiguous annotations (same 
+       tokens covered by multiple sets of embeddings), which need special handling. 
     """
 
     def __init__(self, bert_location: str = 'EMBEDDIA/est-roberta', sentences_layer: str = 'sentences',
                  token_level: bool = True, output_layer: str = 'roberta_embeddings', 
-                 bert_layers: List[int] = None, method='concatenate', device: str = "cpu"):
+                 validate_layer: bool = True, bert_layers: List[int] = None, method='concatenate', 
+                 device: str = "cpu"):
         """
         Initializes a RobertaTagger instance.
 
@@ -43,6 +47,12 @@ class RobertaTagger(Tagger):
                 A list of BERT layer indices to use for embeddings. The values should 
                 be from -12 to -1 (referring to the last 12 layers). If None, the 
                 last 4 layers ([-4, -3, -2, -1]) are used. Defaults to None.
+            validate_layer (bool, optional): 
+                If True (default), then length of the output embeddings layer is compared 
+                to the length of the input words layer and if the lenghts do not match, 
+                then an error will be raised. Otherwise, input and output layer length 
+                differences will ignored. 
+                Note: this only has effect with token_level==False. 
             method (str, optional): 
                 Method for combining BERT layer embeddings: 'concatenate', 'add', or 'all'.
                 'concatenate': concatenates all selected layers into a single list.
@@ -69,7 +79,8 @@ class RobertaTagger(Tagger):
                           "is reasonable to choose layers from the last layers, for example [-4, -3, -2, -1]: last 4 " \
                           "layers. "
                     raise Exception(msg)
-        self.conf_param = ('bert_location', 'bert_model', 'tokenizer', 'method', 'token_level', 'bert_layers', 'device')
+        self.conf_param = ('bert_location', 'bert_model', 'tokenizer', 'method', 'token_level', 'bert_layers', 
+                           'validate_layer', 'device')
         if bert_location is None:
             raise Exception( "RobertaTagger's model location not provided. "+\
                              "Please pass huggingface_hub repo_id or local path to the model directory "+\
@@ -92,6 +103,7 @@ class RobertaTagger(Tagger):
 
         self.token_level = token_level
         self.bert_layers = bert_layers
+        self.validate_layer = validate_layer
 
     def tokenize_with_bert(self, text_str, include_spanless=True):
         '''Tokenizes input text_str with self.tokenizer and returns a list of token spans.
@@ -125,6 +137,7 @@ class RobertaTagger(Tagger):
             assert len(tokens) == len(embeddings)
             if self.token_level:
                 # annotates bert tokens
+                annotated_spans = []
                 for j, packed in enumerate(zip(embeddings, tokens)):
                     token_emb, token_span = packed[0], packed[1]
                     if token_span[0] is None and token_span[1] is None:
@@ -142,7 +155,14 @@ class RobertaTagger(Tagger):
                     attributes = {'token': token_span[2], 'bert_embedding': embedding}
                     start = sentence.start + token_span[0]
                     end   = sentence.start + token_span[1]
-                    embeddings_layer.add_annotation((start, end), **attributes)
+                    if (start, end) not in annotated_spans:
+                        embeddings_layer.add_annotation((start, end), **attributes)
+                        annotated_spans.append( (start, end) )
+                    else:
+                        # Because token_level layer is not ambiguous, we cannot add another span
+                        token_str = text.text[start:end]
+                        warnings.warn(f'(!) Discarding token level annotation of {token_str!r} at '+\
+                                      f'{start, end} due to overlap with existing annotations.')
             else:
                 # annotates full words, adding the token level embeddings together
                 word_spans = []
@@ -313,7 +333,7 @@ class RobertaTagger(Tagger):
                                                                 **attributes)
                             collected_tokens = []
                             collected_embeddings = []
-                
+
                 # Finish the last word
                 if collected_tokens and collected_embeddings:
                     # add annotation
@@ -334,9 +354,12 @@ class RobertaTagger(Tagger):
                         attributes = {'token': collected_tokens, 'bert_embedding': embedding}
                         embeddings_layer.add_annotation((current_word[0], current_word[1]),
                                                         **attributes)
-        if not self.token_level:
+        if not self.token_level and self.validate_layer:
             # Check that each word got an embedding
-            assert len(embeddings_layer) == sum([len(s) for s in sentences_layer])
+            embeddings = [span.text for span in embeddings_layer]
+            words = [word.text for s in sentences_layer for word in s]
+            assert len(embeddings_layer) == sum([len(s) for s in sentences_layer]), \
+                   f'(!) Mismatching embeddings tokens: {embeddings!r} and words: {words!r}'
         return embeddings_layer
 
 

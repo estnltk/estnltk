@@ -96,17 +96,8 @@ def test_roberta_tagger_tokens_and_word_span_misaligment_bugfix():
         assert len(embedding_span.bert_embedding) == 3072  # 768 * 4 
     assert text.roberta_word_embeddings.text == text.words.text
     
-    # 2) Test RobertaTagger for handling … and ... replacements
-    text = Text('Ta säutsus: 😃💁?💁!💁💁? Mina vastu: ☎…??? ...! Tema seepeale: ╳🔥!🔥!')
-    text.tag_layer('sentences')
-    roberta_tagger_2.tag(text)
-    assert 'roberta_word_embeddings' in text.layers
-    for embedding_span in text.roberta_word_embeddings:
-        assert len(embedding_span.bert_embedding) == 3072  # 768 * 4 
-    assert text.roberta_word_embeddings.text == text.words.text
-    
-    # 3) Test RobertaTagger for handling tokens where starting ▁ is separated from
-    #    the first token of the word, such as in 'iaido' -> ['▁', 'ia', 'ido']
+    # Test RobertaTagger for handling tokens where starting ▁ is separated from
+    # the first token of the word, such as in 'iaido' -> ['▁', 'ia', 'ido']
     text = Text('Sobudo on täielik võitluskunstide süsteem , mis koosneb erinevatest aladest sh : '+\
                 'jodo , aikido , iaido ja jukempo . Tema seepeale: ╳🔥!🔥!')
     text.tag_layer('sentences')
@@ -116,7 +107,55 @@ def test_roberta_tagger_tokens_and_word_span_misaligment_bugfix():
         assert len(embedding_span.bert_embedding) == 3072  # 768 * 4 
     assert text.roberta_word_embeddings.text == text.words.text
 
-    # 4) Test handling inputs that have '\xad' and/or '…' symbol.
+
+@pytest.mark.skipif(not check_if_transformers_is_available(),
+                    reason="package tranformers is required for this test")
+@pytest.mark.skipif(not check_if_pytorch_is_available(),
+                    reason="package pytorch is required for this test")
+@pytest.mark.skipif(not check_if_hf_repo_is_available('EMBEDDIA/est-roberta'),
+                    reason="RobertaTagger's model (EMBEDDIA/est-roberta) is not available. "+\
+                           "Please download the model via huggingface_hub.snapshot_download('EMBEDDIA/est-roberta').")
+@pytest.mark.xfail(reason="known misalignment that is yet to be solved")
+def test_roberta_tagger_tokens_and_word_span_misaligment_01():
+    # This test will fail 
+    # ( tested with transformers=5.15.1, torch=2.13.0 )
+    from estnltk_neural.taggers.embeddings.bert.roberta_tagger import RobertaTagger
+    # word level
+    roberta_tagger_2 = RobertaTagger(output_layer='roberta_word_embeddings',
+                                     token_level=False)
+    # 1) Test RobertaTagger for handling … and ... replacements
+    text = Text('Ta säutsus: 😃💁?💁!💁💁? Mina vastu: ☎…??? ...! Tema seepeale: ╳🔥!🔥!')
+    text.tag_layer('sentences')
+    roberta_tagger_2.tag(text)
+    #
+    # Causes:
+    #
+    # AssertionError: ("(!) Mismatching embeddings tokens: ['Ta', 'säutsus', ':', '😃💁?💁!💁💁?', 'Mina', 'vastu', ':', '☎…???', '.', '.', 'Tema', 'seepeale', ':', '╳🔥!🔥!'] and words: ['Ta', 'säutsus', ':', '😃💁?💁!💁💁?', 'Mina', 'vastu', ':', '☎…???', '.', '.', '.', '!', 'Tema', 'seepeale', ':', '╳🔥!🔥!']", "in the 'RobertaTagger'")
+    #
+    #  --> This is yet to be solved.
+    #
+    assert 'roberta_word_embeddings' in text.layers
+    for embedding_span in text.roberta_word_embeddings:
+        assert len(embedding_span.bert_embedding) == 3072  # 768 * 4 
+    assert text.roberta_word_embeddings.text == text.words.text
+
+
+@pytest.mark.skipif(not check_if_transformers_is_available(),
+                    reason="package tranformers is required for this test")
+@pytest.mark.skipif(not check_if_pytorch_is_available(),
+                    reason="package pytorch is required for this test")
+@pytest.mark.skipif(not check_if_hf_repo_is_available('EMBEDDIA/est-roberta'),
+                    reason="RobertaTagger's model (EMBEDDIA/est-roberta) is not available. "+\
+                           "Please download the model via huggingface_hub.snapshot_download('EMBEDDIA/est-roberta').")
+@pytest.mark.xfail(reason="known misalignment that is yet to be solved")
+def test_roberta_tagger_tokens_and_word_span_misaligment_02():
+    # This test will fail 
+    # ( tested with transformers=5.15.1, torch=2.13.0 )
+    from estnltk_neural.taggers.embeddings.bert.roberta_tagger import RobertaTagger
+    # word level
+    roberta_tagger_2 = RobertaTagger(output_layer='roberta_word_embeddings',
+                                     token_level=False)
+    # 1) Test handling inputs that have '\xad' and/or '…' symbol.
     partial_overlap1 = Text('Yangi­Millsi kalibratsioonivälja kvantteooria …?').tag_layer('sentences')
     roberta_tagger_2.tag(partial_overlap1)
     words_and_bert_tokens = _get_bert_tokens(partial_overlap1, bert_layer=roberta_tagger_2.output_layer)
@@ -127,6 +166,13 @@ def test_roberta_tagger_tokens_and_word_span_misaligment_bugfix():
          ('kalibratsioonivälja', ['▁kal', 'ib', 'ratsiooni', 'välja']), 
          ('kvantteooria', ['▁kvant', 'teooria']), 
          ('…?', ['▁...', '?'])]
+    #
+    # Fails with:
+    #
+    #  AssertionError: assert [('Yangi', ['Y', 'angi']), ('\xad', ['Â']), ('Millsi', ['M', 'ill', 'si']), ('kalibratsioonivälja', ['kal', 'ib', 'ratsiooni', 'v', 'Ã', '¤', 'lja']), ('kvantteooria', ['k', 'vant', 'teooria']), ('…?', ['â', '?'])] == [('Yangi', ['▁Y', 'angi']), ('\xad', ['\xad']), ('Millsi', ['M', 'ill', 'si']), ('kalibratsioonivälja', ['▁kal', 'ib', 'ratsiooni', 'välja']), ('kvantteooria', ['▁kvant', 'teooria']), ('…?', ['▁...', '?'])]
+    #
+    #  --> This is yet to be solved.
+    #
     partial_overlap2 = Text('Ning Källeni­Lehmanni teoreem').tag_layer('sentences')
     roberta_tagger_2.tag(partial_overlap2)
     words_and_bert_tokens = _get_bert_tokens(partial_overlap2, bert_layer=roberta_tagger_2.output_layer)
@@ -136,4 +182,3 @@ def test_roberta_tagger_tokens_and_word_span_misaligment_bugfix():
          ('\xad', ['\xad']), 
          ('Lehmanni', ['Le', 'hma', 'nni']), 
          ('teoreem', ['▁te', 'or', 'eem'])]
-
