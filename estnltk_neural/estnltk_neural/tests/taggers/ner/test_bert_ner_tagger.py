@@ -4,6 +4,8 @@ import os
 
 from estnltk import Text
 from estnltk.downloader import get_resource_paths
+from estnltk_neural.common import check_if_hf_repo_is_available
+
 
 def check_if_transformers_is_available():
     return find_spec("transformers") is not None
@@ -386,25 +388,11 @@ def test_estroberta_ud_ner_v1_tokenization_problem():
 
 
 
-def check_if_tartuNLP_est_roberta_hist_ner_is_available():
-    from huggingface_hub import scan_cache_dir
-    from huggingface_hub.errors import CacheNotFound
-    try:
-        cache_info = scan_cache_dir()
-        for repo in cache_info.repos:
-            if repo.repo_id == 'tartuNLP/est-roberta-hist-ner':
-                return True
-    except CacheNotFound as err:
-        # CacheNotFound: Cache directory not found: /root/.cache/huggingface/hub. 
-        pass
-    return False
-
-
 @pytest.mark.skipif(not check_if_transformers_is_available(),
                     reason="package tranformers is required for this test")
 @pytest.mark.skipif(not check_if_pytorch_is_available(),
                     reason="package pytorch is required for this test")
-@pytest.mark.skipif(not check_if_tartuNLP_est_roberta_hist_ner_is_available(),
+@pytest.mark.skipif(not check_if_hf_repo_is_available('tartuNLP/est-roberta-hist-ner'),
                     reason="Model tartuNLP/est-roberta-hist-ner is not available.  "+\
                            "Please download the model via huggingface_hub.snapshot_download('tartuNLP/est-roberta-hist-ner').")
 def test_estroberta_hist_ner_smoke_test():
@@ -427,25 +415,11 @@ def test_estroberta_hist_ner_smoke_test():
 
 
 
-def check_if_tartuNLP_est_roberta_hist_ner_for_tccp_is_available():
-    from huggingface_hub import scan_cache_dir
-    from huggingface_hub.errors import CacheNotFound
-    try:
-        cache_info = scan_cache_dir()
-        for repo in cache_info.repos:
-            if repo.repo_id == 'tartuNLP/est-roberta-hist-ner-for-tccp':
-                return True
-    except CacheNotFound as err:
-        # CacheNotFound: Cache directory not found: /root/.cache/huggingface/hub. 
-        pass
-    return False
-
-
 @pytest.mark.skipif(not check_if_transformers_is_available(),
                     reason="package tranformers is required for this test")
 @pytest.mark.skipif(not check_if_pytorch_is_available(),
                     reason="package pytorch is required for this test")
-@pytest.mark.skipif(not check_if_tartuNLP_est_roberta_hist_ner_for_tccp_is_available(),
+@pytest.mark.skipif(not check_if_hf_repo_is_available('tartuNLP/est-roberta-hist-ner-for-tccp'),
                     reason="Model tartuNLP/est-roberta-hist-ner-for-tccp is not available.  "+\
                            "Please download the model via huggingface_hub.snapshot_download('tartuNLP/est-roberta-hist-ner-for-tccp').")
 def test_estroberta_hist_ner_for_tccp_tokenization_problem():

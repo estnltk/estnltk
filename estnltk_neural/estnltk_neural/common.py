@@ -27,3 +27,25 @@ def neural_abs_path(repo_path: str) -> str:
     """
     return os.path.join(NEURAL_PACKAGE_PATH, repo_path)
 
+
+def check_if_hf_repo_is_available(repo_id:str, cache_dir:str=None):
+    '''Scans local huggingface cache for the availablity of the 
+       given repository (`repo_id`). 
+       Optionally, parameter `cache_dir` can be used to provide 
+       the exact location of the cache dir that will be scanned.
+       Returns True iff the repository is available locally, and 
+       False if the repository is missing or if the local cache 
+       directory cannot be not found. 
+    '''
+    from huggingface_hub import scan_cache_dir
+    from huggingface_hub.errors import CacheNotFound
+    try:
+        cache_info = scan_cache_dir(cache_dir=cache_dir)
+        for repo in cache_info.repos:
+            if repo.repo_id == repo_id:
+                return True
+    except CacheNotFound as err:
+        # CacheNotFound: Cache directory not found: /root/.cache/huggingface/hub. 
+        pass
+    return False
+

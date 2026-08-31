@@ -3,7 +3,7 @@ import pytest
 import os
 
 from estnltk import Text
-
+from estnltk_neural.common import check_if_hf_repo_is_available
 
 
 def check_if_transformers_is_available():
@@ -12,26 +12,12 @@ def check_if_transformers_is_available():
 def check_if_pytorch_is_available():
     return find_spec("torch") is not None
 
-def check_if_embeddia_estroberta_is_available():
-    from huggingface_hub import scan_cache_dir
-    from huggingface_hub.errors import CacheNotFound
-    try:
-        cache_info = scan_cache_dir()
-        for repo in cache_info.repos:
-            if repo.repo_id == 'EMBEDDIA/est-roberta':
-                return True
-    except CacheNotFound as err:
-        # CacheNotFound: Cache directory not found: /root/.cache/huggingface/hub. 
-        pass
-    return False
-
-
 
 @pytest.mark.skipif(not check_if_transformers_is_available(),
                     reason="package tranformers is required for this test")
 @pytest.mark.skipif(not check_if_pytorch_is_available(),
                     reason="package pytorch is required for this test")
-@pytest.mark.skipif(not check_if_embeddia_estroberta_is_available(),
+@pytest.mark.skipif(not check_if_hf_repo_is_available('EMBEDDIA/est-roberta'),
                     reason="RobertaTagger's model (EMBEDDIA/est-roberta) is not available. "+\
                            "Please download the model via huggingface_hub.snapshot_download('EMBEDDIA/est-roberta').")
 def test_roberta_tagger_out_of_the_box():
@@ -55,7 +41,7 @@ def test_roberta_tagger_out_of_the_box():
                     reason="package tranformers is required for this test")
 @pytest.mark.skipif(not check_if_pytorch_is_available(),
                     reason="package pytorch is required for this test")
-@pytest.mark.skipif(not check_if_embeddia_estroberta_is_available(),
+@pytest.mark.skipif(not check_if_hf_repo_is_available('EMBEDDIA/est-roberta'),
                     reason="RobertaTagger's model (EMBEDDIA/est-roberta) is not available. "+\
                            "Please download the model via huggingface_hub.snapshot_download('EMBEDDIA/est-roberta').")
 def test_roberta_tagger_word_level_smoke():
@@ -85,7 +71,7 @@ def _get_bert_tokens(text_obj, bert_layer='roberta_word_embeddings'):
                     reason="package tranformers is required for this test")
 @pytest.mark.skipif(not check_if_pytorch_is_available(),
                     reason="package pytorch is required for this test")
-@pytest.mark.skipif(not check_if_embeddia_estroberta_is_available(),
+@pytest.mark.skipif(not check_if_hf_repo_is_available('EMBEDDIA/est-roberta'),
                     reason="RobertaTagger's model (EMBEDDIA/est-roberta) is not available. "+\
                            "Please download the model via huggingface_hub.snapshot_download('EMBEDDIA/est-roberta').")
 def test_roberta_tagger_tokens_and_word_span_misaligment_bugfix():
