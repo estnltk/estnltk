@@ -28,14 +28,18 @@ def neural_abs_path(repo_path: str) -> str:
     return os.path.join(NEURAL_PACKAGE_PATH, repo_path)
 
 
-def check_if_hf_repo_is_available(repo_id:str, cache_dir:str=None):
+def check_if_hf_repo_is_available(repo_id:str, cache_dir:str=None, 
+                                  revision:str=None):
     '''Scans local huggingface cache for the availablity of the 
        given repository (`repo_id`). 
        Optionally, parameter `cache_dir` can be used to provide 
-       the exact location of the cache dir that will be scanned.
-       Returns True iff the repository is available locally, and 
-       False if the repository is missing or if the local cache 
-       directory cannot be not found. 
+       the exact location of the cache dir that will be scanned. 
+       Optionally, parameter `revision` can be used to specify 
+       the exact revision (`commit_hash`) of the repository.
+       Returns True iff the repository is available locally (and 
+       if it meets the `revision` requirement), and False 
+       otherwise. Also returns False if the local cache directory 
+       cannot be not found. 
     '''
     from huggingface_hub import scan_cache_dir
     from huggingface_hub.errors import CacheNotFound
@@ -43,7 +47,13 @@ def check_if_hf_repo_is_available(repo_id:str, cache_dir:str=None):
         cache_info = scan_cache_dir(cache_dir=cache_dir)
         for repo in cache_info.repos:
             if repo.repo_id == repo_id:
-                return True
+                if revision is None:
+                    return True
+                elif isinstance(revision, str):
+                    # check for specific revision hash value
+                    for rev in repo.revisions:
+                        if (rev.commit_hash).startswith(revision):
+                            return True
     except CacheNotFound as err:
         # CacheNotFound: Cache directory not found: /root/.cache/huggingface/hub. 
         pass
