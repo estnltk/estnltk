@@ -12,14 +12,17 @@ def check_if_transformers_is_available():
 def check_if_pytorch_is_available():
     return find_spec("torch") is not None
 
+model_download_instruction = \
+    "RobertaTagger's model (EMBEDDIA/est-roberta) is not available. "+\
+    "Please download the model via "+\
+    "huggingface_hub.snapshot_download('EMBEDDIA/est-roberta', revision='eb8131e56a9a92a78187d8cbf50c8258bcb253b9')."
 
 @pytest.mark.skipif(not check_if_transformers_is_available(),
                     reason="package tranformers is required for this test")
 @pytest.mark.skipif(not check_if_pytorch_is_available(),
                     reason="package pytorch is required for this test")
-@pytest.mark.skipif(not check_if_hf_repo_is_available('EMBEDDIA/est-roberta'),
-                    reason="RobertaTagger's model (EMBEDDIA/est-roberta) is not available. "+\
-                           "Please download the model via huggingface_hub.snapshot_download('EMBEDDIA/est-roberta').")
+@pytest.mark.skipif(not check_if_hf_repo_is_available('EMBEDDIA/est-roberta', revision='eb8131e56a'),
+                    reason=model_download_instruction)
 def test_roberta_tagger_out_of_the_box():
     # Test that RobertaTagger works "out_of_the_box" if model is available
     from estnltk_neural.taggers.embeddings.bert.roberta_tagger import RobertaTagger
@@ -41,9 +44,8 @@ def test_roberta_tagger_out_of_the_box():
                     reason="package tranformers is required for this test")
 @pytest.mark.skipif(not check_if_pytorch_is_available(),
                     reason="package pytorch is required for this test")
-@pytest.mark.skipif(not check_if_hf_repo_is_available('EMBEDDIA/est-roberta'),
-                    reason="RobertaTagger's model (EMBEDDIA/est-roberta) is not available. "+\
-                           "Please download the model via huggingface_hub.snapshot_download('EMBEDDIA/est-roberta').")
+@pytest.mark.skipif(not check_if_hf_repo_is_available('EMBEDDIA/est-roberta', revision='eb8131e56a'),
+                    reason=model_download_instruction)
 def test_roberta_tagger_word_level_smoke():
     # Test that RobertaTagger works on word level
     from estnltk_neural.taggers.embeddings.bert.roberta_tagger import RobertaTagger
@@ -71,9 +73,8 @@ def _get_bert_tokens(text_obj, bert_layer='roberta_word_embeddings'):
                     reason="package tranformers is required for this test")
 @pytest.mark.skipif(not check_if_pytorch_is_available(),
                     reason="package pytorch is required for this test")
-@pytest.mark.skipif(not check_if_hf_repo_is_available('EMBEDDIA/est-roberta'),
-                    reason="RobertaTagger's model (EMBEDDIA/est-roberta) is not available. "+\
-                           "Please download the model via huggingface_hub.snapshot_download('EMBEDDIA/est-roberta').")
+@pytest.mark.skipif(not check_if_hf_repo_is_available('EMBEDDIA/est-roberta', revision='eb8131e56a'),
+                    reason=model_download_instruction)
 def test_roberta_tagger_tokens_and_word_span_misaligment_bugfix():
     # 1) Test RobertaTagger for handling misalignment of word spans and embedding tokens
     from estnltk_neural.taggers.embeddings.bert.roberta_tagger import RobertaTagger
@@ -112,9 +113,8 @@ def test_roberta_tagger_tokens_and_word_span_misaligment_bugfix():
                     reason="package tranformers is required for this test")
 @pytest.mark.skipif(not check_if_pytorch_is_available(),
                     reason="package pytorch is required for this test")
-@pytest.mark.skipif(not check_if_hf_repo_is_available('EMBEDDIA/est-roberta'),
-                    reason="RobertaTagger's model (EMBEDDIA/est-roberta) is not available. "+\
-                           "Please download the model via huggingface_hub.snapshot_download('EMBEDDIA/est-roberta').")
+@pytest.mark.skipif(not check_if_hf_repo_is_available('EMBEDDIA/est-roberta', revision='eb8131e56a'),
+                    reason=model_download_instruction)
 @pytest.mark.xfail(reason="known misalignment that is yet to be solved")
 def test_roberta_tagger_tokens_and_word_span_misaligment_01():
     # This test will fail 
@@ -144,9 +144,8 @@ def test_roberta_tagger_tokens_and_word_span_misaligment_01():
                     reason="package tranformers is required for this test")
 @pytest.mark.skipif(not check_if_pytorch_is_available(),
                     reason="package pytorch is required for this test")
-@pytest.mark.skipif(not check_if_hf_repo_is_available('EMBEDDIA/est-roberta'),
-                    reason="RobertaTagger's model (EMBEDDIA/est-roberta) is not available. "+\
-                           "Please download the model via huggingface_hub.snapshot_download('EMBEDDIA/est-roberta').")
+@pytest.mark.skipif(not check_if_hf_repo_is_available('EMBEDDIA/est-roberta', revision='eb8131e56a'),
+                    reason=model_download_instruction)
 @pytest.mark.xfail(reason="known misalignment that is yet to be solved")
 def test_roberta_tagger_tokens_and_word_span_misaligment_02():
     # This test will fail 
