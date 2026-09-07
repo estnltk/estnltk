@@ -28,8 +28,8 @@ def neural_abs_path(repo_path: str) -> str:
     return os.path.join(NEURAL_PACKAGE_PATH, repo_path)
 
 
-def check_if_hf_repo_is_available(repo_id:str, cache_dir:str=None, 
-                                  revision:str=None):
+def is_hf_repo_available(repo_id:str, cache_dir:str=None, 
+                         revision:str=None):
     '''Scans local huggingface cache for the availablity of the 
        given repository (`repo_id`). 
        Optionally, parameter `cache_dir` can be used to provide 

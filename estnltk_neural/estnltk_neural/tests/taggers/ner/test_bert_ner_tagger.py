@@ -4,7 +4,7 @@ import os
 
 from estnltk import Text
 from estnltk.downloader import get_resource_paths
-from estnltk_neural.common import check_if_hf_repo_is_available
+from estnltk_neural.common import is_hf_repo_available
 
 
 def check_if_transformers_is_available():
@@ -392,7 +392,7 @@ def test_estroberta_ud_ner_v1_tokenization_problem():
                     reason="package tranformers is required for this test")
 @pytest.mark.skipif(not check_if_pytorch_is_available(),
                     reason="package pytorch is required for this test")
-@pytest.mark.skipif(not check_if_hf_repo_is_available('tartuNLP/est-roberta-hist-ner'),
+@pytest.mark.skipif(not is_hf_repo_available('tartuNLP/est-roberta-hist-ner'),
                     reason="Model tartuNLP/est-roberta-hist-ner is not available.  "+\
                            "Please download the model via huggingface_hub.snapshot_download('tartuNLP/est-roberta-hist-ner').")
 def test_estroberta_hist_ner_smoke_test():
@@ -419,7 +419,7 @@ def test_estroberta_hist_ner_smoke_test():
                     reason="package tranformers is required for this test")
 @pytest.mark.skipif(not check_if_pytorch_is_available(),
                     reason="package pytorch is required for this test")
-@pytest.mark.skipif(not check_if_hf_repo_is_available('tartuNLP/est-roberta-hist-ner-for-tccp'),
+@pytest.mark.skipif(not is_hf_repo_available('tartuNLP/est-roberta-hist-ner-for-tccp'),
                     reason="Model tartuNLP/est-roberta-hist-ner-for-tccp is not available.  "+\
                            "Please download the model via huggingface_hub.snapshot_download('tartuNLP/est-roberta-hist-ner-for-tccp').")
 def test_estroberta_hist_ner_for_tccp_tokenization_problem():

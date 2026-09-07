@@ -3,7 +3,7 @@ import pytest
 import os
 
 from estnltk import Text
-from estnltk_neural.common import check_if_hf_repo_is_available
+from estnltk_neural.common import is_hf_repo_available
 
 
 def check_if_transformers_is_available():
@@ -21,7 +21,7 @@ model_download_instruction = \
                     reason="package tranformers is required for this test")
 @pytest.mark.skipif(not check_if_pytorch_is_available(),
                     reason="package pytorch is required for this test")
-@pytest.mark.skipif(not check_if_hf_repo_is_available('EMBEDDIA/est-roberta', revision='eb8131e56a'),
+@pytest.mark.skipif(not is_hf_repo_available('EMBEDDIA/est-roberta', revision='eb8131e56a'),
                     reason=model_download_instruction)
 def test_roberta_tagger_out_of_the_box():
     # Test that RobertaTagger works "out_of_the_box" if model is available
@@ -44,7 +44,7 @@ def test_roberta_tagger_out_of_the_box():
                     reason="package tranformers is required for this test")
 @pytest.mark.skipif(not check_if_pytorch_is_available(),
                     reason="package pytorch is required for this test")
-@pytest.mark.skipif(not check_if_hf_repo_is_available('EMBEDDIA/est-roberta', revision='eb8131e56a'),
+@pytest.mark.skipif(not is_hf_repo_available('EMBEDDIA/est-roberta', revision='eb8131e56a'),
                     reason=model_download_instruction)
 def test_roberta_tagger_word_level_smoke():
     # Test that RobertaTagger works on word level
@@ -73,7 +73,7 @@ def _get_bert_tokens(text_obj, bert_layer='roberta_word_embeddings'):
                     reason="package tranformers is required for this test")
 @pytest.mark.skipif(not check_if_pytorch_is_available(),
                     reason="package pytorch is required for this test")
-@pytest.mark.skipif(not check_if_hf_repo_is_available('EMBEDDIA/est-roberta', revision='eb8131e56a'),
+@pytest.mark.skipif(not is_hf_repo_available('EMBEDDIA/est-roberta', revision='eb8131e56a'),
                     reason=model_download_instruction)
 def test_roberta_tagger_tokens_and_word_span_misaligment_bugfix():
     # 1) Test RobertaTagger for handling misalignment of word spans and embedding tokens
@@ -113,7 +113,7 @@ def test_roberta_tagger_tokens_and_word_span_misaligment_bugfix():
                     reason="package tranformers is required for this test")
 @pytest.mark.skipif(not check_if_pytorch_is_available(),
                     reason="package pytorch is required for this test")
-@pytest.mark.skipif(not check_if_hf_repo_is_available('EMBEDDIA/est-roberta', revision='eb8131e56a'),
+@pytest.mark.skipif(not is_hf_repo_available('EMBEDDIA/est-roberta', revision='eb8131e56a'),
                     reason=model_download_instruction)
 @pytest.mark.xfail(reason="known misalignment that is yet to be solved")
 def test_roberta_tagger_tokens_and_word_span_misaligment_01():
@@ -144,7 +144,7 @@ def test_roberta_tagger_tokens_and_word_span_misaligment_01():
                     reason="package tranformers is required for this test")
 @pytest.mark.skipif(not check_if_pytorch_is_available(),
                     reason="package pytorch is required for this test")
-@pytest.mark.skipif(not check_if_hf_repo_is_available('EMBEDDIA/est-roberta', revision='eb8131e56a'),
+@pytest.mark.skipif(not is_hf_repo_available('EMBEDDIA/est-roberta', revision='eb8131e56a'),
                     reason=model_download_instruction)
 @pytest.mark.xfail(reason="known misalignment that is yet to be solved")
 def test_roberta_tagger_tokens_and_word_span_misaligment_02():
