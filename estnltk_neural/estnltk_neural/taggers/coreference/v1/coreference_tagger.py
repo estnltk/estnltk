@@ -1,11 +1,12 @@
 import networkx
 import os, os.path
-from importlib.util import find_spec
 
 from estnltk_core import RelationLayer, Relation
 from estnltk_core.taggers import RelationTagger
 
 from estnltk.downloader import get_resource_paths
+
+from estnltk_neural.common import is_package_available
 
 def check_tagger_dependencies():
     '''
@@ -15,7 +16,7 @@ def check_tagger_dependencies():
     '''
     missing_libraries = []
     for tagger_dependency in ['stanza', 'sklearn', 'xgboost', 'gensim', 'pandas']:
-        pkg_exists = find_spec(tagger_dependency) is not None
+        pkg_exists = is_package_available(tagger_dependency)
         if not pkg_exists:
             if tagger_dependency == 'sklearn':
                 tagger_dependency = 'scikit-learn'

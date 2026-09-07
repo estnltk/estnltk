@@ -1,6 +1,5 @@
-from importlib.util import find_spec
-import pytest
 import os
+import pytest
 
 from estnltk import Text
 from estnltk.downloader import get_resource_paths
@@ -9,6 +8,8 @@ from estnltk.converters import layer_to_records
 
 from estnltk.converters import layer_to_dict 
 from estnltk.converters import dict_to_layer 
+
+from estnltk_neural.common import is_package_available
 
 def _sort_morph_analysis_records( morph_analysis_records:list ):
     '''Sorts sublists (lists of analyses of a single word) of 
@@ -21,18 +22,12 @@ def _sort_morph_analysis_records( morph_analysis_records:list ):
             str(x['partofspeech'])+str(x['form']) )
         morph_analysis_records[wrid] = sorted_records
 
-def check_if_transformers_is_available():
-    return find_spec("transformers") is not None
-
-def check_if_pytorch_is_available():
-    return find_spec("torch") is not None
-
 # Try to get the resources path for BertMorphTagger's model v2. If missing, do nothing. It's up for the user to download the missing resources
 BERTMORPH_V2_PATH = get_resource_paths("bert_morph_v2", only_latest=True, download_missing=False)
 
-@pytest.mark.skipif(not check_if_transformers_is_available(),
-                    reason="package tranformers is required for this test")
-@pytest.mark.skipif(not check_if_pytorch_is_available(),
+@pytest.mark.skipif(not is_package_available("transformers"),
+                    reason="package transformers is required for this test")
+@pytest.mark.skipif(not is_package_available("torch"),
                     reason="package pytorch is required for this test")
 @pytest.mark.skipif(BERTMORPH_V2_PATH is None,
                     reason="VabamorfWithBertTagger's model location not known. "+\

@@ -1,17 +1,10 @@
-from importlib.util import find_spec
-import pytest
 import os
+import pytest
 
 from estnltk import Text
 from estnltk.downloader import get_resource_paths
 from estnltk_neural.common import is_hf_repo_available
-
-
-def check_if_transformers_is_available():
-    return find_spec("transformers") is not None
-
-def check_if_pytorch_is_available():
-    return find_spec("torch") is not None
+from estnltk_neural.common import is_package_available
 
 # Try to get the resources path for EstBERTNER model v1. If missing, do nothing. It's up for the user to download the missing resources
 ESTBERTNER_V1_PATH = get_resource_paths("estbertner", only_latest=True, download_missing=False)
@@ -30,9 +23,9 @@ def _ner_spans_as_tuples(ner_layer):
             (ne_span.start, ne_span.end, ne_span.enclosing_text, ner_tag) )
     return results
 
-@pytest.mark.skipif(not check_if_transformers_is_available(),
-                    reason="package tranformers is required for this test")
-@pytest.mark.skipif(not check_if_pytorch_is_available(),
+@pytest.mark.skipif(not is_package_available("transformers"),
+                    reason="package transformers is required for this test")
+@pytest.mark.skipif(not is_package_available("torch"),
                     reason="package pytorch is required for this test")
 @pytest.mark.skipif(ESTBERTNER_V1_PATH is None,
                     reason="BertNerTagger's model location not known. "+\
@@ -58,9 +51,9 @@ def test_estbertner_v1_out_of_the_box():
          (195, 209, 'Tiina Vilbergi', 'PER')]
 
 
-@pytest.mark.skipif(not check_if_transformers_is_available(),
-                    reason="package tranformers is required for this test")
-@pytest.mark.skipif(not check_if_pytorch_is_available(),
+@pytest.mark.skipif(not is_package_available("transformers"),
+                    reason="package transformers is required for this test")
+@pytest.mark.skipif(not is_package_available("torch"),
                     reason="package pytorch is required for this test")
 @pytest.mark.skipif(ESTBERTNER_V1_PATH is None,
                     reason="BertNerTagger's model location not known. "+\
@@ -96,9 +89,9 @@ def test_estbertner_v1_cyrillic_and_accented_chars_problem_bugfix():
          (71, 76, 'Sansò', 'PER')]
 
 
-@pytest.mark.skipif(not check_if_transformers_is_available(),
-                    reason="package tranformers is required for this test")
-@pytest.mark.skipif(not check_if_pytorch_is_available(),
+@pytest.mark.skipif(not is_package_available("transformers"),
+                    reason="package transformers is required for this test")
+@pytest.mark.skipif(not is_package_available("torch"),
                     reason="package pytorch is required for this test")
 @pytest.mark.skipif(ESTBERTNER_V2_PATH is None,
                     reason="BertNerTagger's model location not known. "+\
@@ -129,9 +122,9 @@ def test_estbertner_v2_smoke():
          (221, 231, '"Loomaaed"', 'PROD')]
 
 
-@pytest.mark.skipif(not check_if_transformers_is_available(),
-                    reason="package tranformers is required for this test")
-@pytest.mark.skipif(not check_if_pytorch_is_available(),
+@pytest.mark.skipif(not is_package_available("transformers"),
+                    reason="package transformers is required for this test")
+@pytest.mark.skipif(not is_package_available("torch"),
                     reason="package pytorch is required for this test")
 @pytest.mark.skipif(ESTBERTNER_V2_PATH is None,
                     reason="BertNerTagger's model location not known. "+\
@@ -152,9 +145,9 @@ def test_estbertner_v2_tokenization_fail():
     #print( _ner_spans_as_tuples( text[output_layer] ) )
 
 
-@pytest.mark.skipif(not check_if_transformers_is_available(),
-                    reason="package tranformers is required for this test")
-@pytest.mark.skipif(not check_if_pytorch_is_available(),
+@pytest.mark.skipif(not is_package_available("transformers"),
+                    reason="package transformers is required for this test")
+@pytest.mark.skipif(not is_package_available("torch"),
                     reason="package pytorch is required for this test")
 @pytest.mark.skipif(ESTBERTNER_V2_PATH is None,
                     reason="BertNerTagger's model location not known. "+\
@@ -198,9 +191,9 @@ def test_estbertner_v2_cyrillic_and_accented_chars_problem_bugfix():
 #   do not align Bert tokens to EstNLTK's words.
 # ========================================================================
 
-@pytest.mark.skipif(not check_if_transformers_is_available(),
-                    reason="package tranformers is required for this test")
-@pytest.mark.skipif(not check_if_pytorch_is_available(),
+@pytest.mark.skipif(not is_package_available("transformers"),
+                    reason="package transformers is required for this test")
+@pytest.mark.skipif(not is_package_available("torch"),
                     reason="package pytorch is required for this test")
 @pytest.mark.skipif(ESTBERTNER_V1_PATH is None,
                     reason="BertNerTagger's model location not known. "+\
@@ -258,9 +251,9 @@ def test_estbertner_v1_postfixes():
          (120, 124, 'MacA', 'PER'), (126, 131, 'hurit', 'PER'), (140, 147, 'Kenyast', 'LOC'), (160, 172, 'Mecklenburgi', 'LOC')]
 
 
-@pytest.mark.skipif(not check_if_transformers_is_available(),
-                    reason="package tranformers is required for this test")
-@pytest.mark.skipif(not check_if_pytorch_is_available(),
+@pytest.mark.skipif(not is_package_available("transformers"),
+                    reason="package transformers is required for this test")
+@pytest.mark.skipif(not is_package_available("torch"),
                     reason="package pytorch is required for this test")
 @pytest.mark.skipif(ESTBERTNER_V2_PATH is None,
                     reason="BertNerTagger's model location not known. "+\
@@ -320,9 +313,9 @@ def test_estbertner_v2_postfixes():
 
 
 
-@pytest.mark.skipif(not check_if_transformers_is_available(),
-                    reason="package tranformers is required for this test")
-@pytest.mark.skipif(not check_if_pytorch_is_available(),
+@pytest.mark.skipif(not is_package_available("transformers"),
+                    reason="package transformers is required for this test")
+@pytest.mark.skipif(not is_package_available("torch"),
                     reason="package pytorch is required for this test")
 @pytest.mark.skipif(ESTROBERTA_UD_NER_PATH is None,
                     reason="BertNerTagger's UD ner model location not known. "+\
@@ -361,9 +354,9 @@ def test_estroberta_ud_ner_v1_smoke():
 
 
 
-@pytest.mark.skipif(not check_if_transformers_is_available(),
-                    reason="package tranformers is required for this test")
-@pytest.mark.skipif(not check_if_pytorch_is_available(),
+@pytest.mark.skipif(not is_package_available("transformers"),
+                    reason="package transformers is required for this test")
+@pytest.mark.skipif(not is_package_available("torch"),
                     reason="package pytorch is required for this test")
 @pytest.mark.skipif(ESTROBERTA_UD_NER_PATH is None,
                     reason="BertNerTagger's UD ner model location not known. "+\
@@ -388,9 +381,9 @@ def test_estroberta_ud_ner_v1_tokenization_problem():
 
 
 
-@pytest.mark.skipif(not check_if_transformers_is_available(),
-                    reason="package tranformers is required for this test")
-@pytest.mark.skipif(not check_if_pytorch_is_available(),
+@pytest.mark.skipif(not is_package_available("transformers"),
+                    reason="package transformers is required for this test")
+@pytest.mark.skipif(not is_package_available("torch"),
                     reason="package pytorch is required for this test")
 @pytest.mark.skipif(not is_hf_repo_available('tartuNLP/est-roberta-hist-ner'),
                     reason="Model tartuNLP/est-roberta-hist-ner is not available.  "+\
@@ -415,9 +408,9 @@ def test_estroberta_hist_ner_smoke_test():
 
 
 
-@pytest.mark.skipif(not check_if_transformers_is_available(),
-                    reason="package tranformers is required for this test")
-@pytest.mark.skipif(not check_if_pytorch_is_available(),
+@pytest.mark.skipif(not is_package_available("transformers"),
+                    reason="package transformers is required for this test")
+@pytest.mark.skipif(not is_package_available("torch"),
                     reason="package pytorch is required for this test")
 @pytest.mark.skipif(not is_hf_repo_available('tartuNLP/est-roberta-hist-ner-for-tccp'),
                     reason="Model tartuNLP/est-roberta-hist-ner-for-tccp is not available.  "+\

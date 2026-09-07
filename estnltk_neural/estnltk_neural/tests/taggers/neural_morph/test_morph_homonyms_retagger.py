@@ -12,7 +12,6 @@
 #   * end-to-end tests with both real models, asserting exact labels. These are
 #     skipped if the models are not downloaded.
 #
-from importlib.util import find_spec
 import pytest
 
 from estnltk import Text, Layer, Retagger
@@ -20,19 +19,13 @@ from estnltk.downloader import get_resource_paths
 
 from estnltk.converters import layer_to_records
 
+from estnltk_neural.common import is_package_available
 from estnltk_neural.taggers.neural_morph.bert_based.morph_homonyms_retagger import (
     DEFAULT_HOMONYM_LIST_PATH,
     _load_homonym_words,
 )
 import estnltk_neural.taggers.neural_morph.bert_based.morph_homonyms_retagger as mhr_module
 
-
-def check_if_transformers_is_available():
-    return find_spec("transformers") is not None
-
-
-def check_if_pytorch_is_available():
-    return find_spec("torch") is not None
 
 
 # Try to get the resources paths for the baseline and the homonymy expert models.
@@ -467,7 +460,7 @@ def _tag_and_retag(sentence):
 
 
 @pytest.mark.skipif(
-    not check_if_transformers_is_available(),
+    not is_package_available("transformers"),
     reason="package transformers is required for this test",
 )
 @pytest.mark.skipif(
@@ -498,11 +491,11 @@ def test_expert_model_uses_sentencepiece_tokenization():
 
 
 @pytest.mark.skipif(
-    not check_if_transformers_is_available(),
+    not is_package_available("transformers"),
     reason="package transformers is required for this test",
 )
 @pytest.mark.skipif(
-    not check_if_pytorch_is_available(),
+    not is_package_available("torch"),
     reason="package pytorch is required for this test",
 )
 @pytest.mark.skipif(
@@ -550,11 +543,11 @@ def test_morph_homonyms_retagger_out_of_the_box():
 
 
 @pytest.mark.skipif(
-    not check_if_transformers_is_available(),
+    not is_package_available("transformers"),
     reason="package transformers is required for this test",
 )
 @pytest.mark.skipif(
-    not check_if_pytorch_is_available(),
+    not is_package_available("torch"),
     reason="package pytorch is required for this test",
 )
 @pytest.mark.skipif(
@@ -643,11 +636,11 @@ def _forms_of(layer, word):
 
 
 @pytest.mark.skipif(
-    not check_if_transformers_is_available(),
+    not is_package_available("transformers"),
     reason="package transformers is required for this test",
 )
 @pytest.mark.skipif(
-    not check_if_pytorch_is_available(),
+    not is_package_available("torch"),
     reason="package pytorch is required for this test",
 )
 @pytest.mark.skipif(
@@ -673,11 +666,11 @@ def test_post_disambiguator_is_applied_in_tagger_mode():
 
 
 @pytest.mark.skipif(
-    not check_if_transformers_is_available(),
+    not is_package_available("transformers"),
     reason="package transformers is required for this test",
 )
 @pytest.mark.skipif(
-    not check_if_pytorch_is_available(),
+    not is_package_available("torch"),
     reason="package pytorch is required for this test",
 )
 @pytest.mark.skipif(
@@ -712,11 +705,11 @@ def test_post_disambiguator_is_applied_in_disambiguator_mode():
 
 
 @pytest.mark.skipif(
-    not check_if_transformers_is_available(),
+    not is_package_available("transformers"),
     reason="package transformers is required for this test",
 )
 @pytest.mark.skipif(
-    not check_if_pytorch_is_available(),
+    not is_package_available("torch"),
     reason="package pytorch is required for this test",
 )
 @pytest.mark.skipif(

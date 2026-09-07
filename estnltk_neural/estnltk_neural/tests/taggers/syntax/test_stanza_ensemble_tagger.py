@@ -1,12 +1,13 @@
 import os
 import unittest
-from importlib.util import find_spec
 from collections import OrderedDict
 
 from estnltk import Text
 from estnltk.converters import dict_to_layer, layer_to_dict
-from estnltk_neural.taggers import StanzaSyntaxEnsembleTagger
 from estnltk.downloader import get_resource_paths
+
+from estnltk_neural.common import is_package_available
+from estnltk_neural.taggers import StanzaSyntaxEnsembleTagger
 
 from packaging.version import Version as pkg_Version
 from packaging.version import parse as parse_version
@@ -35,10 +36,6 @@ def ensemble_models_exist():
     for model in os.listdir(ensemble_path):
         models_count += 1 if model.endswith('.pt') else 0
     return models_count > 0
-
-# Checks whether the scipy package exists (required only for find_entropy settings)
-def scipy_exists():
-    return (find_spec('scipy') is not None)
 
 
 @unittest.skipIf(STANZA_SYNTAX_MODELS_PATH is None, skip_message_missing_models)
@@ -554,12 +551,13 @@ def _normalize_entropy_values( layer_dict ):
 
 
 @unittest.skipIf(STANZA_SYNTAX_MODELS_PATH is None, skip_message_missing_models)
-@unittest.skipIf( not scipy_exists(), skip_message_missing_scipy )
+@unittest.skipIf( not is_package_available('scipy'), skip_message_missing_scipy )
 @unittest.skipIf( not ensemble_models_exist(), skip_message_missing_models )
 @unittest.skipIf( parse_version(stanza_version) < pkg_Version('1.9.2'), \
                   '(!) stanza version >= 1.9.2 is required for running this test' )
 def test_stanza_syntax_ensemble_tagger_with_find_entropy():
     # Test StanzaSyntaxEnsembleTagger's find_entropy functionality
+    # Note: this requires that the scipy package has been installed
     
     text = Text('Jänes otsis lahendusi tulevikuks. Seda traditsiooni hoiame elus ka 3 aastat hiljem.')
     text.tag_layer('morph_extended')

@@ -59,3 +59,17 @@ def is_hf_repo_available(repo_id:str, cache_dir:str=None,
         pass
     return False
 
+
+def is_package_available(packageName:str):
+    '''Checks whether the given Python package has been installed. 
+       Use this function to check availablity of the packages before 
+       importing them. You can also check for availability of a 
+       module inside an installed package if you provide full import 
+       path in `packageName`.
+       Returns True if the given package is available (installed), 
+       False otherwise.
+    '''
+    from importlib.util import find_spec
+    assert isinstance(packageName, str)
+    return find_spec(packageName) is not None
+

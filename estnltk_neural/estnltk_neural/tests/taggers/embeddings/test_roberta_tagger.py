@@ -1,25 +1,18 @@
-from importlib.util import find_spec
-import pytest
 import os
+import pytest
 
 from estnltk import Text
 from estnltk_neural.common import is_hf_repo_available
-
-
-def check_if_transformers_is_available():
-    return find_spec("transformers") is not None
-
-def check_if_pytorch_is_available():
-    return find_spec("torch") is not None
+from estnltk_neural.common import is_package_available
 
 model_download_instruction = \
     "RobertaTagger's model (EMBEDDIA/est-roberta) is not available. "+\
     "Please download the model via "+\
     "huggingface_hub.snapshot_download('EMBEDDIA/est-roberta', revision='eb8131e56a9a92a78187d8cbf50c8258bcb253b9')."
 
-@pytest.mark.skipif(not check_if_transformers_is_available(),
-                    reason="package tranformers is required for this test")
-@pytest.mark.skipif(not check_if_pytorch_is_available(),
+@pytest.mark.skipif(not is_package_available("transformers"),
+                    reason="package transformers is required for this test")
+@pytest.mark.skipif(not is_package_available("torch"),
                     reason="package pytorch is required for this test")
 @pytest.mark.skipif(not is_hf_repo_available('EMBEDDIA/est-roberta', revision='eb8131e56a'),
                     reason=model_download_instruction)
@@ -40,9 +33,9 @@ def test_roberta_tagger_out_of_the_box():
     assert len(text.words) < len(text.roberta_embeddings)
 
 
-@pytest.mark.skipif(not check_if_transformers_is_available(),
-                    reason="package tranformers is required for this test")
-@pytest.mark.skipif(not check_if_pytorch_is_available(),
+@pytest.mark.skipif(not is_package_available("transformers"),
+                    reason="package transformers is required for this test")
+@pytest.mark.skipif(not is_package_available("torch"),
                     reason="package pytorch is required for this test")
 @pytest.mark.skipif(not is_hf_repo_available('EMBEDDIA/est-roberta', revision='eb8131e56a'),
                     reason=model_download_instruction)
@@ -69,9 +62,9 @@ def _get_bert_tokens(text_obj, bert_layer='roberta_word_embeddings'):
         results.append( (bert_span.text, list(bert_span.token)))
     return results
 
-@pytest.mark.skipif(not check_if_transformers_is_available(),
-                    reason="package tranformers is required for this test")
-@pytest.mark.skipif(not check_if_pytorch_is_available(),
+@pytest.mark.skipif(not is_package_available("transformers"),
+                    reason="package transformers is required for this test")
+@pytest.mark.skipif(not is_package_available("torch"),
                     reason="package pytorch is required for this test")
 @pytest.mark.skipif(not is_hf_repo_available('EMBEDDIA/est-roberta', revision='eb8131e56a'),
                     reason=model_download_instruction)
@@ -109,9 +102,9 @@ def test_roberta_tagger_tokens_and_word_span_misaligment_bugfix():
     assert text.roberta_word_embeddings.text == text.words.text
 
 
-@pytest.mark.skipif(not check_if_transformers_is_available(),
-                    reason="package tranformers is required for this test")
-@pytest.mark.skipif(not check_if_pytorch_is_available(),
+@pytest.mark.skipif(not is_package_available("transformers"),
+                    reason="package transformers is required for this test")
+@pytest.mark.skipif(not is_package_available("torch"),
                     reason="package pytorch is required for this test")
 @pytest.mark.skipif(not is_hf_repo_available('EMBEDDIA/est-roberta', revision='eb8131e56a'),
                     reason=model_download_instruction)
@@ -140,9 +133,9 @@ def test_roberta_tagger_tokens_and_word_span_misaligment_01():
     assert text.roberta_word_embeddings.text == text.words.text
 
 
-@pytest.mark.skipif(not check_if_transformers_is_available(),
-                    reason="package tranformers is required for this test")
-@pytest.mark.skipif(not check_if_pytorch_is_available(),
+@pytest.mark.skipif(not is_package_available("transformers"),
+                    reason="package transformers is required for this test")
+@pytest.mark.skipif(not is_package_available("torch"),
                     reason="package pytorch is required for this test")
 @pytest.mark.skipif(not is_hf_repo_available('EMBEDDIA/est-roberta', revision='eb8131e56a'),
                     reason=model_download_instruction)

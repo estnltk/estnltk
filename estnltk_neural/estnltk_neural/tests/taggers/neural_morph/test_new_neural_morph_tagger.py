@@ -7,10 +7,10 @@ from estnltk.downloader import get_resource_paths
 from estnltk.converters import layer_to_dict
 
 from estnltk_neural.common import neural_abs_path
+from estnltk_neural.common import is_package_available
 from estnltk_neural.taggers.neural_morph.new_neural_morph.vabamorf_2_neural import neural_model_tags
 from estnltk_neural.taggers.neural_morph.new_neural_morph.neural_2_vabamorf import vabamorf_tags
 from estnltk_neural.taggers.neural_morph.new_neural_morph.neural_morph_tagger import NeuralMorphTagger
-from estnltk_neural.taggers.neural_morph.new_neural_morph.neural_morph_tagger import is_tensorflow_available
 from estnltk_neural.taggers.neural_morph.new_neural_morph.general_utils import get_model_path_from_dir
 
 
@@ -101,7 +101,7 @@ skip_reason = ("Could not load neural morph model{}. "+\
 
 model_dir = None
 model_module = None
-if is_tensorflow_available(): # Only proceed if tensorflow is available
+if is_package_available('tensorflow'): # Only proceed if tensorflow is available
     model_dir = get_model_dir_from_esnltk_resources( NEURAL_MORPH_TAGGER_CONFIG )
     if model_dir is not None:
         if 'softmax_emb_tag_sum' in model_dir:

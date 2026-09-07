@@ -1,21 +1,12 @@
-from importlib.util import find_spec
-import pytest
 import os
+import pytest
 
 from estnltk import Text
 from estnltk.downloader import get_resource_paths
+from estnltk_neural.common import is_package_available
 
 # Try to get the resources path for BertTransformer. If missing, do nothing. It's up for the user to download the missing resources
 MODEL_PATH = get_resource_paths("berttransformer", only_latest=True, download_missing=False)
-
-
-def check_if_transformers_is_available():
-    return find_spec("transformers") is not None
-
-
-def check_if_pytorch_is_available():
-    return find_spec("torch") is not None
-
 
 def check_if_model_present():
     # Check that expected Bert model files are present
@@ -28,9 +19,9 @@ def check_if_model_present():
     return all([exp_file in model_dir_files for exp_file in expected_model_files])
 
 
-@pytest.mark.skipif(not check_if_transformers_is_available(),
-                    reason="package tranformers is required for this test")
-@pytest.mark.skipif(not check_if_pytorch_is_available(),
+@pytest.mark.skipif(not is_package_available("transformers"),
+                    reason="package transformers is required for this test")
+@pytest.mark.skipif(not is_package_available("torch"),
                     reason="package pytorch is required for this test")
 @pytest.mark.skipif(not check_if_model_present(),
                     reason="BertTransformer's resources have not been downloaded. "+\

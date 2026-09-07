@@ -1,6 +1,5 @@
-from importlib.util import find_spec
-import pytest
 import os
+import pytest
 
 from estnltk import Text
 from estnltk.downloader import get_resource_paths
@@ -8,13 +7,9 @@ from estnltk.downloader import get_resource_paths
 from estnltk.converters import layer_to_dict 
 from estnltk.converters import dict_to_layer 
 
+from estnltk_neural.common import is_package_available
 from estnltk_neural.taggers import GliLemTagger
 
-def check_if_transformers_is_available():
-    return find_spec("transformers") is not None
-
-def check_if_gliner_is_available():
-    return find_spec("gliner") is not None
 
 # Try to get the resources path for GliLemTagger's model. If missing, do nothing. It's up for the user to download the missing resources
 GLILEM_MODEL_PATH = get_resource_paths("glilem_vabamorf_disambiguator", only_latest=True, download_missing=False)
@@ -59,9 +54,9 @@ def _extract_word_partofspeech_and_form(morph_layer):
     return results
 
 
-@pytest.mark.skipif(not check_if_transformers_is_available(),
-                    reason="package tranformers is required for this test")
-@pytest.mark.skipif(not check_if_gliner_is_available(),
+@pytest.mark.skipif(not is_package_available("transformers"),
+                    reason="package transformers is required for this test")
+@pytest.mark.skipif(not is_package_available("gliner"),
                     reason="package gliner is required for this test")
 @pytest.mark.skipif(GLILEM_MODEL_PATH is None,
                     reason="GliLemTagger's model location not known. "+\
@@ -86,9 +81,9 @@ def test_glilem_tagger_out_of_the_box():
          {'word': 'rediseid', 'lemma': 'redis', 'label': '↓0;d¦---', 'vabamorf_overwritten': False, 'is_input_token': True}]
 
 
-@pytest.mark.skipif(not check_if_transformers_is_available(),
-                    reason="package tranformers is required for this test")
-@pytest.mark.skipif(not check_if_gliner_is_available(),
+@pytest.mark.skipif(not is_package_available("transformers"),
+                    reason="package transformers is required for this test")
+@pytest.mark.skipif(not is_package_available("gliner"),
                     reason="package gliner is required for this test")
 @pytest.mark.skipif(GLILEM_MODEL_PATH is None,
                     reason="GliLemTagger's model location not known. "+\
@@ -145,9 +140,9 @@ def test_glilem_tagger_extended_output():
          {'word': '.', 'lemma': '.', 'label': None, 'vabamorf_overwritten': False, 'is_input_token': True}]
 
 
-@pytest.mark.skipif(not check_if_transformers_is_available(),
-                    reason="package tranformers is required for this test")
-@pytest.mark.skipif(not check_if_gliner_is_available(),
+@pytest.mark.skipif(not is_package_available("transformers"),
+                    reason="package transformers is required for this test")
+@pytest.mark.skipif(not is_package_available("gliner"),
                     reason="package gliner is required for this test")
 @pytest.mark.skipif(GLILEM_MODEL_PATH is None,
                     reason="GliLemTagger's model location not known. "+\

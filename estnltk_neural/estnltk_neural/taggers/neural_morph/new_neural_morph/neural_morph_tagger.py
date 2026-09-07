@@ -1,19 +1,16 @@
 import os
 import importlib
-from importlib.util import find_spec
 
 from estnltk import Layer
 from estnltk.taggers import Retagger
 from estnltk.downloader import get_resource_paths
 
+from estnltk_neural.common import is_package_available
+
 from estnltk_neural.taggers.neural_morph.new_neural_morph.general_utils import load_config_from_file
 from estnltk_neural.taggers.neural_morph.new_neural_morph.general_utils import override_config_paths_from_model_dir
 from estnltk_neural.taggers.neural_morph.new_neural_morph.vabamorf_2_neural import neural_model_tags
 from estnltk_neural.taggers.neural_morph.new_neural_morph.neural_2_vabamorf import vabamorf_tags
-
-def is_tensorflow_available():
-    '''Checks if tensorflow package has been installed.'''
-    return find_spec('tensorflow') is not None
 
 
 MODEL_FILES = {"data": ["analysis.txt",
@@ -112,7 +109,7 @@ class NeuralMorphTagger(Retagger):
                        input_sentences_layer='sentences', input_morph_analysis_layer='morph_analysis', 
                        module_name=None, module_package=None, model_module=None, model=None, 
                        model_dir=None, bypass_tensorflow_check=False):
-        if not is_tensorflow_available():
+        if not is_package_available('tensorflow'):
             if not bypass_tensorflow_check:
                 raise ModuleNotFoundError("(!) Tensorflow not installed. "+\
                                           "You'll need tensorflow <= 1.15.5 for running this tagger.")

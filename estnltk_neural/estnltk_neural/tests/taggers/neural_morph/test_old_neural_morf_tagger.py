@@ -1,17 +1,17 @@
 import os
 import unittest
-from importlib.util import find_spec
 from unittest import TestCase
 
 from packaging.version import Version, parse
 
 from estnltk import Text
+from estnltk_neural.common import is_package_available
 from estnltk_neural.taggers.neural_morph.old_neural_morph.data_utils import ConfigHolder
 from estnltk_neural.taggers.neural_morph.old_neural_morph.general_utils import load_config_from_file
 
 def check_if_tensorflow_is_available():
     # 1) Check if tensorflow is available
-    tensorflow_available = find_spec("tensorflow") is not None
+    tensorflow_available = is_package_available("tensorflow")
     if tensorflow_available:
         # 2) Check that tensorflow has version < 2.x.x
         # (needs to have module tensorflow.contrib, 
