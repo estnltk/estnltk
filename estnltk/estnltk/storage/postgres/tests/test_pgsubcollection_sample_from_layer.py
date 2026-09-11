@@ -372,9 +372,12 @@ class TestPgSubCollectionSampleFromLayer(unittest.TestCase):
 
     # This test can only be launched on server versions where SETSEED() / RANDOM() 
     # behaviour has been fixed across the platforms (so, we get same results everywhere)
+    # ( Note that the results of this test depend on the server version, to an extent )
     @pytest.mark.skipif(get_server_version() < 120000,
                         reason="PostgreSQL server version >= 12.0 is required for this test")
     def test_pgsubcollection_sample_from_sparse_layer(self):
+        # Get the server version
+        server_version = get_server_version()
         # Test that sampling works with sparse layers
         collection_name = get_random_collection_name()
         collection = self.storage.add_collection(collection_name)
@@ -403,8 +406,14 @@ class TestPgSubCollectionSampleFromLayer(unittest.TestCase):
         for (doc_id, dok) in res:
             for span in dok['even_numbers']:
                 annotation_locations.append( (doc_id, span.start, span.end) )
-        self.assertListEqual( [t[0] for t in res], [0, 168] )
-        self.assertListEqual( annotation_locations, [(0, 20, 21), (168, 20, 23)] )
+        if server_version < 160000:
+            # older version
+            self.assertListEqual( [t[0] for t in res], [0, 168] )
+            self.assertListEqual( annotation_locations, [(0, 20, 21), (168, 20, 23)] )
+        else:
+            # PostgreSQL 16
+            self.assertListEqual( [t[0] for t in res], [] )
+            self.assertListEqual( annotation_locations, [] )
         
         # Select a sample from sparse layer (~25 %)
         # Caveat: we get less than expected
@@ -413,10 +422,18 @@ class TestPgSubCollectionSampleFromLayer(unittest.TestCase):
         for (doc_id, dok) in res:
             for span in dok['even_numbers']:
                 annotation_locations.append( (doc_id, span.start, span.end) )
-        self.assertListEqual( [t[0] for t in res],  [0, 2, 6, 24, 50, 98, 124, 136, 138] )
-        self.assertListEqual( annotation_locations, [(0, 20, 21), (2, 20, 21), (6, 20, 21), 
-                                                     (24, 20, 22), (50, 20, 22), (98, 20, 22), 
-                                                     (124, 20, 23), (136, 20, 23), (138, 20, 23)] )
+        if server_version < 160000:
+            # older version
+            self.assertListEqual( [t[0] for t in res],  [0, 2, 6, 24, 50, 98, 124, 136, 138] )
+            self.assertListEqual( annotation_locations, [(0, 20, 21), (2, 20, 21), (6, 20, 21), 
+                                                         (24, 20, 22), (50, 20, 22), (98, 20, 22), 
+                                                         (124, 20, 23), (136, 20, 23), (138, 20, 23)] )
+        else:
+            # PostgreSQL 16
+            self.assertListEqual( [t[0] for t in res], [52, 86, 98, 104, 122, 194, 198] )
+            self.assertListEqual( annotation_locations, [(52, 20, 22), (86, 20, 22), (98, 20, 22), 
+                                                         (104, 20, 23), (122, 20, 23), (194, 20, 23), 
+                                                         (198, 20, 23)] )
         
         # Select a sample from sparse layer (~25 %) with keep_all_texts=False
         # The result should not change
@@ -425,10 +442,18 @@ class TestPgSubCollectionSampleFromLayer(unittest.TestCase):
         for (doc_id, dok) in res:
             for span in dok['even_numbers']:
                 annotation_locations.append( (doc_id, span.start, span.end) )
-        self.assertListEqual( [t[0] for t in res],  [0, 2, 6, 24, 50, 98, 124, 136, 138] )
-        self.assertListEqual( annotation_locations, [(0, 20, 21), (2, 20, 21), (6, 20, 21), 
-                                                     (24, 20, 22), (50, 20, 22), (98, 20, 22), 
-                                                     (124, 20, 23), (136, 20, 23), (138, 20, 23)] )
+        if server_version < 160000:
+            # older version
+            self.assertListEqual( [t[0] for t in res],  [0, 2, 6, 24, 50, 98, 124, 136, 138] )
+            self.assertListEqual( annotation_locations, [(0, 20, 21), (2, 20, 21), (6, 20, 21), 
+                                                         (24, 20, 22), (50, 20, 22), (98, 20, 22), 
+                                                         (124, 20, 23), (136, 20, 23), (138, 20, 23)] )
+        else:
+            # PostgreSQL 16
+            self.assertListEqual( [t[0] for t in res], [52, 86, 98, 104, 122, 194, 198] )
+            self.assertListEqual( annotation_locations, [(52, 20, 22), (86, 20, 22), (98, 20, 22), 
+                                                         (104, 20, 23), (122, 20, 23), (194, 20, 23), 
+                                                         (198, 20, 23)] )
 
         # Select a sample from another sparse layer (~~50 %)
         # Caveat: we get less than expected
@@ -438,9 +463,16 @@ class TestPgSubCollectionSampleFromLayer(unittest.TestCase):
             for span in dok['even_numbers']:
                 annotation_locations.append( (doc_id, span.start, span.end) )
         self.assertEqual(len(res), 25)
-        self.assertListEqual( [t[0] for t in res], 
-            [0, 4, 8, 12, 20, 40, 44, 48, 68, 76, 84, 92, 96, 112,
-             116, 124, 132, 136, 140, 144, 152, 164, 168, 172, 184] )
+        if server_version < 160000:
+            # older version
+            self.assertListEqual( [t[0] for t in res], 
+                [0, 4, 8, 12, 20, 40, 44, 48, 68, 76, 84, 92, 96, 112,
+                 116, 124, 132, 136, 140, 144, 152, 164, 168, 172, 184] )
+        else:
+            # PostgreSQL 16
+            self.assertListEqual( [t[0] for t in res], 
+                [4, 12, 16, 28, 32, 40, 44, 60, 64, 68, 72, 76, 92, 112, 
+                 120, 128, 152, 160, 164, 172, 176, 180, 184, 192, 196] )
         self.assertListEqual( [len(t[1]['fourth_numbers']) for t in res], 
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1] )
