@@ -37,6 +37,7 @@ from estnltk_neural.taggers.neural_morph.bert_based.morph_homonyms_retagger impo
 # Values written to the correction flag attribute.
 FLAG_CORRECTED = "corrected"
 FLAG_AGREED = "agreed"
+FLAG_DISAGREED = "disagreed"
 FLAG_NONE = "none"
 
 DEFAULT_FLAG_ATTRIBUTE = "homonym_correction"
@@ -65,6 +66,15 @@ class VabamorfMorphHomonymsRetagger(MorphHomonymsRetagger):
         The expert disagreed with the existing analyses, and Vabamorf's
         candidate set contained the predicted form. The matching candidates
         replace the existing ones.
+    ``'disagreed'``
+        The expert disagreed with the existing analyses, but no Vabamorf
+        candidate carried the predicted form, so the word was left unchanged.
+        The expert is a classifier: it predicts a (form, partofspeech) pair and
+        cannot supply the ``lemma``/``root``/``ending`` a Vabamorf analysis
+        needs, so its prediction can only ever be *selected* from Vabamorf's
+        candidates, never written directly. These are the words worth
+        inspecting: the expert wanted a change that the analyser could not
+        express.
 
     Note on candidate regeneration
     ------------------------------
@@ -240,7 +250,7 @@ class VabamorfMorphHomonymsRetagger(MorphHomonymsRetagger):
         """Select the expert-endorsed Vabamorf analysis for homonymous words.
 
         ``candidates_by_span`` is required rather than optional: an empty
-        candidate map would send every disagreement down the unresolved branch
+        candidate map would send every disagreement down the disagreed branch
         and silently correct nothing.
         """
 
@@ -252,7 +262,7 @@ class VabamorfMorphHomonymsRetagger(MorphHomonymsRetagger):
         inspected_words = 0
         agreed_words = 0
         corrected_words = 0
-        unresolved_words = 0
+        disagreed_words = 0
 
         for source_span in source_layer:
             key = (source_span.start, source_span.end)
@@ -300,21 +310,17 @@ class VabamorfMorphHomonymsRetagger(MorphHomonymsRetagger):
 
             # The expert disagrees, but Vabamorf has no analysis carrying the
             # predicted form, so there is nothing valid to switch to and the
-            # word is left as it is.
-            #
-            # NOTE: with the agreed/corrected/none flag this case is recorded as
-            # 'agreed', which is misleading -- the expert wanted a change and
-            # could not get one. It is kept as a separate branch so that adding
-            # a fourth value (e.g. 'unresolved') is a one-line change, and it is
-            # counted separately in the layer metadata regardless.
-            self._rewrite(source_layer, source_span, None, FLAG_AGREED)
-            unresolved_words += 1
+            # word is left as it is. Recorded separately from 'agreed': the
+            # expert wanted a change and could not get one, which is exactly the
+            # case worth inspecting in a corpus.
+            self._rewrite(source_layer, source_span, None, FLAG_DISAGREED)
+            disagreed_words += 1
 
         source_layer.meta["vabamorf_morph_homonyms_retagger"] = {
             "inspected_words": inspected_words,
             "agreed_words": agreed_words,
             "corrected_words": corrected_words,
-            "unresolved_words": unresolved_words,
+            "disagreed_words": disagreed_words,
             "homonym_list_size": len(self.homonym_words),
             "output_layer": self.output_layer,
         }

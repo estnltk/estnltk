@@ -7,24 +7,21 @@
 #  handing _correct_layer an explicit candidate map. Those tests need no model
 #  and no network.
 #
-from importlib.util import find_spec
 import pytest
 
 from estnltk import Text, Layer
 from estnltk.downloader import get_resource_paths
 from estnltk.vabamorf.morf import Vabamorf
+from estnltk_neural.common import is_package_available
 
 import estnltk_neural.taggers.neural_morph.bert_based.morph_homonyms_retagger as mhr_module
 from estnltk_neural.taggers.neural_morph.bert_based.vabamorf_morph_homonyms_retagger import (
     FLAG_AGREED,
     FLAG_CORRECTED,
+    FLAG_DISAGREED,
     FLAG_NONE,
     VabamorfMorphHomonymsRetagger,
 )
-
-
-def check_if_transformers_is_available():
-    return find_spec("transformers") is not None
 
 
 # 'komisjoni' is form homonymous: genitive ('sg g'), partitive ('sg p') or the
@@ -129,7 +126,7 @@ def test_expert_agreement_keeps_matching_analysis(monkeypatch):
     assert meta["inspected_words"] == 1
     assert meta["agreed_words"] == 1
     assert meta["corrected_words"] == 0
-    assert meta["unresolved_words"] == 0
+    assert meta["disagreed_words"] == 0
 
 
 def test_correction_applied_from_vabamorf_candidates(monkeypatch):
@@ -171,11 +168,11 @@ def test_correction_applied_from_vabamorf_candidates(monkeypatch):
 
 
 def test_expert_disagrees_but_vabamorf_has_no_such_form(monkeypatch):
-    # The silent case: the expert wants a form Vabamorf does not offer, so there
-    # is nothing valid to switch to and the word must be left exactly as it was.
-    # Under the agreed/corrected/none flag this is recorded as 'agreed', which
-    # conflates it with real agreement -- the separate 'unresolved_words' counter
-    # is what keeps it visible. This test pins that behaviour deliberately.
+    # The expert wants a form Vabamorf does not offer, so there is nothing valid
+    # to switch to and the word must be left exactly as it was -- but flagged
+    # 'disagreed' rather than 'agreed', because the expert did not agree: it
+    # wanted a change the analyser could not express. These are the words worth
+    # inspecting in a corpus.
     text = _tagged_text()
     layer = text.morph_analysis
     retagger = _retagger_with_stub(monkeypatch)
@@ -188,14 +185,11 @@ def test_expert_disagrees_but_vabamorf_has_no_such_form(monkeypatch):
 
     # Annotations are untouched ...
     assert _annotations_of(layer, "komisjoni") == before
-    # ... and the flag says 'agreed' even though the expert disagreed
-    assert _flag_of(layer, "komisjoni") == {FLAG_AGREED}
+    # ... and the case is distinguishable from real agreement
+    assert _flag_of(layer, "komisjoni") == {FLAG_DISAGREED}
     meta = layer.meta["vabamorf_morph_homonyms_retagger"]
-    assert meta["unresolved_words"] == 1
+    assert meta["disagreed_words"] == 1
     assert meta["corrected_words"] == 0
-    # Counted as unresolved rather than agreed, so the metadata keeps the two
-    # apart even though the flag does not. If a fourth flag value is introduced,
-    # the FLAG_AGREED assertion above is the one that must be updated.
     assert meta["agreed_words"] == 0
 
 
@@ -489,7 +483,7 @@ def test_correct_layer_requires_a_candidate_map(monkeypatch):
 
 
 @pytest.mark.skipif(
-    not check_if_transformers_is_available(),
+    not is_package_available("transformers"),
     reason="package tranformers is required for this test",
 )
 @pytest.mark.skipif(
@@ -520,4 +514,22 @@ def test_end_to_end_corrects_komisjoni():
     meta = text.morph_analysis.meta["vabamorf_morph_homonyms_retagger"]
     assert meta["inspected_words"] == 1
     assert meta["corrected_words"] == 1
-    assert meta["unresolved_words"] == 0
+    assert meta["disagreed_words"] == 0
+
+
+def test_public_retag_flags_disagreement(monkeypatch):
+    # The 'disagreed' path through the public entry point: the expert predicts a
+    # form Vabamorf never offers for this word, so the annotation must survive
+    # untouched and be flagged as a disagreement rather than an agreement.
+    text = _tagged_text()
+    before = _annotations_of(text.morph_analysis, "komisjoni")
+    retagger = _retagger_with_canned_expert(monkeypatch, "pl abl", "S")
+
+    retagger.retag(text)
+
+    assert _annotations_of(text.morph_analysis, "komisjoni") == before
+    assert _flag_of(text.morph_analysis, "komisjoni") == {FLAG_DISAGREED}
+    meta = text.morph_analysis.meta["vabamorf_morph_homonyms_retagger"]
+    assert meta["disagreed_words"] == 1
+    assert meta["agreed_words"] == 0
+    assert meta["corrected_words"] == 0
