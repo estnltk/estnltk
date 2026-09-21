@@ -73,6 +73,10 @@ def _update_layer_info_table( storage: 'PostgresStorage', collection_name: str, 
         assert len(new_structure_columns) == len(new_structure_columns_select)
         with storage.conn.cursor() as c:
             try:
+                # EXCLUSIVE locking -- allow read, but prohibit all modifications to table. 
+                # (https://www.postgresql.org/docs/9.4/explicit-locking.html)
+                c.execute(SQL('LOCK TABLE ONLY {} IN EXCLUSIVE MODE').format(old_structure_table_id))
+                # Carry over data
                 query = \
                     SQL("INSERT INTO {} ({}) SELECT {} FROM {}").format( 
                         new_structure_table_id, 
@@ -186,6 +190,10 @@ def _update_collection_table( storage: 'PostgresStorage', collection_name: str, 
         assert len(new_column_names) == len(new_column_names_select)
         with storage.conn.cursor() as c:
             try:
+                # EXCLUSIVE locking -- allow read, but prohibit all modifications to table. 
+                # (https://www.postgresql.org/docs/9.4/explicit-locking.html)
+                c.execute(SQL('LOCK TABLE ONLY {} IN EXCLUSIVE MODE').format(collection_table_id))
+                # Carry over data
                 query = \
                     SQL("INSERT INTO {} ({}) SELECT {} FROM {}").format( 
                         new_collection_table_id, 
@@ -220,6 +228,38 @@ def _update_collection_table( storage: 'PostgresStorage', collection_name: str, 
     else:
         raise NotImplementedError(f'(!) Updating collection from {collection_version} to {new_version} is not implemented.')
 
+
+def _update_collection_version( storage: 'PostgresStorage', collection_name: str, new_version: str ):
+    '''Updates collection's version in the table '__collections'. 
+       Note that this should be a final step, after the steps _update_layer_info_table(...) and 
+       _update_collection_table(...) have been completed.
+    '''
+    if not pg.table_exists(storage, '__collections'):
+        raise Exception("(!) Collections table {!r} does not exist!".format(str(storage.collections_table)))
+    if collection_name not in storage.collections:
+        raise pg.PgCollectionException(f'(!) Cannot update collection {collection_name!r}: no such collection.')
+    # Update version
+    with storage.conn.cursor() as c:
+        try:
+            # EXCLUSIVE locking -- allow read, but prohibit all modifications to table. 
+            # (https://www.postgresql.org/docs/9.4/explicit-locking.html)
+            c.execute(SQL('LOCK TABLE ONLY {} IN EXCLUSIVE MODE').format(storage.collections_table))
+            # Update version number in the table
+            sql = SQL('UPDATE {} SET version = {} WHERE collection = {}')
+            c.execute(sql.format(storage.collections_table, Literal(new_version), Literal(collection_name)))
+            logger.info(f'updated collection {collection_name!r} version to {new_version} (finalized update)')
+        except Exception as updating_error:
+            storage.conn.rollback()
+            raise pg.PgStorageException(('(!) Cannot update version of the collection {!r} '+\
+                                         'due to an exception: {}').format( \
+                                            collection_name, updating_error)) from updating_error
+        finally:
+            if storage.conn.status == STATUS_BEGIN:
+                # no exception, transaction in progress
+                storage.conn.commit()
+                logger.debug(c.query.decode())
+
+
 def update_structure( storage: 'PostgresStorage', collection_name: str, new_version: str ):
     ''' Updates structure of the given collection to the new version. '''
     assert isinstance(new_version, str)
@@ -237,11 +277,15 @@ def update_structure( storage: 'PostgresStorage', collection_name: str, new_vers
             _update_layer_info_table(storage, collection_name, new_version)
             # Rewrite collection table: add column 'hidden'
             _update_collection_table(storage, collection_name, new_version)
+            # Finally, update collection's version in the __collections table
+            _update_collection_version(storage, collection_name, new_version)
         elif collection_version == '3.0' and new_version == '4.0':
             # Rewrite structure table: add column 'span_names'
             _update_layer_info_table(storage, collection_name, new_version)
             # Rewrite collection table: add column 'hidden'
             _update_collection_table(storage, collection_name, new_version)
+            # Finally, update collection's version in the __collections table
+            _update_collection_version(storage, collection_name, new_version)
         else:
             raise NotImplementedError(f'(!) Updating structure from {collection_version} to {new_version} is not implemented.')
 
