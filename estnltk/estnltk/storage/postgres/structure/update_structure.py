@@ -2,8 +2,6 @@ from warnings import warn
 
 from collections import OrderedDict
 
-import tqdm
-
 from psycopg2.sql import SQL, Literal, Identifier
 from psycopg2.extensions import STATUS_BEGIN
 
@@ -17,11 +15,12 @@ def _update_layer_info_table( storage: 'PostgresStorage', collection_name: str, 
     '''Updates collection's layer info table (the structure table) to the given collection version. 
        Currently only supports updating to '4.0'. 
     '''
-    collection_version = storage.collections[collection_name]['version']
+    collection_version = storage._collections.collections[collection_name]['version']
     if collection_version not in {'2.0', '3.0'}:
         raise NotImplementedError(f'(!) Updating structure from {collection_version} to {new_version} is not implemented.')
     if new_version == '4.0':
         old_structure_table_id = pg.structure_table_identifier(storage, collection_name)
+        old_structure_table_name = pg.structure_table_name(collection_name)
         # a) Create new temporary structure table
         new_structure_table_name = collection_name + '__structure' + '__new'
         if pg.table_exists(storage, new_structure_table_name):
@@ -93,12 +92,12 @@ def _update_layer_info_table( storage: 'PostgresStorage', collection_name: str, 
                     # no exception, transaction in progress
                     storage.conn.commit()
         # c) Delete old structure table
-        pg.drop_table(storage, pg.structure_table_name(collection_name))
+        pg.drop_table( storage, old_structure_table_name )
         # d) Rename the new structure table to old
         sql = SQL('ALTER TABLE {} RENAME TO {}; ')
         with storage.conn.cursor() as c:
             try:
-                c.execute(sql.format(new_structure_table_id, old_structure_table_id))
+                c.execute(sql.format(new_structure_table_id, Identifier(old_structure_table_name)))
             except Exception:
                 storage.conn.rollback()
                 raise
@@ -117,7 +116,7 @@ def _update_collection_table( storage: 'PostgresStorage', collection_name: str, 
        Currently only supports updating to '4.0'. 
     '''
     import time
-    collection_version = storage.collections[collection_name]['version']
+    collection_version = storage._collections.collections[collection_name]['version']
     if collection_version not in {'2.0', '3.0'}:
         raise NotImplementedError(f'(!) Updating collection from {collection_version} to {new_version} is not implemented.')
     if new_version == '4.0':
@@ -182,7 +181,8 @@ def _update_collection_table( storage: 'PostgresStorage', collection_name: str, 
                 if storage.conn.status == STATUS_BEGIN:
                     # no exception, transaction in progress
                     storage.conn.commit()
-        collection_table_id = pg.collection_table_identifier(storage, pg.collection_table_name(collection_name))
+        old_collection_table_id = pg.collection_table_identifier(storage, pg.collection_table_name(collection_name))
+        old_collection_table_name = pg.collection_table_name(collection_name)
         # b) Carry over data from the old table to the new table
         # ( can be done on the server side )
         new_column_names_select = \
@@ -192,14 +192,14 @@ def _update_collection_table( storage: 'PostgresStorage', collection_name: str, 
             try:
                 # EXCLUSIVE locking -- allow read, but prohibit all modifications to table. 
                 # (https://www.postgresql.org/docs/9.4/explicit-locking.html)
-                c.execute(SQL('LOCK TABLE ONLY {} IN EXCLUSIVE MODE').format(collection_table_id))
+                c.execute(SQL('LOCK TABLE ONLY {} IN EXCLUSIVE MODE').format(old_collection_table_id))
                 # Carry over data
                 query = \
                     SQL("INSERT INTO {} ({}) SELECT {} FROM {}").format( 
                         new_collection_table_id, 
                         SQL(', ').join(map(Identifier, new_column_names)),
                         SQL(", ").join(new_column_names_select) ,
-                        collection_table_id )
+                        old_collection_table_id )
                 c.execute( query )
                 logger.debug(c.query.decode())
             except:
@@ -210,12 +210,12 @@ def _update_collection_table( storage: 'PostgresStorage', collection_name: str, 
                     # no exception, transaction in progress
                     storage.conn.commit()
         # c) Delete old collection table
-        pg.drop_table(storage, pg.collection_table_name(collection_name))
+        pg.drop_table(storage, old_collection_table_name)
         # d) Rename the new structure table to old
         sql = SQL('ALTER TABLE {} RENAME TO {}; ')
         with storage.conn.cursor() as c:
             try:
-                c.execute(sql.format(new_collection_table_id, collection_table_id))
+                c.execute(sql.format(new_collection_table_id, Identifier(old_collection_table_name)))
             except Exception:
                 storage.conn.rollback()
                 raise
@@ -238,7 +238,7 @@ def _update_collection_version( storage: 'PostgresStorage', collection_name: str
         raise Exception("(!) Collections table {!r} does not exist!".format(str(storage.collections_table)))
     if collection_name not in storage.collections:
         raise pg.PgCollectionException(f'(!) Cannot update collection {collection_name!r}: no such collection.')
-    # Update version
+    # Update version in the database
     with storage.conn.cursor() as c:
         try:
             # EXCLUSIVE locking -- allow read, but prohibit all modifications to table. 
@@ -247,7 +247,6 @@ def _update_collection_version( storage: 'PostgresStorage', collection_name: str
             # Update version number in the table
             sql = SQL('UPDATE {} SET version = {} WHERE collection = {}')
             c.execute(sql.format(storage.collections_table, Literal(new_version), Literal(collection_name)))
-            logger.info(f'updated collection {collection_name!r} version to {new_version} (finalized update)')
         except Exception as updating_error:
             storage.conn.rollback()
             raise pg.PgStorageException(('(!) Cannot update version of the collection {!r} '+\
@@ -258,15 +257,22 @@ def _update_collection_version( storage: 'PostgresStorage', collection_name: str
                 # no exception, transaction in progress
                 storage.conn.commit()
                 logger.debug(c.query.decode())
+                logger.info(f'updated collection {collection_name!r} version to {new_version} (finalized update)')
 
 
 def update_structure( storage: 'PostgresStorage', collection_name: str, new_version: str ):
-    ''' Updates structure of the given collection to the new version. '''
+    '''Updates structure of the given collection to the new version in the database. 
+       Note: if the given collection has been loaded in the PostgresStorage, you should 
+       close the PostgresStorage after the update and create a new PostgresStorage and 
+       load the collection again for the update to take effect. 
+       Otherwise, calling storage.refresh() ( StorageCollections.load() ) will raise 
+       AssertionError.
+    '''
     assert isinstance(new_version, str)
     assert isinstance(collection_name, str)
     if collection_name not in storage.collections:
         raise pg.PgCollectionException(f'(!) Cannot update collection {collection_name!r}: no such collection.')
-    collection_version = storage.collections[collection_name]['version']
+    collection_version = storage._collections.collections[collection_name]['version']
     if collection_version == new_version:
         warn(f'(!) collection {collection_name!r} already has version {new_version}, nothing to update.')
     elif collection_version > new_version:
