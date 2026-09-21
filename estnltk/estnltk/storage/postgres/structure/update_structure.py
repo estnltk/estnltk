@@ -15,6 +15,8 @@ def _update_layer_info_table( storage: 'PostgresStorage', collection_name: str, 
     '''Updates collection's layer info table (the structure table) to the given collection version. 
        Currently only supports updating to '4.0'. 
     '''
+    from datetime import datetime
+    update_start = datetime.now()
     collection_version = storage._collections.collections[collection_name]['version']
     if collection_version not in {'2.0', '3.0'}:
         raise NotImplementedError(f'(!) Updating structure from {collection_version} to {new_version} is not implemented.')
@@ -106,7 +108,8 @@ def _update_layer_info_table( storage: 'PostgresStorage', collection_name: str, 
                     # no exception, transaction in progress
                     storage.conn.commit()
                     logger.debug(c.query.decode())
-        logger.info(f'updated collection {collection_name!r} structure table to {new_version}')
+        time_elapsed = f'time elapsed: {datetime.now()-update_start}'
+        logger.info(f'updated collection {collection_name!r} structure table to {new_version} ({time_elapsed})')
     else:
         raise NotImplementedError(f'(!) Updating structure from {collection_version} to {new_version} is not implemented.')
 
@@ -116,6 +119,8 @@ def _update_collection_table( storage: 'PostgresStorage', collection_name: str, 
        Currently only supports updating to '4.0'. 
     '''
     import time
+    from datetime import datetime
+    update_start = datetime.now()
     collection_version = storage._collections.collections[collection_name]['version']
     if collection_version not in {'2.0', '3.0'}:
         raise NotImplementedError(f'(!) Updating collection from {collection_version} to {new_version} is not implemented.')
@@ -224,7 +229,8 @@ def _update_collection_table( storage: 'PostgresStorage', collection_name: str, 
                     # no exception, transaction in progress
                     storage.conn.commit()
                     logger.debug(c.query.decode())
-        logger.info(f'updated collection {collection_name!r} table to {new_version}')
+        time_elapsed = f'time elapsed: {datetime.now()-update_start}'
+        logger.info(f'updated collection {collection_name!r} table to {new_version} ({time_elapsed})')
     else:
         raise NotImplementedError(f'(!) Updating collection from {collection_version} to {new_version} is not implemented.')
 
