@@ -22,7 +22,7 @@ class MorphoSyntaxTagger(Tagger):
     * {extended_feats} -- from from"morph_extended" layer;
     * {head} {deprel} -- from stanza layer;
     * {parent_span} {children} -- from stanza layer if "add_parent_and_children=True";
-    * {stanza_pos} {stanza_feats} {stanza_lemma}  -- from stanza layer, might be removed if unnecessary
+    * {stanza_pos} {stanza_feats} {stanza_lemma}  -- from stanza layer, required for transaction tables
     """
 
     conf_param = [ 'morph_analysis_tagger', 'morph_extended_tagger', 'stanza_tagger', 'output_layer',  'input_layers', 'morph_analysis_layer', 'words_layer']

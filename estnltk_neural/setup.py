@@ -32,6 +32,7 @@ setup(
     package_data={
         'license_headers' : ['*.*'],
         'estnltk_neural.tests.taggers.neural_morph': ['*.txt'],
+        'estnltk_neural.tests.taggers.morphosyntax': ['test_files_basic_consistency/*.json'],
         # Homonymous word forms lexicon used by MorphHomonymsRetagger
         'estnltk_neural.taggers.neural_morph.bert_based': ['homonymous_word_forms/*.txt'],
     },

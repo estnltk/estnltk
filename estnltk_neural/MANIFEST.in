@@ -2,4 +2,11 @@
 include COPYRIGHT
 include LICENSE
 include estnltk_neural/tests/taggers/neural_morph/neural_test_sentences.txt
+include estnltk_neural/tests/taggers/morphosyntax/test_files_basic_consistency/sentence_3.json
+include estnltk_neural/tests/taggers/morphosyntax/test_files_basic_consistency/sentence_5.json
+include estnltk_neural/tests/taggers/morphosyntax/test_files_basic_consistency/sentence_16.json
+include estnltk_neural/tests/taggers/morphosyntax/test_files_basic_consistency/sentence_84.json
+include estnltk_neural/tests/taggers/morphosyntax/test_files_basic_consistency/sentence_209696.json
+include estnltk_neural/tests/taggers/morphosyntax/test_files_basic_consistency/sentence_510950.json
+include estnltk_neural/tests/taggers/morphosyntax/test_files_basic_consistency/sentence_21424517.json
 include estnltk_neural/taggers/neural_morph/bert_based/homonymous_word_forms/homonymous_words.txt

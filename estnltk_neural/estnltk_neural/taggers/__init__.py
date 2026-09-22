@@ -15,5 +15,6 @@ from estnltk_neural.taggers.syntax.stanza_tagger.ensemble_tagger import StanzaSy
 from estnltk_neural.taggers.syntax.stanza_tagger.stanza_tagger import StanzaSyntaxTagger
 
 from estnltk_neural.taggers.morphosyntax.morpho_syntax_tagger import MorphoSyntaxTagger
+from estnltk_neural.taggers.morphosyntax.basic_consistency_checker import BasicConsistencyChecker
 
 from estnltk_neural.taggers.embeddings.bert.bert_tokens_to_words_rewriter import BertTokens2WordsRewriter
