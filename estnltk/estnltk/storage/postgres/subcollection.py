@@ -1295,7 +1295,7 @@ class PgSubCollection:
                 elif serialisation_module in SERIALISATION_REGISTRY:
                     text.add_layer( SERIALISATION_REGISTRY[serialisation_module].dict_to_layer(layer_element, text) )
                 else:
-                    raise ValueError(('serialisation module {!r} not registered in serialisation map: '.format(serialisation_module))+SERIALISATION_REGISTRY.keys())
+                    raise ValueError(('serialisation module {!r} not registered in serialisation map: '.format(serialisation_module))+str(SERIALISATION_REGISTRY.keys()))
                 layer_index += 1
                 # Take the next selected layer
                 cur_selected_layer = \
