@@ -484,7 +484,7 @@ def test_correct_layer_requires_a_candidate_map(monkeypatch):
 
 @pytest.mark.skipif(
     not is_package_available("transformers"),
-    reason="package tranformers is required for this test",
+    reason="package transformers is required for this test",
 )
 @pytest.mark.skipif(
     BERTMORPH_EXPERT_PATH is None,
