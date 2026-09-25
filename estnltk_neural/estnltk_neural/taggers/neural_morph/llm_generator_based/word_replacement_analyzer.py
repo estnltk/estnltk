@@ -78,7 +78,7 @@ class WordReplacementAnalyzer:
 
         # Locate the substituted token by index rather than by string: the same
         # word form may occur more than once in the sentence.
-        spans = list(text.morph_analysis)
+        spans = list(text[self.vabamorf_analyzer.output_layer])
         if loc >= len(spans):
             # Vabamorf's tokenisation split the candidate into several tokens, so
             # the indices no longer line up and the candidate cannot be scored.
