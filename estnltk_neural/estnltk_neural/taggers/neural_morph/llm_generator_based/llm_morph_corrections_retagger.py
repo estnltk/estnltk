@@ -212,6 +212,21 @@ class LLMmorphCorrectionsRetagger(Retagger):
         """Tokens of each sentence, so the analyzer gets a sentence at a time."""
         return [[w.text for w in sentence] for sentence in layers[self.sentences_layer]]
 
+    def _distribution_key(self, annotation: dict) -> Optional[str]:
+        """Label an annotation the way the analyzer labels its distribution.
+
+        The analyzer reports forms either bare or as ``'partofspeech|form'``,
+        depending on its ``split_pos_form`` setting. Comparing a distribution
+        key against a bare form under the latter would match nothing, so the
+        key is built here to whichever shape the analyzer produces.
+        """
+        form = annotation.get("form")
+        if form is None:
+            return None
+        if getattr(self.analyzer, "split_pos_form", False):
+            return f"{annotation.get('partofspeech')}|{form}"
+        return str(form)
+
     def _rewrite(self, span, annotations: Optional[List[dict]], flag: str) -> None:
         """Replace a span's annotations and stamp the flag.
 
@@ -268,7 +283,7 @@ class LLMmorphCorrectionsRetagger(Retagger):
 
             # Only forms Vabamorf actually offers for this word can be selected.
             available = candidates_by_span.get(key, [])
-            offered = {a.get("form") for a in available}
+            offered = {self._distribution_key(a) for a in available}
             usable = [(form, share) for form, share in distribution if form in offered]
             if not usable:
                 self._rewrite(span, None, FLAG_DISAGREED)
@@ -276,14 +291,22 @@ class LLMmorphCorrectionsRetagger(Retagger):
                 continue
 
             best_form = usable[0][0]
-            existing = [dict(a) for a in span.annotations if a.get("form") == best_form]
+            existing = [
+                dict(a)
+                for a in span.annotations
+                if self._distribution_key(a) == best_form
+            ]
             if existing:
                 self._rewrite(span, existing, FLAG_AGREED)
                 agreed += 1
             else:
                 self._rewrite(
                     span,
-                    [dict(a) for a in available if a.get("form") == best_form],
+                    [
+                        dict(a)
+                        for a in available
+                        if self._distribution_key(a) == best_form
+                    ],
                     FLAG_CORRECTED,
                 )
                 corrected += 1

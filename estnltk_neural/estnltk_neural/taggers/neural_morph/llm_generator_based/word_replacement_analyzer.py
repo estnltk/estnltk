@@ -12,11 +12,16 @@ worth reserving for words that are genuinely in doubt.
 
 from __future__ import annotations
 
+import warnings
 from collections import defaultdict
 from typing import List, Optional, Sequence, Tuple
 
 from estnltk import Text
-from estnltk.taggers import VabamorfAnalyzer
+from estnltk.taggers import (
+    PretokenizedTextCompoundTokensTagger,
+    VabamorfAnalyzer,
+    WhiteSpaceTokensTagger,
+)
 
 from estnltk_neural.taggers.neural_morph.llm_generator_based.word_filter import (
     WordFilter,
@@ -39,6 +44,7 @@ class WordReplacementAnalyzer:
         word_filter: Optional[WordFilter] = None,
         vabamorf_analyzer: Optional[VabamorfAnalyzer] = None,
         split_pos_form: bool = False,
+        force_whitespace_tokenization: bool = False,
     ):
         """Initialise the analyzer.
 
@@ -56,11 +62,59 @@ class WordReplacementAnalyzer:
             If ``True``, forms are reported as ``'partofspeech|form'`` rather
             than the form alone, which distinguishes e.g. a noun's ``sg g`` from
             an adjective's.
+        force_whitespace_tokenization:
+            If ``True``, the sentence is split on whitespace instead of by
+            EstNLTK's tokeniser, so the caller's tokens are preserved exactly.
+            Use it when the input is already tokenised: the default tokeniser
+            splits forms such as ``(kiiresti)``, ``"tere"``, ``jah/ei`` and
+            ``1990-1995`` into several tokens, which shifts the indices and
+            loses the candidate. It cannot help when a candidate itself
+            contains a space.
         """
         self.generator = generator
         self.word_filter = word_filter
         self.vabamorf_analyzer = vabamorf_analyzer or VabamorfAnalyzer()
         self.split_pos_form = split_pos_form
+        self.force_whitespace_tokenization = force_whitespace_tokenization
+        self._whitespace_tokens_tagger = (
+            WhiteSpaceTokensTagger() if force_whitespace_tokenization else None
+        )
+        self._pretokenized_compound_tokens_tagger = (
+            PretokenizedTextCompoundTokensTagger()
+            if force_whitespace_tokenization
+            else None
+        )
+
+    def _tokenisation_warning(
+        self, tokens: Sequence[str], candidate: str, spans: Sequence
+    ) -> str:
+        """Explain a tokenisation mismatch and, where possible, the remedy."""
+        analysed = [span.text for span in spans]
+        if candidate.strip() != candidate or " " in candidate.strip():
+            # A replacement containing a space is split however the sentence is
+            # tokenised, so force_whitespace_tokenization cannot rescue it.
+            cause = (
+                f"the candidate {candidate!r} contains whitespace, so it cannot "
+                f"stand in for a single token. Forcing whitespace tokenisation "
+                f"does not help here; filter multi-word candidates out in the "
+                f"generator or the filter instead"
+            )
+        elif not self.force_whitespace_tokenization:
+            cause = (
+                "EstNLTK's tokeniser split the sentence differently from the "
+                "caller's tokens. Passing force_whitespace_tokenization=True "
+                "keeps the given tokens intact"
+            )
+        else:
+            cause = (
+                "the analysed tokens still do not line up with the caller's, "
+                "even with whitespace tokenisation forced"
+            )
+        return (
+            f"(!) Skipping a replacement candidate: {cause}. "
+            f"Expected {len(tokens)} tokens {tokens!r}, analysed "
+            f"{len(analysed)} {analysed!r}."
+        )
 
     def _forms_of_candidate(
         self, sentence: Sequence[str], loc: int, candidate: str
@@ -73,19 +127,28 @@ class WordReplacementAnalyzer:
         tokens = list(sentence)
         tokens[loc] = candidate
         text = Text(" ".join(tokens))
+        if self._whitespace_tokens_tagger is not None:
+            # Keep the caller's tokens: split on whitespace rather than letting
+            # the default tokeniser re-decide the boundaries.
+            self._whitespace_tokens_tagger.tag(text)
+            self._pretokenized_compound_tokens_tagger.tag(text)
         text.tag_layer(["words", "sentences"])
         self.vabamorf_analyzer.tag(text)
 
         # Locate the substituted token by index rather than by string: the same
-        # word form may occur more than once in the sentence.
+        # word form may occur more than once in the sentence. Read the layer the
+        # analyzer was configured to write, which is not necessarily
+        # 'morph_analysis': a caller may pass an analyzer with its own
+        # output_layer, and reading a fixed name would silently ignore it.
         spans = list(text[self.vabamorf_analyzer.output_layer])
-        if loc >= len(spans):
-            # Vabamorf's tokenisation split the candidate into several tokens, so
-            # the indices no longer line up and the candidate cannot be scored.
+        if len(spans) != len(tokens) or spans[loc].text != candidate:
+            # The candidate cannot be scored, because the analysed tokens no
+            # longer line up with the caller's. Warn rather than drop it
+            # quietly: a candidate missing from the distribution with no
+            # explanation is very hard to account for afterwards.
+            warnings.warn(self._tokenisation_warning(tokens, candidate, spans))
             return []
         span = spans[loc]
-        if span.text != candidate:
-            return []
 
         forms = []
         for annotation in span.annotations:

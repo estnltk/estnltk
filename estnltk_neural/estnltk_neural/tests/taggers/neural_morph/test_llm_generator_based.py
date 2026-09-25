@@ -9,6 +9,7 @@
 #  the pacing and retry logic behaves against actual rate limits.
 #
 import json
+import warnings
 
 import pytest
 
@@ -370,3 +371,100 @@ def test_budget_ceiling_raises_before_a_run_gets_expensive():
 
     with pytest.raises(LLMBudgetExceededError):
         provider._record_cost(_Response())
+
+
+# ===========================================================================
+#   Configurations that were broken end to end and are now covered
+# ===========================================================================
+
+
+def test_retagger_works_with_split_pos_form_analyzer():
+    # With split_pos_form=True the analyzer reports 'S|adt' rather than 'adt'.
+    # Comparing that against a bare form matched nothing, so this configuration
+    # could only ever report 'disagreed'.
+    text = Text(HOMONYM_SENTENCE).tag_layer(["morph_analysis"])
+    retagger = LLMmorphCorrectionsRetagger(
+        analyzer=WordReplacementAnalyzer(
+            generator=_StubGenerator(ILLATIVE_CANDIDATES), split_pos_form=True
+        ),
+        select=lambda span: span.text.lower() == "komisjoni",
+    )
+
+    retagger.retag(text)
+
+    assert _form_of(text.morph_analysis, "komisjoni") == ["adt"]
+    assert _flag_of(text.morph_analysis, "komisjoni") == {FLAG_CORRECTED}
+
+
+def test_split_pos_form_distribution_keys_carry_the_part_of_speech():
+    analyzer = WordReplacementAnalyzer(
+        generator=_StubGenerator(GENITIVE_CANDIDATES), split_pos_form=True
+    )
+    dist = analyzer.analyze(["Komisjoni", "liikmed", "arutasid", "eelnõu", "."], 0)
+
+    assert dist, "expected a non-empty distribution"
+    assert all("|" in form for form, _ in dist)
+    assert dist[0][0] == "S|sg g"
+
+
+def test_analyzer_honours_a_custom_analyzer_output_layer():
+    # A caller may pass a VabamorfAnalyzer writing to its own layer name.
+    # Reading a fixed 'morph_analysis' would ignore it or raise.
+    from estnltk.taggers import VabamorfAnalyzer
+
+    analyzer = WordReplacementAnalyzer(
+        generator=_StubGenerator(GENITIVE_CANDIDATES),
+        vabamorf_analyzer=VabamorfAnalyzer(output_layer="my_candidates"),
+    )
+    dist = analyzer.analyze(["Komisjoni", "liikmed", "arutasid", "eelnõu", "."], 0)
+
+    assert dist, "expected a non-empty distribution"
+    assert dist[0][0] == "sg g"
+
+
+# ===========================================================================
+#   Tokenisation of the candidate sentence
+# ===========================================================================
+
+
+def test_warns_when_the_default_tokeniser_splits_a_token():
+    # 'jah/ei' is one token to the caller but three to EstNLTK's tokeniser, so
+    # the indices shift and the candidate is lost. Dropping it silently leaves
+    # a hole in the distribution with nothing to explain it.
+    analyzer = WordReplacementAnalyzer(generator=_StubGenerator(["ei/jah"]))
+
+    with pytest.warns(UserWarning, match="force_whitespace_tokenization"):
+        dist = analyzer.analyze(["Valik", "oli", "jah/ei", "."], 2)
+
+    assert dist == []
+
+
+def test_force_whitespace_tokenization_keeps_the_callers_tokens():
+    analyzer = WordReplacementAnalyzer(
+        generator=_StubGenerator(["ei/jah"]), force_whitespace_tokenization=True
+    )
+    dist = analyzer.analyze(["Valik", "oli", "jah/ei", "."], 2)
+
+    assert dist, "the candidate should be analysable once tokens are preserved"
+
+
+def test_multi_word_candidate_warns_that_the_flag_cannot_help():
+    # A candidate containing a space is split however the sentence is
+    # tokenised, so the warning must not send the reader after the flag.
+    analyzer = WordReplacementAnalyzer(
+        generator=_StubGenerator(["Ameerika Ühendriikidesse"]),
+        force_whitespace_tokenization=True,
+    )
+
+    with pytest.warns(UserWarning, match="contains whitespace"):
+        dist = analyzer.analyze(["Kaebus", "esitati", "komisjoni", "."], 2)
+
+    assert dist == []
+
+
+def test_no_warning_for_an_ordinary_candidate():
+    analyzer = WordReplacementAnalyzer(generator=_StubGenerator(GENITIVE_CANDIDATES))
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")  # any warning fails the test
+        dist = analyzer.analyze(["Komisjoni", "liikmed", "arutasid", "eelnõu", "."], 0)
+    assert dist[0][0] == "sg g"
