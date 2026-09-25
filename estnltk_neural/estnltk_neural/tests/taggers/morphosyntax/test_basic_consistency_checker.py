@@ -9,15 +9,17 @@ import os
 import unittest
 from importlib.util import find_spec
 
+from estnltk_neural.common import neural_abs_path
+
 def check_if_estnltk_neural_is_available():
     return find_spec("estnltk_neural") is not None
 
-json_folder = "test_files/"
+json_folder = "tests/taggers/morphosyntax/test_files_basic_consistency/"
 
 ### Example inputs
 
 # no problems
-s510950 = json_to_text(file = os.path.join(json_folder, "sentence_510950.json")) 
+s510950 = json_to_text(file = neural_abs_path(os.path.join(json_folder, "sentence_510950.json"))) 
 s510950_expected_dict = {'name': 'morphosyntax_consistency',
  'attributes': ('id',
   'lemma',
@@ -38,7 +40,7 @@ s510950_expected_dict = {'name': 'morphosyntax_consistency',
  'spans': []}
 
 # nsubj aga pole nom/part
-s3 = json_to_text(file = os.path.join(json_folder, "sentence_3.json"))
+s3 = json_to_text(file = neural_abs_path(os.path.join(json_folder, "sentence_3.json")))
 s3_expected_dict = {'name': 'morphosyntax_consistency',
  'attributes': ('id',
   'lemma',
@@ -70,7 +72,7 @@ s3_expected_dict = {'name': 'morphosyntax_consistency',
 
 # obj aga pole nom/part/gen
 # xcomp ja feats pole tühi
-s5 = json_to_text(file = os.path.join(json_folder, "sentence_5.json"))
+s5 = json_to_text(file = neural_abs_path(os.path.join(json_folder, "sentence_5.json")))
 s5_expected_dict = {'name': 'morphosyntax_consistency',
                      'attributes': ('id',
                       'lemma',
@@ -112,7 +114,7 @@ s5_expected_dict = {'name': 'morphosyntax_consistency',
                          'error_type': 'basic'}]}]}
 
 # advcl ja feats pole tühi
-s16 = json_to_text(file = os.path.join(json_folder, "sentence_16.json"))
+s16 = json_to_text(file = neural_abs_path(os.path.join(json_folder, "sentence_16.json")))
 s16_expected_dict = {'name': 'morphosyntax_consistency',
  'attributes': ('id',
   'lemma',
@@ -154,7 +156,7 @@ s16_expected_dict = {'name': 'morphosyntax_consistency',
      'error_type': 'basic'}]}]}
 
 # advmod ja feats pole tühi
-s21424517 = json_to_text(file = os.path.join(json_folder, "sentence_21424517.json"))
+s21424517 = json_to_text(file = neural_abs_path(os.path.join(json_folder, "sentence_21424517.json")))
 s21424517_expected_dict = {'name': 'morphosyntax_consistency',
  'attributes': ('id',
   'lemma',
@@ -185,7 +187,7 @@ s21424517_expected_dict = {'name': 'morphosyntax_consistency',
      'error_type': 'basic'}]}]}
 
 # nsubj:cop aga pole nom/part
-s209696 = json_to_text(file = os.path.join(json_folder, "sentence_209696.json"))
+s209696 = json_to_text(file = neural_abs_path(os.path.join(json_folder, "sentence_209696.json")))
 s209696_expected_dict = {'name': 'morphosyntax_consistency',
  'attributes': ('id',
   'lemma',
@@ -216,7 +218,7 @@ s209696_expected_dict = {'name': 'morphosyntax_consistency',
      'error_type': 'basic'}]}]}
 
 # obl ja nom on feats-is
-s84 = json_to_text(file = os.path.join(json_folder, "sentence_84.json"))
+s84 = json_to_text(file = neural_abs_path(os.path.join(json_folder, "sentence_84.json")))
 s84_expected_dict = {'name': 'morphosyntax_consistency',
  'attributes': ('id',
   'lemma',
