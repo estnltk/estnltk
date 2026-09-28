@@ -15,8 +15,7 @@ import pytest
 
 from estnltk import Text
 from estnltk_neural.common import is_package_available
-
-from estnltk_neural.taggers.neural_morph.llm_generator_based.llm_provider import (
+from estnltk_neural.common import (
     LLMBudgetExceededError,
     LLMProvider,
 )
@@ -352,9 +351,7 @@ def test_vm_instance_conflicts_with_slang_lex():
     reason="package openai is required for this test",
 )
 def test_budget_ceiling_raises_before_a_run_gets_expensive():
-    from estnltk_neural.taggers.neural_morph.llm_generator_based.llm_provider import (
-        AzureOpenAIProvider,
-    )
+    from estnltk_neural.common import AzureOpenAIProvider
 
     class _Usage:
         prompt_tokens = 1_000_000

@@ -11,9 +11,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional, Sequence
 
-from estnltk_neural.taggers.neural_morph.llm_generator_based.llm_provider import (
-    LLMProvider,
-)
+from estnltk_neural.common import LLMProvider
 from estnltk_neural.taggers.neural_morph.llm_generator_based.word_replacement_generator import (
     Replacement,
     mark_target_word,

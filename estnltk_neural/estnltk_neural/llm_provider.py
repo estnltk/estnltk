@@ -1,4 +1,4 @@
-"""Provider adapters for LLM-based word replacement generation.
+"""Provider adapters for LLM-based annotation tasks.
 
 The adapter is the only place that knows how a particular provider is called and
 how it is asked for structured output. Everything above it works with a plain
@@ -10,9 +10,6 @@ schema is requested -- OpenAI takes a ``json_schema`` response format, Anthropic
 expresses it as a tool definition, Gemini as a ``response_schema`` -- which is
 exactly the difference this class is meant to absorb.
 """
-
-from __future__ import annotations
-
 import json
 import os
 import random
@@ -54,7 +51,7 @@ class LLMProvider(ABC):
         ValueError
             If the model's response is not JSON matching the schema. Failing
             here rather than further along matters: a malformed response would
-            otherwise surface as a puzzling morphological result much later.
+            otherwise surface as a puzzling annotation result much later.
         """
 
     @property
@@ -68,8 +65,8 @@ class AzureOpenAIProvider(LLMProvider):
 
     Carries the request pacing, retries and spend ceiling that the experiments
     this component came from needed in practice: a corpus-sized run makes one
-    request per word, so a rate limit or a silent cost blow-up is a question of
-    when rather than whether.
+    request per annotation, so a rate limit or a silent cost blow-up is a 
+    question of when rather than whether.
     """
 
     # Published per-token prices, only used for the spend estimate.

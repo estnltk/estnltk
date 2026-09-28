@@ -73,3 +73,9 @@ def is_package_available(packageName:str):
     assert isinstance(packageName, str)
     return find_spec(packageName) is not None
 
+
+# LLM provider imports
+from estnltk_neural.llm_provider import LLMProvider
+from estnltk_neural.llm_provider import AzureOpenAIProvider
+
+from estnltk_neural.llm_provider import LLMBudgetExceededError

@@ -15,9 +15,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
-from estnltk_neural.taggers.neural_morph.llm_generator_based.llm_provider import (
-    LLMProvider,
-)
+from estnltk_neural.common import LLMProvider
 
 # Replacement = (word form, score or None)
 Replacement = Tuple[str, Optional[float]]
