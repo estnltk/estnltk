@@ -57,7 +57,7 @@ def test_homonym_lexicon_is_packaged():
         f"Homonymous word forms lexicon not found at {DEFAULT_HOMONYM_LIST_PATH!s}"
     )
     words = _load_homonym_words(DEFAULT_HOMONYM_LIST_PATH, ignore_case=True)
-    # Sanity checks on the loaded lexicon (currently 1296 lowercased entries)
+    # Sanity checks on the loaded lexicon (currently 6182 lowercased entries)
     assert len(words) >= 1000
     assert "komisjoni" in words
     # With ignore_case=True all entries must be lowercased
