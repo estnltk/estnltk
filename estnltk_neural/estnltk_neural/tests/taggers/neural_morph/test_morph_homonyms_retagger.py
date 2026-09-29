@@ -704,40 +704,6 @@ def test_post_disambiguator_is_applied_in_disambiguator_mode():
     assert _forms_of(text["morph_analysis"], "komisjoni") == [("S", FORCED_FORM)]
 
 
-@pytest.mark.skipif(
-    not is_package_available("transformers"),
-    reason="package transformers is required for this test",
-)
-@pytest.mark.skipif(
-    not is_package_available("torch"),
-    reason="package pytorch is required for this test",
-)
-@pytest.mark.skipif(
-    BERTMORPH_V2_PATH is None,
-    reason="BertMorphTagger's model location not known. "
-    + "Use estnltk.download('bert_morph_v2') to get the missing resources.",
-)
-def test_post_disambiguator_is_passed_on_by_vabamorf_with_bert_tagger():
-    # Tests VabamorfWithBertTagger's post_disambiguator: it must reach the
-    # BertMorphTagger created inside, and its effect must survive into the final
-    # morph_analysis layer. Note that the stub keeps its own default output_layer
-    # name ('bert_morph_tagging') here -- it is handed the layer under the name it
-    # expects, so it does not have to be reconfigured to match.
-    from estnltk_neural.taggers import VabamorfWithBertTagger
-
-    stub = _ForcingRetagger("komisjoni")
-    tagger = VabamorfWithBertTagger(post_disambiguator=stub)
-    # The parameter is forwarded to the internal BertMorphTagger
-    assert tagger.bert_disamb.post_disambiguator is stub
-
-    text = Text(POST_DISAMB_SENTENCE).tag_layer(
-        ["words", "sentences", "compound_tokens"]
-    )
-    tagger.tag(text)
-    assert stub.seen_layers == ["morph_analysis"]
-    assert _forms_of(text["morph_analysis"], "komisjoni") == [("S", FORCED_FORM)]
-
-
 def test_invalid_post_disambiguator_is_rejected():
     # Tests BertMorphTagger's validation of post_disambiguator. The validation runs
     # before the model is loaded, so no model is needed here -- a misconfigured

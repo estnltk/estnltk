@@ -53,7 +53,7 @@ class VabamorfMorphHomonymsRetagger(MorphHomonymsRetagger):
 
     For every homonymous word the expert's (form, partofspeech) prediction is
     compared against the word's current analyses and, if it agrees with none of
-    them, against Vabamorf's full candidate set for that word. Three outcomes
+    them, against Vabamorf's full candidate set for that word. Four outcomes
     are possible, recorded in the ``homonym_correction`` attribute:
 
     ``'none'``

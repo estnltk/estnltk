@@ -35,6 +35,9 @@ EXPERT_ATTRIBUTES = ["bert_tokens", "form", "partofspeech", "probability"]
 BERTMORPH_EXPERT_PATH = get_resource_paths(
     "bert_morph_expert", only_latest=True, download_missing=False
 )
+BERTMORPH_V2_PATH = get_resource_paths(
+    "bert_morph_v2", only_latest=True, download_missing=False
+)
 
 
 class _StubBertMorphTagger:
@@ -101,6 +104,17 @@ def _span_key(layer, word_text):
         if span.text == word_text:
             return (span.start, span.end)
     raise AssertionError(f"word {word_text!r} not in layer")
+
+
+def _all_words_annotations_and_flags(layer, flag_attribute="homonym_correction"):
+    all_annotations = []
+    for span in layer:
+        if flag_attribute in layer.attributes:
+            anns = [(span.text, a["form"], a["partofspeech"], a[flag_attribute]) for a in span.annotations]
+        else:
+            anns = [(span.text, a["form"], a["partofspeech"]) for a in span.annotations]
+        all_annotations.append( anns )
+    return all_annotations
 
 
 # ===========================================================================
@@ -533,3 +547,74 @@ def test_public_retag_flags_disagreement(monkeypatch):
     assert meta["disagreed_words"] == 1
     assert meta["agreed_words"] == 0
     assert meta["corrected_words"] == 0
+
+
+@pytest.mark.skipif(
+    not is_package_available("transformers"),
+    reason="package transformers is required for this test",
+)
+@pytest.mark.skipif(
+    not is_package_available("torch"),
+    reason="package pytorch is required for this test",
+)
+@pytest.mark.skipif(
+    BERTMORPH_V2_PATH is None,
+    reason="BertMorphTagger's model location not known. "
+    + "Use estnltk.download('bert_morph_v2') to get the missing resources.",
+)
+@pytest.mark.skipif(
+    BERTMORPH_EXPERT_PATH is None,
+    reason="VabamorfMorphHomonymsRetagger's expert model location not known. "
+    "Use estnltk.download('bert_morph_expert') to get the missing resources.",
+)
+def test_bert_morph_expert_postcorrects_vabamorf_with_bert_tagger():
+    # Tests VabamorfMorphHomonymsRetagger postcorrecting VabamorfWithBertTagger
+    from estnltk_neural.taggers import VabamorfWithBertTagger
+
+    # Initialize taggers
+    tagger = VabamorfWithBertTagger()
+    homonyms_postcorrector = VabamorfMorphHomonymsRetagger()
+    
+    # Validate that conf parameters of the both taggers match
+    # 1) input and output layers 
+    assert tagger.input_layers[0] == homonyms_postcorrector.words_layer
+    assert tagger.input_layers[1] == homonyms_postcorrector.sentences_layer
+    assert len(tagger.input_layers) == 2 # No third layer: compound_tokens
+    assert tagger.output_layer == homonyms_postcorrector.output_layer
+    # 2) morph analysis configuration parameters 
+    assert tagger.slang_lex == homonyms_postcorrector.slang_lex
+    assert tagger.compound == homonyms_postcorrector.compound
+    assert tagger.phonetic == homonyms_postcorrector.phonetic
+    assert tagger.stem == homonyms_postcorrector.stem
+    assert tagger.use_postanalysis == homonyms_postcorrector.use_postanalysis
+    assert tagger.vabamorf.guess == homonyms_postcorrector._vabamorf_analyzer.guess
+    assert tagger.vabamorf.propername == homonyms_postcorrector._vabamorf_analyzer.propername
+
+    text = Text("Täidaks muna šokolaadi, liiva ja palvehelmestega.").tag_layer(
+        ["words", "sentences", "compound_tokens"]
+    )
+    tagger.tag(text)
+    assert _all_words_annotations_and_flags( text[tagger.output_layer] ) == \
+        [[('Täidaks', 'ks', 'V')],
+         [('muna', 'sg g', 'S')],
+         [('šokolaadi', 'sg g', 'S')],
+         [(',', '', 'Z')],
+         [('liiva', 'sg g', 'S')],
+         [('ja', '', 'J')],
+         [('palvehelmestega', 'pl kom', 'S')],
+         [('.', '', 'Z')]]
+
+    homonyms_postcorrector.retag(text)
+    assert _all_words_annotations_and_flags( text[tagger.output_layer] ) == \
+        [[('Täidaks', 'ks', 'V', 'none')],
+         [('muna', 'sg p', 'S', 'corrected')],
+         [('šokolaadi', 'sg g', 'S', 'none')],
+         [(',', '', 'Z', 'none')],
+         [('liiva', 'sg g', 'S', 'agreed')],
+         [('ja', '', 'J', 'none')],
+         [('palvehelmestega', 'pl kom', 'S', 'none')],
+         [('.', '', 'Z', 'none')]]
+
+    #from pprint import pprint
+    #pprint(_all_words_annotations_and_flags(text[tagger.output_layer]))
+    #print()

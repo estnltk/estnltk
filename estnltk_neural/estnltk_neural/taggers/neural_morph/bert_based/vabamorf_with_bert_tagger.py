@@ -1,6 +1,7 @@
 #
 #  Provides Vabamorf-based morphological analysis with Bert-based disambiguation. 
 #
+import warnings
 
 from estnltk import Text
 from estnltk.taggers import Tagger
@@ -10,7 +11,6 @@ from estnltk.taggers.standard.morph_analysis.morf_common import IGNORE_ATTR
 from estnltk.taggers.standard.morph_analysis.morf_common import DEFAULT_PARAM_PHONETIC
 from estnltk.taggers.standard.morph_analysis.morf_common import DEFAULT_PARAM_COMPOUND
 from estnltk.taggers.standard.morph_analysis.morf_common import DEFAULT_PARAM_STEM
-import json
 
 from estnltk.taggers import VabamorfAnalyzer
 from estnltk.taggers import PostMorphAnalysisTagger
@@ -179,6 +179,13 @@ class VabamorfWithBertTagger(Tagger):
                                                   input_compound_tokens_layer=input_compound_tokens_layer,
                                                   input_words_layer=self.input_layers[0],
                                                   stem=self.stem)
+        if post_disambiguator is not None:
+            warnings.warn(
+                "Parameter post_disambiguator is deprecated and will be removed in a future release. "
+                "Please use VabamorfMorphHomonymsRetagger as a post_corrector instead.",
+                Warning,
+                stacklevel=2
+            )
         self.post_disambiguator = post_disambiguator
         self.bert_disamb = BertMorphTagger(output_layer=self.output_layer,
                                            words_layer=self.input_layers[0],
