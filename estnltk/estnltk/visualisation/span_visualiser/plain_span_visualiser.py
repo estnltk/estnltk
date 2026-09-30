@@ -53,8 +53,14 @@ class PlainSpanVisualiser(SpanVisualiser):
         if len(segment[1]) > 1:
             rows = []
             for i in segment[1]:
-                rows.append(spans[i].text)
-            output.append(' span_info=' + ','.join(rows))  # text of spans for javascript
+                if isinstance(spans[i].text, str):
+                    # regular span
+                    rows.append(spans[i].text)
+                else:
+                    # enveloping span
+                    rows.append(spans[i].enclosing_text)
+            # text of spans for javascript
+            output.append(' span_info=' + ','.join(rows))
         output.append('>')
         output.append(segment[0])
         output.append('</span>')
