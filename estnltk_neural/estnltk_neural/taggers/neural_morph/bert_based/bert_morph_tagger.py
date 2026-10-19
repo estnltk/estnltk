@@ -53,6 +53,7 @@ class BertMorphTagger(Retagger):
         token_level: bool = False,
         split_pos_form: bool = True,
         disambiguate: bool = False,
+        sentence_batch_size:int=900,
         device: str = "cpu",
         correct_verb_annotation: bool = True,
         change_to_bert_form: bool = False,
@@ -82,6 +83,10 @@ class BertMorphTagger(Retagger):
                 Defaults to False. If set, then BertMorphTagger can be used to disambiguate an existing Vabamorf-based 
                 morph analysis layer by calling <code>BertMorphTagger.retag(text_obj)</code>. Note that the input 
                 <code>text_obj</code> must already have <code>output_layer</code> which will be disambiguated. 
+            sentence_batch_size (int):
+                The maximum size (in characters) for input sentence. If an input sentence is longer than given 
+                `sentence_batch_size`, it will be split into chunks with the maximum length of `sentence_batch_size` 
+                and processed chunk by chunk. Default: 900
             device (str):
                 The device to run the bert_morph_tagging model on ('cpu' or 'cuda'). Defaults to 'cpu'.
             correct_verb_annotation (bool):
@@ -113,8 +118,8 @@ class BertMorphTagger(Retagger):
         # Configuration parameters
         self.conf_param = ('model_location', 'get_top_n_predictions', 'bert_tokenizer', 'bert_morph_tagging', 'id2label', \
                            'token_level', 'split_pos_form', 'disambiguate', 'sentences_layer', 'words_layer', 'output_layer', \
-                           'input_layers', 'output_attributes', 'device', '_bert_tokens_rewriter', 'correct_verb_annotation', 'change_to_bert_form', \
-                           'post_disambiguator')
+                           'input_layers', 'output_attributes', 'sentence_batch_size', 'device', '_bert_tokens_rewriter', \
+                           'correct_verb_annotation', 'change_to_bert_form', 'post_disambiguator')
 
         # Validate the optional post disambiguator before loading the model, so that a
         # misconfigured post_disambiguator does not cost a model download/load first
@@ -154,6 +159,9 @@ class BertMorphTagger(Retagger):
 
         tokenizer_kwargs = { k:v for (k,v) in kwargs.items() if k in ['do_lower_case', 'use_fast'] }
         self.device = device
+        if not isinstance(sentence_batch_size, int) or sentence_batch_size < 50:
+            raise ValueError(f'(!) Unexpected sentence_batch_size={sentence_batch_size}. Expected an integer >= 50.')
+        self.sentence_batch_size = sentence_batch_size
         self.get_top_n_predictions = get_top_n_predictions
         self.bert_tokenizer = AutoTokenizer.from_pretrained(self.model_location, **tokenizer_kwargs )
         self.bert_morph_tagging = AutoModelForTokenClassification.from_pretrained(self.model_location,
@@ -325,7 +333,8 @@ class BertMorphTagger(Retagger):
             sent_start = sentence.start
             sent_text  = sentence.enclosing_text
             # Apply batch processing: split larger input sentence into smaller chunks and process chunk by chunk
-            sent_chunks, sent_chunk_indexes = _split_sentence_into_smaller_chunks(sent_text)
+            sent_chunks, sent_chunk_indexes = _split_sentence_into_smaller_chunks( sent_text, \
+                                                                                   max_size=self.sentence_batch_size )
             for sent_chunk, (chunk_start, chunk_end) in zip(sent_chunks, sent_chunk_indexes):
 
                 # collecting spans with encoding problems
