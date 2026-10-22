@@ -12,10 +12,8 @@ from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional, Sequence
 
 from estnltk_neural.common import LLMProvider
-from estnltk_neural.taggers.neural_morph.llm_generator_based.word_replacement_generator import (
-    Replacement,
-    mark_target_word,
-)
+from estnltk_neural.taggers.neural_morph.llm_generator_based.word_replacement_generator import Replacement
+from estnltk_neural.taggers.neural_morph.llm_generator_based.llm_word_replacement_generator import mark_target_word
 
 DEFAULT_FILTER_SYSTEM_PROMPT = """You are an Estonian sentence rewriting assistant.
 Your task is to select the best candidates from the provided list to replace the marked word <...> in the sentence.

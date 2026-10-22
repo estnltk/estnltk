@@ -1,5 +1,10 @@
-"""Uses Bert model's masked language modelling functionality to generate words that 
-could stand in for a given word in a sentence. 
+"""Uses Bert model's masked language modelling to generate words that could 
+replace a given word in a sentence. 
+
+The point of generating replacements is indirect morphological analysis. Asking a 
+language model for a word's case directly has not worked well; asking it for words 
+that would fit the same slot, and then analysing those with Vabamorf, turns the 
+question into one the model answers well. See ``WordReplacementAnalyzer``. 
 """
 from typing import List, Sequence
 

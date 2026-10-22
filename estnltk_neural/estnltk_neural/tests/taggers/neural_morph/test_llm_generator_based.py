@@ -22,9 +22,9 @@ from estnltk_neural.common import (
 from estnltk_neural.taggers.neural_morph.llm_generator_based.word_filter import (
     LLMWordFilter,
 )
-from estnltk_neural.taggers.neural_morph.llm_generator_based.word_replacement_generator import (
+from estnltk_neural.taggers.neural_morph.llm_generator_based.word_replacement_generator import WordReplacementGenerator
+from estnltk_neural.taggers.neural_morph.llm_generator_based.llm_word_replacement_generator import (
     LLMWordReplacementGenerator,
-    WordReplacementGenerator,
     mark_target_word,
 )
 from estnltk_neural.taggers.neural_morph.llm_generator_based.word_replacement_analyzer import (
