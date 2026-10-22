@@ -14,19 +14,23 @@ import warnings
 import pytest
 
 from estnltk import Text
-from estnltk_neural.common import is_package_available
 from estnltk_neural.common import (
+    is_package_available,
+    is_hf_repo_available,
     LLMBudgetExceededError,
     LLMProvider,
 )
 from estnltk_neural.taggers.neural_morph.llm_generator_based.word_filter import (
     LLMWordFilter,
 )
-from estnltk_neural.taggers.neural_morph.llm_generator_based.word_replacement_generator import WordReplacementGenerator
+from estnltk_neural.taggers.neural_morph.llm_generator_based.word_replacement_generator import \
+    WordReplacementGenerator
 from estnltk_neural.taggers.neural_morph.llm_generator_based.llm_word_replacement_generator import (
     LLMWordReplacementGenerator,
     mark_target_word,
 )
+from estnltk_neural.taggers.neural_morph.llm_generator_based.bert_word_replacement_generator import \
+    BertWordReplacementGenerator
 from estnltk_neural.taggers.neural_morph.llm_generator_based.word_replacement_analyzer import (
     WordReplacementAnalyzer,
 )
@@ -96,11 +100,11 @@ def test_mark_target_word_rejects_out_of_range(loc):
 
 
 # ===========================================================================
-#   Generator
+#   LLMWordReplacementGenerator
 # ===========================================================================
 
 
-def test_generator_returns_candidates_with_no_scores():
+def test_llm_generator_returns_candidates_with_no_scores():
     # A chat model gives no probabilities, so every score must be None rather
     # than an invented number.
     provider = _StubProvider({"candidates": ["üks", "kaks", "kolm"]})
@@ -111,7 +115,7 @@ def test_generator_returns_candidates_with_no_scores():
     assert result == [("üks", None), ("kaks", None), ("kolm", None)]
 
 
-def test_generator_schema_pins_the_candidate_count():
+def test_llm_generator_schema_pins_the_candidate_count():
     provider = _StubProvider({"candidates": ["a"] * 10})
     gen = LLMWordReplacementGenerator(provider=provider, n_candidates=10)
     gen.generate(["Ma", "näen", "maja", "."], 2)
@@ -122,7 +126,7 @@ def test_generator_schema_pins_the_candidate_count():
     assert schema["additionalProperties"] is False
 
 
-def test_generator_sends_the_marked_sentence_and_one_shot_example():
+def test_llm_generator_sends_the_marked_sentence_and_one_shot_example():
     provider = _StubProvider({"candidates": ["x"]})
     gen = LLMWordReplacementGenerator(provider=provider, n_candidates=1)
     gen.generate(["Kaebus", "esitati", "komisjoni", "."], 2)
@@ -138,12 +142,45 @@ def test_generator_sends_the_marked_sentence_and_one_shot_example():
 
 
 @pytest.mark.parametrize("payload", [{}, {"candidates": "not a list"}, {"other": []}])
-def test_generator_rejects_a_malformed_response(payload):
+def test_llm_generator_rejects_a_malformed_response(payload):
     # Strict schema output means this should not happen, so it must fail at the
     # boundary rather than surface as a puzzling morphological result later.
     gen = LLMWordReplacementGenerator(provider=_StubProvider(payload))
     with pytest.raises(ValueError, match="candidates"):
         gen.generate(["Ma", "näen", "maja", "."], 2)
+
+
+# ===========================================================================
+#   BertWordReplacementGenerator
+# ===========================================================================
+
+model_download_instruction = \
+    "Required model 'EMBEDDIA/est-roberta' is not available. "+\
+    "Please download the model via "+\
+    "huggingface_hub.snapshot_download('EMBEDDIA/est-roberta', revision='eb8131e56a9a92a78187d8cbf50c8258bcb253b9')."
+
+@pytest.mark.skipif(not is_package_available("transformers"),
+                    reason="package transformers is required for this test")
+@pytest.mark.skipif(not is_hf_repo_available('EMBEDDIA/est-roberta', revision='eb8131e56a'),
+                    reason=model_download_instruction)
+def test_bert_generator_smoke():
+    # Smoke test BertWordReplacementGenerator on few examples
+    estroberta_generator = BertWordReplacementGenerator(model_name='EMBEDDIA/est-roberta', 
+                                                        model_revision='eb8131e56a9a92a78187d8cbf50c8258bcb253b9',
+                                                        n_candidates=5)
+    # Case 1
+    results = estroberta_generator.generate(['Tallinn', 'on', 'Eesti', 'Vabariigi', 'pealinn', '.'], 0)
+    # Round scores and convert to string
+    results_round = [(res[0], f'{res[1]:.3f}') for res in results]
+    assert results_round == [('Tallinn', '0.600'), ('Tartu', '0.090'), \
+                             ('Narva', '0.089'), ('Eesti', '0.025'), \
+                             ('Pärnu', '0.018')]
+    # Case 2
+    results = estroberta_generator.generate(['Hiir', 'hüppas', ',', 'kass', 'kargas', 'ja', \
+                                             'vana', 'karu', 'lõi', 'trummi', '.'], 8)
+    results_round = [(res[0], f'{res[1]:.3f}') for res in results]
+    assert results_round == [('lõi', '0.882'), ('mängis', '0.027'), ('viskas', '0.010'), \
+                             ('tegi', '0.009'), ('pani', '0.008')]
 
 
 # ===========================================================================
