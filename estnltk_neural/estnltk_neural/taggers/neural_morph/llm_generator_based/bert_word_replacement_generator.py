@@ -6,7 +6,7 @@ language model for a word's case directly has not worked well; asking it for wor
 that would fit the same slot, and then analysing those with Vabamorf, turns the 
 question into one the model answers well. See ``WordReplacementAnalyzer``. 
 """
-from typing import List, Sequence
+from typing import List, Sequence, Optional, Dict
 
 from copy import deepcopy
 
@@ -18,10 +18,19 @@ class BertWordReplacementGenerator(WordReplacementGenerator):
     """Asks Bert language model for word replacements in sentence via ``AutoModelForMaskedLM``.
     """
 
+    # Revisions pinned for specific HuggingFace models. Used whenever the
+    # caller does not pass model_revision explicitly.
+    # EMBEDDIA/est-roberta: the model at the default location (main) is
+    # malfunctioning; this commit contains the fix.
+    # (this logic was provided by Claude Opus 5.5)
+    DEFAULT_MODEL_REVISIONS: Dict[str, str] = {
+        'EMBEDDIA/est-roberta': 'eb8131e56a9a92a78187d8cbf50c8258bcb253b9',
+    }
+
     def __init__(
         self, 
         model_name: str = 'EMBEDDIA/est-roberta', 
-        model_revision: str = 'eb8131e56a9a92a78187d8cbf50c8258bcb253b9',
+        model_revision: Optional[str] = None,
         n_candidates: int = 10,
         device: str = "cpu"
     ):
@@ -34,9 +43,13 @@ class BertWordReplacementGenerator(WordReplacementGenerator):
             available from huggingface.com. 
             Default: 'EMBEDDIA/est-roberta'
         model_revision: str
-            Model version or repository commit hash. Optional. Only works if model_name 
-            corresponds to a repo_id of a model available from huggingface.com. 
-            Default: 'eb8131e56a9a92a78187d8cbf50c8258bcb253b9'
+            Model version, branch name or repository commit hash. Optional. Only works
+            if model_name corresponds to a repo_id of a model available from
+            huggingface.com. If not given, a known working revision is looked up from
+            BertWordReplacementGenerator.DEFAULT_MODEL_REVISIONS; for models not listed 
+            there, the latest version (main) is used. To use the latest version of a 
+            listed model, pass 'main'.
+            Default: None
         n_candidates: int
             How many replacements will be generated for the word in the sentence. Default: 10.
         device: int
@@ -47,6 +60,8 @@ class BertWordReplacementGenerator(WordReplacementGenerator):
         """
         from transformers import pipeline
         from transformers import AutoModelForMaskedLM, AutoTokenizer
+        if model_revision is None:
+            model_revision = self.DEFAULT_MODEL_REVISIONS.get(model_name)
         tokenizer = AutoTokenizer.from_pretrained(model_name, revision=model_revision)
         model = AutoModelForMaskedLM.from_pretrained(model_name, return_dict=True, revision=model_revision)
         self.mask_filler = pipeline("fill-mask", model=model, tokenizer=tokenizer, device=device)

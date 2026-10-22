@@ -165,9 +165,7 @@ model_download_instruction = \
                     reason=model_download_instruction)
 def test_bert_generator_smoke():
     # Smoke test BertWordReplacementGenerator on few examples
-    estroberta_generator = BertWordReplacementGenerator(model_name='EMBEDDIA/est-roberta', 
-                                                        model_revision='eb8131e56a9a92a78187d8cbf50c8258bcb253b9',
-                                                        n_candidates=5)
+    estroberta_generator = BertWordReplacementGenerator(n_candidates=5)
     # Case 1
     results = estroberta_generator.generate(['Tallinn', 'on', 'Eesti', 'Vabariigi', 'pealinn', '.'], 0)
     # Round scores and convert to string
