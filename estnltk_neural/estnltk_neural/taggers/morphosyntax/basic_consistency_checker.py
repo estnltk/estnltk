@@ -7,7 +7,7 @@ class BasicConsistencyChecker(Tagger):
     """
     Tags spans that contain conflicts between morph and syntax attributes.
     
-    Returns morphosyntax layer with attributes:
+    Returns morphosyntax conflicts layer with attributes:
     * {id} -- id form stanza layer;
     * {lemma} -- lemma from Vabamorf / "morph_analysis" layer;
     * {root_tokens} -- root_tokens from Vabamorf / "morph_analysis" layer;
@@ -22,7 +22,7 @@ class BasicConsistencyChecker(Tagger):
     """
 
     conf_param = [ 'output_layer',  "morphosyntax_layer", "input_layers"]
-    output_attributes = ['id', 'lemma', 'root_tokens', 'clitic', 'xpostag', 'feats', 'extended_feats', 'head', 'deprel',  'error_type'] # 'parent_span', 'children', , 'stanza_pos', 'stanza_feats', 'stanza_lemma'
+    output_attributes = ['id', 'lemma', 'root_tokens', 'clitic', 'xpostag', 'feats', 'extended_feats', 'head', 'deprel',  'error_type', 'match_type', 'correction'] # 'parent_span', 'children', , 'stanza_pos', 'stanza_feats', 'stanza_lemma'
     input_layers = ("words",)
 
     def __init__(self,
@@ -30,7 +30,7 @@ class BasicConsistencyChecker(Tagger):
                  output_layer:str="morphosyntax_conflicts",
                  input_layers=input_layers,
                 ):
-        """Initialize VabamorfWithBertTagger class.
+        """Initialize BasicConsistencyChecker class.
         
         Parameters
         ----------
