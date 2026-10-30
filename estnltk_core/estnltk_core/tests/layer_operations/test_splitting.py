@@ -3,10 +3,16 @@ from estnltk_core import Layer
 from estnltk_core.converters import layer_to_dict
 from estnltk_core.converters import dict_to_layer
 
+from estnltk_core import RelationLayer, ElementaryBaseSpan, EnvelopingBaseSpan
+
 from estnltk_core.layer_operations import split_by_sentences, extract_sections
-from estnltk_core.layer_operations import split_by
+from estnltk_core.layer_operations import split_by, extract_section
 
 from estnltk_core.common import load_text_class
+
+# ================================================================
+#  test_extract_sections with span layers
+# ================================================================
 
 def test_extract_sections():
     # Load Text or BaseText class (depending on the available packages)
@@ -667,3 +673,141 @@ def test_extract_sections_on_non_ambiguous_layer_with_parent():
          'serialisation_module': None,
          'spans': [{'annotations': [{'attr_2': 22}], 'base_span': (0, 4)},
                    {'annotations': [{'attr_2': 33}], 'base_span': (5, 9)}]}
+
+
+# ================================================================
+#  test_extract_sections with relation layers
+#  ( tests generated with the help of Claude Opus 5.5 Medium )
+# ================================================================
+
+def _make_test_text():
+    # 0123456789012345678901234567890123456789012345
+    # See on Peeter. Ta on, nagu ta on. Tubli mees.
+    # 0   1  2     3 4  5 6 7    8  9 0 11    12
+    Text = load_text_class()
+    text = Text('See on Peeter. Ta on, nagu ta on. Tubli mees.')
+    # words
+    words = Layer('words', attributes=(), text_object=text)
+    for s, e in [(0, 3), (4, 6), (7, 13), (13, 14), 
+                 (15, 17), (18, 20), (20, 21), (22, 26), (27, 29), (30, 32), (32, 33), 
+                 (34, 39), (40, 44), (44, 45)]:
+        words.add_annotation((s, e))
+    text.add_layer(words)
+    # sentences
+    sentences = Layer('sentences', attributes=(), enveloping='words', text_object=text)
+    sentences.add_annotation([w for w in words if w.end <= 14])
+    sentences.add_annotation([w for w in words if 15 <= w.start and w.end <= 33])
+    sentences.add_annotation([w for w in words if 34 <= w.start])
+    text.add_layer(sentences)
+    # flat relation layer
+    coref = RelationLayer('coref', span_names=('mention', 'entity'), attributes=('rel_id',),
+                          text_object=text)
+    coref.meta['source'] = 'test'
+    coref.add_annotation(mention=(0, 3), entity=(7, 13), rel_id=0)     # sent 1
+    coref.add_annotation(mention=(15, 17), entity=(7, 13), rel_id=1)   # sent 2 -> sent 1
+    coref.add_annotation(mention=(27, 29), entity=(15, 17), rel_id=2)  # sent 2
+    coref.add_annotation(mention=(34, 44), rel_id=3)                   # sent 3, partial relation
+    text.add_layer(coref)
+    # enveloping relation layer (over words)
+    phrase_rel = RelationLayer('phrase_rel', span_names=('a', 'b'), attributes=('label',),
+                               enveloping='words', ambiguous=True, text_object=text)
+    w = list(text['words'])
+    # ( {'a': ['See', 'on'], 'b': ['Peeter']}, [{'label': 'x'}, {'label': 'y'}] )
+    phrase_rel.add_annotation(a=EnvelopingBaseSpan([w[0].base_span, w[1].base_span]),
+                              b=EnvelopingBaseSpan([w[2].base_span]), label='x')
+    phrase_rel.add_annotation(a=EnvelopingBaseSpan([w[0].base_span, w[1].base_span]),
+                              b=EnvelopingBaseSpan([w[2].base_span]), label='y')
+    # ( {'a': ['Peeter', '.', 'Ta'], 'b': ['on']}, [{'label': 'z'}] )
+    # crosses sentences 1-2
+    phrase_rel.add_annotation(a=EnvelopingBaseSpan([w[2].base_span, w[3].base_span, w[4].base_span]),
+                              b=EnvelopingBaseSpan([w[5].base_span]), label='z')
+    text.add_layer(phrase_rel)
+    return text
+
+
+def _rel_tuples(layer):
+    return [ ( {ns.name: ns.text for ns in rel.spans}, [dict(a) for a in rel.annotations] ) for rel in layer ]
+
+
+def test_extract_sections_keeps_relation_layers_by_default():
+    text = _make_test_text()
+    t1, t2, t3 = extract_sections(text, [(0, 14), (15, 33), (34, 45)])
+    for t in (t1, t2, t3):
+        assert t.relation_layers == {'coref', 'phrase_rel'}
+        assert t['coref'].text_object is t
+        assert t['coref'].meta == {'source': 'test'}
+        assert t['phrase_rel'].ambiguous
+        assert t['phrase_rel'].enveloping == 'words'
+    # sentence 1
+    assert _rel_tuples(t1['coref']) == [({'mention': 'See', 'entity': 'Peeter'}, [{'rel_id': 0}])]
+    assert t1['coref'][0].spans[0].base_span == ElementaryBaseSpan(0, 3)
+    assert _rel_tuples(t1['phrase_rel']) == [({'a': ['See', 'on'], 'b': ['Peeter']},
+                                              [{'label': 'x'}, {'label': 'y'}])]
+    # sentence 2: cross-sentence relation 1 is dropped
+    assert _rel_tuples(t2['coref']) == [({'mention': 'ta', 'entity': 'Ta'}, [{'rel_id': 2}])]
+    assert t2['coref'][0].spans[0].base_span == ElementaryBaseSpan(12, 14)
+    assert len(t2['phrase_rel']) == 0
+    # sentence 3: relation that has only one named span
+    assert _rel_tuples(t3['coref']) == [({'mention': 'Tubli mees'}, [{'rel_id': 3}])]
+
+
+def test_extract_sections_keep_partial_relations():
+    text = _make_test_text()
+    t1, t2 = extract_sections(text, [(0, 14), (15, 33)], keep_partial_relations=True)
+    assert _rel_tuples(t1['coref']) == [({'mention': 'See', 'entity': 'Peeter'}, [{'rel_id': 0}]),
+                                        ({'entity': 'Peeter'}, [{'rel_id': 1}])]
+    assert _rel_tuples(t2['coref']) == [({'mention': 'Ta'}, [{'rel_id': 1}]),
+                                        ({'mention': 'ta', 'entity': 'Ta'}, [{'rel_id': 2}])]
+    # enveloping: 'a' not fully in section 2 (no trimming) -> only 'b' is kept
+    assert _rel_tuples(t2['phrase_rel']) == [({'b': ['on']}, [{'label': 'z'}])]
+    assert t2['phrase_rel'][0].spans[0].base_span == EnvelopingBaseSpan([ElementaryBaseSpan(3, 5)])
+
+
+def test_extract_sections_trim_overlapping_relations():
+    text = _make_test_text()
+    t1 = extract_section(text, 0, 16, trim_overlapping=True)
+    # word 'Ta' (15,17) is trimmed to 'T'
+    assert _rel_tuples(t1['coref']) == [({'mention': 'See', 'entity': 'Peeter'}, [{'rel_id': 0}]),
+                                        ({'mention': 'T', 'entity': 'Peeter'}, [{'rel_id': 1}]),
+                                        ({'entity': 'T'}, [{'rel_id': 2}])]
+    # Original 'phrase_rel':
+    #   ( {'a': ['See', 'on'], 'b': ['Peeter']}, [{'label': 'x'}, {'label': 'y'}] )
+    #   ( {'a': ['Peeter', '.', 'Ta'], 'b': ['on']}, [{'label': 'z'}] )
+    # Trimming modifications:
+    #   'x', 'y' kept as it is. 
+    #   'z': is also kept, because keep_partial_relations follows the trim_overlapping by default; 
+    #    so, only 'a' is reduced and 'b' is dropped.
+    assert _rel_tuples(t1['phrase_rel']) == [ ({'a': ['See', 'on'], 'b': ['Peeter']},
+                                               [{'label': 'x'}, {'label': 'y'}]),
+                                              ({'a': ['Peeter', '.', 'T']}, [{'label': 'z'}]) ]
+    assert t1['phrase_rel'][-1].spans[0].base_span == \
+        EnvelopingBaseSpan([ElementaryBaseSpan(7, 13), ElementaryBaseSpan(13, 14), ElementaryBaseSpan(15, 16)])
+    # Discard keeping partial relations
+    t1 = extract_section(text, 0, 16, trim_overlapping=True, keep_partial_relations=False)
+    # Now 'z' is dropped entirely, because its 'b' falls out of the section
+    assert _rel_tuples(t1['phrase_rel']) == [ ({'a': ['See', 'on'], 'b': ['Peeter']},
+                                               [{'label': 'x'}, {'label': 'y'}]) ]
+
+def test_extract_sections_layers_to_keep_with_relation_layers():
+    import pytest
+    text = _make_test_text()
+    t = extract_section(text, 0, 14, layers_to_keep=['words', 'coref'])
+    assert t.layers == {'words'}
+    assert t.relation_layers == {'coref'}
+    t = extract_section(text, 0, 14, layers_to_keep=['words'])
+    assert t.relation_layers == set()
+    with pytest.raises(AssertionError):
+        # parent 'words' is missing from layers_to_keep
+        extract_section(text, 0, 14, layers_to_keep=['phrase_rel'])
+
+
+def test_split_by_keeps_existing_behaviour():
+    text = _make_test_text()
+    texts = split_by(text, 'sentences')
+    # default layers_to_keep of split_by only contains span-layer dependencies
+    # ( actually, currently, there is no way for a span layer to have a relation 
+    #   layer as a dependency layer, so this test is somewhat redundant )
+    assert all(t.relation_layers == set() for t in texts)
+    # if relation layers are needed, they need to be specified via layers_to_keep
+    texts = split_by(text, 'sentences', layers_to_keep=['words', 'sentences', 'coref', 'phrase_rel'])
+    assert [len(t['coref']) for t in texts] == [1, 1, 1]
