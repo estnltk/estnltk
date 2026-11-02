@@ -70,6 +70,9 @@ def test_group_consecutive_spans():
     assert expected_consecutive_loc_texts == all_consecutive_loc_texts
 
 
+# ===================================================================
+#   Splitting discontinuous sections: span layers
+# ===================================================================
 
 def create_example_text_1():
     # Load Text or BaseText class (depending on the available packages)
@@ -534,3 +537,201 @@ def test_split_by_clauses_3_verb_chains():
     assert clause_texts[2]['verb_chains'].text == ['magada', 'on', 'vaja']
 
 
+
+# ===================================================================
+#   Splitting discontinuous sections: relation layers
+# ===================================================================
+
+def create_example_text_with_relations():
+    # 0         1         2         3         4         5         6
+    # 0123456789012345678901234567890123456789012345678901234567890
+    # Mees, keda seal kohtasime, oli tuttav ja teretas meid (sic!).
+    # 1   2 3    4    5        6 7   8      9  0       1    23  456
+    # 0                                        1                   
+    from estnltk_core import RelationLayer, EnvelopingBaseSpan
+    text = create_example_text_1()
+    text.add_layer( dict_to_layer( \
+       { 'ambiguous': False,
+         'attributes': ('clause_type',),
+         'enveloping': 'words',
+         'meta': {},
+         'name': 'clauses',
+         'parent': None,
+         'serialisation_module': None,
+         'spans': [{'annotations': [{'clause_type': 'regular'}],
+                    'base_span': ((0, 4), (27, 30), (31, 37), (38, 40))},
+                   {'annotations': [{'clause_type': 'embedded'}],
+                    'base_span': ((4, 5), (6, 10), (11, 15), (16, 25), (25, 26))},
+                   {'annotations': [{'clause_type': 'regular'}],
+                    'base_span': ((41, 48), (49, 53), (60, 61))},
+                   {'annotations': [{'clause_type': 'embedded'}],
+                    'base_span': ((54, 55), (55, 58), (58, 59), (59, 60))}] } ) )
+    # Flat relation layer
+    srl = RelationLayer('srl', span_names=('pred', 'arg'), attributes=('role',), text_object=text)
+    srl.meta['source'] = 'test'
+    srl.add_annotation(pred=(27, 30), arg=(0, 4),  role='subj')   # clause 0 (over the gap) # ['oli','Mees']       
+    srl.add_annotation(pred=(16, 25), arg=(6, 10), role='obj')    # clause 1 (embedded)     # ['kohtasime','keda'] 
+    srl.add_annotation(pred=(41, 48), arg=(49, 53), role='obj')   # clause 2                # ['teretas','meid']   
+    srl.add_annotation(pred=(41, 48), arg=(0, 4),  role='subj')   # clause 2 -> clause 0    # ['teretas','Mees']   
+    text.add_layer(srl)
+    # Flat relation layer with a named span that covers the embedded clause
+    phrases = RelationLayer('phrases', span_names=('phrase',), attributes=('id',), text_object=text)
+    # relations covering clauses 0, 1 & 2 :
+    phrases.add_annotation(phrase=(0, 30), id=0)   # 'Mees, keda seal kohtasime, oli'
+    # relation covering clause 2 :
+    phrases.add_annotation(phrase=(31, 37), id=1)  # 'tuttav'
+    text.add_layer(phrases)
+    # Enveloping relation layer (over words)
+    w = {word.text: word.base_span for word in text['words']}
+    deps = RelationLayer('deps', span_names=('head', 'dep'), attributes=('deprel',),
+                         enveloping='words', ambiguous=True, text_object=text)
+    # relations covering clauses 0 & 2 :
+    deps.add_annotation(head=EnvelopingBaseSpan([w['oli']]), dep=EnvelopingBaseSpan([w['Mees']]), deprel='nsubj')
+    deps.add_annotation(head=EnvelopingBaseSpan([w['oli']]), dep=EnvelopingBaseSpan([w['Mees']]), deprel='nsubj:cop')
+    # relation covering clauses 0 & 1 :
+    deps.add_annotation(head=EnvelopingBaseSpan([w['Mees']]), 
+                        dep=EnvelopingBaseSpan([w['keda'], w['seal'], w['kohtasime']]), deprel='acl:relcl') 
+    # Named span with words from both halves of clause 0 :
+    # (relation covering clauses 0 & 2)
+    deps.add_annotation(head=EnvelopingBaseSpan([w['Mees'], w['oli'], w['tuttav']]), deprel='phrase') 
+    text.add_layer(deps)
+    return text
+
+
+def _rel_tuples(layer):
+    return [ ( {ns.name: ns.text for ns in rel.spans}, [dict(a) for a in rel.annotations] ) for rel in layer ]
+
+
+def test_split_by_clauses_with_relation_layers():
+    from estnltk_core import ElementaryBaseSpan, EnvelopingBaseSpan
+    text = create_example_text_with_relations()
+    layers_to_keep = list(text.layers) + list(text.relation_layers)
+    clause_texts = _split_by_discontinuous_layer(text, 'clauses', layers_to_keep=layers_to_keep)
+    assert [t.text for t in clause_texts] == \
+        ['Mees oli tuttav ja', ', keda seal kohtasime,', 'teretas meid.', '(sic!)']
+    for t in clause_texts:
+        assert t.relation_layers == {'srl', 'phrases', 'deps'}
+        assert t['srl'].text_object is t
+        assert t['srl'].meta == {'source': 'test'}
+        assert t['deps'].enveloping == 'words'
+        assert t['deps'].ambiguous
+    t0, t1, t2, t3 = clause_texts
+    # Clause 0 ('Mees' + 'oli tuttav ja'): relation over the gap is preserved
+    assert _rel_tuples(t0['srl']) == [({'pred': 'oli', 'arg': 'Mees'}, [{'role': 'subj'}])]
+    assert t0['srl'][0]['pred'].base_span == ElementaryBaseSpan(5, 8) # 'oli'
+    assert t0['srl'][0]['arg'].base_span == ElementaryBaseSpan(0, 4)  # 'Mees'
+    # 'Mees, keda seal kohtasime, oli' covers the gap -> dropped without trimming
+    assert _rel_tuples(t0['phrases']) == [({'phrase': 'tuttav'}, [{'id': 1}])]
+    assert t0['phrases'][0]['phrase'].base_span == ElementaryBaseSpan(9, 15)
+    # Preserve 'deps' that cover clauses 0 & 2
+    assert _rel_tuples(t0['deps']) == [({'head': ['oli'], 'dep': ['Mees']}, [{'deprel': 'nsubj'}, {'deprel': 'nsubj:cop'}]),
+                                       ({'head': ['Mees', 'oli', 'tuttav']}, [{'deprel': 'phrase'}])]
+    # t0['deps'][1]['head'] --> ['Mees', 'oli', 'tuttav']
+    assert t0['deps'][1]['head'].base_span == \
+        EnvelopingBaseSpan([ElementaryBaseSpan(0, 4), ElementaryBaseSpan(5, 8), ElementaryBaseSpan(9, 15)])
+    # Clause 1 (embedded) (', keda seal kohtasime,')
+    assert _rel_tuples(t1['srl']) == [({'pred': 'kohtasime', 'arg': 'keda'}, [{'role': 'obj'}])]
+    assert t1['srl'][0]['pred'].base_span == ElementaryBaseSpan(12, 21)
+    # 'phrases' & 'deps' are empty, because they only contain relations covering multiple clauses
+    assert len(t1['phrases']) == 0
+    assert len(t1['deps']) == 0
+    # Clause 2 ('teretas meid.'): relation that points to clause 0 is dropped
+    assert _rel_tuples(t2['srl']) == [({'pred': 'teretas', 'arg': 'meid'}, [{'role': 'obj'}])]
+    # Clause 3 ('(sic!)'): no relations
+    assert [len(t3[l]) for l in ('srl', 'phrases', 'deps')] == [0, 0, 0]
+
+
+def test_split_by_clauses_with_relation_layers_partial_relations():
+    text = create_example_text_with_relations()
+    layers_to_keep = list(text.layers) + list(text.relation_layers)
+    t0, t1, t2, t3 = _split_by_discontinuous_layer(text, 'clauses', layers_to_keep=layers_to_keep,
+                                                   keep_partial_relations=True)
+    assert _rel_tuples(t0['srl']) == [({'pred': 'oli', 'arg': 'Mees'}, [{'role': 'subj'}]),
+                                      ({'arg': 'Mees'}, [{'role': 'subj'}])] # dropped 'pred':'teretas'
+    assert _rel_tuples(t2['srl']) == [({'pred': 'teretas', 'arg': 'meid'}, [{'role': 'obj'}]),
+                                      ({'pred': 'teretas'}, [{'role': 'subj'}])] # dropped 'arg': 'Mees'
+    # dropped: 'head':['oli'] (clause 2) from the following:
+    assert _rel_tuples(t0['deps'])[1] == ({'head': ['Mees']}, [{'deprel': 'acl:relcl'}]) 
+    # dropped: 'head': ['Mees'] (clause 0) from the following:
+    assert _rel_tuples(t1['deps']) == [({'dep': ['keda', 'seal', 'kohtasime']}, [{'deprel': 'acl:relcl'}])]
+    # without trimming, a named span covering the gap is still dropped
+    assert _rel_tuples(t0['phrases']) == [({'phrase': 'tuttav'}, [{'id': 1}])]
+    assert len(t1['phrases']) == 0
+
+
+def test_split_by_clauses_with_relation_layers_trim_overlapping():
+    from estnltk_core import ElementaryBaseSpan
+    text = create_example_text_with_relations()
+    layers_to_keep = list(text.layers) + list(text.relation_layers)
+    # keep_partial_relations='auto' -> follows trim_overlapping=True
+    t0, t1, t2, t3 = _split_by_discontinuous_layer(text, 'clauses', layers_to_keep=layers_to_keep,
+                                                   trim_overlapping=True)
+    #
+    # Original 'phrases':
+    #     [{'phrase': 'Mees, keda seal kohtasime, oli', 'id': 0}, 
+    #      {'phrase': 'tuttav', 'id': 1}]
+    #
+    # 'Mees, keda seal kohtasime, oli' is trimmed to its parts inside the clause:
+    # 'Mees' + ' oli' that are joined in the clause text
+    assert _rel_tuples(t0['phrases']) == [({'phrase': 'Mees oli'}, [{'id': 0}]),
+                                          ({'phrase': 'tuttav'}, [{'id': 1}])]
+    assert t0['phrases'][0].spans[0].base_span == ElementaryBaseSpan(0, 8)
+    # Embedded clause is completely inside the phrase
+    assert _rel_tuples(t1['phrases']) == [({'phrase': ', keda seal kohtasime,'}, [{'id': 0}])]
+    assert _rel_tuples(t2['srl']) == [({'pred': 'teretas', 'arg': 'meid'}, [{'role': 'obj'}]),
+                                      ({'pred': 'teretas'}, [{'role': 'subj'}])]  # dropped: 'arg': 'Mees'
+    # trimming without partial relations
+    t0, t1, t2, t3 = _split_by_discontinuous_layer(text, 'clauses', layers_to_keep=layers_to_keep,
+                                                   trim_overlapping=True, keep_partial_relations=False)
+    # dropped partial relation ({'pred': 'teretas'}, [{'role': 'subj'}]) in the following:
+    assert _rel_tuples(t2['srl']) == [({'pred': 'teretas', 'arg': 'meid'}, [{'role': 'obj'}])]
+    # the 'phrases' layer is not affected:
+    assert _rel_tuples(t0['phrases']) == [({'phrase': 'Mees oli'}, [{'id': 0}]),
+                                          ({'phrase': 'tuttav'}, [{'id': 1}])]
+
+
+def test_extract_discontinuous_sections_with_relation_layers():
+    import copy, pickle
+    from estnltk_core.converters import text_to_json, json_to_text
+    from estnltk_core.layer_operations.iterators.splitting_discontinuous import extract_discontinuous_sections
+    text = create_example_text_with_relations()
+    # layers_to_keep=None: all layers (including relation layers) are kept
+    # Extract: [['Mees', 'oli tuttav ja'], ['Mees, keda seal kohtasime, oli tuttav ja teretas meid (sic!).']]
+    t0, t_all = extract_discontinuous_sections(text, [[(0, 4), (26, 40)], [(0, 61)]])
+    assert t0.relation_layers == {'srl', 'phrases', 'deps'}
+    # Dropped {'pred': 'teretas', 'arg': 'Mees', 'role': 'subj'} in the following:
+    assert _rel_tuples(t0['srl']) == [({'pred': 'oli', 'arg': 'Mees'}, [{'role': 'subj'}])]
+    # A section covering the whole text reproduces the text
+    assert t_all == text, t_all.diff(text)
+    # Extracted texts survive copying and serialisation
+    for t in (t0, t_all):
+        assert copy.deepcopy(t) == t
+        assert pickle.loads(pickle.dumps(t)) == t
+        assert json_to_text(text_to_json(t)) == t
+    # Relation layer without its enveloped layer in layers_to_keep
+    import pytest
+    with pytest.raises(AssertionError):
+        # layers_to_keep missing 'words' required by 'deps'
+        extract_discontinuous_sections(text, [[(0, 4), (26, 40)]], layers_to_keep=['deps'])
+    # Only selected relation layers
+    t0, = extract_discontinuous_sections(text, [[(0, 4), (26, 40)]], layers_to_keep=['srl'])
+    assert t0.layers == set()
+    assert t0.relation_layers == {'srl'}
+    # Dropped {'pred': 'teretas', 'arg': 'Mees', 'role': 'subj'} in the following:
+    assert _rel_tuples(t0['srl']) == [({'pred': 'oli', 'arg': 'Mees'}, [{'role': 'subj'}])]
+
+
+def test_split_by_clauses_relation_layers_via_split_by():
+    import warnings
+    from estnltk_core.layer_operations import split_by, split_by_clauses
+    text = create_example_text_with_relations()
+    layers_to_keep = list(text.layers) + list(text.relation_layers)
+    clause_texts = split_by(text, 'clauses', layers_to_keep=layers_to_keep)
+    assert [len(t['srl']) for t in clause_texts] == [1, 1, 1, 0]
+    clause_texts = split_by_clauses(text, layers_to_keep=layers_to_keep, keep_partial_relations=True)
+    assert [len(t['srl']) for t in clause_texts] == [2, 1, 2, 0]
+    # default layers_to_keep only contains span-layer dependencies
+    # (and, actually, a relation layer also cannot be a dependency 
+    #  of a span layer in the current implementation)
+    clause_texts = split_by_clauses(text)
+    assert all(t.relation_layers == set() for t in clause_texts)

@@ -11,7 +11,7 @@ from estnltk_core.layer_operations import split_by, extract_section
 from estnltk_core.common import load_text_class
 
 # ================================================================
-#  test_extract_sections with span layers
+#  test extract_sections with span layers
 # ================================================================
 
 def test_extract_sections():
@@ -676,14 +676,15 @@ def test_extract_sections_on_non_ambiguous_layer_with_parent():
 
 
 # ================================================================
-#  test_extract_sections with relation layers
+#  test extract_sections with relation layers
 #  ( tests generated with the help of Claude Opus 5.5 Medium )
 # ================================================================
 
 def _make_test_text():
+    # 0         1         2         3         4     
     # 0123456789012345678901234567890123456789012345
-    # See on Peeter. Ta on, nagu ta on. Tubli mees.
-    # 0   1  2     3 4  5 6 7    8  9 0 11    12
+    # See on Peeter. Ta on, nagu ta on. Tubli mees. 
+    # 0   1  2     3 4  5 6 7    8  9 0 11    12    
     Text = load_text_class()
     text = Text('See on Peeter. Ta on, nagu ta on. Tubli mees.')
     # words

@@ -7,18 +7,26 @@
 #      Optimization is desirable.
 #
 
-from typing import Iterable, Sequence, List, Union
+from typing import Iterable, Sequence, List, Union, Literal
 from estnltk_core import ElementaryBaseSpan
 from estnltk_core.layer.span import Span
+from estnltk_core.layer.relation_layer import RelationLayer
 from estnltk_core.common import create_text_object
+
+from estnltk_core.layer_operations.iterators.splitting_common import _check_layers_to_keep
+from estnltk_core.layer_operations.iterators.splitting_common import _resolve_keep_partial_relations
+from estnltk_core.layer_operations.iterators.splitting_common import _extract_relation_layer_section
 
 from estnltk_core.layer_operations.layer_dependencies import find_layer_dependencies
 
 def extract_discontinuous_sections(text: Union['Text', 'BaseText'],
                                    sections: Iterable,
                                    layers_to_keep: Sequence = None,
-                                   trim_overlapping: bool = False):
+                                   trim_overlapping: bool = False,
+                                   keep_partial_relations: bool | Literal["auto"] = "auto"):
     """Split text into a list of texts by discontinuous sections.
+
+    Both span layers and relation layers are carried over to the section texts.
     
     A discontinuous section is a list of ``(start, end)`` pairs:
     text inside the pairs will be extracted,  and  gaps between
@@ -34,28 +42,47 @@ def extract_discontinuous_sections(text: Union['Text', 'BaseText'],
     sections: List[Tuple(int, int)]
         list of lists of ``(start, end)`` pairs defining discontinuous sections
     layers_to_keep: List[str]
-        list of layers to be kept while splitting.
+        list of layers (span layers and/or relation layers) to be kept while 
+        splitting.
         The dependencies must be included, that is, if a layer in the list
         has a parent or is enveloping, then the parent or enveloped layer
         must also be in this list.
-        If None (default), all layers are kept
+        If None (default), all layers (including relation layers) are kept
     trim_overlapping: bool
         If `False` (default), overlapping spans are not kept.
         If `True`, overlapping spans are trimmed to fit the boundaries.
+        For relation layers, this applies to individual named spans: 
+        * non-enveloping relation layer: a named span crossing the section 
+          boundary or a gap between two subsections is trimmed to its parts 
+          inside the subsections; as the parts are joined in the new text,  
+          the trimmed named span covers all of them;
+        * enveloping relation layer: a named span is reduced to its enveloped 
+          spans that were carried over to the section;
+    keep_partial_relations: bool | Literal["auto"]
+        Only affects relation layers.
+        If `False`, a relation is kept only if all of its named spans fall
+        inside the discontinuous section (after optional trimming).
+        If `True`, named spans that fall outside the section are removed from
+        the relation, and the relation is kept if at least one of its named
+        spans remains inside the section. (RelationLayer allows relations
+        with some, but not all, named spans unassigned.)
+        Note: if removing / trimming named spans makes two relations of a
+        non-ambiguous layer identical, only the first relation's annotation
+        is kept.
+        If "auto" (default), then the value of this parameter follows the
+        value of parameter `trim_overlapping`, e.g. if `trim_overlapping` is
+        `False`, then `keep_partial_relations` is also `False`.
 
     Returns
     -------
     List[Union['Text', 'BaseText']]
         list containing a `Text` object for every discontinuous section in `sections`.
     """
-    if layers_to_keep:
-        for layer in layers_to_keep:
-            parent = text[layer].parent
-            enveloping = text[layer].enveloping
-            if parent:
-                assert parent in layers_to_keep, 'parent of '+layer+' missing in layers_to keep: '+parent
-            if enveloping:
-                assert enveloping in layers_to_keep, 'enveloping of '+layer+' missing in layers_to keep: '+enveloping
+    keep_partial_relations = _resolve_keep_partial_relations(keep_partial_relations, trim_overlapping)
+    _check_layers_to_keep(text, layers_to_keep)
+    # Span layers and relation layers in the order of dependencies:
+    # a relation layer always comes after the span layer it envelops
+    all_sorted_layers = text.sorted_layers(span_layers=True, relation_layers=True)
     result = []
     for subsections in sections:
         # Construct text str based on discontinuous list of spans
@@ -63,11 +90,19 @@ def extract_discontinuous_sections(text: Union['Text', 'BaseText'],
         new_text = create_text_object( text_str )
         # Construct Layers
         map_spans = {}
-        for layer in text.sorted_layers():
+        for layer in all_sorted_layers:
             layer_name = layer.name
             if layers_to_keep is not None:
                 if layer_name not in layers_to_keep:
                     continue
+            if isinstance(layer, RelationLayer):
+                # a) relation layer
+                new_layer = _extract_relation_layer_section(layer, subsections, map_spans,
+                                                            trim_overlapping=trim_overlapping,
+                                                            keep_partial_relations=keep_partial_relations)
+                new_text.add_layer(new_layer)
+                continue
+            # b) span layer
             attribute_names = layer.attributes
             secondary_attributes = layer.secondary_attributes
             parent = layer.parent
@@ -164,7 +199,8 @@ def layers_to_keep_default(text, layer):
     dependency_layers = find_layer_dependencies(text, layer, 
                                         include_enveloping=True,
                                         include_parents=True,
-                                        add_bidirectional_parents=True)
+                                        add_bidirectional_parents=True,
+                                        include_relation_layers=True)
     return set(dependency_layers) | {layer}
 
 
@@ -280,7 +316,9 @@ def group_consecutive_spans( text_str, spans, reduce_spans=True, correct_left_bo
 
 
 def _split_by_discontinuous_layer(text: Union['Text', 'BaseText'], layer: str, layers_to_keep: Sequence[str]=None, 
-                                  trim_overlapping: bool=False, _post_chk: bool=False ) -> List[Union['Text', 'BaseText']]:
+                                  trim_overlapping: bool=False, 
+                                  keep_partial_relations: bool | Literal["auto"]="auto",
+                                  _post_chk: bool=False ) -> List[Union['Text', 'BaseText']]:
     """Split text into a list of texts by a discontinuous layer.
 
     This splitting method should handle correctly layers with
@@ -294,14 +332,30 @@ def _split_by_discontinuous_layer(text: Union['Text', 'BaseText'], layer: str, l
     layer: str
         name of the discontinuous layer to split by
     layers_to_keep: List[str]
-        list of layers to be kept while splitting.
+        list of layers (span layers and/or relation layers) to be kept 
+        while splitting.
         The dependencies must be included, that is, if a layer in the list
         has a parent or is enveloping, then the parent or enveloped layer
         must also be in this list.
-        If None (default), all layers are kept
+        Must not be None.
     trim_overlapping: bool
         If `False` (default), overlapping spans are not kept.
         If `True`, overlapping spans are trimmed to fit the boundaries.
+        See `extract_discontinuous_sections` for details on relation layers.
+    keep_partial_relations: bool | Literal["auto"]
+        Only affects relation layers.
+        If `False`, a relation is kept only if all of its named spans fall
+        inside the discontinuous section (after optional trimming).
+        If `True`, named spans that fall outside the section are removed from
+        the relation, and the relation is kept if at least one of its named
+        spans remains inside the section. (RelationLayer allows relations
+        with some, but not all, named spans unassigned.)
+        Note: if removing / trimming named spans makes two relations of a
+        non-ambiguous layer identical, only the first relation's annotation
+        is kept.
+        If "auto" (default), then the value of this parameter follows the
+        value of parameter `trim_overlapping`, e.g. if `trim_overlapping` is
+        `False`, then `keep_partial_relations` is also `False`.
     _post_chk: bool
         If `False` (default), then no post-checking will be done.
         If `True`, then applies post-checking to make sure that there
@@ -316,6 +370,8 @@ def _split_by_discontinuous_layer(text: Union['Text', 'BaseText'], layer: str, l
     if layers_to_keep is None:
         raise ValueError('(!) Unexpected None value for layers_to_keep. '+
                          'Please specify layers you need to keep while splitting.')
+    if isinstance(text[layer], RelationLayer):
+        raise NotImplementedError(f'(!) Spltting by RelationLayer ({layer!r}) is not implemented.')
     all_discontinuous_sections = []
     for disc_layer_spans in text[layer]:
         # Group spans of the layer into discontinuous_sections
@@ -340,20 +396,25 @@ def _split_by_discontinuous_layer(text: Union['Text', 'BaseText'], layer: str, l
                    '(!) Conflicting spans {!r} and {!r}'.format(spanA, spanB)
     # Extract discontinuous sections
     return extract_discontinuous_sections(text, all_discontinuous_sections, \
-                                          layers_to_keep, trim_overlapping)
+                                          layers_to_keep, trim_overlapping, 
+                                          keep_partial_relations=keep_partial_relations)
 
 
 
 def split_by_clauses(text, layers_to_keep=None, trim_overlapping=False, 
-                           input_clauses_layer='clauses' ):
+                           input_clauses_layer='clauses', keep_partial_relations="auto" ):
     """Split text into a list of texts by clauses layer.
        This is proper way of splitting text into clauses,
        considering all the discontinuous spans in the 
        clauses layer.
+       Relation layers listed in `layers_to_keep` are carried over 
+       to the clause texts; see `extract_discontinuous_sections` for 
+       details on `trim_overlapping` and `keep_partial_relations`. 
        Note: the implementation needs further testing
     """
     if layers_to_keep is None:
         layers_to_keep = layers_to_keep_default(text, input_clauses_layer)
     return _split_by_discontinuous_layer(text, input_clauses_layer, layers_to_keep, 
-                                               trim_overlapping=trim_overlapping )
+                                               trim_overlapping=trim_overlapping,
+                                               keep_partial_relations=keep_partial_relations )
 
