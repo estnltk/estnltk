@@ -735,3 +735,54 @@ def test_split_by_clauses_relation_layers_via_split_by():
     #  of a span layer in the current implementation)
     clause_texts = split_by_clauses(text)
     assert all(t.relation_layers == set() for t in clause_texts)
+
+
+def test_split_by_split_discontinuous_parameter():
+    import pytest
+    from estnltk_core.layer_operations import split_by
+    text = create_example_text_with_relations()
+    # Preparation: Copy of the clauses layer under a different name
+    clauses_dict = layer_to_dict(text['clauses'])
+    clauses_dict['name'] = 'my_clauses'
+    text.add_layer( dict_to_layer(clauses_dict) )
+    clauses_dict['name'] = 'segments'
+    text.add_layer( dict_to_layer(clauses_dict) )
+    layers_to_keep = ['words', 'srl']
+    discontinuous_texts = ['Mees oli tuttav ja', ', keda seal kohtasime,', 'teretas meid.', '(sic!)']
+    continuous_texts    = ['Mees, keda seal kohtasime, oli tuttav ja', ', keda seal kohtasime,', 
+                           'teretas meid (sic!).', '(sic!)']
+    # split_discontinuous="auto" (default): discontinuous iff the layer name contains 'clauses'
+    for layer in ['clauses', 'my_clauses']:
+        texts = split_by(text, layer, layers_to_keep=layers_to_keep+[layer])
+        assert [t.text for t in texts] == discontinuous_texts
+        assert [len(t['srl']) for t in texts] == [1, 1, 1, 0]
+    texts = split_by(text, 'segments', layers_to_keep=layers_to_keep+['segments'])
+    assert [t.text for t in texts] == continuous_texts
+    assert [len(t['srl']) for t in texts] == [2, 1, 1, 0]
+    # split_discontinuous=True: always discontinuous
+    texts = split_by(text, 'segments', layers_to_keep=layers_to_keep+['segments'], split_discontinuous=True)
+    assert [t.text for t in texts] == discontinuous_texts
+    # split_discontinuous=False: never discontinuous
+    texts = split_by(text, 'clauses', layers_to_keep=layers_to_keep+['clauses'], split_discontinuous=False)
+    assert [t.text for t in texts] == continuous_texts
+    # With continuous sections, the main clause also contains the embedded clause
+    assert texts[0]['words'].text == ['Mees', ',', 'keda', 'seal', 'kohtasime', ',', 'oli', 'tuttav', 'ja']
+    assert [len(t['srl']) for t in texts] == [2, 1, 1, 0]
+    # Default layers_to_keep
+    texts = split_by(text, 'my_clauses')
+    assert [t.text for t in texts] == discontinuous_texts
+    assert set(texts[0].layers) == {'words', 'my_clauses', 'morph_analysis'}
+    # Non-enveloping layer: split_discontinuous=True gives an error:
+    with pytest.raises(ValueError):
+        # (!) Cannot split discontinuously by layer 'words': the layer must be enveloping.
+        split_by(text, 'words', layers_to_keep=['words'], split_discontinuous=True)
+    words_dict = layer_to_dict(text['words'])
+    words_dict['name'] = 'flat_clauses'
+    text.add_layer( dict_to_layer(words_dict) )
+    # Non-enveloping layer: split_discontinuous="auto" (default) falls back to continuous splitting:
+    texts = split_by(text, 'flat_clauses', layers_to_keep=['flat_clauses'])
+    assert [t.text for t in texts[:8]] == ['Mees', ',', 'keda', 'seal', 'kohtasime', ',', 'oli', 'tuttav']
+    # Invalid value
+    with pytest.raises(ValueError):
+        # split_discontinuous should be True, False or 'auto', not 'yes'
+        split_by(text, 'clauses', split_discontinuous='yes')

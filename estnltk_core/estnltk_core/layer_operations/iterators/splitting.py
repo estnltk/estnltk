@@ -192,7 +192,8 @@ def layers_to_keep_default(text, layer):
 
 
 def split_by(text: Union['Text', 'BaseText'], layer: str, layers_to_keep: Sequence[str] = None, trim_overlapping: bool = False, 
-             keep_partial_relations: bool | Literal["auto"] = "auto") -> List[ Union['Text', 'BaseText'] ]:
+             keep_partial_relations: bool | Literal["auto"] = "auto", 
+             split_discontinuous: bool | Literal["auto"] = "auto") -> List[ Union['Text', 'BaseText'] ]:
     """Split text into a list of texts by layer.
 
     This method is slow on long texts.
@@ -225,6 +226,22 @@ def split_by(text: Union['Text', 'BaseText'], layer: str, layers_to_keep: Sequen
         If "auto" (default), then the value of this parameter follows the 
         value of parameter `trim_overlapping`, e.g. if `trim_overlapping` is 
         `False`, then `keep_partial_relations` is also `False`. 
+    split_discontinuous: bool | Literal["auto"]
+        Whether spans of the `layer` are handled as discontinuous sections. 
+        A discontinuous span (e.g. a clause that has an embedded clause 
+        inside it) is split into groups of consecutive enveloped spans, 
+        and only the text inside the groups is extracted, while the gaps 
+        between the groups are left out. See `_split_by_discontinuous_layer` 
+        and `extract_discontinuous_sections` for details. 
+        If `True`, then spans of the `layer` are always handled as 
+        discontinuous sections. This requires the `layer` to be enveloping. 
+        If `False`, then spans of the `layer` are always handled as 
+        continuous sections: each section spans from the start of the 
+        span to its end, gaps included. 
+        If "auto" (default), then spans of the `layer` are handled as 
+        discontinuous sections if the name of the `layer` contains 
+        "clauses" and the `layer` is enveloping, and as continuous 
+        sections otherwise. 
 
     Returns
     -------
@@ -232,12 +249,20 @@ def split_by(text: Union['Text', 'BaseText'], layer: str, layers_to_keep: Sequen
          list containing a `Text` object for every span in the `layer`.
 
     """
+    if not (isinstance(split_discontinuous, bool) or split_discontinuous == "auto"):
+        raise ValueError(f"split_discontinuous should be True, False or 'auto', not {split_discontinuous!r}")
     if isinstance(text[layer], RelationLayer):
         raise NotImplementedError(f'(!) Spltting by RelationLayer ({layer!r}) is not implemented.')
+    if split_discontinuous == "auto":
+        # Layers of clauses can contain discontinuous spans (because of embedded clauses).
+        # Only enveloping layers can have discontinuous spans.
+        split_discontinuous = 'clauses' in layer and text[layer].enveloping is not None
+    if split_discontinuous and text[layer].enveloping is None:
+        raise ValueError(f'(!) Cannot split discontinuously by layer {layer!r}: the layer must be enveloping.')
     if layers_to_keep is None:
         layers_to_keep = layers_to_keep_default(text, layer)
-    if layer == 'clauses':
-        # If we are splitting clauses, we need to consider discontinuous spans / annotations
+    if split_discontinuous:
+        # Consider discontinuous spans / annotations
         return _split_by_discontinuous_layer(text, layer, layers_to_keep=layers_to_keep,
                                                    trim_overlapping=trim_overlapping,
                                                    keep_partial_relations=keep_partial_relations )
