@@ -98,12 +98,12 @@ class BatchProcessingWebTagger( WebTagger ):
                 target_text = text
                 all_layers_attached = True
                 for layer in layers.keys():
-                    if layer not in text.layers:
+                    if isinstance(layers[layer], Layer) and layer not in text.layers:
                         all_layers_attached = False
                         break
                     if layer in text.relation_layers:
-                        raise NotImplementedError('(!) Cannot use relation layer {!r} as an input layer for batch '+\
-                                                  'processing web tagger. Functionality not implemented.'.format(layer))
+                        raise NotImplementedError(f'(!) Cannot use relation layer {layer!r} as an input layer for '+\
+                                                  'batch processing web tagger. Functionality not implemented.')
                 if not all_layers_attached:
                     # In case of detached layers, create a new surrogate Text obj 
                     # with attached layers
