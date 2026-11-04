@@ -364,9 +364,10 @@ def test_access_of_shadowed_layers():
                       'tag_layer', 'topological_sort']
     protected_methods = ['_repr_html_']
     if Text().__class__.__name__ == 'BaseText':
-        public_variables = []
+        public_variables = [ 'HTML_EQUAL_LAYER_TABLES_WIDTHS' ]
     else:
-        public_variables = [ 'attribute_mapping_for_elementary_layers', \
+        public_variables = [ 'HTML_EQUAL_LAYER_TABLES_WIDTHS', \
+                             'attribute_mapping_for_elementary_layers', \
                              'attribute_mapping_for_enveloping_layers', \
                              'layer_resolver', \
                              'methods',

@@ -2,7 +2,7 @@ import html
 import pandas
 
 from copy import copy, deepcopy
-from typing import List, Sequence, Set, Union, Any, Mapping
+from typing import List, Sequence, Set, Union, Any, Mapping, Literal
 
 from estnltk_core.layer.base_layer import BaseLayer
 from estnltk_core.layer.relation_layer import RelationLayer
@@ -382,6 +382,20 @@ class BaseText:
                 return difference
         return None
 
+    '''
+    Whether tables describing annotation layers (span layers table and relation layers 
+    table) of the Text object will have equal widths in its HTML rendering. 
+    If True, then tables will both get equal width (100%) and are placed within inline-block
+    div wrapper, as a result, the tables will appear horizontally aligned in the the HTML 
+    rendering. 
+    If False, then the length of each table is variable depending on its content and the 
+    two tables may appear misaligned.
+    If "auto" (default), then the setting True is used only iff the Text object has both 
+    span layers and relation layers, so two layer tables will be displayed, and the setting 
+    False is used when there is only one layer table (or even zero tables) to be displayed.
+    '''
+    HTML_EQUAL_LAYER_TABLES_WIDTHS : bool | Literal["auto"] = "auto"
+
     def _repr_html_(self):
         if self.text is None:
             table = '<h4>Empty {} object</h4>'.format( self.__class__.__name__ )
@@ -391,7 +405,7 @@ class BaseText:
                 text = '{}\n\n<skipping {} characters>\n\n{}'.format(text[:8000],
                                                                      len(text) - 9000,
                                                                      text[-1000:])
-            text_html = '<div align = "left">' + html.escape(text).replace('\n', '</br>') + '</div>'
+            text_html = '<div style="text-align:left">' + html.escape(text).replace('\n', '</br>') + '</div>'
             df = pandas.DataFrame(columns=['text'], data=[text_html])
             table = df.to_html(index=False, escape=False)
 
@@ -420,7 +434,6 @@ class BaseText:
             layer_table = pandas.DataFrame()
             layer_table = pandas.concat([layer.get_overview_dataframe() for layer in layers])
             layer_table = layer_table.to_html(index=False, escape=False)
-            layer_table = '\n'.join(('', layer_table))
         if self._relation_layers:
             layers = []
             for layer_name in self._relation_layers:
@@ -429,7 +442,36 @@ class BaseText:
             relations_layer_table = pandas.DataFrame()
             relations_layer_table = pandas.concat([layer.get_overview_dataframe() for layer in layers])
             relations_layer_table = relations_layer_table.to_html(index=False, escape=False)
-            relations_layer_table = '\n'.join(('', relations_layer_table))
 
-        return ''.join((table, layer_table, relations_layer_table))
+        # Get the configuration about whether the two tables should be aligned
+        if not (isinstance(self.HTML_EQUAL_LAYER_TABLES_WIDTHS, bool) or \
+                self.HTML_EQUAL_LAYER_TABLES_WIDTHS == "auto"):
+            raise ValueError("HTML_EQUAL_LAYER_TABLES_WIDTHS should be True, False "+\
+                             f"or 'auto', not {self.HTML_EQUAL_LAYER_TABLES_WIDTHS!r}")
+        if self.HTML_EQUAL_LAYER_TABLES_WIDTHS == "auto":
+            _html_equal_layer_tables_widths = len(layer_table) > 0 and len(relations_layer_table) > 0 
+        else:
+            _html_equal_layer_tables_widths = self.HTML_EQUAL_LAYER_TABLES_WIDTHS
+
+        _TABLE_STYLE = 'width:100%; margin-left:0; margin-right:0;'
+
+        def _equal_width_table(html_table: str) -> str:
+            # pandas always emits '<table ...' first; replace only the first occurrence,
+            # so anything inside cells (e.g. escape=False layer overviews) is untouched
+            return html_table.replace('<table', '<table style="{}"'.format(_TABLE_STYLE), 1)
+
+        # render annotation tables
+        if _html_equal_layer_tables_widths:
+            # both tables will get equal width (100%) and will be horizontally aligned
+            annotation_tables_html = ''.join(['<div style="display:inline-block;">', \
+                _equal_width_table(layer_table), \
+                _equal_width_table(relations_layer_table), \
+            '</div>'])
+        else:
+            # table widths vary and tables may appear misaligned (rendering in older versions)
+            layer_table = '\n'.join(('', layer_table))
+            relations_layer_table = '\n'.join(('', relations_layer_table))
+            annotation_tables_html = ''.join([layer_table, relations_layer_table])
+
+        return ''.join((table, annotation_tables_html))
 
