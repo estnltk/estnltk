@@ -13,7 +13,9 @@ def find_layer_dependencies(text:'Text', layer:str, include_enveloping:bool =Tru
           parent relations.
        If include_relation_layers=False (default), then finds only dependency 
           layers among span layers and skips relation layers. Otherwise, relation
-          layers will be included.
+          layers will be included. Note that if the input layer is a relation 
+          layer, then include_relation_layers must also be switched on, otherwise 
+          the function raises ValueError about missing layer.
 
        Optionally, if reverse=True, then searches for reverse relations: given 
        a (parent) layer, find all layers that are depending on it (descendant
@@ -26,7 +28,9 @@ def find_layer_dependencies(text:'Text', layer:str, include_enveloping:bool =Tru
     if not include_enveloping and not include_parents:
         raise ValueError('(!) Unexpected configuration: '+
               'parameters include_enveloping and include_parents cannot be both False.')
-    if layer not in text.layers:
+    if layer not in text.layers and \
+       not (include_relation_layers and layer in text.relation_layers):
+        # The layer is not in span layers, and, with include_relation_layers set, neither in relation layers
         raise ValueError( '(!) Layer {!r} is missing from the given Text object.'.format(layer) )
     graph = nx.DiGraph()
     for layer_name in text.layers:

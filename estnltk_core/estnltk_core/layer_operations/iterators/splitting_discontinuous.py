@@ -16,6 +16,7 @@ from estnltk_core.common import create_text_object
 from estnltk_core.layer_operations.iterators.splitting_common import _check_layers_to_keep
 from estnltk_core.layer_operations.iterators.splitting_common import _resolve_keep_partial_relations
 from estnltk_core.layer_operations.iterators.splitting_common import _extract_relation_layer_section
+from estnltk_core.layer_operations.iterators.splitting_common import _get_sorted_named_base_spans
 
 from estnltk_core.layer_operations.layer_dependencies import find_layer_dependencies
 
@@ -330,7 +331,12 @@ def _split_by_discontinuous_layer(text: Union['Text', 'BaseText'], layer: str, l
     text: Union['Text', 'BaseText']
         text object which will be split
     layer: str
-        name of the discontinuous layer to split by
+        name of the discontinuous layer to split by. 
+        Must be an enveloping layer: either an enveloping span layer, or an 
+        enveloping relation layer. In case of a relation layer, the text is 
+        split by named spans of all relations: named spans are collected 
+        from all relations, sorted by text positions and duplicates are 
+        removed (see `_get_sorted_named_base_spans` for details). 
     layers_to_keep: List[str]
         list of layers (span layers and/or relation layers) to be kept 
         while splitting.
@@ -365,15 +371,24 @@ def _split_by_discontinuous_layer(text: Union['Text', 'BaseText'], layer: str, l
     Returns
     -------
     List[Union['Text', 'BaseText']]
-        list containing a `Text` object for every span in the `layer`.
+        list containing a `Text` object for every span in the `layer`; 
+        or, if the `layer` is a relation layer, for every unique named 
+        span in the `layer` (in the order of text positions).
     """
     if layers_to_keep is None:
         raise ValueError('(!) Unexpected None value for layers_to_keep. '+
                          'Please specify layers you need to keep while splitting.')
-    if isinstance(text[layer], RelationLayer):
-        raise NotImplementedError(f'(!) Spltting by RelationLayer ({layer!r}) is not implemented.')
+    layer_obj = text[layer]
+    if layer_obj.enveloping is None:
+        raise ValueError(f'(!) Cannot split discontinuously by layer {layer!r}: the layer must be enveloping.')
+    if isinstance(layer_obj, RelationLayer):
+        # Split by named spans of the relation layer: for each named span, 
+        # get raw text positions of all of its enveloped spans (sorted)
+        discontinuous_spans = [base_span.reduce(0) for base_span in _get_sorted_named_base_spans(layer_obj)]
+    else:
+        discontinuous_spans = layer_obj
     all_discontinuous_sections = []
-    for disc_layer_spans in text[layer]:
+    for disc_layer_spans in discontinuous_spans:
         # Group spans of the layer into discontinuous_sections
         discontinuous_sections = group_consecutive_spans(text.text, disc_layer_spans)
         all_discontinuous_sections.append( discontinuous_sections )

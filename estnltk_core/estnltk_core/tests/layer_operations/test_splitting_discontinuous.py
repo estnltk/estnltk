@@ -786,3 +786,134 @@ def test_split_by_split_discontinuous_parameter():
     with pytest.raises(ValueError):
         # split_discontinuous should be True, False or 'auto', not 'yes'
         split_by(text, 'clauses', split_discontinuous='yes')
+
+
+# ===================================================================
+#   Splitting by relation layers
+# ===================================================================
+
+def test_get_sorted_named_base_spans():
+    from estnltk_core import RelationLayer, ElementaryBaseSpan, EnvelopingBaseSpan
+    from estnltk_core.layer_operations.iterators.splitting_common import _get_sorted_named_base_spans
+    text = create_example_text_with_relations()
+    # Flat relation layer
+    # Keep only unique spans by default:  
+    # 'Mees', 'keda', 'kohtasime', 'oli', 'teretas', 'meid'
+    assert _get_sorted_named_base_spans(text['srl']) == \
+        [ElementaryBaseSpan(*loc) for loc in [(0, 4), (6, 10), (16, 25), (27, 30), (41, 48), (49, 53)]]
+    # Keep all spans (incl duplicates) with unique=False: 
+    # 'Mees', 'Mees', 'keda', 'kohtasime', 'oli', 'teretas', 'teretas', 'meid'
+    assert len(_get_sorted_named_base_spans(text['srl'], unique=False)) == 8
+    # Enveloping relation layer: spans with equal start are ordered by end
+    assert [[text.text[s:e] for (s, e) in bs.flatten()] for bs in _get_sorted_named_base_spans(text['deps'])] == \
+        [['Mees'], ['Mees', 'oli', 'tuttav'], ['keda', 'seal', 'kohtasime'], ['oli']]
+    # Order of relations and named spans does not matter
+    reversed_srl = RelationLayer('srl_rev', span_names=('arg', 'pred'), attributes=('role',), text_object=text)
+    for relation in reversed(list(text['srl'])):
+        reversed_srl.add_annotation(arg=relation['arg'].base_span, pred=relation['pred'].base_span,
+                                    role=relation.annotations[0]['role'])
+    text.add_layer(reversed_srl)
+    assert _get_sorted_named_base_spans(text['srl_rev']) == _get_sorted_named_base_spans(text['srl'])
+    # Empty layer
+    text.add_layer(RelationLayer('empty_rel', span_names=('a',), text_object=text))
+    assert _get_sorted_named_base_spans(text['empty_rel']) == []
+    import pytest
+    with pytest.raises(TypeError):
+        # f'(!) Expected RelationLayer, but got Layer.'
+        _get_sorted_named_base_spans(text['words'])
+
+
+def test_layers_to_keep_default_for_relation_layers():
+    from estnltk_core.layer_operations.iterators.splitting import layers_to_keep_default
+    text = create_example_text_with_relations()
+    # Splitting by a relation layer without dependencies only gives the input layer
+    assert layers_to_keep_default(text, 'srl') == {'srl'}
+    # Splitting by a relation layer with dependencies gives the input layer and corresponding dependencies
+    assert layers_to_keep_default(text, 'deps') == {'deps', 'words', 'morph_analysis'}
+
+
+def test_split_by_flat_relation_layer():
+    import pytest
+    from estnltk_core.layer_operations import split_by
+    from estnltk_core.layer_operations.iterators.splitting_discontinuous import _split_by_discontinuous_layer
+    text = create_example_text_with_relations()
+    # Splitting by a relation layer that has no dependencies
+    texts = split_by(text, 'srl')
+    assert [t.text for t in texts] == ['Mees', 'keda', 'kohtasime', 'oli', 'teretas', 'meid']
+    assert all(t.layers == set() and t.relation_layers == {'srl'} for t in texts)
+    # By default, trim_overlapping/keep_partial_relations are switched off, so relations 
+    # exceeding (named) span boundaries will be deleted
+    assert [len(t['srl']) for t in texts] == [0, 0, 0, 0, 0, 0]
+    # Relations with all named spans inside a section are carried over
+    #
+    # Original 'phrases':
+    #     [{'phrase': 'Mees, keda seal kohtasime, oli', 'id': 0}, 
+    #      {'phrase': 'tuttav', 'id': 1}]
+    #
+    texts = split_by(text, 'phrases', layers_to_keep=['words', 'srl', 'phrases'])
+    assert [t.text for t in texts] == ['Mees, keda seal kohtasime, oli', 'tuttav']
+    assert texts[0]['words'].text == ['Mees', ',', 'keda', 'seal', 'kohtasime', ',', 'oli']
+    assert texts[1]['words'].text == ['tuttav']
+    assert [len(t['srl']) for t in texts] == [2, 0]
+    assert [len(t['phrases']) for t in texts] == [1, 1]
+    # A flat relation layer cannot be split discontinuously
+    with pytest.raises(ValueError):
+        # (!) Cannot split discontinuously by layer 'srl': the layer must be enveloping.
+        split_by(text, 'srl', split_discontinuous=True)
+    with pytest.raises(ValueError):
+        # (!) Cannot split discontinuously by layer 'srl': the layer must be enveloping.
+        _split_by_discontinuous_layer(text, 'srl', layers_to_keep=['srl'])
+
+
+def test_split_by_enveloping_relation_layer():
+    from estnltk_core import RelationLayer
+    from estnltk_core.layer_operations import split_by
+    from estnltk_core.layer_operations.iterators.splitting_discontinuous import _split_by_discontinuous_layer
+    text = create_example_text_with_relations()
+    #
+    # Original 'deps':
+    #    [ ({'dep': ['Mees'], 'head': ['oli']}, 
+    #                         [{'deprel': 'nsubj'}, {'deprel': 'nsubj:cop'}]), 
+    #      ({'head': ['Mees'], 'dep': ['keda', 'seal', 'kohtasime']}, 
+    #                         [{'deprel': 'acl:relcl'}]), 
+    #      ({'head': ['Mees', 'oli', 'tuttav']}, 
+    #                         [{'deprel': 'phrase'}]) 
+    #    ]
+
+    # continuous sections (default for a layer without 'clauses' in its name)
+    texts = split_by(text, 'deps', layers_to_keep=['words', 'deps', 'srl'])
+    assert [t.text for t in texts] == ['Mees', 'Mees, keda seal kohtasime, oli tuttav', 'keda seal kohtasime', 'oli']
+    assert [len(t['deps']) for t in texts] == [0, 3, 0, 0]
+    assert [len(t['srl']) for t in texts] == [0, 2, 1, 0]
+    # discontinuous sections: the embedded clause is left out of the 2nd section
+    texts = split_by(text, 'deps', layers_to_keep=['words', 'deps', 'srl'], split_discontinuous=True)
+    assert [t.text for t in texts] == ['Mees', 'Mees oli tuttav', 'keda seal kohtasime', 'oli']
+    assert texts[1]['words'].text == ['Mees', 'oli', 'tuttav']
+    assert [len(t['deps']) for t in texts] == [0, 2, 0, 0]
+    assert [len(t['srl']) for t in texts] == [0, 1, 1, 0]
+    # keep_partial_relations
+    texts = split_by(text, 'deps', layers_to_keep=['words', 'deps'], split_discontinuous=True,
+                     keep_partial_relations=True)
+    assert [len(t['deps']) for t in texts] == [2, 3, 1, 1]
+    # default layers_to_keep
+    texts = split_by(text, 'deps', split_discontinuous=True)
+    assert [t.text for t in texts] == ['Mees', 'Mees oli tuttav', 'keda seal kohtasime', 'oli']
+    assert texts[1].layers == {'words', 'morph_analysis'}
+    assert texts[1].relation_layers == {'deps'}
+    # _split_by_discontinuous_layer directly
+    texts = _split_by_discontinuous_layer(text, 'deps', layers_to_keep=['words', 'deps'])
+    assert [t.text for t in texts] == ['Mees', 'Mees oli tuttav', 'keda seal kohtasime', 'oli']
+    # keep_partial_relations="auto": a relation layer with 'clauses' in its name is split discontinuously
+    clause_rels = RelationLayer('clauses_rel', span_names=('clause',), attributes=('clause_type',),
+                                enveloping='words', text_object=text)
+    for clause in text['clauses']:
+        clause_rels.add_annotation(clause=clause.base_span, clause_type=clause.annotations[0]['clause_type'])
+    text.add_layer(clause_rels)
+    texts = split_by(text, 'clauses_rel', layers_to_keep=['words', 'clauses_rel', 'srl'])
+    assert [t.text for t in texts] == ['Mees oli tuttav ja', ', keda seal kohtasime,', 'teretas meid.', '(sic!)']
+    assert [len(t['srl']) for t in texts] == [1, 1, 1, 0]
+    # ... which gives the same results as splitting by the clauses layer
+    clause_texts = split_by(text, 'clauses', layers_to_keep=['words', 'srl'])
+    assert [t.text for t in texts] == [t.text for t in clause_texts]
+    assert [t['words'] for t in texts] == [t['words'] for t in clause_texts]
+    assert [t['srl'] for t in texts] == [t['srl'] for t in clause_texts]

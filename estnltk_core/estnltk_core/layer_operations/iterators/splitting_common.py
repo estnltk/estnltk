@@ -12,7 +12,10 @@
 #   1) Functions `_check_layers_to_keep` and `_resolve_keep_partial_relations` 
 #      which are required to validate input parameters of `extract_sections` 
 #      and `extract_discontinuous_sections`;
-#   2) Functions `_map_flat_base_span`, `_extract_named_base_span`, and 
+#   2) Functions `_named_base_span_sort_key` and `_get_sorted_named_base_spans` 
+#      which are required for splitting by a relation layer in `split_by` and 
+#      `_split_by_discontinuous_layer`;
+#   3) Functions `_map_flat_base_span`, `_extract_named_base_span`, and 
 #      `_extract_relation_layer_section` which are required for extraction 
 #      of relation layers in `extract_sections` and 
 #      `extract_discontinuous_sections`;
@@ -40,9 +43,9 @@ def _check_layers_to_keep(text: Union['Text', 'BaseText'], layers_to_keep: Optio
         parent = layer_obj.parent if isinstance(layer_obj, BaseLayer) else None
         enveloping = layer_obj.enveloping
         if parent:
-            assert parent in layers_to_keep, 'parent of '+layer+' missing in layers_to keep: '+parent
+            assert parent in layers_to_keep, 'parent of '+layer+' missing in layers_to_keep: '+parent
         if enveloping:
-            assert enveloping in layers_to_keep, 'enveloping of '+layer+' missing in layers_to keep: '+enveloping
+            assert enveloping in layers_to_keep, 'enveloping of '+layer+' missing in layers_to_keep: '+enveloping
 
 
 def _resolve_keep_partial_relations(keep_partial_relations: Union[bool, Literal["auto"]],
@@ -56,6 +59,54 @@ def _resolve_keep_partial_relations(keep_partial_relations: Union[bool, Literal[
         # keep_partial_relations gets the value from trim_overlapping
         return trim_overlapping
     return keep_partial_relations
+
+
+def _named_base_span_sort_key(base_span: BaseSpan) -> Tuple:
+    """Sort key for base spans of named spans: orders spans by their start and
+    end positions, and spans with equal start and end positions by their raw
+    text positions. Unlike BaseSpan.__lt__, this key also allows to compare
+    base spans of different types / levels.
+    """
+    return (base_span.start, base_span.end, base_span.flatten())
+
+
+def _get_sorted_named_base_spans(layer: RelationLayer, unique: bool = True) -> List[BaseSpan]:
+    """Extracts base spans of all named spans of all relations of the relation
+    layer and returns them sorted by text positions.
+
+    RelationLayer does not define any fixed ordering of relations nor named
+    spans: relations are in the order of their insertion, and named spans of
+    a relation can be assigned in an arbitrary order. In order to split text
+    by a relation layer, named spans need to be ordered in the same way as
+    spans of a span layer: increasingly by their start and end positions (and
+    discontinuous spans with equal start and end by their raw text positions).
+
+    Parameters
+    ----------
+    layer: RelationLayer
+        relation layer which named spans will be extracted
+    unique: bool
+        If `True` (default), then each base span is returned only once, even if
+        it is a named span of several relations, or has several names in one
+        relation. This is analogous to a span layer, in which each base span
+        can have only one Span.
+        If `False`, then base spans of all named spans are returned, including
+        duplicates.
+
+    Returns
+    -------
+    List[BaseSpan]
+        list of base spans of named spans (ElementaryBaseSpan-s in case of a
+        non-enveloping relation layer, and EnvelopingBaseSpan-s in case of
+        an enveloping relation layer), sorted by text positions.
+    """
+    if not isinstance(layer, RelationLayer):
+        raise TypeError(f'(!) Expected RelationLayer, but got {type(layer)}.')
+    base_spans = [named_span.base_span for relation in layer for named_span in relation.spans]
+    if unique:
+        # Remove duplicates (keeps the first occurrence)
+        base_spans = list(dict.fromkeys(base_spans))
+    return sorted(base_spans, key=_named_base_span_sort_key)
 
 
 def _map_flat_base_span(span_start: int,
