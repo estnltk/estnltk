@@ -384,9 +384,9 @@ class BaseText:
 
     '''
     Whether tables describing annotation layers (span layers table and relation layers 
-    table) of the Text object will have equal widths in its HTML rendering. 
+    table) of the Text object will have equal widths in Text object's HTML rendering. 
     If True, then tables will both get equal width (100%) and are placed within inline-block
-    div wrapper, as a result, the tables will appear horizontally aligned in the the HTML 
+    div wrapper, as a result, the tables will appear horizontally aligned in the HTML 
     rendering. 
     If False, then the length of each table is variable depending on its content and the 
     two tables may appear misaligned.
@@ -443,7 +443,7 @@ class BaseText:
             relations_layer_table = pandas.concat([layer.get_overview_dataframe() for layer in layers])
             relations_layer_table = relations_layer_table.to_html(index=False, escape=False)
 
-        # Get the configuration about whether the two tables should be aligned
+        # Get the configuration about whether the two layer tables should be aligned
         if not (isinstance(self.HTML_EQUAL_LAYER_TABLES_WIDTHS, bool) or \
                 self.HTML_EQUAL_LAYER_TABLES_WIDTHS == "auto"):
             raise ValueError("HTML_EQUAL_LAYER_TABLES_WIDTHS should be True, False "+\
@@ -460,7 +460,7 @@ class BaseText:
             # so anything inside cells (e.g. escape=False layer overviews) is untouched
             return html_table.replace('<table', '<table style="{}"'.format(_TABLE_STYLE), 1)
 
-        # render annotation tables
+        # render layer tables
         if _html_equal_layer_tables_widths:
             # both tables will get equal width (100%) and will be horizontally aligned
             annotation_tables_html = ''.join(['<div style="display:inline-block;">', \
