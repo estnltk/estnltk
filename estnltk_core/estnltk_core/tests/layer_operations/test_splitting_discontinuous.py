@@ -793,19 +793,20 @@ def test_split_by_split_discontinuous_parameter():
 # ===================================================================
 
 def test_get_sorted_named_base_spans():
+    # Test _get_sorted_named_base_spans ( without named_span labels )
     from estnltk_core import RelationLayer, ElementaryBaseSpan, EnvelopingBaseSpan
     from estnltk_core.layer_operations.iterators.splitting_common import _get_sorted_named_base_spans
     text = create_example_text_with_relations()
     # Flat relation layer
     # Keep only unique spans by default:  
     # 'Mees', 'keda', 'kohtasime', 'oli', 'teretas', 'meid'
-    assert _get_sorted_named_base_spans(text['srl']) == \
+    assert _get_sorted_named_base_spans(text['srl'], add_labels=False) == \
         [ElementaryBaseSpan(*loc) for loc in [(0, 4), (6, 10), (16, 25), (27, 30), (41, 48), (49, 53)]]
     # Keep all spans (incl duplicates) with unique=False: 
     # 'Mees', 'Mees', 'keda', 'kohtasime', 'oli', 'teretas', 'teretas', 'meid'
-    assert len(_get_sorted_named_base_spans(text['srl'], unique=False)) == 8
+    assert len(_get_sorted_named_base_spans(text['srl'], unique=False, add_labels=False)) == 8
     # Enveloping relation layer: spans with equal start are ordered by end
-    assert [[text.text[s:e] for (s, e) in bs.flatten()] for bs in _get_sorted_named_base_spans(text['deps'])] == \
+    assert [[text.text[s:e] for (s, e) in bs.flatten()] for bs in _get_sorted_named_base_spans(text['deps'], add_labels=False)] == \
         [['Mees'], ['Mees', 'oli', 'tuttav'], ['keda', 'seal', 'kohtasime'], ['oli']]
     # Order of relations and named spans does not matter
     reversed_srl = RelationLayer('srl_rev', span_names=('arg', 'pred'), attributes=('role',), text_object=text)
@@ -813,14 +814,15 @@ def test_get_sorted_named_base_spans():
         reversed_srl.add_annotation(arg=relation['arg'].base_span, pred=relation['pred'].base_span,
                                     role=relation.annotations[0]['role'])
     text.add_layer(reversed_srl)
-    assert _get_sorted_named_base_spans(text['srl_rev']) == _get_sorted_named_base_spans(text['srl'])
+    assert _get_sorted_named_base_spans(text['srl_rev'], add_labels=False) == \
+           _get_sorted_named_base_spans(text['srl'], add_labels=False)
     # Empty layer
     text.add_layer(RelationLayer('empty_rel', span_names=('a',), text_object=text))
-    assert _get_sorted_named_base_spans(text['empty_rel']) == []
+    assert _get_sorted_named_base_spans(text['empty_rel'], add_labels=False) == []
     import pytest
     with pytest.raises(TypeError):
         # f'(!) Expected RelationLayer, but got Layer.'
-        _get_sorted_named_base_spans(text['words'])
+        _get_sorted_named_base_spans(text['words'], add_labels=False)
 
 
 def test_layers_to_keep_default_for_relation_layers():
@@ -917,3 +919,93 @@ def test_split_by_enveloping_relation_layer():
     assert [t.text for t in texts] == [t.text for t in clause_texts]
     assert [t['words'] for t in texts] == [t['words'] for t in clause_texts]
     assert [t['srl'] for t in texts] == [t['srl'] for t in clause_texts]
+
+
+def test_get_sorted_named_spans_with_labels():
+    # Test _get_sorted_named_base_spans with named_span labels ( add_labels=True )
+    from estnltk_core import RelationLayer, ElementaryBaseSpan
+    from estnltk_core.layer_operations.iterators.splitting_common import _get_sorted_named_base_spans
+    text = create_example_text_with_relations()
+    # Relations of 'srl' (span_names: pred, arg):
+    #  0: oli -> Mees;  1: kohtasime -> keda;  2: teretas -> meid;  3: teretas -> Mees
+    result = _get_sorted_named_base_spans(text['srl'], add_labels=True)
+    assert [(text.text[bs.start:bs.end], labels) for bs, labels in result] == \
+        [('Mees', ['arg_0', 'arg_3']), ('keda', ['arg_1']), ('kohtasime', ['pred_1']),
+         ('oli', ['pred_0']), ('teretas', ['pred_2', 'pred_3']), ('meid', ['arg_2'])]
+    # unique=False: one label per base span, duplicates in the order of relations
+    result = _get_sorted_named_base_spans(text['srl'], unique=False, add_labels=True)
+    assert [(text.text[bs.start:bs.end], labels) for bs, labels in result] == \
+        [('Mees', ['arg_0']), ('Mees', ['arg_3']), ('keda', ['arg_1']), ('kohtasime', ['pred_1']),
+         ('oli', ['pred_0']), ('teretas', ['pred_2']), ('teretas', ['pred_3']), ('meid', ['arg_2'])]
+    # Enveloping relation layer (span_names: head, dep)
+    result = _get_sorted_named_base_spans(text['deps'], add_labels=True)
+    assert [([text.text[s:e] for (s, e) in bs.flatten()], labels) for bs, labels in result] == \
+        [(['Mees'], ['dep_0', 'head_1']), (['Mees', 'oli', 'tuttav'], ['head_2']),
+         (['keda', 'seal', 'kohtasime'], ['dep_1']), (['oli'], ['head_0'])]
+    # Labels of one relation follow the order of span_names, not the order of assignment
+    self_rel = RelationLayer('self_rel', span_names=('a', 'b'), text_object=text)
+    self_rel.add_annotation(b=(0, 4), a=(0, 4))
+    text.add_layer(self_rel)
+    assert _get_sorted_named_base_spans(text['self_rel'], add_labels=True) == \
+            [(ElementaryBaseSpan(0, 4), ['a_0', 'b_0'])]
+    # Labels can be resolved back to named spans
+    for base_span, labels in _get_sorted_named_base_spans(text['srl'], add_labels=True):
+        for label in labels:
+            span_name, relation_id = label.rsplit('_', 1)
+            assert text['srl'][int(relation_id)][span_name].base_span == base_span
+
+
+def test_split_by_relation_layer_named_spans_meta():
+    from estnltk_core import RelationLayer
+    from estnltk_core.layer_operations import split_by
+    from estnltk_core.layer_operations.iterators.splitting_discontinuous import _split_by_discontinuous_layer
+    from estnltk_core.converters import text_to_json, json_to_text
+    text = create_example_text_with_relations()
+    # Flat relation layer
+    texts = split_by(text, 'srl')
+    assert [(t.text, t.meta) for t in texts] == \
+        [('Mees', {'named_spans': ['arg_0', 'arg_3']}), ('keda', {'named_spans': ['arg_1']}),
+         ('kohtasime', {'named_spans': ['pred_1']}), ('oli', {'named_spans': ['pred_0']}),
+         ('teretas', {'named_spans': ['pred_2', 'pred_3']}), ('meid', {'named_spans': ['arg_2']})]
+    texts = split_by(text, 'phrases', layers_to_keep=['phrases'])
+    assert [t.meta['named_spans'] for t in texts] == [['phrase_0'], ['phrase_1']]
+    #
+    # Original 'deps':
+    #    [ ({'dep': ['Mees'], 'head': ['oli']},                                  # 0
+    #                         [{'deprel': 'nsubj'}, {'deprel': 'nsubj:cop'}]),
+    #      ({'head': ['Mees'], 'dep': ['keda', 'seal', 'kohtasime']},            # 1
+    #                         [{'deprel': 'acl:relcl'}]),
+    #      ({'head': ['Mees', 'oli', 'tuttav']},                                 # 2
+    #                         [{'deprel': 'phrase'}])
+    #    ]
+    #
+    # Enveloping relation layer: continuous and discontinuous sections
+    expected_meta = [['dep_0', 'head_1'], ['head_2'], ['dep_1'], ['head_0']]
+    for split_discontinuous in [False, True]:
+        texts = split_by(text, 'deps', split_discontinuous=split_discontinuous)
+        assert [t.meta['named_spans'] for t in texts] == expected_meta
+        if not split_discontinuous:
+            assert [t.text for t in texts] == \
+                ['Mees', 'Mees, keda seal kohtasime, oli tuttav', 'keda seal kohtasime', 'oli']
+        else:
+            assert [t.text for t in texts] == \
+                ['Mees', 'Mees oli tuttav', 'keda seal kohtasime', 'oli']
+    texts = _split_by_discontinuous_layer(text, 'deps', layers_to_keep=['words', 'deps'])
+    assert [t.meta['named_spans'] for t in texts] == expected_meta
+    # "auto" + 'clauses' in the layer name
+    clause_rels = RelationLayer('clauses_rel', span_names=('clause',), enveloping='words', text_object=text)
+    for clause in text['clauses']:
+        clause_rels.add_annotation(clause=clause.base_span)
+    text.add_layer(clause_rels)
+    texts = split_by(text, 'clauses_rel')
+    assert [(t.text, t.meta) for t in texts] == \
+        [('Mees oli tuttav ja', {'named_spans': ['clause_0']}),
+         (', keda seal kohtasime,', {'named_spans': ['clause_1']}),
+         ('teretas meid.', {'named_spans': ['clause_2']}),
+         ('(sic!)', {'named_spans': ['clause_3']})]
+    # 'named spans' in meta survives serialisation
+    assert all(json_to_text(text_to_json(t)) == t for t in texts)
+    # Original text's meta is not changed, and span layers do not add the meta key
+    assert text.meta == {}
+    assert all(t.meta == {} for t in split_by(text, 'clauses'))
+    assert all(t.meta == {} for t in split_by(text, 'sentences'))

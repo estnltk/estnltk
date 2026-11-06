@@ -70,9 +70,21 @@ def _named_base_span_sort_key(base_span: BaseSpan) -> Tuple:
     return (base_span.start, base_span.end, base_span.flatten())
 
 
-def _get_sorted_named_base_spans(layer: RelationLayer, unique: bool = True) -> List[BaseSpan]:
-    """Extracts base spans of all named spans of all relations of the relation
-    layer and returns them sorted by text positions.
+def _named_span_label(span_name: str, relation_id: int) -> str:
+    """Returns label of a named span in format `f'{span_name}_{relation_id}'`,
+    where `relation_id` is the index of the relation in the RelationLayer.
+    """
+    return f'{span_name}_{relation_id}'
+
+
+def _get_sorted_named_base_spans(layer: RelationLayer, 
+                                 unique: bool = True, 
+                                 add_labels: bool = True) -> \
+                                        Union[List[Tuple[BaseSpan, List[str]]], List[BaseSpan]]:
+    """Extracts base spans of all named spans of all relations of the relation 
+    layer and returns them sorted by text positions. Optionally, can also 
+    return named spans' text positions along with the labels of the named 
+    spans covering each position (see parameter `add_labels`).
 
     RelationLayer does not define any fixed ordering of relations nor named
     spans: relations are in the order of their insertion, and named spans of
@@ -86,27 +98,60 @@ def _get_sorted_named_base_spans(layer: RelationLayer, unique: bool = True) -> L
     layer: RelationLayer
         relation layer which named spans will be extracted
     unique: bool
-        If `True` (default), then each base span is returned only once, even if
-        it is a named span of several relations, or has several names in one
+        If `True` (default), then each base span is returned only once, even 
+        if it is a named span of several relations, or has several names in one
         relation. This is analogous to a span layer, in which each base span
-        can have only one Span.
-        If `False`, then base spans of all named spans are returned, including
-        duplicates.
-
+        can have only one Span. 
+        If `False`, then base spans of all named spans are returned, including 
+        duplicates. 
+    add_labels: bool
+        If `True` (default), then returns list of pairs `(base_span, labels)` 
+        sorted by text positions of base spans; otherwise returns list of 
+        `base_span`-s. 
+        Labels of named spans follow the format `f'{span_name}_{relation_id}'`, 
+        where `span_name` is the name of the named span and `relation_id` is 
+        the index of its relation in the RelationLayer. For instance, label 
+        'arg_3' refers to the named span `relation_layer[3]['arg']`. 
+        If `unique==True`, then labels of all named spans sharing the base 
+        span are listed with the base span: in the order of relations, and, 
+        within a relation, in the order of the layer's `span_names`. If 
+        `unique==False`, then each labels list will contain exactly one label. 
+    
     Returns
     -------
-    List[BaseSpan]
-        list of base spans of named spans (ElementaryBaseSpan-s in case of a
-        non-enveloping relation layer, and EnvelopingBaseSpan-s in case of
-        an enveloping relation layer), sorted by text positions.
+    Union[List[Tuple[BaseSpan, List[str]]], List[BaseSpan]]
+        If `add_labels==True` (default), then returns list of pairs 
+        `(base_span, labels)`, sorted by text positions of base spans. 
+        Otherwise, returns list of `base_span`-s sorted by text positions. 
+        Base spans are ElementaryBaseSpan-s in case of a non-enveloping relation 
+        layer, and EnvelopingBaseSpan-s in case of an enveloping relation layer. 
     """
     if not isinstance(layer, RelationLayer):
         raise TypeError(f'(!) Expected RelationLayer, but got {type(layer)}.')
-    base_spans = [named_span.base_span for relation in layer for named_span in relation.spans]
+    span_name_order = {span_name: i for i, span_name in enumerate(layer.span_names)}
+    spans_with_labels = []
+    for relation_id, relation in enumerate(layer):
+        # Order named spans of the relation by layer's span_names
+        named_spans = sorted(relation.spans, key=lambda ns: span_name_order.get(ns.name, len(span_name_order)))
+        for named_span in named_spans:
+            spans_with_labels.append( (named_span.base_span, [_named_span_label(named_span.name, relation_id)]) )
     if unique:
-        # Remove duplicates (keeps the first occurrence)
-        base_spans = list(dict.fromkeys(base_spans))
-    return sorted(base_spans, key=_named_base_span_sort_key)
+        # Merge duplicates (keeps the position of the first occurrence)
+        merged = {}
+        for base_span, labels in spans_with_labels:
+            if base_span in merged:
+                merged[base_span].extend(labels)
+            else:
+                merged[base_span] = labels
+        spans_with_labels = list(merged.items())
+    # Note: sorting is stable, so duplicate base spans (if unique=False) 
+    # remain in the order of relations
+    sorted_spans_with_labels = \
+        sorted(spans_with_labels, key=lambda pair: _named_base_span_sort_key(pair[0]))
+    if add_labels:
+        return sorted_spans_with_labels
+    else:
+        return [base_span for base_span, _ in sorted_spans_with_labels]
 
 
 def _map_flat_base_span(span_start: int,

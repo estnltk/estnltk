@@ -373,7 +373,12 @@ def _split_by_discontinuous_layer(text: Union['Text', 'BaseText'], layer: str, l
     List[Union['Text', 'BaseText']]
         list containing a `Text` object for every span in the `layer`; 
         or, if the `layer` is a relation layer, for every unique named 
-        span in the `layer` (in the order of text positions).
+        span in the `layer` (in the order of text positions). 
+        In case of a relation layer, each `Text` object gets meta key 
+        'named_spans' listing labels of all named spans that were origins 
+        of the section. Labels follow the format `f'{span_name}_{relation_id}'`, 
+        where `relation_id` is the index of the relation in the `layer`, e.g. 
+        label 'arg_3' refers to the named span `text[layer][3]['arg']`.
     """
     if layers_to_keep is None:
         raise ValueError('(!) Unexpected None value for layers_to_keep. '+
@@ -381,11 +386,15 @@ def _split_by_discontinuous_layer(text: Union['Text', 'BaseText'], layer: str, l
     layer_obj = text[layer]
     if layer_obj.enveloping is None:
         raise ValueError(f'(!) Cannot split discontinuously by layer {layer!r}: the layer must be enveloping.')
+    section_labels = None
     if isinstance(layer_obj, RelationLayer):
         # Split by named spans of the relation layer: for each named span, 
         # get raw text positions of all of its enveloped spans (sorted)
-        discontinuous_spans = [base_span.reduce(0) for base_span in _get_sorted_named_base_spans(layer_obj)]
+        spans_with_labels = _get_sorted_named_base_spans(layer_obj, add_labels=True)
+        discontinuous_spans = [base_span.reduce(0) for base_span, _ in spans_with_labels]
+        section_labels = [labels for _, labels in spans_with_labels]
     else:
+        # Split by a span layer
         discontinuous_spans = layer_obj
     all_discontinuous_sections = []
     for disc_layer_spans in discontinuous_spans:
@@ -410,9 +419,15 @@ def _split_by_discontinuous_layer(text: Union['Text', 'BaseText'], layer: str, l
                 assert a_end <= b_start or b_end <= a_start, \
                    '(!) Conflicting spans {!r} and {!r}'.format(spanA, spanB)
     # Extract discontinuous sections
-    return extract_discontinuous_sections(text, all_discontinuous_sections, \
-                                          layers_to_keep, trim_overlapping, 
-                                          keep_partial_relations=keep_partial_relations)
+    section_texts = extract_discontinuous_sections(text, all_discontinuous_sections, \
+                                                   layers_to_keep, trim_overlapping, 
+                                                   keep_partial_relations=keep_partial_relations)
+    if section_labels is not None:
+        # Record origins of the sections (in case of splitting by a relation layer)
+        assert len(section_texts) == len(section_labels)
+        for section_text, labels in zip(section_texts, section_labels):
+            section_text.meta['named_spans'] = labels
+    return section_texts
 
 
 

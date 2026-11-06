@@ -256,7 +256,12 @@ def split_by(text: Union['Text', 'BaseText'], layer: str, layers_to_keep: Sequen
     List[Union['Text', 'BaseText']]
          list containing a `Text` object for every span in the `layer`; 
          or, if the `layer` is a relation layer, for every unique named 
-         span in the `layer` (in the order of text positions).
+         span in the `layer` (in the order of text positions). 
+         In case of a relation layer, each `Text` object gets meta key 
+         'named_spans' listing labels of all named spans that were origins 
+         of the section. Labels follow the format `f'{span_name}_{relation_id}'`, 
+         where `relation_id` is the index of the relation in the `layer`, e.g. 
+         label 'arg_3' refers to the named span `text[layer][3]['arg']`.
 
     """
     if not (isinstance(split_discontinuous, bool) or split_discontinuous == "auto"):
@@ -277,9 +282,16 @@ def split_by(text: Union['Text', 'BaseText'], layer: str, layers_to_keep: Sequen
                                                    keep_partial_relations=keep_partial_relations )
     if isinstance(layer_obj, RelationLayer):
         # Split by named spans of the relation layer
-        sections = [(base_span.start, base_span.end) for base_span in _get_sorted_named_base_spans(layer_obj)]
-    else:
-        sections = [(span.start, span.end) for span in layer_obj]
+        spans_with_labels = _get_sorted_named_base_spans(layer_obj, add_labels=True)
+        sections = [(base_span.start, base_span.end) for base_span, _ in spans_with_labels]
+        section_texts = extract_sections(text, sections, layers_to_keep, trim_overlapping, keep_partial_relations)
+        # Record origins of the sections
+        assert len(section_texts) == len(spans_with_labels)
+        for section_text, (_, labels) in zip(section_texts, spans_with_labels):
+            section_text.meta['named_spans'] = labels
+        return section_texts
+    # Split by span layer
+    sections = [(span.start, span.end) for span in layer_obj]
     return extract_sections(text, sections, layers_to_keep, trim_overlapping, keep_partial_relations)
 
 
