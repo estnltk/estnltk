@@ -74,25 +74,48 @@ def table_identifier(storage, table_name):
     return SQL('{}.{}').format(Identifier(storage.schema), identifier)
 
 
-def table_exists(storage, table_name, omit_commit: bool=False, omit_rollback: bool=False):
-    if storage.temporary:
-        raise NotImplementedError("don't know how to check existence of temporary table: {!r}".format(table_name))
-    if not omit_rollback:
-        if storage.conn.info.transaction_status == TRANSACTION_STATUS_INERROR:
-            # rollback an aborted transaction, so that a new one can be started. 
-            # this removes "psycopg2.errors.InFailedSqlTransaction: current transaction 
-            # is aborted, commands ignored until end of transaction block"
-            storage.conn.rollback()
-    return_value = False
+"""
+Which kinds of relations represent tables in `pg_catalog.pg_class`?
+`'r'` -- ordinary table; `'p'` -- partitioned table (logically one table 
+but physically split into several smaller tables);
+"""
+TABLE_RELKINDS = ('r', 'p')
+"""
+Which kinds of relations represent views in `pg_catalog.pg_class`?
+`'v'` -- ordinary view; `'m'` -- materialized view (view that persists the 
+results in a table-like form);
+"""
+VIEW_RELKINDS  = ('v',) # plain views only; 'm' (materialized) is excluded
+
+def get_relation_kinds(storage, relation_names, omit_commit=False, omit_rollback=False):
+    """Maps existing relations of storage.schema to pg_class.relkind; missing ones are absent. 
+       Use this function to detect types of relations (ordinary table, view etc).
+    """
+    if not omit_rollback and storage.conn.info.transaction_status == TRANSACTION_STATUS_INERROR:
+        # rollback an aborted transaction, so that a new one can be started. 
+        # this removes "psycopg2.errors.InFailedSqlTransaction: current transaction 
+        # is aborted, commands ignored until end of transaction block"
+        storage.conn.rollback()
     with storage.conn.cursor() as c:
-        c.execute(SQL("SELECT EXISTS (SELECT 1 FROM pg_tables WHERE schemaname = {} AND tablename = {});"
-                      ).format(Literal(storage.schema), Literal(table_name))
-                  )
-        return_value = c.fetchone()[0]
+        c.execute(SQL("SELECT c.relname, c.relkind FROM pg_catalog.pg_class c "
+                      "JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace "
+                      "WHERE n.nspname = {} AND c.relname = ANY({});"
+                      ).format(Literal(storage.schema), Literal(list(relation_names))))
+        kinds = dict(c.fetchall())
     if not omit_commit:
         # make a commit to avoid 'idle in transaction' status
         storage.conn.commit()
-    return return_value
+    return kinds
+
+
+def table_exists(storage, table_name, omit_commit: bool=False, omit_rollback: bool=False, relkinds=None):
+    if storage.temporary:
+        raise NotImplementedError("don't know how to check existence of temporary table: {!r}".format(table_name))
+    if relkinds is None:
+        # Detect whether the current schema is ordinary (table_based) or view_based?
+        relkinds = VIEW_RELKINDS if getattr(storage, 'view_based', False) else TABLE_RELKINDS
+    current_kinds = get_relation_kinds(storage, [table_name], omit_commit, omit_rollback)
+    return current_kinds.get(table_name) in relkinds
 
 
 def get_all_table_names(storage, omit_commit: bool=False):
