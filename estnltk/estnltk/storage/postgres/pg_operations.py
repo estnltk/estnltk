@@ -121,14 +121,15 @@ def table_exists(storage, table_name, omit_commit: bool=False, omit_rollback: bo
     return current_kinds.get(table_name) in relkinds
 
 
-def get_all_table_names(storage, omit_commit: bool=False):
+def get_all_table_names(storage, omit_commit: bool=False, view_based: bool=False):
     if storage.closed():
         return None
     table_names = []
+    table_type = 'BASE TABLE' if not view_based else 'VIEW'
     with storage.conn.cursor() as c:
         c.execute(SQL(
-            "SELECT table_name FROM information_schema.tables WHERE table_schema=%s AND table_type='BASE TABLE'"),
-            [storage.schema])
+            "SELECT table_name FROM information_schema.tables WHERE table_schema=%s AND table_type=%s"),
+            [storage.schema, table_type])
         table_names = [row[0] for row in c.fetchall()]
     if not omit_commit:
         # make a commit to avoid 'idle in transaction' status
