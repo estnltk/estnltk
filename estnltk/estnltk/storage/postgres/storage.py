@@ -19,11 +19,16 @@ from estnltk.storage.postgres import get_total_size
 from estnltk.storage.postgres import check_collection_name
 from estnltk.storage import postgres as pg
 
+from estnltk.storage.postgres.pg_operations import get_relation_kinds
+from estnltk.storage.postgres.pg_operations import TABLE_RELKINDS
+from estnltk.storage.postgres.pg_operations import VIEW_RELKINDS
 
 
 class PgStorageException(Exception):
     pass
 
+class PgReadOnlyStorageException(PgStorageException):
+    pass
 
 class PostgresStorage:
     """
@@ -101,8 +106,13 @@ class PostgresStorage:
                 raise PgStorageException(schema_error_msg)
 
         self._collections = pg.StorageCollections(self)
-        # Create storage_collections table (if missing)
-        if not pg.table_exists( self, '__collections' ):
+        self._view_based = False   # before any table_exists call
+        
+        # Check for the existence of the storage_collections table
+        # It can be a table or a view
+        any_kind = TABLE_RELKINDS + VIEW_RELKINDS
+        if not pg.table_exists( self, '__collections', relkinds=any_kind ):
+            # Create storage_collections table (if missing)
             try:
                 temporary = SQL('TEMPORARY') if temporary else SQL('')
                 with self.conn.cursor() as c:
@@ -118,11 +128,12 @@ class PostgresStorage:
                 logger.error(table_creation_error_msg)
                 raise PgStorageException(table_creation_error_msg) from table_creation_error
             self.conn.commit()
-        # Load the collections table to get the latest status
-        # (otherwise user needs to manually call refresh())
-        self._collections.load()
-        
-        logger.info('schema: {!r}, temporary: {!r}, role: {!r}'.format(self.schema, self.temporary, role))
+        # Load the collections table to get the latest status 
+        # (otherwise user needs to manually call refresh()), and 
+        # detect the schema type (table-based or view-based?) 
+        self.refresh()
+        logger.info('schema: {!r}, view-based: {!r}, temporary: {!r}, role: {!r}'.format( \
+                        self.schema, self._view_based, self.temporary, role))
 
     def refresh(self, omit_commit: bool=False, omit_rollback: bool=False):
         """Reloads table of collections of this storage. 
@@ -138,8 +149,43 @@ class PostgresStorage:
         to an error, this function also makes a rollback, and starts 
         a new transaction. If you need to discard that behaviour, 
         set omit_rollback=True.
+        
+        In addition, detects the schema type: whether this schema 
+        is view-based (all collections are views) or not (all 
+        collections are tables). 
         """
         self._collections.load(omit_commit=omit_commit, omit_rollback=omit_rollback)
+        self._detect_schema_type(omit_commit=omit_commit, omit_rollback=omit_rollback)
+
+    def _detect_schema_type(self, omit_commit=False, omit_rollback=False):
+        """Checks table types of collections of this storage and determines 
+        whether this schema is a view-based schema. 
+        The schema is view-based iff: a) all of the tables listed in '__collections' 
+        are views, b) '__collections' is an empty view. 
+        If the '__collections' mixes tables and views, an exception will be thrown. 
+        Also, if '__collections' lists unexpected types of items (e.g. sequences or 
+        indexes), an exception will be thrown. 
+        Enables/disables readonly mode of this session based on whether the schema 
+        is view-based or not. 
+        """
+        kinds = get_relation_kinds(self, ['__collections', *self._collections],
+                                         omit_commit=omit_commit, omit_rollback=omit_rollback)
+        collections_is_view = kinds.get('__collections') in VIEW_RELKINDS
+        kinds.pop('__collections', None)
+        views  = sorted(n for n, k in kinds.items() if k in VIEW_RELKINDS)
+        tables = sorted(n for n, k in kinds.items() if k in TABLE_RELKINDS)
+        other  = sorted(set(kinds) - set(views) - set(tables))
+        if other:
+            raise PgStorageException(f'(!) unsupported relation type for collections {other!r}')
+        if views and tables:
+            raise PgStorageException(f'(!) schema {self.schema!r} mixes view-based collections {views!r} '+\
+                                     f'with table-based collections {tables!r}')
+        self._view_based = bool(views)
+        if len(kinds) == 0 and collections_is_view:
+            # an empty __collections view ==> schema is also view-based
+            self._view_based = True
+        if not omit_commit:  # no transaction is open here
+            self.conn.set_session(readonly=self._view_based)
 
     def close(self):
         """Closes database connection."""
@@ -366,6 +412,25 @@ class PostgresStorage:
                                             collection_name, deletion_err)) from deletion_err
         self.refresh()
 
+    def assert_writable(self, operation: str):
+        '''Soft assertion that this schema is writable. 
+        If this schema is view-based, then raises PgReadOnlyStorageException informing that 
+        the given operation is not possible (because writing is not implemented for view-based 
+        schemas). Has no effect in a table-based schema. 
+        Note that regardless of whether the schema is view-based or not, readability/writability 
+        should be controlled at the database level, by assigning privileges to roles. 
+        '''
+        if self._view_based:
+            raise PgReadOnlyStorageException(
+                f'(!) Cannot {operation}: schema {self.schema!r} is view-based and therefore read-only.')
+
+    @property
+    def view_based(self):
+        '''Is this schema view-based? In a view-based schema, all collections are views 
+           and always read-only. Otherwise, all collections of the schema are tables, and 
+           writability depends on the role privileges assigned at the database level. 
+        '''
+        return self._view_based
 
     def __setitem__(self, name: str, collection: pg.PgCollection):
         error_msg = '(!) Cannot assign collection via index operator. '+\
@@ -382,22 +447,22 @@ class PostgresStorage:
         self.delete_collection(collection_name)
 
     def __str__(self):
-        return '{self.__class__.__name__}({self.conn.dsn} schema={self.schema} temporary={self.temporary})'.format(
-                self=self)
+        return ('{self.__class__.__name__}({self.conn.dsn} schema={self.schema} '
+                'view_based={self.view_based} temporary={self.temporary})').format(self=self)
 
     def _repr_html_(self):
         self.refresh()
 
         bisect_left = bisect.bisect_left
 
-        tables = pg.get_all_tables(self)
+        tables = pg.get_all_tables(self, view_based=self.view_based)
         table_names = sorted(tables)
         structure = {}
         missing_collections = []
         for collection in self.collections:
             index = bisect_left(table_names, collection)
 
-            if table_names[index] != collection:
+            if table_names[index] != collection or index >= len(table_names):
                 missing_collections.append(collection)
 
             version = self._collections.collections[collection]['version']
@@ -405,15 +470,21 @@ class PostgresStorage:
                 table = table_names[i]
                 table_name_parts = table.split('__')
                 if table_name_parts[0] == collection:
+                    if self.view_based:
+                        # In a view-based schema, 'total_size' and 'rows' are always None
+                        del tables[table]['total_size']
+                        del tables[table]['rows']
                     structure[(collection, version, table[len(collection):].lstrip('_'))] = tables[table]
                 else:
                     break
 
         if structure:
-            # Add total size over all collections
-            size_bytes, size_str = get_total_size( self )
-            structure[(f'TOTAL SIZE ({self.schema})', '', '')] = {'total_size': size_str, 'comment': '', 'rows': ''}
-            df = pandas.DataFrame.from_dict(structure, orient='index', columns=['rows', 'total_size', 'comment'])
+            if not self.view_based:
+                # Add total size over all collections
+                size_bytes, size_str = get_total_size( self )
+                structure[(f'TOTAL SIZE ({self.schema})', '', '')] = {'total_size': size_str, 'comment': '', 'rows': ''}
+            columns = ['rows', 'total_size', 'comment'] if not self.view_based else ['comment']
+            df = pandas.DataFrame.from_dict(structure, orient='index', columns=columns)
             df.index.names = ('collection', 'version', 'relations')
             collection_tables = df.to_html()
         else:
@@ -424,6 +495,7 @@ class PostgresStorage:
             missing = ('\n There are collections listed in the __collections table '
                        'without tables in the database: {}').format(missing_collections)
         return ('<b>{self.__class__.__name__}</b><br/>\n{self.conn.dsn} schema={self.schema}<br/>'
+                'view_based={self.view_based}<br/>\n'
                 'temporary={self.temporary}<br/>\n'
                 'collection count: {count}\n'
                 '{collections}'

@@ -75,15 +75,18 @@ def table_identifier(storage, table_name):
 
 
 """
-Which kinds of relations represent tables in `pg_catalog.pg_class`?
+Relation kinds used in a table-based schema. 
+These labels represent table relations in `pg_catalog.pg_class`: 
 `'r'` -- ordinary table; `'p'` -- partitioned table (logically one table 
-but physically split into several smaller tables);
+but physically split into several smaller tables). 
 """
 TABLE_RELKINDS = ('r', 'p')
 """
-Which kinds of relations represent views in `pg_catalog.pg_class`?
+Relation kinds used in a view-based schema. 
+Labels that represent views in `pg_catalog.pg_class`: 
 `'v'` -- ordinary view; `'m'` -- materialized view (view that persists the 
-results in a table-like form);
+results in a table-like form). 
+Note that 'm' is currently excluded from VIEW_RELKINDS (not implemented).
 """
 VIEW_RELKINDS  = ('v',) # plain views only; 'm' (materialized) is excluded
 
@@ -133,10 +136,11 @@ def get_all_table_names(storage, omit_commit: bool=False):
     return table_names
 
 
-def get_all_tables(storage, omit_commit: bool=False):
+def get_all_tables(storage, omit_commit: bool=False, view_based: bool=False):
     if storage.closed():
         return None
     tables = []
+    table_type = 'BASE TABLE' if not view_based else 'VIEW'
     with storage.conn.cursor() as c:
         sql = SQL(
             "SELECT table_name, "
@@ -145,7 +149,8 @@ def get_all_tables(storage, omit_commit: bool=False):
             "S.n_live_tup "
             "FROM information_schema.tables "
             "LEFT JOIN pg_stat_user_tables S ON S.relname = table_name AND S.schemaname = table_schema "
-            "WHERE table_schema={schema} AND table_type='BASE TABLE';").format(schema=Literal(storage.schema))
+            "WHERE table_schema={schema} AND table_type={table_type};").format( \
+                schema=Literal(storage.schema), table_type=Literal(table_type))
         logger.debug(sql.as_string(context=storage.conn))
         c.execute(sql)
         tables = {row[0]: {'total_size': row[1], 'comment': row[2], 'rows': row[3]} for row in c}
