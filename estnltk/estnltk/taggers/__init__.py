@@ -92,6 +92,7 @@ from estnltk.taggers.miscellaneous.address_tagger import AddressGrammarTagger
 from estnltk.taggers.miscellaneous.adjective_phrase_tagger import AdjectivePhraseTagger
 from estnltk.taggers.miscellaneous.flesch_tagger import SentenceFleschScoreRetagger
 from estnltk.taggers.miscellaneous.verb_chains import VerbChainDetector
+from estnltk.taggers.miscellaneous.verbal_multiword_expr.verbal_multiword_expr_pre_tagger import VerbalMultiWordExprPreTagger
 
 from estnltk.web_taggers.v01.web_tagger import WebTagger
 from estnltk.web_taggers.v01.batch_processing_web_tagger import BatchProcessingWebTagger
