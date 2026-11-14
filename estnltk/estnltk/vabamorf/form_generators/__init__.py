@@ -1,0 +1,4 @@
+from estnltk.vabamorf.form_generators.verb_conjugator import generate_finite_verb_forms
+from estnltk.vabamorf.form_generators.verb_conjugator import generate_non_finite_verb_forms
+from estnltk.vabamorf.form_generators.verb_conjugator import generate_verb_phrases
+from estnltk.vabamorf.form_generators.noun_declinator import generate_noun_forms

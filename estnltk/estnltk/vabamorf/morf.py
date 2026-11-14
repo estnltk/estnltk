@@ -609,6 +609,11 @@ def synthesize(lemma, form, partofspeech='', hint='', guess=True, phonetic=False
     """
     return Vabamorf.instance().synthesize(lemma, form, partofspeech, hint, guess, phonetic)
 
+# Systematic form generators wrapping around the synthesize function
+from estnltk.vabamorf.form_generators.verb_conjugator import generate_finite_verb_forms
+from estnltk.vabamorf.form_generators.verb_conjugator import generate_non_finite_verb_forms
+from estnltk.vabamorf.form_generators.verb_conjugator import generate_verb_phrases
+from estnltk.vabamorf.form_generators.noun_declinator import generate_noun_forms
 
 '''
 Special symbols for syllabifier. 
@@ -757,4 +762,3 @@ def syllabify_words(words, as_dict=True, split_compounds=True):
     '''
     return [syllabify_word(w, as_dict=as_dict, \
                               split_compounds=split_compounds) for w in words]
-
