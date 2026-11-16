@@ -412,13 +412,11 @@ class PostgresStorage:
                                             collection_name, deletion_err)) from deletion_err
         self.refresh()
 
-    def assert_writable(self, operation: str):
-        '''Soft assertion that this schema is writable. 
-        If this schema is view-based, then raises PgReadOnlyStorageException informing that 
-        the given operation is not possible (because writing is not implemented for view-based 
-        schemas). Has no effect in a table-based schema. 
-        Note that regardless of whether the schema is view-based or not, readability/writability 
-        should be controlled at the database level, by assigning privileges to roles. 
+    def raise_if_view_based(self, operation: str):
+        '''Raises PgReadOnlyStorageException if this schema is view-based. 
+        Use this method to raise an exception informing that the given operation is 
+        not possible due to the schema being view-based (because writing is not 
+        implemented for view-based schemas). Has no effect in a table-based schema. 
         '''
         if self._view_based:
             raise PgReadOnlyStorageException(
