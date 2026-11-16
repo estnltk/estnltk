@@ -460,7 +460,7 @@ class PostgresStorage:
         for collection in self.collections:
             index = bisect_left(table_names, collection)
 
-            if table_names[index] != collection or index >= len(table_names):
+            if index >= len(table_names) or table_names[index] != collection:
                 missing_collections.append(collection)
 
             version = self._collections.collections[collection]['version']
