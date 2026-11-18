@@ -604,6 +604,132 @@ class TestViewBasedSchemaReading(ViewBasedSchemaTestBase):
         with self.assertRaises(pg.PgCollectionException):
             plain_meta[0]
 
+class TestViewBasedSchemaSamplingTexts(unittest.TestCase):
+    """Tests sampling texts from a collection of a view-based schema. 
+       Note: sampling from a view-based schema does not give the same 
+       results as sampling from the underlying table-based schema because 
+       different sampling implementations are used. 
+    """
+
+    def setUp(self):
+        self._opened_storages = []
+        # Create base storage / connection
+        self.base_storage = connect_storage(BASE_SCHEMA, create_schema_if_missing=True)
+        # Clean up leftovers of previous (interrupted) test runs
+        drop_schema_if_exists(self.base_storage, VIEW_SCHEMA)
+
+    def tearDown(self):
+        # Important: connections reading the views must be closed before the
+        # schemas can be dropped (otherwise, their open transactions can hold
+        # locks on views/tables and DROP SCHEMA remains waiting behind them)
+        for storage in self._opened_storages:
+            if not storage.closed():
+                storage.close()
+        drop_schema_if_exists(self.base_storage, VIEW_SCHEMA)
+        delete_schema(self.base_storage)
+        self.base_storage.close()
+
+    def _connect(self, schema, create_schema_if_missing=False):
+        """Connects to the given schema; the connection will be closed in tearDown."""
+        storage = connect_storage(schema, create_schema_if_missing=create_schema_if_missing)
+        self._opened_storages.append(storage)
+        return storage
+
+    def _create_test_collection_of_docs(self, collection_name, size=100):
+        assert size in [100, 200], '(!) Unexpected test collection size: {}'.format(size)
+        # Create a test collection
+        collection = self.base_storage.add_collection( collection_name, 
+                          meta=OrderedDict([('text_id', 'int'), ('text_name', 'str')]) )
+        # Populate collection with test sentences
+        logger.debug('Creating a collection of {} texts:'.format(size))
+        subj_words = ['kiisumiisu', 'vanahärra', 'vanama', 'neidis', 'sugulane']
+        verb_words = ['loeb', 'keerab', 'kasvatab', 'kangutab', 'organiseerib']
+        obj_words = ['raamatut', 'ruutmeetreid', 'kanu', 'kohvrit']
+        with collection.insert() as collection_insert:
+            counter = 0
+            for subj in subj_words:
+                for verb in verb_words:
+                    for obj in obj_words:
+                        if size == 100:
+                            text_str = (' '.join([subj, verb, obj])).capitalize()+'.'
+                            text = Text( text_str ).tag_layer('sentences')
+                            text.meta['text_id'] = counter+1
+                            text.meta['text_name'] = 'text_{}'.format(counter+1)
+                            collection_insert(text, meta_data={'text_id':text.meta['text_id'],\
+                                                               'text_name':text.meta['text_name'] })
+                            counter += 1
+                        elif size == 200:
+                            for adj in ['hea', 'tore']:
+                                text_str = (' '.join([adj, subj, verb, obj])).capitalize()+'.'
+                                text = Text( text_str ).tag_layer('sentences')
+                                text.meta['text_id'] = counter+1
+                                text.meta['text_name'] = 'text_{}'.format(counter+1)
+                                collection_insert(text, meta_data={'text_id':text.meta['text_id'],\
+                                                                   'text_name':text.meta['text_name'] })
+                                counter += 1
+        return collection
+
+    def test_pgsubcollection_sample_query_based_on_simple_select(self):
+        # Create testing collection (in a table-base schema)
+        TARGET_COLLECTION = 'docs_texts'
+        base_collection = self._create_test_collection_of_docs(TARGET_COLLECTION, size=100)
+        # Create a view-based schema based on the table-base schema
+        create_view_based_schema(self.base_storage, VIEW_SCHEMA)
+        view_storage = self._connect(VIEW_SCHEMA)
+        self.assertTrue(view_storage.view_based)
+        self.assertTrue(TARGET_COLLECTION in view_storage.collections)
+        view_collection = view_storage[TARGET_COLLECTION]
+        #
+        # Construction types: JOIN, ANY
+        #
+        for constr in ['JOIN', 'ANY']:
+            # Default select with sample size approx. 5%
+            res = list( view_collection.select().sample(5, seed=55, method='BERNOULLI', construction=constr) )
+            self.assertEqual(len(res), 5)
+            self.assertEqual(len(res[0]), 2)
+            self.assertListEqual([t[1].meta['text_id'] for t in res], [14, 24, 41, 53, 97])
+            # Note: sampling with the same seed in a table-base schema gives 'text_id'-s: [20, 38, 77, 98]
+            
+            # Default select without indexes and with sample size approx. 5%
+            res = list( view_collection.select(return_index=False).sample(5, seed=55, method='BERNOULLI', construction=constr) )
+            self.assertEqual(len(res), 5)
+            self.assertTrue( type(res[0]) is Text )
+            self.assertListEqual([t.meta['text_id'] for t in res], [14, 24, 41, 53, 97])
+
+            # Default select with collection_meta and sample size approx. 5% 
+            res = list( view_collection.select(collection_meta=['text_id']).sample(5, seed=55, method='BERNOULLI', construction=constr) )
+            self.assertEqual(len(res), 5)
+            self.assertEqual(len(res[0]), 3)
+            self.assertListEqual([t[2] for t in res], [{'text_id': 14}, {'text_id': 24}, {'text_id': 41}, {'text_id': 53}, {'text_id': 97}])
+
+        #
+        # Test bigger sample sizes
+        #
+        # Default select with sample size approx. 25%
+        res = list( view_collection.select().sample(25, seed=55, method='BERNOULLI', construction='JOIN') )
+        self.assertEqual(len(res), 22)
+        self.assertEqual(len(res[0]), 2)
+        expected_text_ids = [4, 14, 19, 24, 31, 35, 37, 39, 40, 41, 43, 44, 45, 47, 53, 54, 75, \
+                             86, 88, 92, 93, 97]
+        self.assertListEqual( [t[1].meta['text_id'] for t in res], expected_text_ids )
+        # Default select with sample size approx. 50%
+        res = list( view_collection.select().sample(50, seed=555, method='BERNOULLI', construction='JOIN') )
+        self.assertEqual(len(res), 51)
+        self.assertEqual(len(res[0]), 2)
+        expected_text_ids = [2, 3, 4, 7, 8, 9, 11, 13, 14, 17, 18, 19, 24, 25, 28, 29, 31, 33, 37, 39, 41, 47, \
+                             49, 51, 52, 55, 56, 57, 58, 60, 63, 65, 67, 68, 70, 72, 73, 74, 75, 79, 80, 81, 82, \
+                             83, 85, 86, 87, 90, 92, 97, 98]
+        self.assertListEqual( [t[0] for t in res], expected_text_ids )
+        # Default select with sample size approx. 75%
+        res = list( view_collection.select().sample(75, seed=555, method='BERNOULLI', construction='JOIN') )
+        self.assertEqual(len(res), 72)
+        self.assertEqual(len(res[0]), 2)
+        expected_text_ids = [1, 2, 3, 4, 7, 8, 9, 10, 11, 13, 14, 16, 17, 18, 19, 21, 22, 23, 24, 25, 28, 29, \
+                             31, 33, 34, 37, 39, 40, 41, 44, 46, 47, 48, 49, 51, 52, 53, 55, 56, 57, 58, 60, \
+                             61, 62, 63, 64, 65, 67, 68, 70, 71, 72, 73, 74, 75, 76, 79, 80, 81, 82, 83, 84, 85, \
+                             86, 87, 88, 89, 90, 92, 94, 97, 98]
+        self.assertListEqual( [t[0] for t in res], expected_text_ids )
+
 
 if __name__ == '__main__':
     unittest.main()

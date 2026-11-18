@@ -300,13 +300,27 @@ class PgSubCollection:
         elif self._sampling_seed_auto is not None:
             # Use automatically generated seed (for repeatability with the progressbar)
             seed = self._sampling_seed_auto
-        
-        seed_sql = SQL(""" REPEATABLE({seed}) """).format(seed=Literal(seed)) if seed is not None else SQL("")
-        sample_sql = SQL("""SELECT {table}."id" FROM {table} TABLESAMPLE {sampling_method}({percentage}) {seed_sql}""").format( 
-                         table=collection_identifier, 
-                         sampling_method=SQL(self._sampling_method), 
-                         percentage=Literal(self._sampling_percentage), 
-                         seed_sql=seed_sql )
+        if not self.collection.storage.view_based:
+            # a) Table-based schema
+            # Use the TABLESAMPLE clause
+            seed_sql = SQL(""" REPEATABLE({seed}) """).format(seed=Literal(seed)) if seed is not None else SQL("")
+            sample_sql = SQL("""SELECT {table}."id" FROM {table} TABLESAMPLE {sampling_method}({percentage}) {seed_sql}""").format( 
+                             table=collection_identifier, 
+                             sampling_method=SQL(self._sampling_method), 
+                             percentage=Literal(self._sampling_percentage), 
+                             seed_sql=seed_sql )
+        else:
+            # b) View-based schema
+            # Emulate Bernoulli sampling with a row filter
+            fraction = Literal(self._sampling_percentage / 100.0)
+            if seed is not None:   # deterministic per (id, seed): count query and data query agree
+                predicate = SQL("(('x' || substr(md5({table}.\"id\"::text || ':' || {seed}), 1, 8))"
+                                "::bit(32)::bigint / 4294967296.0) < {fraction}").format(
+                                table=collection_identifier, seed=Literal(str(seed)), fraction=fraction)
+            else:
+                predicate = SQL("random() < {fraction}").format(fraction=fraction)
+            sample_sql = SQL('SELECT {table}."id" FROM {table} WHERE {predicate}').format(
+                             table=collection_identifier, predicate=predicate)
         if not self._sample_construction or self._sample_construction == 'JOIN':
             # 1) JOIN sample ON construction
             whole_sample_query_sql = SQL("""SELECT * FROM ({subcollection}) AS subcollection JOIN ({sample_query}) """+
@@ -570,10 +584,19 @@ class PgSubCollection:
         :param amount_type: str
             Amount type, one of the following: ['PERCENTAGE', 'SIZE']
         :param seed  int or float
-            Seed value to be fixed to ensure repeatability.
+            Seed value to be fixed to ensure repeatability. 
+            Be aware: even if the seed is fixed and the sampling methods are 
+            the same, sampling from a view-based schema does not give the same 
+            results as sampling from the underlying table-based schema because 
+            different sampling method implementations are used. 
         :param method: str
             Sampling method, one of the following: ['SYSTEM', 'BERNOULLI'].
-            Note: this corresponds to Postgre's TABLESAMPLE's sampling methods.
+            Note: the method 'SYSTEM' is only available in a table-based 
+            schema. In a view-based schema, only 'BERNOULLI' sampling can 
+            be used and method='SYSTEM' raises a ValueError. 
+            In a table-based schema, sampling is done with Postgre's 
+            TABLESAMPLE clause; a view-based schema uses a customized 
+            Bernoulli sampling implementation. 
         :param construction: str
             SQL-joining construction type, one of the following: ['JOIN', 'ANY'].
             Note: this parameter is here only for testing and debugging.
@@ -588,6 +611,8 @@ class PgSubCollection:
         # Check that args have valid values
         if not isinstance(method, str) or method.upper() not in ['SYSTEM', 'BERNOULLI']:
             raise ValueError('(!) Sampling method {} not supported. Use {} or {}.'.format( method, 'SYSTEM', 'BERNOULLI' ))
+        if self.collection.storage.view_based and method.upper() == 'SYSTEM':
+            raise ValueError('(!) Sampling method {!r} not available for a view-based schema. Use {!r}.'.format(method, 'BERNOULLI'))
         if not isinstance(amount_type, str) or amount_type.upper() not in ['PERCENTAGE', 'SIZE']:
             raise ValueError('(!) Sampling amount_type {} not supported. Use {} or {}.'.format( amount_type, 'PERCENTAGE', 'SIZE' ))
         method = method.upper()
