@@ -12,6 +12,7 @@ from estnltk.downloader import get_resource_paths
 
 from estnltk_neural.taggers.syntax.stanza_tagger.common_utils import prepare_input_doc
 from estnltk_neural.taggers.syntax.stanza_tagger.common_utils import feats_to_ordereddict
+from estnltk_neural.taggers.syntax.stanza_tagger.common_utils import chunk_long_sentences, restore_chunk_ids
 
 
 class StanzaSyntaxTagger(Tagger):
@@ -48,7 +49,10 @@ class StanzaSyntaxTagger(Tagger):
     Optionally, you can also provide parameter device to change the GPU devide, e.g. use "cuda:1" instead of 
     "cuda:0". 
     Parameter add_parents_and_children adds attributes that contain the parent and children of a word. 
-    
+
+    Set max_words_in_sentence (default None) to split long sentences with morphological input
+    into fixed-size chunks. Each chunk retains its own root in the original sentence.
+
     The input morph analysis layer can be ambiguous. In that case, StanzaSyntaxTagger picks randomly one 
     morph analysis for each ambiguous word, and predicts from "unambiguous" input. 
     Important: as a result, by default, the output will not be deterministic: for ambiguous words, you will 
@@ -68,7 +72,7 @@ class StanzaSyntaxTagger(Tagger):
     conf_param = ['model_path', 'add_parent_and_children', 'syntax_dependency_retagger',
                   'input_type', 'dir', 'mark_syntax_error', 'mark_agreement_error', 'agreement_error_retagger',
                   'ud_validation_retagger', 'nlp', 'use_gpu', 'gpu_max_words_in_sentence', 'random_pick_seed', 
-                  '_random', '_device']
+                  '_random', '_device', 'max_words_in_sentence']
 
     def __init__(self,
                  output_layer='stanza_syntax',
@@ -84,10 +88,13 @@ class StanzaSyntaxTagger(Tagger):
                  mark_agreement_error=False,
                  use_gpu=False,
                  device:str=None,
-                 gpu_max_words_in_sentence=1000
+                 gpu_max_words_in_sentence=1000,
+                 max_words_in_sentence=None
                  ):
         # Make an internal import to avoid explicit stanza dependency
         import stanza
+
+        self.max_words_in_sentence = max_words_in_sentence
 
         self.add_parent_and_children = add_parent_and_children
         self.mark_syntax_error = mark_syntax_error
@@ -207,12 +214,18 @@ class StanzaSyntaxTagger(Tagger):
         # Make an internal import to avoid explicit stanza dependency
         from stanza.models.common.doc import Document
 
+        chunk_offsets = None
+
         if self.input_type in ['morph_analysis', 'morph_extended']:
             # Input: EstNLTK's tokenization and morphological features
             sentences = self.input_layers[0]
             morph_analysis = self.input_layers[1]
             text_data = prepare_input_doc(layers, sentences, morph_analysis, 
                                           random_picker=self._random)
+            if self.max_words_in_sentence is not None:
+                text_data, chunk_offsets = chunk_long_sentences(
+                    text_data, self.max_words_in_sentence
+                )
             if self.use_gpu and self.gpu_max_words_in_sentence is not None:
                 # Using GPU: Check that sentences are not too long (for CUDA memory)
                 for sentence in text_data:
@@ -227,6 +240,8 @@ class StanzaSyntaxTagger(Tagger):
                                           self.gpu_max_words_in_sentence) )
             document = Document(text_data)
         else:
+            if self.max_words_in_sentence is not None:
+                raise NotImplementedError('Long sentence chunking is not implemented for input_type=sentences.')
             # Input: EstNLTK's tokenization only
             sentences = self.input_layers[0]
             document = prepare_input_doc(layers, sentences, None, only_tokenization=True)
@@ -238,7 +253,10 @@ class StanzaSyntaxTagger(Tagger):
 
         doc = self.nlp(document)
 
-        extracted_data = [analysis for sentence in doc.to_dict() for analysis in sentence]
+        parsed_sentences = doc.to_dict()
+        if chunk_offsets is not None:
+            restore_chunk_ids(parsed_sentences, chunk_offsets)
+        extracted_data = [analysis for sentence in parsed_sentences for analysis in sentence]
 
         for line, span in zip(extracted_data, parent_layer):
             id = line['id']
