@@ -592,3 +592,28 @@ def test_stanza_syntax_tagger_on_morph_with_bert():
                                      'xpostag': 'Z'}],
                     'base_span': (32, 33)}]}
     assert layer_to_dict(text[stanza_tagger_morph_with_bert.output_layer]) == expected_output_layer_dict
+
+
+@unittest.skipIf(STANZA_SYNTAX_MODELS_PATH is None,
+                 reason=skip_message_missing_models)
+def test_stanza_syntax_tagger_chunks_long_sentences():
+    text = Text('Jah. Mina tulen. Mina tulen täna vist koos sinuga. Sina lähed.')
+    text.tag_layer(['sentences', 'morph_analysis'])
+    tagger = StanzaSyntaxTagger(input_type='morph_analysis', max_words_in_sentence=3,
+                                add_parent_and_children=True, random_pick_seed=4,
+                                resources_path=STANZA_SYNTAX_MODELS_PATH)
+    tagger.tag(text)
+
+    assert [len(sentence) for sentence in text.sentences] == [2, 3, 7, 3]
+    syntax = text.stanza_syntax
+    assert [span.base_span for span in syntax] == [span.base_span for span in text.words]
+    assert [span.id for span in syntax] == [1, 2, 1, 2, 3, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3]
+    for start, end, first_id in ((0, 2, 1), (2, 5, 1), (5, 8, 1), (8, 11, 4), (11, 12, 7), (12, 15, 1)):
+        chunk = syntax.spans[start:end]
+        assert sum(span.head == 0 for span in chunk) == 1
+        for span in chunk:
+            if span.head == 0:
+                assert span.parent_span is None
+            else:
+                assert first_id <= span.head < first_id + len(chunk)
+                assert span.parent_span is chunk[span.head - first_id]

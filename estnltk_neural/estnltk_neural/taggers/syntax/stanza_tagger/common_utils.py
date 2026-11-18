@@ -86,6 +86,34 @@ def prepare_input_doc(layers: MutableMapping[str, 'Layer'], sentences:str, morph
     return data
 
 
+def chunk_long_sentences(text_data, max_words_in_sentence):
+    """Split long sentences and record the number of preceding words for each chunk."""
+    assert isinstance(max_words_in_sentence, int) and max_words_in_sentence > 0
+    chunks, offsets = [], []
+    for sentence in text_data:
+        if len(sentence) <= max_words_in_sentence:
+            chunks.append(sentence)
+            offsets.append(0)
+            continue
+        for offset in range(0, len(sentence), max_words_in_sentence):
+            chunk = sentence[offset:offset + max_words_in_sentence]
+            for word_id, word in enumerate(chunk, 1):
+                word['id'] = word_id
+            chunks.append(chunk)
+            offsets.append(offset)
+    return chunks, offsets
+
+
+def restore_chunk_ids(sentences, offsets):
+    """Restore original IDs and heads; each chunk keeps its own root."""
+    for sentence, offset in zip(sentences, offsets, strict=True):
+        if offset:
+            for word in sentence:
+                word['id'] += offset
+                if word['head'] != 0:
+                    word['head'] += offset
+
+
 def feats_to_ordereddict(feats_str: str) -> OrderedDict:
     """
     Converts feats string to OrderedDict (as in MaltParserTagger and UDPipeTagger).
