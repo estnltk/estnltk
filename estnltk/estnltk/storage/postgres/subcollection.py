@@ -1111,10 +1111,13 @@ class PgSubCollection:
                              that are missing the layer.
                              raises an exception if the collection does not have the layer;
         """
-        # Check collection's version
+        # Check collection's version & status
         if self.collection.version < '3.0':
             raise PgCollectionException( ("Creating sparse layer table is not supported in this "+\
                                           "collection version ({!r}).").format(self.collection.version) )
+
+        self.collection.storage.raise_if_view_based('create_layer')
+
         # Check mode value
         if mode is not None:
             expected_mode_values = ['new', 'append']
@@ -1202,6 +1205,8 @@ class PgSubCollection:
             raise PgCollectionException(("Layer {!r} is not sparse. Only sparse layers can be created " + \
                                          "via this method. Use collection.create_layer_block(...) to " + \
                                          "create a non-sparse layer.").format(layer_name))
+        # Check writability of the schema
+        self.collection.storage.raise_if_view_based('create_layer_block')
         data_iterator=self
         self.collection.create_layer_block( tagger=tagger, block=block, data_iterator=data_iterator,
                                             meta=meta, query_length_limit=query_length_limit,

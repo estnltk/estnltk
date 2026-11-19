@@ -24,6 +24,7 @@ from estnltk.storage.postgres import SubstringQuery
 from estnltk.storage.postgres import delete_schema
 from estnltk.storage.postgres import table_exists
 from estnltk.storage.postgres.storage import PgStorageException
+from estnltk.storage.postgres.storage import PgReadOnlyStorageException
 from estnltk.storage.postgres.pg_operations import get_relation_kinds
 from estnltk.storage.postgres.pg_operations import TABLE_RELKINDS
 from estnltk.storage.postgres.pg_operations import VIEW_RELKINDS
@@ -603,6 +604,54 @@ class TestViewBasedSchemaReading(ViewBasedSchemaTestBase):
         self.assertEqual(plain_meta.column_types, OrderedDict([]))
         with self.assertRaises(pg.PgCollectionException):
             plain_meta[0]
+
+class TestViewBasedSchemaWritingGuards(ViewBasedSchemaTestBase):
+    """Tests that writing into collections of a view-based schema is not possible: 
+       guards exist that block the writing with PgReadOnlyStorageException."""
+
+    def setUp(self):
+        super().setUp()
+        create_view_based_schema(self.base_storage, VIEW_SCHEMA, collections_as_view=True)
+        self.view_storage = self._connect(VIEW_SCHEMA)
+        assert self.view_storage.view_based
+
+    def test_view_based_storage_guards(self):
+        self.assertTrue(self.view_storage.view_based)
+        # Cannot add new collection
+        with self.assertRaises(PgReadOnlyStorageException) as raised:
+            self.view_storage.add_collection('new_main_collection')
+        error_message = str(raised.exception)
+        self.assertIn('is view-based and therefore read-only.', error_message)
+        # Cannot add delete existing collection
+        with self.assertRaises(PgReadOnlyStorageException) as raised:
+            self.view_storage.delete_collection(MAIN_COLLECTION)
+
+    def test_view_based_collection_guards(self):
+        self.assertTrue(self.view_storage.view_based)
+        assert MAIN_COLLECTION in self.view_storage.collections
+        view_collection = self.view_storage[MAIN_COLLECTION]
+        # Cannot add (more) texts
+        with self.assertRaises(PgReadOnlyStorageException) as raised:
+            with view_collection.insert() as collection_insert:
+                for text_str in MAIN_COLLECTION_TEXTS:
+                    text = Text(text_str).tag_layer(['sentences'])
+                    collection_insert(text)
+        # Cannot create more layers
+        new_tagger = VabamorfTagger(output_layer='new_morph_layer')
+        with self.assertRaises(PgReadOnlyStorageException) as raised:
+            view_collection.add_layer(new_tagger.get_layer_template())
+        with self.assertRaises(PgReadOnlyStorageException) as raised:
+            view_collection.create_layer(new_tagger)
+        with self.assertRaises(PgReadOnlyStorageException) as raised:
+            view_collection.create_layer_block(new_tagger, (2, 0))
+        # Cannot delete existing layers
+        assert view_collection.has_layer('sentences', 'attached')
+        with self.assertRaises(PgReadOnlyStorageException) as raised:
+            view_collection.delete_layer('sentences')
+        assert view_collection.has_layer(DETACHED_LAYER, 'detached')
+        with self.assertRaises(PgReadOnlyStorageException) as raised:
+            view_collection.delete_layer(DETACHED_LAYER)
+
 
 class TestViewBasedSchemaSamplingTexts(unittest.TestCase):
     """Tests sampling texts from a collection of a view-based schema. 

@@ -48,6 +48,7 @@ class CollectionDetachedLayerInserter(object):
             raise TypeError('collection must be an instance of PgCollection')
         if sparse and collection.version < '3.0':
             raise pg.PgCollectionException("Sparse tables are not supported in collection version {!r}.".format(collection.version))
+        collection.storage.raise_if_view_based('create CollectionDetachedLayerInserter')
         self.collection = collection
         self.columns = ["id", "text_id", "data"]
         if extra_columns:

@@ -249,6 +249,7 @@ class PostgresStorage:
         PgCollection
             an instance of the created collection
         """
+        self.raise_if_view_based('add_collection')
         # This is required to avoid psycopg2.errors.NoActiveSqlTransaction
         self.conn.commit()
         self.conn.autocommit = False
@@ -364,6 +365,7 @@ class PostgresStorage:
         If cascade=True is set, then removes layer and collection 
         tables along with the tables dependent on these (if any).
         '''
+        self.raise_if_view_based('delete_collection')
         # Delete storage.collections entry
         assert self.conn.autocommit == False
         with self.conn.cursor() as c:
