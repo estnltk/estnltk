@@ -3,6 +3,16 @@ from dataclasses import dataclass
 from itertools import product
 import json
 
+from estnltk.vabamorf.form_generators.morph_tables.verbs.finite_forms import VM_FINITE_FORMS
+from estnltk.vabamorf.form_generators.morph_tables.verbs.non_finite_forms import VM_NON_FINITE_FORMS
+
+
+POSITIVE_FORMS = set(VM_FINITE_FORMS[None][None]['positive'][None]) | set(
+    VM_FINITE_FORMS[None][None]['positive']['--'])
+NEGATIVE_FORMS = set(VM_FINITE_FORMS[None][None]['negative'][None]) | set(
+    VM_FINITE_FORMS[None][None]['negative']['--'])
+NONFINITE_FORMS = set(VM_NON_FINITE_FORMS[None][None][None])
+
 
 @dataclass
 class Token:
@@ -40,28 +50,24 @@ def load_lexicon(path, max_components):
 
 def is_finite(token):
     """Return True, False, or None when finiteness is unspecified."""
-    if 'VerbForm' in token.features:
-        return token.features['VerbForm'] == 'Fin'
-    labels = set(token.features) | set(token.features.values())
-    if labels & {'indic', 'imper', 'cond', 'quot'}:
+    features = token.features
+    if 'VerbForm' in features:
+        return features['VerbForm'] == 'Fin'
+
+    labels = set(features) | set(features.values())
+    if labels & {'indic', 'imper', 'cond', 'quot'} or features.get('Mood') in {
+        'Ind', 'Imp', 'Cnd', 'Qot', 'Jus',
+    }:
         return True
     if labels & {'inf', 'sup', 'ger', 'partic'}:
         return False
-    if 'neg' in labels:
-        labels |= {'neg ' + label for label in labels}
-    if labels & {
-        'b', 'd', 'n', 'me', 'te', 'vad', 's', 'sin', 'sid', 'sime', 'site',
-        'o', 'gu', 'gem', 'ge', 'ks', 'ksin', 'ksid', 'ksime', 'ksite',
-        'nuks', 'nuksin', 'nuksid', 'nuksime', 'nuksite', 'vat', 'nuvat',
-        'ta', 'tagu', 'taks', 'takse', 'tavat', 'ti', 'tuks', 'tuvat',
-        'neg o', 'neg gu', 'neg gem', 'neg ge', 'neg me', 'neg ks',
-        'neg nud', 'neg nuks', 'neg vat', 'neg da',
-    }:
+
+    forms = {part for label in labels for part in label.split()}
+    if 'neg' in forms and forms & (NEGATIVE_FORMS | {'da'}):
         return True
-    if labels & {
-        'da', 'des', 'ma', 'maks', 'mas', 'mast', 'mata', 'tama',
-        'nud', 'tud', 'v', 'tav', 'neg tud',
-    }:
+    if forms & ((POSITIVE_FORMS | NEGATIVE_FORMS) - NONFINITE_FORMS):
+        return True
+    if forms & NONFINITE_FORMS:
         return False
 
 

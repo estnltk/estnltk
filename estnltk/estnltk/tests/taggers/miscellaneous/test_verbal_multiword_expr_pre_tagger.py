@@ -5,6 +5,7 @@ import pytest
 from estnltk import Layer, Text
 from estnltk.downloader import get_resource_paths
 from estnltk.taggers import VerbalMultiWordExprPreTagger
+from estnltk.vabamorf.morf import Vabamorf, generate_verb_phrases
 
 
 DEFAULT_LEXICON = get_resource_paths('verbal_multiword_expr_lexicon',
@@ -123,3 +124,54 @@ def test_custom_lexicon_and_max_components(tmp_path):
     assert layer.span_names == ('verb', 'comp_1', 'comp_2')
     assert len(layer) == 1
     assert layer[0]['comp_2'].text == 'alla'
+
+
+def make_verb_phrase_text(phrase):
+    # Keep dependencies fixed while using real Vabamorf analyses of generated forms.
+    words = phrase.split() + ['arveid', '.']
+    anchor_id = len(words) - 2
+    relations = ['aux'] * (anchor_id - 1) + ['root', 'obj', 'punct']
+    analyses = Vabamorf.instance().analyze(words, disambiguate=False)
+    syntax_rows = []
+    for word_id, word in enumerate(analyses, 1):
+        analysis = next((a for a in word['analysis'] if a['partofspeech'] == 'V'),
+                        word['analysis'][0])
+        features = {form: form for form in analysis['form'].split()}
+        head = 0 if word_id == anchor_id else anchor_id
+        deprel = relations[word_id - 1]
+        syntax_rows.append((analysis['lemma'], analysis['partofspeech'], features, head, deprel))
+    return make_text(f'{phrase} arveid.', syntax_rows)
+
+
+def test_generated_verb_phrases():
+    phrases = generate_verb_phrases('õiendama', output_type='verb_phrase')
+    assert phrases
+    tagger = VerbalMultiWordExprPreTagger(include_nonfinite=True)
+    for phrase in sorted(set(phrases)):
+        text = make_verb_phrase_text(phrase)
+        layer = tagger.make_layer(text)
+        assert len(layer) == 1, text.text
+        assert layer[0]['verb'].text == phrase.split()[-1]
+        assert layer[0]['comp_1'].text == 'arveid'
+        assert layer[0].annotations[0]['expression'] == 'arveid õiendama'
+
+
+def test_negative_verb_form():
+    tagger = VerbalMultiWordExprPreTagger()
+    text = make_text('Poldud abiks.', [
+        ('olema', 'AUX', {'neg': 'neg', 'tud': 'tud'}, 2, 'cop'),
+        ('abi', 'NOUN', {}, 0, 'root'),
+        ('.', 'PUNCT', {}, 2, 'punct'),
+    ])
+    layer = tagger.make_layer(text)
+    assert len(layer) == 1
+    assert layer[0]['verb'].text == 'Poldud'
+    assert layer[0].annotations[0]['expression'] == 'abiks olema'
+
+    text = make_text('Abiks oldud.', [
+        ('abi', 'NOUN', {}, 0, 'root'),
+        ('olema', 'AUX', {'tud': 'tud'}, 1, 'cop'),
+        ('.', 'PUNCT', {}, 1, 'punct'),
+    ])
+    assert len(tagger.make_layer(text)) == 0
+    assert len(VerbalMultiWordExprPreTagger(include_nonfinite=True).make_layer(text)) == 1
