@@ -622,7 +622,7 @@ class TestViewBasedSchemaWritingGuards(ViewBasedSchemaTestBase):
             self.view_storage.add_collection('new_main_collection')
         error_message = str(raised.exception)
         self.assertIn('is view-based and therefore read-only.', error_message)
-        # Cannot add delete existing collection
+        # Cannot delete existing collection
         with self.assertRaises(PgReadOnlyStorageException) as raised:
             self.view_storage.delete_collection(MAIN_COLLECTION)
 

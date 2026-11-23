@@ -119,4 +119,5 @@ from .subcollection import PgSubCollection
 
 from .storage_collections import StorageCollections
 from .storage import PgStorageException
+from .storage import PgReadOnlyStorageException
 from .storage import PostgresStorage
