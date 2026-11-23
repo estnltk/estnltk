@@ -51,6 +51,7 @@ class CollectionStructureBase:
            the table is filled with data. Indexes can be created later via calling collection.create_index(). 
         """
         storage = self.collection.storage
+        storage.raise_if_view_based('create_collection_table')
         collection_name = self.collection.name
         assert storage.conn.autocommit == False
         assert isinstance(collection_name, str)
@@ -110,6 +111,7 @@ class CollectionStructureBase:
 
     def delete_layer(self, layer_name: str, omit_commit: bool=False):
         """Removes the layer from the layer information table."""
+        self.collection.storage.raise_if_view_based('delete_layer')
         self._modified = True
         with self.collection.storage.conn.cursor() as c:
             try:

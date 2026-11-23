@@ -278,6 +278,7 @@ def update_structure( storage: 'PostgresStorage', collection_name: str, new_vers
     assert isinstance(collection_name, str)
     if collection_name not in storage.collections:
         raise pg.PgCollectionException(f'(!) Cannot update collection {collection_name!r}: no such collection.')
+    storage.raise_if_view_based('update_structure')
     collection_version = storage._collections.collections[collection_name]['version']
     if collection_version == new_version:
         warn(f'(!) collection {collection_name!r} already has version {new_version}, nothing to update.')

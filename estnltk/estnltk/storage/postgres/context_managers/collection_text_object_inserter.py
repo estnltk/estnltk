@@ -61,6 +61,7 @@ class CollectionTextObjectInserter(object):
             raise pg.PgCollectionException("collection does not exist, can't create inserter")
         elif not isinstance(collection, pg.PgCollection):
             raise TypeError('collection must be an instance of PgCollection')
+        collection.storage.raise_if_view_based('create CollectionTextObjectInserter')
         self.collection = collection
         self.metadata_start_index = len( self.collection.structure.collection_base_columns )
         self._has_hidden_column = ('hidden' in self.collection.structure.collection_base_columns)

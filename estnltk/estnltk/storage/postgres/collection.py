@@ -390,6 +390,7 @@ class PgCollection:
         """
         if not self.exists():
             raise PgCollectionException('collection {!r} does not exist'.format(self.name))
+        self.storage.raise_if_view_based('create_index')
         assert self.storage.conn.autocommit == False
         with self.storage.conn.cursor() as c:
             try:
@@ -432,6 +433,7 @@ class PgCollection:
         """
         if not self.exists():
             raise PgCollectionException('collection {!r} does not exist'.format(self.name))
+        self.storage.raise_if_view_based('create_layer_index')
         if not isinstance(index_type, str) or index_type not in ['data', 'ngram_index']:
             raise ValueError("(!) index_type value must be one of the following {'data', 'ngram_index'}.")
         if index_type == 'ngram_index':
@@ -507,6 +509,7 @@ class PgCollection:
         """
         if not self.exists():
             raise PgCollectionException('collection {!r} does not exist'.format(self.name))
+        self.storage.raise_if_view_based('drop_index')
         assert self.storage.conn.autocommit == False
         with self.storage.conn.cursor() as c:
             try:
@@ -542,7 +545,7 @@ class PgCollection:
             raise PgCollectionException('collection {!r} does not exist'.format(self.name))
         if not other.exists():
             raise PgCollectionException('collection {!r} does not exist'.format(other.name))
-
+        self.storage.raise_if_view_based('extend')
         if self.column_names != other.column_names:
             raise PgCollectionException("can't extend: different collection meta")
         if self._structure != other._structure:
@@ -622,6 +625,7 @@ class PgCollection:
             (Default: 5000000)
 
         """
+        self.storage.raise_if_view_based('insert')
         with CollectionTextObjectInserter(self, query_length_limit = query_length_limit,
                                                 buffer_size = buffer_size ) as text_inserter:
             yield text_inserter
@@ -907,7 +911,7 @@ class PgCollection:
         # Check existence of the collection
         if not self.exists():
             raise PgCollectionException("collection {!r} does not exist, can't add layer".format(self.name))
-
+        self.storage.raise_if_view_based('add_layer')
         # Check input arguments
         if isinstance( layer_template, RelationLayer ) and self.version < '4.0':
             raise PgCollectionException( ("Relation layers cannot be added in collection version {!r}. "+\
@@ -1082,6 +1086,7 @@ class PgCollection:
         """
         if not self.exists():
             raise PgCollectionException('collection {!r} does not exist'.format(self.name))
+        self.storage.raise_if_view_based('add_layer_ngram_index')
         if layer_name is None:
             raise ValueError("(!) layer_name must be specified.")
         if ngram_index is None:
@@ -1264,6 +1269,7 @@ class PgCollection:
         if not self.exists():
             raise PgCollectionException("collection {!r} does not exist, can't create layer {!r}".format(
                                         self.name, layer_name))
+        self.storage.raise_if_view_based('create_fragmented_layer')
         create_relation_layer = \
             isinstance(layer_template, RelationLayer) or isinstance(tagger, RelationTagger)
         if create_relation_layer and self.version < '4.0':
@@ -1454,6 +1460,8 @@ class PgCollection:
         if sparse and self.version < '3.0':
             raise PgCollectionException("Sparse tables are not supported in collection version {!r}.".format(self.version))
 
+        self.storage.raise_if_view_based('create_layer')
+
         assert (layer_template is None and data_iterator is None and row_mapper is None) is not (tagger is None),\
                'either tagger ({}) must be None or layer_template ({}), data_iterator ({}) and row_mapper ({}) must be None'.format(tagger, layer_template, data_iterator, row_mapper)
 
@@ -1638,6 +1646,8 @@ class PgCollection:
             raise PgCollectionException("collection {!r} does not exist, can't create layer {!r}".format(
                 self.name, layer_name))
 
+        self.storage.raise_if_view_based('create_layer_block')
+
         meta_columns = ()
         if meta is not None:
             meta_columns = tuple(meta)
@@ -1788,6 +1798,7 @@ class PgCollection:
         if not self.exists():
             raise PgCollectionException("collection {!r} does not exist, can't create layers {!r}".format(
                 self.name, tagger.output_layers))
+        self.storage.raise_if_view_based('create_layers')
         if sparse_layers and len(sparse_layers) > 0:
             if self.version < '3.0':
                 raise PgCollectionException("Sparse tables are not supported in collection version {!r}.".format(self.version))
@@ -1942,6 +1953,7 @@ class PgCollection:
         if not self.exists():
             raise PgCollectionException("collection {!r} does not exist, can't create layer {!r}".format(
                 self.name, layer_name))
+        self.storage.raise_if_view_based('create_layers_block')
         # Check tagger's input_layers
         for required_layer in tagger.input_layers:
             if not self.has_layer( required_layer ):
@@ -2064,6 +2076,9 @@ class PgCollection:
         if not self.exists():
             raise PgCollectionException("collection {!r} does not exist, can't delete layer {!r}".format(
                 self.name, layer_name))
+
+        self.storage.raise_if_view_based('delete_layer')
+
         # Check deletable layer
         if layer_name not in self._structure:
             raise PgCollectionException("collection does not have a layer {!r}".format(layer_name))
@@ -2292,7 +2307,9 @@ class PgCollection:
         if not self.exists():
             raise PgCollectionException("collection {!r} does not exist, can't export layer {!r}".format(
                 self.name, layer))
-        
+
+        self.storage.raise_if_view_based('export_layer')
+
         if not isinstance(mode, str) or mode.upper() not in ['NEW', 'APPEND']:
             raise ValueError('(!) Mode {!r} not supported. Use {!r} or {!r}.'.format( mode, 'NEW', 'APPEND' ))
         mode = mode.upper()

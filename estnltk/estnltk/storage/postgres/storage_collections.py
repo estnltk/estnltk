@@ -5,6 +5,8 @@ from psycopg2.sql import SQL, Literal
 from estnltk import logger
 from estnltk.storage import postgres as pg
 
+from estnltk.storage.postgres.pg_operations import TABLE_RELKINDS
+from estnltk.storage.postgres.pg_operations import VIEW_RELKINDS
 
 class StorageCollections:
     '''
@@ -51,7 +53,13 @@ class StorageCollections:
 
     def load(self, omit_commit: bool=False, omit_rollback: bool=False):
         new_collections = {}
-        if not pg.table_exists(self._storage, '__collections', omit_commit=omit_commit, omit_rollback=omit_rollback):
+        # Check for the existence of the storage_collections table
+        # It can be a table or a view
+        any_kind = TABLE_RELKINDS + VIEW_RELKINDS
+        if not pg.table_exists(self._storage, '__collections', \
+                               omit_commit=omit_commit, \
+                               omit_rollback=omit_rollback, \
+                               relkinds=any_kind):
             raise Exception("(!) Collections table {!r} does not exist!".format(str(self._storage.collections_table)))
         with self._storage.conn.cursor() as c:
             c.execute(SQL("SELECT collection, version FROM {};").

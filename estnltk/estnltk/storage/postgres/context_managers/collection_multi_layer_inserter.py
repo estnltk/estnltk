@@ -57,6 +57,7 @@ class CollectionMultiLayerInserter(object):
         if self.collection.version < '4.0':
             raise pg.PgCollectionException( ("Cannot use this CollectionMultiLayerInserter with collection version {!r}. "+\
                                              "PgCollection version 4.0+ is required.").format(self.collection.version) )
+        self.collection.storage.raise_if_view_based('create CollectionMultiLayerInserter')
         self.buffer_size = buffer_size
         self.query_length_limit = query_length_limit
         self.log_doc_completions = log_doc_completions

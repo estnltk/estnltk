@@ -23,6 +23,7 @@ class CollectionStructure(pg.CollectionStructureBase):
 
     def create_layer_info_table(self):
         storage = self.collection.storage
+        storage.raise_if_view_based('create_layer_info_table')
         table = pg.table_identifier(storage, pg.structure_table_name(self.collection.name))
         temporary = SQL('TEMPORARY') if storage.temporary else SQL('')
         with storage.conn.cursor() as c:
@@ -63,6 +64,7 @@ class CollectionStructure(pg.CollectionStructureBase):
         return json.dumps(layer_dict, ensure_ascii=False)
 
     def insert(self, layer: Union[Layer, RelationLayer], layer_type: str, meta: dict = None, loader: str = None, is_sparse: bool = False):
+        self.collection.storage.raise_if_view_based('insert layer')
         self._modified = True
         # Layer's sparsity attributes
         if not isinstance(is_sparse, bool):
