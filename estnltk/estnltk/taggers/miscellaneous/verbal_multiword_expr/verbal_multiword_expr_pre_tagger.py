@@ -26,13 +26,14 @@ class VerbalMultiWordExprPreTagger(RelationTagger):
     """Find potential verbal expressions from prepared JSON and dependency syntax."""
 
     conf_param = ('include_nonfinite', 'include_compound_verbs', 'include_copula_heads',
-                  'lexicon_path', 'max_components', '_entries', '_by_lemma')
+                  'include_verbal_idioms', 'lexicon_path', 'max_components', '_entries', '_by_lemma')
 
     def __init__(self, syntax_layer='stanza_syntax', clauses_layer='clauses',
                  words_layer='words', sentences_layer='sentences',
                  output_layer='pre_verbal_multiword_expressions',
                  include_compound_verbs=False, include_nonfinite=False,
-                 lexicon_path=None, max_components=5, include_copula_heads=True):
+                 lexicon_path=None, max_components=5, include_copula_heads=True,
+                 include_verbal_idioms=False):
         if type(max_components) is not int or max_components < 1:
             raise ValueError('max_components must be a positive integer.')
         self.input_layers = (words_layer, sentences_layer, clauses_layer, syntax_layer)
@@ -41,9 +42,12 @@ class VerbalMultiWordExprPreTagger(RelationTagger):
         self.output_attributes = ('expression', 'is_inflected', 'is_central_verb')
         if include_compound_verbs:
             self.output_attributes += ('is_compound_verb',)
+        if include_verbal_idioms:
+            self.output_attributes += ('is_verbal_idiom',)
         self.include_nonfinite = include_nonfinite
         self.include_compound_verbs = include_compound_verbs
         self.include_copula_heads = include_copula_heads
+        self.include_verbal_idioms = include_verbal_idioms
         self.max_components = max_components
         if lexicon_path is None:
             resource_path = get_resource_paths('verbal_multiword_expr_lexicon',
@@ -79,6 +83,7 @@ class VerbalMultiWordExprPreTagger(RelationTagger):
             include_nonfinite=self.include_nonfinite,
             include_compound_verbs=self.include_compound_verbs,
             include_copula_heads=self.include_copula_heads,
+            include_verbal_idioms=self.include_verbal_idioms,
         ):
             output.add_annotation(**match)
         return output

@@ -104,7 +104,7 @@ def subtree(tokens, children, start, clause):
 
 def find_matches(tokens, entries, by_lemma, participle_lemmas, *,
                  include_nonfinite=False, include_compound_verbs=False,
-                 include_copula_heads=False):
+                 include_copula_heads=False, include_verbal_idioms=False):
     parents, children = dependency_graph(tokens)
     verbs = [verb_lemmas(token, include_nonfinite, participle_lemmas) for token in tokens]
     for anchor, token in enumerate(tokens):
@@ -114,7 +114,10 @@ def find_matches(tokens, entries, by_lemma, participle_lemmas, *,
         particles = [i for i in children[anchor]
                      if tokens[i].clause == token.clause and tokens[i].deprel == 'compound:prt'
                      ] if include_compound_verbs else []
-        if not rule_indices and not particles:
+        idioms = [i for i in children[anchor]
+                  if tokens[i].clause == token.clause and tokens[i].deprel == 'compound:idiom'
+                  ] if include_verbal_idioms else []
+        if not rule_indices and not particles and not idioms:
             continue
         if not include_nonfinite and is_finite(token) is False:
             continue
@@ -157,9 +160,16 @@ def find_matches(tokens, entries, by_lemma, participle_lemmas, *,
                               for i, word in enumerate(assignment, 1)})
                 if include_compound_verbs:
                     match['is_compound_verb'] = False
+                if include_verbal_idioms:
+                    match['is_verbal_idiom'] = False
                 yield match
 
-        for particle in particles:
-            yield dict(verb=token.span, comp_1=tokens[particle].span,
-                       expression=f'{tokens[particle].lemma} {token.lemma}',
-                       is_inflected=None, is_central_verb=central, is_compound_verb=True)
+        for component in particles + idioms:
+            match = dict(verb=token.span, comp_1=tokens[component].span,
+                         expression=f'{tokens[component].lemma} {token.lemma}',
+                         is_inflected=None, is_central_verb=central)
+            if include_compound_verbs:
+                match['is_compound_verb'] = component in particles
+            if include_verbal_idioms:
+                match['is_verbal_idiom'] = component in idioms
+            yield match
