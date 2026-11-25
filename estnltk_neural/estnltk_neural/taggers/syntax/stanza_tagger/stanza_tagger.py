@@ -71,8 +71,8 @@ class StanzaSyntaxTagger(Tagger):
 
     conf_param = ['model_path', 'add_parent_and_children', 'syntax_dependency_retagger',
                   'input_type', 'dir', 'mark_syntax_error', 'mark_agreement_error', 'agreement_error_retagger',
-                  'ud_validation_retagger', 'nlp', 'use_gpu', 'gpu_max_words_in_sentence', 'random_pick_seed', 
-                  '_random', '_device', 'max_words_in_sentence']
+                  'ud_validation_retagger', 'nlp', 'use_gpu', 'max_words_in_sentence', 'random_pick_seed', 
+                  '_random', '_device']
 
     def __init__(self,
                  output_layer='stanza_syntax',
@@ -88,12 +88,15 @@ class StanzaSyntaxTagger(Tagger):
                  mark_agreement_error=False,
                  use_gpu=False,
                  device:str=None,
-                 gpu_max_words_in_sentence=1000,
                  max_words_in_sentence=None
                  ):
         # Make an internal import to avoid explicit stanza dependency
         import stanza
 
+        # We may run into "CUDA out of memory" error when processing very long sentences 
+        # with GPU. Set a reasonable default for max sentence length: if that gets exceeded, 
+        # then the sentence will be will be cut into max_words_in_sentence size chunks and 
+        # analysed chunk by chunk
         self.max_words_in_sentence = max_words_in_sentence
 
         self.add_parent_and_children = add_parent_and_children
@@ -108,12 +111,6 @@ class StanzaSyntaxTagger(Tagger):
         self._random = Random()
         if isinstance(self.random_pick_seed, int):
             self._random.seed(self.random_pick_seed)
-
-        # We may run into "CUDA out of memory" error when processing very long sentences 
-        # with GPU.
-        # Set a reasonable default for max sentence length: if that gets exceeded, then a 
-        # guarding exception will be thrown
-        self.gpu_max_words_in_sentence = gpu_max_words_in_sentence
 
         if not resources_path:
             # Try to get the resources path for stanzasyntaxtagger. Attempt to download resources, if missing
@@ -223,21 +220,10 @@ class StanzaSyntaxTagger(Tagger):
             text_data = prepare_input_doc(layers, sentences, morph_analysis, 
                                           random_picker=self._random)
             if self.max_words_in_sentence is not None:
+                # max_words_in_sentence is defined: chunk sentences that are too long
                 text_data, chunk_offsets = chunk_long_sentences(
                     text_data, self.max_words_in_sentence
                 )
-            if self.use_gpu and self.gpu_max_words_in_sentence is not None:
-                # Using GPU: Check that sentences are not too long (for CUDA memory)
-                for sentence in text_data:
-                    if len(sentence) > self.gpu_max_words_in_sentence:
-                        raise Exception( ('(!) Encountered a sentence which length ({}) exceeds '+\
-                                          'gpu_max_words_in_sentence ({}). Are you sure GPU '+\
-                                          'has enough memory for processing this long sentence? '+\
-                                          'Either process this document with CPU or, if GPU '+\
-                                          'memory is ensured, pass parameter '+\
-                                          'gpu_max_words_in_sentence=None to this tagger '+\
-                                          'to disable this exception.').format(len(sentence), \
-                                          self.gpu_max_words_in_sentence) )
             document = Document(text_data)
         else:
             if self.max_words_in_sentence is not None:
