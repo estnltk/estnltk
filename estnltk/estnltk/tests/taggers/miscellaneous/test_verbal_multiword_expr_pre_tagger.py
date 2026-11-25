@@ -83,6 +83,23 @@ def test_include_compound_verbs():
     assert layer[0].annotations[0]['is_compound_verb'] is True
 
 
+def test_include_verbal_idioms():
+    text = make_text('Ta pani selle kirja.', [
+        ('tema', 'PRON', {}, 2, 'nsubj'),
+        ('panema', 'VERB', {'VerbForm': 'Fin'}, 0, 'root'),
+        ('see', 'PRON', {}, 2, 'obj'),
+        ('kiri', 'NOUN', {}, 2, 'compound:idiom'),
+        ('.', 'PUNCT', {}, 2, 'punct'),
+    ])
+    assert len(VerbalMultiWordExprPreTagger().make_layer(text)) == 0
+
+    layer = VerbalMultiWordExprPreTagger(include_verbal_idioms=True).make_layer(text)
+    assert len(layer) == 1
+    assert layer[0]['verb'].text == 'pani'
+    assert layer[0]['comp_1'].text == 'kirja'
+    assert layer[0].annotations[0]['is_verbal_idiom'] is True
+
+
 def test_include_copula_heads():
     text = make_text('Ta on abiks.', [
         ('tema', 'PRON', {}, 3, 'nsubj:cop'),
