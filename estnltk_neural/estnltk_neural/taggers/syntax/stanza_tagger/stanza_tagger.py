@@ -97,6 +97,8 @@ class StanzaSyntaxTagger(Tagger):
         # with GPU. Set a reasonable default for max sentence length: if that gets exceeded, 
         # then the sentence will be will be cut into max_words_in_sentence size chunks and 
         # analysed chunk by chunk
+        assert max_words_in_sentence is None or \
+            (isinstance(max_words_in_sentence, int) and max_words_in_sentence > 0)
         self.max_words_in_sentence = max_words_in_sentence
 
         self.add_parent_and_children = add_parent_and_children
