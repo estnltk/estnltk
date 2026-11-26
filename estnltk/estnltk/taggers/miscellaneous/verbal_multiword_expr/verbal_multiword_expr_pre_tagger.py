@@ -23,7 +23,7 @@ def _participle_lemmas(form, lemma):
 
 
 class VerbalMultiWordExprPreTagger(RelationTagger):
-    """Find potential verbal expressions from prepared JSON and dependency syntax."""
+    """Find potential verbal multiword expressions based on clauses and dependency syntactic annotations."""
 
     conf_param = ('include_nonfinite', 'include_compound_verbs', 'include_copula_heads',
                   'include_verbal_idioms', 'lexicon_path', 'max_components', '_entries', '_by_lemma')
@@ -34,6 +34,53 @@ class VerbalMultiWordExprPreTagger(RelationTagger):
                  include_compound_verbs=False, include_nonfinite=False,
                  lexicon_path=None, max_components=5, include_copula_heads=True,
                  include_verbal_idioms=False):
+        """Initialize VerbalMultiWordExprPreTagger.
+        
+        Parameters
+        ----------
+        syntax_layer: str (default: 'stanza_syntax')
+            Name of the input dependency syntax layer.
+        clauses_layer: str (default: 'clauses')
+            Name of the input clauses layer.
+        words_layer: str (default: 'words')
+            Name of the input words layer.
+        sentences_layer: str (default: 'sentences')
+            Name of the input sentences layer.
+        output_layer: str (default: 'pre_verbal_multiword_expressions')
+            Name of the output layer.
+        include_compound_verbs: boolean (default: False)
+            If switched on, then adds particle verbs to the output layer 
+            based the `compound:prt` deprels in the input syntax_layer. 
+            The output layer will get additional attribute `'is_compound_verb'` 
+            indicating whether the verbal multiword is a particle verb or not. 
+        include_nonfinite: boolean (default: False)
+            If switched on, then also finds verbal multiword expressions that 
+            are anchored to infinite verbs. By default, verbal multiword 
+            expressions are only anchored to finite verbs (central verbs of 
+            clause), and inifinite verbs are excluded from being anchors. 
+            Note that the attribute `'is_central_verb'` indicates whether the 
+            detected multiword is anchored to a central verb (that is: no 
+            verb occurs above the verb in its clause) or not.
+        lexicon_path: str (default: None)
+            Path to multiword expressions json format lexicon. 
+            If not provided (default), then attempts to get the lexicon from 
+            estnltk_resources. If that fails (the resource is missing and 
+            downloading fails), then throws an exception.
+        max_components: int (default: 5)
+            The number of components (`f'comp_{i}'` named spans) in the output 
+            layer. Defaults to 5. Change this value if you want to enable longer 
+            multiword expressions, e.g. expressions that cover 6 or 7 words. 
+        include_copula_heads: boolean (default: True)
+            If switched on (default), then detects verbal multiwords also from 
+            copula constructions where the dependency relations are reversed: 
+            the copula verb 'olema' is governed by its complement (e.g. 'abiks' 
+            governs 'olema' in the expression 'abiks olema'). 
+        include_verbal_idioms: boolean (default: False)
+            If switched on, then adds verbal idioms to the output layer 
+            based the `compound:idiom` deprels in the input syntax_layer. 
+            The output layer will get additional attribute `'is_verbal_idiom'` 
+            indicating whether the verbal multiword is a verbal idiom or not. 
+        """
         if type(max_components) is not int or max_components < 1:
             raise ValueError('max_components must be a positive integer.')
         self.input_layers = (words_layer, sentences_layer, clauses_layer, syntax_layer)
